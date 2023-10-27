@@ -17,11 +17,10 @@ return new class extends Migration
             $table->bigIncrements('id');
             $table->string('username');
             $table->string('password');
-            $table->integer('user_cat_id');
             $table->string('email')->unique();
             $table->timestamp('email_verified_at')->nullable();
             $table->rememberToken();
-            $table->integer('deleted')->default(0);
+            $table->enum('status', ['active', 'inactive'])->default('active');
             $table->timestamps();
         });
     }

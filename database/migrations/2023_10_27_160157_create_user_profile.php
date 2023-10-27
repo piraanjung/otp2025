@@ -15,7 +15,7 @@ return new class extends Migration
     {
         Schema::create('user_profile', function (Blueprint $table) {
             $table->bigIncrements('id');
-            $table->integer('user_id');
+            $table->unsignedBigInteger('user_id');
             $table->string('name');
             $table->string('id_card');
             $table->string('phone');
@@ -26,9 +26,9 @@ return new class extends Migration
             $table->string('tambon_code');
             $table->string('district_code');
             $table->string('province_code');
-            $table->enum('status',['active', 'inactive'])->default(1);
-            $table->integer('deleted')->default(0);
+            $table->enum('status',['active', 'inactive'])->default('active');
             $table->timestamps();
+            $table->foreign('user_id')->references('id')->on('users')->onDelete('cascade');
         });
     }
 
