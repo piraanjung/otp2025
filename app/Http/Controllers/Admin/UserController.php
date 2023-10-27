@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
+use App\Models\NumberSequence;
 use App\Models\User;
 use Illuminate\Http\Request;
 use Spatie\Permission\Models\Permission;
@@ -15,6 +16,12 @@ class UserController extends Controller
         $users = User::all();
 
         return view('admin.users.index', compact('users'));
+    }
+
+    public function create(){
+        $meter_sq_number = NumberSequence::get('meternumber');
+        $meternumber = $this->createInvoiceNumberString($meter_sq_number[0]->meternumber);
+        return view('admin.users.create', compact('meternumber'));
     }
 
     public function show(User $user)
@@ -71,5 +78,23 @@ class UserController extends Controller
         $user->delete();
 
         return back()->with('message', 'User deleted.');
+    }
+
+    private function createInvoiceNumberString($id)
+    {
+        $invString = '';
+        if ($id < 10) {
+            $invString = '0000' . $id;
+        } else if ($id >= 10 && $id < 100) {
+            $invString = '000' . $id;
+        } else if ($id >= 100 && $id < 1000) {
+            $invString = '00' . $id;
+        } elseif ($id >= 1000 && $id < 9999) {
+            $invString = '0' . $id;
+        } else {
+            $invString = $id;
+        }
+        return "HS-".$invString;
+
     }
 }
