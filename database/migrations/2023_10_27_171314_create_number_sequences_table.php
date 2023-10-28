@@ -15,7 +15,7 @@ return new class extends Migration
     {
         Schema::create('number_sequences', function (Blueprint $table) {
             $table->integer('nsq_id');
-            $table->string('meternumber');
+            $table->integer('meternumber');
             $table->timestamps();
             $table->primary('nsq_id');
         });

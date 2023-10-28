@@ -3,25 +3,34 @@
 namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
+use App\Models\MeterType;
 use App\Models\NumberSequence;
 use App\Models\User;
+use App\Models\Zone;
 use Illuminate\Http\Request;
 use Spatie\Permission\Models\Permission;
 use Spatie\Permission\Models\Role;
 
 class UserController extends Controller
 {
-    public function index()
+    public function index($user_type)
     {
-        $users = User::all();
+        $users = User::role("user")->get();
+        $staffs = User::with('roles')
+                ->join('user_profile','user_profile.user_id','=','users.id')
+                ->get()->filter(
+                fn ($user) => $user->roles->whereIn('name', ["admin", "tabwater man", "finance"])->toArray()
+            );
 
-        return view('admin.users.index', compact('users'));
+        return view('admin.users.index', compact('users', 'staffs'));
     }
 
     public function create(){
         $meter_sq_number = NumberSequence::get('meternumber');
+        $zones = Zone::all();
+        $meter_types = MeterType::all();
         $meternumber = $this->createInvoiceNumberString($meter_sq_number[0]->meternumber);
-        return view('admin.users.create', compact('meternumber'));
+        return view('admin.users.create', compact('meternumber', 'zones', 'meter_types'));
     }
 
     public function show(User $user)

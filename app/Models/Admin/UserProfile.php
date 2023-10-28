@@ -12,7 +12,7 @@ class UserProfile extends Model
     protected $fillable = [
         'name',
         'user_id',
-        'card_id',
+        'id_card',
         'phone',
     ];
 

@@ -74,11 +74,11 @@
             </div>
             <nav :class="{'block': open, 'hidden': !open}"
                 class="flex-grow px-4 pb-4 md:block md:pb-0 md:overflow-y-auto">
-                <x-admin-link :href="route('admin.roles.index')" :active="request()->routeIs('admin.roles.index')">Roles
+                <x-admin-link :href="route('admin.roles.index', 'staffs')" :active="request()->routeIs('admin.roles.index')">Roles
                 </x-admin-link>
                 <x-admin-link :href="route('admin.permissions.index')"
                     :active="request()->routeIs('admin.permissions.index')">Permissions</x-admin-link>
-                <x-admin-link :href="route('admin.users.index')" :active="request()->routeIs('admin.users.index')">Users
+                <x-admin-link :href="route('admin.users.index', 'staffs')" :active="request()->routeIs('admin.users.index')">Users
                 </x-admin-link>
                 <div @click.away="open = false" class="relative" x-data="{ open: false }">
                     <button @click="open = !open"

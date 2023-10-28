@@ -18,9 +18,9 @@ return new class extends Migration
             $table->string('zone_name');
             $table->text('location');
             $table->enum('status', ['active', 'inactive'])->default('active');
-            $table->string('tambon_code');
+            $table->unsignedBigInteger('tambon_id');
             $table->timestamps();
-            // $table->foreign('tambon_id')->references('tambon_code')->on('tambons')->onDelete('cascade');
+            $table->foreign('tambon_id')->references('id')->on('tambons')->onDelete('cascade');
         });
     }
 

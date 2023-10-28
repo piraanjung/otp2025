@@ -14,13 +14,12 @@ return new class extends Migration
     public function up()
     {
         Schema::create('districts', function (Blueprint $table) {
-            $table->string('district_code');
+            $table->unsignedBigInteger('id')->primary();
             $table->string('district_name');
-            $table->string('province_id');
+            $table->unsignedBigInteger('province_id');
             $table->integer('go_id')->default(0);
             $table->timestamps();
-            $table->primary('district_code');
-            // $table->foreign('province_id')->references('province_code')->on('provinces')->onDelete('cascade');
+            $table->foreign('province_id')->references('id')->on('provinces')->onDelete('cascade');
         });
     }
 

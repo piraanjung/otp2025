@@ -14,7 +14,10 @@ return new class extends Migration
     public function up()
     {
         Schema::create('meter_types', function (Blueprint $table) {
-            $table->id();
+            $table->bigIncrements('id');
+            $table->string('meter_type_name');
+            $table->float('price_per_unit', 5,2);
+            $table->integer('metersize')->default(0);
             $table->timestamps();
         });
     }
