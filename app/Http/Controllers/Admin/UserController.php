@@ -16,14 +16,12 @@ class UserController extends Controller
     public function index()
     {
         $users = User::role("user")
-                ->join('user_profile','user_profile.user_id','=','users.id')
                 ->get();
         return view('admin.users.index', compact('users'));
     }
     public function staff()
     {
         $users = User::with('roles')
-                ->join('user_profile','user_profile.user_id','=','users.id')
                 ->get()->filter(
                 fn ($user) => $user->roles->whereIn('name', ["admin", "tabwater man", "finance"])->toArray()
             );
@@ -37,6 +35,29 @@ class UserController extends Controller
         $meter_types = MeterType::all();
         $meternumber = $this->createInvoiceNumberString($meter_sq_number[0]->meternumber);
         return view('admin.users.create', compact('meternumber', 'zones', 'meter_types'));
+    }
+
+    public function store(Request $request){
+        $request->validate(
+            [
+                "name" => 'required',
+                "gender" => 'required|in:w,m',
+                "id_card" => 'required',
+                "phone" => 'required',
+                "address" => 'required',
+                "province_code" => 'required|integer',
+                "metertype" => 'required|integer',
+                "zone_id" => 'required',
+                "undertake_zone_id" => 'required|integer',
+
+            ],
+            [
+                "required" => "ใส่ข้อมูล",
+                "in" => "เลือกข้อมูล",
+                "integer" => "เลือกข้อมูล",
+            ],
+
+        );
     }
 
     public function show(User $user)
@@ -95,7 +116,7 @@ class UserController extends Controller
         return back()->with('message', 'User deleted.');
     }
 
-    private function createInvoiceNumberString($id)
+    public static function createInvoiceNumberString($id)
     {
         $invString = '';
         if ($id < 10) {

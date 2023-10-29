@@ -17,4 +17,8 @@ class UserProfile extends Model
     ];
 
     protected $table = 'user_profile';
+
+    public function zone(){
+        return $this->belongsTo('App\Models\Zone', 'zone_id', 'id');
+    }
 }

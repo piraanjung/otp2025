@@ -3686,7 +3686,7 @@ textarea.form-control,textarea.form-control-lg,textarea.form-control-sm {
 }
 
 .dropdown,.dropdown-center,.dropend,.dropstart,.dropup,.dropup-center {
-    position: relative
+    /* position: relative */
 }
 
 .dropdown-toggle {
