@@ -7,7 +7,7 @@
     <link rel="apple-touch-icon" sizes="76x76" href="{{ asset('soft-ui/assets/img/apple-icon.png') }}">
     <link rel="icon" type="image/png" href="{{ asset('soft-ui/assets/img/favicon.png') }}">
     <title>
-        Tabwater
+        Tabwater24
     </title>
 
 
@@ -113,7 +113,7 @@
                                             </a>
                                         </li>
                                         <li class="nav-item">
-                                            <a class="nav-link " href="{{ route('admin.users.index') }}">
+                                            <a class="nav-link " href="{{ route('admin.users.staff') }}">
                                                 <span class="sidenav-mini-icon text-xs"> T </span>
                                                 <span class="sidenav-normal"> เจ้าหน้าที่ </span>
                                             </a>
@@ -180,19 +180,9 @@
                     <h6 class="font-weight-bolder mb-0">@yield('title_page')</h6>
                 </nav>
                 <div class="collapse navbar-collapse mt-sm-0 mt-2 me-md-0 me-sm-4" id="navbar">
-                    <div class="ms-md-auto pe-md-3 d-flex align-items-center">
-                        <div class="input-group">
-                            <span class="input-group-text text-body"><i class="fas fa-search"
-                                    aria-hidden="true"></i></span>
-                            <input type="text" class="form-control" placeholder="Type here...">
-                        </div>
-                    </div>
+                    <div class="ms-md-auto pe-md-3 d-flex align-items-center"></div>
                     <ul class="navbar-nav  justify-content-end">
-                        <li class="nav-item d-flex align-items-center">
-                            <a class="btn btn-outline-primary btn-sm mb-0 me-3" target="_blank"
-                                href="https://www.creative-tim.com/builder?ref=navbar-soft-ui-dashboard">Online
-                                Builder</a>
-                        </li>
+
                         <li class="nav-item d-flex align-items-center">
                             <a href="javascript:;" class="nav-link text-body font-weight-bold px-0">
                                 <i class="fa fa-user me-sm-1"></i>

@@ -13,16 +13,22 @@ use Spatie\Permission\Models\Role;
 
 class UserController extends Controller
 {
-    public function index($user_type)
+    public function index()
     {
-        $users = User::role("user")->get();
-        $staffs = User::with('roles')
+        $users = User::role("user")
+                ->join('user_profile','user_profile.user_id','=','users.id')
+                ->get();
+        return view('admin.users.index', compact('users'));
+    }
+    public function staff()
+    {
+        $users = User::with('roles')
                 ->join('user_profile','user_profile.user_id','=','users.id')
                 ->get()->filter(
                 fn ($user) => $user->roles->whereIn('name', ["admin", "tabwater man", "finance"])->toArray()
             );
 
-        return view('admin.users.index', compact('users', 'staffs'));
+        return view('admin.users.index', compact('users'));
     }
 
     public function create(){
