@@ -3,7 +3,10 @@
 namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
+use App\Models\MeterType;
+use App\Models\NumberSequence;
 use App\Models\User;
+use App\Models\Zone;
 use Illuminate\Http\Request;
 use Spatie\Permission\Models\Permission;
 use Spatie\Permission\Models\Role;
@@ -12,9 +15,49 @@ class UserController extends Controller
 {
     public function index()
     {
-        $users = User::all();
+        $users = User::role("user")
+                ->get();
+        return view('admin.users.index', compact('users'));
+    }
+    public function staff()
+    {
+        $users = User::with('roles')
+                ->get()->filter(
+                fn ($user) => $user->roles->whereIn('name', ["admin", "tabwater man", "finance"])->toArray()
+            );
 
         return view('admin.users.index', compact('users'));
+    }
+
+    public function create(){
+        $meter_sq_number = NumberSequence::get('meternumber');
+        $zones = Zone::all();
+        $meter_types = MeterType::all();
+        $meternumber = $this->createInvoiceNumberString($meter_sq_number[0]->meternumber);
+        return view('admin.users.create', compact('meternumber', 'zones', 'meter_types'));
+    }
+
+    public function store(Request $request){
+        $request->validate(
+            [
+                "name" => 'required',
+                "gender" => 'required|in:w,m',
+                "id_card" => 'required',
+                "phone" => 'required',
+                "address" => 'required',
+                "province_code" => 'required|integer',
+                "metertype" => 'required|integer',
+                "zone_id" => 'required',
+                "undertake_zone_id" => 'required|integer',
+
+            ],
+            [
+                "required" => "ใส่ข้อมูล",
+                "in" => "เลือกข้อมูล",
+                "integer" => "เลือกข้อมูล",
+            ],
+
+        );
     }
 
     public function show(User $user)
@@ -71,5 +114,23 @@ class UserController extends Controller
         $user->delete();
 
         return back()->with('message', 'User deleted.');
+    }
+
+    public static function createInvoiceNumberString($id)
+    {
+        $invString = '';
+        if ($id < 10) {
+            $invString = '0000' . $id;
+        } else if ($id >= 10 && $id < 100) {
+            $invString = '000' . $id;
+        } else if ($id >= 100 && $id < 1000) {
+            $invString = '00' . $id;
+        } elseif ($id >= 1000 && $id < 9999) {
+            $invString = '0' . $id;
+        } else {
+            $invString = $id;
+        }
+        return "HS-".$invString;
+
     }
 }
