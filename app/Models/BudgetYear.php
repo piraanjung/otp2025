@@ -18,6 +18,6 @@ class BudgetYear extends Model
 
     public function invoicePeriod()
     {
-        return $this->hasMany('App\InvoicePeriod', 'budgetyear_id', 'id');
+        return $this->hasMany('App\Models\InvoicePeriod', 'budgetyear_id', 'id');
     }
 }
