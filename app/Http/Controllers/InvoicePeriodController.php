@@ -35,20 +35,12 @@ class InvoicePeriodController extends Controller
         return view('admin.invoice_period.create', compact('budgetyear'));
     }
 
-    public function create_invoices($id)
-    {
-        //สร้างใบแจ้งหนี้เริ่มต้นของแต่ละ รอบบิลใหม่
-        return $invoice_period = InvoicePeriod::with('budgetyear')->where('id', $id)->get()->first();
-
-        return view('invoice_period.create_invoices', \compact('invoice_period'));
-    }
-
     public function store(Request $request, InvoicePeriod $invoice_period)
     {
         $request->validate([
             'startdate' => 'required',
             'enddate' => 'required',
-            'inv_p_name' => 'required',
+            'inv_period_name' => 'required',
         ],[
             'required' =>'ใส่ข้อมูล',
         ]);
