@@ -38,6 +38,7 @@ Route::middleware(['auth', 'role:admin'])->name('admin.')->prefix('admin')->grou
     Route::delete('/users/{user}/permissions/{permission}', [UserController::class, 'revokePermission'])->name('users.permissions.revoke');
 
     Route::resource('/invoice_period',InvoicePeriodController::class);
+    Route::resource('/metertype',MetertypeController::class);
 
 });
 
