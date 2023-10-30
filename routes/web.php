@@ -5,6 +5,8 @@ use App\Http\Controllers\Admin\MetertypeController;
 use App\Http\Controllers\Admin\PermissionController;
 use App\Http\Controllers\Admin\RoleController;
 use App\Http\Controllers\Admin\UserController;
+use App\Http\Controllers\InvoiceController;
+use App\Http\Controllers\InvoicePeriodController;
 use Illuminate\Support\Facades\Route;
 use PHPUnit\Framework\MockObject\Invocation;
 
@@ -34,6 +36,13 @@ Route::middleware(['auth', 'role:admin'])->name('admin.')->prefix('admin')->grou
     Route::delete('/users/{user}/roles/{role}', [UserController::class, 'removeRole'])->name('users.roles.remove');
     Route::post('/users/{user}/permissions', [UserController::class, 'givePermission'])->name('users.permissions');
     Route::delete('/users/{user}/permissions/{permission}', [UserController::class, 'revokePermission'])->name('users.permissions.revoke');
+
+    Route::resource('/invoice_period',InvoicePeriodController::class);
+
+});
+
+Route::middleware(['auth', 'role:admin|finance'])->group(function () {
+    Route::resource('/invoice',InvoiceController::class);
 });
 
 require __DIR__ . '/auth.php';

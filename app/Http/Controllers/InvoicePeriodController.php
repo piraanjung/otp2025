@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Http\Controllers\Api\FunctionsController;
+use App\Models\BudgetYear;
 use App\Models\InvoicePeriod;
 use Illuminate\Http\Request;
 
@@ -18,7 +19,7 @@ class InvoicePeriodController extends Controller
 
         $budgetyear = $budgetyearCount == 0 ? $budgetyearCount : $budgetyearModel[0]->id;
         $invoice_periods = InvoicePeriod::with('budgetyear')
-            ->where('deleted', '<>', 1)->orderBy('startdate', 'desc')
+            ->where('status', 'active')->orderBy('startdate', 'desc')
             ->where('budgetyear_id', $budgetyear)
             ->get();
 
@@ -27,7 +28,7 @@ class InvoicePeriodController extends Controller
             $invoice_period->enddate = $funcCtrl->engDateToThaiDateFormat($invoice_period->enddate);
         }
 
-        return view('invoice_period.index', compact('invoice_periods', 'budgetyearCount'));
+        return view('admin.invoice_period.index', compact('invoice_periods', 'budgetyearCount'));
     }
 
     public function create()
