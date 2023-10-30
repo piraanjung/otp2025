@@ -5,10 +5,8 @@ use App\Http\Controllers\Admin\MetertypeController;
 use App\Http\Controllers\Admin\PermissionController;
 use App\Http\Controllers\Admin\RoleController;
 use App\Http\Controllers\Admin\UserController;
-use App\Http\Controllers\BudgetYearController;
-use App\Http\Controllers\InvoiceController;
 use Illuminate\Support\Facades\Route;
-
+use PHPUnit\Framework\MockObject\Invocation;
 
 Route::get('/', function () {
     return view('welcome');
@@ -36,13 +34,6 @@ Route::middleware(['auth', 'role:admin'])->name('admin.')->prefix('admin')->grou
     Route::delete('/users/{user}/roles/{role}', [UserController::class, 'removeRole'])->name('users.roles.remove');
     Route::post('/users/{user}/permissions', [UserController::class, 'givePermission'])->name('users.permissions');
     Route::delete('/users/{user}/permissions/{permission}', [UserController::class, 'revokePermission'])->name('users.permissions.revoke');
-
-    Route::resource('/metertype', MetertypeController::class);
-    Route::resource('/budgetyear', BudgetYearController::class);
-
 });
 
-Route::middleware(['auth','role:finance|admin'])->group(function(){
-    Route::resource('/invoice', InvoiceController::class);
-});
 require __DIR__ . '/auth.php';

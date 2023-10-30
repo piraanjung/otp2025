@@ -26,6 +26,12 @@
                         {{ __('Admin') }}
                     </x-nav-link>
                     @endrole
+
+                    @role('finance')
+                    <x-nav-link :href="route('invoice.index')" :active="request()->routeIs('invoice.index')">
+                        {{ __('Finance') }}
+                    </x-nav-link>
+                    @endrole
                 </div>
             </div>
 

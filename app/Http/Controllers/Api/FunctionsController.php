@@ -64,6 +64,9 @@ class FunctionsController extends Controller
 
     }
 
+<<<<<<< HEAD
+
+=======
     public function updateInactiveStatus($user_id, $meter_id)
     {
         $updateUsermeterInfos = UserMeterInfos::where('id', $meter_id)
@@ -77,6 +80,7 @@ class FunctionsController extends Controller
         ]);
 
     }
+>>>>>>> origin/main
 
     public function statusThai($status)
     {
@@ -91,13 +95,21 @@ class FunctionsController extends Controller
         return $str;
     }
 
+<<<<<<< HEAD
+
+=======
     public static function invoice_last_record()
     {
         return Invoice::get()->last();
     }
+>>>>>>> origin/main
 
     public function forget_session(REQUEST $request)
     {
         return $request;
     }
+<<<<<<< HEAD
 }
+=======
+}
+>>>>>>> origin/main

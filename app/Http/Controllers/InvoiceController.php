@@ -2,6 +2,28 @@
 
 namespace App\Http\Controllers;
 
+<<<<<<< HEAD
+use Illuminate\Http\Request;
+use Spatie\Permission\Models\Permission;
+use Spatie\Permission\Models\Role;
+
+class InvoiceController extends Controller
+{
+    public function index($_budgetyearId = '', $_invPeriod = '')
+    {
+        //ปรับ owe_count ใน user_meter_infos table ใหม่
+        // return $this->manageOweCount();
+        $funcCtrl = new FunctionsController();
+        $currentInvPeriod = InvoicePeriod::where('status', 'active')->get('id')->first();
+        if (collect($currentInvPeriod)->isEmpty()) {
+            //ถ้ายังไม่มีการสร้างรอบบิลเลย ให้กลับหน้า index
+            return view('invoice.index', ['invoice_period' => $currentInvPeriod]);
+        }
+
+        //หาว่าเป็นรอบบิลใหม่นี้มีdata แล้วหรือยัง
+        $findNewInvPeriod = Invoice::where('inv_period_id', $currentInvPeriod->id)->count();
+
+=======
 use App\Http\Controllers\Api\FunctionsController;
 use Illuminate\Http\Request;
 
@@ -17,6 +39,7 @@ class InvoiceController extends Controller
         $funcCtrl = new FunctionsController();
         $currentInvPeriod = 1;//InvoicePeriod::where('status', 'active')->get('id')->first();
        
+>>>>>>> origin/main
         //หาสมาชิกผู้ใช้น้ำที่ใช้งานอยู่
         $userMeterInfos = UserMeterInfos::orderBy('undertake_zone_id')
             ->whereIn('status', ['active', 'cutmeter'])
@@ -117,6 +140,8 @@ class InvoiceController extends Controller
         $invoice_period = InvoicePeriod::where('status', 'active')->get()->first();
         return view('invoice.index', compact('zones', 'invoice_period'));
     }
+<<<<<<< HEAD
+=======
 
 
     public function create()
@@ -179,4 +204,5 @@ class InvoiceController extends Controller
     {
         //
     }
+>>>>>>> origin/main
 }
