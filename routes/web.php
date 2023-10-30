@@ -32,7 +32,8 @@ Route::middleware(['auth', 'role:admin'])->name('admin.')->prefix('admin')->grou
     Route::post('/users/{user}/permissions', [UserController::class, 'givePermission'])->name('users.permissions');
     Route::delete('/users/{user}/permissions/{permission}', [UserController::class, 'revokePermission'])->name('users.permissions.revoke');
 
+});
+Route::middleware(['auth', 'role:admin, finance'])->prefix('invoice')->group(function(){
     Route::resource('/invoice', InvoiceController::class);
 });
-
 require __DIR__ . '/auth.php';
