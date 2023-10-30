@@ -5,6 +5,7 @@ use App\Http\Controllers\Admin\MetertypeController;
 use App\Http\Controllers\Admin\PermissionController;
 use App\Http\Controllers\Admin\RoleController;
 use App\Http\Controllers\Admin\UserController;
+use App\Http\Controllers\BudgetYearController;
 use Illuminate\Support\Facades\Route;
 
 
@@ -36,6 +37,7 @@ Route::middleware(['auth', 'role:admin'])->name('admin.')->prefix('admin')->grou
     Route::delete('/users/{user}/permissions/{permission}', [UserController::class, 'revokePermission'])->name('users.permissions.revoke');
 
     Route::resource('/metertype', MetertypeController::class);
+    Route::resource('/budgetyear', BudgetYearController::class);
 
 });
 
