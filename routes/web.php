@@ -5,6 +5,7 @@ use App\Http\Controllers\Admin\MetertypeController;
 use App\Http\Controllers\Admin\PermissionController;
 use App\Http\Controllers\Admin\RoleController;
 use App\Http\Controllers\Admin\UserController;
+use App\Http\Controllers\BudgetYearController;
 use App\Http\Controllers\InvoiceController;
 use App\Http\Controllers\InvoicePeriodController;
 use Illuminate\Support\Facades\Route;
@@ -39,6 +40,7 @@ Route::middleware(['auth', 'role:admin'])->name('admin.')->prefix('admin')->grou
 
     Route::resource('/invoice_period',InvoicePeriodController::class);
     Route::resource('/metertype',MetertypeController::class);
+    Route::resource('/budgetyear',BudgetYearController::class);
 
 });
 
