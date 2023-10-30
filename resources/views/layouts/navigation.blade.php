@@ -25,6 +25,9 @@
                     <x-nav-link :href="route('admin.index')" :active="request()->routeIs('admin.index')">
                         {{ __('Admin') }}
                     </x-nav-link>
+                    <x-nav-link :href="route('admin.invoice_period.index')" :active="request()->routeIs('admin.invoice_period.index')">
+                        {{ __('Invoice period') }}
+                    </x-nav-link>
                     @endrole
 
                     @role('finance')
