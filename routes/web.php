@@ -6,6 +6,7 @@ use App\Http\Controllers\Admin\PermissionController;
 use App\Http\Controllers\Admin\RoleController;
 use App\Http\Controllers\Admin\UserController;
 use App\Http\Controllers\BudgetYearController;
+use App\Http\Controllers\InvoiceController;
 use Illuminate\Support\Facades\Route;
 
 
@@ -41,7 +42,7 @@ Route::middleware(['auth', 'role:admin'])->name('admin.')->prefix('admin')->grou
 
 });
 
-Route::middleware(['auth', 'role:admin, finance'])->prefix('invoice')->group(function(){
+Route::middleware(['auth','role:finance|admin'])->group(function(){
     Route::resource('/invoice', InvoiceController::class);
 });
 require __DIR__ . '/auth.php';
