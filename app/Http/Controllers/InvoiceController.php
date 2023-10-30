@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+<<<<<<< HEAD
 use Illuminate\Http\Request;
 use Spatie\Permission\Models\Permission;
 use Spatie\Permission\Models\Role;
@@ -22,6 +23,23 @@ class InvoiceController extends Controller
         //หาว่าเป็นรอบบิลใหม่นี้มีdata แล้วหรือยัง
         $findNewInvPeriod = Invoice::where('inv_period_id', $currentInvPeriod->id)->count();
 
+=======
+use App\Http\Controllers\Api\FunctionsController;
+use Illuminate\Http\Request;
+
+class InvoiceController extends Controller
+{
+    /**
+     * Display a listing of the resource.
+     *
+     * @return \Illuminate\Http\Response
+     */
+    public function index()
+    {
+        $funcCtrl = new FunctionsController();
+        $currentInvPeriod = 1;//InvoicePeriod::where('status', 'active')->get('id')->first();
+       
+>>>>>>> origin/main
         //หาสมาชิกผู้ใช้น้ำที่ใช้งานอยู่
         $userMeterInfos = UserMeterInfos::orderBy('undertake_zone_id')
             ->whereIn('status', ['active', 'cutmeter'])
@@ -122,4 +140,69 @@ class InvoiceController extends Controller
         $invoice_period = InvoicePeriod::where('status', 'active')->get()->first();
         return view('invoice.index', compact('zones', 'invoice_period'));
     }
+<<<<<<< HEAD
+=======
+
+
+    public function create()
+    {
+        //
+    }
+
+    /**
+     * Store a newly created resource in storage.
+     *
+     * @param  \Illuminate\Http\Request  $request
+     * @return \Illuminate\Http\Response
+     */
+    public function store(Request $request)
+    {
+        //
+    }
+
+    /**
+     * Display the specified resource.
+     *
+     * @param  int  $id
+     * @return \Illuminate\Http\Response
+     */
+    public function show($id)
+    {
+        //
+    }
+
+    /**
+     * Show the form for editing the specified resource.
+     *
+     * @param  int  $id
+     * @return \Illuminate\Http\Response
+     */
+    public function edit($id)
+    {
+        //
+    }
+
+    /**
+     * Update the specified resource in storage.
+     *
+     * @param  \Illuminate\Http\Request  $request
+     * @param  int  $id
+     * @return \Illuminate\Http\Response
+     */
+    public function update(Request $request, $id)
+    {
+        //
+    }
+
+    /**
+     * Remove the specified resource from storage.
+     *
+     * @param  int  $id
+     * @return \Illuminate\Http\Response
+     */
+    public function destroy($id)
+    {
+        //
+    }
+>>>>>>> origin/main
 }
