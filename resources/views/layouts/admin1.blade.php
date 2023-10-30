@@ -123,8 +123,6 @@
                                 </div>
                             </li>
 
-
-
                             <li class="nav-item ">
                                 <a class="nav-link " href="{{ route('admin.metertype.index') }}">
                                     <span class="sidenav-mini-icon"> P </span>
@@ -134,10 +132,33 @@
                             <li class="nav-item ">
                                 <a class="nav-link " href="../../../pages/pages/messages.html">
                                     <span class="sidenav-mini-icon"> M </span>
-                                    <span class="sidenav-normal"> Messages </span>
+                                    <span class="sidenav-normal">  </span>
                                 </a>
                             </li>
 
+                            <li class="nav-item ">
+                                <a class="nav-link collapsed" data-bs-toggle="collapse" aria-expanded="false"
+                                    href="#budgetyear">
+                                    <span class="sidenav-mini-icon"> P </span>
+                                    <span class="sidenav-normal">ปีงบประมาณ/รอบบิล <b class="caret"></b></span>
+                                </a>
+                                <div class="collapse" id="budgetyear" style="">
+                                    <ul class="nav nav-sm flex-column">
+                                        <li class="nav-item">
+                                            <a class="nav-link " href="{{ route('admin.budgetyear.index') }}">
+                                                <span class="sidenav-mini-icon text-xs"> P </span>
+                                                <span class="sidenav-normal"> ปีงบประมาณ </span>
+                                            </a>
+                                        </li>
+                                        <li class="nav-item">
+                                            <a class="nav-link " href="{{ route('admin.budgetyear.index') }}">
+                                                <span class="sidenav-mini-icon text-xs"> T </span>
+                                                <span class="sidenav-normal"> รอบบิล </span>
+                                            </a>
+                                        </li>
+                                    </ul>
+                                </div>
+                            </li>
 
 
 
