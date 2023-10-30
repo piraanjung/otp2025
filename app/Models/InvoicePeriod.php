@@ -9,5 +9,11 @@ class InvoicePeriod extends Model
 {
     use HasFactory;
 
+    protected $fillable = [ "inv_p_name","budgetyear_id","startdate","enddate","status"];
     protected $table = "invoice_period";
+
+    public function budgetyear()
+    {
+        return $this->belongsTo('App\Models\BudgetYear', 'budgetyear_id', 'id');
+    }
 }
