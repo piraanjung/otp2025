@@ -61,7 +61,7 @@
                                                                 @enderror
                                                             </label>
                                                             <input type="text" class="form-control" id="name"
-                                                                name="name">
+                                                                name="name" value="test test">
                                                         </div>
 
                                                         <div class="col-12 col-sm-6">
@@ -72,7 +72,7 @@
                                                             </label>
                                                             <select name="gender" id="gender" class="form-control">
                                                                 <option value="0">เลือก..</option>
-                                                                <option value="m">ชาย</option>
+                                                                <option value="m" selected>ชาย</option>
                                                                 <option value="w">หญิง</option>
                                                             </select>
                                                         </div>
@@ -83,7 +83,7 @@
                                                                 @enderror
                                                             </label>
                                                             <input type="text" class="form-control" id="id_card"
-                                                                name="id_card">
+                                                                name="id_card" value="1111111">
                                                         </div>
 
                                                         <div class="col-12 col-sm-6">
@@ -93,7 +93,7 @@
                                                                 @enderror
                                                             </label>
                                                             <input type="text" class="form-control" id="phone"
-                                                                name="phone">
+                                                                name="phone" value="09888888">
                                                         </div>
                                                         <div class="col-12 col-sm-3">
                                                             <label for="feInputAddress">ที่อยู่
@@ -102,7 +102,7 @@
                                                                 @enderror
                                                             </label>
                                                             <input type="text" class="form-control" id="address"
-                                                                name="address">
+                                                                name="address" value="1/2">
                                                         </div>
                                                         <div class="col-12 col-sm-2">
                                                             <label>หมู่ที่
@@ -182,14 +182,14 @@
 
                                                 <div class="col-12 col-sm-4">
                                                     <label>ประเภทมิเตอร์
-                                                        @error('metertype')
+                                                        @error('metertype_id')
                                                         <span class="text-danger h-8">({{ $message }})</span>
                                                         @enderror
                                                     </label>
-                                                    <select class="form-control" name="metertype" id="metertype">
+                                                    <select class="form-control" name="metertype_id" id="metertype_id">
                                                         <option value="">เลือก...</option>
                                                         @foreach ($meter_types as $meter_type)
-                                                            <option value="{{ $meter_type->id }}">
+                                                            <option value="{{ $meter_type->id }}" selected>
                                                                 {{ $meter_type->meter_type_name }}
                                                             </option>
                                                         @endforeach
@@ -216,7 +216,7 @@
                                                         onchange="getSubzone()">
                                                         <option>เลือก...</option>
                                                         @foreach ($zones as $zone)
-                                                            <option value="{{ $zone->id }}">
+                                                            <option value="{{ $zone->id }}" selected>
                                                                 {{ $zone->zone_name }}</option>
                                                         @endforeach
                                                     </select>
@@ -365,7 +365,7 @@
             $.get("/district/getDistrict/" + id).done(function(data) {
                 var text = "<option>--Select--</option>";
                 data.forEach(function(val) {
-                    text += "<option value='" + val.district_code + "'>" + val.district_name + "</option>";
+                    text += "<option seleted value='" + val.district_code + "'>" + val.district_name + "</option>";
                 });
                 $("#district_code").html(text);
             });
@@ -377,7 +377,7 @@
                 console.log(data)
                 var text = "<option>--Select--</option>";
                 data.forEach(function(val) {
-                    text += "<option value='" + val.tambon_code + "'>" + val.tambon_name + "</option>";
+                    text += "<option seleted value='" + val.tambon_code + "'>" + val.tambon_name + "</option>";
                 });
                 $("#tambon_code").html(text);
             });
@@ -388,7 +388,7 @@
             $.get("../../../zone/getZone/" + id).done(function(data) {
                 var text = "<option>--Select--</option>";
                 data.forEach(function(val) {
-                    text += "<option value='" + val.id + "'>" + val.zone_name + "</option>";
+                    text += "<option seleted value='" + val.id + "'>" + val.zone_name + "</option>";
                 });
                 $("#zone_id").html(text);
             });
@@ -405,7 +405,7 @@
                     text += "<option value='0'>-</option>";
                 } else {
                     data.forEach(function(val) {
-                        text += "<option value='" + val.id + "'>" + val.subzone_name + "</option>";
+                        text += "<option seleted value='" + val.id + "'>" + val.subzone_name + "</option>";
                     });
                 }
                 $("#undertake_subzone_id").html(text);

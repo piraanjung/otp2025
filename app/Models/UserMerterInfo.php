@@ -2,10 +2,54 @@
 
 namespace App\Models;
 
+use App\Models\Admin\UserProfile;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 
 class UserMerterInfo extends Model
 {
     use HasFactory;
+    protected $fillable = [
+        "user_id", "meternumber", "metertype_id", "undertake_zone_id",  "undertake_subzone_id", "acceptace_date",
+        "status", "comment",  "owe_count", "payment_id", "discounttype",  "recorder_id",
+    ];
+    protected $table = "user_meter_infos";
+
+    public function user()
+    {
+        return $this->belongsTo(User::class, 'user_id');
+    }
+    public function user_profile()
+    {
+        return $this->belongsTo(UserProfile::class, 'user_id', 'user_id');
+    }
+
+    public function tabwatermeter()
+    {
+        return $this->belongsTo(TabwaterMeter::class, 'metertype_id');
+    }
+
+    public function zone()
+    {
+        return $this->belongsTo(Zone::class, 'undertake_zone_id', 'id');
+    }
+
+    public function subzone()
+    {
+        return $this->belongsTo(Subzone::class, 'undertake_subzone_id', 'id');
+    }
+
+    public function invoice()
+    {
+        // return $this->hasMany('App\Invoice', 'user_id', 'user_id');
+    }
+    public function invoice_last_inctive_inv_period()
+    {
+        // return $this->hasMany('App\Invoice', 'user_id', 'user_id');
+    }
+    public function invoice_by_user_id()
+    {
+        // return $this->hasMany('App\Invoice', 'user_id', 'user_id');
+    }
+
 }
