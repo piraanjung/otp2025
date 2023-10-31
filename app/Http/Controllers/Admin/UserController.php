@@ -58,6 +58,11 @@ class UserController extends Controller
             ],
 
         );
+
+        //user table
+        //user_profile table
+        //usermeterinfo table
+        //model_has_role table
     }
 
     public function show(User $user)
