@@ -9,6 +9,7 @@ use App\Http\Controllers\Admin\ZoneController;
 use App\Http\Controllers\BudgetYearController;
 use App\Http\Controllers\InvoiceController;
 use App\Http\Controllers\InvoicePeriodController;
+use App\Http\Controllers\SettingsController;
 use App\Http\Controllers\SubzoneController;
 use Illuminate\Support\Facades\Route;
 use PHPUnit\Framework\MockObject\Invocation;
@@ -45,6 +46,8 @@ Route::middleware(['auth', 'role:admin'])->name('admin.')->prefix('admin')->grou
     Route::resource('/budgetyear',BudgetYearController::class);
     Route::resource('/zone',ZoneController::class);
     Route::resource('/subzone',SubzoneController::class);
+    Route::post('/settings/create_and_update', [SettingsController::class, 'create_and_update'])->name('settings.create_and_update');
+    Route::resource('/settings',SettingsController::class);
 
 });
 
