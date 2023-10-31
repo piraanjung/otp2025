@@ -75,7 +75,7 @@
                     </div>
                 </div>
 
-                {{-- <div class="card mt-4" id="{{ $arrs[0]['id'] }}">
+                <div class="card mt-4" id="{{ $arrs[0]['id'] }}">
                     <div class="card-header">
                         <h5>{{ $arrs[0]['text'] }}</h5>
                     </div>
@@ -104,7 +104,7 @@
                     <div class="card-body">
                         @include('admin.settings.address')
                     </div>
-                </div> --}}
+                </div>
 
                 <div class="card mt-4" id="{{ $arrs[3]['id'] }}">
                     <div class="card-header">
