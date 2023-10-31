@@ -22,7 +22,8 @@
     <link href="{{ asset('soft-ui/assets/css/nucleo-svg.css') }}" rel="stylesheet" />
 
     <link id="pagestyle" href="{{ asset('soft-ui/assets/css/soft-ui-dashboard.min.css') }}" rel="stylesheet" />
-    {{-- <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.2.3/dist/css/bootstrap.min.css" integrity="sha384-rbsA2VBKQhggwzxH7pPCaAqO46MgnOM80zW1RWuH61DGLwZJEdK2Kadq2F9CUG65" crossorigin="anonymous"> --}}
+    <script src="https://code.jquery.com/jquery-1.12.4.js" integrity="sha256-Qw82+bXyGq6MydymqBxNPYTaUXXq7c8v3CwiYwLLNXU="
+    crossorigin="anonymous"></script>
     @yield('style')
 </head>
 
@@ -121,20 +122,12 @@
                                     </ul>
                                 </div>
                             </li>
-
                             <li class="nav-item ">
                                 <a class="nav-link " href="{{ route('admin.metertype.index') }}">
                                     <span class="sidenav-mini-icon"> P </span>
                                     <span class="sidenav-normal">ประเภทมิเตอร์ </span>
                                 </a>
                             </li>
-                            <li class="nav-item ">
-                                <a class="nav-link " href="../../../pages/pages/messages.html">
-                                    <span class="sidenav-mini-icon"> M </span>
-                                    <span class="sidenav-normal">  </span>
-                                </a>
-                            </li>
-
                             <li class="nav-item ">
                                 <a class="nav-link collapsed" data-bs-toggle="collapse" aria-expanded="false"
                                     href="#budgetyear">
@@ -158,7 +151,29 @@
                                     </ul>
                                 </div>
                             </li>
-
+                            <li class="nav-item ">
+                                <a class="nav-link collapsed" data-bs-toggle="collapse" aria-expanded="false"
+                                    href="#zone">
+                                    <span class="sidenav-mini-icon"> P </span>
+                                    <span class="sidenav-normal">พื้นที่จัดเก็บค่าน้ำประปา<b class="caret"></b></span>
+                                </a>
+                                <div class="collapse" id="zone" style="">
+                                    <ul class="nav nav-sm flex-column">
+                                        <li class="nav-item">
+                                            <a class="nav-link " href="{{ route('admin.zone.index') }}">
+                                                <span class="sidenav-mini-icon text-xs"> P </span>
+                                                <span class="sidenav-normal"> พื้นที่-เส้นทางจัดเก็บค่าน้ำประปา </span>
+                                            </a>
+                                        </li>
+                                        <li class="nav-item">
+                                            <a class="nav-link " href="{{ route('admin.invoice_period.index') }}">
+                                                <span class="sidenav-mini-icon text-xs"> T </span>
+                                                <span class="sidenav-normal"> ผู้รับผิดชอบพื้นที่จดมิเตอร์ </span>
+                                            </a>
+                                        </li>
+                                    </ul>
+                                </div>
+                            </li>
 
 
 
@@ -170,7 +185,8 @@
         <div class="sidenav-footer mx-3 ">
             <div class="card card-background shadow-none card-background-mask-secondary" id="sidenavCard">
                 <div class="full-background"
-                    style="background-image: url('{{ asset('soft-ui/assets/img/curved-images/white-curved.jpg')}}')"></div>
+                    style="background-image: url('{{ asset('soft-ui/assets/img/curved-images/white-curved.jpg') }}')">
+                </div>
                 <div class="card-body text-start p-3 w-100">
                     <div
                         class="icon icon-shape icon-sm bg-white shadow text-center mb-3 d-flex align-items-center justify-content-center border-radius-md">
@@ -235,7 +251,8 @@
                                     <a class="dropdown-item border-radius-md" href="javascript:;">
                                         <div class="d-flex py-1">
                                             <div class="my-auto">
-                                                <img src="{{ asset('soft-ui/assets/img/team-2.jpg')}}" class="avatar avatar-sm  me-3 ">
+                                                <img src="{{ asset('soft-ui/assets/img/team-2.jpg') }}"
+                                                    class="avatar avatar-sm  me-3 ">
                                             </div>
                                             <div class="d-flex flex-column justify-content-center">
                                                 <h6 class="text-sm font-weight-normal mb-1">
@@ -253,7 +270,7 @@
                                     <a class="dropdown-item border-radius-md" href="javascript:;">
                                         <div class="d-flex py-1">
                                             <div class="my-auto">
-                                                <img src="{{ asset('soft-ui/assets/img/small-logos/logo-spotify.svg')}}"
+                                                <img src="{{ asset('soft-ui/assets/img/small-logos/logo-spotify.svg') }}"
                                                     class="avatar avatar-sm bg-gradient-dark  me-3 ">
                                             </div>
                                             <div class="d-flex flex-column justify-content-center">
@@ -314,9 +331,16 @@
         </nav>
 
         <div class="container-fluid py-4">
-
-                    @yield('content')
-
+            @if (Session::has('success') || Session::has('message'))
+            <div class="alert alert-{{ Session::get('color') }} alert-dismissible fade show" role="alert">
+                <span class="alert-icon"><i class="ni ni-like-2"></i></span>
+                <span class="alert-text"><strong>{{ Session::get('message') }}</strong></span>
+                <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            @endif
+            @yield('content')
         </div>
     </main>
     {{-- <div class="fixed-plugin">

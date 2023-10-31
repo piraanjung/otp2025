@@ -8,6 +8,7 @@ use App\User;
 use App\UserMeterInfos;
 use App\UserProfile;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\DB;
 
 class FunctionsController extends Controller
 {
@@ -78,7 +79,10 @@ class FunctionsController extends Controller
         return $str;
     }
 
-
+    public static function reset_auto_increment_when_deleted($tablename){
+        $max = DB::table($tablename)->count() + 1;
+        DB::statement("ALTER TABLE $tablename AUTO_INCREMENT = $max;");
+    }
     public function forget_session(REQUEST $request)
     {
         return $request;

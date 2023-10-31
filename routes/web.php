@@ -5,9 +5,11 @@ use App\Http\Controllers\Admin\MetertypeController;
 use App\Http\Controllers\Admin\PermissionController;
 use App\Http\Controllers\Admin\RoleController;
 use App\Http\Controllers\Admin\UserController;
+use App\Http\Controllers\Admin\ZoneController;
 use App\Http\Controllers\BudgetYearController;
 use App\Http\Controllers\InvoiceController;
 use App\Http\Controllers\InvoicePeriodController;
+use App\Http\Controllers\SubzoneController;
 use Illuminate\Support\Facades\Route;
 use PHPUnit\Framework\MockObject\Invocation;
 
@@ -41,6 +43,8 @@ Route::middleware(['auth', 'role:admin'])->name('admin.')->prefix('admin')->grou
     Route::resource('/invoice_period',InvoicePeriodController::class);
     Route::resource('/metertype',MetertypeController::class);
     Route::resource('/budgetyear',BudgetYearController::class);
+    Route::resource('/zone',ZoneController::class);
+    Route::resource('/subzone',SubzoneController::class);
 
 });
 
