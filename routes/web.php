@@ -33,7 +33,9 @@ Route::middleware(['auth', 'role:admin'])->name('admin.')->prefix('admin')->grou
     Route::get('/users', [UserController::class, 'index'])->name('users.index');
     Route::get('/users/staff', [UserController::class, 'staff'])->name('users.staff');
     Route::get('/users/create', [UserController::class, 'create'])->name('users.create');
+    Route::get('/users/{user}/edit', [UserController::class, 'edit'])->name('users.edit');
     Route::post('/users/store', [UserController::class, 'store'])->name('users.store');
+    Route::put('/users/{user}/update', [UserController::class, 'update'])->name('users.update');
     Route::get('/users/{user}', [UserController::class, 'show'])->name('users.show');
     Route::delete('/users/{user}', [UserController::class, 'destroy'])->name('users.destroy');
     Route::post('/users/{user}/roles', [UserController::class, 'assignRole'])->name('users.roles');
@@ -42,10 +44,13 @@ Route::middleware(['auth', 'role:admin'])->name('admin.')->prefix('admin')->grou
     Route::delete('/users/{user}/permissions/{permission}', [UserController::class, 'revokePermission'])->name('users.permissions.revoke');
 
     Route::resource('/invoice_period',InvoicePeriodController::class);
+    Route::get('/metertype/{metertype_id}/infos', [MetertypeController::class, 'infos'])->name('metertype.infos');
+
     Route::resource('/metertype',MetertypeController::class);
     Route::resource('/budgetyear',BudgetYearController::class);
     Route::resource('/zone',ZoneController::class);
     Route::resource('/subzone',SubzoneController::class);
+    Route::get('/subzone/{zone_id}/getSubzone', [SubzoneController::class, 'getSubzone'])->name('subzone.getSubzone');
     Route::post('/settings/create_and_update', [SettingsController::class, 'create_and_update'])->name('settings.create_and_update');
     Route::resource('/settings',SettingsController::class);
 

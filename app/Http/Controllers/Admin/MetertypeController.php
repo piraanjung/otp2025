@@ -64,15 +64,11 @@ class MetertypeController extends Controller
         $metertype->update($validated);
         return redirect()->route("admin.metertype.index")->with("success","บันทึกการแก้ไขแล้ว");
     }
-
-    /**
-     * Remove the specified resource from storage.
-     *
-     * @param  int  $id
-     * @return \Illuminate\Http\Response
-     */
     public function destroy($id)
     {
         //
+    }
+    public function infos($id){
+        return MeterType::find($id);
     }
 }

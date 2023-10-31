@@ -105,8 +105,10 @@
                                                 </a>
                                                 <ul class="dropdown-menu px-2 py-3 ms-sm-n4 ms-n5"
                                                     aria-labelledby="dropdownTable2" style="">
+                                                    @if ($usertype =="user")
                                                     <li><a class="dropdown-item" href="#">ประวัติการใช้น้ำ</a></li>
-                                                    <li><a class="dropdown-item" href="#">แก้ไขข้อมูลผู้ใช้น้ำ</a>
+                                                    @endif
+                                                    <li><a class="dropdown-item" href="{{route('admin.users.edit', $user->id)}}">แก้ไขข้อมูลผู้ใช้งานระบบ</a>
                                                     </li>
                                                 </ul>
                                             </div>

@@ -24,9 +24,9 @@ class UserMerterInfo extends Model
         return $this->belongsTo(UserProfile::class, 'user_id', 'user_id');
     }
 
-    public function tabwatermeter()
+    public function metertype()
     {
-        return $this->belongsTo(TabwaterMeter::class, 'metertype_id');
+        return $this->belongsTo(MeterType::class, 'metertype_id');
     }
 
     public function zone()
@@ -41,15 +41,15 @@ class UserMerterInfo extends Model
 
     public function invoice()
     {
-        // return $this->hasMany('App\Invoice', 'user_id', 'user_id');
+        return $this->hasMany('App\Invoice', 'user_id', 'user_id');
     }
     public function invoice_last_inctive_inv_period()
     {
-        // return $this->hasMany('App\Invoice', 'user_id', 'user_id');
+        return $this->hasMany('App\Invoice', 'user_id', 'user_id');
     }
     public function invoice_by_user_id()
     {
-        // return $this->hasMany('App\Invoice', 'user_id', 'user_id');
+        return $this->hasMany('App\Invoice', 'user_id', 'user_id');
     }
 
 }

@@ -47,4 +47,19 @@ class User extends Authenticatable
     {
         return $this->hasOne('App\Models\Admin\UserProfile','user_id','id');
     }
+    public function usercategory(){
+        return $this->belongsTo('App\Usercategory', 'user_cat_id');
+    }
+
+    public function invoice(){
+        return $this->hasMany('App\Invoice', 'user_id');
+    }
+
+    public function undertaker_subzone(){
+        return $this->hasMany('App\UndertakerSubzone', 'twman_id');
+    }
+
+    public function usermeter_info(){
+        return $this->hasOne(UserMerterInfo::class, 'user_id');
+    }
 }
