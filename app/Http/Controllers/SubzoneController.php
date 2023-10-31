@@ -39,4 +39,9 @@ class SubzoneController extends Controller
         }
         return redirect()->back()->with(['message'  => 'ทำการบันทึกการแก้ไขข้อมูลเรียบร้อยแล้ว', 'color' => 'success']);
     }
+
+    public function getSubzone($zone_id) {
+        $subzone = Subzone::where("zone_id",$zone_id)->get();
+        return response()->json($subzone);
+    }
 }

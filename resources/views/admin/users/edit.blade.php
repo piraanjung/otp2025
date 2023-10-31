@@ -34,9 +34,10 @@
 
                         <div class="row ">
                             <div class="col-12 col-lg-10 m-auto">
-                                <form class="multisteps-form__form mb-8" action="{{ route('admin.users.store') }}"
+                                <form class="multisteps-form__form mb-8" action="{{ route('admin.users.update', $user->id) }}"
                                     method="post" style="height: 492px;">
                                     @csrf
+                                    @method("PUT")
                                     <div class="card multisteps-form__panel p-3 border-radius-xl bg-white  js-active"
                                         data-animation="FadeIn" id="pd1">
                                         <h5 class="font-weight-bolder mb-0">User Info</h5>
@@ -63,7 +64,7 @@
                                                                 @enderror
                                                             </label>
                                                             <input type="text" class="form-control" id="name"
-                                                                name="name" value="test test">
+                                                                name="name" value="{{ $user->user_profile->name }}">
                                                         </div>
 
                                                         <div class="col-12 col-sm-6">
@@ -73,9 +74,13 @@
                                                                 @enderror
                                                             </label>
                                                             <select name="gender" id="gender" class="form-control">
-                                                                <option value="0">เลือก..</option>
-                                                                <option value="m" selected>ชาย</option>
-                                                                <option value="w">หญิง</option>
+                                                                <option value>เลือก..</option>
+                                                                <option
+                                                                    {{ $user->user_profile->gender == 'm' ? 'selected' : '' }}
+                                                                    value="m" selected>ชาย</option>
+                                                                <option
+                                                                    {{ $user->user_profile->gender == 'w' ? 'selected' : '' }}
+                                                                    value="w">หญิง</option>
                                                             </select>
                                                         </div>
                                                         <div class="col-12 col-sm-6">
@@ -85,7 +90,7 @@
                                                                 @enderror
                                                             </label>
                                                             <input type="text" class="form-control" id="id_card"
-                                                                name="id_card" value="1111111">
+                                                                name="id_card" value="{{ $user->user_profile->id_card }}">
                                                         </div>
 
                                                         <div class="col-12 col-sm-6">
@@ -95,7 +100,7 @@
                                                                 @enderror
                                                             </label>
                                                             <input type="text" class="form-control" id="phone"
-                                                                name="phone" value="09888888">
+                                                                name="phone" value="{{ $user->user_profile->phone }}">
                                                         </div>
                                                         <div class="col-12 col-sm-3">
                                                             <label for="feInputAddress">ที่อยู่
@@ -104,7 +109,7 @@
                                                                 @enderror
                                                             </label>
                                                             <input type="text" class="form-control" id="address"
-                                                                name="address" value="1/2">
+                                                                name="address" value="{{ $user->user_profile->address }}">
                                                         </div>
                                                         <div class="col-12 col-sm-2">
                                                             <label>หมู่ที่
@@ -115,7 +120,8 @@
                                                             <select class="form-control" name="zone_id" id="zone_id">
                                                                 <option>เลือก...</option>
                                                                 @foreach ($zones as $zone)
-                                                                    <option value="{{ $zone->id }}" selected>
+                                                                    <option value="{{ $zone->id }}"
+                                                                        {{ $user->user_profile->zone_id == $zone->id ? 'selected' : '' }}>
                                                                         {{ $zone->zone_name }}
                                                                     </option>
                                                                 @endforeach
@@ -174,12 +180,14 @@
                                                 <div class="col-12 col-sm-6">
                                                     <label>เลขที่ผู้ใช้น้ำประปา</label>
                                                     <input type="text" class="form-control bg-gray-200" readonly
-                                                        name="new_meter_id" value="{{ $meternumber }}">
+                                                        name="new_meter_id"
+                                                        value="{{ $user->usermeter_info->meternumber }}">
                                                 </div>
                                                 <div class="col-12 col-sm-6">
                                                     <label>เลขมิเตอร์</label>
                                                     <input type="text" class="form-control bg-gray-200" readonly
-                                                        name="meternumber" id="meternumber" value="{{ $meternumber }}">
+                                                        name="meternumber" id="meternumber"
+                                                        value="{{ $user->usermeter_info->meternumber }}">
                                                 </div>
 
                                                 <div class="col-12 col-sm-4">
@@ -191,7 +199,8 @@
                                                     <select class="form-control" name="metertype_id" id="metertype_id">
                                                         <option value="">เลือก...</option>
                                                         @foreach ($meter_types as $meter_type)
-                                                            <option value="{{ $meter_type->id }}" selected>
+                                                            <option value="{{ $meter_type->id }}"
+                                                                {{ $user->usermeter_info->metertype_id == $meter_type->id ? 'selected' : '' }}>
                                                                 {{ $meter_type->meter_type_name }}
                                                             </option>
                                                         @endforeach
@@ -200,12 +209,14 @@
                                                 <div class="col-12 col-sm-4">
                                                     <label>ราคาต่อหน่วย (บาท)</label>
                                                     <input type="text" class="form-control bg-gray-200" readonly
-                                                        name="counter_unit" id="counter_unit" value="2">
+                                                        name="counter_unit" id="counter_unit"
+                                                        value="{{ $user->usermeter_info->metertype->price_per_unit }}">
                                                 </div>
                                                 <div class="col-12 col-sm-4">
                                                     <label>ขนาดมิเตอร์ </label>
                                                     <input type="text" class="form-control bg-gray-200" readonly
-                                                        name="metersize" id="metersize" value="2">
+                                                        name="metersize" id="metersize"
+                                                        value="{{ $user->usermeter_info->metertype->metersize }}">
                                                 </div>
                                                 <div class="col-12 col-sm-6">
                                                     <label>พื้นที่จัดเก็บ
@@ -218,7 +229,8 @@
                                                         onchange="getSubzone()">
                                                         <option>เลือก...</option>
                                                         @foreach ($zones as $zone)
-                                                            <option value="{{ $zone->id }}" selected>
+                                                            <option value="{{ $zone->id }}"
+                                                                {{ $user->usermeter_info->undertake_zone_id == $zone->id ? 'selected' : '' }}>
                                                                 {{ $zone->zone_name }}</option>
                                                         @endforeach
                                                     </select>
@@ -231,7 +243,15 @@
                                                     </label>
                                                     <select class="form-control" name="undertake_subzone_id"
                                                         id="undertake_subzone_id">
-                                                        <option selected value="1">1</option>
+                                                        @if (collect($subzones)->isEmpty())
+                                                            <option selected value="0">0</option>
+                                                        @else
+                                                            @foreach ($subzones as $subzone)
+                                                                <option value="{{ $subzone->id }}"
+                                                                    {{ $user->usermeter_info->undertake_subzone_id == $subzone->id ? 'selected' : '' }}>
+                                                                    {{ $subzone->subzone_name }}</option>
+                                                            @endforeach
+                                                        @endif
                                                     </select>
                                                 </div>
                                                 <div class="col-12 col-sm-4">
@@ -246,28 +266,20 @@
                                                     <label>วิธีชำระเงิน</label>
                                                     <span class="ml-auto text-right text-semibold text-reagent-gray">
                                                         <input type="text" class="form-control bg-gray-200" readonly
-                                                            name="payment_id" value="1">
+                                                            name="payment_id"
+                                                            value="{{ $user->usermeter_info->payment_id }}">
                                                     </span>
                                                 </div>
                                                 <div class="col-12 col-sm-4">
                                                     <label>ประเภทผู้ได้ส่วนลด</label>
                                                     <span class="ml-auto text-right text-semibold text-reagent-gray">
                                                         <input type="text" class="form-control bg-gray-200"
-                                                            name="discounttype" value="1" readonly>
+                                                            name="discounttype"
+                                                            value="{{ $user->usermeter_info->discounttype }}" readonly>
                                                     </span>
                                                 </div>
                                             </div>
-                                            <div class="row">
-                                                <div class="col-12 col-sm-6">
-                                                    <label>สถานะ</label>
-                                                    <?php $year = date('Y') + 543;
-                                                    $now = date('d/m/' . $year); ?>
-                                                    <select class="form-control bg-green-200" name="status"
-                                                        id="status">
-                                                        <option selected value="active"> เปิดใช้งาน</option>
-                                                    </select>
-                                                </div>
-                                            </div>
+
                                             <div class="button-row d-flex mt-4">
                                                 <button class="btn bg-gradient-light mb-0 js-btn-prev" data-id="1"
                                                     type="button" title="Prev">Prev</button>
@@ -281,34 +293,40 @@
                                         data-animation="FadeIn" id="pd3">
                                         <h5 class="font-weight-bolder">ตั้งค่าเข้าใช้งานระบบ</h5>
                                         <div class="multisteps-form__content row">
-                                            <div class="mt-3 col-4">
-                                                <div class="">
-                                                    <label>User name</label>
+                                            <div class="mt-3 row">
+                                                <div class="col-12 col-md-6 ">
+                                                    <label>Username</label>
                                                     <input class="multisteps-form__input form-control" type="text"
-                                                        name="username" value="{{ $username }}">
+                                                        name="username" value="{{ $user->username }}">
                                                 </div>
-                                                <div class="mt-3">
+                                                <div class="col-12 col-md-6 ">
                                                     <label>Password</label>
                                                     <input class="multisteps-form__input form-control" type="text"
-                                                        name="password" value="{{$password}}">
+                                                        name="password" value="">
                                                 </div>
-                                                <div class="mt-3">
+                                                <div class="col-12 col-md-6">
                                                     <label>ประเภทผู้ใช้งาน</label>
-                                                    <select name="role" class="form-control">
+                                                    <input class="multisteps-form__input form-control bg-gray-300" type="text" readonly
+                                                        name="role" value="{{$user->getRoleNames()[0]}}">
+                                                </div>
+                                                <div class="col-12 col-md-6 ">
+                                                    <label>สถานะ</label>
+                                                    <select class="form-control bg-green-200" name="status"
+                                                        id="status">
                                                         <option>--เลือก--</option>
-                                                        <option value="user" selected>ผู้ใช้น้ำประปา</option>
-                                                        <option value="admin">ผู้ดูแลระบบ</option>
-                                                        <option value="tabwaterman">เจ้าหน้าที่จดมิเตอร์</option>
-                                                        <option value="finance">การเงิน</option>
+                                                        <option {{ $user->status == 'active' ? 'selected' : '' }}
+                                                            value="active"> เปิดใช้งาน</option>
+                                                        <option {{ $user->status == 'inƒactive' ? 'selected' : '' }}
+                                                            value="inactive"> ปิดการใช้งาน</option>
                                                     </select>
                                                 </div>
                                             </div>
                                             <div class="row">
                                                 <div class="button-row d-flex mt-4 col-12">
                                                     <button class="btn bg-gradient-light mb-0 js-btn-prev" type="button"
-                                                     data-id="2"   title="Prev">Prev</button>
-                                                    <button class="btn bg-gradient-dark ms-auto mb-0 js-btn-next" data-id="4"
-                                                        type="button" title="Next">Next</button>
+                                                        data-id="2" title="Prev">Prev</button>
+                                                    <button class="btn bg-gradient-dark ms-auto mb-0 js-btn-next"
+                                                        data-id="4" type="button" title="Next">Next</button>
                                                 </div>
                                             </div>
                                         </div>
@@ -380,18 +398,18 @@
                 }
                 $('#pd3').removeClass('js-active')
                 $('#pd4').removeClass('js-active')
-            }else if (id === 3) {
+            } else if (id === 3) {
                 if ($(`#b4`).hasClass('js-active')) {
                     $('#b4').removeClass('js-active')
                 }
-                     $('#b3').addClass('js-active')
-                     $('#b2').addClass('js-active')
-                     $('#b1').addClass('js-active')
+                $('#b3').addClass('js-active')
+                $('#b2').addClass('js-active')
+                $('#b1').addClass('js-active')
 
-                    $('#pd1').removeClass('js-active')
-                    $('#pd2').removeClass('js-active')
-                    $('#pd4').removeClass('js-active')
-                } else { //pd4
+                $('#pd1').removeClass('js-active')
+                $('#pd2').removeClass('js-active')
+                $('#pd4').removeClass('js-active')
+            } else { //pd4
                 $('#pd3').removeClass('js-active')
                 $('#pd2').removeClass('js-active')
                 $('#pd1').removeClass('js-active')

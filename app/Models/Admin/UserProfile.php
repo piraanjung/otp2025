@@ -11,9 +11,10 @@ class UserProfile extends Model
 
     protected $fillable = [
         'name',
-        'user_id',
-        'id_card',
-        'phone',
+        'user_id', 'subzone_id', 'district_code',
+        'id_card', 'zone_id','province_code',
+        'phone', 'gender', 'status',
+        'address', 'tambon_code'
     ];
 
     protected $table = 'user_profile';
