@@ -110,6 +110,15 @@
                                                     @endif
                                                     <li><a class="dropdown-item" href="{{route('admin.users.edit', $user->id)}}">แก้ไขข้อมูลผู้ใช้งานระบบ</a>
                                                     </li>
+                                                    <li>
+                                                    <form method="POST" action="{{ route('admin.users.destroy', $user->id) }}"
+                                                        class="col-12" onsubmit="return confirm('Are you sure?');">
+                                                        @csrf
+                                                        @method('DELETE')
+                                                        <button type="submit"
+                                                            class="dropdown-item">ลบข้อมูล</button>
+                                                    </form>
+                                                    </li>
                                                 </ul>
                                             </div>
                                         </td>
