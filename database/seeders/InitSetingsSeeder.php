@@ -3,7 +3,7 @@
 namespace Database\Seeders;
 
 use App\Models\MeterType;
-use App\Models\NumberSequence;
+use App\Models\SequenceNumber;
 use Illuminate\Database\Console\Seeds\WithoutModelEvents;
 use Illuminate\Database\Seeder;
 
@@ -16,9 +16,10 @@ class InitSetingsSeeder extends Seeder
      */
     public function run()
     {
-        NumberSequence::create([
-            "nsq_id" => 1,
-            "meternumber" => 1,
+        SequenceNumber::create([
+            "id" => 1,
+            "tabmeter" => 1,
+            "user" => 1,
         ]);
 
         MeterType::create([

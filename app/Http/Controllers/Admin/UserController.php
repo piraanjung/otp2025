@@ -6,7 +6,7 @@ use App\Http\Controllers\Api\FunctionsController;
 use App\Http\Controllers\Controller;
 use App\Models\Admin\UserProfile;
 use App\Models\MeterType;
-use App\Models\NumberSequence;
+use App\Models\SequenceNumber;
 use App\Models\User;
 use App\Models\UserMerterInfo;
 use App\Models\Zone;
@@ -37,7 +37,7 @@ class UserController extends Controller
     }
     public function create()
     {
-        $meter_sq_number = NumberSequence::get('meternumber');
+        $meter_sq_number = SequenceNumber::get('meternumber');
         $zones = Zone::all();
         $meter_types = MeterType::all();
         $meternumber = $this->createInvoiceNumberString($meter_sq_number[0]->meternumber);
@@ -93,24 +93,28 @@ class UserController extends Controller
             "province_code" => $request->get("province_code"),
             "status" => $request->get("status")
         ]);
-        //usermeterinfo table
-        UserMerterInfo::create([
-            "user_id" => $user->id,
-            "meternumber" => $request->get('meternumber'),
-            "metertype_id" => $request->get('metertype_id'),
-            "undertake_zone_id" => $request->get('undertake_zone_id'),
-            "undertake_subzone_id" => $request->get('undertake_subzone_id'),
-            "acceptace_date" => date('Y-m-d'),
-            "payment_id" => $request->get('payment_id'),
-            "discounttype" => $request->get('discounttype'),
-            "recorder_id" => Auth::id()
-        ]);
+
         //model_has_role table
         $user->assignRole($request->get("role"));
-        //sequnce number +
-        NumberSequence::where('nsq_id', 1)->update([
-            'meternumber' => $user->id + 1
-        ]);
+
+        if($request->get("role") == "user") {
+            //usermeterinfo table
+            UserMerterInfo::create([
+                "user_id" => $user->id,
+                "meternumber" => $request->get('meternumber'),
+                "metertype_id" => $request->get('metertype_id'),
+                "undertake_zone_id" => $request->get('undertake_zone_id'),
+                "undertake_subzone_id" => $request->get('undertake_subzone_id'),
+                "acceptace_date" => date('Y-m-d'),
+                "payment_id" => $request->get('payment_id'),
+                "discounttype" => $request->get('discounttype'),
+                "recorder_id" => Auth::id()
+            ]);
+            //sequnce number +
+            SequenceNumber::where('id', 1)->update([
+                'tabmeter' => $user->id + 1
+            ]);
+        }
         return redirect()->route('admin.users.index')->with(['message', 'บันทึกแล้ว', 'color' => 'success']);
     }
 

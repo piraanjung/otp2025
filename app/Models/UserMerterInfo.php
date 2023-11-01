@@ -10,8 +10,9 @@ class UserMerterInfo extends Model
 {
     use HasFactory;
     protected $fillable = [
+        "meter_id","meter_address",
         "user_id", "meternumber", "metertype_id", "undertake_zone_id",  "undertake_subzone_id", "acceptace_date",
-        "status",  "payment_id", "discounttype",
+        "status",  "payment_id", "discounttype", "recorder_id"
     ];
     protected $table = "user_meter_infos";
 

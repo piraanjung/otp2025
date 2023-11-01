@@ -13,11 +13,12 @@ return new class extends Migration
      */
     public function up()
     {
-        Schema::create('number_sequences', function (Blueprint $table) {
-            $table->integer('nsq_id');
-            $table->integer('meternumber');
+        Schema::create('sequence_number', function (Blueprint $table) {
+            $table->integer('id');
+            $table->integer('tabmeter');
+            $table->integer('user')->comment('ผู้ใช้น้ำเท่านั้น');
             $table->timestamps();
-            $table->primary('nsq_id');
+            $table->primary('id');
         });
     }
 

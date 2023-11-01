@@ -11,6 +11,7 @@ use App\Http\Controllers\InvoiceController;
 use App\Http\Controllers\InvoicePeriodController;
 use App\Http\Controllers\SettingsController;
 use App\Http\Controllers\SubzoneController;
+use App\Http\Controllers\TestController;
 use Illuminate\Support\Facades\Route;
 use PHPUnit\Framework\MockObject\Invocation;
 
@@ -55,6 +56,8 @@ Route::middleware(['auth', 'role:admin'])->name('admin.')->prefix('admin')->grou
     Route::resource('/settings',SettingsController::class);
 
 });
+Route::resource('/test',TestController::class);
+
 
 Route::middleware(['auth', 'role:admin|finance'])->group(function () {
     Route::resource('/invoice',InvoiceController::class);
