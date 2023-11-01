@@ -182,6 +182,30 @@
                                 </a>
                             </li>
 
+                            <li class="nav-item ">
+                                <a class="nav-link collapsed" data-bs-toggle="collapse" aria-expanded="false"
+                                    href="#roles">
+                                    <span class="sidenav-mini-icon"> P </span>
+                                    <span class="sidenav-normal">สิทธิ์การใช้งานระบบ<b class="caret"></b></span>
+                                </a>
+                                <div class="collapse" id="roles" style="">
+                                    <ul class="nav nav-sm flex-column">
+                                        <li class="nav-item">
+                                            <a class="nav-link " href="{{ route('admin.roles.index') }}">
+                                                <span class="sidenav-mini-icon text-xs"> P </span>
+                                                <span class="sidenav-normal"> Roles </span>
+                                            </a>
+                                        </li>
+                                        <li class="nav-item">
+                                            <a class="nav-link " href="{{ route('admin.permissions.index') }}">
+                                                <span class="sidenav-mini-icon text-xs"> T </span>
+                                                <span class="sidenav-normal"> Permission </span>
+                                            </a>
+                                        </li>
+                                    </ul>
+                                </div>
+                            </li>
+
                         </ul>
                     </div>
                 </li>

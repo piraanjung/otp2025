@@ -60,6 +60,6 @@ class User extends Authenticatable
     }
 
     public function usermeter_info(){
-        return $this->hasOne(UserMerterInfo::class, 'user_id');
+        return $this->hasOne('App\Models\UserMerterInfo', 'user_id', 'id');
     }
 }

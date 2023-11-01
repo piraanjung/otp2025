@@ -21,31 +21,33 @@ class UserController extends Controller
     public function index()
     {
         $users = User::role("user")
-                ->get();
-                $usertype = "user";
+            ->get();
+        $usertype = "user";
 
         return view('admin.users.index', compact('users', 'usertype'));
     }
     public function staff()
     {
         $users = User::with('roles')
-                ->get()->filter(
-                fn ($user) => $user->roles->whereIn('name', ["admin", "tabwater man", "finance"])->toArray()
+            ->get()->filter(
+                fn($user) => $user->roles->whereIn('name', ["admin", "tabwater man", "finance"])->toArray()
             );
         $usertype = "staff";
         return view('admin.users.index', compact('users', 'usertype'));
     }
-    public function create(){
+    public function create()
+    {
         $meter_sq_number = NumberSequence::get('meternumber');
         $zones = Zone::all();
         $meter_types = MeterType::all();
         $meternumber = $this->createInvoiceNumberString($meter_sq_number[0]->meternumber);
-        $username = "user".$meter_sq_number[0]->meternumber;
-        $password = "user".substr($meternumber,3);
+        $username = "user" . $meter_sq_number[0]->meternumber;
+        $password = "user" . substr($meternumber, 3);
 
         return view('admin.users.create', compact('meternumber', 'zones', 'meter_types', 'username', 'password'));
     }
-    public function store(Request $request){
+    public function store(Request $request)
+    {
         $request->validate(
             [
                 "name" => 'required',
@@ -71,9 +73,9 @@ class UserController extends Controller
 
         //user table
         $user = User::create([
-            "username"=> $request->username,
-            "password"=> Hash::make($request->password),
-            "email"=> $request->username."gmail.com",
+            "username" => $request->username,
+            "password" => Hash::make($request->password),
+            "email" => $request->username . "gmail.com",
             "status" => 'active'
         ]);
         //user_profile table
@@ -93,35 +95,44 @@ class UserController extends Controller
         ]);
         //usermeterinfo table
         UserMerterInfo::create([
-        "user_id" => $user->id,
-        "meternumber" => $request->get('meternumber'),
-        "metertype_id" => $request->get('metertype_id'),
-        "undertake_zone_id" => $request->get('undertake_zone_id'),
-        "undertake_subzone_id" => $request->get('undertake_subzone_id'),
-        "acceptace_date" => date('Y-m-d'),
-        "payment_id" => $request->get('payment_id'),
-        "discounttype" => $request->get('discounttype'),
-        "recorder_id" => Auth::id()
+            "user_id" => $user->id,
+            "meternumber" => $request->get('meternumber'),
+            "metertype_id" => $request->get('metertype_id'),
+            "undertake_zone_id" => $request->get('undertake_zone_id'),
+            "undertake_subzone_id" => $request->get('undertake_subzone_id'),
+            "acceptace_date" => date('Y-m-d'),
+            "payment_id" => $request->get('payment_id'),
+            "discounttype" => $request->get('discounttype'),
+            "recorder_id" => Auth::id()
         ]);
         //model_has_role table
         $user->assignRole($request->get("role"));
         //sequnce number +
         NumberSequence::where('nsq_id', 1)->update([
-            'meternumber' =>$user->id +1
+            'meternumber' => $user->id + 1
         ]);
-        return redirect()->route('admin.users.index')->with(['message','บันทึกแล้ว', 'color' => 'success']);
+        return redirect()->route('admin.users.index')->with(['message', 'บันทึกแล้ว', 'color' => 'success']);
     }
 
-    public function edit(User $user){
+    public function edit(User $user)
+    {
         $zones = Zone::all();
         $meter_types = MeterType::all();
         $subzones = $user->usermeter_info->zone->subzone;
         return view('admin.users.edit', compact('user', 'zones', 'meter_types', 'subzones'));
     }
 
-    public function update(Request $request, User $user){
+    public function update(Request $request, User $user)
+    {
+        $temp_password = User::where('id', $user->id)->get('password')->first();
+        $request->merge([
+            'password' => collect($request->password)->isEmpty() ? $temp_password->password : Hash::make($request->password)
+        ]);
         $request->validate(
             [
+                "username" => 'required',
+                "password" => 'required',
+                "status" => 'required',
                 "name" => 'required',
                 "gender" => 'required|in:w,m',
                 "id_card" => 'required',
@@ -131,8 +142,7 @@ class UserController extends Controller
                 "metertype_id" => 'required|integer',
                 "zone_id" => 'required',
                 "undertake_zone_id" => 'required|integer',
-                "username" => 'required',
-                "password" => 'required',
+
 
             ],
             [
@@ -145,9 +155,9 @@ class UserController extends Controller
 
         //user table
         User::where('id', $user->id)->update([
-            "username"=> $request->username,
-            "password"=> Hash::make($request->password),
-            "email"=> $request->username."gmail.com",
+            "username" => $request->username,
+            "password" => collect($request->password)->isEmpty() ? $temp_password : Hash::make($request->password),
+            "email" => $request->username . "gmail.com",
             "status" => 'active'
         ]);
         //user_profile table
@@ -167,16 +177,87 @@ class UserController extends Controller
         ]);
         //usermeterinfo table
         UserMerterInfo::where('user_id', $user->id)->update([
-        "user_id" => $user->id,
-        "meternumber" => $request->get('meternumber'),
-        "metertype_id" => $request->get('metertype_id'),
-        "undertake_zone_id" => $request->get('undertake_zone_id'),
-        "undertake_subzone_id" => $request->get('undertake_subzone_id'),
-        "acceptace_date" => date('Y-m-d'),
-        "payment_id" => $request->get('payment_id'),
-        "discounttype" => $request->get('discounttype'),
-        "recorder_id" => Auth::id()
+            "user_id" => $user->id,
+            "meternumber" => $request->get('meternumber'),
+            "metertype_id" => $request->get('metertype_id'),
+            "undertake_zone_id" => $request->get('undertake_zone_id'),
+            "undertake_subzone_id" => $request->get('undertake_subzone_id'),
+            "acceptace_date" => date('Y-m-d'),
+            "payment_id" => $request->get('payment_id'),
+            "discounttype" => $request->get('discounttype'),
+            "recorder_id" => Auth::id()
         ]);
+
+        return redirect()->route('admin.users.index')->with(['message', 'บันทึกแล้ว', 'color' => 'success']);
+    }
+    public function update2(Request $request, User $user){
+        $temp_password = $user->get('password')->first();
+        $request->merge( [
+            'password'      => collect($request->password)->isEmpty() ? $temp_password->password :  Hash::make($request->password),
+            "user_id"       => $user->id,
+            "subzone_id"    => $request->get('zone_id'),
+        ]);
+        $userValidated = $request->validate([
+            "username"  => 'required',
+            "password"  => 'required',
+            'email'     => 'required',
+            "status"    => 'required'
+        ],[
+            "required"  => "ใส่ข้อมูล",
+            "in"        => "เลือกข้อมูล",
+            "integer"   => "เลือกข้อมูล",
+        ],);
+        $userProfileValidated = $request->validate(
+            [
+                "user_id"       => "required",
+                "name"          => 'required',
+                "gender"        => 'required|in:w,m',
+                "id_card"       => 'required',
+                "phone"         => 'required',
+                "address"       => 'required',
+                "zone_id"       => 'required',
+                "subzone_id"    => 'required',
+                "province_code" => 'required|integer',
+                "district_code" => 'required|integer',
+                "tambon_code"   => 'required|integer',
+                'status'        => 'required'
+            ],
+            [
+                "required"  => "ใส่ข้อมูล",
+                "integer"   => "เลือกข้อมูล",
+            ],
+
+        );
+        $request->validate([
+            "meternumber"           => 'required',
+            "metertype_id"          => 'required|integer',
+            "undertake_zone_id"     => 'required|integer',
+            "undertake_subzone_id"  => 'required|integer',
+            "acceptace_date"        => 'required',
+            "payment_id"            => 'required',
+            "discounttype"          => 'required',
+        ],[
+            "required"  => "ใส่ข้อมูล",
+            "integer"   => "เลือกข้อมูล",
+        ],);
+        // UserMerterInfo::where('user_id', $user->id)->update([
+        //     "user_id"               => $user->id,
+        //     "meternumber"           => $request->get('meternumber'),
+        //     "metertype_id"          => $request->get('metertype_id'),
+        //     "undertake_zone_id"     => $request->get('undertake_zone_id'),
+        //     "undertake_subzone_id"  => $request->get('undertake_subzone_id'),
+        //     "acceptace_date"        => date('Y-m-d'),
+        //     "payment_id"            => $request->get('payment_id'),
+        //     "discounttype"          => $request->get('discounttype'),
+        //     "recorder_id"           => Auth::id()
+        //     ]);
+
+        //user table
+        $user->update($userValidated);
+        //user_profile table
+        $user->user_profile->update($userProfileValidated);
+        //usermeterinfo table
+
 
         return redirect()->route('admin.users.index')->with(['message','บันทึกแล้ว', 'color' => 'success']);
     }
@@ -229,7 +310,7 @@ class UserController extends Controller
             return back()->with('message', 'you are admin.');
         }
         $user->delete();
-
+        FunctionsController::reset_auto_increment_when_deleted('users');
         return back()->with('message', 'User deleted.');
     }
     public static function createInvoiceNumberString($id)
@@ -246,7 +327,7 @@ class UserController extends Controller
         } else {
             $invString = $id;
         }
-        return "HS-".$invString;
+        return "HS-" . $invString;
 
     }
 }

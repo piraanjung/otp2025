@@ -295,14 +295,31 @@
                                         <div class="multisteps-form__content row">
                                             <div class="mt-3 row">
                                                 <div class="col-12 col-md-6 ">
-                                                    <label>Username</label>
+                                                    <label>Username
+                                                        @error('username')
+                                                        <span class="text-danger h-8">({{ $message }})</span>
+                                                    @enderror
+                                                    </label>
                                                     <input class="multisteps-form__input form-control" type="text"
                                                         name="username" value="{{ $user->username }}">
                                                 </div>
                                                 <div class="col-12 col-md-6 ">
-                                                    <label>Password</label>
+                                                    <label>Password
+                                                        @error('password')
+                                                        <span class="text-danger h-8">({{ $message }})</span>
+                                                    @enderror
+                                                    </label>
                                                     <input class="multisteps-form__input form-control" type="text"
-                                                        name="password" value="">
+                                                        name="password">
+                                                </div>
+                                                <div class="col-12 col-md-6 ">
+                                                    <label>Email
+                                                        @error('email')
+                                                        <span class="text-danger h-8">({{ $message }})</span>
+                                                    @enderror
+                                                    </label>
+                                                    <input class="multisteps-form__input form-control" type="text"
+                                                        name="email" value="{{$user->email}}">
                                                 </div>
                                                 <div class="col-12 col-md-6">
                                                     <label>ประเภทผู้ใช้งาน</label>
@@ -310,7 +327,11 @@
                                                         name="role" value="{{$user->getRoleNames()[0]}}">
                                                 </div>
                                                 <div class="col-12 col-md-6 ">
-                                                    <label>สถานะ</label>
+                                                    <label>สถานะ
+                                                        @error('status')
+                                                        <span class="text-danger h-8">({{ $message }})</span>
+                                                    @enderror
+                                                    </label>
                                                     <select class="form-control bg-green-200" name="status"
                                                         id="status">
                                                         <option>--เลือก--</option>
@@ -497,31 +518,6 @@
             checkValues()
         });
 
-        function checkValues() {
-            let res = true
-            $("#undertake_subzone_id").removeClass("border-danger rounded")
-            $("#metertype").removeClass("border-danger rounded")
-            $("#undertake_zone_id").removeClass("border-danger rounded")
 
-            if ($("#metertype").val() === "เลือก...") {
-
-                $("#metertype").addClass("border-danger rounded")
-                res = false;
-            }
-
-            if ($("#undertake_zone_id").val() === "เลือก...") {
-                console.log($("#metertype").val())
-
-                $("#undertake_zone_id").addClass("border-danger rounded")
-                res = false;
-            } else {
-                if ($("#undertake_subzone_id").val() === "เลือก...") {
-                    $("#undertake_subzone_id").addClass("border-danger rounded")
-                    res = false;
-                }
-            }
-            return res;
-
-        }
     </script>
 @endsection

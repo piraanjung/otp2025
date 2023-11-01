@@ -257,17 +257,6 @@
                                                     </span>
                                                 </div>
                                             </div>
-                                            <div class="row">
-                                                <div class="col-12 col-sm-6">
-                                                    <label>สถานะ</label>
-                                                    <?php $year = date('Y') + 543;
-                                                    $now = date('d/m/' . $year); ?>
-                                                    <select class="form-control bg-green-200" name="status"
-                                                        id="status">
-                                                        <option selected value="active"> เปิดใช้งาน</option>
-                                                    </select>
-                                                </div>
-                                            </div>
                                             <div class="button-row d-flex mt-4">
                                                 <button class="btn bg-gradient-light mb-0 js-btn-prev" data-id="1"
                                                     type="button" title="Prev">Prev</button>
@@ -293,6 +282,11 @@
                                                         name="password" value="{{$password}}">
                                                 </div>
                                                 <div class="mt-3">
+                                                    <label>Email</label>
+                                                    <input class="multisteps-form__input form-control" type="text"
+                                                        name="email" value="{{$username."@hs.com"}}">
+                                                </div>
+                                                <div class="mt-3">
                                                     <label>ประเภทผู้ใช้งาน</label>
                                                     <select name="role" class="form-control">
                                                         <option>--เลือก--</option>
@@ -301,6 +295,13 @@
                                                         <option value="tabwaterman">เจ้าหน้าที่จดมิเตอร์</option>
                                                         <option value="finance">การเงิน</option>
                                                     </select>
+                                                </div>
+                                                <div class="mt-3">
+                                                    <label>สถานะการใช้งาน</label>
+                                                        <select class="form-control bg-green-200" name="status"
+                                                            id="status">
+                                                            <option selected value="active"> เปิดใช้งาน</option>
+                                                        </select>
                                                 </div>
                                             </div>
                                             <div class="row">
