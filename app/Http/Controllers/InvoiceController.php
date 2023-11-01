@@ -6,7 +6,7 @@ use Illuminate\Http\Request;
 use Spatie\Permission\Models\Permission;
 use Spatie\Permission\Models\Role;
 use App\Http\Controllers\Api\FunctionsController;
-
+use App\Models\UserMerterInfo;
 
 class InvoiceController extends Controller
 {
@@ -21,9 +21,8 @@ class InvoiceController extends Controller
         $currentInvPeriod = 1;//InvoicePeriod::where('status', 'active')->get('id')->first();
 
         //หาสมาชิกผู้ใช้น้ำที่ใช้งานอยู่
-        $userMeterInfos = UserMeterInfos::orderBy('undertake_zone_id')
-            ->whereIn('status', ['active', 'cutmeter'])
-            ->where('deleted', 0)
+        $userMeterInfos = UserMerterInfo::orderBy('undertake_zone_id')
+            ->whereIn('status', ['active'])
             ->orderBy('id', 'asc')
             ->get(['id', 'user_id', 'undertake_zone_id', 'undertake_subzone_id']);
 
@@ -35,11 +34,7 @@ class InvoiceController extends Controller
             //จัดการข้อมูลแยกตามหมู่ที่ สังกัด
             foreach ($users_in_zone as $key => $user_in_zone) {
                 $invoice_sum = 0;
-                if ($findNewInvPeriod == 0) {
-                    // table =0; ยังไม่มีการบันทึกข้อมูล ของรอบบิลใหม่
-                } else {
-                    $invoicesTemp = UserMeterInfos::where('undertake_subzone_id', $key)
-                        ->where('deleted', 0)
+                $invoicesTemp = UserMerterInfo::where('undertake_subzone_id', $key)
                         ->whereIn('status', ['active', 'cutmeter'])
                         ->with(['invoice' => function ($query) use ($currentInvPeriod) {
                             return $query->where('inv_period_id', $currentInvPeriod->id)
@@ -95,7 +90,7 @@ class InvoiceController extends Controller
 
                 }
                 $new_user = $invoice_current_inv_period_deleted_status + $invoice_current_inv_period_new_user_status;
-                $cutmeter_count = UserMeterInfos::whereIn('status', ['active', 'cutmeter'])
+                $cutmeter_count = UserMerterInfo::whereIn('status', ['active', 'cutmeter'])
                     ->where('deleted', 0)
                     ->where('owe_count', '>=', 3)
                     ->where('undertake_subzone_id', $user_in_zone[0]->undertake_subzone_id)->count();

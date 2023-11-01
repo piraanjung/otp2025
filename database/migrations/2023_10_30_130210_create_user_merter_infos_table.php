@@ -14,19 +14,22 @@ return new class extends Migration
     public function up()
     {
         Schema::create('user_meter_infos', function (Blueprint $table) {
-            $table->unsignedBigInteger('user_id')->primary();
+            $table->unsignedBigInteger('meter_id');
+            $table->unsignedBigInteger('user_id');
             $table->string('meternumber');
-            $table->unsignedBigInteger('metertype_id');
+            $table->string('meter_address');
             $table->unsignedBigInteger('undertake_zone_id');
             $table->unsignedBigInteger('undertake_subzone_id');
             $table->date('acceptace_date');
             $table->enum('status', ['active', 'inactive'])->default('active');
             $table->string('comment')->nullable();
+            $table->unsignedBigInteger('metertype_id');
             $table->integer('owe_count')->default(0);
             $table->integer('payment_id')->default(0);
             $table->integer('discounttype')->default(0);
             $table->integer('recorder_id');
             $table->timestamps();
+            $table->primary(['meter_id']);
             $table->foreign('user_id')->references('id')->on('users')->onDelete('cascade');
             $table->foreign('metertype_id')->references('id')->on('meter_types');
             $table->foreign('undertake_zone_id')->references('id')->on('zones');
