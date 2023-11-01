@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers\Admin;
 
+use App\Http\Controllers\Api\FunctionsController;
 use App\Http\Controllers\Controller;
 use App\Models\MeterType;
 use Illuminate\Http\Request;
@@ -31,7 +32,7 @@ class MetertypeController extends Controller
             "numeric" => "ใส่ตัวเลข",
         ],);
         MeterType::create($validated);
-        return redirect()->route("admin.metertype.index")->with("success","บันทึกข้อมูลเรียบร้อยแล้ว");
+        return redirect()->route("admin.metertype.index")->with("message","บันทึกข้อมูลเรียบร้อยแล้ว");
     }
 
     /**
@@ -62,11 +63,13 @@ class MetertypeController extends Controller
         ]);
 
         $metertype->update($validated);
-        return redirect()->route("admin.metertype.index")->with("success","บันทึกการแก้ไขแล้ว");
+        return redirect()->route("admin.metertype.index")->with("message","บันทึกการแก้ไขแล้ว");
     }
-    public function destroy($id)
+    public function destroy(MeterType $metertype)
     {
-        //
+        MeterType::destroy($metertype);
+        FunctionsController::reset_auto_increment_when_deleted('meter_types');
+        return redirect()->route("admin.metertype.index")->with("message","บันทึกการแก้ไขแล้ว");
     }
     public function infos($id){
         return MeterType::find($id);

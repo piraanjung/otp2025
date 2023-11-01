@@ -12,7 +12,7 @@ use Illuminate\Support\Facades\DB;
 
 class FunctionsController extends Controller
 {
-    public function thaiDateToEngDateFormat($date)
+    public static function thaiDateToEngDateFormat($date)
     {
         $dateExp = explode("/", $date);
         $cEyear = $dateExp[2] - 543;

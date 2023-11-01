@@ -1,4 +1,45 @@
-<x-admin-layout>
+@extends('layouts.admin1')
+
+@section('content')
+    <div class="container-fluid py-4">
+        <div class="row">
+            <div class="col-12">
+                <div class="card">
+                    <div class="card-body">
+                        <div class="multisteps-form mb-5">
+                            <div class="card multisteps-form__panel p-3 border-radius-xl bg-white js-active"
+                                data-animation="FadeIn" id="pd3">
+                                <h5 class="font-weight-bolder">Permissions</h5>
+                                <div class="multisteps-form__content row">
+                                    <div class="mt-3 col-4">
+                                        <form method="POST" action="{{ route('admin.permissions.store') }}">
+                                            @csrf
+                                            <div class="sm:col-span-6">
+                                                <label for="name" class="block text-sm font-medium text-gray-700"> ชื่อ Permission
+                                                </label>
+                                                <div class="mt-1">
+                                                    <input type="text" id="name" name="name"
+                                                        class="multisteps-form__input form-control" />
+                                                </div>
+                                                @error('name')
+                                                    <span class="text-alert text-sm">{{ $message }}</span>
+                                                @enderror
+                                            </div>
+                                            <div class="sm:col-span-6 pt-5">
+                                                <button type="submit"
+                                                    class="btn bg-gradient-dark ms-auto mb-0">Create</button>
+                                            </div>
+                                        </form>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    @endsection
+    {{-- <x-admin-layout>
 
     <div class="py-12 w-full">
         <div class="max-w-7xl mx-auto sm:px-6 lg:px-8">
@@ -22,10 +63,10 @@
                           </div>
                         </form>
                       </div>
-                      
+
                 </div>
-  
+
             </div>
         </div>
     </div>
-</x-admin-layout>
+</x-admin-layout> --}}
