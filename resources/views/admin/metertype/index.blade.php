@@ -6,7 +6,7 @@
 @section('nav')
     <a href="{{ url('tabwatermeter') }}"> ขนาดมิเตอร์</a>
 @endsection
-@section('tabwatermeter')
+@section('nav-metertype')
     active
 @endsection
 @section('content')
