@@ -1,4 +1,19 @@
 @extends('layouts.admin1')
+@if ($usertype =="user")
+@section('nav-user')
+    active
+@endsection
+@else
+@section('nav-staff')
+    active
+@endsection
+@endif
+@section('nav-user-header')
+    active
+@endsection
+@section('user-show')
+    show
+@endsection
 
 @section('style')
     <script src="https://code.jquery.com/jquery-3.7.0.js"></script>
