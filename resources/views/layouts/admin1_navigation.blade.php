@@ -1,6 +1,6 @@
 <ul class="navbar-nav">
     <li class="nav-item">
-        <a class="nav-link  " href="#">
+        <a class="nav-link  @yield('nav-dashboard')" href="{{route('dashboard')}}">
             <div
                 class="icon icon-shape icon-sm shadow border-radius-md bg-white text-center me-2 d-flex align-items-center justify-content-center">
                 <svg width="12px" height="12px" viewBox="0 0 45 40" version="1.1"
@@ -49,8 +49,8 @@
         <div class="collapse show" id="invoices" style="">
             <ul class="nav ms-4 ps-3">
 
-                <li class="nav-item  @yield('nav-active')">
-                    <a class="nav-link " href="{{ route('invoice.index') }}">
+                <li class="nav-item  ">
+                    <a class="nav-link @yield('nav-invoice')" href="{{ route('invoice.index') }}">
                         <span class="sidenav-mini-icon"> P </span>
                         <span class="sidenav-normal">ออกใบแจ้งหนี้ </span>
                     </a>
@@ -103,7 +103,7 @@
         <div class="collapse show" id="pagesExamples" style="">
             <ul class="nav ms-4 ps-3">
                 <li class="nav-item ">
-                    <a class="nav-link collapsed @yield('nav-user-header')" data-bs-toggle="collapse" aria-expanded="false"
+                    <a class="nav-link collapsed @yield('user-show')" data-bs-toggle="collapse" aria-expanded="false"
                         href="#profileExample">
                         <span class="sidenav-mini-icon"> P </span>
                         <span class="sidenav-normal"> ผู้ใช้งานระบบ <b class="caret"></b></span>
@@ -131,21 +131,21 @@
                         <span class="sidenav-normal">ประเภทมิเตอร์ </span>
                     </a>
                 </li>
-                <li class="nav-item ">
-                    <a class="nav-link collapsed" data-bs-toggle="collapse" aria-expanded="false"
+                <li class="nav-item">
+                    <a class="nav-link collapsed  @yield('budgetyear-show') @yield('inv_prd-show') @yield('nav-inv_prd')" data-bs-toggle="collapse" aria-expanded="false"
                         href="#budgetyear">
                         <span class="sidenav-mini-icon"> P </span>
                         <span class="sidenav-normal">ปีงบประมาณ/รอบบิล <b class="caret"></b></span>
                     </a>
-                    <div class="collapse" id="budgetyear" style="">
+                    <div class="collapse @yield('budgetyear-show') @yield('inv_prd-show')" id="budgetyear" style="">
                         <ul class="nav nav-sm flex-column">
-                            <li class="nav-item">
+                            <li class="nav-item @yield('nav-budgetyear')">
                                 <a class="nav-link " href="{{ route('admin.budgetyear.index') }}">
                                     <span class="sidenav-mini-icon text-xs"> P </span>
                                     <span class="sidenav-normal"> ปีงบประมาณ </span>
                                 </a>
                             </li>
-                            <li class="nav-item">
+                            <li class="nav-item @yield('nav-inv_prd')">
                                 <a class="nav-link " href="{{ route('admin.invoice_period.index') }}">
                                     <span class="sidenav-mini-icon text-xs"> T </span>
                                     <span class="sidenav-normal"> รอบบิล </span>
@@ -184,7 +184,12 @@
                         <span class="sidenav-normal">ตั้งค่าข้อมูลองค์กร </span>
                     </a>
                 </li>
-
+                <li class="nav-item @yield('nav-excel')">
+                    <a class="nav-link " href="{{ route('admin.excel.index') }}">
+                        <span class="sidenav-mini-icon"> P </span>
+                        <span class="sidenav-normal">Import excel </span>
+                    </a>
+                </li>
                 <li class="nav-item ">
                     <a class="nav-link collapsed" data-bs-toggle="collapse" aria-expanded="false"
                         href="#roles">

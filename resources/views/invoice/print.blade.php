@@ -14,21 +14,21 @@ use App\Http\Controllers\Api\FunctionsController;
     <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.16.0/umd/popper.min.js"></script>
     <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
-    
+
 </head>
 
 <?php $index =  0; ?>
 <input type="hidden" id="subzone_id" value="{{$subzone_id}}">
-<?php 
+<?php
     $year = date('Y')+543;
     $year2 = date('y')+43;
     $a =1;
     $c2 = 1;
-    $invoiceNumber = FunctionsController::invoice_last_record()->id + 1;
+    // $invoiceNumber = FunctionsController::invoice_last_record()->id + 1;
 ?>
     @section('style')
         <style>
-           
+
             body {
                 -webkit-print-color-adjust: exact !important;
             }
@@ -40,7 +40,7 @@ use App\Http\Controllers\Api\FunctionsController;
                 font-weight: bold;
                 color:black;
             }
-          
+
             .td_col1{
                 width: 87pt !important;
                 text-align: center;
@@ -75,9 +75,9 @@ use App\Http\Controllers\Api\FunctionsController;
 
             .noneborder_top_left{
                 border-top: 1px solid white;
-                border-right:1px solid white; 
+                border-right:1px solid white;
             }
-           
+
             .border-bottom-none{
                 border-bottom: 1px solid white;
             }
@@ -113,7 +113,7 @@ use App\Http\Controllers\Api\FunctionsController;
             .page-break {
                 /* page-break-before: always; */
                 page-break-after: always;
-    
+
             }
 
             /* .page-break:first {
@@ -121,9 +121,9 @@ use App\Http\Controllers\Api\FunctionsController;
                 margin-top: 15px  !important
             } */
 
-            @media print { 
+            @media print {
                 @page { margin: 0; }
-                * { overflow: hidden!important; } 
+                * { overflow: hidden!important; }
             }
 
             .col-5, .col-52, .col-2{
@@ -186,16 +186,16 @@ use App\Http\Controllers\Api\FunctionsController;
             }
             .acc_mytable{
                 width: 384px !important;
-            
+
             }
             .acc_mytable2{
                 width:384px !important;
 
-            }    
+            }
             .staff_mytable{
                 width: 120px !important;
             }
-     
+
         </style>
     @endsection
     @section('content')
@@ -204,12 +204,12 @@ use App\Http\Controllers\Api\FunctionsController;
                 <?php ++$a; ++$i; ?>
                 @if ($a == 1)
                     <div class="row table_row11">
-                @elseif ($a == 2) 
+                @elseif ($a == 2)
                     <div class="row">
                 @else
                     <div class="row">
                 @endif
-            
+
                     <div class="col-5">
                     @include('invoice._iv_form')
                     </div>

@@ -21660,7 +21660,8 @@ html {
 .navbar-vertical.navbar-expand-xs .navbar-collapse {
     display: block;
     overflow: auto;
-    height: calc(100vh - 360px)
+    /* height: calc(100vh - 360px) */
+    height: calc(100vh)
 }
 
 .navbar-vertical.navbar-expand-xs>[class*=container] {

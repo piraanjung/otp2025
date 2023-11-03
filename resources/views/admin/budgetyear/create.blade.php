@@ -3,11 +3,14 @@
 @section('mainheader')
     สร้างปีงบประมาณ
 @endsection
-@section('budgetyear')
-    active
+@section('budgetyear-show')
+    show
 @endsection
-@section('nav')
-    <a href="{{ url('/budgetyear') }}"> รายการปีงบประมาณ</a>
+@section('nav-budgetyear-header')
+active
+@endsection
+@section('nav-budgetyear')
+active
 @endsection
 @section('style')
     <script src="https://code.jquery.com/jquery-1.12.4.js" integrity="sha256-Qw82+bXyGq6MydymqBxNPYTaUXXq7c8v3CwiYwLLNXU="

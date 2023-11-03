@@ -6,8 +6,10 @@
 @section('nav')
 <a href="{{url('/budgetyear')}}"> รายการปีงบประมาณ</a>
 @endsection
-
-@section('budgetyear')
+@section('budgetyear-show')
+    show
+@endsection
+@section('nav-budgetyear')
     active
 @endsection
 

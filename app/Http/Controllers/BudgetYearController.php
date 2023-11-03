@@ -74,6 +74,7 @@ class BudgetYearController extends Controller
         $budgetyear = BudgetYear::find($id);
 
         $budgetyear->delete();
+        FunctionsController::reset_auto_increment_when_deleted('invoice_period');
 
         return view('budgetyear.edit', compact('budgetyear'));
     }

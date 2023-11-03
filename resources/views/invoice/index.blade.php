@@ -1,28 +1,9 @@
 @extends('layouts.admin1')
 
-@section('mainheader')
-    งานประปา {{ isset($invoice_period->inv_period_name) ? 'รอบบิล ' . $invoice_period->inv_period_name : '' }}
-@endsection
-@section('nav-active')
+@section('nav-invoice')
     active
 @endsection
-@section('nav')
-    <a href="{{ url('/invoice/index') }}">ออกใบแจ้งหนี้</a>
-@endsection
 
-@section('style')
-    <style>
-        .foatright {
-            float: right
-        }
-
-        .disabled {
-            pointer-events: none;
-            cursor: default;
-            background-color: lightgray
-        }
-    </style>
-@endsection
 
 @section('content')
     <div class="container-fluid my-3 py-3">
@@ -122,7 +103,9 @@
 
                                 </p>
                                 <div class="col-12 col-md-6">
-                                    <a href="{{ url('invoice/zone_create/' . $zone['zone_info']->undertake_subzone_id) }}"
+                                    <a href="{{ route('invoice.zone_create' ,
+                                    ['zone_id' => $zone['zone_info']->undertake_subzone_id,'curr_inv_prd' =>$current_inv_period->id])
+                                }}"
                                         class="foatright btn btn-sm btn-outline-dark mb-0  {{ $zone['initTotalCount'] == 0 ? 'disabled' : '' }}">เพิ่มข้อมูล
                                     </a>
                                 </div>
@@ -150,12 +133,13 @@
                                     {{ $zone['invoiceTotalCount'] }} <sup> คน</sup>
                                 </p>
                                 <div class="col-12 col-md-6">
-                                    <a href="{{ url('invoice/invoiced_lists/' . $zone['zone_info']->undertake_subzone_id) }}"
+                                    <a href="{{ route('invoice.invoiced_lists' , $zone['zone_info']->undertake_subzone_id) }}"
                                         class="foatright btn btn-sm btn-outline-dark mb-0 {{ $zone['invoiceTotalCount'] == 0 ? 'disabled' : '' }}">
                                         ปริ้นใบแจ้งหนี้
                                     </a>
                                     <a style="margin-right: 5px"
-                                        href="{{ url('invoice/zone_edit/' . $zone['zone_info']->undertake_subzone_id) }}"
+                                        href="{{ route('invoice.zone_edit' , ['subzone_id' =>$zone['zone_info']->undertake_subzone_id,
+                                        'curr_inv_prd' => $current_inv_period]) }}"
                                         class="foatright btn btn-sm btn-outline-dark mb-0  btn-sm {{ $zone['invoiceTotalCount'] == 0 ? 'disabled' : '' }}">
                                         แก้ไขข้อมูล
                                     </a>

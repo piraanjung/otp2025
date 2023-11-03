@@ -1,22 +1,15 @@
-@extends('layouts.adminlte')
+@extends('layouts.admin1')
 
-@section('mainheader')
-    ออกใบแจ้งหนี้ <span id="undertake_zone"></span> เส้นทาง <span id="undertake_subzone"></span>
-@endsection
-@section('invoice')
+@section('nav-invoice')
     active
 @endsection
-@section('nav')
-    <a href="{{ url('/invoice') }}"> งานประปา</a>
-@endsection
-
 
 @section('content')
     <div class="card">
         <form action="{{ url('invoice/print_multi_invoice') }}" method="POST">
             @csrf
             <div class="card-header">
-                <div class="card-title">รอบบิลที่ <span id="invPeriod"></span> ปีงบประมาณ <span id="budgetyear"></span>
+                <div class="card-title">รอบบิลที่ <span id="invPeriod"></span> ปีงบประมาณ <span id="_budgetyear"></span>
                 </div>
                 <div class="card-tools">
                     <input type="submit" class="btn btn-primary" id="print_multi_inv" value="ปริ้นใบแจ้งหนี้ผู้ใช้ที่เลือก">
@@ -27,13 +20,19 @@
                 <input type="hidden" id="zone_id" name="zone_id" value="">
                 <input type="hidden" id="subzone_id" name="subzone_id" value="">
                 <input type="hidden" name="mode" id="mode" value="zone_info">
+                @error('inv_id')
+                <div class="alert alert-warning alert-dismissible text-white" role="alert">
+                    <h5>{{$message}}</h5>
+                    <button type="button" class="btn-close text-lg py-3 opacity-10" data-bs-dismiss="alert" aria-label="Close">
+                    <span aria-hidden="true">×</span>
+                    </button>
+                    </div>
 
-                <table id="oweTable" class="table table-striped text-nowrap" width="100%">
+                @enderror
+                <table id="oweTable" class="table " width="100%">
                     <tfoot>
                         <tr>
                             <td colspan="4" class="text-right h4">รวม</td>
-                            <td style="border-bottom: 1px solid  #000000"></td>
-                            <td style="border-bottom: 1px solid  #000000"></td>
                             <td style="border-bottom: 1px solid  #000000"></td>
                             <td style="border-bottom: 1px solid  #000000"></td>
                             <td style="border-bottom: 1px solid  #000000"></td>
@@ -67,14 +66,16 @@
 
         function getOweInfos() {
 
-            $.get(`../../api/invoice/invoiced_lists/<?php echo $subzone_id; ?>`).done(function(data) {
+            $.get(`/api/invoice/invoiced_lists/<?php echo $subzone_id; ?>`).done(function(data) {
+                console.log('data', data.zoneInfo.undertake_subzone_id)
                 $('#invPeriod').html(data.presentInvoicePeriod.inv_period_name)
-                $('#budgetyear').html(data.presentInvoicePeriod.budgetyear)
+                $('#_budgetyear').html(data.presentInvoicePeriod.budgetyear)
                 $('#undertake_zone').html(data.zoneInfo.undertake_zone)
                 $('#undertake_subzone').html(data.zoneInfo.undertake_subzone)
-                $('#zone_id').html(data.zoneInfo.undertake_zone_id)
-                $('#subzone_id').html(data.zoneInfo.undertake_subzone_id)
+                $('#zone_id').val(data.zoneInfo.undertake_zone_id)
+                $('#subzone_id').val(data.zoneInfo.undertake_subzone_id)
                 if (data.length === 0) {
+
                     $('.res').html('<div class="card-body h3 text-center">ไม่พบข้อมูล</div>')
                 } else {
                     table = $('#oweTable').DataTable({
@@ -108,13 +109,14 @@
 
                         },
                         data: data.invoicedlists,
-                        columns: [{
+                        columns: [
+                            {
                                 'title': 'เลขใบแจ้งหนี้',
                                 data: function(data) {
-                                    return `${data.id}<input type="hidden" value="${data.id}" name="zone[${data.id}][iv_id]" data-id="${data.id}" 
+                                    return `${data.id}<input type="hidden" value="${data.id}" name="zone[${data.id}][iv_id]" data-id="${data.id}"
                                     id="iv_id${data.id}" class="form-control text-right iv_id">
                                     <input type="checkbox" class="control-input invoice_id" name="inv_id[${data.id}]" id="inv_id[${data.id}]"
-                                            data-id="${data.id}" style="opacity: 0">
+                                            data-id="${data.id}" style="opacity: 10">
                                     `
                                 },
                                 'className': 'text-center'
@@ -128,7 +130,9 @@
                             },
                             {
                                 'title': 'ชื่อ-สกุล',
-                                data: 'name'
+                                data: function(data){
+                                    return `${data.firstname} ${data.lastname}`
+                                }
                             },
                             {
                                 'title': 'บ้านเลขที่',
@@ -163,14 +167,8 @@
                                     return `${amount.toLocaleString()}`
                                 },
                                 'className': 'text-right'
-                            },
-                            {
-                                'title': 'ปริ้นแล้ว',
-                                data: function(data) {
-                                    return `${data.printed_time}`
-                                },
-                                'className': 'text-center'
-                            },
+                             },
+
 
 
                         ],
@@ -186,7 +184,7 @@
                             };
 
                             // var nf = new Intl.NumberFormat();
-                            for (let i = 4; i <= 8; i++) {
+                            for (let i = 4; i <= 7; i++) {
 
                                 // แถวค่าน้ำ
                                 total_water_price = api

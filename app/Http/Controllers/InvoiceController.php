@@ -56,97 +56,31 @@ class InvoiceController extends Controller
             $invoiceTotalCount = 0;
             if (isset($status_grouped['invoice'])) {
                 $invoiceTotalCount = collect($status_grouped['invoice'])->count();
+                $invoice_count = collect($status_grouped['invoice'])->count();
             }
             $paidTotalCount = 0;
             if (isset($status_grouped['paid'])) {
                 $paidTotalCount = collect($status_grouped['paid'])->count();
             }
+
+            $initTotalCount = 0;
+            if (isset($status_grouped['init'])) {
+                $initTotalCount = collect($status_grouped['init'])->count();
+            }
             $zones->push([
                     'zone_info' => $zone[0]->usermeterinfos,
                     'members_count' => collect($grouped_inv_by_subzone[$key])->count(),
-                    'initTotalCount' => collect($status_grouped['init'])->count(),
                     'owe_over3' => collect($grouped_inv_by_subzone[$key])->filter(function ($item) {
                         return $item->usermeterinfos->owe_count >= 3;
                     })->count()
                     ,
+                    'initTotalCount' => $initTotalCount,
                     'invoiceTotalCount' => $invoiceTotalCount,
                     'paidTotalCount' => $paidTotalCount
                 ]);
         }
         // return $zones;
         return view('invoice.index', compact('zones', 'current_inv_period'));
-    }
-
-    private function manageOweCount()
-    {
-        $aa = UserMerterInfo::
-            with([
-                'invoice' => function ($query) {
-                    return $query->select('inv_period_id', 'status', 'user_id')
-                        ->where('status', 'owe');
-                },
-            ])->where('deleted', 0)->get(['user_id', 'owe_count', 'id', 'status']);
-
-        $arr = collect([]);
-        $i = 1;
-        foreach ($aa as $a) {
-            //นับ invoice status เท่ากับ owe หรือ invioce แล้วทำการ update
-            //owe_count ให้  user_meter_infos ใหม่
-            $oweInvCount = collect($a->invoice)->count(); // + 1; // บวก row  status == invoice
-
-            $update = UserMerterInfo::where('id', $a->id)->update([
-                'owe_count' => $oweInvCount,
-                'status' => 'active',
-                'cutmeter' => $oweInvCount >= 3 ? 1 : 0,
-                'discounttype' => $oweInvCount >= 3 ? $oweInvCount : 0,
-            ]);
-
-            // $i++;
-            // $thai_year = date('Y') + 543;
-            // $create_cutmeter = new CutmeterHistory;
-            // $create_cutmeter->cutmeter_id = $i;
-            // $create_cutmeter->user_id = $a->user_id;
-            // $create_cutmeter->operate_date = date('m/d/' . $thai_year);
-            // $create_cutmeter->operate_time = date('H:i') . " น.";
-            // $create_cutmeter->twman_id = \json_encode([['user_id' => "" . Auth::id()]]);
-            // $create_cutmeter->status = 'disambled';
-            // $create_cutmeter->pending = 1;
-            // $create_cutmeter->created_at = date('Y-m-d H:i:s');
-            // $create_cutmeter->updated_at = date('Y-m-d H:i:s');
-            // $create_cutmeter->save();
-
-        }
-        ;
-        return $arr;
-    }
-
-    private function invStatusCountBySubzone($status, $subzone_id, $currentInvPeriodId)
-    {
-        $query = DB::table('user_meter_infos')
-            ->join('invoice', 'invoice.user_id', '=', 'user_meter_infos.user_id')
-            // ->join('invoice', 'invoice.meter_id', '=', 'user_meter_infos.id')
-            ->where('invoice.status', $status)
-            ->where('user_meter_infos.status', 'active')
-            ->where('user_meter_infos.undertake_subzone_id', $subzone_id)
-            ->where('invoice.inv_period_id', $currentInvPeriodId);
-        if ($status != 'owe') {
-            $query = $query->join('invoice_period', 'invoice_period.id', '=', 'invoice.inv_period_id')
-                ->where('invoice_period.status', 'active');
-        }
-        return $query->count();
-    }
-
-    public function invoice_edit($invoice_id)
-    {
-        return $invoice = invoice::where('id', $invoice_id)
-            ->with([
-                'user_profile' => function ($query) {
-                    return $query->get('name');
-                },
-                'invoice_period'
-            ])
-            ->get();
-        return view('invoice.invoice_edit');
     }
 
     public function paid($id)
@@ -157,11 +91,25 @@ class InvoiceController extends Controller
         return view('invoice.paid', compact('invoice'));
     }
 
-    public function create($invoice_id)
+    public function zone_create($subzone_id, $curr_inv_prd, $new_user = 0)
     {
-        return view('invoice.create', compact('invoice_id'));
-    }
+        $curr_inv_init_status = Invoice::where(['inv_period_id_fk' => $curr_inv_prd, 'status' => 'init'])
+                                    ->with(['usermeterinfos'=> function ($query) use ($subzone_id) {
+                                        $query->select('meter_id', 'undertake_subzone_id', 'user_id', 'metertype_id','meternumber')
+                                            ->where('undertake_subzone_id', $subzone_id);
+                                    },'usermeterinfos.meter_type'=> function ($query){
+                                        $query->select('id', 'price_per_unit');
+                                    }
+                                    ])->get();
+        //filter subzone  ที่ต้องการ
+        $invoices = collect($curr_inv_init_status)->filter(function ($item) use ($subzone_id) {
+            if(collect($item->usermeterinfos)->isNotEmpty()) {
+                return $item->usermeterinfos->undertake_subzone_id == $subzone_id;
+            }
+        });
 
+        return view('invoice.zone_create', compact('invoices'));
+    }
     public function store(REQUEST $request)
     {
         date_default_timezone_set('Asia/Bangkok');
@@ -173,8 +121,8 @@ class InvoiceController extends Controller
         $presentInvoicePeriod = InvoicePeriod::where("status", "active")->first(); //หารอบบิลล่าสุด
         //เพิ่มข้อมูลลง invoice
         foreach ($filters as $inv) {
-            invoice::where('user_id', $inv['user_id'])
-                ->where('inv_period_id', $presentInvoicePeriod->id)
+            Invoice::where('meter_id_fk', $inv['meter_id'])
+                ->where('inv_period_id_fk', $presentInvoicePeriod->id)
                 ->update([
                     'lastmeter' => $inv['lastmeter'],
                     'currentmeter' => $inv['currentmeter'],
@@ -182,27 +130,18 @@ class InvoiceController extends Controller
                     'recorder_id' => Auth::id(),
                     'updated_at' => date('Y-m-d H:i:s'),
                 ]);
-
-            UserProfile::where('user_id', $inv['user_id'])
-                ->update([
-                    'address' => $inv['address'],
-                    'updated_at' => date('Y-m-d H:i:s'),
-
-                ]);
         }
-        return \redirect('invoice/index')->with([
+        return redirect()->route('invoice.index')->with([
             'massage' => 'ทำการบันทึกข้อมูลเรียบร้อยแล้ว',
             'color' => 'success',
         ]);
     }
-
     public function edit($invoice_id)
     {
         $inv = $this->apiInvoiceCtrl->get_user_invoice($invoice_id);
         $invoice = json_decode($inv->getContent());
         return view('invoice.edit', compact('invoice'));
     }
-
     public function update(REQUEST $request, $id)
     {
         date_default_timezone_set('Asia/Bangkok');
@@ -223,6 +162,11 @@ class InvoiceController extends Controller
 
     public function print_multi_invoice(REQUEST $request)
     {
+        $validated = $request->validate([
+            'inv_id'=> 'required',
+        ],[
+            'required'=> 'ยังไม่ได้เลือกแถวที่ต้องการปริ้น',
+        ]) ;
         date_default_timezone_set('Asia/Bangkok');
         if ($request->get('mode') == 'payment') {
             //การเป็นการจ่ายเงิน ให้ทำการบันทึกยอดเงินใน accounting
@@ -237,33 +181,27 @@ class InvoiceController extends Controller
                 $acc->save();
 
                 //แล้ว update invoice  status = paid
-                invoice::where('id', $key)->update([
+                invoice::where('meter_id_fk', $key)->update([
                     'status' => 'paid',
                     'updated_at' => date('Y-m-d H:i:s'),
                 ]);
             }
         }
         //เตรียมการปริ้น
-        $setting_tambon_infos_json = Setting::where('name', 'organization')->get(['values']);
+        $setting_tambon_infos_json = Setting::where('name', 'tambon_infos')->get(['values']);
         $setting_tambon_infos = json_decode($setting_tambon_infos_json[0]['values'], true);
         //หาวันสุดท้ายที่จะมาชำระหนี้ได้ ให้เวลา 30 วันนับแต่ออกใบแจ้งหนี้
-        $setting_invoice_expired = Setting::where('name', 'payment_expired_date')->get(['values']);
+        $setting_invoice_expired = Setting::where('name', 'invoice_expired')->get(['values']);
         $strStartDate = date('Y-m-d');
-        $invoice_expired_next30day = date("Y-m-d", strtotime("+" . $setting_invoice_expired[0]['values'] . " day", strtotime($strStartDate)));
-
+         $invoice_expired_next30day = date("Y-m-d", strtotime("+" . $setting_invoice_expired[0]['values'] . " day", strtotime($strStartDate)));
         $invoiceArray = [];
         $apiInvoiceCtrl = new ApiInvoiceCtrl();
         foreach ($request->get('inv_id') as $key => $on) {
             if ($on == 'on') {
                 $data = json_decode($apiInvoiceCtrl->get_user_invoice_by_invId_and_mode($key, $request->get('mode'))->getContent(), true);
+
                 array_push($invoiceArray, $data);
 
-                //บวกจำนวนครั้งที่ปริ้นใน invoice->printed_time
-                $printed_time_plus = invoice::where('id', $data['id'])->update([
-                    'printed_time' => $data['printed_time'] + 1,
-                    'updated_at' => date('Y-m-d H:i:s'),
-                    'recorder_id' => Auth::id(),
-                ]);
             }
         }
         $mode = "multipage";
@@ -331,77 +269,79 @@ class InvoiceController extends Controller
 
     }
 
-    public function zone_edit($subzone_id)
+    public function zone_edit($subzone_id, $curr_inv_prd)
     {
-        return view('invoice.zone_edit', compact('subzone_id'));
+        $inv_status_invoice= Invoice::where('inv_period_id_fk', $curr_inv_prd)
+        ->where('status', 'invoice')
+        ->with(['usermeterinfos'=> function ($query) use ($subzone_id) {
+            $query->select('meter_id', 'undertake_subzone_id', 'user_id', 'metertype_id','meternumber')
+                ->where('undertake_subzone_id', $subzone_id);
+        },'usermeterinfos.meter_type'=> function ($query){
+            $query->select('id', 'price_per_unit');
+        }
+        ])->get();
+        $inv_in_seleted_subzone = collect($inv_status_invoice)->filter(function ($value, $key) use ( $subzone_id) {
+            return $value->usermeterinfos->undertake_subzone_id == $subzone_id;
+        });
+        return view('invoice.zone_edit', compact('inv_in_seleted_subzone', 'subzone_id'));
     }
 
-    public function zone_create($subzone_id, $new_user = 0)
+    public function zone_update(REQUEST $request,  $subzone_id)
     {
-        $newUsers = [];
-        $presentInvoicePeriod = InvoicePeriod::where("status", "active")->first();
-        $lastInvoicePeriod = InvoicePeriod::where("status", "inactive")->orderBy('id', 'desc')->first();
-        if (collect($lastInvoicePeriod)->isEmpty()) {
-            $lastInvoicePeriod = $presentInvoicePeriod;
-        }
-        $currentInvPeriod_id = $presentInvoicePeriod->id;
-        $prevInvPeriod_id = $lastInvoicePeriod->id;
 
-        //เอาค่า invoice เดือน ปัจจุบัน ของ user ใน subzone ที่เลือก
-        $subzone_members = UserMerterInfo::where('undertake_subzone_id', $subzone_id)
-            ->where('status', 'active')
-            ->with([
-                'user_profile:name,address,user_id',
-                'invoice' => function ($query) use ($prevInvPeriod_id, $currentInvPeriod_id) {
-                    return $query->select('inv_period_id', 'currentmeter', 'lastmeter', 'status', 'id as iv_id', 'user_id')
-                        // ->where('inv_period_id', '>=', $prevInvPeriod_id)
-                        ->where('inv_period_id', '=', $currentInvPeriod_id);
-                    // ->where('status', 'init');
-
-                },
-                'invoice_last_inctive_inv_period' => function ($query) use ($prevInvPeriod_id, $currentInvPeriod_id) {
-                    return $query->select('inv_period_id', 'currentmeter', 'lastmeter', 'id as iv_id', 'user_id')
-                        ->where('inv_period_id', '=', $prevInvPeriod_id);
-                    // ->where('inv_period_id', '<=', $currentInvPeriod_id);
-                    // ->where('status', 'init');
-
-                },
-                'zone' => function ($query) {
-                    return $query->select('zone_name', 'id');
-                },
-                'subzone' => function ($query) {
-                    return $query->select('subzone_name', 'id');
-                },
-            ])
-            ->orderBy('user_id')
-            ->get(['meternumber', 'undertake_zone_id', 'undertake_subzone_id', 'id', 'user_id']);
-
-        $member_not_yet_recorded_present_inv_period_filtered = collect($subzone_members)->filter(function ($v) {
-            $status = '';
-            // dd($v);
-            if (collect($v->invoice)->isNotEmpty()) {
-
-                $status = $v->invoice[0]->status;
+        date_default_timezone_set('Asia/Bangkok');
+        $filters_all = collect($request->get('zone'))->filter(function ($val) {
+            return $val['changevalue'] == 1 || $val['status'] == 'delete' || $val['status'] == 'init';
+        });
+        $filters_changeValue = collect($filters_all)->filter(function ($val) {
+            return $val['changevalue'] == 1;
+        });
+        $filters_delete_status = collect($filters_all)->filter(function ($val) {
+            return $val['status'] == 'delete';
+        });
+        $filters_init_status = collect($filters_all)->filter(function ($val) {
+            return $val['status'] == 'init';
+        });
+        if (collect($filters_changeValue)->count() > 0) {
+            foreach ($filters_changeValue as $key => $vals) {
+                $invoice = invoice::where('id', $key)->update([
+                    "currentmeter" => $vals['currentmeter'],
+                    "lastmeter" => $vals['lastmeter'],
+                    "recorder_id" => Auth::id(),
+                    "comment" => $vals['comment'],
+                    "updated_at" => date('Y-m-d H:i:s'),
+                ]);
             }
-            //  else {
-            //     $status = 'deleted';
-            // }
-            return collect($v->invoice)->isNotEmpty() && $status == 'init';
-        });
-
-        $aa = collect($member_not_yet_recorded_present_inv_period_filtered)->filter(function ($v) {
-            return collect($v->invoice_last_inctive_inv_period)->isEmpty();
-        });
-        foreach ($aa as $key => $a) {
-            $member_not_yet_recorded_present_inv_period_filtered[$key]->invoice_last_inctive_inv_period->push([
-                "inv_period_id" => $currentInvPeriod_id,
-                "currentmeter" => 0,
-                "iv_id" => 0,
-            ]);
         }
-        $member_not_yet_recorded_present_inv_period = collect($member_not_yet_recorded_present_inv_period_filtered)->flatten();
-        return view('invoice.zone_create', compact('member_not_yet_recorded_present_inv_period', 'presentInvoicePeriod'));
+        if (collect($filters_delete_status)->count() > 0) {
+            foreach ($filters_delete_status as $key => $vals) {
+                $invoice = invoice::where('id', $key)->update([
+                    "status" => 'deleted',
+                    "deleted" => 1,
+                    "recorder_id" => Auth::id(),
+                    "comment" => $vals['comment'],
+                    "updated_at" => date('Y-m-d H:i:s'),
+                ]);
+            }
+        }
+
+        if (collect($filters_init_status)->count() > 0) {
+            foreach ($filters_init_status as $key => $vals) {
+                $invoice = invoice::where('id', $key)->update([
+                    "currentmeter" => 0,
+                    "status" => 'init',
+                    "recorder_id" => Auth::id(),
+                    "comment" => $vals['comment'],
+                    "updated_at" => date('Y-m-d H:i:s'),
+                ]);
+            }
+        }
+        return \redirect('invoice/index')->with([
+            'massage' => 'ทำการบันทึกการแก้ไขข้อมูลเรียบร้อยแล้ว',
+            'color' => 'success',
+        ]);
     }
+
 
     public function test($subzone_id, $new_userstatus)
     {
@@ -514,105 +454,15 @@ class InvoiceController extends Controller
         return view('invoice.zone_create', compact('member_not_yet_recorded_present_inv_period', 'presentInvoicePeriod'));
 
     }
-    public function zone_create2($subzone_id)
-    {
-        $presentInvoicePeriod = InvoicePeriod::where("status", "active")->first();
-        $lastInvoicePeriod = InvoicePeriod::where("status", "inactive")->orderBy('id', 'desc')->first();
-        if (collect($lastInvoicePeriod)->isEmpty()) {
-            //
-            $lastInvoicePeriod = $presentInvoicePeriod;
-        }
 
-        $zone_member = UserMerterInfo::where('undertake_subzone_id', $subzone_id)
-            ->where('status', 'active')
-            ->with('user_profile')
-            ->orderBy('undertake_subzone_id')
-            ->get();
 
-        $memberNoInvoice = collect($zone_member)->filter(function ($val) {
-            //filter หา invoice ที่ว่าง ยังไม่ได้กรอกเลขมิเตอร์
-            $presentInvoicePeriod = InvoicePeriod::where("status", "active")->first();
-            $val->invoice = invoice::where('user_id', $val->user_id)
-                ->where('inv_period_id', $presentInvoicePeriod->id)
-                ->where('deleted', 0)
-                ->get();
-            return collect($val->invoice)->isEmpty();
-        });
-        foreach ($memberNoInvoice as $newInv) {
-            //หาค่าเลขมิเตอร์ ของครั้งก่อน มาเป็นตั้งต้น ของเดือนปัจจุบัน
-            $inv = invoice::where('user_id', $newInv->use_id)
-                ->where('inv_period_id', $lastInvoicePeriod->id)->get(['currentmeter'])->first();
-            $newInv->lastmeter = collect($inv)->isEmpty() ? 0 : $inv['currentmeter'];
-        }
-        $totalMemberCount = $memberNoInvoice->count();
-        $zoneInfo = collect($zone_member)->first();
-
-        return view('invoice.zone_create', compact('presentInvoicePeriod', 'zoneInfo', 'memberNoInvoice'));
-    }
-
-    public function zone_update(REQUEST $request, $id)
-    {
-
-        date_default_timezone_set('Asia/Bangkok');
-        $filters_all = collect($request->get('zone'))->filter(function ($val) {
-            return $val['changevalue'] == 1 || $val['status'] == 'delete' || $val['status'] == 'init';
-        });
-        $filters_changeValue = collect($filters_all)->filter(function ($val) {
-            return $val['changevalue'] == 1;
-        });
-        $filters_delete_status = collect($filters_all)->filter(function ($val) {
-            return $val['status'] == 'delete';
-        });
-        $filters_init_status = collect($filters_all)->filter(function ($val) {
-            return $val['status'] == 'init';
-        });
-        if (collect($filters_changeValue)->count() > 0) {
-            foreach ($filters_changeValue as $key => $vals) {
-                $invoice = invoice::where('id', $key)->update([
-                    "currentmeter" => $vals['currentmeter'],
-                    "lastmeter" => $vals['lastmeter'],
-                    "recorder_id" => Auth::id(),
-                    "comment" => $vals['comment'],
-                    "updated_at" => date('Y-m-d H:i:s'),
-                ]);
-            }
-        }
-        if (collect($filters_delete_status)->count() > 0) {
-            foreach ($filters_delete_status as $key => $vals) {
-                $invoice = invoice::where('id', $key)->update([
-                    "status" => 'deleted',
-                    "deleted" => 1,
-                    "recorder_id" => Auth::id(),
-                    "comment" => $vals['comment'],
-                    "updated_at" => date('Y-m-d H:i:s'),
-                ]);
-            }
-        }
-
-        if (collect($filters_init_status)->count() > 0) {
-            foreach ($filters_init_status as $key => $vals) {
-                $invoice = invoice::where('id', $key)->update([
-                    "currentmeter" => 0,
-                    "status" => 'init',
-                    "recorder_id" => Auth::id(),
-                    "comment" => $vals['comment'],
-                    "updated_at" => date('Y-m-d H:i:s'),
-                ]);
-            }
-        }
-        return \redirect('invoice/index')->with([
-            'massage' => 'ทำการบันทึกการแก้ไขข้อมูลเรียบร้อยแล้ว',
-            'color' => 'success',
-        ]);
-    }
-
-    public function show($user_id)
-    {
-        $user = UserProfile::where('user_id', $user_id)
-            ->with('userMeterInfos', 'invoice', 'invoice.invoice_period')
-            ->get();
-        return view('invoice.show', compact('user'));
-    }
+    // public function show($user_id)
+    // {
+    //     $user = User::where('id', $user_id)
+    //         ->with('usermeterinfos', 'invoice', 'invoice.invoice_period')
+    //         ->get();
+    //     return view('invoice.show', compact('user'));
+    // }
 
     public function delete($invoice_id, $comment)
     {
@@ -646,15 +496,6 @@ class InvoiceController extends Controller
         return $owes;
     }
 
-    // public function owe_by_all($type = "data")
-    // {
-    //     if ($type == 'count') {
-    //         $owes = $this->oweSql()->count();
-    //     } else {
-    //         $owes = $this->oweSql()->get();
-    //     }
-    //     return $owes;
-    // }
     private function oweSql($status)
     {
         $sql = DB::table('user_meter_infos as umf')

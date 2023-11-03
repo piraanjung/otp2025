@@ -20,14 +20,9 @@ class UserMerterInfo extends Model
     {
         return $this->belongsTo(User::class, 'user_id');
     }
-    public function user_profile()
+    public function meter_type()
     {
-        return $this->belongsTo(UserProfile::class, 'user_id', 'user_id');
-    }
-
-    public function metertype()
-    {
-        return $this->belongsTo(MeterType::class, 'metertype_id');
+        return $this->belongsTo(MeterType::class, 'metertype_id', 'id');
     }
 
     public function zone()
