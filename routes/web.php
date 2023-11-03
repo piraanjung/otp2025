@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Controllers\Admin\ExcelController;
 use App\Http\Controllers\Admin\IndexController;
 use App\Http\Controllers\Admin\MetertypeController;
 use App\Http\Controllers\Admin\PermissionController;
@@ -54,6 +55,7 @@ Route::middleware(['auth', 'role:admin'])->name('admin.')->prefix('admin')->grou
     Route::get('/subzone/{zone_id}/getSubzone', [SubzoneController::class, 'getSubzone'])->name('subzone.getSubzone');
     Route::post('/settings/create_and_update', [SettingsController::class, 'create_and_update'])->name('settings.create_and_update');
     Route::resource('/settings',SettingsController::class);
+    Route::resource('/excel',ExcelController::class);
 
 });
 Route::resource('/test',TestController::class);
@@ -61,6 +63,9 @@ Route::resource('/test',TestController::class);
 
 Route::middleware(['auth', 'role:admin|finance'])->group(function () {
     Route::resource('/invoice',InvoiceController::class);
+    Route::get('/invoice/{zone_id}{curr_inv_prd}/zone_create/{new_user?}',[InvoiceController::class,'zone_create' ])->name('invoice.zone_create');
+
+
 });
 
 require __DIR__ . '/auth.php';

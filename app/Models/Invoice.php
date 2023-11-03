@@ -23,11 +23,6 @@ class Invoice extends Model
         return $this->belongsTo(User::class, 'user_id');
     }
 
-    public function user_profile()
-    {
-        return $this->belongsTo(UserProfile::class, 'user_id', 'user_id');
-    }
-
     public function recorder()
     {
         return $this->belongsTo('App\Models\Admin\UserProfile','recorder_id');

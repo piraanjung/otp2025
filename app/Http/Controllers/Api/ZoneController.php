@@ -4,7 +4,6 @@ namespace App\Http\Controllers\Api;
 
 use App\Http\Controllers\Controller;
 use App\Models\Admin\UserProfile;
-use App\Models\Subzone;
 use App\Models\User;
 use App\Models\Zone;
 

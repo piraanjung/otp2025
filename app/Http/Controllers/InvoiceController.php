@@ -9,7 +9,6 @@ use App\Models\Admin\UserProfile;
 use App\Models\Invoice;
 use App\Models\InvoicePeriod;
 use App\Models\Setting;
-use App\Models\Subzone;
 use App\Models\User;
 use App\Models\UserMerterInfo;
 use Illuminate\Http\Request;
@@ -56,97 +55,31 @@ class InvoiceController extends Controller
             $invoiceTotalCount = 0;
             if (isset($status_grouped['invoice'])) {
                 $invoiceTotalCount = collect($status_grouped['invoice'])->count();
+                $invoice_count = collect($status_grouped['invoice'])->count();
             }
             $paidTotalCount = 0;
             if (isset($status_grouped['paid'])) {
                 $paidTotalCount = collect($status_grouped['paid'])->count();
             }
+
+            $initTotalCount = 0;
+            if (isset($status_grouped['init'])) {
+                $initTotalCount = collect($status_grouped['init'])->count();
+            }
             $zones->push([
                     'zone_info' => $zone[0]->usermeterinfos,
                     'members_count' => collect($grouped_inv_by_subzone[$key])->count(),
-                    'initTotalCount' => collect($status_grouped['init'])->count(),
                     'owe_over3' => collect($grouped_inv_by_subzone[$key])->filter(function ($item) {
                         return $item->usermeterinfos->owe_count >= 3;
                     })->count()
                     ,
+                    'initTotalCount' => $initTotalCount,
                     'invoiceTotalCount' => $invoiceTotalCount,
                     'paidTotalCount' => $paidTotalCount
                 ]);
         }
         // return $zones;
         return view('invoice.index', compact('zones', 'current_inv_period'));
-    }
-
-    private function manageOweCount()
-    {
-        $aa = UserMerterInfo::
-            with([
-                'invoice' => function ($query) {
-                    return $query->select('inv_period_id', 'status', 'user_id')
-                        ->where('status', 'owe');
-                },
-            ])->where('deleted', 0)->get(['user_id', 'owe_count', 'id', 'status']);
-
-        $arr = collect([]);
-        $i = 1;
-        foreach ($aa as $a) {
-            //นับ invoice status เท่ากับ owe หรือ invioce แล้วทำการ update
-            //owe_count ให้  user_meter_infos ใหม่
-            $oweInvCount = collect($a->invoice)->count(); // + 1; // บวก row  status == invoice
-
-            $update = UserMerterInfo::where('id', $a->id)->update([
-                'owe_count' => $oweInvCount,
-                'status' => 'active',
-                'cutmeter' => $oweInvCount >= 3 ? 1 : 0,
-                'discounttype' => $oweInvCount >= 3 ? $oweInvCount : 0,
-            ]);
-
-            // $i++;
-            // $thai_year = date('Y') + 543;
-            // $create_cutmeter = new CutmeterHistory;
-            // $create_cutmeter->cutmeter_id = $i;
-            // $create_cutmeter->user_id = $a->user_id;
-            // $create_cutmeter->operate_date = date('m/d/' . $thai_year);
-            // $create_cutmeter->operate_time = date('H:i') . " น.";
-            // $create_cutmeter->twman_id = \json_encode([['user_id' => "" . Auth::id()]]);
-            // $create_cutmeter->status = 'disambled';
-            // $create_cutmeter->pending = 1;
-            // $create_cutmeter->created_at = date('Y-m-d H:i:s');
-            // $create_cutmeter->updated_at = date('Y-m-d H:i:s');
-            // $create_cutmeter->save();
-
-        }
-        ;
-        return $arr;
-    }
-
-    private function invStatusCountBySubzone($status, $subzone_id, $currentInvPeriodId)
-    {
-        $query = DB::table('user_meter_infos')
-            ->join('invoice', 'invoice.user_id', '=', 'user_meter_infos.user_id')
-            // ->join('invoice', 'invoice.meter_id', '=', 'user_meter_infos.id')
-            ->where('invoice.status', $status)
-            ->where('user_meter_infos.status', 'active')
-            ->where('user_meter_infos.undertake_subzone_id', $subzone_id)
-            ->where('invoice.inv_period_id', $currentInvPeriodId);
-        if ($status != 'owe') {
-            $query = $query->join('invoice_period', 'invoice_period.id', '=', 'invoice.inv_period_id')
-                ->where('invoice_period.status', 'active');
-        }
-        return $query->count();
-    }
-
-    public function invoice_edit($invoice_id)
-    {
-        return $invoice = invoice::where('id', $invoice_id)
-            ->with([
-                'user_profile' => function ($query) {
-                    return $query->get('name');
-                },
-                'invoice_period'
-            ])
-            ->get();
-        return view('invoice.invoice_edit');
     }
 
     public function paid($id)
@@ -157,10 +90,26 @@ class InvoiceController extends Controller
         return view('invoice.paid', compact('invoice'));
     }
 
-    public function create($invoice_id)
+    public function zone_create($subzone_id, $curr_inv_prd, $new_user = 0)
     {
-        return view('invoice.create', compact('invoice_id'));
+        $curr_inv_init_status = Invoice::where(['inv_period_id_fk' => $curr_inv_prd, 'status' => 'init'])
+                                    ->with(['usermeterinfos'=> function ($query) use ($subzone_id) {
+                                        $query->select('meter_id', 'undertake_subzone_id', 'user_id', 'metertype_id','meternumber')
+                                            ->where('undertake_subzone_id', $subzone_id);
+                                    },'usermeterinfos.meter_type'=> function ($query){
+                                        $query->select('id', 'price_per_unit');
+                                    }
+                                    ])->get();
+        //filter subzone  ที่ต้องการ
+        $invoices = collect($curr_inv_init_status)->filter(function ($item) use ($subzone_id) {
+            if(collect($item->usermeterinfos)->isNotEmpty()) {
+                return $item->usermeterinfos->undertake_subzone_id == $subzone_id;
+            }
+        });
+
+        return view('invoice.zone_create', compact('invoices'));
     }
+
 
     public function store(REQUEST $request)
     {
@@ -195,14 +144,12 @@ class InvoiceController extends Controller
             'color' => 'success',
         ]);
     }
-
     public function edit($invoice_id)
     {
         $inv = $this->apiInvoiceCtrl->get_user_invoice($invoice_id);
         $invoice = json_decode($inv->getContent());
         return view('invoice.edit', compact('invoice'));
     }
-
     public function update(REQUEST $request, $id)
     {
         date_default_timezone_set('Asia/Bangkok');
@@ -336,72 +283,6 @@ class InvoiceController extends Controller
         return view('invoice.zone_edit', compact('subzone_id'));
     }
 
-    public function zone_create($subzone_id, $new_user = 0)
-    {
-        $newUsers = [];
-        $presentInvoicePeriod = InvoicePeriod::where("status", "active")->first();
-        $lastInvoicePeriod = InvoicePeriod::where("status", "inactive")->orderBy('id', 'desc')->first();
-        if (collect($lastInvoicePeriod)->isEmpty()) {
-            $lastInvoicePeriod = $presentInvoicePeriod;
-        }
-        $currentInvPeriod_id = $presentInvoicePeriod->id;
-        $prevInvPeriod_id = $lastInvoicePeriod->id;
-
-        //เอาค่า invoice เดือน ปัจจุบัน ของ user ใน subzone ที่เลือก
-        $subzone_members = UserMerterInfo::where('undertake_subzone_id', $subzone_id)
-            ->where('status', 'active')
-            ->with([
-                'user_profile:name,address,user_id',
-                'invoice' => function ($query) use ($prevInvPeriod_id, $currentInvPeriod_id) {
-                    return $query->select('inv_period_id', 'currentmeter', 'lastmeter', 'status', 'id as iv_id', 'user_id')
-                        // ->where('inv_period_id', '>=', $prevInvPeriod_id)
-                        ->where('inv_period_id', '=', $currentInvPeriod_id);
-                    // ->where('status', 'init');
-
-                },
-                'invoice_last_inctive_inv_period' => function ($query) use ($prevInvPeriod_id, $currentInvPeriod_id) {
-                    return $query->select('inv_period_id', 'currentmeter', 'lastmeter', 'id as iv_id', 'user_id')
-                        ->where('inv_period_id', '=', $prevInvPeriod_id);
-                    // ->where('inv_period_id', '<=', $currentInvPeriod_id);
-                    // ->where('status', 'init');
-
-                },
-                'zone' => function ($query) {
-                    return $query->select('zone_name', 'id');
-                },
-                'subzone' => function ($query) {
-                    return $query->select('subzone_name', 'id');
-                },
-            ])
-            ->orderBy('user_id')
-            ->get(['meternumber', 'undertake_zone_id', 'undertake_subzone_id', 'id', 'user_id']);
-
-        $member_not_yet_recorded_present_inv_period_filtered = collect($subzone_members)->filter(function ($v) {
-            $status = '';
-            // dd($v);
-            if (collect($v->invoice)->isNotEmpty()) {
-
-                $status = $v->invoice[0]->status;
-            }
-            //  else {
-            //     $status = 'deleted';
-            // }
-            return collect($v->invoice)->isNotEmpty() && $status == 'init';
-        });
-
-        $aa = collect($member_not_yet_recorded_present_inv_period_filtered)->filter(function ($v) {
-            return collect($v->invoice_last_inctive_inv_period)->isEmpty();
-        });
-        foreach ($aa as $key => $a) {
-            $member_not_yet_recorded_present_inv_period_filtered[$key]->invoice_last_inctive_inv_period->push([
-                "inv_period_id" => $currentInvPeriod_id,
-                "currentmeter" => 0,
-                "iv_id" => 0,
-            ]);
-        }
-        $member_not_yet_recorded_present_inv_period = collect($member_not_yet_recorded_present_inv_period_filtered)->flatten();
-        return view('invoice.zone_create', compact('member_not_yet_recorded_present_inv_period', 'presentInvoicePeriod'));
-    }
 
     public function test($subzone_id, $new_userstatus)
     {

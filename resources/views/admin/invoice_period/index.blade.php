@@ -1,5 +1,10 @@
 @extends('layouts.admin1')
-
+@section('inv_prd-show')
+show
+@endsection
+@section('nav-inv_prd')
+active
+@endsection
 @section('style')
 <script src="https://code.jquery.com/jquery-1.12.4.js" integrity="sha256-Qw82+bXyGq6MydymqBxNPYTaUXXq7c8v3CwiYwLLNXU="
 crossorigin="anonymous"></script>
@@ -51,21 +56,27 @@ integrity="sha384-rbsA2VBKQhggwzxH7pPCaAqO46MgnOM80zW1RWuH61DGLwZJEdK2Kadq2F9CUG
                             </th>
                             <td class="align-middle">
                                 <div class="dropstart float-lg-end ms-auto pe-0">
+                                    @if ($invoice_period->status == 'active')
                                     <a href="javascript:;" class="cursor-pointer" id="dropdownTable2"
                                         data-bs-toggle="dropdown" aria-expanded="false">
                                         <i class="fa fa-ellipsis-h text-secondary" aria-hidden="true"></i>
                                     </a>
                                     <ul class="dropdown-menu px-2 py-3 ms-sm-n4 ms-n5"
                                         aria-labelledby="dropdownTable2" style="">
-                                        <li><a class="dropdown-item" href="{{ route('admin.invoice_period.edit', $invoice_period->id) }}">แก้ไขข้อมูล</a></li>
+                                        <li><a class="dropdown-item text-center" href="{{ route('admin.invoice_period.edit', $invoice_period->id) }}">แก้ไขข้อมูล</a></li>
+
                                         <li>
                                             <form class="dropdown-item" method="POST" action="{{ route('admin.invoice_period.destroy', $invoice_period->id) }}" onsubmit="return confirm('Are you sure?');">
                                                 @csrf
                                                 @method('DELETE')
-                                                <button class="border-0 bg-white hover:bg-gray-900 m-0" type="submit">ลบข้อมูล</button>
+                                                <button class="border-0 w-100 text-left bg-white hover:bg-gray-900 m-0" type="submit">ลบข้อมูล</button>
                                              </form>
                                         </li>
+
+
                                     </ul>
+                                    @endif
+
                                 </div>
                             </td>
                             {{-- <th>

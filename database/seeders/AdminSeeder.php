@@ -17,24 +17,22 @@ class AdminSeeder extends Seeder
     public function run()
     {
        User::create([
-            'username' => 'super admin',
-            'password'=> bcrypt('s@admin'),
-            'email' => 'admin@gmail.com',
-            'email_verified_at' => now(),
-        ])->assignRole('super admin', 'admin');
-
-        UserProfile::create([
-            'user_id'=> 1,
-            'name'=> 'super admin',
-            'id_card'=> '111111111',
-            'phone'=> '0999999999',
-            'gender'=> 'm',
-            'address'=> 'x',
-            'zone_id'=> '0',
-            'subzone_id'=> '0',
-            'tambon_code'=> '0',
-            'district_code'=> '0',
-            'province_code'=> '0',
+        'username' => 'super admin',
+        'password'=> bcrypt('s@admin'),
+        'firstname'=> 'super',
+        'lastname'=> 'admin',
+        'email' => 'admin@gmail.com',
+        'email_verified_at' => now(),
+        'id_card'=> '111111111',
+        'phone'=> '0999999999',
+        'gender'=> 'm',
+        'address'=> 'x',
+        'zone_id'=> '1',
+        'subzone_id'=> '1',
+        'tambon_code'=> '1',
+        'district_code'=> '1',
+        'province_code'=> '1',
+        'role_id' => '1,2'
         ]);
 
     }
