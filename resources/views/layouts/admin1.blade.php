@@ -23,16 +23,21 @@
 
     <link id="pagestyle" href="{{ asset('soft-ui/assets/css/soft-ui-dashboard.min.css') }}" rel="stylesheet" />
     <script src="https://code.jquery.com/jquery-1.12.4.js" integrity="sha256-Qw82+bXyGq6MydymqBxNPYTaUXXq7c8v3CwiYwLLNXU="
-    crossorigin="anonymous"></script>
+        crossorigin="anonymous"></script>
     <style>
         {
-        .navbar-vertical.navbar-expand-xs .navbar-collapse {
-        display: block;
-        overflow: auto;
-        height: calc(100vh) !important;
-}
+            .navbar-vertical.navbar-expand-xs .navbar-collapse {
+                display: block;
+                overflow: auto;
+                height: calc(100vh) !important;
+            }
         }
-        </style>
+    </style>
+     <script src="https://code.jquery.com/jquery-3.7.0.js"></script>
+     <script src="https://cdn.datatables.net/1.13.6/js/jquery.dataTables.min.js"></script>
+     <script src="https://cdn.datatables.net/1.13.6/js/dataTables.bootstrap5.min.js"></script>
+
+     <script src="https://cdn.datatables.net/plug-ins/1.13.6/pagination/select.js"></script>
     @yield('style')
 </head>
 
@@ -105,10 +110,10 @@
                                                     @csrf
 
                                                     <a href="route('logout')"
-                                                            onclick="event.preventDefault();
+                                                        onclick="event.preventDefault();
                                                                         this.closest('form').submit();">
                                                         {{ __('Log Out') }}
-                                                </a>
+                                                    </a>
                                                 </form>
                                             </div>
 
@@ -124,14 +129,11 @@
         </nav>
 
         <div class="container-fluid py-4">
-            @if (Session::has('success') || Session::has('message'))
-            <div class="alert alert-{{ Session::get('color') }} alert-dismissible fade show" role="alert">
-                <span class="alert-icon"><i class="ni ni-like-2"></i></span>
-                <span class="alert-text"><strong>{{ Session::get('message') }}</strong></span>
-                <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close">
-                    <span aria-hidden="true">&times;</span>
-                </button>
-            </div>
+            @if ($message = Session::get('massage'))
+                <div class="alert alert-{{ Session::get('color') }} alert-block">
+                    <button type="button" class="close" data-dismiss="alert">×</button>
+                    <strong>{{ $message }}</strong>
+                </div>
             @endif
             @yield('content')
         </div>

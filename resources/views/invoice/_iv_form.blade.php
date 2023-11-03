@@ -7,7 +7,7 @@ $fnc = new FunctionsController();
 @if ($a == 1)
     <table  class="mytable table_row1">
 
-@elseif ($a == 2) 
+@elseif ($a == 2)
     <table  class="mytable table_row2">
 @else
     <table  class="mytable table_row3">
@@ -22,29 +22,31 @@ $fnc = new FunctionsController();
             {{-- <img src="{{asset('/img/hslogo.jpg')}}" width="60"> --}}&nbsp;
         </td>
     </tr>
-    <tr> 
+    <tr>
         <td class="td_col1">&nbsp;</td>
         <td colspan="3" class="username">&nbsp;
-            @if (collect($item['user_profile'])->isEmpty())
+            @if (collect($item['usermeterinfos']['user'])->isEmpty())
             {{ dd($item) }}
             @endif
-             {{ $item['user_profile']['name'] }}
+             {{ $item['usermeterinfos']['user']['firstname'] ." ".$item['usermeterinfos']['user']['lastname'] }}
         </td>
     </tr>
     <tr>
         <td rowspan="2">&nbsp;</td>
-        <td colspan="3"  class="border-bottom-none address "> 
+        <td colspan="3"  class="border-bottom-none address ">
             &nbsp;
-            {{ $item['user_profile']['address'] }} หมู่ {{ $item['user_profile']['zone_id'] }} ต.{{$setting_tambon_infos['organize_tambon']}} 
+            {{ $item['usermeterinfos']['user']['address'] }} หมู่ {{ $item['usermeterinfos']['user']['zone_id'] }}
+            ต.{{$setting_tambon_infos['tambon']}}
         </td>
     </tr>
     <tr>
         {{-- <td colspan="1">&nbsp;</td> --}}
+
         <td colspan="3" class="border-top-none address ">
             &nbsp;
-            อ.{{$setting_tambon_infos['organize_district']}} 
-            จ.{{$setting_tambon_infos['organize_province']}} 
-            {{$setting_tambon_infos['organize_zipcode']}}
+            อ.{{$setting_tambon_infos['district']}}
+            จ.{{$setting_tambon_infos['province']}}
+            {{-- {{$setting_tambon_infos['zipcode']}} --}}
         </td>
     </tr>
     <tr>
@@ -61,7 +63,7 @@ $fnc = new FunctionsController();
     <tr>
         <td class="td_col1 pt-1">
             &nbsp;
-            {{ $item['invoice_period']['inv_period_name'] }}<!--dd-->
+            {{ $item['invoice_period']['inv_p_name'] }}<!--dd-->
         </td>
         <td class="text-center pt-1">&nbsp;
             {{ $item['usermeterinfos']['subzone']['subzone_name'] }}<!--dd-->
@@ -73,15 +75,9 @@ $fnc = new FunctionsController();
             {{ $item['usermeterinfos']['meternumber'] }}<!--dd-->
         </td>
     </tr>
-    
+
     <tr>
         <td class="" style="width: 100px !important" >&nbsp;</td>
-        {{-- <td class="waterUsedHisHead text-left pl-3">&nbsp;</td>
-        <td class="waterUsedHisHead text-left pl-3">&nbsp;</td>
-        <td class="waterUsedHisHead text-left pl-3">&nbsp;</td>
-        <td class="waterUsedHisHead text-left pl-3">&nbsp;</td>  --}}
-        
-
         <td class="">&nbsp;<br>&nbsp;</td>
         <td class="">&nbsp;<br>&nbsp;</td>
         <td class="">&nbsp;<br>&nbsp;</td>
@@ -89,21 +85,21 @@ $fnc = new FunctionsController();
     </tr>
 
     <tr>
-        <?php  
-            $diff = $item['currentmeter'] - $item['lastmeter'];  
-            $diffPlus8 =  $diff == 0 ? 0 : $diff * 8;
+        <?php
+            $diff = $item['currentmeter'] - $item['lastmeter'];
+            $diffPlus8 =  $diff == 0 ? 0 : $diff * $item['usermeterinfos']['meter_type']['price_per_unit'];
             $reserveMeter = $diffPlus8 == 0 ? 10 : 0;
 
-            $oweSum = 0; 
+            $oweSum = 0;
             if(collect($item['owe'])->count() > 0){
                 $currentSum = collect($item['owe'])->sum('currentmeter');
                 $lastSum    = collect($item['owe'])->sum('lastmeter');
-                $oweSum     = ($currentSum - $lastSum) * 8;
+                $oweSum     = ($currentSum - $lastSum) * $item['usermeterinfos']['meter_type']['price_per_unit'];
             }
-            
+
             $owePaid   =  collect($item['owe'])->count() == 0 ? 0 : $oweSum;
 
-            
+
             $total = $diffPlus8  + $reserveMeter;
         ?>
         <td class="td_col1 pt-1">
@@ -118,8 +114,8 @@ $fnc = new FunctionsController();
         <td class="text-center pt-1">
             <span id="unit_used">
                 {{number_format($diff)}}<!--dd-->
-            </span> 
-            <span class="unit_usedtext"> 
+            </span>
+            <span class="unit_usedtext">
                 (x 8 บาท)
             </span>
         </td>
@@ -128,7 +124,7 @@ $fnc = new FunctionsController();
         </td>
     </tr>
     <tr>
-        <td colspan="2" rowspan="3" class="border-bottom-none border-left-none text-center"> 
+        <td colspan="2" rowspan="3" clas="border-bottom-none border-left-none text-center">
             {{ QrCode::size(40)->generate($item['id']) }}
             <div class='mt-0'>เลขใบแจ้งหนี้:  {{ $item['id'] }} </div>
         </td>
@@ -151,19 +147,19 @@ $fnc = new FunctionsController();
     </tr>
 
 
-</table> 
+</table>
 <table   class="mt-2 mytable2">
     <tr>
         <td class="waterUsedHisHead td_history text-center" width="12%" rowspan="2">&nbsp;<br>&nbsp;</td>
         <td class="waterUsedHisHead td_history text-center" width="12%">&nbsp;</td>
         <?php $count_history = 0; ?>
         @foreach ($item['inv_history'] as $history)
-            
+
             <?php $count_history++; ?>
             <td class="text-center td_history" width="12.1%">
                 {{ $history['invoice_period']['inv_period_name'] != "" ? $history['invoice_period']['inv_period_name'] : '&nbsp;'   }}
             </td>
-           
+
         @endforeach
         @for ($i = collect($item['inv_history'])->count(); $i < 5; $i++)
             <td class="text-center td_history" width="12.1%">&nbsp;&nbsp;&nbsp;&nbsp;</td>
@@ -176,7 +172,7 @@ $fnc = new FunctionsController();
         <?php $oweSum = 0;  ?>
         @foreach ($item['inv_history'] as $history)
             <td class="text-center td_history " width="12.1%">
-                <?php 
+                <?php
                     $count_history++;
                     $history_diff = $history['currentmeter'] - $history['lastmeter'];
                     $history_diff_plus = $history_diff == 0 ? "(+10)" : "(x8)";
@@ -201,24 +197,24 @@ $fnc = new FunctionsController();
 
                 {{-- <span style="color: red; font-size:0.70rem;"> {{ $history_status }}</span> --}}
             </td>
-           
+
         @endforeach
         @for ($i = collect($item['inv_history'])->count(); $i < 5; $i++)
             <td class="text-center td_history" width="12.1%">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</td>
         @endfor
-        <td class="text-center td_history" width="12.1%"> 
-            <?php 
+        <td class="text-center td_history" width="12.1%">
+            <?php
                 echo $oweSum > 0  ? '<span style="color: red">'.$oweSum.'<span>' : $oweSum;
             ?>
             {{-- {{$oweSum}} --}}
         </td>
         <?php $count_history  = 0; $oweSum = 0; ?>
     </tr>
-    
+
 </table>
 <table class="mytable2 mt-1">
     <tr>
-        <td  class="text-center border-left-none border-right-none 
+        <td  class="text-center border-left-none border-right-none
             {{$a== 3 ? 'pt-2' :'pt-2'}}">
             <?php
                 $currentMonthExpTemp = explode("-",$invoice_expired_next30day);//explode( '-', $item['invoice_period']['inv_period_name'])[0];
@@ -226,7 +222,7 @@ $fnc = new FunctionsController();
                 $monthThai =  $fnc->fullThaiMonth($currentMonthExpTemp[1]);
                 $date = $currentMonthExpTemp[2][0] == 0 ? str_split($currentMonthExpTemp[2])[1] : $currentMonthExpTemp[2];
             ?>
-            &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; &nbsp; &nbsp; &nbsp; &nbsp;   
+            &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; &nbsp; &nbsp; &nbsp; &nbsp;
             &nbsp;&nbsp; &nbsp; &nbsp; &nbsp;&nbsp;&nbsp; &nbsp; &nbsp; &nbsp;&nbsp;&nbsp; &nbsp;
 
             <span id="expiredDate" class="h4" >

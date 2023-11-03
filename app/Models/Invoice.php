@@ -10,7 +10,10 @@ class Invoice extends Model
 {
     use HasFactory;
     protected $fillable = [
-        'inv_period_id',
+        'inv_period_id_fk',
+        'meter_id_fk',
+        'lastmeter',
+        'currentmeter',
     ];
     protected $table = 'invoice';
 
@@ -18,14 +21,10 @@ class Invoice extends Model
     {
         return $this->belongsTo(InvoicePeriod::class, 'inv_period_id_fk', 'id');
     }
-    public function users()
-    {
-        return $this->belongsTo(User::class, 'user_id');
-    }
 
     public function recorder()
     {
-        return $this->belongsTo('App\Models\Admin\UserProfile','recorder_id');
+        return $this->belongsTo(User::class,'recorder_id', 'id');
     }
 
     public function usermeterinfos()

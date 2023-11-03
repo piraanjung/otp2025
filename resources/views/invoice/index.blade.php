@@ -133,12 +133,13 @@
                                     {{ $zone['invoiceTotalCount'] }} <sup> คน</sup>
                                 </p>
                                 <div class="col-12 col-md-6">
-                                    <a href="{{ url('invoice/invoiced_lists/' . $zone['zone_info']->undertake_subzone_id) }}"
+                                    <a href="{{ route('invoice.invoiced_lists' , $zone['zone_info']->undertake_subzone_id) }}"
                                         class="foatright btn btn-sm btn-outline-dark mb-0 {{ $zone['invoiceTotalCount'] == 0 ? 'disabled' : '' }}">
                                         ปริ้นใบแจ้งหนี้
                                     </a>
                                     <a style="margin-right: 5px"
-                                        href="{{ url('invoice/zone_edit/' . $zone['zone_info']->undertake_subzone_id) }}"
+                                        href="{{ route('invoice.zone_edit' , ['subzone_id' =>$zone['zone_info']->undertake_subzone_id,
+                                        'curr_inv_prd' => $current_inv_period]) }}"
                                         class="foatright btn btn-sm btn-outline-dark mb-0  btn-sm {{ $zone['invoiceTotalCount'] == 0 ? 'disabled' : '' }}">
                                         แก้ไขข้อมูล
                                     </a>

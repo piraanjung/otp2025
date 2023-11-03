@@ -178,30 +178,30 @@ class InvoiceController extends Controller
         $invoice = Invoice::where('id', $inv_id)
             ->where('status', 'invoice')
             ->with(['invoice_period',
-                'user_profile',
+                'usermeterinfos.user',
                 'usermeterinfos',
                 'usermeterinfos.subzone',
-                'usermeterinfos.subzone.undertaker_subzone.user_profile',
+                'usermeterinfos.subzone.undertaker_subzone.twman_info',
                 'usermeterinfos.zone',
-                'recorder.user_profile'])->get()->first();
+                'recorder'])->get()->first();
         if (collect($invoice)->isEmpty()) {
             dd($inv_id);
         }
         //หา owe
         $invoice->owe = Invoice::where('status', 'owe')
-            ->where('user_id', $invoice->user_id)
-            ->with(['invoice_period', 'recorder.user_profile'])->get();
+            ->where('meter_id_fk', $invoice->meter_id_fk)
+            ->with(['invoice_period', 'recorder'])->get();
 
         if ($invoice->owe !== null) {
             foreach ($invoice->owe as $owe) {
                 $owe->used_water_net = $owe->currentmeter - $owe->lastmeter;
-                $owe->must_paid = $owe->used_water_net * 8; //$invoice->users->usermeter_info->counter_unit;
+                $owe->must_paid = $owe->used_water_net * $invoice->usermeterinfos->meter_type->price_per_unit;
             }
         }
         //คิดเงินค่าใช้น้ำปัจจุบัน
         if ($invoice->status != "init") {
             $invoice->used_water_net = $invoice->currentmeter - $invoice->lastmeter;
-            $invoice->must_paid = $invoice->used_water_net * 8; //$invoice->users->usermeter_info->counter_unit;
+            $invoice->must_paid = $invoice->used_water_net * $invoice->usermeterinfos->meter_type->price_per_unit;
         } else {
             $invoice->used_water_net = "";
             $invoice->must_paid = "";
@@ -214,10 +214,10 @@ class InvoiceController extends Controller
         $invoice->invoice_period->th_enddate = $funcCtrl->engDateToThaiDateFormat($invoice->invoice_period->enddate);
 
         //หาการใช้น้ำ 5 เดือนล่าสุด
-        $inv_history = Invoice::where('user_id', $invoice->user_id)
+        $inv_history = Invoice::where('meter_id_fk', $invoice->meter_id_fk)
             ->with('invoice_period')
-            ->where('inv_period_id', '<', $invoice->inv_period_id)
-            ->orderBy('inv_period_id', 'desc')
+            ->where('inv_period_id_fk', '<', $invoice->inv_period_id_fk)
+            ->orderBy('inv_period_id_fk', 'desc')
             ->take(5)->get();
         $invoice->inv_history = collect($inv_history)->reverse()->flatten();
 
@@ -384,64 +384,6 @@ class InvoiceController extends Controller
         return response()->json(["res" => $invoice_after_update, "status" => $code]);
     }
 
-    // public function test2()
-    // {
-    //     return $oweRes = Invoice::where('user_id', 565)
-    //         ->where('status', 'owe')
-    //         ->get(['id', 'lastmeter', 'currentmeter']);
-    //     // if (collect($oweRes)->count() > 0) {
-    //     //     $invoice->owe_count = collect($oweRes)->count();
-    //     //     $sum = 0;
-    //     //     foreach ($oweRes as $oweR) {
-    //     //         $sum += $oweR->currentmeter - $oweR->lastmeter == 0 ? 10 : ($oweR->currentmeter - $oweR->lastmeter) * 8;
-    //     //     }
-    //     //     $invoice->owe_sum = $sum;
-    //     // }
-
-    //     date_default_timezone_set('Asia/Bangkok');
-    //     $invPeriod = InvoicePeriod::where('status', 'active')->get('id');
-    //     $findRowDuplicate = Invoice::where('inv_period_id', $request->get('inv_period_id'))
-    //         ->where('meter_id', $request->get('meter_id'))->get();
-
-    //     if (collect($findRowDuplicate)->count() > 0) {
-    //         $invoice->owe_count = 0;
-    //         $invoice->owe_sum = 0;
-    //         $code = 204;
-    //         return response()->json(['res' => $invoice, 'status' => $code]);
-    //     }
-    //     $invoice = new Invoice();
-    //     $invoice->inv_period_id = $invPeriod[0]->id;
-    //     $invoice->user_id = $request->get('user_id');
-    //     $invoice->meter_id = $request->get('meter_id');
-    //     $invoice->lastmeter = $request->get('lastmeter');
-    //     $invoice->currentmeter = $request->get('currentmeter');
-    //     $invoice->recorder_id = $request->get('recorder_id');
-    //     $invoice->status = 'invoice';
-    //     $invoice->created_at = date('Y-m-d H:i:s');
-    //     $invoice->updated_at = date('Y-m-d H:i:s');
-    //     if ($invoice->save()) {
-    //         $invoice->owe_count = 0;
-    //         $invoice->owe_sum = 0;
-    //         $code = 200;
-    //         $oweRes = Invoice::where('meter_id', $request->get('meter_id'))
-    //             ->where('status', 'owe')
-    //             ->get(['id', 'lastmeter', 'currentmeter']);
-    //         if (collect($oweRes)->count() > 0) {
-    //             $invoice->owe_count = collect($oweRes)->count();
-    //             $sum = 0;
-    //             foreach ($oweRes as $oweR) {
-    //                 $sum += $oweR->currentmeter - $oweR->lastmeter == 0 ? 10 : ($oweR->currentmeter - $oweR->lastmeter) * 8;
-    //             }
-    //             $invoice->owe_sum = $sum;
-    //         }
-    //     } else {
-    //         $invoice->owe_count = 0;
-    //         $invoice->owe_sum = 0;
-    //         $code = 204;
-    //     }
-    //     return response()->json(['res' => $invoice, 'status' => $code]);
-    // }
-
     public function paid_invoice($invoice_id)
     {
         date_default_timezone_set('Asia/Bangkok');
@@ -498,21 +440,19 @@ class InvoiceController extends Controller
         ])->get(['zone_id', 'subzone_name']);
 
         $sql = DB::table('user_meter_infos as umf')
-            ->join('invoice as iv', 'iv.user_id', '=', 'umf.user_id')
-        // ->join('invoice as iv', 'iv.meter_id', '=', 'umf.id')
-            ->join('user_profile as upf', 'upf.user_id', '=', 'umf.user_id')
-            ->join('zone as z', 'z.id', '=', 'umf.undertake_zone_id')
-            ->join('subzone as sz', 'sz.id', '=', 'umf.undertake_subzone_id')
-            ->where('iv.inv_period_id', '=', $presentInvoicePeriod->id)
+            ->join('invoice as iv', 'iv.meter_id_fk', '=', 'umf.meter_id')
+            ->join('users as u', 'u.id', '=', 'umf.user_id')
+            ->join('zones as z', 'z.id', '=', 'umf.undertake_zone_id')
+            ->join('subzones as sz', 'sz.id', '=', 'umf.undertake_subzone_id')
+            ->where('iv.inv_period_id_fk', '=', $presentInvoicePeriod->id)
             ->where('iv.status', '=', 'invoice')
             ->where('umf.undertake_subzone_id', '=', $subzone_id)
-            ->where('umf.status', '=', 'active')
-            ->where('umf.deleted', '=', 0);
+            ->where('umf.status', '=', 'active');
 
         $invoice = $sql->select(
             'umf.user_id', 'umf.meternumber', 'umf.undertake_subzone_id', 'umf.undertake_zone_id',
-            'upf.name', 'upf.address', 'iv.lastmeter', 'iv.currentmeter', 'iv.printed_time', 'iv.id',
-            'upf.zone_id as user_zone_id', 'iv.comment', 'iv.status',
+            'u.firstname', 'u.lastname', 'u.address', 'iv.lastmeter', 'iv.currentmeter',  'iv.meter_id_fk',
+            'u.zone_id as user_zone_id', 'iv.comment', 'iv.status',
             DB::raw('iv.currentmeter - iv.lastmeter as meter_net'),
             DB::raw('(iv.currentmeter - iv.lastmeter)*8 as total'),
         )->get();
@@ -554,18 +494,18 @@ class InvoiceController extends Controller
     {
         $presentInvoicePeriod = InvoicePeriod::where('status', 'active')->get()->first();
         $sql = DB::table('user_meter_infos as umf')
-            ->join('invoice as iv', 'iv.user_id', '=', 'umf.user_id')
-            ->join('user_profile as upf', 'upf.user_id', '=', 'umf.user_id')
-            ->join('zone as z', 'z.id', '=', 'umf.undertake_zone_id')
-            ->join('subzone as sz', 'sz.id', '=', 'umf.undertake_subzone_id')
-            ->where('iv.inv_period_id', '=', $presentInvoicePeriod->id)
+            ->join('invoice as iv', 'iv.meter_id_fk', '=', 'umf.meter_id')
+            ->join('users as u', 'u.id', '=', 'umf.user_id')
+            ->join('zones as z', 'z.id', '=', 'umf.undertake_zone_id')
+            ->join('subzones as sz', 'sz.id', '=', 'umf.undertake_subzone_id')
+            ->where('iv.inv_period_id_fk', '=', $presentInvoicePeriod->id)
             ->where('iv.status', '=', 'invoice')
             ->where('umf.undertake_subzone_id', '=', $subzone_id);
 
         $invoice = $sql->get([
             'umf.user_id', 'umf.meternumber', 'umf.undertake_subzone_id', 'umf.undertake_zone_id',
-            'upf.name', 'upf.address', 'iv.lastmeter', 'iv.currentmeter', 'iv.printed_time', 'iv.id',
-            'upf.zone_id as user_zone_id',
+            'u.firstname','u.lastname', 'u.address', 'iv.lastmeter', 'iv.currentmeter', 'iv.meter_id_fk',
+            'u.zone_id as user_zone_id', 'iv.id',
             DB::raw('iv.currentmeter - iv.lastmeter as meter_net'),
             DB::raw('(iv.currentmeter - iv.lastmeter)*8 as total'),
         ]);
@@ -580,7 +520,7 @@ class InvoiceController extends Controller
         }
 
         return response()->json([
-            'presentInvoicePeriod' => ['inv_period_name' => $presentInvoicePeriod->inv_period_name, 'budgetyear' => $presentInvoicePeriod->budgetyear->budgetyear],
+            'presentInvoicePeriod' => ['inv_period_name' => $presentInvoicePeriod->inv_p_name, 'budgetyear' => $presentInvoicePeriod->budgetyear->budgetyear],
             'zoneInfo' => [
                 'undertake_zone' => $zoneInfo[0]->undertake_zone, 'undertake_subzone' => $zoneInfo[0]->undertake_subzone,
                 'undertake_zone_id' => $zoneInfo[0]->undertake_zone_id, 'undertake_subzone_id' => $zoneInfo[0]->undertake_subzone_id,

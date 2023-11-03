@@ -46,7 +46,7 @@ class User extends Authenticatable
 
     public function user_profile()
     {
-        return $this->hasOne('App\Models\Admin\UserProfile','user_id','id');
+        return $this->hasOne('App\Models\User','user_id','id');
     }
     public function usercategory(){
         return $this->belongsTo('App\Usercategory', 'user_cat_id');

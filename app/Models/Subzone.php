@@ -15,4 +15,12 @@ class Subzone extends Model
     {
         return $this->belongsTo(Zone::class, 'zone_id', 'id');
     }
+
+    public function users_in_subzone(){
+        return $this->hasMany(UserMerterInfo::class,'undertake_subzone_id', 'id');
+    }
+
+    public function undertaker_subzone(){
+        return $this->hasOne(UndertakerSubzone::class, 'subzone_id', 'id');
+    }
 }

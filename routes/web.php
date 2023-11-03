@@ -64,6 +64,10 @@ Route::resource('/test',TestController::class);
 Route::middleware(['auth', 'role:admin|finance'])->group(function () {
     Route::resource('/invoice',InvoiceController::class);
     Route::get('/invoice/{zone_id}{curr_inv_prd}/zone_create/{new_user?}',[InvoiceController::class,'zone_create' ])->name('invoice.zone_create');
+    Route::get('/invoice/{subzone_id}/zone_edit/{curr_inv_prd}',[InvoiceController::class,'zone_edit' ])->name('invoice.zone_edit');
+    Route::get('/invoice/{subzone_id}/zone_update',[InvoiceController::class,'zone_update' ])->name('invoice.zone_update');
+    Route::get('/invoice/{subzone_id}/invoiced_lists',[InvoiceController::class,'invoiced_lists' ])->name('invoice.invoiced_lists');
+    Route::post('invoice/print_multi_invoice', [InvoiceController::class,'print_multi_invoice' ])->name('invoice.print_multi_invoice');
 
 
 });
