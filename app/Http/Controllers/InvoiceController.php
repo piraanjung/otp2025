@@ -281,7 +281,8 @@ class InvoiceController extends Controller
         }
         ])->get();
         $inv_in_seleted_subzone = collect($inv_status_invoice)->filter(function ($value, $key) use ( $subzone_id) {
-            return $value->usermeterinfos->undertake_subzone_id == $subzone_id;
+            if(collect($value->usermeterinfos)->isNotEmpty())
+                return $value->usermeterinfos->undertake_subzone_id == $subzone_id;
         });
         return view('invoice.zone_edit', compact('inv_in_seleted_subzone', 'subzone_id'));
     }

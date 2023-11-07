@@ -75,35 +75,43 @@ class InvoiceController extends Controller
     public function get_user_invoice($meter_id)
     {
         //หา invoice และ owe ของ user
-        $invoice = Invoice::where('user_id', $meter_id)
-            ->with(['usermeterinfos.user_profile' => function ($query) {
-                return $query->select('user_id', 'name', 'address', 'zone_id', 'phone', 'subzone_id', 'district_code', 'province_code');
-            }, 'invoice_period' => function ($query) {
-                return $query->select('id', 'inv_period_name');
+        $invoice = Invoice::where('meter_id_fk', $meter_id)
+            ->with([
+            'usermeterinfos'=> function ($query) {
+                $query->select('meter_id', 'user_id', 'meternumber', 'undertake_zone_id', 'undertake_subzone_id', 'metertype_id');
             },
-                'usermeterinfos' => function ($query) {
-                    return $query->select('user_id', 'meternumber', 'undertake_zone_id', 'undertake_subzone_id');
-                }, 'usermeterinfos.zone' => function ($query) {
-                    return $query->select('id', 'zone_name as undertake_zone_name');
-                },
-                'usermeterinfos.subzone' => function ($query) {
-                    return $query->select('id', 'subzone_name as undertake_subzone_name');
-                },
-                'usermeterinfos.user_profile.zone' => function ($query) {
-                    return $query->select('id', 'zone_name as user_zone_name');
-                },
-                'usermeterinfos.user_profile.province' => function ($query) {
-                    return $query->select('province_code', 'province_name');
-                }, 'usermeterinfos.user_profile.district' => function ($query) {
-                    return $query->select('district_code', 'district_name');
-                },
+            // 'usermeterinfos.user' => function ($query) {
+            //     return $query->select('id', 'firstname', 'lastname', 'address', 'zone_id', 'phone', 'subzone_id', 'tambon_code', 'district_code', 'province_code');
+            // },
+            'invoice_period' => function ($query) {
+                return $query->select('id', 'inv_p_name');
+            },
+            'usermeterinfos.undertake_zone' => function ($query) {
+                return $query->select('id', 'zone_name as undertake_zone_name');
+            },
+            'usermeterinfos.undertake_subzone' => function ($query) {
+                return $query->select('id', 'subzone_name as undertake_subzone_name');
+            },
+            'usermeterinfos.user.user_zone' => function ($query) {
+                return $query->select('id', 'zone_name as user_zone_name');
+            },
+            'usermeterinfos.user.user_province' => function ($query) {
+                return $query->select('id', 'province_name');
+            },
+            'usermeterinfos.user.user_district' => function ($query) {
+                return $query->select('id', 'district_name');
+            },
+            'usermeterinfos.user.user_tambon' => function ($query) {
+                return $query->select('id', 'tambon_name');
+            },
+            'usermeterinfos.meter_type' => function ($query) {
+                return $query->select('id', 'price_per_unit');
+            },
             ])
-            // ->where('deleted', 0)
-            ->orderBy('inv_period_id', 'desc')
-            ->get(['id', 'user_id', 'inv_period_id', 'lastmeter', 'currentmeter', 'status']);
+            ->orderBy('inv_period_id_fk', 'desc')
+            ->get(['id', 'meter_id_fk', 'inv_period_id_fk', 'lastmeter', 'currentmeter', 'status']);
 
         $invAndOweInvoice = collect($invoice)->filter(function ($val) {
-            // dd($val);
             return $val->status == 'owe' || $val->status == 'invoice';
         });
 

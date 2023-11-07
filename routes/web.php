@@ -10,6 +10,7 @@ use App\Http\Controllers\Admin\ZoneController;
 use App\Http\Controllers\BudgetYearController;
 use App\Http\Controllers\InvoiceController;
 use App\Http\Controllers\InvoicePeriodController;
+use App\Http\Controllers\PaymentController;
 use App\Http\Controllers\SettingsController;
 use App\Http\Controllers\SubzoneController;
 use App\Http\Controllers\TestController;
@@ -62,6 +63,9 @@ Route::resource('/test',TestController::class);
 
 
 Route::middleware(['auth', 'role:admin|finance'])->group(function () {
+    Route::post('/payment/index_search_by_suzone', [PaymentController::class, 'index_search_by_suzone'])->name('payment.index_search_by_suzone');
+    Route::get('/payment/receipt_print/{receipt_id?}', [PaymentController::class, 'receipt_print'])->name('payment.receipt_print');
+    Route::resource('/payment', PaymentController::class);
     Route::resource('/invoice',InvoiceController::class);
     Route::get('/invoice/{zone_id}{curr_inv_prd}/zone_create/{new_user?}',[InvoiceController::class,'zone_create' ])->name('invoice.zone_create');
     Route::get('/invoice/{subzone_id}/zone_edit/{curr_inv_prd}',[InvoiceController::class,'zone_edit' ])->name('invoice.zone_edit');

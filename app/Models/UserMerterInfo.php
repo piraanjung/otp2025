@@ -25,12 +25,12 @@ class UserMerterInfo extends Model
         return $this->belongsTo(MeterType::class, 'metertype_id', 'id');
     }
 
-    public function zone()
+    public function undertake_zone()
     {
-        return $this->belongsTo(Zone::class, 'undertake_zone_id', 'id');
+        return $this->belongsTo(Zone::class, 'undertake_zone_id');
     }
 
-    public function subzone()
+    public function undertake_subzone()
     {
         return $this->belongsTo(Subzone::class, 'undertake_subzone_id', 'id');
     }

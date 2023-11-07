@@ -34,7 +34,7 @@ class Invoice extends Model
 
     public function accounting()
     {
-        return $this->belongsTo(Account::class, 'receipt_id', 'id');
+        return $this->belongsTo(Account::class, 'accounts_id_fk', 'id');
     }
     public function invoice_inv_pd_active()
     {
