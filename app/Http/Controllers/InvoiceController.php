@@ -15,6 +15,7 @@ use App\Models\UserMerterInfo;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Hash;
 
 class InvoiceController extends Controller
 {
@@ -34,11 +35,11 @@ class InvoiceController extends Controller
                 'usermeterinfos' => function ($query) {
                     $query->select('meter_id', 'undertake_zone_id', 'undertake_subzone_id', 'owe_count');
                 },
-                'usermeterinfos.zone'=> function ($query) {
+                'usermeterinfos.undertake_zone'=> function ($query) {
                     $query->select('id', 'zone_name');
                 },
-                'usermeterinfos.subzone'=> function ($query) {
-                    $query->select('id', 'subzone_name');
+                'usermeterinfos.undertake_subzone'=> function ($query) {
+                    $query->select('id','zone_id', 'subzone_name');
                 }
             ])
             ->get();
@@ -68,6 +69,7 @@ class InvoiceController extends Controller
                 $initTotalCount = collect($status_grouped['init'])->count();
             }
             $zones->push([
+                    'zone_id' =>$zone[0]->usermeterinfos->undertake_subzone->zone_id,
                     'zone_info' => $zone[0]->usermeterinfos,
                     'members_count' => collect($grouped_inv_by_subzone[$key])->count(),
                     'owe_over3' => collect($grouped_inv_by_subzone[$key])->filter(function ($item) {
@@ -79,7 +81,7 @@ class InvoiceController extends Controller
                     'paidTotalCount' => $paidTotalCount
                 ]);
         }
-        // return $zones;
+        $zones = collect($zones)->sortBy('zone_id');
         return view('invoice.index', compact('zones', 'current_inv_period'));
     }
 
@@ -286,7 +288,6 @@ class InvoiceController extends Controller
         });
         return view('invoice.zone_edit', compact('inv_in_seleted_subzone', 'subzone_id'));
     }
-
     public function zone_update(REQUEST $request,  $subzone_id)
     {
 
@@ -341,42 +342,6 @@ class InvoiceController extends Controller
             'massage' => 'ทำการบันทึกการแก้ไขข้อมูลเรียบร้อยแล้ว',
             'color' => 'success',
         ]);
-    }
-
-
-    public function test($subzone_id, $new_userstatus)
-    {
-        $presentInvoicePeriod = InvoicePeriod::where("status", "active")->first();
-
-        $subzone_members = UserMerterInfo::where('undertake_subzone_id', $subzone_id)
-            ->where('status', 'active')
-            ->with([
-                'user_profile:name,address,user_id',
-                'invoice' => function ($query) use ($presentInvoicePeriod) {
-                    return $query->select('inv_period_id', 'currentmeter', 'id as iv_id', 'user_id', 'status')
-                        ->where('inv_period_id', '=', $presentInvoicePeriod->id);
-
-                },
-                'subzone' => function ($query) {
-                    return $query->select('id', 'subzone_name');
-                },
-            ])
-            ->orderBy('user_id')
-            ->get(['meternumber', 'undertake_zone_id', 'undertake_subzone_id', 'id', 'user_id']);
-
-        $newUsers = collect($subzone_members)->filter(function ($v) {
-            $status = '';
-            if (collect($v->invoice)->isNotEmpty()) {
-                $status = $v->invoice[0]->status;
-            } else {
-                $status = 'deleted';
-            }
-
-            return $status == 'deleted';
-        })->flatten();
-
-        return view('invoice.new_user_lists', compact('newUsers'));
-
     }
 
     public function zone_create_for_new_users(REQUEST $request)
@@ -455,15 +420,6 @@ class InvoiceController extends Controller
         return view('invoice.zone_create', compact('member_not_yet_recorded_present_inv_period', 'presentInvoicePeriod'));
 
     }
-
-
-    // public function show($user_id)
-    // {
-    //     $user = User::where('id', $user_id)
-    //         ->with('usermeterinfos', 'invoice', 'invoice.invoice_period')
-    //         ->get();
-    //     return view('invoice.show', compact('user'));
-    // }
 
     public function delete($invoice_id, $comment)
     {

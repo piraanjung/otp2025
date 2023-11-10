@@ -14,7 +14,7 @@ class InvoicePeriod extends Model
 
     public function budgetyear()
     {
-        return $this->belongsTo('App\Models\BudgetYear', 'budgetyear_id', 'id');
+        return $this->belongsTo(BudgetYear::class, 'budgetyear_id', 'id');
     }
     public function get_curr_inv_pd(){
         return InvoicePeriod::where('status','=', 'active')->first();

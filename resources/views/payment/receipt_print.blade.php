@@ -170,18 +170,18 @@ $invoiceNumber = App\Http\Controllers\Api\FunctionsController::invoice_last_reco
 
             head.appendChild(style);
 
-            // window.print();
-            // if ($('#type').val() == 'paid_receipt') {
-            //     setTimeout(function() {
-            //         window.location.href = '/payment/';
-            //     }, 200);
-            // } else {
-            //     //type == history_recipt
-            //     setTimeout(function() {
-            //         window.location.href = '../search';
-            //     }, 200);
+            window.print();
+            if ($('#type').val() == 'paid_receipt') {
+                setTimeout(function() {
+                    window.location.href = '/payment/';
+                }, 200);
+            } else {
+                //type == history_recipt
+                setTimeout(function() {
+                    window.location.href = '../search';
+                }, 200);
 
-            // }
+            }
         });
     </script>
 @endsection

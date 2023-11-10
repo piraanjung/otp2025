@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Admin;
 use App\Http\Controllers\Api\FunctionsController;
 use App\Http\Controllers\Controller;
 use App\Models\Admin\UserProfile;
+use App\Models\Invoice;
 use App\Models\MeterType;
 use App\Models\SequenceNumber;
 use App\Models\User;
@@ -12,6 +13,7 @@ use App\Models\UserMerterInfo;
 use App\Models\Zone;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Hash;
 use Spatie\Permission\Models\Permission;
 use Spatie\Permission\Models\Role;
@@ -20,11 +22,43 @@ class UserController extends Controller
 {
     public function index()
     {
+
         $users = User::role("user")
             ->get();
         $usertype = "user";
+        $zones = Zone::all();
+        return view('admin.users.index', compact('users', 'usertype', 'zones'));
+    }
 
-        return view('admin.users.index', compact('users', 'usertype'));
+    public function users_search(Request $request)  {
+        $users = User::role("user")->whereIn("zone_id", $request->input("zone"))->get();
+        $usertype = "user";
+        $zones = Zone::all();
+        return view('admin.users.index', compact('users', 'usertype', 'zones'));
+    }
+
+    private function new_invs(){
+        $usermeterinfos = UserMerterInfo::get('meter_id');
+        foreach($usermeterinfos as $user){
+            $invs = DB::table('invoice_old')->where('user_id', $user->meter_id)->get();
+            foreach($invs as $inv){
+                if(!in_array($inv->status, ['permanent deleted'])){
+                    Invoice::create([
+                    'id'=> $inv->id,
+                    'meter_id_fk'=> $inv->user_id,
+                    'inv_period_id_fk'=> $inv->inv_period_id,
+                    'lastmeter'=> $inv->lastmeter,
+                    'currentmeter'=> $inv->currentmeter,
+                    'status'=> $inv->status,
+                    'accounts_id_fk'=> $inv->receipt_id,
+                    'comment'=> $inv->comment,
+                    'recorder_id' => 1,//$inv->recorder_id,
+                    'created_at'=> $inv->created_at,
+                    'updated_at'=> $inv->updated_at,
+                    ]);
+                }
+            }
+        }
     }
     public function staff()
     {
@@ -37,10 +71,10 @@ class UserController extends Controller
     }
     public function create()
     {
-        $meter_sq_number = SequenceNumber::get('meternumber');
+        $meter_sq_number = SequenceNumber::get('tabmeter');
         $zones = Zone::all();
         $meter_types = MeterType::all();
-        $meternumber = $this->createInvoiceNumberString($meter_sq_number[0]->meternumber);
+        $meternumber = $this->createInvoiceNumberString($meter_sq_number[0]->tabmeter);
         $username = "user" . $meter_sq_number[0]->meternumber;
         $password = "user" . substr($meternumber, 3);
 

@@ -3,17 +3,29 @@
 @section('nav-invoice')
     active
 @endsection
-
+@section('nav-header')
+จัดการใบแจ้งหนี้
+@endsection
+@section('nav-main')
+<a href="{{route('invoice.index')}}"> ออกใบแจ้งหนี้</a>
+@endsection
+@section('nav-current')
+ข้อมูลใบแจ้งหนี้แยกตามเส้นทางจัดเก็บ
+@endsection
+@section('page-topic')
+ข้อมูลใบแจ้งหนี้แยกตามเส้นทางจัดเก็บ
+@endsection
 
 @section('content')
     <div class="container-fluid my-3 py-3">
         <div class="row mb-5">
-            <div class="col-lg-3">
+            <div class="col-lg-4">
                 <div class="card position-sticky top-1">
-                    <ul class="nav flex-column bg-white border-radius-lg p-3">
+                    <ul class="nav bg-white border-radius-lg p-3 row">
                         <?php $i = 0; ?>
+                        <li class="col-12"><h5>เส้นทางจดมิเตอร์</h5></li>
                         @foreach ($zones as $key => $zone)
-                            <li class="nav-item pt-2">
+                            <li class="nav-item pt-2 col-12 col-lg-6">
                                 <a class="nav-link text-body" data-scroll="" href="#b{{ $i++ }}">
                                     <div class="icon me-2">
                                         <svg class="text-dark mb-1" width="16px" height="16px" viewBox="0 0 40 44"
@@ -37,148 +49,127 @@
                                             </g>
                                         </svg>
                                     </div>
-                                    <span class="text-sm">หมู่ {{ $zone['zone_info']['zone']->zone_name }}</span>
-
+                                    <span class="text-sm">เส้น:: {{ $zone['zone_info']['undertake_subzone']->subzone_name }}</span>
                                 </a>
                             </li>
                         @endforeach
                     </ul>
                 </div>
             </div>
-            <div class="col-lg-9 mt-lg-0 mt-4">
-
-                {{-- <div class="card card-body" id="profile">
-                    <div class="row justify-content-center align-items-center">
-                        <div class="col-sm-auto col-4">
-                            <div class="avatar avatar-xl position-relative">
-                                <img src="{{ asset('soft-ui/assets/img/bruce-mars.jpg') }}" alt="bruce"
-                                    class="w-100 border-radius-lg shadow-sm">
-                            </div>
-                        </div>
-                        <div class="col-sm-auto col-8 my-auto">
-                            <div class="h-100">
-                                <h5 class="mb-1 font-weight-bolder">
-                                </h5>
-                                <p class="mb-0 font-weight-bold text-sm">
-                                </p>
-                            </div>
-                        </div>
-                        <div class="col-sm-auto ms-sm-auto mt-sm-0 mt-3 d-flex">
-
-                        </div>
-                    </div>
-                </div> --}}
+            <div class="col-lg-8 mt-lg-0 mt-4">
                 <?php $i = 0; ?>
                 @foreach ($zones as $zone)
+                    @if ($i == 0)
+                        <div class="card" id="b{{ $i++ }}">
+                    @else
                     <div class="card mt-4" id="b{{ $i++ }}">
-                        <div class="card-header col-6">
-                            <div class="card">
-                                <span class="mask bg-gradient-dark opacity-9 border-radius-xl"></span>
-                                <div class="card-body p-3 position-relative">
-                                    <div class="row">
-                                        <div class="col-8 text-start">
+                    @endif
+                            <div class="card-header col-6">
+                                <div class="card">
+                                    <span class="mask bg-gradient-dark opacity-9 border-radius-xl"></span>
+                                    <div class="card-body p-3 position-relative">
+                                        <div class="row">
+                                            <div class="col-8 text-start">
 
-                                            <h5 class="text-white font-weight-bolder mb-0 mt-3">
-                                                หมู่ {{ $zone['zone_info']['zone']->zone_name }}
-                                            </h5>
-                                            <span class="text-white text-sm">เส้นทาง :
-                                                {{ $zone['zone_info']['subzone']->subzone_name }}</span>
-                                        </div>
-                                        <div class="col-4">
+                                                <h5 class="text-white font-weight-bolder mb-0 mt-3">
+                                                    {{ $zone['zone_info']['undertake_zone']->zone_name }}
+                                                </h5>
+                                                <span class="text-white text-sm">เส้นทาง :
+                                                    {{ $zone['zone_info']['undertake_subzone']->subzone_name }}</span>
+                                            </div>
+                                            <div class="col-4">
 
-                                            <p class="text-white text-sm text-end font-weight-bolder mt-auto mb-0">สมาชิก {{ $zone['members_count'] }} คน</p>
+                                                <p class="text-white text-sm text-end font-weight-bolder mt-auto mb-0">สมาชิก {{ $zone['members_count'] }} คน</p>
+                                            </div>
                                         </div>
                                     </div>
                                 </div>
-                            </div>
 
+                            </div>
+                            <div class="card-body">
+                                <div class="row">
+                                    <p class="my-auto h6 col-12 col-md-3">ยังไม่บันทึกข้อมูลมิเตอร์</p>
+                                    <p class="text-secondary h5 ms-auto my-auto me-3 col-12 col-md-2  text-xl-end">
+
+                                        {{ $zone['initTotalCount'] }} <sup> คน</sup>
+
+
+                                    </p>
+                                    <div class="col-12 col-md-6">
+                                        <a href="{{ route('invoice.zone_create' ,
+                                        ['zone_id' => $zone['zone_info']->undertake_subzone_id,'curr_inv_prd' =>$current_inv_period->id])
+                                    }}"
+                                            class="foatright btn btn-sm btn-outline-dark mb-0  {{ $zone['initTotalCount'] == 0 ? 'disabled' : '' }}">เพิ่มข้อมูล
+                                        </a>
+                                    </div>
+                                </div>
+
+                                <hr class="horizontal dark">
+
+                                <div class="row">
+                                    <p class="my-auto h6 col-12 col-md-3">ค้างชำระเกิน 3 รอบบิล</p>
+                                    <p class="text-secondary h5 ms-auto my-auto me-3 col-12 col-md-2  text-xl-end">
+
+                                        {{ $zone['owe_over3'] }} <sup> คน</sup>
+                                    </p>
+                                    <div class="col-12 col-md-6">
+                                        <a href="{{ url('cutmeter/index/' . $zone['zone_info']->undertake_subzone_id) }}"
+                                            class="foatright btn btn-sm btn-outline-dark mb-0 {{ $zone['owe_over3'] == 0 ? 'disabled' : '' }}">ดูข้อมูล
+                                        </a>
+                                    </div>
+                                </div>
+                                <hr class="horizontal dark">
+
+                                <div class="row">
+                                    <p class="my-auto h6 col-12 col-md-3">บันทึกข้อมูลแล้ว</p>
+                                    <p class="text-secondary h5 ms-auto my-auto me-3 col-12 col-md-2  text-xl-end">
+                                        {{ $zone['invoiceTotalCount'] }} <sup> คน</sup>
+                                    </p>
+                                    <div class="col-12 col-md-6">
+                                        <a href="{{ route('invoice.invoiced_lists' , $zone['zone_info']->undertake_subzone_id) }}"
+                                            class="foatright btn btn-sm btn-outline-dark mb-0 {{ $zone['invoiceTotalCount'] == 0 ? 'disabled' : '' }}">
+                                            ปริ้นใบแจ้งหนี้
+                                        </a>
+                                        <a style="margin-right: 5px"
+                                            href="{{ route('invoice.zone_edit' , ['subzone_id' =>$zone['zone_info']->undertake_subzone_id,
+                                            'curr_inv_prd' => $current_inv_period]) }}"
+                                            class="foatright btn btn-sm btn-outline-dark mb-0  btn-sm {{ $zone['invoiceTotalCount'] == 0 ? 'disabled' : '' }}">
+                                            แก้ไขข้อมูล
+                                        </a>
+                                    </div>
+                                </div>
+                                <hr class="horizontal dark">
+                                <div class="row">
+                                    <p class="my-auto h6 col-12 col-md-3">ชำระเงินแล้ว</p>
+                                    <p class="text-secondary h5 ms-auto my-auto me-3 col-12 col-md-2  text-xl-end">
+                                        {{ $zone['paidTotalCount'] }} <sup> คน</sup>
+                                    </p>
+                                    <div class="col-12 col-md-6">
+                                        <a href="{{ url('payment/paymenthistory/' . $current_inv_period->id . '/' . $zone['zone_info']->undertake_subzone_id) }}"
+                                            class="foatright btn btn-sm btn-outline-dark mb-0 {{ $zone['paidTotalCount'] == 0 ? 'disabled' : '' }} ">
+                                            ดูข้อมูล
+                                        </a>
+                                    </div>
+                                </div>
+
+                                <hr class="horizontal dark">
+                                <div class="row">
+                                    <p class="my-auto h6 col-12 col-md-4">เพิ่มผู้ใช้น้ำระหว่างรอบบิล</p>
+                                    <p class="text-secondary h5 ms-auto my-auto me-3 col-12 col-md-1  text-xl-end">
+                                        {{-- {{ $zone['new_user'] }} <sup> คน</sup> --}}
+                                    </p>
+                                    <div class="col-12 col-md-6">
+                                        <a href="{{ url('/users') }}"
+                                            class="foatright btn btn-sm btn-outline-dark mb-0">เพิ่มข้อมูล </a>
+                                    </div>
+                                </div>
+                            </div>
                         </div>
-                        <div class="card-body">
-                            <div class="row">
-                                <p class="my-auto h6 col-12 col-md-3">ยังไม่บันทึกข้อมูลมิเตอร์</p>
-                                <p class="text-secondary h5 ms-auto my-auto me-3 col-12 col-md-2  text-xl-end">
-
-                                    {{ $zone['initTotalCount'] }} <sup> คน</sup>
-
-
-                                </p>
-                                <div class="col-12 col-md-6">
-                                    <a href="{{ route('invoice.zone_create' ,
-                                    ['zone_id' => $zone['zone_info']->undertake_subzone_id,'curr_inv_prd' =>$current_inv_period->id])
-                                }}"
-                                        class="foatright btn btn-sm btn-outline-dark mb-0  {{ $zone['initTotalCount'] == 0 ? 'disabled' : '' }}">เพิ่มข้อมูล
-                                    </a>
-                                </div>
-                            </div>
-
-                            <hr class="horizontal dark">
-
-                            <div class="row">
-                                <p class="my-auto h6 col-12 col-md-3">ค้างชำระเกิน 3 รอบบิล</p>
-                                <p class="text-secondary h5 ms-auto my-auto me-3 col-12 col-md-2  text-xl-end">
-
-                                    {{ $zone['owe_over3'] }} <sup> คน</sup>
-                                </p>
-                                <div class="col-12 col-md-6">
-                                    <a href="{{ url('cutmeter/index/' . $zone['zone_info']->undertake_subzone_id) }}"
-                                        class="foatright btn btn-sm btn-outline-dark mb-0 {{ $zone['owe_over3'] == 0 ? 'disabled' : '' }}">ดูข้อมูล
-                                    </a>
-                                </div>
-                            </div>
-                            <hr class="horizontal dark">
-
-                            <div class="row">
-                                <p class="my-auto h6 col-12 col-md-3">บันทึกข้อมูลแล้ว</p>
-                                <p class="text-secondary h5 ms-auto my-auto me-3 col-12 col-md-2  text-xl-end">
-                                    {{ $zone['invoiceTotalCount'] }} <sup> คน</sup>
-                                </p>
-                                <div class="col-12 col-md-6">
-                                    <a href="{{ route('invoice.invoiced_lists' , $zone['zone_info']->undertake_subzone_id) }}"
-                                        class="foatright btn btn-sm btn-outline-dark mb-0 {{ $zone['invoiceTotalCount'] == 0 ? 'disabled' : '' }}">
-                                        ปริ้นใบแจ้งหนี้
-                                    </a>
-                                    <a style="margin-right: 5px"
-                                        href="{{ route('invoice.zone_edit' , ['subzone_id' =>$zone['zone_info']->undertake_subzone_id,
-                                        'curr_inv_prd' => $current_inv_period]) }}"
-                                        class="foatright btn btn-sm btn-outline-dark mb-0  btn-sm {{ $zone['invoiceTotalCount'] == 0 ? 'disabled' : '' }}">
-                                        แก้ไขข้อมูล
-                                    </a>
-                                </div>
-                            </div>
-                            <hr class="horizontal dark">
-                            <div class="row">
-                                <p class="my-auto h6 col-12 col-md-3">ชำระเงินแล้ว</p>
-                                <p class="text-secondary h5 ms-auto my-auto me-3 col-12 col-md-2  text-xl-end">
-                                    {{ $zone['paidTotalCount'] }} <sup> คน</sup>
-                                </p>
-                                <div class="col-12 col-md-6">
-                                    <a href="{{ url('payment/paymenthistory/' . $current_inv_period->id . '/' . $zone['zone_info']->undertake_subzone_id) }}"
-                                        class="foatright btn btn-sm btn-outline-dark mb-0 {{ $zone['paidTotalCount'] == 0 ? 'disabled' : '' }} ">
-                                        ดูข้อมูล
-                                    </a>
-                                </div>
-                            </div>
-
-                            <hr class="horizontal dark">
-                            <div class="row">
-                                <p class="my-auto h6 col-12 col-md-3">เพิ่มผู้ใช้น้ำระหว่างรอบบิล</p>
-                                <p class="text-secondary h5 ms-auto my-auto me-3 col-12 col-md-2  text-xl-end">
-                                    {{-- {{ $zone['new_user'] }} <sup> คน</sup> --}}
-                                </p>
-                                <div class="col-12 col-md-6">
-                                    <a href="{{ url('/users') }}"
-                                        class="foatright btn btn-sm btn-outline-dark mb-0">เพิ่มข้อมูล </a>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
                 @endforeach
             </div>
         </div>
-
     </div>
 @endsection
-
 
 @section('script')
     <script>
@@ -201,16 +192,13 @@
                     $('.empty_user').text('')
                     //ถ้า invoice = 0
                     if (data.invoice === null) {
-
                         $('#lastmeter').val(0);
                         $('#last_invoice').val(-1);
                     } else {
                         $('#lastmeter').val(data.invoice.currentmeter);
                         $('#last_invoice').val(data.invoice.id);
                     }
-
                     $('#user_id').val(data.usermeterInfos.user.id);
-
                     if ($('.addBtn').hasClass('hidden')) {
                         $('.addBtn').removeClass('hidden');
                     }

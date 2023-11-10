@@ -3,7 +3,18 @@
 @section('nav-payment')
     active
 @endsection
-ิ
+ิ@section('nav-header')
+จัดการใบเสร็จรับเงิน
+@endsection
+@section('nav-main')
+<a href="{{ route('invoice.index') }}"> รับชำระค่าน้ำประปา</a>
+@endsection
+@section('nav-current')
+รายชื่อผู้ใช้น้ำประปาที่ยังไม่ได้ชำระค่าน้ำประปา
+@endsection
+@section('page-topic')
+รายชื่อผู้ใช้น้ำประปาที่ยังไม่ได้ชำระค่าน้ำประปา
+@endsection
 @section('style')
     <style>
         .selected {
@@ -67,6 +78,7 @@
             }
         }
     </style>
+
 @endsection
 @section('content')
     <form action="{{ route('payment.index_search_by_suzone') }}" method="POST">
@@ -88,6 +100,7 @@
 
                 <div class="card">
                     <div class="card-body row">
+                        <h6>ค้นหาจากเส้นทางจดมิเตอร์</h6>
                           <div class="form-check">
                             <input class="form-check-input" type="checkbox" name="check-input-select-all" id="check-input-select-all">
                             <label class="custom-control-label" for="customRadio1">เลือกทั้งหมด</label>

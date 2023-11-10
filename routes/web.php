@@ -38,6 +38,7 @@ Route::middleware(['auth', 'role:admin'])->name('admin.')->prefix('admin')->grou
     Route::get('/users/create', [UserController::class, 'create'])->name('users.create');
     Route::get('/users/{user}/edit', [UserController::class, 'edit'])->name('users.edit');
     Route::post('/users/store', [UserController::class, 'store'])->name('users.store');
+    Route::post('/users/users_search', [UserController::class, 'users_search'])->name('users.users_search');
     Route::put('/users/{user}/update', [UserController::class, 'update'])->name('users.update');
     Route::get('/users/{user}', [UserController::class, 'show'])->name('users.show');
     Route::delete('/users/{user}', [UserController::class, 'destroy'])->name('users.destroy');
@@ -63,11 +64,13 @@ Route::resource('/test',TestController::class);
 
 
 Route::middleware(['auth', 'role:admin|finance'])->group(function () {
+    Route::get('/payment/paymenthistory/{inv_period}/{subzone_id}', [PaymentController::class, 'paymenthistory'])->name('payment.paymenthistory');
+    Route::post('/payment/search', [PaymentController::class, 'search'])->name('payment.search');
     Route::post('/payment/index_search_by_suzone', [PaymentController::class, 'index_search_by_suzone'])->name('payment.index_search_by_suzone');
     Route::get('/payment/receipt_print/{receipt_id?}', [PaymentController::class, 'receipt_print'])->name('payment.receipt_print');
     Route::resource('/payment', PaymentController::class);
     Route::resource('/invoice',InvoiceController::class);
-    Route::get('/invoice/{zone_id}{curr_inv_prd}/zone_create/{new_user?}',[InvoiceController::class,'zone_create' ])->name('invoice.zone_create');
+    Route::get('/invoice/{zone_id}/{curr_inv_prd}/zone_create/{new_user?}',[InvoiceController::class,'zone_create' ])->name('invoice.zone_create');
     Route::get('/invoice/{subzone_id}/zone_edit/{curr_inv_prd}',[InvoiceController::class,'zone_edit' ])->name('invoice.zone_edit');
     Route::get('/invoice/{subzone_id}/zone_update',[InvoiceController::class,'zone_update' ])->name('invoice.zone_update');
     Route::get('/invoice/{subzone_id}/invoiced_lists',[InvoiceController::class,'invoiced_lists' ])->name('invoice.invoiced_lists');

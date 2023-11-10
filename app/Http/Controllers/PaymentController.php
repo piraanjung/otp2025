@@ -3,11 +3,13 @@
 namespace App\Http\Controllers;
 
 use App\Http\Controllers\Api\FunctionsController;
+use App\Http\Controllers\Api\InvoiceController;
 use App\Http\Controllers\Api\OwepaperController;
 use App\Models\Account;
 use App\Models\Invoice;
 use App\Models\InvoicePeriod;
 use App\Models\Subzone;
+use App\Models\User;
 use App\Models\UserMerterInfo;
 use App\Models\Zone;
 use Illuminate\Http\Request;
@@ -17,23 +19,6 @@ use App\Http\Controllers\Api\PaymentController as ApiPaymentController;
 
 class PaymentController extends Controller
 {
-    public function autocompleteSearch(Request $request)
-    {
-        $currentInvoicePeriod = InvoicePeriod::where('status', 'active')->get();
-        $query =  $request->get('query');
-        $filterResult  = DB::table('user_meter_infos as umf')
-        ->join('zone as z', 'umf.undertake_zone_id', '=', 'z.id')
-        ->join('user_profile as uf', 'uf.user_id', '=', 'umf.user_id')
-        ->join('invoice as inv', 'inv.user_id', '=', 'umf.user_id')
-        ->select(DB::RAW('CONCAT(uf.address," ", z.zone_name, " - ",uf.name," - ",umf.meternumber) as aa'))
-        ->where('inv.deleted', '=', 0)
-        ->get();
-          $userArray = collect($filterResult)->filter(function($v) use ($query){
-              return str_contains($v->aa, $query);
-          })
-          ->pluck('aa');
-          return response()->json($userArray);
-    }
     public function index(REQUEST $request)
     {
         $invoice_period = InvoicePeriod::where('status', 'active')->get()->first();
@@ -160,19 +145,27 @@ class PaymentController extends Controller
         $type = 'paid_receipt';
         return view('payment.receipt_print', compact('invoicesPaidForPrint', 'newId', 'type'));
     }
-
-    public function print_payment_history($receipt_id)
+    public function search(Request $request)
     {
-        return $this->testPrint($receipt_id);
-    }
+        $inv_by_budgetyear = [];
+        if($request->has('user_info')){
+            $invoiceApi = new InvoiceController();
+            $invoice_infos = json_decode($invoiceApi->get_user_invoice($request->get('user_info'))->content(), true);
 
-    public function search()
-    {
-        $apiOwepaper = new OwepaperController();
+            $inv_by_budgetyear = collect($invoice_infos)->groupBy(function ($invoice_info) {
+                return $invoice_info['invoice_period']['budgetyear_id'];
+            })->values();
+        }
+        // dd('asd');
+        $users = User::
+        with('usermeterinfos')->where('role_id', 3)->get(['firstname', 'lastname', 'address', 'id', 'zone_id']);
+        return collect($users)->filter(function ($user) use ($inv_by_budgetyear) {
+            return collect($user->usermeterinfos)->isEmpty();
+        });
         $zones = Zone::all();
         $invoice_period = InvoicePeriod::where('status', 'active')->get()->first();
 
-        return view('payment.search', compact('zones', 'invoice_period'));
+        return view('payment.search', compact('zones', 'invoice_period', 'users', 'inv_by_budgetyear'));
     }
 
     public function remove($receiptId)
@@ -204,8 +197,22 @@ class PaymentController extends Controller
         Account::where('id', $receiptId)->delete();
         return \redirect('payment/search');
     }
-
     public function paymenthistory($inv_period = '', $subzone_id = '')
+    {
+        $invoices = Invoice::where('inv_period_id_fk', $inv_period)
+                        ->with(['usermeterinfos' => function($query){
+                            return $query->select('meter_id','undertake_subzone_id', 'meternumber', 'metertype_id', 'user_id');
+                        }])
+                        ->where('status', 'paid')->get();
+
+        $invoices_paid = collect($invoices)->filter(function($v)use ($subzone_id){
+            return $v->usermeterinfos->undertake_subzone_id == $subzone_id;
+        })->sortBy('user_id');
+
+        return view('payment.paymenthistory', compact('invoices_paid'));
+    }
+
+    public function paymenthistory_B($inv_period = '', $subzone_id = '')
     {
         $sql = DB::table('user_meter_infos as umf')
             ->join('invoice as iv', 'iv.user_id', '=', 'umf.user_id')

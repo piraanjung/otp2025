@@ -7,6 +7,7 @@ use Spatie\Permission\Traits\HasRoles;
 use Illuminate\Notifications\Notifiable;
 use Illuminate\Contracts\Auth\MustVerifyEmail;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
+use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 
 class User extends Authenticatable
@@ -65,7 +66,7 @@ class User extends Authenticatable
     }
 
     public function usermeterinfos(){
-        return $this->hasOne(UserMerterInfo::class, 'user_id', 'id');
+        return $this->hasMany(UserMerterInfo::class, 'user_id','id');
     }
     public function user_province(){
         return $this->belongsTo(Province::class, 'province_code');

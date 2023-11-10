@@ -103,10 +103,16 @@
                     </a>
                 </li>
                 <li class="nav-item ">
-                    <a class="nav-link " href="http://localhost:8000/admin/settings">
-                        <span class="sidenav-mini-icon"> P </span>
-                        <span class="sidenav-normal">ค้นหาใบเสร็จรับเงิน </span>
-                    </a>
+                    {{-- <a class="nav-link @yield('nav-payment-search')" href="{{ route('payment.search') }}"> --}}
+                        <form action="{{ route('payment.search') }}" method="post" class="mb-0">
+                            @csrf
+                            <button type="submit" class="nav-link @yield('nav-payment-search') border-0">
+                                <input type="hidden" value="nav" name="nav">
+                            <span class="sidenav-mini-icon"> P </span>
+                            <span class="sidenav-normal">ค้นหาใบเสร็จรับเงิน </span>
+                            </button>
+                        </form>
+                    {{-- </a> --}}
                 </li>
                 <li class="nav-item ">
                     <a class="nav-link " href="http://localhost:8000/admin/settings">

@@ -12,7 +12,7 @@ class BudgetYearController extends Controller
     {
         $funcCtrl = new FunctionsController();
 
-        $budgetyears = BudgetYear::orderBy('budgetyear', 'desc')->get();
+        $budgetyears = BudgetYear::orderBy('budgetyear_name', 'desc')->get();
         foreach ($budgetyears as $budgetyear) {
             $budgetyear->startdate = $funcCtrl->engDateToThaiDateFormat($budgetyear->startdate);
             $budgetyear->enddate = $funcCtrl->engDateToThaiDateFormat($budgetyear->enddate);
