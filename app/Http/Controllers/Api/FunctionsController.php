@@ -3,10 +3,6 @@
 namespace App\Http\Controllers\Api;
 
 use App\Http\Controllers\Controller;
-use App\Invoice;
-use App\User;
-use App\UserMeterInfos;
-use App\UserProfile;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 
@@ -20,7 +16,7 @@ class FunctionsController extends Controller
 
     }
 
-    public function engDateToThaiDateFormat($date)
+    public static function engDateToThaiDateFormat($date)
     {
         $dateExp = explode("-", $date);
         $cEyear = $dateExp[0] + 543;
@@ -77,6 +73,11 @@ class FunctionsController extends Controller
             $str = 'ชำระแล้ว';
         }
         return $str;
+    }
+
+    public static function invoice_last_record()
+    {
+        return \App\Models\Invoice::get()->last();
     }
 
     public static function reset_auto_increment_when_deleted($tablename){

@@ -34,8 +34,8 @@ integrity="sha384-rbsA2VBKQhggwzxH7pPCaAqO46MgnOM80zW1RWuH61DGLwZJEdK2Kadq2F9CUG
                         @csrf
                         <div class="form-group">
                             <label>ปีงบประมาณ</label>
-                            <input class="form-control text-center" type="text"
-                                value="{{ $budgetyear->budgetyear }}" placeholder="" readonly>
+                            <input class="form-control text-center bg-gray-200" type="text"
+                                value="{{ $budgetyear->budgetyear_name }}" placeholder="" readonly>
                             <input class="form-control text-center" type="text" name="budgetyear_id"
                                 value="{{ $budgetyear->id }}" hidden>
                         </div>
@@ -48,7 +48,7 @@ integrity="sha384-rbsA2VBKQhggwzxH7pPCaAqO46MgnOM80zW1RWuH61DGLwZJEdK2Kadq2F9CUG
                                 </div>
                                 <div class="col-2 text-center h3">-</div>
                                 <div class="col-5">
-                                    <input class="form-control text-center" type="text" name="inv_period_name_year"
+                                    <input class="form-control text-center bg-gray-200" type="text" name="inv_period_name_year"
                                         value="{{ substr(date('Y') + 543, 2) }}" readonly>
                                 </div>
                             </div>

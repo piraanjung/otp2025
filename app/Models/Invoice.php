@@ -10,10 +10,14 @@ class Invoice extends Model
 {
     use HasFactory;
     protected $fillable = [
+        'id',
         'inv_period_id_fk',
         'meter_id_fk',
         'lastmeter',
+        'accounts_id_fk',
         'currentmeter',
+        'recorder_id',
+        'status'
     ];
     protected $table = 'invoice';
 
@@ -34,7 +38,7 @@ class Invoice extends Model
 
     public function accounting()
     {
-        return $this->belongsTo(Account::class, 'receipt_id', 'id');
+        return $this->belongsTo(Account::class, 'accounts_id_fk', 'id');
     }
     public function invoice_inv_pd_active()
     {

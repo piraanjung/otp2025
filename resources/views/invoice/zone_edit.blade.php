@@ -3,6 +3,18 @@
 @section('nav-invoice')
     active
 @endsection
+@section('nav-header')
+จัดการใบแจ้งหนี้
+@endsection
+@section('nav-main')
+<a href="{{route('invoice.index')}}"> ออกใบแจ้งหนี้</a>
+@endsection
+@section('nav-current')
+แก้ไขข้อมูลใบแจ้งหนี้
+@endsection
+@section('page-topic')
+เส้นทาง:: {{ $inv_in_seleted_subzone[0]->usermeterinfos->undertake_subzone->subzone_name }}
+@endsection
 
 @section('content')
     <div class="card">
@@ -166,9 +178,6 @@
                 $('.overlay').remove()
                 $('#oweTable_filter').remove()
         })
-
-
-
 
         //คำนวนเงินค่าใช้น้ำ
         $(document).on('keyup', '.currentmeter', function() {

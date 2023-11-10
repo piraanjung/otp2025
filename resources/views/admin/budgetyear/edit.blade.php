@@ -61,7 +61,7 @@
 
                             <div class="form-group">
                                 <label for="budgetyear">ปีงบประมาณ</label>
-                                <input type="text" class="form-control text-center" id="budgetyear" name="budgetyear" value="{{$budgetyear->budgetyear}}"
+                                <input type="text" class="form-control text-center" id="budgetyear" name="budgetyear" value="{{$budgetyear->budgetyear_name}}"
                                     placeholder="ตัวอย่าง 2563">
                             </div>
                             <div class="form-group">

@@ -36,7 +36,7 @@
                 @foreach ($budgetyears as $budgetyear)
                 <tr>
                     <th>{{$i++}}</th>
-                    <th>{{$budgetyear->budgetyear}}</th>
+                    <th>{{$budgetyear->budgetyear_name}}</th>
                     <th>{{$budgetyear->startdate}}</th>
                     <th>{{$budgetyear->enddate}}</th>
                     <th>

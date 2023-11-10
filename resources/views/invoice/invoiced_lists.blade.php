@@ -3,31 +3,72 @@
 @section('nav-invoice')
     active
 @endsection
+@section('nav-header')
+    จัดการใบแจ้งหนี้
+@endsection
+@section('nav-main')
+    <a href="{{ route('invoice.index') }}"> ออกใบแจ้งหนี้</a>
+@endsection
+@section('nav-current')
+    ปริ้นใบแจ้งหนี้
+@endsection
+@section('page-topic')
+    เส้นทาง:: {{ $subzone_id }}
+    รอบบิลที่ <span id="invPeriod"></span> ปีงบประมาณ <span id="_budgetyear"></span>
+@endsection
+@section('style')
+<style>
+    .selected {
+        background: lightblue
+    }
 
+    .dataTables_length,
+    .dt-buttons,
+    .dataTables_filter,
+    .select_row_all,
+    .deselect_row_all {
+        display: inline-flex;
+    }
+
+    .dt-buttons,
+    .select_row_all,
+    .deselect_row_all {
+        flex-direction: column
+    }
+
+    .dt-buttons {
+        margin-left: 3%
+    }
+
+    #print_multi_inv {
+        margin-left: 50%
+    }
+    .table{
+        border-collapse: collapse
+    }
+    .search_col{
+        border-radius: 10px 10px;
+        border:1px solid lightskyblue;
+        min-width: 90px;
+    }
+</style>
+@endsection
 @section('content')
     <div class="card">
-        <form action="{{ url('invoice/print_multi_invoice') }}" method="POST">
+        <form action="{{ url('invoice/print_multi_invoice') }}" id="form" method="POST" >
             @csrf
-            <div class="card-header">
-                <div class="card-title">รอบบิลที่ <span id="invPeriod"></span> ปีงบประมาณ <span id="_budgetyear"></span>
-                </div>
-                <div class="card-tools">
-                    <input type="submit" class="btn btn-primary" id="print_multi_inv" value="ปริ้นใบแจ้งหนี้ผู้ใช้ที่เลือก">
-                </div>
-            </div>
             <div class="card-body table-responsive">
-
                 <input type="hidden" id="zone_id" name="zone_id" value="">
                 <input type="hidden" id="subzone_id" name="subzone_id" value="">
                 <input type="hidden" name="mode" id="mode" value="zone_info">
                 @error('inv_id')
-                <div class="alert alert-warning alert-dismissible text-white" role="alert">
-                    <h5>{{$message}}</h5>
-                    <button type="button" class="btn-close text-lg py-3 opacity-10" data-bs-dismiss="alert" aria-label="Close">
-                    <span aria-hidden="true">×</span>
-                    </button>
+                    <div class="alert alert-warning alert-dismissible text-white" role="alert">
+                        <h5>{{ $message }}</h5>
+                        <button type="button" class="btn-close text-lg py-3 opacity-10" data-bs-dismiss="alert"
+                            aria-label="Close">
+                            <span aria-hidden="true">×</span>
+                        </button>
                     </div>
-
                 @enderror
                 <table id="oweTable" class="table " width="100%">
                     <tfoot>
@@ -48,9 +89,13 @@
 @endsection
 
 @section('script')
-    <script src="https://cdn.datatables.net/select/1.3.3/js/dataTables.select.min.js"></script>
-    <script src="https://cdn.datatables.net/buttons/2.0.0/js/dataTables.buttons.min.js"></script>
-
+<script src="https://cdn.datatables.net/buttons/2.4.2/js/dataTables.buttons.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/pdfmake/0.1.53/pdfmake.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/pdfmake/0.1.53/vfs_fonts.js"></script>
+    <script src="https://cdn.datatables.net/buttons/2.4.2/js/buttons.html5.min.js"></script>
+    <script src="https://cdn.datatables.net/buttons/2.4.2/js/buttons.print.min.js"></script>
+    <script src="https://cdn.datatables.net/select/1.7.0/js/dataTables.select.min.js"></script>
     <script>
         let i = 0;
         //เพิ่มข้อมูลลงตาราง lists
@@ -62,6 +107,7 @@
         //getข้อมูลจาก api มาแสดงใน datatable
         $(document).ready(function() {
             getOweInfos()
+
         })
 
         function getOweInfos() {
@@ -80,24 +126,19 @@
                 } else {
                     table = $('#oweTable').DataTable({
                         responsive: true,
-                        // order: false,
-                        // searching:false,
                         "pagingType": "listbox",
                         "lengthMenu": [
                             [10, 25, 50, 150, -1],
                             [10, 25, 50, 150, "ทั้งหมด"]
                         ],
                         dom: 'lBfrtip',
-                        buttons: [{
-                                text: 'เลือกทั้งหมด',
-                                className: 'show_all_btn'
-
-                            },
-
-                        ],
-                        select: {
-                            style: 'multi'
-                        },
+                buttons: [{
+                    extend: 'excelHtml5',
+                    'text': 'Excel',
+                    exportOptions: {
+                        rows: ['.selected']
+                    }
+                }],
                         "language": {
                             "search": "ค้นหา:",
                             "lengthMenu": "แสดง _MENU_ แถว",
@@ -109,8 +150,7 @@
 
                         },
                         data: data.invoicedlists,
-                        columns: [
-                            {
+                        columns: [{
                                 'title': 'เลขใบแจ้งหนี้',
                                 data: function(data) {
                                     return `${data.id}<input type="hidden" value="${data.id}" name="zone[${data.id}][iv_id]" data-id="${data.id}"
@@ -130,7 +170,7 @@
                             },
                             {
                                 'title': 'ชื่อ-สกุล',
-                                data: function(data){
+                                data: function(data) {
                                     return `${data.firstname} ${data.lastname}`
                                 }
                             },
@@ -167,7 +207,7 @@
                                     return `${amount.toLocaleString()}`
                                 },
                                 'className': 'text-right'
-                             },
+                            },
 
 
 
@@ -224,8 +264,8 @@
                         $(this).removeClass('sorting_asc')
                         if (index < 4) {
                             $(this).html(
-                                `<input type="text" data-id="${index}" class="col-md-12" id="search_col_${index}" placeholder="ค้นหา" />`
-                                );
+                                `<input type="text" data-id="${index}" class="col-md-12 search_col" id="search_col_${index}" placeholder="ค้นหา" />`
+                            );
                         } else {
                             $(this).html('')
                         }
@@ -233,7 +273,6 @@
                 } //else
                 $('.overlay').remove()
                 $('#oweTable_filter').remove();
-                $('.dt-buttons').addClass('ml-3')
 
                 //custom การค้นหา
                 let col_index = -1
@@ -256,7 +295,7 @@
                                 _val
                             );
                             table.column(col)
-                                .search(val ? '^' + val + '.*' :'', true, false)
+                                .search(val ? '^' + val + '.*' : '', true, false)
                                 .draw();
                         } else {
                             table.column(col)
@@ -269,82 +308,39 @@
 
                 })
 
+                $('.dt-button').addClass('btn btn-sm btn-info')
+                $('.dt-buttons').prepend('<label class="m-0">ดาวน์โหลด:</label>')
+
+                $(`<div class="deselect_row_all">
+                    <label class="m-0">ยกเลิกเลือกทั้งหมด:</label>
+                    <button type="button" class="btn btn-secondary btn-sm" id="deselect-all">ตกลง</button>
+                </div>
+                <div class=" select_row_all">
+                    <label class="m-0">เลือกทั้งหมด:</label>
+                    <button type="button" class="btn btn-success btn-sm" id="deselect-all">ตกลง</button>
+                </div>`).insertAfter('.dataTables_length')
+
+                $(`<input type="submit" class="btn btn-primary mt-6"  id="print_multi_inv" value="ปริ้นใบแจ้งหนี้ผู้ใช้ที่เลือก">`)
+                .insertAfter('.dt-buttons')
+
             }) //.get
 
         } //function getOweInfos
 
+        $(document).on('click', 'tbody tr', function(e) {
+            $(this).hasClass('selected') ? $(this).removeClass('selected') : $(this).addClass('selected');
+        });
+        $(document).on('click', '#deselect-all', function(e) {
+            $("tbody tr.selected").removeClass('selected')
+            $('.invoice_id').prop('checked', false)
 
-        $(document).ready(function() {
+        });
+        $(document).on('click', '.select_row_all', function(e) {
+            $("tbody tr").addClass('selected')
+            $('.invoice_id').prop('checked', true)
 
-            $('.paginate_page').text('หน้า')
-            let val = $('.paginate_of').text()
-            $('.paginate_of').text(val.replace('of', 'จาก'));
-        })
+        });
 
-        $('#checkall').change(function() {
-            if ($(this).is(":checked")) {
-                $('.invoice_id').each(function(index, ele) {
-                    $(ele).prop('checked', true)
-                })
-            } else {
-                $('.invoice_id').each(function(index, ele) {
-                    $(ele).prop('checked', false)
-                })
-            }
-        })
 
-        $('body').on('click', 'tbody tr', function() {
-            $('.select-item').text('')
-
-            let checked = $(this).children().first().children().last()
-            if (checked.prop('checked') === false) {
-                checked.prop('checked', true)
-                $(this).addClass('selected')
-            } else {
-                $(this).removeClass('selected')
-                checked.prop('checked', false)
-            }
-        })
-
-        $('body').on('click', '.show_all_btn', function() {
-            let _val = $(this).hasClass('all') ? 'all' : '';
-            openAllChildTable(_val)
-        })
-
-        function openAllChildTable(_val) {
-            if (_val === 'all') {
-                $("table > tbody > tr[role='row']").each(function(index, val) {
-
-                    var tr = $(this).closest('tr');
-                    var row = table.row(tr);
-                    let checked = tr.children().first().children().last()
-                    if (checked.prop('checked') === false) {
-                        checked.prop('checked', true)
-
-                    }
-                    tr.addClass('shown');
-                    tr.addClass('selected')
-                    $('.show_all_btn').removeClass('all')
-                    $('.show_all_btn').text('ยกเลิกเลือกทั้งหมด')
-                })
-
-            } else {
-                $("table > tbody > tr[role='row']").each(function() {
-                    var tr = $(this).closest('tr');
-                    let checked = tr.children().first().children().last()
-
-                    var row = table.row(tr);
-                    row.child.hide();
-                    tr.removeClass('shown');
-                    tr.removeClass('selected');
-                    checked.prop('checked', false)
-
-                    $('.show_all_btn').addClass('all')
-                    $('.show_all_btn').text('เลือกทั้งหมด')
-                    $('.show_detail').prop('checked', false);
-                })
-
-            }
-        }
     </script>
 @endsection
