@@ -14,11 +14,12 @@ return new class extends Migration
     public function up()
     {
         Schema::create('accounts', function (Blueprint $table) {
-                $table->bigIncrements('id');
+                $table->unsignedBigInteger('id');
                 $table->float('deposit',6,2)->comment('ยอดฝาก');
-                $table->integer('payee')->comment('ผู้รับเงิน');
-                $table->text('comment');
+                $table->unsignedBigInteger('payee');
+                $table->text('comment')->nullable();
                 $table->timestamps();
+                $table->primary('id');
                 $table->foreign('payee')->references('id')->on('users')->onDelete('cascade');
         });
     }

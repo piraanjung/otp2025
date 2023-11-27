@@ -11,9 +11,11 @@ use App\Http\Controllers\BudgetYearController;
 use App\Http\Controllers\InvoiceController;
 use App\Http\Controllers\InvoicePeriodController;
 use App\Http\Controllers\PaymentController;
+use App\Http\Controllers\ReportsController;
 use App\Http\Controllers\SettingsController;
 use App\Http\Controllers\SubzoneController;
 use App\Http\Controllers\TestController;
+use App\Http\Controllers\TransferOldDataToNewDBController;
 use Illuminate\Support\Facades\Route;
 use PHPUnit\Framework\MockObject\Invocation;
 
@@ -26,6 +28,7 @@ Route::get('/dashboard', function () {
 })->middleware(['auth'])->name('dashboard');
 
 Route::middleware(['auth', 'role:admin'])->name('admin.')->prefix('admin')->group(function () {
+    Route::get('/transfer_old_data', [TransferOldDataToNewDBController::class, 'index'])->name('transfer_old_data');
     Route::get('/', [IndexController::class, 'index'])->name('index');
     Route::resource('/roles', RoleController::class);
     Route::post('/roles/{role}/permissions', [RoleController::class, 'givePermission'])->name('roles.permissions');
@@ -33,6 +36,7 @@ Route::middleware(['auth', 'role:admin'])->name('admin.')->prefix('admin')->grou
     Route::resource('/permissions', PermissionController::class);
     Route::post('/permissions/{permission}/roles', [PermissionController::class, 'assignRole'])->name('permissions.roles');
     Route::delete('/permissions/{permission}/roles/{role}', [PermissionController::class, 'removeRole'])->name('permissions.roles.remove');
+
     Route::get('/users', [UserController::class, 'index'])->name('users.index');
     Route::get('/users/staff', [UserController::class, 'staff'])->name('users.staff');
     Route::get('/users/create', [UserController::class, 'create'])->name('users.create');
@@ -42,6 +46,7 @@ Route::middleware(['auth', 'role:admin'])->name('admin.')->prefix('admin')->grou
     Route::put('/users/{user}/update', [UserController::class, 'update'])->name('users.update');
     Route::get('/users/{user}', [UserController::class, 'show'])->name('users.show');
     Route::delete('/users/{user}', [UserController::class, 'destroy'])->name('users.destroy');
+    Route::get('/users/{user}/history', [UserController::class, 'history'])->name('users.history');
     Route::post('/users/{user}/roles', [UserController::class, 'assignRole'])->name('users.roles');
     Route::delete('/users/{user}/roles/{role}', [UserController::class, 'removeRole'])->name('users.roles.remove');
     Route::post('/users/{user}/permissions', [UserController::class, 'givePermission'])->name('users.permissions');
@@ -67,7 +72,8 @@ Route::middleware(['auth', 'role:admin|finance'])->group(function () {
     Route::get('/payment/paymenthistory/{inv_period}/{subzone_id}', [PaymentController::class, 'paymenthistory'])->name('payment.paymenthistory');
     Route::post('/payment/search', [PaymentController::class, 'search'])->name('payment.search');
     Route::post('/payment/index_search_by_suzone', [PaymentController::class, 'index_search_by_suzone'])->name('payment.index_search_by_suzone');
-    Route::get('/payment/receipt_print/{receipt_id?}', [PaymentController::class, 'receipt_print'])->name('payment.receipt_print');
+    Route::get('/payment/receipt_print/{account_id_fk?}', [PaymentController::class, 'receipt_print'])->name('payment.receipt_print');
+    Route::get('/payment/receipt_print_history/{account_id_fk?}', [PaymentController::class, 'receipt_print_history'])->name('payment.receipt_print_history');
     Route::resource('/payment', PaymentController::class);
     Route::resource('/invoice',InvoiceController::class);
     Route::get('/invoice/{zone_id}/{curr_inv_prd}/zone_create/{new_user?}',[InvoiceController::class,'zone_create' ])->name('invoice.zone_create');
@@ -77,6 +83,10 @@ Route::middleware(['auth', 'role:admin|finance'])->group(function () {
     Route::post('invoice/print_multi_invoice', [InvoiceController::class,'print_multi_invoice' ])->name('invoice.print_multi_invoice');
 
 
+    Route::get('reports/owe',[ReportsController::class,'owe' ])->name('reports.owe');
+    Route::post('reports/dailypayment',[ReportsController::class,'dailypayment' ])->name('reports.dailypayment');
+    Route::get('reports/dailypayment2',[ReportsController::class,'dailypayment2' ])->name('reports.dailypayment2');
+    Route::post('reports/owe_search',[ReportsController::class,'owe_search' ])->name('reports.owe_search');
 });
 
 require __DIR__ . '/auth.php';

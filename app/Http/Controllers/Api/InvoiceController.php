@@ -72,7 +72,7 @@ class InvoiceController extends Controller
 
     }
 
-    public function get_user_invoice($meter_id)
+    public function get_user_invoice($meter_id, $status = '')
     {
         //หา invoice และ owe ของ user
         $invoices = Invoice::where('meter_id_fk', $meter_id)
@@ -81,7 +81,7 @@ class InvoiceController extends Controller
                 $query->select('meter_id', 'user_id', 'meternumber', 'undertake_zone_id', 'undertake_subzone_id', 'metertype_id');
             },
             'usermeterinfos.user' => function ($query) {
-                return $query->select('id', 'firstname', 'lastname', 'address', 'zone_id', 'phone', 'subzone_id', 'tambon_code', 'district_code', 'province_code');
+                return $query->select('id', 'prefix', 'firstname', 'lastname', 'address', 'zone_id', 'phone', 'subzone_id', 'tambon_code', 'district_code', 'province_code');
             },
             'usermeterinfos.user.user_tambon' => function ($query) {
                 return $query->select('id', 'tambon_name');
@@ -107,25 +107,19 @@ class InvoiceController extends Controller
             'usermeterinfos.user.user_zone' => function ($query) {
                 return $query->select('id', 'zone_name as user_zone_name');
             },
-            'usermeterinfos.user.user_province' => function ($query) {
-                return $query->select('id', 'province_name');
-            },
-            'usermeterinfos.user.user_district' => function ($query) {
-                return $query->select('id', 'district_name');
-            },
-            'usermeterinfos.user.user_tambon' => function ($query) {
-                return $query->select('id', 'tambon_name');
-            },
             'usermeterinfos.meter_type' => function ($query) {
                 return $query->select('id', 'price_per_unit');
             },
             ])
-            ->orderBy('inv_period_id_fk', 'desc')
-            ->get(['id', 'meter_id_fk', 'inv_period_id_fk', 'lastmeter', 'currentmeter', 'accounts_id_fk', 'updated_at', 'status']);
+            ->orderBy('inv_period_id_fk', 'desc');
+        if($status != '') {
+            if($status == 'inv_and_owe') {
+            $invoices = $invoices->whereIn('status', ['invoice', 'owe']);
+            }
+        }
 
-        // $invAndOweInvoice = collect($invoice)->filter(function ($val) {
-        //     return $val->status == 'owe' || $val->status == 'invoice';
-        // });
+        $invoices = $invoices->get(['inv_id', 'meter_id_fk', 'inv_period_id_fk', 'lastmeter', 'currentmeter', 'accounts_id_fk', 'updated_at', 'status']);
+
         return response()->json(collect($invoices)->flatten());
     }
 

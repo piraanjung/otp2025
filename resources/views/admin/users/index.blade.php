@@ -45,13 +45,15 @@
         .dt-buttons,
         .dataTables_filter,
         .select_row_all,
-        .deselect_row_all {
+        .deselect_row_all,
+        .create_user {
             display: inline-flex;
         }
 
         .dt-buttons,
         .select_row_all,
-        .deselect_row_all {
+        .deselect_row_all,
+        .create_user {
             flex-direction: column
         }
 
@@ -60,11 +62,36 @@
         }
 
         .dataTables_filter {
-            margin-left: 40%
+            margin-left: 2%
+        }
+        .preloader-wrapper{
+            position:fixed;
+            top:0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: #111;
+            opacity: 0.8;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            z-index: 1200;
+            transition: all .4s ease;
+        }
+
+        .fade-out-animation{
+            opacity: 0;
+            visibility: hidden;
         }
     </style>
 @endsection
 @section('content')
+    <div class="preloader-wrapper">
+        <button class="btn btn-primary btn-sm mb-2" type="button" disabled>
+            <span class="spinner-border spinner-border-sm" role="status"></span>
+            Loading...
+        </button>
+    </div>
     <div class="row mt-4">
         <div class="col-12 col-lg-3">
             <div class="card">
@@ -92,17 +119,7 @@
         </div>
         <div class="col-12 col-lg-9">
             <div class="card">
-                <div class="card-header d-flex">
-                    <div class="w-80">
-                        <h5 class="mb-0"> </h5>
-                        <p class="text-sm mb-0">
-                            <span class="w-90"></span>
-                        </p>
-                    </div>
-                    <div>
-                        <a href="{{ route('admin.users.create') }}" class="btn bg-gradient-success">เพิ่มผู้ใช้งานระบบ</a>
-                    </div>
-                </div>
+
                 <div class="card-body">
                     <div class="table-responsive">
                         <table class="table" style="border-collapse: collapse" id="example">
@@ -110,6 +127,8 @@
                                 <tr>
                                     <th class="text-uppercase text-secondary text-xxs font-weight-bolder opacity-7">
                                         เลขผู้ใช้น้ำ</th>
+                                    <th class="text-uppercase text-secondary text-xxs font-weight-bolder opacity-7 ps-2">
+                                        user_id</th>
                                     <th class="text-uppercase text-secondary text-xxs font-weight-bolder opacity-7 ps-2">
                                         ชื่อ-สกุล</th>
                                     <th class="text-uppercase text-secondary text-xxs font-weight-bolder opacity-7 ps-2">
@@ -141,6 +160,10 @@
                                                     </h6>
                                                 </div>
                                             </div>
+                                        </td>
+                                        <td>
+                                            <p class="text-xs font-weight-bold mb-0">
+                                                {{ $user->id  }}</p>
                                         </td>
                                         <td>
                                             <p class="text-xs font-weight-bold mb-0">
@@ -188,7 +211,7 @@
                                                 <ul class="dropdown-menu px-2 py-3 ms-sm-n4 ms-n5"
                                                     aria-labelledby="dropdownTable2" style="">
                                                     @if ($usertype == 'user')
-                                                        <li><a class="dropdown-item" href="#">ประวัติการใช้น้ำ</a>
+                                                        <li><a class="dropdown-item" href="{{ route('admin.users.history', $user->id) }}">ประวัติการใช้น้ำ</a>
                                                         </li>
                                                     @endif
                                                     <li><a class="dropdown-item"
@@ -227,6 +250,7 @@
     <script src="https://cdn.datatables.net/select/1.7.0/js/dataTables.select.min.js"></script>
     <script>
         let table
+        let preloaderwrapper = document.querySelector('.preloader-wrapper')
         $(document).ready(function() {
 
             table = $('#example').DataTable({
@@ -254,7 +278,7 @@
                 }],
 
             });
-            $('#example tbody tr').addClass('selected')
+
             $('select[name="example_length"]').on('change', function(e) {
                 setTimeout(() => {
                     $('#example tbody tr.selected').each(function(index) {
@@ -281,9 +305,14 @@
                 </div>`).insertAfter('.dataTables_length')
 
 
+            $(`<div class="create_user" style="margin-left:15%"><label class="m-0">&nbsp;</label>
+            <a href="{{ route('admin.users.create') }}" class="btn bg-gradient-success btn-sm" >เพิ่มผู้ใช้งานระบบ</a></div>`)
+            .insertAfter('.dataTables_filter')
 
             // $('#example_filter label').html('ค้นหา:')
             $('.dt-button').addClass('btn btn-sm btn-info')
+
+            preloaderwrapper.classList.add('fade-out-animation')
         });
 
 

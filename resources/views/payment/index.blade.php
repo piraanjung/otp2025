@@ -3,7 +3,8 @@
 @section('nav-payment')
     active
 @endsection
-ิ@section('nav-header')
+
+@section('nav-header')
 จัดการใบเสร็จรับเงิน
 @endsection
 @section('nav-main')
@@ -159,8 +160,9 @@
                             <tbody>
                                 @foreach ($invoices as $invoice)
                                     <tr>
-                                        <td class="text-center">{{ $invoice->id }}</td>
-                                        <td>{{ $invoice->usermeterinfos->user->firstname . ' ' . $invoice->usermeterinfos->user->lastname }}
+                                        <td class="text-center">{{ $invoice->inv_id }}</td>
+                                        <td>{{ $invoice->usermeterinfos->user->firstname }}
+                                            {{-- <td>{{ $invoice->usermeterinfos->user->firstname . ' ' . $invoice->usermeterinfos->user->lastname }} --}}
                                         </td>
                                         <td class="meternumber text-center" data-meter_id={{ $invoice->meter_id_fk }}>
                                             {{ $invoice->usermeterinfos->meternumber }}
@@ -427,7 +429,7 @@
 
             $('#user_id').val(meter_id)
             console.log('rec meterId', meter_id)
-            $.get(`/api/invoice/${meter_id}`).done(function(invoices) {
+            $.get(`/api/invoice/${meter_id}/inv_and_owe`).done(function(invoices) {
 
                 let i = 0;
                 if (Object.keys(invoices).length > 0) {
@@ -468,10 +470,10 @@
                                 <td class="text-center">
                                     <div class="form-check">
                                         <input type="checkbox"  checked  class="form-check-input invoice_id checkbox"
-                                            data-inv_id="${element.id}" name="payments[${i}][on]">
+                                            data-inv_id="${element.inv_id}" name="payments[${i}][on]">
                                     </div>
                                 </td>
-                                <td class="text-center">${element.id}</td>
+                                <td class="text-center">${element.inv_id}</td>
                                 <td class="text-center">${element.usermeterinfos.meternumber}</td>
                                 <td class="text-center">${element.invoice_period.inv_p_name}</td>
                                 <td class="text-end">${element.lastmeter}</td>
@@ -479,11 +481,11 @@
                                 <td class="text-end">${diff}</td>
                                 <td class="text-end">${ _total }
                                     <input type="hidden" name="payments[${i}][total]" value="${ _total }">
-                                    <input type="hidden" name="payments[${i}][iv_id]" value="${ element.id }">
+                                    <input type="hidden" name="payments[${i}][iv_id]" value="${ element.inv_id }">
                                     <input type="hidden" name="payments[${i}][status]" value="${ element.status }">
                                 </td>
                                 <td class="text-end">${reserve}</td>
-                                <td class="total text-end" id="total${element.id}" data-total="${element.id}">${_total+ reserve}</td>
+                                <td class="total text-end" id="total${element.inv_id}" data-total="${element.inv_id}">${_total+ reserve}</td>
                                 <td class="text-center">${status}</td>
 
                             </tr>
@@ -502,7 +504,7 @@
                                 อำเภอ ${invoices[0].usermeterinfos.user.user_district.district_name}\n
                                 จังหวัด ${invoices[0].usermeterinfos.user.user_province.province_name}`;
 
-                    $('#feFirstName').html(invoices[0].usermeterinfos.user.firstname + " " + invoices[0]
+                    $('#feFirstName').html(invoices[0].usermeterinfos.user.prefix+""+invoices[0].usermeterinfos.user.firstname + " " + invoices[0]
                         .usermeterinfos.user.lastname);
                     $('#meternumber2').html(invoices[0].usermeterinfos.meternumber);
                     $('#feInputAddress').html(address);

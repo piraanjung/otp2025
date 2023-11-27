@@ -10,14 +10,14 @@ class Invoice extends Model
 {
     use HasFactory;
     protected $fillable = [
-        'id',
+        'inv_id',
         'inv_period_id_fk',
         'meter_id_fk',
         'lastmeter',
         'accounts_id_fk',
         'currentmeter',
-        'recorder_id',
-        'status'
+        'status',
+        'user_id'
     ];
     protected $table = 'invoice';
 

@@ -1,11 +1,12 @@
 @extends('layouts.print')
 
-<head>
-    <link rel="stylesheet" href="{{ asset('adminlte/dist/css/adminlte.min.css') }}">
-    <script src="{{ asset('/js/jquery-1.11.3.min.js') }}"></script>
-    <script src="{{ asset('/js/ajax/libs/popper.js/1.14.3/umd/popper.min.js') }}"></script>
-    <script src="{{ asset('public/js/bootstrap/4.5.2/js/bootstrap.min.js') }}"></script>
-</head>
+@section('style')
+<link rel="stylesheet" href="{{ asset('/adminlte/dist/css/adminlte.min.css') }}">
+{{-- <script src="{{ asset('/js/jquery-1.11.3.min.js') }}"></script>
+<script src="{{ asset('/js/ajax/libs/popper.js/1.14.3/umd/popper.min.js') }}"></script>
+<script src="{{ asset('public/js/bootstrap/4.5.2/js/bootstrap.min.js') }}"></script> --}}
+@endsection
+
 <?php $index = 0; ?>
 <?php
 $year = date('Y') + 543;
@@ -124,7 +125,7 @@ $invoiceNumber = App\Http\Controllers\Api\FunctionsController::invoice_last_reco
     </style>
 @endsection
 @section('content')
-    <input type="hidden" id="type" value="{{ $type }}">
+    <input type="hidden" id="from_blade" value="{{ $from_blade }}">
     <br>
     <div class="row" style="">
         <div class="col-6">
@@ -171,12 +172,12 @@ $invoiceNumber = App\Http\Controllers\Api\FunctionsController::invoice_last_reco
             head.appendChild(style);
 
             window.print();
-            if ($('#type').val() == 'paid_receipt') {
+            if ($('#from_blade').val() == 'payment.index') {
                 setTimeout(function() {
                     window.location.href = '/payment/';
                 }, 200);
             } else {
-                //type == history_recipt
+                //from_blade== payment.search
                 setTimeout(function() {
                     window.location.href = '../search';
                 }, 200);

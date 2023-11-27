@@ -121,7 +121,7 @@ class PaymentController extends Controller
         return redirect()->route('payment.receipt_print')->with(['receipt_id' => $receipt->id]);
     }
 
-    public function receipt_print(REQUEST $request, $receiptId = 0)
+    public function receipt_print(REQUEST $request, $receiptId = 0, $from_blade = 'payment.index')
     {
         $receipt_id = $receiptId;
         if($request->session()->has('receipt_id')){
@@ -145,6 +145,28 @@ class PaymentController extends Controller
         $type = 'paid_receipt';
         return view('payment.receipt_print', compact('invoicesPaidForPrint', 'newId', 'type'));
     }
+    public function receipt_print_history($id){
+        $receipt_id = $id;
+
+        $invoicesPaidForPrint = Invoice::where('accounts_id_fk', $receipt_id)
+            ->with([
+                'invoice_period' => function ($query) {
+                    return $query->select('id', 'inv_p_name');
+                },
+                'usermeterinfos' => function ($query) {
+                    return $query->select('meter_id', 'user_id', 'meternumber', 'undertake_subzone_id');
+                },
+                'accounting' => function ($query) {
+                    return $query->select('id', 'deposit', 'payee', 'updated_at');
+                },
+            ])
+            ->get(['inv_period_id_fk', 'meter_id_fk', 'lastmeter', 'currentmeter', 'status', 'accounts_id_fk', 'recorder_id','updated_at', 'created_at']);
+
+        $newId = FunctionsController::createInvoiceNumberString($receipt_id);
+        $type = 'payment_search
+        ';
+        return view('payment.receipt_print', compact('invoicesPaidForPrint', 'newId', 'type'));
+    }
     public function search(Request $request)
     {
         $inv_by_budgetyear = [];
@@ -156,12 +178,9 @@ class PaymentController extends Controller
                 return $invoice_info['invoice_period']['budgetyear_id'];
             })->values();
         }
-        // dd('asd');
         $users = User::
         with('usermeterinfos')->where('role_id', 3)->get(['firstname', 'lastname', 'address', 'id', 'zone_id']);
-        return collect($users)->filter(function ($user) use ($inv_by_budgetyear) {
-            return collect($user->usermeterinfos)->isEmpty();
-        });
+
         $zones = Zone::all();
         $invoice_period = InvoicePeriod::where('status', 'active')->get()->first();
 
@@ -211,43 +230,6 @@ class PaymentController extends Controller
 
         return view('payment.paymenthistory', compact('invoices_paid'));
     }
-
-    public function paymenthistory_B($inv_period = '', $subzone_id = '')
-    {
-        $sql = DB::table('user_meter_infos as umf')
-            ->join('invoice as iv', 'iv.user_id', '=', 'umf.user_id')
-        // ->join('invoice as iv', 'iv.meter_id', '=', 'umf.id')
-            ->join('user_profile as upf', 'upf.user_id', '=', 'umf.user_id')
-            ->join('zone as z', 'z.id', '=', 'umf.undertake_zone_id')
-            ->join('subzone as sz', 'sz.id', '=', 'umf.undertake_subzone_id')
-            ->where('iv.inv_period_id', '=', $inv_period)
-            ->where('iv.status', '=', 'paid')
-            ->where('umf.undertake_zone_id', '=', $subzone_id);
-
-        $paid = $sql->get([
-            'umf.user_id', 'umf.meternumber', 'umf.undertake_subzone_id', 'umf.undertake_zone_id',
-            'upf.name', 'upf.address', 'iv.lastmeter', 'iv.currentmeter', 'iv.printed_time', 'iv.id',
-            'upf.zone_id as user_zone_id', 'iv.comment',
-            DB::raw('iv.currentmeter - iv.lastmeter as meter_net'),
-            DB::raw('(iv.currentmeter - iv.lastmeter)*8 as total'),
-        ]);
-        $zoneInfoSql = $sql->get([
-            'z.zone_name as undertake_zone', 'z.id as undertake_zone_id',
-            'sz.subzone_name as undertake_subzone', 'sz.id as undertake_subzone_id',
-        ]);
-        $zoneInfo = collect($zoneInfoSql)->take(1);
-        foreach ($paid as $iv) {
-            $funcCtrl = new FunctionsController();
-            $iv->user_id_string = $funcCtrl->createInvoiceNumberString($iv->user_id);
-        }
-
-        $presentInvoicePeriod = InvoicePeriod::where('id', $inv_period)->get('inv_period_name')[0];
-
-        $memberHasInvoice = collect($paid)->sortBy('user_id');
-
-        return view('payment.paymenthistory', compact('presentInvoicePeriod', 'zoneInfo', 'memberHasInvoice'));
-    }
-
     public function receipted_list($user_id)
     {
         $apiPaymentCtrl = new ApiPaymentController;
@@ -255,22 +237,9 @@ class PaymentController extends Controller
         return view('payment.receipted_list', compact('receipted_list'));
     }
 
-
-    public function testDuplicateInvoice()
-    {
-        $apiPaymentCtrl = new ApiPaymentController();
-
-        $invoicesPaidForPrint = $apiPaymentCtrl->history(23707, 'receipt');
-        $newId = 999;
-        $type = 'paid_receipt';
-        $cashier = DB::table('user_profile')
-            ->where('user_id', '=', Auth::id())
-            ->select('name')
-            ->get();
-        $cashiername = $cashier[0]->name;
-
-        return view('payment.receipt_print', compact('invoicesPaidForPrint', 'newId', 'type', 'cashiername'));
-
+    public function destroy(Invoice $invoice){
+        return $invoice;
     }
+
 
 }
