@@ -160,7 +160,7 @@ class PaymentController extends Controller
                 'usermeterinfos' => function ($query) {
                     return $query->select('meter_id', 'user_id', 'meternumber', 'undertake_subzone_id');
                 },
-                'acc_trasactions' => function ($query) {
+                'acc_transactions' => function ($query) {
                     return $query->select('id','user_id_fk', 'paidsum','vatsum', 'totalpaidsum', 'cashier', 'updated_at')
                             ->where('status', 1);
                 },

@@ -41,7 +41,7 @@ class Invoice extends Model
         return $this->belongsTo(UserMerterInfo::class, 'meter_id_fk', 'meter_id');
     }
 
-    public function acc_trasactions()
+    public function acc_transactions()
     {
         return $this->belongsTo(AccTransactions::class, 'accounts_id_fk', 'id');
     }

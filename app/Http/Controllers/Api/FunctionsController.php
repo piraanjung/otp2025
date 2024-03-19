@@ -3,13 +3,16 @@
 namespace App\Http\Controllers\Api;
 
 use App\Http\Controllers\Controller;
+use App\Models\Invoice;
+use App\Models\User;
+use App\Models\UserMerterInfo;
+use App\Models\UserProfile;
 use App\Models\Setting;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\DB;
 
 class FunctionsController extends Controller
 {
-    public static function thaiDateToEngDateFormat($date)
+    public function thaiDateToEngDateFormat($date)
     {
         $dateExp = explode("/", $date);
         $cEyear = $dateExp[2] - 543;
@@ -17,11 +20,11 @@ class FunctionsController extends Controller
 
     }
 
-    public static function engDateToThaiDateFormat($date)
+    public function engDateToThaiDateFormat($date)
     {
         $dateExp = explode("-", $date);
         $cEyear = $dateExp[0] + 543;
-        return $dateExp[2] . "/" . $dateExp[1] . "/" . $cEyear;
+        return $dateExp[2] . "/" . $dateExp[1] . "/" . substr($cEyear,2);
 
     }
 
@@ -46,6 +49,8 @@ class FunctionsController extends Controller
 
     public static function createInvoiceNumberString($id)
     {
+        $meternumber_code = Setting::where('name', 'meternumber_code')->get('values')->first();
+
         $invString = '';
         if ($id < 10) {
             $invString = '0000' . $id;
@@ -58,11 +63,42 @@ class FunctionsController extends Controller
         } else {
             $invString = $id;
         }
-        $settings = Setting::where('name', 'meternumber_code')->get('values')->first();
-        return $settings->values."".$invString;
+        return $meternumber_code->values."".$invString;
 
     }
 
+    public static function createNumberString($id, $type)
+    {
+
+        $invString = '';
+        if ($id < 10) {
+            $invString = '0000' . $id;
+        } else if ($id >= 10 && $id < 100) {
+            $invString = '000' . $id;
+        } else if ($id >= 100 && $id < 1000) {
+            $invString = '00' . $id;
+        } elseif ($id >= 1000 && $id < 9999) {
+            $invString = '0' . $id;
+        } else {
+            $invString = $id;
+        }
+        return $type."".$invString;
+
+    }
+
+    public function updateInactiveStatus($user_id, $meter_id)
+    {
+        $updateUsermeterInfos = UserMerterInfo::where('id', $meter_id)
+            ->update(['status' => 'inactive', 'comment' => 'ค้างขำระ 5 งวด']);
+
+        $updateUserProfile = UserProfile::where('user_id', $user_id)
+            ->update(['status' => 0]);
+
+        $updateUser = User::where('id', $user_id)->update([
+            'status' => 'inactive',
+        ]);
+
+    }
 
     public function statusThai($status)
     {
@@ -79,15 +115,72 @@ class FunctionsController extends Controller
 
     public static function invoice_last_record()
     {
-        return \App\Models\Invoice::get()->last();
+        return Invoice::get()->last();
     }
 
-    public static function reset_auto_increment_when_deleted($tablename){
-        $max = DB::table($tablename)->count() + 1;
-        DB::statement("ALTER TABLE $tablename AUTO_INCREMENT = $max;");
-    }
     public function forget_session(REQUEST $request)
     {
         return $request;
     }
+
+    public static function convertAmountToLetter($number)
+{
+  if (empty($number)) return "";
+  $number = strval($number);
+  $txtnum1 = array('ศูนย์', 'หนึ่ง', 'สอง', 'สาม', 'สี่', 'ห้า', 'หก', 'เจ็ด', 'แปด', 'เก้า', 'สิบ');
+  $txtnum2 = array('', 'สิบ', 'ร้อย', 'พัน', 'หมื่น', 'แสน', 'ล้าน', 'สิบ', 'ร้อย', 'พัน', 'หมื่น', 'แสน', 'ล้าน');
+  $number = str_replace(",", "", $number);
+  $number = str_replace(" ", "", $number);
+  $number = str_replace("บาท", "", $number);
+  $number = explode(".", $number);
+  if (sizeof($number) > 2) {
+    return '';
+    exit;
+  }
+  $strlen = strlen($number[0]);
+  $convert = '';
+  for ($i = 0; $i < $strlen; $i++) {
+    $n = substr($number[0], $i, 1);
+    if ($n != 0) {
+      if ($i == ($strlen-1) && $n == 1) {
+        $convert .= 'เอ็ด';
+      } elseif ($i == ($strlen - 2) && $n == 2) {
+        $convert .= 'ยี่';
+      } elseif ($i == ($strlen - 2) && $n == 1) {
+        $convert .= '';
+      } else {
+        $convert .= $txtnum1[$n];
+      }
+      $convert .= $txtnum2[$strlen - $i - 1];
+    }
+  }
+  $convert .= 'บาท';
+  if (sizeof($number) == 1) {
+    $convert .= 'ถ้วน';
+  } else {
+    if ($number[1] == '0' || $number[1] == '00' || $number[1] == '') {
+      $convert .= 'ถ้วน';
+    } else {
+      $number[1] = substr($number[1], 0, 2);
+      $strlen = strlen($number[1]);
+        for ($i = 0; $i < $strlen; $i++) {
+          $n = substr($number[1], $i, 1);
+          if ($n != 0) {
+            if ($i > 0 && $n == 1 ) {
+              $convert.= 'เอ็ด';
+            } elseif ($i == 0 && $n == 2) {
+              $convert .= 'ยี่';
+            } elseif ($i == 0 && $n == 1) {
+              $convert .= '';
+            } else {
+              $convert .= $txtnum1[$n];
+            }
+            $convert .= $i==0 ? $txtnum2[1] : '';
+          }
+        }
+      $convert .= 'สตางค์';
+    }
+  }
+  return $convert;
+}
 }

@@ -1,7 +1,8 @@
 <?php
 use App\Http\Controllers\Api\FunctionsController;
 $fnc = new FunctionsController();
-$exp = explode(' ', $invoicesPaidForPrint[0]->accounting->updated_at);
+// dd($invoicesPaidForPrint);
+$exp = explode(' ', $invoicesPaidForPrint[0]->acc_transactions->updated_at);
 $receipt_th_date = $fnc->engDateToThaiDateFormat($exp[0]);
 ?>
 
@@ -65,7 +66,7 @@ $receipt_th_date = $fnc->engDateToThaiDateFormat($exp[0]);
         </td>
         <td colspan="5">
             {{-- {{ dd($invoicesPaidForPrint[0]->usermeterinfos->user_profile->name) }} --}}
-            {{ $invoicesPaidForPrint[0]->usermeterinfos->user_profile->prefix."".$invoicesPaidForPrint[0]->usermeterinfos->user_profile->name }}
+            {{ $invoicesPaidForPrint[0]->usermeterinfos->user->prefix."".$invoicesPaidForPrint[0]->usermeterinfos->user->name }}
         </td>
 
         <td colspan="3" rowspan="2" class="text-center border-right-none border-bottom-none">
@@ -80,13 +81,13 @@ $receipt_th_date = $fnc->engDateToThaiDateFormat($exp[0]);
             &nbsp;
         </td>
         <td colspan="5" class="address pt-1" style="height: 3rem !important">
-            {{ $invoicesPaidForPrint[0]->usermeterinfos->user_profile->address }}
+            {{ $invoicesPaidForPrint[0]->usermeterinfos->user->address }}
 
-            {{ $invoicesPaidForPrint[0]->usermeterinfos->user_profile->zone->user_zone_name }}
-            ต.{{ $invoicesPaidForPrint[0]->usermeterinfos->user_profile->tambon->tambon_name }}
-            อ.{{ $invoicesPaidForPrint[0]->usermeterinfos->user_profile->district->district_name }}
-            จ.{{ $invoicesPaidForPrint[0]->usermeterinfos->user_profile->province->province_name }}
-            {{ $invoicesPaidForPrint[0]->usermeterinfos->user_profile->tambon->zipcode }}
+            {{ $invoicesPaidForPrint[0]->usermeterinfos->user->user_zone->user_zone_name }}
+            ต.{{ $invoicesPaidForPrint[0]->usermeterinfos->user->user_tambon->tambon_name }}
+            อ.{{ $invoicesPaidForPrint[0]->usermeterinfos->user->user_district->district_name }}
+            จ.{{ $invoicesPaidForPrint[0]->usermeterinfos->user->user_province->province_name }}
+            {{ $invoicesPaidForPrint[0]->usermeterinfos->user->user_tambon->zipcode }}
         </td>
 
     </tr>
@@ -106,7 +107,7 @@ $receipt_th_date = $fnc->engDateToThaiDateFormat($exp[0]);
         </td>
         <td width="30%" class="text-center">
             {{ $fnc::createInvoiceNumberString($invoicesPaidForPrint[0]->usermeterinfos->meternumber) }} /
-            <span style="font-size: 0.9rem">{{$fnc::createNumberString( $invoicesPaidForPrint[0]->receipt_id ,"B")}}</span>
+            <span style="font-size: 0.9rem">{{$fnc::createNumberString( $invoicesPaidForPrint[0]->accounts_id_fk ,"B")}}</span>
         </td>
     </tr>
 </table>
@@ -307,7 +308,7 @@ $receipt_th_date = $fnc->engDateToThaiDateFormat($exp[0]);
            {{-- (ลงชื่อ) --}}
            {{-- <span style="text-decoration: underline  dotted black;"> --}}
             &nbsp;&nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
-           {{ $invoicesPaidForPrint[0]->accounting->cashier_info->name }}
+           {{ $invoicesPaidForPrint[0]->acc_transactions->cashier_info->firstname." ".$invoicesPaidForPrint[0]->acc_transactions->cashier_info->lastname }}
            &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
         {{-- </span>ผู้รับเงิน --}}
             <br>&nbsp;

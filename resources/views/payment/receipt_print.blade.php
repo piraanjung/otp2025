@@ -207,13 +207,9 @@ use App\Http\Controllers\Api\FunctionsController;
     @endsection
     @section('content')
          <input type="hidden" id="type" value="{{$type}}">
-         {{-- @for ($i = 0; $i < 2; $i++) --}}
 
          <br>
-        {{-- @php
-            $utf8 = "|099400035262000\r\n000000000000100451\r\n000000000000000000\r\n18050\r\n";
-        @endphp
-         {{ QrCode::size(300)->generate("$utf8") }} --}}
+
         <div class="row">
             <div class="col-6 a">
                 @include('payment._rc_left_form')
@@ -225,7 +221,6 @@ use App\Http\Controllers\Api\FunctionsController;
 
         </div>
         <br class="print">
-        {{-- @endfor --}}
     @endsection
 
     @section('script')
