@@ -38,6 +38,56 @@ class SettingsController extends Controller
         );
     }
 
+    public function invoice()
+    {
+        $meternumber_code        = Setting::where('name', 'meternumber_code')->get(['values'])->first();
+        $invoice_expired         = Setting::where('name', 'invoice_expired')->get(['values'])->first();
+        $owe_count               = Setting::where('name', 'owe_count')->get(['values'])->first();
+        $vat                     = Setting::where('name', 'vat')->get(['values'])->first();
+
+        return view(
+            'admin.settings.invoice.index',
+            \compact(
+                'meternumber_code',
+                'invoice_expired',
+                'vat',
+                'owe_count'
+            )
+        );
+    }
+
+    public function update_invoice_and_vat(REQUEST $request)
+    {
+        Setting::where('name', 'meternumber_code')->update([
+            'values' => $request->get('meternumber_code'),
+            'created_at' => date('Y-m-d H:i:s'),
+            'updated_at' => date('Y-m-d H:i:s'),
+
+        ]);
+        Setting::where('name', 'owe_count')->update([
+            'values' => $request->get('owe_count'),
+            'created_at' => date('Y-m-d H:i:s'),
+            'updated_at' => date('Y-m-d H:i:s'),
+
+        ]);
+        Setting::where('name', 'vat')->update([
+            'values' => $request->get('vat'),
+            'created_at' => date('Y-m-d H:i:s'),
+            'updated_at' => date('Y-m-d H:i:s'),
+
+        ]);
+        Setting::where('name', 'invoice_expired')->update([
+            'values' => $request->get('invoice_expired'),
+            'created_at' => date('Y-m-d H:i:s'),
+            'updated_at' => date('Y-m-d H:i:s'),
+
+        ]);
+
+
+
+        return redirect()->back()->with(['message' => 'ทำการบันทึกข้อมูลแล้ว', 'color' => 'success']);
+    }
+
     public function budgetyear()
     {
         return view("admin.settings.budgetyear");

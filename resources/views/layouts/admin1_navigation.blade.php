@@ -286,6 +286,12 @@
                         <span class="sidenav-normal">ตั้งค่าข้อมูลองค์กร </span>
                     </a>
                 </li>
+                <li class="nav-item ">
+                    <a class="nav-link " href="{{ route('admin.settings.invoice') }}">
+                        <span class="sidenav-mini-icon"> P </span>
+                        <span class="sidenav-normal">ใบแจ้งหนี้/vat </span>
+                    </a>
+                </li>
                 <li class="nav-item @yield('nav-excel')">
                     <a class="nav-link " href="{{ route('admin.excel.index') }}">
                         <span class="sidenav-mini-icon"> P </span>

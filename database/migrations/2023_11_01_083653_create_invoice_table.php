@@ -19,7 +19,12 @@ return new class extends Migration
                 $table->unsignedBigInteger('inv_period_id_fk');
                 $table->float('lastmeter', 6,2);
                 $table->float('currentmeter', 6,2);
-                $table->enum('status', ['init','invoice', 'paid', 'owe']);
+                $table->float('water_used', 6,2);
+                $table->enum('inv_type', ['r', 'u'])->comment('r =รักษามิเตอร์, u=ใช้น้ำ');
+                $table->float('paid', 6,2);
+                $table->float('vat', 6,2);
+                $table->float('totalpaid', 6,2)->commet('paid+vat');
+                $table->enum('status', ['init','invoice', 'paid', 'owe', 'deleted']);
                 $table->unsignedBigInteger('accounts_id_fk');
                 $table->string('comment')->nullable();
                 $table->unsignedBigInteger('recorder_id');

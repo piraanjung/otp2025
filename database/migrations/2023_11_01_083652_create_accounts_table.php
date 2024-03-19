@@ -13,13 +13,13 @@ return new class extends Migration
      */
     public function up()
     {
+        //สรุปผลรวมของการจ่ายเงินของ user
         Schema::create('accounts', function (Blueprint $table) {
-                $table->unsignedBigInteger('id');
+                $table->unsignedBigInteger('payee')->commet('รหัส user');
                 $table->float('deposit',6,2)->comment('ยอดฝาก');
-                $table->unsignedBigInteger('payee');
                 $table->text('comment')->nullable();
                 $table->timestamps();
-                $table->primary('id');
+                $table->primary('payee');
                 $table->foreign('payee')->references('id')->on('users')->onDelete('cascade');
         });
     }

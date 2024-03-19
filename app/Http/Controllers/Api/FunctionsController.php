@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Api;
 
 use App\Http\Controllers\Controller;
+use App\Models\Setting;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 
@@ -57,7 +58,8 @@ class FunctionsController extends Controller
         } else {
             $invString = $id;
         }
-        return $invString;
+        $settings = Setting::where('name', 'meternumber_code')->get('values')->first();
+        return $settings->values."".$invString;
 
     }
 

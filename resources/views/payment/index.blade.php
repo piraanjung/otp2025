@@ -5,16 +5,16 @@
 @endsection
 
 @section('nav-header')
-จัดการใบเสร็จรับเงิน
+    จัดการใบเสร็จรับเงิน
 @endsection
 @section('nav-main')
-<a href="{{ route('invoice.index') }}"> รับชำระค่าน้ำประปา</a>
+    <a href="{{ route('invoice.index') }}"> รับชำระค่าน้ำประปา</a>
 @endsection
 @section('nav-current')
-รายชื่อผู้ใช้น้ำประปาที่ยังไม่ได้ชำระค่าน้ำประปา
+    รายชื่อผู้ใช้น้ำประปาที่ยังไม่ได้ชำระค่าน้ำประปา
 @endsection
 @section('page-topic')
-รายชื่อผู้ใช้น้ำประปาที่ยังไม่ได้ชำระค่าน้ำประปา
+    รายชื่อผู้ใช้น้ำประปาที่ยังไม่ได้ชำระค่าน้ำประปา
 @endsection
 @section('style')
     <style>
@@ -44,7 +44,7 @@
             font-size: 0.7rem
         }
 
-        .table{
+        .table {
             border-collapse: collapse
         }
 
@@ -56,11 +56,15 @@
             color: black;
             text-align: center
         }
-        .mt-025{
+
+        .mt-025 {
             margin-top: 0.15rem
         }
+        .cashback{
+            color: white
+        }
 
-        .input-search-by-title{
+        .input-search-by-title {
             border-radius: 10px 10px;
             height: 1.65rem;
             border: 1px solid #2077cd
@@ -79,7 +83,6 @@
             }
         }
     </style>
-
 @endsection
 @section('content')
     <form action="{{ route('payment.index_search_by_suzone') }}" method="POST">
@@ -102,8 +105,9 @@
                 <div class="card">
                     <div class="card-body row">
                         <h6>ค้นหาจากเส้นทางจดมิเตอร์</h6>
-                          <div class="form-check">
-                            <input class="form-check-input" type="checkbox" name="check-input-select-all" id="check-input-select-all">
+                        <div class="form-check">
+                            <input class="form-check-input" type="checkbox" name="check-input-select-all"
+                                id="check-input-select-all">
                             <label class="custom-control-label" for="customRadio1">เลือกทั้งหมด</label>
                         </div>
 
@@ -161,15 +165,16 @@
                                 @foreach ($invoices as $invoice)
                                     <tr>
                                         <td class="text-center">{{ $invoice->inv_id }}</td>
-                                        <td>{{ $invoice->usermeterinfos->user->firstname }}
-                                            {{-- <td>{{ $invoice->usermeterinfos->user->firstname . ' ' . $invoice->usermeterinfos->user->lastname }} --}}
+                                        <td>{{ $invoice->usermeterinfos->user->prefix . '' . $invoice->usermeterinfos->user->firstname . ' ' . $invoice->usermeterinfos->user->lastname }}
                                         </td>
                                         <td class="meternumber text-center" data-meter_id={{ $invoice->meter_id_fk }}>
-                                            {{ $invoice->usermeterinfos->meternumber }}
+                                            {{ $invoice->meternumberStr }}
                                         </td>
                                         <td class="text-center">{{ $invoice->usermeterinfos->user->address }}</td>
-                                        <td class="text-center">{{ $invoice->usermeterinfos->undertake_zone->zone_name }}</td>
-                                        <td class="text-center">{{ $invoice->usermeterinfos->undertake_subzone->subzone_name }}</td>
+                                        <td class="text-center">{{ $invoice->usermeterinfos->undertake_zone->zone_name }}
+                                        </td>
+                                        <td class="text-center">
+                                            {{ $invoice->usermeterinfos->undertake_subzone->subzone_name }}</td>
                                         <td class="text-center">{{ $invoice->usermeterinfos->owe_count }}</td>
                                         <td>{{ $invoice->comment }}</td>
                                     </tr>
@@ -324,8 +329,8 @@
 
 @section('script')
     <script>
-        $(document).ready(function(){
-            if('<?= $page == "index"; ?>'){
+        $(document).ready(function() {
+            if ('<?= $page == 'index' ?>') {
                 $('#check-input-select-all').prop('checked', true)
                 $('.form-check-input').prop('checked', true)
             }
@@ -418,9 +423,11 @@
         });
 
         function findReciept(meter_id) {
-            let txt = '';
-            let total = 0;
-            let i = 0;
+            let txt          = '';
+            let totalpaidsum = 0;
+            let paidsum      = 0;
+            let vatsum       = 0;
+            let i            = 0;
             $('.cash_from_user').val(0)
             $('.cashback').val(0)
             $('#paidvalues').val(0)
@@ -454,18 +461,17 @@
                                             <th class="text-end">จำนวนที่ใช้<div class="fs-7 sup">(หน่วย)</div></th>
                                             <th class="text-end">ค่าใช้น้ำ<div class="fs-7 sup">(บาท)</div></th>
                                             <th class="text-end">ค่ารักษามิเตอร์<div class="fs-7 sup">(หน่วย)</div></th>
+                                            <th class="text-end">Vat 7%<div class="fs-7 sup">(บาท)</div></th>
                                             <th class="text-end">เป็นเงิน<div class="fs-7 sup">(บาท)</div></th>
                                             <th class="text-center">สถานะ</th>
                                             </tr>
                                         </thead>
                                         <tbody>`;
                     invoices.forEach(element => {
-                        let status = element.status == 'owe' ? 'ค้างชำระ' : 'ออกใบแจ้งหนี้';
-                        let diff = element.currentmeter - element.lastmeter;
-                        let _total = diff * element.usermeterinfos.meter_type.price_per_unit;
-                        let reserve = _total == 0 ? 10 : 0;
-                        total += _total + reserve; //
-
+                        totalpaidsum    += element.totalpaid
+                        vatsum          += element.vat;
+                        paidsum         += element.paid
+                        let status       = element.status == 'owe' ? 'ค้างชำระ' : 'ออกใบแจ้งหนี้';
                         txt += ` <tr>
                                 <td class="text-center">
                                     <div class="form-check">
@@ -476,16 +482,17 @@
                                 <td class="text-center">${element.inv_id}</td>
                                 <td class="text-center">${element.usermeterinfos.meternumber}</td>
                                 <td class="text-center">${element.invoice_period.inv_p_name}</td>
-                                <td class="text-end">${element.lastmeter}</td>
-                                <td class="text-end">${element.currentmeter}</td>
-                                <td class="text-end">${diff}</td>
-                                <td class="text-end">${ _total }
-                                    <input type="hidden" name="payments[${i}][total]" value="${ _total }">
+                                <td class="text-end">   ${element.lastmeter}</td>
+                                <td class="text-end">   ${element.currentmeter}</td>
+                                <td class="text-end">   ${element.water_used}</td>
+                                <td class="text-end" id="paid${element.inv_id}" data-paid="${element.inv_id}">   ${ element.paid }
+                                    <input type="hidden" name="payments[${i}][total]" value="${ element.paid }">
                                     <input type="hidden" name="payments[${i}][iv_id]" value="${ element.inv_id }">
                                     <input type="hidden" name="payments[${i}][status]" value="${ element.status }">
                                 </td>
-                                <td class="text-end">${reserve}</td>
-                                <td class="total text-end" id="total${element.inv_id}" data-total="${element.inv_id}">${_total+ reserve}</td>
+                                <td class="text-end">${ element.inv_type === 'r' ? element.paid : 0}</td>
+                                <td class="text-end" id="vat${element.inv_id}" data-vat="${element.inv_id}">${ element.vat}</td>
+                                <td class="total text-end" id="total${element.inv_id}" data-total="${element.inv_id}">${element.totalpaid}</td>
                                 <td class="text-center">${status}</td>
 
                             </tr>
@@ -504,7 +511,8 @@
                                 อำเภอ ${invoices[0].usermeterinfos.user.user_district.district_name}\n
                                 จังหวัด ${invoices[0].usermeterinfos.user.user_province.province_name}`;
 
-                    $('#feFirstName').html(invoices[0].usermeterinfos.user.prefix+""+invoices[0].usermeterinfos.user.firstname + " " + invoices[0]
+                    $('#feFirstName').html(invoices[0].usermeterinfos.user.prefix + "" + invoices[0].usermeterinfos
+                        .user.firstname + " " + invoices[0]
                         .usermeterinfos.user.lastname);
                     $('#meternumber2').html(invoices[0].usermeterinfos.meternumber);
                     $('#feInputAddress').html(address);
@@ -513,15 +521,12 @@
                     $('#payment_res').html(txt);
                     $('.modal').modal('show')
 
-                    $('#paidsum').val(total)
-                    $('.paidsum').html(total)
-                    let raw_vat7 = (total * 0.07).toFixed(2)
-                    let vat7 = findVat7(total, raw_vat7);
-
-                    $('#vat7').val(raw_vat7)
-                    $('.vat7').html(raw_vat7)
-                    $('#mustpaid').val(total + vat7)
-                    $('.mustpaid').html(total + vat7)
+                    $('#paidsum').val(paidsum)
+                    $('.paidsum').html(paidsum)
+                    $('#vat7').val(vatsum)
+                    $('.vat7').html(vatsum)
+                    $('#mustpaid').val(totalpaidsum)
+                    $('.mustpaid').html(totalpaidsum)
                     $('#meter_id').val(invoices[0].usermeterinfos.meter_id);
                 } else {
                     $('#empty-invoice').removeClass('hidden')
@@ -531,23 +536,6 @@
             });
         } //text
 
-        function findVat7(total, raw_vat7) {
-            let vat7 = 0;
-            let decimalArr = raw_vat7.toString().split(".")
-            let decimalVal = parseInt(decimalArr[1]) < 10 ? parseInt(decimalArr[1]) * 10 : parseInt(decimalArr[
-                1])
-
-            if (parseInt(decimalVal) > 1 && parseInt(decimalVal) <= 25) {
-                vat7 = parseInt(decimalArr[0]) + 0.25
-            } else if (parseInt(decimalVal) > 25 && parseInt(decimalVal) <= 50) {
-                vat7 = parseInt(decimalArr[0]) + 0.50
-            } else if (parseInt(decimalVal) > 50 && parseInt(decimalVal) <= 75) {
-                vat7 = parseInt(decimalArr[0]) + 0.75
-            } else if (parseInt(decimalVal) > 75 && parseInt(decimalVal) <= 100) {
-                vat7 = parseInt(decimalArr[0]) + 1
-            }
-            return vat7;
-        }
 
         $('.cash_from_user').keyup(function() {
             let mustpaid = $('#mustpaid').val()
@@ -573,43 +561,42 @@
         }); //$(document).on('click','.checkbox',
 
         function checkboxclicked() {
-            let _total = 0;
+            let totalsum = 0;
+            let vatsum = 0;
+            let paidsum = 0;
             $('.checkbox').each(function(index, element) {
                 if ($(this).is(":checked")) {
-                    let id = $(this).data('inv_id')
-                    let sum = $(`#total${id}`).text()
-                    _total += parseInt(sum)
+                    let id     = $(this).data('inv_id')
+                    totalsum   = $(`#total${id}`).text()
+                    paidsum    = $(`#paid${id}`).text()
+                    vatsum     = $(`#vat${id}`).text()
                 } else {
                     $('#check-input-select-all').prop('checked', false)
-
                 }
             });
 
-            let raw_vat7 = (_total * 0.07).toFixed(2)
-            console.log('_total', _total)
-            let vat7 = findVat7(_total, raw_vat7)
-            if (_total == 0) {
+            if (totalsum == 0) {
                 $('.cash_form_user').attr('readonly')
                 $('.submitbtn').addClass('hidden')
                 $('.submitbtn').removeAttr('style')
 
-            } else if (_total > 0) {
+            } else if (totalsum > 0) {
                 $('.cash_form_user').removeAttr('readonly')
                 $('.submitbtn').removeClass('hidden')
             }
 
             if ($('.cash_from_user').val() > 0) {
-                let remain = $('.cash_from_user').val() - (_total + vat7)
-                $('.cashback').val(remain)
+                let remain = $('.cash_from_user').val() - (totalsum)
+                $('.cashback').val(remain.toFixed(2))
             }
 
 
-            $('.vat7').html(raw_vat7)
-            $('#vat7').val(raw_vat7)
-            $('.paidsum').html(_total)
-            $('#paidsum').val(_total)
-            $('#mustpaid').val(_total + vat7)
-            $('.mustpaid').text(_total + vat7)
+            $('.vat7').html(vatsum)
+            $('#vat7').val(vatsum)
+            $('.paidsum').html(paidsum)
+            $('#paidsum').val(paidsum)
+            $('#mustpaid').val(totalsum )
+            $('.mustpaid').text(totalsum)
         }
 
         function check() {
@@ -642,10 +629,10 @@
             }
         }
 
-        $('#check-input-select-all').on('click', function(){
-            if(!$(this).is(':checked')){
+        $('#check-input-select-all').on('click', function() {
+            if (!$(this).is(':checked')) {
                 $('.form-check-input').prop('checked', false)
-            }else{
+            } else {
                 $('.form-check-input').prop('checked', true)
             }
         });

@@ -60,6 +60,10 @@ Route::middleware(['auth', 'role:admin'])->name('admin.')->prefix('admin')->grou
     Route::resource('/zone',ZoneController::class);
     Route::resource('/subzone',SubzoneController::class);
     Route::get('/subzone/{zone_id}/getSubzone', [SubzoneController::class, 'getSubzone'])->name('subzone.getSubzone');
+
+
+    Route::get('/settings/invoice', [SettingsController::class, 'invoice'])->name('settings.invoice');
+    Route::post('/settings/invoice_and_vat', [SettingsController::class, 'update_invoice_and_vat'])->name('settings.invoice_and_vat');
     Route::post('/settings/create_and_update', [SettingsController::class, 'create_and_update'])->name('settings.create_and_update');
     Route::resource('/settings',SettingsController::class);
     Route::resource('/excel',ExcelController::class);

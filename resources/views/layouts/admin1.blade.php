@@ -126,6 +126,7 @@
                             <i class="sidenav-toggler-line bg-white"></i>
                             <i class="sidenav-toggler-line bg-white"></i>
                             <i class="sidenav-toggler-line bg-white"></i>
+                            
                         </div>
                     </a>
                 </div>

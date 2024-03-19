@@ -16,6 +16,9 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
 use App\Http\Controllers\Api\PaymentController as ApiPaymentController;
+use App\Models\AccTransactions;
+use App\Models\Setting;
+use Termwind\Components\Raw;
 
 class PaymentController extends Controller
 {
@@ -24,7 +27,7 @@ class PaymentController extends Controller
         $invoice_period = InvoicePeriod::where('status', 'active')->get()->first();
 
         $invoices_sql= Invoice::where('inv_period_id_fk', $invoice_period->id)
-        ->where('status', 'invoice')
+        ->whereIn('status', ['owe', 'invoice'])
         ->with(['usermeterinfos'=> function ($query) {
             $query->select('meter_id', 'undertake_subzone_id','undertake_subzone_id', 'undertake_zone_id', 'user_id', 'metertype_id','meternumber', 'owe_count');
         },'usermeterinfos.meter_type'=> function ($query){
@@ -32,7 +35,10 @@ class PaymentController extends Controller
         }
         ])->get();
         $invoices = collect($invoices_sql)->sortBy('usermeterinfos.user_id');
-
+        foreach($invoices as $invoice){
+            $invoice->meternumberStr = FunctionsController::createInvoiceNumberString($invoice->meter_id_fk);
+        }
+        // return $invoices;
         $subzones = collect(Subzone::all())->sortBy('zone_id');
         $page = 'index';
 
@@ -88,10 +94,34 @@ class PaymentController extends Controller
         $payments = collect($request->get('payments'))->filter(function ($v) {
             return isset($v['on']);
         });
+        $accTrans = AccTransactions::create([
+            'user_id_fk'    => $request->get('user_id'),
+            'paidsum'       => $request->get('paidsum'),
+            'vatsum'        => $request->get('vat7'),
+            'totalpaidsum'  => $request->get('mustpaid'),
+            'status'        => 1,
+            'cashier'       => Auth::id()
+        ]);
+
+        $accounts = Account::where('payee', $request->get('user_id'))->first();
+        if(collect($accounts)->isEmpty()){
+            Account::create([
+                'deposit'    =>$request->get('mustpaid'),
+                'payee'      => $request->get('user_id'),
+                'created_at' => date("Y-m-d H:i:s"),
+                'updated_at' => date("Y-m-d H:i:s"),
+            ]);
+        }else{
+            Account::where('payee', $request->get('user_id'))->update([
+                'deposit' => $accounts->deposit + $request->get('mustpaid'),
+                'payee'   => $request->get('user_id'),
+                'updated_at' => date("Y-m-d H:i:s"),
+            ]);
+        }
 
         //ทำการ update user_meter_infos table โดยการลบ owe_count
         $query = UserMerterInfo::where('meter_id', $request->get('meter_id'));
-        $user_meter_owe_count = $query->first('owe_count');
+        $user_meter_owe_count = $query->get('owe_count')->first();
         if ($user_meter_owe_count->owe_count >  0) {
             $payments_owe_status_count = collect($payments)->filter(function ($v) {
                 return $v['status'] == 'owe';
@@ -105,20 +135,15 @@ class PaymentController extends Controller
             //เหลือการจัดกการตาราง cutmeter
         }
 
-        $receipt = Account::create([
-            'deposit' => $request->get('mustpaid'),
-            'payee'   => Auth::id(),
-        ]);
-
         foreach ($payments as $payment) {
-            Invoice::where('id', $payment['iv_id'])->update([
+            Invoice::where('inv_id', $payment['iv_id'])->update([
                 'status'          => 'paid',
-                'accounts_id_fk'  => $receipt->id,
+                'accounts_id_fk'  => $accTrans->id,
                 'updated_at' => date("Y-m-d H:i:s"),
             ]);
         }
 
-        return redirect()->route('payment.receipt_print')->with(['receipt_id' => $receipt->id]);
+        return redirect()->route('payment.receipt_print')->with(['receipt_id' => $accTrans->id]);
     }
 
     public function receipt_print(REQUEST $request, $receiptId = 0, $from_blade = 'payment.index')
@@ -135,15 +160,16 @@ class PaymentController extends Controller
                 'usermeterinfos' => function ($query) {
                     return $query->select('meter_id', 'user_id', 'meternumber', 'undertake_subzone_id');
                 },
-                'accounting' => function ($query) {
-                    return $query->select('id', 'deposit', 'payee', 'updated_at');
+                'acc_trasactions' => function ($query) {
+                    return $query->select('id','user_id_fk', 'paidsum','vatsum', 'totalpaidsum', 'cashier', 'updated_at')
+                            ->where('status', 1);
                 },
             ])
             ->get(['inv_period_id_fk', 'meter_id_fk', 'lastmeter', 'currentmeter', 'status', 'accounts_id_fk', 'recorder_id','updated_at', 'created_at']);
 
         $newId = FunctionsController::createInvoiceNumberString($receipt_id);
         $type = 'paid_receipt';
-        return view('payment.receipt_print', compact('invoicesPaidForPrint', 'newId', 'type'));
+        return view('payment.receipt_print', compact('invoicesPaidForPrint', 'newId', 'type', 'from_blade'));
     }
     public function receipt_print_history($id){
         $receipt_id = $id;

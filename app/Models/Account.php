@@ -8,7 +8,7 @@ use Illuminate\Database\Eloquent\Model;
 class Account extends Model
 {
     use HasFactory;
-    protected $fillable = [ 'id', 'deposit', 'payee'];
+    protected $fillable = [ 'deposit', 'payee'];
     protected $table = "accounts";
 
     public function invoice(){
