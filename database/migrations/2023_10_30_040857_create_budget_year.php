@@ -15,7 +15,7 @@ return new class extends Migration
     {
         Schema::create('budget_year', function (Blueprint $table) {
             $table->bigIncrements('id');
-            $table->string('budgetyear');
+            $table->string('budgetyear_name');
             $table->date('startdate');
             $table->date('enddate');
             $table->enum('status', ['inactive', 'active']);

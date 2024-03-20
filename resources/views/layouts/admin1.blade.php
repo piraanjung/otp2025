@@ -24,8 +24,7 @@
     <script src="https://code.jquery.com/jquery-1.12.4.js" integrity="sha256-Qw82+bXyGq6MydymqBxNPYTaUXXq7c8v3CwiYwLLNXU="
         crossorigin="anonymous"></script>
     <style>
-        {
-            .navbar-vertical.navbar-expand-xs .navbar-collapse {
+       .navbar-vertical.navbar-expand-xs .navbar-collapse {
                 display: block;
                 overflow: auto;
                 height: calc(100vh) !important;
@@ -34,6 +33,52 @@
             input:read-only {
                 background-color: gray !important
             }
+
+        .selected {
+            background: lightblue
+        }
+
+        .dataTables_length,
+        .dt-buttons,
+        .dataTables_filter,
+        .select_row_all,
+        .deselect_row_all,
+        .create_user {
+            display: inline-flex;
+        }
+
+        .dt-buttons,
+        .select_row_all,
+        .deselect_row_all,
+        .create_user {
+            flex-direction: column
+        }
+
+        .dt-buttons {
+            margin-left: 3%
+        }
+
+        .dataTables_filter {
+            margin-left: 2%
+        }
+        .preloader-wrapper{
+            position:fixed;
+            top:0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: #111;
+            opacity: 0.8;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            z-index: 1200;
+            transition: all .4s ease;
+        }
+
+        .fade-out-animation{
+            opacity: 0;
+            visibility: hidden;
         }
     </style>
     <script src="https://code.jquery.com/jquery-3.7.0.js"></script>
@@ -81,6 +126,7 @@
                             <i class="sidenav-toggler-line bg-white"></i>
                             <i class="sidenav-toggler-line bg-white"></i>
                             <i class="sidenav-toggler-line bg-white"></i>
+                            
                         </div>
                     </a>
                 </div>
@@ -90,11 +136,24 @@
                     </div>
                     <ul class="navbar-nav justify-content-end">
                         <li class="nav-item d-flex align-items-center">
-                            <a href="../../../pages/authentication/signin/illustration.html"
-                                class="nav-link text-white font-weight-bold px-0" target="_blank">
-                                <i class="fa fa-user me-sm-1" aria-hidden="true"></i>
-                                <span class="d-sm-inline d-none">Sign In</span>
-                            </a>
+                            {{-- <form method="POST" action="{{ route('logout') }}">
+                                @csrf
+
+                                <x-dropdown-link
+                                    class="block px-4 py-2 mt-2 text-sm font-semibold bg-transparent rounded-lg dark:bg-transparent dark:hover:bg-gray-600 dark:focus:bg-gray-600 dark:focus:text-white dark:hover:text-white dark:text-gray-200 md:mt-0 hover:text-gray-900 focus:text-gray-900 hover:bg-gray-200 focus:bg-gray-200 focus:outline-none focus:shadow-outline"
+                             z       :href="route('logout')" onclick="event.preventDefault();
+                                                            this.closest('form').submit();">
+                                    {{ __('Log Out') }}
+                                </x-dropdown-link>
+                            </form> --}}
+                            <form method="POST" action="{{ route('logout') }}">
+                                @csrf
+                                <a href="#" onclick="event.preventDefault();this.closest('form').submit();"
+                                    class="nav-link text-white font-weight-bold px-0" target="_blank">
+                                    <i class="fa fa-user me-sm-1" aria-hidden="true"></i>
+                                    <span class="d-sm-inline d-none">Log out</span>
+                                </a>
+                            </form>
                         </li>
                         <li class="nav-item d-xl-none ps-3 pe-0 d-flex align-items-center">
                             <a href="javascript:;" class="nav-link text-body p-0" id="iconNavbarSidenav">

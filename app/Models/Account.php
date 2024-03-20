@@ -15,6 +15,6 @@ class Account extends Model
         return $this->hasMany(Invoice::class, 'id');
     }
     public function user_payee(){
-        return $this->belongsTo(User::class,'payee');
+        return $this->belongsTo(User::class,'payee', 'id');
     }
 }

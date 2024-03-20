@@ -40,6 +40,7 @@ class UserMerterInfo extends Model
         return $this->hasMany(Invoice::class, 'meter_id_fk', 'meter_id');
     }
 
+
     public function invoice_last_inctive_inv_period()
     {
         return $this->hasMany(Invoice::class, 'meter_id_fk', 'meter_id');

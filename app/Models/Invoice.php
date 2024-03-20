@@ -10,14 +10,19 @@ class Invoice extends Model
 {
     use HasFactory;
     protected $fillable = [
-        'id',
+        'inv_id',
         'inv_period_id_fk',
         'meter_id_fk',
         'lastmeter',
+        'water_used',
+        'inv_type',
+        'paid',
+        'vat',
+        'totalpaid',
         'accounts_id_fk',
         'currentmeter',
-        'recorder_id',
-        'status'
+        'status',
+        'user_id'
     ];
     protected $table = 'invoice';
 
@@ -36,9 +41,9 @@ class Invoice extends Model
         return $this->belongsTo(UserMerterInfo::class, 'meter_id_fk', 'meter_id');
     }
 
-    public function accounting()
+    public function acc_transactions()
     {
-        return $this->belongsTo(Account::class, 'accounts_id_fk', 'id');
+        return $this->belongsTo(AccTransactions::class, 'accounts_id_fk', 'id');
     }
     public function invoice_inv_pd_active()
     {

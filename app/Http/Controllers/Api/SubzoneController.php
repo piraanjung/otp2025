@@ -8,13 +8,16 @@ use App\Models\Invoice;
 use App\Models\Subzone;
 use App\Models\Zone;
 use Exception;
+use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 
 class SubzoneController extends Controller
 {
-    public function subzone($zone_id)
+    public function subzone(Request $request)
     {
-        $subzones = Subzone::where('zone_id', $zone_id)->get();
+        $subzones = Subzone::with(['zone' => function($query){
+            $query->select('id','zone_name');
+        }])->whereIn('zone_id', $request->get('zone_id'))->get()->sortBy('zone_id');
         return response()->json($subzones);
     }
 

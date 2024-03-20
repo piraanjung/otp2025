@@ -54,7 +54,7 @@ Route::middleware(['throttle:api'])->name('api.')->group(function () {
         Route::post('/create', [InvoiceController::class, 'create']);
         Route::post('/create_for_mobile_app', [InvoiceController::class, 'create_for_mobile_app']);
         Route::get('/getLastInvoice/{user_id}', [InvoiceController::class, 'getLastInvoice']);
-        Route::get('/{user_id}', [InvoiceController::class, 'get_user_invoice']);
+        Route::get('/{user_id}/{status?}', [InvoiceController::class, 'get_user_invoice']);
         Route::get('/invoice_history_current_budget_year/{user_id}', [InvoiceController::class, 'invoice_history_current_budget_year']);
         Route::get('/paid_invoice/{invoice_id}', [InvoiceController::class, 'paid_invoice']);
         Route::get('/print/{id_array}', [InvoiceController::class, 'print']);
@@ -64,6 +64,13 @@ Route::middleware(['throttle:api'])->name('api.')->group(function () {
         Route::get('/checkInvoice/{inv_id}', [InvoiceController::class, 'checkInvoice']);
         Route::get('/zone_edit/{zone}', [InvoiceController::class, 'zone_edit']);
         Route::get('/invoiced_lists/{subzone_id}', [InvoiceController::class, 'invoiced_lists']);
+    });
+
+    Route::prefix('subzone')->group(function () {
+        Route::post('/', [SubzoneController::class, 'subzone']);
+        Route::get('/delete/{id}', [SubzoneController::class, 'delete']);
+        Route::get('/get_members_subzone_infos/{zone_id}', [SubzoneController::class, 'get_members_subzone_infos']);
+        Route::get('/get_members_last_inactive_invperiod/{zone_id}', [SubzoneController::class, 'get_members_last_inactive_invperiod']);
     });
 });
 

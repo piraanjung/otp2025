@@ -13,6 +13,7 @@ use App\Models\Zone;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
+use App\Http\Controllers\Api\InvoiceController;
 
 class ReportsController extends Controller
 {
@@ -648,7 +649,7 @@ class ReportsController extends Controller
         $receipt->save();
 
         //ทำการupdate invoice
-        $apiInvCtrl = new ApiInvoiceController();
+        $apiInvCtrl = new InvoiceController();
         foreach ($inv_idArr as $key => $inv_id) {
             $update = Invoice::where('id', $inv_id)->update([
                 'receipt_id' => $receipt->id,

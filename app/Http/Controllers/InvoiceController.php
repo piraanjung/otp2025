@@ -27,7 +27,6 @@ class InvoiceController extends Controller
     public function index($_budgetyearId = '', $_invPeriod = '')
     {
         //ปรับ owe_count ใน user_meter_infos table ใหม่
-        $funcCtrl = new FunctionsController();
         $current_inv_period = InvoicePeriod::where('status', 'active')->get(['id', 'inv_p_name'])->first();
 
         $invActive = Invoice::where('inv_period_id_fk', $current_inv_period->id)

@@ -51,50 +51,29 @@
 @endsection
 
 @section('content')
-    <div class="search-form">
-        <div class="page-header min-height-300 border-radius-xl"
-            style="background-image: url('../../../assets/img/curved-images/curved0.jpg'); background-position-y: 50%;">
-            <span class="mask bg-gradient-primary opacity-6"></span>
-        </div>
-        <div class="card card-body blur shadow-blur mx-4 mt-n6 overflow-hidden">
-            <div class="row gx-4">
-                <div class="col-1">
-                    <div class="avatar avatar-xl position-relative">
-                        <img src="{{ asset('soft-ui/assets/img/bruce-mars.jpg') }}" alt="profile_image"
-                            class="w-100 border-radius-lg shadow-sm">
-                    </div>
-                </div>
-                <div class="col-5 my-auto">
-                    <div class="h-100">
-                        <h5 class="mb-1">ค้นหา : ชื่อ,ที่อยู่ ,เลขมิเตอร์</h5>
-                        <form action="{{ route('payment.search') }}" method="POST" class="d-flex justify-content-between">
-                            @csrf
+<div class="col-5 my-auto">
+    <div class="h-100">
+        <h5 class="mb-1">ค้นหา : ชื่อ,ที่อยู่ ,เลขมิเตอร์</h5>
+        <form action="{{ route('payment.search') }}" method="POST" class="d-flex justify-content-between">
+            @csrf
 
-                            <select class="js-example-basic-single form-control" name="user_info">
-                                <option>เลือก...</option>
-                                @foreach ($users as $user)
+            <select class="js-example-basic-single form-control" name="user_info">
+                <option>เลือก...</option>
+                @foreach ($users as $user)
 
-                                    <option value="{{ $user->usermeterinfos->meter_id }}" >
-                                        {{ $user->firstname . ' ' . $user->lastname.'     [บ้านเลขที่ ' . $user->address . ' ' . $user->user_zone->zone_name }}]
+                    <option value="{{ $user->usermeterinfos[0]->meter_id }}" >
+                        {{ $user->firstname . ' ' . $user->lastname.'     [บ้านเลขที่ ' . $user->address . ' ' . $user->user_zone->zone_name }}]
 
-                                        - [{{ $user->usermeterinfos->meternumber }}]
+                        - [{{ $user->usermeterinfos[0]->meternumber }}]
 
-                                    </option>
-                                @endforeach
-                            </select>
-                            <button type="submit" class="btn btn-secondary ms-3"><i class="fa fa-search">ค้นหา</i></button>
-                        </form>
+                    </option>
+                @endforeach
+            </select>
+            <button type="submit" class="btn btn-secondary ms-3"><i class="fa fa-search">ค้นหา</i></button>
+        </form>
 
-                    </div>
-                </div>
-                <div class="col-lg-4 col-md-6 my-sm-auto ms-sm-auto me-sm-0 mx-auto mt-3">
-                    <div class="nav-wrapper position-relative end-0">
-                    </div>
-                </div>
-            </div>
-        </div>
-    </div><!-- search-form-->
-
+    </div>
+</div>
     @if (collect($inv_by_budgetyear)->isNotEmpty())
 
         <div class="container-fluid my-3 py-3">
@@ -102,7 +81,7 @@
                 <div class="col-lg-3">
                     <div class="card position-sticky top-1">
                         <!-- sidebar budgetyear -->
-                        @foreach (collect($inv_by_budgetyear)->reverse() as $budgetyear)
+                        @foreach ($inv_by_budgetyear as $budgetyear)
                             <div class="col-12 mt-2 budgetyear-div ">
                                 <div class="card">
                                     <span
@@ -187,7 +166,7 @@
                     </div>
 
                     <!-- ตาราง ขวา -->
-                    @foreach (collect($inv_by_budgetyear)->reverse() as $budgetyear)
+                    @foreach ($inv_by_budgetyear as $budgetyear)
                         <?php
                         $grouped = collect($budgetyear)->groupBy('accounts_id_fk');
                         ?>
@@ -210,6 +189,17 @@
                                                     <div class="card-title d-flex justify-content-between">
                                                         <span>เลขใบเสร็จรับเงิน{{ $group[0]['accounts_id_fk']}}</span>
                                                         <span class="text-end">{{ date_format(new DateTime($group[0]['updated_at']),'d-m-Y') }}</span>
+
+                                                        <div class="text-right d-flex">
+                                                            <a href="{{ route('payment.receipt_print_history',['account_id_fk' =>$group[0]['accounts_id_fk']]) }}" class="btn btn-primary btn-sm">ปริ้นใบเสร็จ</a>
+                                                            <form action="{{ route('payment.destroy',$group[0]['accounts_id_fk']) }}" method="post">
+                                                                @csrf
+                                                                @method("DELETE")
+                                                                &nbsp;<button type="button" class="btn btn-warning cancel_receipt_paper btn-sm">
+                                                                    ยกเลิกใบเสร็จรับเงิน
+                                                                </button>
+                                                            </form>
+                                                        </div>
                                                     </div>
                                                 </div>
                                                 <div class="card-body">
@@ -318,7 +308,6 @@
     <script
         src="https://www.jqueryscript.net/demo/Export-Html-Table-To-Excel-Spreadsheet-using-jQuery-table2excel/src/jquery.table2excel.js">
     </script>
-    {{-- <script src="{{ asset('/js/my_script.js') }}"></script> --}}
     <script src="https://code.jquery.com/ui/1.13.1/jquery-ui.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-3-typeahead/4.0.1/bootstrap3-typeahead.min.js"></script>
 
