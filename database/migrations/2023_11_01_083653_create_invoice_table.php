@@ -25,14 +25,14 @@ return new class extends Migration
                 $table->float('vat', 6,2);
                 $table->float('totalpaid', 6,2)->commet('paid+vat');
                 $table->enum('status', ['init','invoice', 'paid', 'owe', 'deleted']);
-                $table->unsignedBigInteger('accounts_id_fk');
+                $table->unsignedBigInteger('acc_trans_id_fk');
                 $table->string('comment')->nullable();
                 $table->unsignedBigInteger('recorder_id');
                 $table->timestamps();
                 $table->primary('inv_id');
                 $table->foreign('meter_id_fk')->references('meter_id')->on('user_meter_infos')->onDelete('cascade');
                 $table->foreign('inv_period_id_fk')->references('id')->on('invoice_period')->onDelete('cascade');
-                $table->foreign('accounts_id_fk')->references('id')->on('accounts')->onDelete('cascade');
+                $table->foreign('acc_trans_id_fk')->references('id')->on('acc_transactions')->onDelete('cascade');
                 $table->foreign('recorder_id')->references('id')->on('users')->onDelete('cascade');
 
         });
