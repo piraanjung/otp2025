@@ -3,7 +3,7 @@
     active
 @endsection
 @section('content')
-<form method="post" action="{{ route('admin.settings.create_and_update') }}" enctype="multipart/form-data">
+{{-- <form method="post" action="{{ route('admin.settings.create_and_update') }}" enctype="multipart/form-data"> --}}
     @csrf
     <div class="container-fluid my-3 py-3">
         <div class="row mb-5">
@@ -77,7 +77,7 @@
                             </div>
                         </div>
                         <div class="col-sm-auto ms-sm-auto mt-sm-0 mt-3 d-flex">
-                                <input type="submit" class="btn btn-success" value="บันทึกข้อมูล">
+                                {{-- <input type="submit" class="btn btn-success" value="บันทึกข้อมูล"> --}}
                         </div>
                     </div>
                 </div>
@@ -90,10 +90,10 @@
                     <div class="card-body pt-0">
                         <div class="row">
                             <div class="col-12">
-                                <form action="{{ route('admin.excel.store')}}" enctype="multipart/form-data" method="post">
+                                <form action="{{ route('admin.settings.store_users')}}" enctype="multipart/form-data" method="post">
                                     @csrf
                                     <label class="label-control">Upload file excel ->users</label>
-                                    <input type="file" class="form-control" name="file" id="">
+                                    <input type="file" class="form-control w-70" name="file" id="">
                                     <input type="submit" class="btn btn-success mt-2 d-flex mr-0 ml-auto d-lg-flex" value="import">
                                 </form>
                                 <table class="table">
@@ -176,7 +176,7 @@
         </div>
 
     </div>
-</form>
+{{-- </form> --}}
 @endsection
 
 @section('script')

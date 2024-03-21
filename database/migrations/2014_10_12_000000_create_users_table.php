@@ -18,6 +18,7 @@ return new class extends Migration
             $table->string('username');
             $table->string('password');
             $table->string('prefix');
+            $table->integer('role_id');
             $table->string('firstname');
             $table->string('lastname');
             $table->string('email')->unique();
@@ -33,8 +34,7 @@ return new class extends Migration
             $table->string('province_code');
             $table->timestamp('email_verified_at')->nullable();
             $table->rememberToken();
-            $table->string('role_id',5)->nullable();
-            $table->enum('status', ['active', 'inactive'])->default('active');
+            $table->enum('status', ['active', 'inactive', 'deleted'])->default('active');
             $table->timestamps();
         });
     }

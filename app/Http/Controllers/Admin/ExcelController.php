@@ -23,7 +23,7 @@ class ExcelController extends Controller
         ]);
 
         // Get the uploaded file
-        $file = $request->file('file');
+     return   $file = $request->file('file');
 
         // Process the Excel file
         Excel::import(new UsersImport, $file);

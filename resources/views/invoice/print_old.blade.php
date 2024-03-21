@@ -49,14 +49,14 @@ use App\Http\Controllers\Api\FunctionsController;
             clear: both;
             page-break-after: always;
         }
-       
+
         .aa {
             /* color: red; */
         }
         .border-bottom-none{
             /* border-bottom: 1px solid #ffffff; */
         }
-       
+
 
         .text-top-left {
             vertical-align: top;
@@ -65,7 +65,7 @@ use App\Http\Controllers\Api\FunctionsController;
         .invoice-text{
                text-align: center;
                vertical-align:middle
-            } 
+            }
        img.barcodemain{
             height:22px
        }
@@ -88,9 +88,9 @@ use App\Http\Controllers\Api\FunctionsController;
         .c2{
             margin-top: -10px;
         }
-       
-        
-        @media print { 
+
+
+        @media print {
             @page {
                 margin: 0cm;
                 /* size: 595pt 150pt ;  */
@@ -110,7 +110,7 @@ use App\Http\Controllers\Api\FunctionsController;
                text-align: center;
                font-size: 12pt;
                vertical-align:middle
-            } 
+            }
             img.barcodemain{
                 height:10px
             }
@@ -161,21 +161,21 @@ use App\Http\Controllers\Api\FunctionsController;
             }
             .table2{
                 margin-left:-10px !important;
-            
-            } 
+
+            }
             .c2{
                 margin-top: -10px;
             }
-            
-          
-           
+
+
+
         }
     </style>
 </head>
 
 <?php $index =  0; ?>
 <input type="hidden" id="subzone_id"  value="{{$subzone_id}}">
-<?php 
+<?php
     $year = date('Y')+543;
     $year2 = date('y')+43;
     $a =1;
@@ -184,28 +184,28 @@ use App\Http\Controllers\Api\FunctionsController;
 ?>
 
 
-    
+
     @for ($i = 0; $i < collect($invoiceArray)->count(); $i++)
         <?php $invoiceNumber = $invoiceNumber + $i;?>
         <div class=" " >
             <div class="padding-top:0.5rem; padding-left:0.5rem">
-               
+
                 <div class="row {{$c2  >1 ? 'c2' : ''}}">
                     {{-- @for ($j = 0; $j < 2; $j++) --}}
                         @if ($index==collect($invoiceArray)->count())
                             <?php return; ?>
                         @endif
-                        <?php 
+                        <?php
                             $year = date('Y')+543;
                             $year2 = date('y')+43;
                         ?>
-                        
-                        <div  class="col-5">
-                           
-                           
-                           
 
-                            <table style="width:100%" border="0" > 
+                        <div  class="col-5">
+
+
+
+
+                            <table style="width:100%" border="0" >
                                 @if ($c2 == 2)
                                 <tr><td colspan="12">&nbsp;</td></tr>
                                 <tr><td colspan="12">&nbsp;</td></tr>
@@ -224,9 +224,9 @@ use App\Http\Controllers\Api\FunctionsController;
                                     <th colspan="5">
                                         {{-- <h6>No. 029386</h6> --}}&nbsp;
                                     </th>
-                                    
+
                                 </tr>
-                            
+
                                 <tr><td colspan="5">&nbsp;</td></tr>
 
                                 <tr><td colspan="5">&nbsp;</td></tr>
@@ -263,7 +263,7 @@ use App\Http\Controllers\Api\FunctionsController;
                                         {{-- เลขที่ผู้ใช้น้ำ --}}
                                         &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
                                         &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
-                                        
+
                                         {{$invoiceArray[$index]['usermeterinfos']['meternumber']}}
                                     </td>
                                 </tr>
@@ -271,7 +271,7 @@ use App\Http\Controllers\Api\FunctionsController;
                                     <td colspan="7"  >
                                         {{-- ชื่อ --}}
                                         &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
-                                        &nbsp; 
+                                        &nbsp;
                                         {{$invoiceArray[$index]['user_profile']['name']}}</td>
                                     <td colspan="5" >
                                         {{-- หมายเลขมาตร --}}
@@ -283,11 +283,11 @@ use App\Http\Controllers\Api\FunctionsController;
                                 </tr>
                                 <tr>
                                     <td colspan="7" class="a">
-                                        <?php    
-                                            $address = $invoiceArray[$index]['user_profile']['address']; 
+                                        <?php
+                                            $address = $invoiceArray[$index]['user_profile']['address'];
                                             $address .= $invoiceArray[$index]['usermeterinfos']['zone']['zone_name'];
                                             $address .= " ต.ห้องแซง อ.เลิงนกทา ยส.";//$invoiceArray[$index]['usermeterinfos']['zone']['location'];
-                                            
+
                                         ?>
                                         {{-- ที่อยู่ --}}
                                         &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
@@ -308,29 +308,29 @@ use App\Http\Controllers\Api\FunctionsController;
                                 <tr>
                                     <td colspan="3">&nbsp;</td>
                                     <td colspan="2">
-                                        {{-- วันที่จด --}} 
+                                        {{-- วันที่จด --}}
                                         &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
                                         &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
                                     </td>
                                     <td colspan="2">
-                                        {{-- เลขที่จด --}} 
+                                        {{-- เลขที่จด --}}
                                         &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
                                         &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
                                     </td>
                                     <td colspan="2">
-                                        {{-- หน่วยที่ใช้ --}} 
+                                        {{-- หน่วยที่ใช้ --}}
                                         &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
                                         &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
                                     </td>
                                     <td colspan="3">
-                                        {{-- ค่าน้ำประปา --}} 
+                                        {{-- ค่าน้ำประปา --}}
                                         &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
                                         &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
                                     </td>
                                 </tr>
                                 <tr>
                                     <td colspan="3">
-                                        {{-- จดครั้งก่อน --}} 
+                                        {{-- จดครั้งก่อน --}}
                                         &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
                                         &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
                                         &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
@@ -367,7 +367,7 @@ use App\Http\Controllers\Api\FunctionsController;
                                     <td colspan="2" class="text-left">{{$invoiceArray[$index]['currentmeter']}}</td>
 
                                 </tr>
-                            
+
                                 <tr>
                                     <td colspan="7">
                                         <table width="100%">
@@ -405,9 +405,9 @@ use App\Http\Controllers\Api\FunctionsController;
                                 </tr>
 
                             </table>
-                            
+
                             <table width="100%" class="sign">
-                               
+
                                 <tr class="text-center">
 
                                     <td>
@@ -421,7 +421,7 @@ use App\Http\Controllers\Api\FunctionsController;
                                         <div>
                                             {{-- ............................................. --}}&nbsp;
                                         </div>
-                                      
+
                                     </td>
                                 </tr>
                             </table>
@@ -429,7 +429,7 @@ use App\Http\Controllers\Api\FunctionsController;
                         </div>
                         <div  class="col-5 table2" >
                          {{-- ช่/อง2 --}}
-                            <table style="width:100%" border="0" > 
+                            <table style="width:100%" border="0" >
                                 @if ($c2 == 2)
                                 <tr><td colspan="12">&nbsp;</td></tr>
                                 <tr><td colspan="12">&nbsp;</td></tr>
@@ -448,9 +448,9 @@ use App\Http\Controllers\Api\FunctionsController;
                                     <th colspan="5">
                                         {{-- <h6>No. 029386</h6> --}}&nbsp;
                                     </th>
-                                    
+
                                 </tr>
-                            
+
                                 <tr><td colspan="5">&nbsp;</td></tr>
 
                                 <tr><td colspan="5">&nbsp;</td></tr>
@@ -487,7 +487,7 @@ use App\Http\Controllers\Api\FunctionsController;
                                         {{-- เลขที่ผู้ใช้น้ำ --}}
                                         &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
                                         &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
-                                        
+
                                         {{$invoiceArray[$index]['usermeterinfos']['meternumber']}}
                                     </td>
                                 </tr>
@@ -507,11 +507,11 @@ use App\Http\Controllers\Api\FunctionsController;
                                 </tr>
                                 <tr>
                                     <td colspan="7" class="a">
-                                        <?php   
-                                            $address = $invoiceArray[$index]['user_profile']['address']; 
+                                        <?php
+                                            $address = $invoiceArray[$index]['user_profile']['address'];
                                             $address .= $invoiceArray[$index]['usermeterinfos']['zone']['zone_name'];
                                             $address .= " ต.ห้องแซง อ.เลิงนกทา ยส.";//$invoiceArray[$index]['usermeterinfos']['zone']['location;
-                                            
+
                                         ?>
                                         {{-- ที่อยู่ --}}
                                         &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
@@ -532,36 +532,36 @@ use App\Http\Controllers\Api\FunctionsController;
                                 <tr>
                                     <td colspan="3">&nbsp;</td>
                                     <td colspan="2">
-                                        {{-- วันที่จด --}} 
+                                        {{-- วันที่จด --}}
                                         &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
                                         &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
                                     </td>
                                     <td colspan="2">
-                                        {{-- เลขที่จด --}} 
+                                        {{-- เลขที่จด --}}
                                         &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
                                         &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
                                     </td>
                                     <td colspan="2">
-                                        {{-- หน่วยที่ใช้ --}} 
+                                        {{-- หน่วยที่ใช้ --}}
                                         &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
                                         &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
                                     </td>
                                     <td colspan="3">
-                                        {{-- ค่าน้ำประปา --}} 
+                                        {{-- ค่าน้ำประปา --}}
                                         &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
                                         &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
                                     </td>
                                 </tr>
                                 <tr>
                                     <td colspan="3">
-                                        {{-- จดครั้งก่อน --}} 
+                                        {{-- จดครั้งก่อน --}}
                                         &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
                                         &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
                                         &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
                                     </td>
                                     <td colspan="2" class="pt-2">
                                         {{-- 10-01-64 --}}
-                                        {{$invoiceArray[$index]['invoice_period']['th_startdate']}}
+                                        {{-- {{$invoiceArray[$index]['invoice_period']['th_startdate']}} --}}
 
                                         {{-- {{date('d-m-Y')}} --}}
                                     </td>
@@ -591,7 +591,7 @@ use App\Http\Controllers\Api\FunctionsController;
                                     <td colspan="2" class="text-left">{{$invoiceArray[$index]['currentmeter']}}</td>
 
                                 </tr>
-                            
+
                                 <tr>
                                     <td colspan="7">
                                         <table width="100%">
@@ -629,15 +629,15 @@ use App\Http\Controllers\Api\FunctionsController;
                                 </tr>
 
                             </table>
-                            
+
                             <table width="100%" class="sign">
-            
-                              
+
+
                                 <tr>
                                     <td >
                                         <br>
                                         &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
-                                        
+
                                         นส.พัชรี ทองคุณ
                                         {{-- หัวหน้าหน่วยงานคลัง --}}&nbsp;
                                     </td>
@@ -646,13 +646,13 @@ use App\Http\Controllers\Api\FunctionsController;
                                             {{-- ............................................. --}}&nbsp;
                                         </div>
                                         {{-- ผู้เก็บเงิน --}}&nbsp;
-                                        
+
                                     </td>
                                 </tr>
                             </table>
 
                         </div>
-                      
+
                         <div class="col-2">
                             <table border="0" style="margin-left:1.2rem">
                                 <tr class="text-center">
@@ -685,18 +685,18 @@ use App\Http\Controllers\Api\FunctionsController;
                                 <tr>
                                     <td colspan="3">ชื่อ
                                         &nbsp;&nbsp;&nbsp;&nbsp; {{$invoiceArray[$index]['user_profile']['name']}}
-                                
-                                    
+
+
                                     </td>
                                 </tr>
                                 <tr>
                                     <td>
-                                                <?php   
-                                                    // $address = $invoiceArray[$index]['user_profile']['address; 
+                                                <?php
+                                                    // $address = $invoiceArray[$index]['user_profile']['address;
                                                     $address = ' '.$invoiceArray[$index]['usermeterinfos']['zone']['zone_name'];
                                                     // $address .= "ต.ห้องแซง อ.เลิงนกทา ยส. อ.เลิงนกทา ยส.";//$invoiceArray[$index]['usermeterinfos']['zone']['location;
-                                                    
-                                                ?> 
+
+                                                ?>
                                                <span class="a"> &nbsp;&nbsp;&nbsp;&nbsp;  {{$address}} </span>
                                     </td>
                                 </tr>
@@ -704,7 +704,7 @@ use App\Http\Controllers\Api\FunctionsController;
 
                                 <tr>
                                     <td class="text-center invoice_totaltext">
-                                        &nbsp; 
+                                        &nbsp;
                                         {{-- รวมเป็นเงินที่ต้องชำระทั้งสิ้น --}}
                                     </td>
                                 </tr>
@@ -719,18 +719,18 @@ use App\Http\Controllers\Api\FunctionsController;
                                 <tr><td>&nbsp;</td></tr>
 
                                 @endif
-                                
+
                                 <tr>
                                     <td class="text-center pt-2 pb-3" >
                                             <h3>{{$remain == 0 ? $remain*8 + 10 : $remain*8}}</h3>
                                     </td>
                                 </tr>
-                               
+
                             </table>
                             <br>
-                        
+
                             <table width="100%" class="sign">
-                               
+
                                 <tr>
                                     <td colspan="2" class="text-center">
                                         {{-- โปรดชำระให้เสร็จสิ้น --}}
@@ -741,7 +741,7 @@ use App\Http\Controllers\Api\FunctionsController;
                                     <td>
                                         {{-- ภายในวันที่ {{date('d')}} {{FunctionsController::shortThaiMonth('01')}} {{date('Y')+543}}  --}}
                                     </td>
-                                
+
                                 </tr>
                             </table>
                         </div>
@@ -754,7 +754,7 @@ use App\Http\Controllers\Api\FunctionsController;
 
         @if ($c2%3 == 0)
             {{-- <div style="height: 150px">xxx</div> --}}
-            <div class="pagebreak"></div> 
+            <div class="pagebreak"></div>
             <?php $c2 = 0; ?>
         @endif
         <?php $a++; $c2++;?>
@@ -768,73 +768,73 @@ use App\Http\Controllers\Api\FunctionsController;
             // $('.btnprint').click(function(){
             $('.btnprint').hide();
             var css = '@page {  }',
-    
-    
+
+
         head = document.head || document.getElementsByTagName('head')[0],
-    
-    
+
+
         style = document.createElement('style');
-    
-    
+
+
         style.type = 'text/css';
-    
-    
+
+
         style.media = 'print';
-    
-    
-    
-    
-    
+
+
+
+
+
         if (style.styleSheet){
-    
-    
+
+
         style.styleSheet.cssText = css;
-    
-    
+
+
         } else {
-    
-    
+
+
         style.appendChild(document.createTextNode(css));
-    
-    
+
+
         }
-    
-    
-    
-    
-    
+
+
+
+
+
         head.appendChild(style);
-    
+
         style.type = 'text/css';
         style.media = 'print';
-    
+
         if (style.styleSheet){
         style.styleSheet.cssText = css;
         } else {
         style.appendChild(document.createTextNode(css));
         }
-    
+
         head.appendChild(style);
-    
+
         window.print();
         setTimeout(function(){ window.location.href = '../invoice'; }, 200);
- 
+
         // window.onafterprint = function(){
         //     window.history.back();
         //     window.location.href = `../../invoice/zone_info/${$('#subzone_id').val()}`;
         // }
     });
-    
+
     </script>
     @endsection
-   
+
 
 
       {{-- <tr>
                                 <th colspan="4" class="text-center tdbarcode">
                                     <php
                                         echo $barcode = $year2.'-'.$invoiceArray[$index]['usermeterinfos']['meternumber.'-'.FunctionsController::createInvoiceNumberString($invoiceArray[$index]->id);
-                                        echo ' <img src="data:image/png;base64,' . DNS1D::getBarcodePNG($barcode, "C128") . 
+                                        echo ' <img src="data:image/png;base64,' . DNS1D::getBarcodePNG($barcode, "C128") .
                                         '" alt="barcode" class="barcodemain"/>';
                                     ?>
 

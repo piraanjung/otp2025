@@ -31,7 +31,8 @@
             }
 
             input:read-only {
-                background-color: gray !important
+                background-color: rgb(14, 64, 213) !important;
+                color: white !important
             }
 
         .selected {
@@ -126,7 +127,7 @@
                             <i class="sidenav-toggler-line bg-white"></i>
                             <i class="sidenav-toggler-line bg-white"></i>
                             <i class="sidenav-toggler-line bg-white"></i>
-                            
+
                         </div>
                     </a>
                 </div>

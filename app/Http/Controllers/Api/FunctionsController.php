@@ -67,6 +67,26 @@ class FunctionsController extends Controller
 
     }
 
+    public static function createMeterNumberString($id)
+    {
+        $meternumber_code = Setting::where('name', 'meternumber_code')->get('values')->first();
+
+        $invString = '';
+        if ($id < 10) {
+            $invString = '0000' . $id;
+        } else if ($id >= 10 && $id < 100) {
+            $invString = '000' . $id;
+        } else if ($id >= 100 && $id < 1000) {
+            $invString = '00' . $id;
+        } elseif ($id >= 1000 && $id < 9999) {
+            $invString = '0' . $id;
+        } else {
+            $invString = $id;
+        }
+        return $meternumber_code->values."".$invString;
+
+    }
+
     public static function createNumberString($id, $type)
     {
 
@@ -99,6 +119,10 @@ class FunctionsController extends Controller
         ]);
 
     }
+
+    // public static function reset_auto_increment_when_deleted($subzone){
+
+    // }
 
     public function statusThai($status)
     {

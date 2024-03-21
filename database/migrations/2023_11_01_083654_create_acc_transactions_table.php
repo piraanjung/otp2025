@@ -16,9 +16,9 @@ return new class extends Migration
         Schema::create('acc_transactions', function (Blueprint $table) {
             $table->bigIncrements('id');
             $table->unsignedBigInteger('user_id_fk');
-            $table->float('paidsum', 6,2);
-            $table->float('vatsum', 6,2);
-            $table->float('totalpaidsum', 6,2);
+            $table->float('paidsum', 8,2);
+            $table->float('vatsum', 8,2);
+            $table->float('totalpaidsum', 8,2);
             $table->enum('status', [1,0])->comment('1= active, 0=deleted');
             $table->unsignedBigInteger('cashier')->comment('ผู้รับเงิน');
             $table->timestamps();

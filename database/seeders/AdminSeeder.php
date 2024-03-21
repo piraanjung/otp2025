@@ -6,6 +6,7 @@ use App\Models\Admin\UserProfile;
 use App\Models\User;
 use Illuminate\Database\Console\Seeds\WithoutModelEvents;
 use Illuminate\Database\Seeder;
+use Illuminate\Support\Facades\Hash;
 
 class AdminSeeder extends Seeder
 {
@@ -18,7 +19,7 @@ class AdminSeeder extends Seeder
     {
        $user1 = User::create([
         'username' => 'super admin',
-        'password'=> bcrypt('s@admin'),
+        'password'=> Hash::make('s@admin'),
         'prefix'=> 'นาย',
         'firstname'=> 'super',
         'lastname'=> 'admin',
@@ -33,13 +34,13 @@ class AdminSeeder extends Seeder
         'tambon_code'=> '1',
         'district_code'=> '1',
         'province_code'=> '1',
-        'role_id' => '1,2'
-        ])->assignRole(['super admin', 'admin']);
+        'role_id' => '1'
+        ])->assignRole(['admin']);
 
 
         User::create([
             'username' => 'admin1',
-            'password'=> bcrypt('999999999'),
+            'password'=> Hash::make('999999999'),
             'prefix'=> 'นางสาว',
             'firstname'=> 'admin1',
             'lastname'=> 'admin1',

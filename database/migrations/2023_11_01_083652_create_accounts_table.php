@@ -15,12 +15,12 @@ return new class extends Migration
     {
         //สรุปผลรวมของการจ่ายเงินของ user
         Schema::create('accounts', function (Blueprint $table) {
-                $table->unsignedBigInteger('payee')->commet('รหัส user');
-                $table->float('deposit',6,2)->comment('ยอดฝาก');
+                $table->unsignedBigInteger('acc_user_id')->commet('รหัส user');
+                $table->float('deposit',8,2)->comment('ยอดฝาก');
                 $table->text('comment')->nullable();
                 $table->timestamps();
-                $table->primary('payee');
-                $table->foreign('payee')->references('id')->on('users')->onDelete('cascade');
+                $table->primary('acc_user_id');
+                $table->foreign('acc_user_id')->references('id')->on('users')->onDelete('cascade');
         });
     }
 

@@ -184,7 +184,7 @@ class SubzoneController extends Controller
     {
         try {
             Subzone::where('id' , $id)->delete();
-            FunctionsController::reset_auto_increment_when_deleted('subzones');
+            // FunctionsController::reset_auto_increment_when_deleted('subzones');
             return 1;
         } catch (Exception $e) {
             return 0;

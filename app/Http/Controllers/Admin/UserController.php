@@ -234,10 +234,6 @@ class UserController extends Controller
 
 
     private function new_invs(){
-        $users = User::where('role_id', 3)->get('id');
-        foreach ($users as $user) {
-            $user->assignRole('user');
-        }
        // Invoice::where('status', 'paid')->where('accounts_id_fk',0)->delete();
         // $accounts_id = Invoice::whereIn('status', ['paid'])->get('accounts_id_fk');
         // $accounts = collect($accounts_id)->unique('accounts_id_fk');
@@ -497,24 +493,8 @@ class UserController extends Controller
             return back()->with('message', 'you are admin.');
         }
         $user->delete();
-        FunctionsController::reset_auto_increment_when_deleted('users');
+        // FunctionsController::reset_auto_increment_when_deleted('users');
         return back()->with('message', 'User deleted.');
     }
-    public static function createInvoiceNumberString($id)
-    {
-        $invString = '';
-        if ($id < 10) {
-            $invString = '0000' . $id;
-        } else if ($id >= 10 && $id < 100) {
-            $invString = '000' . $id;
-        } else if ($id >= 100 && $id < 1000) {
-            $invString = '00' . $id;
-        } elseif ($id >= 1000 && $id < 9999) {
-            $invString = '0' . $id;
-        } else {
-            $invString = $id;
-        }
-        return "HS-" . $invString;
 
-    }
 }
