@@ -12,6 +12,6 @@ class UserOld extends Model
     protected $table = 'users_old';
     public function userprofile()
     {
-        return $this->hasOne(UserProfile::class, 'user_id');
+        return $this->hasOne(UserProfile::class, 'user_id', 'id');
     }
 }

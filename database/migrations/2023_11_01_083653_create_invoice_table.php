@@ -14,7 +14,7 @@ return new class extends Migration
     public function up()
     {
         Schema::create('invoice', function (Blueprint $table) {
-                $table->unsignedBigInteger('inv_id');
+                $table->unsignedBigInteger('inv_id')->comment('6701101 => 67=ปีงบประมาณ,01=รอบบิลที่,10=งานประปา, 1= meter_id');
                 $table->unsignedBigInteger('meter_id_fk');
                 $table->unsignedBigInteger('inv_period_id_fk');
                 $table->float('lastmeter', 6,2);

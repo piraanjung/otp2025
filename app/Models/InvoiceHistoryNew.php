@@ -2,11 +2,10 @@
 
 namespace App\Models;
 
-use App\Models\Admin\UserProfile;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 
-class Invoice extends Model
+class InvoiceHistoryNew extends Model
 {
     use HasFactory;
     protected $fillable = [
@@ -24,7 +23,7 @@ class Invoice extends Model
         'status',
         'recorder_id'
     ];
-    protected $table = 'invoice';
+    protected $table = 'invoice_history_new';
 
     public function invoice_period()
     {

@@ -10,7 +10,7 @@
         <link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;700&display=swap" rel="stylesheet">
 
         <!-- Styles -->
-        
+
 
         <style>
             body {
@@ -176,7 +176,7 @@
 
         .cus-btn {
             margin-top: -2.5rem;
-            width: 50%
+            /* width: 50% */
         }
     </style>
 
@@ -284,18 +284,19 @@
                         <h2 class="mb-5">Welcome to เทศบาลตำบลห้องแซง</h2>
                     </div>
 
-                    <div class="col-lg-3 cus-btn col-md-6 col-12 mb-4 mb-lg-0">
+                    <div class="col-lg-6 cus-btn col-md-6 col-12 mb-4 mb-lg-0">
                         <div class="featured-block d-flex justify-content-center align-items-center">
                             <a href="{{ route('login') }}" class="d-block">
                                 <img src="{{ asset('soft-ui/assets/img/water.png') }}"
-                                    class="featured-block-image img-fluid" style="width: 62%" alt="">
+                                    class="featured-block-image img-fluid" style="width: 100%; height:125px"
+                                    alt="">
 
                                 <p class="featured-block-text">ระบบ <strong>ประปา</strong></p>
                             </a>
                         </div>
                     </div>
 
-                    <div class="col-lg-3 cus-btn col-md-6 col-12 mb-4 mb-lg-0 mb-md-4">
+                    <div class="col-lg-6 cus-btn col-md-6 col-12 mb-4 mb-lg-0 mb-md-4">
                         <div class="featured-block d-flex justify-content-center align-items-center">
                             <a href="donate.html" class="d-block">
                                 <img src="{{ asset('templatemo/images/icons/heart.png') }}"
