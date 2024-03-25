@@ -11,8 +11,20 @@ class UserProfile extends Model
 
     protected $table = 'user_profile';
 
-    public function users()
+    public function user()
     {
-        return $this->belongsTo(UserOld::class, 'user_id', 'id');
+        return $this->belongsTo(UserOld::class, 'user_id');
+    }
+
+    public function invoice_old(){
+        return $this->hasMany(InvoiceOld::class,'user_id','user_id');
+    }
+
+    public function invoice_history(){
+        return $this->hasMany(InvoiceHistoty::class,'user_id','user_id');
+    }
+
+    public function usermeter_info_old(){
+        return $this->hasMany(UserMeterInfoOld::class,'user_id','user_id');
     }
 }

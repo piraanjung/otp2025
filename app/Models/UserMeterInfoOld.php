@@ -12,7 +12,7 @@ class UserMeterInfoOld extends Model
 
     public function invoiceold()
     {
-        return $this->hasMany(Invoice::class, 'user_id', 'user_id');
+        return $this->hasMany(InvoiceOld::class, 'user_id', 'user_id');
     }
 
     public function userprofile()

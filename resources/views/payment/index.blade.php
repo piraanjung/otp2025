@@ -436,7 +436,7 @@
 
             $('#user_id').val(meter_id)
             console.log('rec meterId', meter_id)
-            $.get(`/api/invoice/${meter_id}/inv_and_owe`).done(function(invoices) {
+            $.get(`/api/invoice/get_user_invoice/${meter_id}/inv_and_owe`).done(function(invoices) {
 
                 let i = 0;
                 if (Object.keys(invoices).length > 0) {

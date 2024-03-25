@@ -14,7 +14,7 @@ return new class extends Migration
     public function up()
     {
         Schema::create('users', function (Blueprint $table) {
-            $table->bigIncrements('id');
+            $table->unsignedBigInteger('id');
             $table->string('username');
             $table->string('password');
             $table->string('prefix');
@@ -36,6 +36,7 @@ return new class extends Migration
             $table->rememberToken();
             $table->enum('status', ['active', 'inactive', 'deleted'])->default('active');
             $table->timestamps();
+            $table->primary('id');
         });
     }
 

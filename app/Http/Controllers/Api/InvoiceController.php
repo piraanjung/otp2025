@@ -118,9 +118,9 @@ class InvoiceController extends Controller
             }
         }
 
-        $invoices = $invoices->get(['inv_id', 'meter_id_fk', 'inv_period_id_fk', 'lastmeter', 'currentmeter',
+      return  $invoices = $invoices->get(['inv_id', 'meter_id_fk', 'inv_period_id_fk', 'lastmeter', 'currentmeter',
                                     'water_used', 'inv_type', 'paid', 'vat', 'totalpaid',
-                                    'accounts_id_fk', 'updated_at', 'status']);
+                                    'acc_trans_id_fk', 'updated_at', 'status']);
 
         return response()->json(collect($invoices)->flatten());
     }

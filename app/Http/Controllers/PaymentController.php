@@ -18,12 +18,14 @@ use Illuminate\Support\Facades\DB;
 use App\Http\Controllers\Api\PaymentController as ApiPaymentController;
 use App\Models\AccTransactions;
 use App\Models\Setting;
+use App\Models\InvoiceHistoty;
 use Termwind\Components\Raw;
 
 class PaymentController extends Controller
 {
     public function index(REQUEST $request)
     {
+    
         $invoice_period = InvoicePeriod::where('status', 'active')->get()->first();
 
         $invoices_sql= Invoice::where('inv_period_id_fk', $invoice_period->id)

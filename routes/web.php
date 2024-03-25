@@ -16,12 +16,21 @@ use App\Http\Controllers\SettingsController;
 use App\Http\Controllers\SubzoneController;
 use App\Http\Controllers\TestController;
 use App\Http\Controllers\TransferOldDataToNewDBController;
+use App\Models\UserProfile;
 use Illuminate\Support\Facades\Route;
-use PHPUnit\Framework\MockObject\Invocation;
+use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Hash;
 
 Route::get('/', function () {
+
+
     return view('welcome');
 });
+Route::get('/liff', function () {
+    return view('liff');
+});
+
+Auth::routes();
 
 Route::get('/dashboard', function () {
     return view('dashboard');

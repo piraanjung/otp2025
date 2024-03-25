@@ -54,7 +54,7 @@ Route::middleware(['throttle:api'])->name('api.')->group(function () {
         Route::post('/create', [InvoiceController::class, 'create']);
         Route::post('/create_for_mobile_app', [InvoiceController::class, 'create_for_mobile_app']);
         Route::get('/getLastInvoice/{user_id}', [InvoiceController::class, 'getLastInvoice']);
-        Route::get('/{user_id}/{status?}', [InvoiceController::class, 'get_user_invoice']);
+        Route::get('/get_user_invoice/{user_id}/{status?}', [InvoiceController::class, 'get_user_invoice']);
         Route::get('/invoice_history_current_budget_year/{user_id}', [InvoiceController::class, 'invoice_history_current_budget_year']);
         Route::get('/paid_invoice/{invoice_id}', [InvoiceController::class, 'paid_invoice']);
         Route::get('/print/{id_array}', [InvoiceController::class, 'print']);

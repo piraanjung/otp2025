@@ -3,11 +3,16 @@
 namespace App\Http\Controllers;
 
 use App\Http\Controllers\Api\FunctionsController;
+use App\Models\Accounting;
+use App\Models\AccTransactions;
+use App\Models\Admin\UserProfile;
 use App\Models\SequenceNumber;
 use App\Models\Setting;
 use App\Models\Staff;
 use App\Models\User;
 use App\Models\UserMerterInfo;
+use App\Models\UserMeterInfoOld;
+use App\Models\UserOld;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Hash;
@@ -18,6 +23,21 @@ class SettingsController extends Controller
 {
     public function index()
     {
+        // return $this->manageCashierDatas();
+        // เอาข้อมูล accounting ไปใส่  accTransactions Table
+        // return $this->transferAccountingsToAccTransaction();
+        // $userOld = UserOld::get(['id', 'username', 'password', 'email', 'user_cat_id']);
+        // foreach($userOπad as $u_old){
+        //     User::where('id', $u_old->id)->update([
+        //         'username' => $u_old->username,
+        //         'password'=> $u_old->password,
+        //         'email' => $u_old->email,
+        //         'role_id' => $u_old->user_cat_id
+        //     ]);
+        // }
+        // return 1;
+        //////////////////
+
         $organization_sql = Setting::where('name', 'organization')->get(['values'])->first();
         if (collect($organization_sql)->count() == 0) {
             return view('admin.settings.index');
@@ -44,6 +64,97 @@ class SettingsController extends Controller
                 'owe_count'
             )
         );
+    }
+
+    private function transferAccountingsToAccTransaction(){
+        ini_set('memory_limit', '512M');
+        $accsChunk = collect(Accounting::get(['id', 'total', 'status', 'cashier', 'updated_at', 'created_at']))->chunk(1000);
+        foreach($accsChunk as $accs){
+            $accTransArr = [];
+            foreach($accs as $acc){
+                $accTransArr[] = [
+                    'id'            => $acc->id,
+                    'user_id_fk'    => 1,
+                    'paidsum'       => $acc->total,
+                    'vatsum'        => 0,
+                    'totalpaidsum'  => $acc->total,
+                    'status'        => $acc->status,
+                    'cashier'       => $acc->cashier,
+                    'created_at'    => $acc->created_at,
+                    'updated_at'    => $acc->updated_at
+                ];
+            }
+            AccTransactions::insert($accTransArr);
+
+        }
+        return 1;
+
+    }
+
+    private function manageCashierDatas()
+    {
+        $accounting = Accounting::get('cashier');
+        $cashierUnique = collect($accounting)->unique('cashier');
+        $cashierIdArr = [];
+        foreach ($cashierUnique as $cashierid) {
+            $cashierIdArr[] = $cashierid->cashier;
+        }
+
+        //เอาข้อมูล cashier เข้า User table
+        $casheiers = UserProfile::whereIn('user_id', [
+            2860,
+            2859,
+            3009,
+            2915,
+            2906,
+            2905,
+            2999,
+            3141,
+            3377,
+            3411
+        ])->get();
+        $cashierArr = [];
+        $sq_init = SequenceNumber::where('id', 1)->first();
+        $init = $sq_init->user;
+        $pass = Hash::make('1234');
+
+        foreach ($casheiers as $uprofile) {
+
+            User::create([
+                'id' => $init,
+                'username' => "hsst01" . $init,
+                'password' => $pass,
+                'prefix' => '',
+                'firstname' => $uprofile->name,
+                'lastname' => '',
+                'email' => 'staff' . $init . '@hs.lgov',
+                'line_id' => '',
+                'id_card' => $uprofile->id_card,
+                'phone' => $uprofile->phone,
+                'gender' => $uprofile->gender == "" ? 'w' : $uprofile->gender,
+                'address' => $uprofile->address,
+                'zone_id' => $uprofile->zone_id,
+                'subzone_id' => $uprofile->subzone_id,
+                'tambon_code' => $uprofile->tambon_code,
+                'district_code' => $uprofile->district_code,
+                'province_code' => $uprofile->province_code,
+                'email_verified_at' => $uprofile->email_verified_at,
+                'remember_token' => $uprofile->remember_token,
+                'role_id' => 4,
+                'status' => $uprofile->deleted == 1 ? 'inactive' : 'active',
+                'created_at' => $uprofile->created_at,
+                'updated_at' => $uprofile->updated_at
+            ]);
+            Accounting::where('cashier', $uprofile->user_id)->update([
+                'cashier' => $init
+            ]);
+            $init++;
+
+        }
+        // return $cashierArr;
+        return SequenceNumber::where('id', 1)->update([
+            'user' => $sq_init->user + $init,
+        ]);
     }
 
     public function invoice()
@@ -284,62 +395,62 @@ class SettingsController extends Controller
 
                 foreach ($worksheet_arr as $row) {
                     $user_array[] = [
-                        "username"          => 'user' . $i,
-                        "password"          => $row[2],
-                        "prefix"            => $row[3],
-                        "firstname"         => $row[4],
-                        "lastname"          => $row[5],
-                        "email"             => $row[6],
-                        "line_id"           => $row[7],
-                        "id_card"           => $row[8],
-                        "phone"             => $row[9],
-                        "gender"            => $row[10],
-                        "address"           => $row[11],
-                        "zone_id"           => $row[12],
-                        "subzone_id"        => $row[13],
-                        "tambon_code"       => $row[14],
-                        "district_code"     => $row[15],
-                        "province_code"     => $row[16],
+                        "username" => 'user' . $i,
+                        "password" => $row[2],
+                        "prefix" => $row[3],
+                        "firstname" => $row[4],
+                        "lastname" => $row[5],
+                        "email" => $row[6],
+                        "line_id" => $row[7],
+                        "id_card" => $row[8],
+                        "phone" => $row[9],
+                        "gender" => $row[10],
+                        "address" => $row[11],
+                        "zone_id" => $row[12],
+                        "subzone_id" => $row[13],
+                        "tambon_code" => $row[14],
+                        "district_code" => $row[15],
+                        "province_code" => $row[16],
                         "email_verified_at" => date('Y-m-d H:i:s'),
-                        "remember_token"     => '',
-                        "role_id"           => $row[17],
-                        "status"            => "active",
-                        "created_at"        => date('Y-m-d H:i:s'),
-                        "updated_at"        => date('Y-m-d H:i:s'),
+                        "remember_token" => '',
+                        "role_id" => $row[17],
+                        "status" => "active",
+                        "created_at" => date('Y-m-d H:i:s'),
+                        "updated_at" => date('Y-m-d H:i:s'),
                     ];
                     $userMeterInmfos_array[] = [
-                        "meter_id"              => $row[0],
-                        "user_id"               => $i++,
-                        "meternumber"           => FunctionsController::createMeterNumberString($row[0]),
-                        "metertype_id"          => $row[18],
-                        "meter_address"         => $row[19],
-                        "undertake_zone_id"     => $row[20],
-                        "undertake_subzone_id"  => $row[21],
-                        "acceptace_date"        => date('Y-m-d'),
-                        "payment_id"            => $row[22] == "เงินสด" ? 1 : 2,
-                        "discounttype"          => $row[23],
-                        "status"                => "active",
-                        "comment"               => "",
-                        "owe_count"             => 0,
-                        "recorder_id"           => Auth::id(),
-                        "created_at"            => date('Y-m-d H:i:s'),
-                        "updated_at"            => date('Y-m-d H:i:s'),
+                        "meter_id" => $row[0],
+                        "user_id" => $i++,
+                        "meternumber" => FunctionsController::createMeterNumberString($row[0]),
+                        "metertype_id" => $row[18],
+                        "meter_address" => $row[19],
+                        "undertake_zone_id" => $row[20],
+                        "undertake_subzone_id" => $row[21],
+                        "acceptace_date" => date('Y-m-d'),
+                        "payment_id" => $row[22] == "เงินสด" ? 1 : 2,
+                        "discounttype" => $row[23],
+                        "status" => "active",
+                        "comment" => "",
+                        "owe_count" => 0,
+                        "recorder_id" => Auth::id(),
+                        "created_at" => date('Y-m-d H:i:s'),
+                        "updated_at" => date('Y-m-d H:i:s'),
                     ];
                 }
 
                 $user_cols = collect($user_array[0])->count();
                 $user_limit = collect($user_array)->count(); // Mysql placeholder limit ...
-                collect($user_array)->chunk( floor($user_limit / $user_cols) )
-                    ->each(function($calls) {
+                collect($user_array)->chunk(floor($user_limit / $user_cols))
+                    ->each(function ($calls) {
                         User::insert($calls->toArray());
                     });
 
                 $usermeterinfo_cols = collect($userMeterInmfos_array[0])->count();
                 $usermeterinfo_limit = collect($userMeterInmfos_array)->count(); // Mysql placeholder limit ...
                 collect($userMeterInmfos_array)->chunk(floor($usermeterinfo_limit / $usermeterinfo_cols))
-                ->each(function($calls){
-                    UserMerterInfo::insert($calls->toArray());
-                });
+                    ->each(function ($calls) {
+                        UserMerterInfo::insert($calls->toArray());
+                    });
 
 
                 SequenceNumber::where('id', 1)->update([

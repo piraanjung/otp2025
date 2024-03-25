@@ -40,6 +40,15 @@ class UserMerterInfo extends Model
         return $this->hasMany(Invoice::class, 'meter_id_fk', 'meter_id');
     }
 
+    public function invoice_history()
+    {
+        return $this->hasMany(InvoiceHistoty::class, 'user_id', 'meter_id');
+    }
+
+    public function invoice_old()
+    {
+        return $this->hasMany(InvoiceOld::class, 'user_id', 'meter_id');
+    }
 
     public function invoice_last_inctive_inv_period()
     {

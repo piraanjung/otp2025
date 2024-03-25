@@ -19,10 +19,10 @@ class Invoice extends Model
         'paid',
         'vat',
         'totalpaid',
-        'accounts_id_fk',
+        'acc_trans_id_fk',
         'currentmeter',
         'status',
-        'user_id'
+        'recorder_id'
     ];
     protected $table = 'invoice';
 
@@ -43,7 +43,7 @@ class Invoice extends Model
 
     public function acc_transactions()
     {
-        return $this->belongsTo(AccTransactions::class, 'accounts_id_fk', 'id');
+        return $this->belongsTo(AccTransactions::class, 'acc_trans_id_fk', 'id');
     }
     public function invoice_inv_pd_active()
     {
