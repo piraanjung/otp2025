@@ -8,6 +8,17 @@
     <li class="breadcrumb-item text-sm"><a class="opacity-5 text-dark" href="javascript:;">แอดมิน</a></li>
     <li class="breadcrumb-item text-sm text-dark active" aria-current="page">ผู้ใช้งานระบบ</li>
 @endsection
+@section('style')
+    <style>
+        .hidden {
+            display: none
+        }
+
+        .other_input {
+            border: 1px solid red
+        }
+    </style>
+@endsection
 @section('content')
     <div class="row">
         <div class="col-12">
@@ -19,12 +30,12 @@
                                 <div class="multisteps-form__progress">
                                     <button class="multisteps-form__progress-btn js-active" id="b1" data-id="1"
                                         type="button" title="User Info">
-                                        <span>User Info</span>
+                                        <span>ข้อมูลผู้ใช้งาน</span>
                                     </button>
                                     <button class="multisteps-form__progress-btn" id="b2" data-id="2"
                                         type="button" title="Address">Meter Info</button>
                                     <button class="multisteps-form__progress-btn" id="b3" data-id="3"
-                                        type="button" title="System Info">ตั้งค่าเข้าใช้งานระบบ</button>
+                                        type="button" title="Address">ตั้งค่าเข้าใช้งานระบบ</button>
                                     <button class="multisteps-form__progress-btn" id="b4" data-id="4"
                                         type="button" title="Socials">บันทึก</button>
 
@@ -39,15 +50,14 @@
                                     @csrf
                                     <div class="card multisteps-form__panel p-3 border-radius-xl bg-white  js-active"
                                         data-animation="FadeIn" id="pd1">
-                                        <h5 class="font-weight-bolder mb-0">User Info</h5>
-                                        <p class="mb-0 text-sm">สมาชิกผู้ใช้น้ำ</p>
+                                        <h5 class="font-weight-bolder mb-0">ข้อมูลผู้ใช้งาน</h5>
                                         <div class="multisteps-form__content">
                                             <div class="row">
                                                 <div class="col-md-2">
                                                     <div class="card card-primary card-outline">
                                                         <div class="card-body box-profile">
                                                             <div class="text-center">
-                                                                <img class="avatar avatar-xxl position-relative"
+                                                                <img class="avatar avatar-xl position-relative"
                                                                     src="{{ asset('soft-ui/assets/img/bruce-mars.jpg') }}"
                                                                     alt="User profile picture">
                                                             </div>
@@ -56,17 +66,46 @@
                                                 </div>
                                                 <div class="col-md-10">
                                                     <div class="row">
-                                                        <div class="col-12 col-sm-6">
-                                                            <label for="feFirstName">ชื่อ - สกุล
-                                                                @error('name')
+                                                        <div class="col-12 col-sm-2">
+                                                            <label for="feGender">คำนำหน้า
+                                                                @error('prefix_select')
+                                                                    <div class="text-danger h-8">({{ $message }})</div>
+                                                                @enderror
+                                                            </label>
+                                                            <select name="prefix_select" id="prefix_select"
+                                                                class="form-control">
+                                                                <option value="">เลือก..</option>
+                                                                <option value="คุณ">คุณ</option>
+                                                                <option value="นาย">นาย</option>
+                                                                <option value="นาง">นาง</option>
+                                                                <option value="นส.">นส.</option>
+                                                                <option value="other">อื่นๆ</option>
+                                                            </select>
+                                                            <input type="text"
+                                                                class="form-control hidden mt-1 other_input"
+                                                                id="prefix_text" name="prefix_text" value=""
+                                                                placeholder="ระบุ...">
+                                                        </div>
+                                                        <div class="col-12 col-sm-4">
+                                                            <label for="feFirstName">ชื่อ
+                                                                @error('firstname')
                                                                     <span class="text-danger h-8">({{ $message }})</span>
                                                                 @enderror
                                                             </label>
-                                                            <input type="text" class="form-control" id="name"
-                                                                name="name" value="test test">
+                                                            <input type="text" class="form-control" id="firstname"
+                                                                name="firstname" value="">
+                                                        </div>
+                                                        <div class="col-12 col-sm-4">
+                                                            <label for="feFirstName">สกุล
+                                                                @error('lastname')
+                                                                    <span class="text-danger h-8">({{ $message }})</span>
+                                                                @enderror
+                                                            </label>
+                                                            <input type="text" class="form-control" id="lastname"
+                                                                name="lastname" value="">
                                                         </div>
 
-                                                        <div class="col-12 col-sm-6">
+                                                        <div class="col-12 col-sm-2">
                                                             <label for="feGender">เพศ
                                                                 @error('gender')
                                                                     <span class="text-danger h-8">({{ $message }})</span>
@@ -74,7 +113,7 @@
                                                             </label>
                                                             <select name="gender" id="gender" class="form-control">
                                                                 <option value="0">เลือก..</option>
-                                                                <option value="m" selected>ชาย</option>
+                                                                <option value="m">ชาย</option>
                                                                 <option value="w">หญิง</option>
                                                             </select>
                                                         </div>
@@ -85,7 +124,7 @@
                                                                 @enderror
                                                             </label>
                                                             <input type="text" class="form-control" id="id_card"
-                                                                name="id_card" value="1111111">
+                                                                name="id_card" value="">
                                                         </div>
 
                                                         <div class="col-12 col-sm-6">
@@ -95,7 +134,7 @@
                                                                 @enderror
                                                             </label>
                                                             <input type="text" class="form-control" id="phone"
-                                                                name="phone" value="09888888">
+                                                                name="phone" value="">
                                                         </div>
                                                         <div class="col-12 col-sm-3">
                                                             <label for="feInputAddress">ที่อยู่
@@ -104,7 +143,7 @@
                                                                 @enderror
                                                             </label>
                                                             <input type="text" class="form-control" id="address"
-                                                                name="address" value="1/2">
+                                                                name="address" value="">
                                                         </div>
                                                         <div class="col-12 col-sm-2">
                                                             <label>หมู่ที่
@@ -115,7 +154,7 @@
                                                             <select class="form-control" name="zone_id" id="zone_id">
                                                                 <option>เลือก...</option>
                                                                 @foreach ($zones as $zone)
-                                                                    <option value="{{ $zone->id }}" selected>
+                                                                    <option value="{{ $zone->id }}" >
                                                                         {{ $zone->zone_name }}
                                                                     </option>
                                                                 @endforeach
@@ -129,7 +168,7 @@
                                                             </label>
                                                             <select class="form-control bg-gray-200" name="province_code"
                                                                 id="province_code" onchange="getDistrict()">
-                                                                <option value="35">ยโสธร</option>
+                                                                <option value="35" selected>ยโสธร</option>
                                                             </select>
                                                         </div>
                                                         <div class="col-12 col-sm-2">
@@ -159,7 +198,7 @@
                                                     </div>
                                                 </div>
                                             </div>
-                                            <div class="button-row d-flex mt-4">
+                                            <div class="button-row d-flex mt-2">
                                                 <button class="btn bg-gradient-dark ms-auto mb-0 js-btn-next"
                                                     data-id="2" type="button" title="Next">Next</button>
                                             </div>
@@ -174,7 +213,7 @@
                                                 <div class="col-12 col-sm-6">
                                                     <label>เลขที่ผู้ใช้น้ำประปา</label>
                                                     <input type="text" class="form-control bg-gray-200" readonly
-                                                        name="new_meter_id" value="{{ $meternumber }}">
+                                                        name="new_meter_id" value="{{ $usernumber }}">
                                                 </div>
                                                 <div class="col-12 col-sm-6">
                                                     <label>เลขมิเตอร์</label>
@@ -189,9 +228,9 @@
                                                         @enderror
                                                     </label>
                                                     <select class="form-control" name="metertype_id" id="metertype_id">
-                                                        <option value="">เลือก...</option>
+                                                        <option>เลือก...</option>
                                                         @foreach ($meter_types as $meter_type)
-                                                            <option value="{{ $meter_type->id }}" selected>
+                                                            <option value="{{ $meter_type->id }}">
                                                                 {{ $meter_type->meter_type_name }}
                                                             </option>
                                                         @endforeach
@@ -200,12 +239,12 @@
                                                 <div class="col-12 col-sm-4">
                                                     <label>ราคาต่อหน่วย (บาท)</label>
                                                     <input type="text" class="form-control bg-gray-200" readonly
-                                                        name="counter_unit" id="counter_unit" value="2">
+                                                        name="counter_unit" id="counter_unit" value="">
                                                 </div>
                                                 <div class="col-12 col-sm-4">
                                                     <label>ขนาดมิเตอร์ </label>
                                                     <input type="text" class="form-control bg-gray-200" readonly
-                                                        name="metersize" id="metersize" value="2">
+                                                        name="metersize" id="metersize" value="">
                                                 </div>
                                                 <div class="col-12 col-sm-6">
                                                     <label>พื้นที่จัดเก็บ
@@ -218,7 +257,7 @@
                                                         onchange="getSubzone()">
                                                         <option>เลือก...</option>
                                                         @foreach ($zones as $zone)
-                                                            <option value="{{ $zone->id }}" selected>
+                                                            <option value="{{ $zone->id }}">
                                                                 {{ $zone->zone_name }}</option>
                                                         @endforeach
                                                     </select>
@@ -231,7 +270,6 @@
                                                     </label>
                                                     <select class="form-control" name="undertake_subzone_id"
                                                         id="undertake_subzone_id">
-                                                        <option selected value="1">1</option>
                                                     </select>
                                                 </div>
                                                 <div class="col-12 col-sm-4">
@@ -239,7 +277,7 @@
                                                     <?php $year = date('Y') + 543;
                                                     $now = date('d/m/' . $year); ?>
                                                     <input type="text" class="form-control datepicker bg-gray-200"
-                                                        name="acceptance_date" id="acceptance_date"
+                                                        name="acceptance_date" id="acceptance_date" readonly
                                                         value="{{ $now }}">
                                                 </div>
                                                 <div class="col-12 col-sm-4">
@@ -269,47 +307,40 @@
                                     <div class="card multisteps-form__panel p-3 border-radius-xl bg-white"
                                         data-animation="FadeIn" id="pd3">
                                         <h5 class="font-weight-bolder">ตั้งค่าเข้าใช้งานระบบ</h5>
-                                        <div class="multisteps-form__content row">
-                                            <div class="mt-3 col-4">
-                                                <div class="">
+                                        <div class="multisteps-form__content ">
+                                            <div class="mt-3 row">
+                                                <div class="col-6">
+                                                    @error('username')
+                                                        <div class="text-danger h-8">({{ $message }})</div>
+                                                    @enderror
                                                     <label>User name</label>
                                                     <input class="multisteps-form__input form-control" type="text"
                                                         name="username" value="{{ $username }}">
                                                 </div>
-                                                <div class="mt-3">
+                                                <div class="col-6">
+                                                    @error('password')
+                                                        <div class="text-danger h-8">({{ $message }})</div>
+                                                    @enderror
                                                     <label>Password</label>
                                                     <input class="multisteps-form__input form-control" type="text"
-                                                        name="password" value="{{$password}}">
+                                                        name="password" value="{{ $password }}">
                                                 </div>
-                                                <div class="mt-3">
+                                                <div class="col-6">
+                                                    @error('email')
+                                                        <div class="text-danger h-8">({{ $message }})</div>
+                                                    @enderror
                                                     <label>Email</label>
                                                     <input class="multisteps-form__input form-control" type="text"
-                                                        name="email" value="{{$username."@hs.com"}}">
+                                                        name="email" value="{{ $username . '@hz.lgov' }}">
                                                 </div>
-                                                <div class="mt-3">
-                                                    <label>ประเภทผู้ใช้งาน</label>
-                                                    <select name="role" class="form-control">
-                                                        <option>--เลือก--</option>
-                                                        <option value="user" selected>ผู้ใช้น้ำประปา</option>
-                                                        <option value="admin">ผู้ดูแลระบบ</option>
-                                                        <option value="tabwaterman">เจ้าหน้าที่จดมิเตอร์</option>
-                                                        <option value="finance">การเงิน</option>
-                                                    </select>
-                                                </div>
-                                                <div class="mt-3">
-                                                    <label>สถานะการใช้งาน</label>
-                                                        <select class="form-control bg-green-200" name="status"
-                                                            id="status">
-                                                            <option selected value="active"> เปิดใช้งาน</option>
-                                                        </select>
-                                                </div>
+
                                             </div>
                                             <div class="row">
                                                 <div class="button-row d-flex mt-4 col-12">
                                                     <button class="btn bg-gradient-light mb-0 js-btn-prev" type="button"
-                                                     data-id="2"   title="Prev">Prev</button>
-                                                    <button class="btn bg-gradient-dark ms-auto mb-0 js-btn-next" data-id="4"
-                                                        type="button" title="Next">Next</button>
+                                                        data-id="2" title="Prev">Prev</button>
+                                                    <button class="btn bg-gradient-dark ms-auto mb-0 js-btn-next"
+                                                        data-id="4" type="button" title="Next">Next</button>
                                                 </div>
                                             </div>
                                         </div>
@@ -376,23 +407,24 @@
                 if ($(`#b3`).hasClass('js-active')) {
                     $('#b3').removeClass('js-active')
                 }
-                if ($(`#b4`).hasClass('js-active')) {
-                    $('#b4').removeClass('js-active')
+                if ($(`#b1`).hasClass('js-active')) {
+                    $('#b1').removeClass('js-active')
                 }
                 $('#pd3').removeClass('js-active')
+                $('#pd1').removeClass('js-active')
                 $('#pd4').removeClass('js-active')
-            }else if (id === 3) {
+            } else if (id === 3) {
                 if ($(`#b4`).hasClass('js-active')) {
                     $('#b4').removeClass('js-active')
                 }
-                     $('#b3').addClass('js-active')
-                     $('#b2').addClass('js-active')
-                     $('#b1').addClass('js-active')
+                $('#b3').addClass('js-active')
+                $('#b2').addClass('js-active')
+                $('#b1').addClass('js-active')
 
-                    $('#pd1').removeClass('js-active')
-                    $('#pd2').removeClass('js-active')
-                    $('#pd4').removeClass('js-active')
-                } else { //pd4
+                $('#pd1').removeClass('js-active')
+                $('#pd2').removeClass('js-active')
+                $('#pd4').removeClass('js-active')
+            } else { //pd4
                 $('#pd3').removeClass('js-active')
                 $('#pd2').removeClass('js-active')
                 $('#pd1').removeClass('js-active')
@@ -411,6 +443,25 @@
         //         // thaiyear: true              //Set เป็นปี พ.ศ.
         //     }).datepicker(); //กำหนดเป็นวันปัจุบัน
         // });
+        $('#prefix_select').change(function() {
+            if ($(this).val() === "other") {
+                $('#prefix_text').removeClass('hidden')
+            } else {
+                if (!$('#prefix_text').hasClass('hidden')) {
+                    $('#prefix_text').addClass('hidden')
+                }
+            }
+        })
+
+        $('#usergroup').change(function() {
+            let id = $(this).val()
+            $.get(`/admin/usergroup/${id}/infos`).done(function(data) { //server
+                $(`#rate_payment_per_year`).val(data.rate_payment_per_year);
+                $(`#bin_quantity`).val(1);
+                $('#payment_per_year').val(data.rate_payment_per_year)
+
+            })
+        });
 
         $('#metertype_id').change(function() {
             let id = $(this).val()
@@ -419,6 +470,12 @@
                 $('#metersize').val(data.metersize)
             })
         });
+
+        $(`#bin_quantity`).keyup(function() {
+            let bin_quantity = $(this).val();
+            let total = $('#rate_payment_per_year').val() * bin_quantity;
+            $('#payment_per_year').val(total)
+        })
 
         function getDistrict() {
             var id = $("#province_code").val();
@@ -460,14 +517,19 @@
             var zone_id = $("#undertake_zone_id").val();
             $.get(`/admin/subzone/${zone_id}/getSubzone`).done(function(data) {
                 var text = "<option>เลือก...</option>";
-                console.log('data', data)
-                if (data.length == 0) {
-                    text += "<option value='0'>-</option>";
+                if (data.length == 1) {
+                    text += `<option value='${data[0].id}' selected>${data[0].subzone_name}</option>`;
                 } else {
-                    data.forEach(function(val) {
-                        text += "<option seleted value='" + val.id + "'>" + val.subzone_name + "</option>";
-                    });
+                    if (data.length == 0) {
+                        text += "<option value='0'>-</option>";
+                    } else {
+                        data.forEach(function(val) {
+                            text += "<option seleted value='" + val.id + "'>" + val.subzone_name +
+                                "</option>";
+                        });
+                    }
                 }
+
                 $("#undertake_subzone_id").html(text);
             });
         }

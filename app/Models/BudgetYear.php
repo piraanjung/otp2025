@@ -9,7 +9,8 @@ class BudgetYear extends Model
 {
     use HasFactory;
     protected $fillable = [
-        "budgetyear",
+        "id",
+        "budgetyear_name",
         'startdate',
         'enddate',
         'status'

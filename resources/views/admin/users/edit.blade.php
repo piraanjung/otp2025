@@ -1,12 +1,23 @@
 @extends('layouts.admin1')
 
 @section('title_page')
-    ข้อมูลผู้ใช้งานระบบ
+    แก้ไขข้อมูลผู้ใช้งานระบบ
 @endsection
 
 @section('url')
     <li class="breadcrumb-item text-sm"><a class="opacity-5 text-dark" href="javascript:;">แอดมิน</a></li>
     <li class="breadcrumb-item text-sm text-dark active" aria-current="page">ผู้ใช้งานระบบ</li>
+@endsection
+@section('style')
+    <style>
+        .hidden {
+            display: none
+        }
+
+        .other_input {
+            border: 1px solid red
+        }
+    </style>
 @endsection
 @section('content')
     <div class="row">
@@ -19,12 +30,12 @@
                                 <div class="multisteps-form__progress">
                                     <button class="multisteps-form__progress-btn js-active" id="b1" data-id="1"
                                         type="button" title="User Info">
-                                        <span>User Info</span>
+                                        <span>ข้อมูลผู้ใช้งาน</span>
                                     </button>
                                     <button class="multisteps-form__progress-btn" id="b2" data-id="2"
                                         type="button" title="Address">Meter Info</button>
                                     <button class="multisteps-form__progress-btn" id="b3" data-id="3"
-                                        type="button" title="System Info">ตั้งค่าเข้าใช้งานระบบ</button>
+                                        type="button" title="Address">ตั้งค่าเข้าใช้งานระบบ</button>
                                     <button class="multisteps-form__progress-btn" id="b4" data-id="4"
                                         type="button" title="Socials">บันทึก</button>
 
@@ -34,21 +45,20 @@
 
                         <div class="row ">
                             <div class="col-12 col-lg-10 m-auto">
-                                <form class="multisteps-form__form mb-8" action="{{ route('admin.users.update', $user->id) }}"
+                                <form class="multisteps-form__form mb-8" action="{{ route('admin.users.update', $user[0]->id) }}"
                                     method="post" style="height: 492px;">
-                                    @csrf
                                     @method("PUT")
+                                    @csrf
                                     <div class="card multisteps-form__panel p-3 border-radius-xl bg-white  js-active"
                                         data-animation="FadeIn" id="pd1">
-                                        <h5 class="font-weight-bolder mb-0">User Info</h5>
-                                        <p class="mb-0 text-sm">สมาชิกผู้ใช้น้ำ</p>
+                                        <h5 class="font-weight-bolder mb-0">ข้อมูลผู้ใช้งาน</h5>
                                         <div class="multisteps-form__content">
                                             <div class="row">
                                                 <div class="col-md-2">
                                                     <div class="card card-primary card-outline">
                                                         <div class="card-body box-profile">
                                                             <div class="text-center">
-                                                                <img class="avatar avatar-xxl position-relative"
+                                                                <img class="avatar avatar-xl position-relative"
                                                                     src="{{ asset('soft-ui/assets/img/bruce-mars.jpg') }}"
                                                                     alt="User profile picture">
                                                             </div>
@@ -57,30 +67,55 @@
                                                 </div>
                                                 <div class="col-md-10">
                                                     <div class="row">
-                                                        <div class="col-12 col-sm-6">
-                                                            <label for="feFirstName">ชื่อ - สกุล
-                                                                @error('name')
+                                                        <div class="col-12 col-sm-2">
+                                                            <label for="feGender">คำนำหน้า
+                                                                @error('prefix_select')
+                                                                    <div class="text-danger h-8">({{ $message }})</div>
+                                                                @enderror
+                                                            </label>
+                                                            <select name="prefix_select" id="prefix_select"
+                                                                class="form-control">
+                                                                <option value="">เลือก..</option>
+                                                                <option {{ $user[0]->prefix == "คุณ" ? "selected" : "" }} value="คุณ">คุณ</option>
+                                                                <option {{ $user[0]->prefix == "นาย" ? "selected" : "" }} value="นาย">นาย</option>
+                                                                <option {{ $user[0]->prefix == "นาง" ? "selected" : "" }} value="นาง">นาง</option>
+                                                                <option {{ $user[0]->prefix == "นส." ? "selected" : "" }} value="นส.">นส.</option>
+                                                                <option {{ $user[0]->prefix == "other" ? "selected" : "" }} value="other">อื่นๆ</option>
+                                                            </select>
+                                                            <input type="text"
+                                                                class="form-control hidden mt-1 other_input"
+                                                                id="prefix_text" name="prefix_text" value=""
+                                                                placeholder="ระบุ...">
+                                                        </div>
+                                                        <div class="col-12 col-sm-4">
+                                                            <label for="feFirstName">ชื่อ
+                                                                @error('firstname')
                                                                     <span class="text-danger h-8">({{ $message }})</span>
                                                                 @enderror
                                                             </label>
-                                                            <input type="text" class="form-control" id="name"
-                                                                name="name" value="{{ $user->user_profile->name }}">
+                                                            <input type="text" class="form-control" id="firstname"
+                                                                name="firstname" value="{{ $user[0]->firstname }}">
+                                                        </div>
+                                                        <div class="col-12 col-sm-4">
+                                                            <label for="feFirstName">สกุล
+                                                                @error('lastname')
+                                                                    <span class="text-danger h-8">({{ $message }})</span>
+                                                                @enderror
+                                                            </label>
+                                                            <input type="text" class="form-control" id="lastname"
+                                                                name="lastname" value="{{ $user[0]->lastname }}">
                                                         </div>
 
-                                                        <div class="col-12 col-sm-6">
+                                                        <div class="col-12 col-sm-2">
                                                             <label for="feGender">เพศ
                                                                 @error('gender')
                                                                     <span class="text-danger h-8">({{ $message }})</span>
                                                                 @enderror
                                                             </label>
                                                             <select name="gender" id="gender" class="form-control">
-                                                                <option value>เลือก..</option>
-                                                                <option
-                                                                    {{ $user->user_profile->gender == 'm' ? 'selected' : '' }}
-                                                                    value="m" selected>ชาย</option>
-                                                                <option
-                                                                    {{ $user->user_profile->gender == 'w' ? 'selected' : '' }}
-                                                                    value="w">หญิง</option>
+                                                                <option value="0">เลือก..</option>
+                                                                <option {{ $user[0]->gender == "m" ? 'selected' : "" }} value="m">ชาย</option>
+                                                                <option {{ $user[0]->gender == "w" ? 'selected' : "" }} value="w">หญิง</option>
                                                             </select>
                                                         </div>
                                                         <div class="col-12 col-sm-6">
@@ -90,7 +125,7 @@
                                                                 @enderror
                                                             </label>
                                                             <input type="text" class="form-control" id="id_card"
-                                                                name="id_card" value="{{ $user->user_profile->id_card }}">
+                                                                name="id_card" value="{{ $user[0]->id_card }}">
                                                         </div>
 
                                                         <div class="col-12 col-sm-6">
@@ -100,7 +135,7 @@
                                                                 @enderror
                                                             </label>
                                                             <input type="text" class="form-control" id="phone"
-                                                                name="phone" value="{{ $user->user_profile->phone }}">
+                                                                name="phone" value="{{ $user[0]->phone }}">
                                                         </div>
                                                         <div class="col-12 col-sm-3">
                                                             <label for="feInputAddress">ที่อยู่
@@ -109,7 +144,7 @@
                                                                 @enderror
                                                             </label>
                                                             <input type="text" class="form-control" id="address"
-                                                                name="address" value="{{ $user->user_profile->address }}">
+                                                                name="address" value="{{ $user[0]->address }}">
                                                         </div>
                                                         <div class="col-12 col-sm-2">
                                                             <label>หมู่ที่
@@ -120,8 +155,7 @@
                                                             <select class="form-control" name="zone_id" id="zone_id">
                                                                 <option>เลือก...</option>
                                                                 @foreach ($zones as $zone)
-                                                                    <option value="{{ $zone->id }}"
-                                                                        {{ $user->user_profile->zone_id == $zone->id ? 'selected' : '' }}>
+                                                                    <option value="{{ $zone->id }}" {{ $user[0]->zone_id == $zone->id ? "selected" : "" }}>
                                                                         {{ $zone->zone_name }}
                                                                     </option>
                                                                 @endforeach
@@ -135,7 +169,7 @@
                                                             </label>
                                                             <select class="form-control bg-gray-200" name="province_code"
                                                                 id="province_code" onchange="getDistrict()">
-                                                                <option value="35">ยโสธร</option>
+                                                                <option value="35" selected>ยโสธร</option>
                                                             </select>
                                                         </div>
                                                         <div class="col-12 col-sm-2">
@@ -165,7 +199,7 @@
                                                     </div>
                                                 </div>
                                             </div>
-                                            <div class="button-row d-flex mt-4">
+                                            <div class="button-row d-flex mt-2">
                                                 <button class="btn bg-gradient-dark ms-auto mb-0 js-btn-next"
                                                     data-id="2" type="button" title="Next">Next</button>
                                             </div>
@@ -180,14 +214,12 @@
                                                 <div class="col-12 col-sm-6">
                                                     <label>เลขที่ผู้ใช้น้ำประปา</label>
                                                     <input type="text" class="form-control bg-gray-200" readonly
-                                                        name="new_meter_id"
-                                                        value="{{ $user->usermeter_info->meternumber }}">
+                                                        name="new_meter_id" value="{{ $user[0]->id }}">
                                                 </div>
                                                 <div class="col-12 col-sm-6">
                                                     <label>เลขมิเตอร์</label>
                                                     <input type="text" class="form-control bg-gray-200" readonly
-                                                        name="meternumber" id="meternumber"
-                                                        value="{{ $user->usermeter_info->meternumber }}">
+                                                        name="meternumber" id="meternumber" value="{{ $user[0]->usermeterinfos[0]->meternumber }}">
                                                 </div>
 
                                                 <div class="col-12 col-sm-4">
@@ -197,10 +229,9 @@
                                                         @enderror
                                                     </label>
                                                     <select class="form-control" name="metertype_id" id="metertype_id">
-                                                        <option value="">เลือก...</option>
+                                                        <option>เลือก...</option>
                                                         @foreach ($meter_types as $meter_type)
-                                                            <option value="{{ $meter_type->id }}"
-                                                                {{ $user->usermeter_info->metertype_id == $meter_type->id ? 'selected' : '' }}>
+                                                            <option value="{{ $meter_type->id }}" {{ $user[0]->usermeterinfos[0]->metertype_id == $meter_type->id ? "selected" :"" }}>
                                                                 {{ $meter_type->meter_type_name }}
                                                             </option>
                                                         @endforeach
@@ -209,14 +240,12 @@
                                                 <div class="col-12 col-sm-4">
                                                     <label>ราคาต่อหน่วย (บาท)</label>
                                                     <input type="text" class="form-control bg-gray-200" readonly
-                                                        name="counter_unit" id="counter_unit"
-                                                        value="{{ $user->usermeter_info->metertype->price_per_unit }}">
+                                                        name="counter_unit" id="counter_unit" value="{{ $user[0]->usermeterinfos[0]->meter_type->price_per_unit }}">
                                                 </div>
                                                 <div class="col-12 col-sm-4">
                                                     <label>ขนาดมิเตอร์ </label>
                                                     <input type="text" class="form-control bg-gray-200" readonly
-                                                        name="metersize" id="metersize"
-                                                        value="{{ $user->usermeter_info->metertype->metersize }}">
+                                                        name="metersize" id="metersize" value="{{ $user[0]->usermeterinfos[0]->meter_type->metersize }}">
                                                 </div>
                                                 <div class="col-12 col-sm-6">
                                                     <label>พื้นที่จัดเก็บ
@@ -229,8 +258,7 @@
                                                         onchange="getSubzone()">
                                                         <option>เลือก...</option>
                                                         @foreach ($zones as $zone)
-                                                            <option value="{{ $zone->id }}"
-                                                                {{ $user->usermeter_info->undertake_zone_id == $zone->id ? 'selected' : '' }}>
+                                                            <option value="{{ $zone->id }}" {{ $user[0]->usermeterinfos[0]->undertake_zone_id ==  $zone->id ? "selected" : "" }}>
                                                                 {{ $zone->zone_name }}</option>
                                                         @endforeach
                                                     </select>
@@ -243,15 +271,8 @@
                                                     </label>
                                                     <select class="form-control" name="undertake_subzone_id"
                                                         id="undertake_subzone_id">
-                                                        @if (collect($subzones)->isEmpty())
-                                                            <option selected value="0">0</option>
-                                                        @else
-                                                            @foreach ($subzones as $subzone)
-                                                                <option value="{{ $subzone->id }}"
-                                                                    {{ $user->usermeter_info->undertake_subzone_id == $subzone->id ? 'selected' : '' }}>
-                                                                    {{ $subzone->subzone_name }}</option>
-                                                            @endforeach
-                                                        @endif
+                                                        <option value="{{ $user[0]->usermeterinfos[0]->undertake_subzone_id }}" selected>
+                                                            {{ $user[0]->usermeterinfos[0]->undertake_subzone->subzone_name }}</option>
                                                     </select>
                                                 </div>
                                                 <div class="col-12 col-sm-4">
@@ -259,27 +280,24 @@
                                                     <?php $year = date('Y') + 543;
                                                     $now = date('d/m/' . $year); ?>
                                                     <input type="text" class="form-control datepicker bg-gray-200"
-                                                        name="acceptance_date" id="acceptance_date"
-                                                        value="{{ $now }}">
+                                                        name="acceptance_date" id="acceptance_date" readonly
+                                                        value="{{ $user[0]->usermeterinfos[0]->acceptance_date }}">
                                                 </div>
                                                 <div class="col-12 col-sm-4">
                                                     <label>วิธีชำระเงิน</label>
                                                     <span class="ml-auto text-right text-semibold text-reagent-gray">
                                                         <input type="text" class="form-control bg-gray-200" readonly
-                                                            name="payment_id"
-                                                            value="{{ $user->usermeter_info->payment_id }}">
+                                                            name="payment_id" value="1">
                                                     </span>
                                                 </div>
                                                 <div class="col-12 col-sm-4">
                                                     <label>ประเภทผู้ได้ส่วนลด</label>
                                                     <span class="ml-auto text-right text-semibold text-reagent-gray">
                                                         <input type="text" class="form-control bg-gray-200"
-                                                            name="discounttype"
-                                                            value="{{ $user->usermeter_info->discounttype }}" readonly>
+                                                            name="discounttype" value="1" readonly>
                                                     </span>
                                                 </div>
                                             </div>
-
                                             <div class="button-row d-flex mt-4">
                                                 <button class="btn bg-gradient-light mb-0 js-btn-prev" data-id="1"
                                                     type="button" title="Prev">Prev</button>
@@ -292,55 +310,33 @@
                                     <div class="card multisteps-form__panel p-3 border-radius-xl bg-white"
                                         data-animation="FadeIn" id="pd3">
                                         <h5 class="font-weight-bolder">ตั้งค่าเข้าใช้งานระบบ</h5>
-                                        <div class="multisteps-form__content row">
+                                        <div class="multisteps-form__content ">
                                             <div class="mt-3 row">
-                                                <div class="col-12 col-md-6 ">
-                                                    <label>Username
-                                                        @error('username')
-                                                        <span class="text-danger h-8">({{ $message }})</span>
+                                                <div class="col-6">
+                                                    @error('username')
+                                                        <div class="text-danger h-8">({{ $message }})</div>
                                                     @enderror
-                                                    </label>
+                                                    <label>User name</label>
                                                     <input class="multisteps-form__input form-control" type="text"
-                                                        name="username" value="{{ $user->username }}">
+                                                        name="username" value="{{ $user[0]->username }}">
                                                 </div>
-                                                <div class="col-12 col-md-6 ">
-                                                    <label>Password
-                                                        @error('password')
-                                                        <span class="text-danger h-8">({{ $message }})</span>
+                                                <div class="col-6">
+                                                    @error('password')
+                                                        <div class="text-danger h-8">({{ $message }})</div>
                                                     @enderror
-                                                    </label>
+                                                    <label>Password</label>
                                                     <input class="multisteps-form__input form-control" type="text"
-                                                        name="password">
+                                                        name="password" value="">
                                                 </div>
-                                                <div class="col-12 col-md-6 ">
-                                                    <label>Email
-                                                        @error('email')
-                                                        <span class="text-danger h-8">({{ $message }})</span>
+                                                <div class="col-6">
+                                                    @error('email')
+                                                        <div class="text-danger h-8">({{ $message }})</div>
                                                     @enderror
-                                                    </label>
+                                                    <label>Email</label>
                                                     <input class="multisteps-form__input form-control" type="text"
-                                                        name="email" value="{{$user->email}}">
+                                                        name="email" value="{{ $user[0]->email }}">
                                                 </div>
-                                                <div class="col-12 col-md-6">
-                                                    <label>ประเภทผู้ใช้งาน</label>
-                                                    <input class="multisteps-form__input form-control bg-gray-300" type="text" readonly
-                                                        name="role" value="{{$user->getRoleNames()[0]}}">
-                                                </div>
-                                                <div class="col-12 col-md-6 ">
-                                                    <label>สถานะ
-                                                        @error('status')
-                                                        <span class="text-danger h-8">({{ $message }})</span>
-                                                    @enderror
-                                                    </label>
-                                                    <select class="form-control bg-green-200" name="status"
-                                                        id="status">
-                                                        <option>--เลือก--</option>
-                                                        <option {{ $user->status == 'active' ? 'selected' : '' }}
-                                                            value="active"> เปิดใช้งาน</option>
-                                                        <option {{ $user->status == 'inƒactive' ? 'selected' : '' }}
-                                                            value="inactive"> ปิดการใช้งาน</option>
-                                                    </select>
-                                                </div>
+
                                             </div>
                                             <div class="row">
                                                 <div class="button-row d-flex mt-4 col-12">
@@ -414,10 +410,11 @@
                 if ($(`#b3`).hasClass('js-active')) {
                     $('#b3').removeClass('js-active')
                 }
-                if ($(`#b4`).hasClass('js-active')) {
-                    $('#b4').removeClass('js-active')
+                if ($(`#b1`).hasClass('js-active')) {
+                    $('#b1').removeClass('js-active')
                 }
                 $('#pd3').removeClass('js-active')
+                $('#pd1').removeClass('js-active')
                 $('#pd4').removeClass('js-active')
             } else if (id === 3) {
                 if ($(`#b4`).hasClass('js-active')) {
@@ -449,6 +446,25 @@
         //         // thaiyear: true              //Set เป็นปี พ.ศ.
         //     }).datepicker(); //กำหนดเป็นวันปัจุบัน
         // });
+        $('#prefix_select').change(function() {
+            if ($(this).val() === "other") {
+                $('#prefix_text').removeClass('hidden')
+            } else {
+                if (!$('#prefix_text').hasClass('hidden')) {
+                    $('#prefix_text').addClass('hidden')
+                }
+            }
+        })
+
+        $('#usergroup').change(function() {
+            let id = $(this).val()
+            $.get(`/admin/usergroup/${id}/infos`).done(function(data) { //server
+                $(`#rate_payment_per_year`).val(data.rate_payment_per_year);
+                $(`#bin_quantity`).val(1);
+                $('#payment_per_year').val(data.rate_payment_per_year)
+
+            })
+        });
 
         $('#metertype_id').change(function() {
             let id = $(this).val()
@@ -457,6 +473,12 @@
                 $('#metersize').val(data.metersize)
             })
         });
+
+        $(`#bin_quantity`).keyup(function() {
+            let bin_quantity = $(this).val();
+            let total = $('#rate_payment_per_year').val() * bin_quantity;
+            $('#payment_per_year').val(total)
+        })
 
         function getDistrict() {
             var id = $("#province_code").val();
@@ -498,14 +520,19 @@
             var zone_id = $("#undertake_zone_id").val();
             $.get(`/admin/subzone/${zone_id}/getSubzone`).done(function(data) {
                 var text = "<option>เลือก...</option>";
-                console.log('data', data)
-                if (data.length == 0) {
-                    text += "<option value='0'>-</option>";
+                if (data.length == 1) {
+                    text += `<option value='${data[0].id}' selected>${data[0].subzone_name}</option>`;
                 } else {
-                    data.forEach(function(val) {
-                        text += "<option seleted value='" + val.id + "'>" + val.subzone_name + "</option>";
-                    });
+                    if (data.length == 0) {
+                        text += "<option value='0'>-</option>";
+                    } else {
+                        data.forEach(function(val) {
+                            text += "<option seleted value='" + val.id + "'>" + val.subzone_name +
+                                "</option>";
+                        });
+                    }
                 }
+
                 $("#undertake_subzone_id").html(text);
             });
         }
@@ -518,6 +545,31 @@
             checkValues()
         });
 
+        function checkValues() {
+            let res = true
+            $("#undertake_subzone_id").removeClass("border-danger rounded")
+            $("#metertype").removeClass("border-danger rounded")
+            $("#undertake_zone_id").removeClass("border-danger rounded")
 
+            if ($("#metertype").val() === "เลือก...") {
+
+                $("#metertype").addClass("border-danger rounded")
+                res = false;
+            }
+
+            if ($("#undertake_zone_id").val() === "เลือก...") {
+                console.log($("#metertype").val())
+
+                $("#undertake_zone_id").addClass("border-danger rounded")
+                res = false;
+            } else {
+                if ($("#undertake_subzone_id").val() === "เลือก...") {
+                    $("#undertake_subzone_id").addClass("border-danger rounded")
+                    res = false;
+                }
+            }
+            return res;
+
+        }
     </script>
 @endsection

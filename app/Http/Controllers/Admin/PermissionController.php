@@ -48,7 +48,7 @@ class PermissionController extends Controller
     public function destroy(Permission $permission)
     {
         $permission->delete();
-        FunctionsController::reset_auto_increment_when_deleted('permissions');
+        // FunctionsController::reset_auto_increment_when_deleted('permissions');
         return back()->with(['message', 'Permission deleted.', 'color'=> 'danger']);
     }
 

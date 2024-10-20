@@ -5,15 +5,17 @@ namespace App\Http\Controllers\Admin;
 use App\Http\Controllers\Api\FunctionsController;
 use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
 use SebastianBergmann\CodeUnit\FunctionUnit;
 use Spatie\Permission\Models\Permission;
 use Spatie\Permission\Models\Role;
-
+use App\Models\User;
 class RoleController extends Controller
 {
     public function index()
     {
-        $roles = Role::whereNotIn('name', ['admin'])->get();
+       return $user = User::where('id',Auth::user()->id)->getRoleNames();
+        $roles = Role::whereNotIn('name', ['super admin'])->get();
         return view('admin.roles.index', compact('roles'));
     }
 

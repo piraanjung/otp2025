@@ -8,13 +8,14 @@
     จัดการใบเสร็จรับเงิน
 @endsection
 @section('nav-main')
-    <a href="{{ route('invoice.index') }}"> รับชำระค่าน้ำประปา</a>
+    <a href="{{ route('invoice.index') }}">รับชำระค่าน้ำประปา</a>
 @endsection
-@section('nav-current')
-    รายชื่อผู้ใช้น้ำประปาที่ยังไม่ได้ชำระค่าน้ำประปา
-@endsection
+
 @section('page-topic')
     รายชื่อผู้ใช้น้ำประปาที่ยังไม่ได้ชำระค่าน้ำประปา
+    @foreach ($selected_subzone_name_array as $item)
+        {{ $item }}
+    @endforeach
 @endsection
 @section('style')
     <style>
@@ -32,7 +33,7 @@
         }
 
         .modal-dialog {
-            width: 75rem;
+            width: 90rem;
             margin: 30px auto;
         }
 
@@ -60,7 +61,8 @@
         .mt-025 {
             margin-top: 0.15rem
         }
-        .cashback{
+
+        .cashback {
             color: white
         }
 
@@ -77,49 +79,40 @@
             }
 
             .modal-dialog {
-                max-width: 75rem;
+                max-width: 90rem;
                 margin-right: auto;
                 margin-left: auto
             }
         }
+        .text-cutmeter{
+            background-color: #fbdcf4;
+            color: #000000
+        }
     </style>
 @endsection
 @section('content')
-    <form action="{{ route('payment.index_search_by_suzone') }}" method="POST">
-        @csrf
-        <div class="row">
-            <div class="col-2">
-                <div class="card">
-                    <div class="card-body d-flex flex-column justify-content-center text-center">
-                        <a href="javascript:;">
-                            <button type="submit" class="avatar avatar-lg border-1 rounded-circle">
-                                <i class="fas fa-search text-secondary" aria-hidden="true"></i>
-                            </button>
-                            <h5 class="text-secondary"> ค้นหา </h5>
-                        </a>
-                    </div>
-                </div>
-            </div>
-            <div class="col-10">
-
+    <div class="row">
+        <div class="col-3">
+            <form action="{{ route('payment.index') }}" method="get">
+                @csrf
                 <div class="card">
                     <div class="card-body row">
                         <h6>ค้นหาจากเส้นทางจดมิเตอร์</h6>
                         <div class="form-check">
                             <input class="form-check-input" type="checkbox" name="check-input-select-all"
-                                id="check-input-select-all">
+                                id="check-input-select-all" {{ $select_all == true ? 'checked' : '' }}>
                             <label class="custom-control-label" for="customRadio1">เลือกทั้งหมด</label>
                         </div>
 
                         @foreach ($subzones as $key => $subzone)
-                            <div class="col-lg-2 col-md-3 col-sm-3 mt-025">
-                                <div class="row border border-1 rounded ">
+                            <div class="col-lg-6 col-md-3 col-sm-3 mt-025">
+                                <div class="row">
                                     <div class="col-1">
-                                        @if (isset($subzone_search_lists))
+                                        @if (isset($subzone_selected))
                                             <div class="form-check">
                                                 <input class="form-check-input" type="checkbox" name="subzone_id_lists[]"
                                                     value="{{ $subzone->id }}"
-                                                    {{ in_array($subzone->id, $subzone_search_lists) == true ? 'checked' : '' }}>
+                                                    {{ in_array($subzone->id, $subzone_selected) == true ? 'checked' : '' }}>
                                             </div>
                                         @else
                                             <div class="form-check">
@@ -128,64 +121,86 @@
                                             </div>
                                         @endif
                                     </div>
-                                    <div class="col-10">
-                                        <div class="text-start text-sm" for="customCheck1">{{ $subzone->zone->zone_name }}
+                                    <div class="col-9">
+                                        <div class="text-start text-primary text-bold" for="customCheck1">
+                                            {{ $subzone->zone->zone_name }}
                                         </div>
-                                        <div class="label text-start text-sm fw-bolder" for="customCheck1">
-                                            {{ $subzone->subzone_name }}</div>
+
                                     </div>
                                 </div>
 
                             </div>
                         @endforeach
+                        <a href="javascript:;" class="w-auto mt-3">
+                            <button type="submit" class="avatar avatar-md border-1 rounded-circle">
+                                <i class="fas fa-search text-secondary" aria-hidden="true"></i>
+                            </button>
+                            ค้นหา
+                        </a>
+                    </div>
+                </div>
+            </form>
+        </div>
+        <div class="col-9">
+            <div class="col-12">
+                <div class="card">
+                    <div class="card-body">
+                        <div class="table-responsive">
+                            <table class="table" id="invoiceTable">
+                                <thead>
+                                    <th>เลขใบแจ้งหนี้</th>
+                                    <th>ชื่อ</th>
+                                    <th>เลขมิเตอร์</th>
+                                    <th>บ้านเลขที่</th>
+                                    <th>หมู่</th>
+                                    <th>เส้นทางจดมิเตอร์</th>
+                                    <th>สถานะ</th>
+                                    {{-- <th>หมายเหตุ</th> --}}
+                                </thead>
+                                <tbody>
+                                    @foreach ($invoices as $invoice)
+                                        <tr class="{{$invoice->cutmeter == 1 ? 'text-cutmeter' : ''}}">
 
+                                            <td class="text-end">
+                                            {{$invoice->invoice[0]->acc_trans_id_fk}}
+                                                <!-- {{ "Iv".$invoice->meter_id."".$invoice->invoice[0]->inv_no }} -->
+
+                                            </td>
+                                            <td>{{ $invoice->user->prefix . '' . $invoice->user->firstname . ' ' . $invoice->user->lastname }}
+                                            </td>
+                                            <td class="meternumber text-center" data-meter_id={{ $invoice->meter_id }}>
+                                                {{ $invoice->meternumber }}
+                                            </td>
+                                            <td class="text-center">{{ $invoice->user->address }}</td>
+                                            <td class="text-center">
+                                                {{ $invoice->undertake_zone->zone_name }}
+                                            </td>
+                                            <td class="text-center">
+                                                @if (!isset($invoice->undertake_subzone->subzone_name))
+                                                    {{ dd($invoice) }}
+                                                @endif
+                                                {{ $invoice->undertake_subzone->subzone_name }}
+                                            </td>
+                                            <td class="text-center">
+                                                @if ($invoice->cutmeter == 1)
+                                                <span class="badge badge-sm bg-gradient-danger">ตัดมิเตอร์</span>
+                                                @else
+                                                <span class="badge badge-sm bg-gradient-info">ค้างชำระ</span>
+                                                @endif
+                                            </td>
+                                        </tr>
+                                    @endforeach
+
+
+                                </tbody>
+                            </table>
+                        </div>
                     </div>
                 </div>
             </div>
         </div>
-    </form>
 
-    <div class="row mt-4">
-        <div class="col-12">
-            <div class="card">
-                <div class="card-body">
-                    <div class="table-responsive">
-                        <table class="table" id="invoiceTable">
-                            <thead>
-                                <th>เลข invoice</th>
-                                <th>ชื่อ</th>
-                                <th>เลขมิเตอร์</th>
-                                <th>บ้านเลขที่</th>
-                                <th>หมู่</th>
-                                <th>เส้นทางจดมิเตอร์</th>
-                                <th>ค้างชำระ(เดือน)</th>
-                                <th>หมายเหตุ</th>
-                            </thead>
-                            <tbody>
-                                @foreach ($invoices as $invoice)
-                                    <tr>
-                                        <td class="text-center">{{ $invoice->inv_id }}</td>
-                                        <td>{{ $invoice->usermeterinfos->user->prefix . '' . $invoice->usermeterinfos->user->firstname . ' ' . $invoice->usermeterinfos->user->lastname }}
-                                        </td>
-                                        <td class="meternumber text-center" data-meter_id={{ $invoice->meter_id_fk }}>
-                                            {{ $invoice->meternumberStr }}
-                                        </td>
-                                        <td class="text-center">{{ $invoice->usermeterinfos->user->address }}</td>
-                                        <td class="text-center">{{ $invoice->usermeterinfos->undertake_zone->zone_name }}
-                                        </td>
-                                        <td class="text-center">
-                                            {{ $invoice->usermeterinfos->undertake_subzone->subzone_name }}</td>
-                                        <td class="text-center">{{ $invoice->usermeterinfos->owe_count }}</td>
-                                        <td>{{ $invoice->comment }}</td>
-                                    </tr>
-                                @endforeach
-                            </tbody>
-                        </table>
-                    </div>
-                </div>
-            </div>
-        </div>
-    </div>
+    </div><!--row-->
 
 
     <!-- Modal -->
@@ -210,6 +225,7 @@
                                 <div class="col-12">
                                     {{-- ข้อมูลใบแจ้งหนี้และการชำระ --}}
                                     <input type="hidden" name="mode" id="mode" value="payment">
+                                    <input type="hidden" name="inv_no" id="inv_no">
                                     <input type="hidden" name="user_id" id="user_id" value="">
                                     <input type="hidden" name="meter_id" id="meter_id" value="">
                                     <input type="hidden" class="form-control text-bold text-center  paidform" readonly
@@ -223,8 +239,15 @@
                                 </div>
                             </div>
                             <div class="row mt-4">
-                                <div class="col-12 col-md-2"></div>
-                                <div class="col-12 col-md-10 row">
+                                <div class="col-12 col-md-3 text-center">
+                                    <div class="card">
+                                        <div class="card-body" style="color:black; ">
+                                            <h6>สแกน QR CODE ชำระเงินค่าน้ำประปา</h6>
+                                            <div id="qrcode"></div>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="col-12 col-md-9 row">
                                     <div class="col-12 col-md-5 offset-md-1">
                                         <div class="card">
                                             <div class="card-body">
@@ -255,11 +278,12 @@
                                                     </span>
                                                 </div>
                                                 <hr class="horizontal" style="background-color: black; margin:0.3rem 0">
+                                                <textarea id="qrcode_text" style="opacity: 0" cols="1" rows="1"></textarea>
                                             </div>
                                         </div>
                                     </div>
                                     <div class="col-12 col-md-6">
-                                        <div class="card col-md-8 col-12">
+                                        <div class="card col-md-8 col-8">
                                             <div class="card-body p-3">
                                                 <div class="d-flex">
                                                     <div>
@@ -276,7 +300,7 @@
                                                             <h5 class="font-weight-bolder mb-0">
                                                                 <input type="text"
                                                                     class="form-control text-bold text-center fs-5 cash_from_user paidform"
-                                                                    name="cash_from_user">
+                                                                    name="cash_from_user" value="">
                                                             </h5>
                                                         </div>
                                                     </div>
@@ -287,12 +311,10 @@
                                             <div class="card mt-3 col-12 col-md-8">
                                                 <div class="card-body p-3">
                                                     <div class="d-flex ">
-                                                        <div>
-                                                            <div
-                                                                class="icon icon-shape bg-gradient-dark text-center border-radius-md">
-                                                                <i class="ni ni-money-coins text-lg opacity-10"
-                                                                    aria-hidden="true"></i>
-                                                            </div>
+                                                        <div
+                                                            class="icon icon-shape bg-gradient-dark text-center border-radius-md">
+                                                            <i class="ni ni-money-coins text-lg opacity-10"
+                                                                aria-hidden="true"></i>
                                                         </div>
                                                         <div class="ms-3">
                                                             <div class="numbers">
@@ -328,13 +350,8 @@
 @endsection
 
 @section('script')
+    <script src="https://cdn.jsdelivr.net/npm/jquery.qrcode@1.0.3/jquery.qrcode.min.js"></script>
     <script>
-        $(document).ready(function() {
-            if ('<?= $page == 'index' ?>') {
-                $('#check-input-select-all').prop('checked', true)
-                $('.form-check-input').prop('checked', true)
-            }
-        })
         let a = true
         table = $('#invoiceTable').DataTable({
             responsive: true,
@@ -350,7 +367,7 @@
                 "info": "แสดง _START_ ถึง _END_ จาก _TOTAL_ แถว",
                 "infoEmpty": "แสดง 0 ถึง 0 จาก 0 แถว",
                 "paginate": {
-                    "info": "แสดง _MENU_ แถว",
+                    // "info": "แสดง _MENU_ แถว",
                 },
 
             },
@@ -411,40 +428,44 @@
             if ($(this).hasClass('selected')) {
                 $(this).removeClass('selected')
             } else {
-
                 $.each($('#invoiceTable tbody tr'), function(key, value) {
 
                     $(this).removeClass('selected')
                 });
                 $(this).addClass('selected')
             }
-            console.log(meternumber)
+
             findReciept(meternumber)
         });
 
         function findReciept(meter_id) {
-            let txt          = '';
-            let totalpaidsum = 0;
-            let paidsum      = 0;
-            let vatsum       = 0;
-            let i            = 0;
-            $('.cash_from_user').val(0)
+            let txt = '';
+            let totalpaidsum = parseFloat(0);
+            let paidsum = parseFloat(0);
+            let vatsum = parseFloat(0);
+            let vat = 0.07;
+            let i = 0;
+
             $('.cashback').val(0)
             $('#paidvalues').val(0)
             $('#vat7').val(0)
             $('#mustpaid').val(0)
+            $('#user_id').val(meter_id);
 
-            $('#user_id').val(meter_id)
-            console.log('rec meterId', meter_id)
+
+
+
+
             $.get(`/api/invoice/get_user_invoice/${meter_id}/inv_and_owe`).done(function(invoices) {
 
                 let i = 0;
                 if (Object.keys(invoices).length > 0) {
+                    console.log(invoices)
                     txt += `<div class="card card-success border border-success rounded">
                                 <div class="card-header p-1">
-                                    <h6 class="card-title bg-gray-100">รายการค้างชำระ [ ${Object.keys(invoices).length} <sup class="sup">รอบบิล</sup> ]</h6>
+                                    <h6 class="card-title bg-gray-100">รายการค้างชำระ [ ${Object.keys(invoices).length} <sup class="sup">รอบบิล</sup> ] <span style="padding-left:30px">เลขใบเสร็จรับเงิน  ${invoices[0].acc_trans_id_fk}</span> </h6>
                                 </div>
-                                <div class="card-body p-0 " style="display: block;height:350px; overflow-y: scroll;">
+                                <div class="card-body p-0 " style="display: block;height:250px; overflow-y: scroll;">
                                     <table class="table">
                                         <thead>
                                             <tr>
@@ -454,6 +475,7 @@
                                                 </div>
                                             </th>
                                             <th class="text-center">เลขใบแจ้งหนี้</th>
+                                            <th class="text-center">ลำดับที่</th>
                                             <th class="text-center">เลขมิเตอร์</th>
                                             <th class="text-center">รอบบิล</th>
                                             <th class="text-end">ยอดครั้งก่อน<div class="fs-7 sup">(หน่วย)</div></th>
@@ -468,10 +490,15 @@
                                         </thead>
                                         <tbody>`;
                     invoices.forEach(element => {
-                        totalpaidsum    += element.totalpaid
-                        vatsum          += element.vat;
-                        paidsum         += element.paid
-                        let status       = element.status == 'owe' ? 'ค้างชำระ' : 'ออกใบแจ้งหนี้';
+                        totalpaidsum += parseFloat(element.totalpaid)
+                        vatsum += parseFloat(element.vat);
+                        paidsum += parseFloat(element.paid)
+
+                        let _vat = parseFloat(element.paid) == 0 ? parseFloat(vat) : parseFloat(vat) *
+                            parseFloat(element.paid)
+                        let totalpaid = parseFloat(_vat) + parseFloat(element.paid)
+
+                        let status = element.status == 'owe' ? 'ค้างชำระ' : 'ออกใบแจ้งหนี้';
                         txt += ` <tr>
                                 <td class="text-center">
                                     <div class="form-check">
@@ -479,6 +506,7 @@
                                             data-inv_id="${element.inv_id}" name="payments[${i}][on]">
                                     </div>
                                 </td>
+                                <td class="text-center">${"Iv"+element.meter_id_fk+""+element.inv_no}</td>
                                 <td class="text-center">${element.inv_id}</td>
                                 <td class="text-center">${element.usermeterinfos.meternumber}</td>
                                 <td class="text-center">${element.invoice_period.inv_p_name}</td>
@@ -491,8 +519,8 @@
                                     <input type="hidden" name="payments[${i}][status]" value="${ element.status }">
                                 </td>
                                 <td class="text-end">${ element.inv_type === 'r' ? element.paid : 0}</td>
-                                <td class="text-end" id="vat${element.inv_id}" data-vat="${element.inv_id}">${ element.vat}</td>
-                                <td class="total text-end" id="total${element.inv_id}" data-total="${element.inv_id}">${element.totalpaid}</td>
+                                <td class="text-end" id="vat${element.inv_id}" data-vat="${element.inv_id}">${parseFloat(_vat).toFixed(2)}</td>
+                                <td class="total text-end" id="total${element.inv_id}" data-total="${element.inv_id}">${parseFloat(totalpaid).toFixed(2)}</td>
                                 <td class="text-center">${status}</td>
 
                             </tr>
@@ -504,6 +532,7 @@
                                     </table>
                                 </div>
                             </div>`;
+
 
                     let address = `${invoices[0].usermeterinfos.user.address}
                                  ${invoices[0].usermeterinfos.user.user_zone.user_zone_name} \n
@@ -521,13 +550,36 @@
                     $('#payment_res').html(txt);
                     $('.modal').modal('show')
 
-                    $('#paidsum').val(paidsum)
-                    $('.paidsum').html(paidsum)
-                    $('#vat7').val(vatsum)
-                    $('.vat7').html(vatsum)
-                    $('#mustpaid').val(totalpaidsum)
-                    $('.mustpaid').html(totalpaidsum)
+                    $('#paidsum').val(parseFloat(paidsum).toFixed(2))
+                    $('.paidsum').html(parseFloat(paidsum).toFixed(2))
+                    $('#vat7').val(parseFloat(vatsum).toFixed(2))
+                    $('.vat7').html(parseFloat(vatsum).toFixed(2))
+                    $('#mustpaid').val(parseFloat(totalpaidsum).toFixed(2))
+                    $('.mustpaid').html(parseFloat(totalpaidsum).toFixed(2))
                     $('#meter_id').val(invoices[0].usermeterinfos.meter_id);
+                    $('#inv_no').val(invoices[0].usermeterinfos.meter_id+""+invoices[0].inv_no)
+                    let init = "000000000000000000"
+                    let meter_id_length = invoices[0].usermeterinfos.meter_id.toString().length
+                    let meter_id_str = init.substring(meter_id_length) + "" + invoices[0].usermeterinfos.meter_id
+                        .toString()
+                    let inv_no_length = $('#inv_no').val().toString().length
+                    let inv_no_str = init.substring(inv_no_length) + "" + $('#inv_no').val()
+                        .toString()
+                    let paidVal = parseFloat(totalpaidsum).toFixed(2).toString().replace(".", "")
+                    let res = `|099400035262000\n${meter_id_str}\n${inv_no_str}\n${paidVal}`
+                    $('#qrcode_text').val(res)
+                    $('#qrcode').html("")
+                    $('#qrcode').append(invoices[0].usermeterinfos.user.prefix + "" + invoices[0].usermeterinfos
+                        .user.firstname + " " + invoices[0].usermeterinfos.user.lastname + "\n");
+                    $('#qrcode').append(
+                        `<div font-size:1.1rem">จำนวนที่ต้องชำระ ${parseFloat(totalpaidsum).toFixed(2)} บาท</div>`
+                        );
+                    $('#qrcode').append().qrcode({
+                        text: $('#qrcode_text').val(),
+                        width: 135,
+                        height: 135
+                    });
+
                 } else {
                     $('#empty-invoice').removeClass('hidden')
                 }
@@ -566,15 +618,16 @@
             let paidsum = 0;
             $('.checkbox').each(function(index, element) {
                 if ($(this).is(":checked")) {
-                    let id     = $(this).data('inv_id')
-                    totalsum   = $(`#total${id}`).text()
-                    paidsum    = $(`#paid${id}`).text()
-                    vatsum     = $(`#vat${id}`).text()
+                    let id = $(this).data('inv_id')
+                    totalsum = parseFloat(totalsum) + parseFloat($(`#total${id}`).text())
+                    paidsum = parseFloat(paidsum) + parseFloat($(`#paid${id}`).text())
+                    vatsum = parseFloat(vatsum) + parseFloat($(`#vat${id}`).text())
+
                 } else {
                     $('#check-input-select-all').prop('checked', false)
                 }
             });
-
+            console.log('totalsum', totalsum)
             if (totalsum == 0) {
                 $('.cash_form_user').attr('readonly')
                 $('.submitbtn').addClass('hidden')
@@ -585,8 +638,10 @@
                 $('.submitbtn').removeClass('hidden')
             }
 
-            if ($('.cash_from_user').val() > 0) {
-                let remain = $('.cash_from_user').val() - (totalsum)
+            let cash_from_user = parseFloat($('.cash_from_user').val()).toFixed(2)
+
+            if (cash_from_user > 0) {
+                let remain = cash_from_user - totalsum
                 $('.cashback').val(remain.toFixed(2))
             }
 
@@ -595,7 +650,7 @@
             $('#vat7').val(vatsum)
             $('.paidsum').html(paidsum)
             $('#paidsum').val(paidsum)
-            $('#mustpaid').val(totalsum )
+            $('#mustpaid').val(totalsum)
             $('.mustpaid').text(totalsum)
         }
 

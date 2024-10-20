@@ -16,4 +16,8 @@ class AccTransactions extends Model
     public function cashier_info(){
         return $this->belongsTo(User::class,'cashier', 'id');
     }
+
+    public function invoice(){
+        return $this->hasMany(Invoice::class,'acc_trans_id_fk');
+    }
 }

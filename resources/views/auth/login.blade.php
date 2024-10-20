@@ -40,9 +40,9 @@
 
             <!-- Email Address -->
             <div>
-                <x-label for="email" :value="__('Email')" />
+                <x-label for="username" :value="__('UserName')" />
 
-                <x-input id="email" class="block mt-1 w-full" type="email" name="email" :value="old('email')"
+                <x-input id="email" class="block mt-1 w-full" type="text" name="username" :value="old('username')"
                     required autofocus />
             </div>
 

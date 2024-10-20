@@ -217,7 +217,7 @@
 
     <main>
 
-        <section class="hero-section hero-section-full-height">
+        {{-- <section class="hero-section hero-section-full-height">
             <div class="container-fluid">
                 <div class="row">
                     <div class="col-lg-12 col-12 p-0">
@@ -273,7 +273,7 @@
 
                 </div>
             </div>
-        </section>
+        </section> --}}
 
 
         <section class="section-padding">

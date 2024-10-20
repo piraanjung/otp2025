@@ -25,6 +25,7 @@ return new class extends Migration
             $table->string('comment')->nullable();
             $table->unsignedBigInteger('metertype_id');
             $table->integer('owe_count')->default(0);
+            $table->enum('cutmeter_status', [1, 0])->default(0);
             $table->integer('payment_id')->default(0);
             $table->integer('discounttype')->default(0);
             $table->integer('recorder_id');

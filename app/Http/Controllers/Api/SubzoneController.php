@@ -15,10 +15,18 @@ class SubzoneController extends Controller
 {
     public function subzone(Request $request)
     {
-        $subzones = Subzone::with(['zone' => function($query){
-            $query->select('id','zone_name');
-        }])->whereIn('zone_id', $request->get('zone_id'))->get()->sortBy('zone_id');
-        return response()->json($subzones);
+        $subzones = Subzone::with(['zone' => function ($query) {
+            $query->select('id', 'zone_name');
+        }]);
+
+        if(!in_array('all',$request->get('zone_id'))){
+            $subzones = $subzones->whereIn('zone_id', $request->get('zone_id'));
+        }
+        //else{
+        //     $subzones = $subzones->whereIn('zone_id', '<>', 0);
+        // }
+        $subzones = $subzones->get()->sortBy('zone_id');
+        return response()->json(collect($subzones)->flatten());
     }
 
     public function getSubzone($subzone_id)
@@ -65,8 +73,11 @@ class SubzoneController extends Controller
                 $members = DB::table('subzone as sz')
                     ->join('zone as z', 'z.id', '=', 'sz.zone_id')
                     ->join('user_meter_infos as muf', 'muf.undertake_subzone_id', '=', 'sz.id')->join('user_profile as up', 'up.user_id', '=', 'muf.user_id')
-                    ->select('up.user_id', 'up.name',
-                        'up.address', 'up.zone_id as userprofile_zone_id',
+                    ->select(
+                        'up.user_id',
+                        'up.name',
+                        'up.address',
+                        'up.zone_id as userprofile_zone_id',
                     )
                     ->where('muf.id', '=', $items[0]->meter_id)
                     ->get();
@@ -104,24 +115,37 @@ class SubzoneController extends Controller
 
     public function get_members_last_inactive_invperiod($subzone_id)
     {
-
         $presentInvoicePeriod = InvoicePeriod::where('status', 'active')->get()->first();
 
         $sql = DB::table('user_meter_infos as umf')
-            ->join('invoice as iv', 'iv.meter_id', '=', 'umf.id')
-            ->join('user_profile as upf', 'upf.user_id', '=', 'umf.user_id')
-            ->join('zone as z', 'z.id', '=', 'umf.undertake_zone_id')
-            ->join('zone as zz', 'zz.id', '=', 'upf.zone_id')
-            ->join('subzone as sz', 'sz.id', '=', 'umf.undertake_subzone_id')
-            ->where('iv.inv_period_id', '=', $presentInvoicePeriod->id)
+            ->join('invoice as iv', 'iv.meter_id_fk', '=', 'umf.meter_id')
+            ->join('users as u', 'u.id', '=', 'umf.user_id')
+            ->join('zones as z', 'z.id', '=', 'umf.undertake_zone_id')
+            ->join('zones as zz', 'zz.id', '=', 'u.zone_id')
+            ->join('subzones as sz', 'sz.id', '=', 'umf.undertake_subzone_id')
+            ->where('iv.inv_period_id_fk', '=', $presentInvoicePeriod->id)
             ->where('umf.undertake_subzone_id', '=', $subzone_id)
             ->where('umf.status', '=', 'active')
             ->whereIn('iv.status', ['invoice', 'init'])
             ->get([
-                'iv.lastmeter as init_meter', 'iv.currentmeter', 'iv.inv_period_id', 'iv.status',
-                'upf.name', 'upf.address', 'upf.zone_id', 'zz.zone_name as user_zonename',
-                'umf.id as umf_id', 'umf.meternumber', 'umf.user_id',
-            ]);
+                'iv.inv_id','iv.lastmeter as init_meter', 'iv.currentmeter',  'iv.inv_period_id_fk', 'iv.status',
+                'u.prefix', 'u.firstname', 'u.lastname', 'u.address', 'u.zone_id', 'zz.zone_name as user_zonename',
+                'umf.meter_id', 'umf.meternumber', 'umf.user_id',
+        ]);
+
+        $presentInvoicePeriodId = $presentInvoicePeriod->id;
+        collect($sql)->map(function($item) use($presentInvoicePeriodId){
+            $last5InvoiceByInvoicePeriod = Invoice::where('meter_id_fk', $item->meter_id)
+            ->whereIn('status', ['owe', 'invoice'])
+            ->with(['invoice_period' => function($q){
+                return $q->select('id', 'inv_p_name');
+            }])
+            ->orderBy('inv_period_id_fk', 'desc')
+            ->where('inv_period_id_fk', "<>",  $presentInvoicePeriodId)
+            ->get(['meter_id_fk', 'inv_period_id_fk','status', 'water_used','totalpaid']);
+            $item->owe = $last5InvoiceByInvoicePeriod;
+        });
+
 
         $invoice_status = collect($sql)->countBy(function ($val) {
             return $val->status;
@@ -130,65 +154,17 @@ class SubzoneController extends Controller
         return \response()->json(['members' => $sql, 'invoice_status' => $invoice_status]);
     }
 
-    public function get_members_last_inactive_invperiod_backup($subzone_id)
-    {
-        $presentInvoicePeriod = InvoicePeriod::where('status', 'active')->get()->first();
-        //หา เลขมิเตอร์ตั้งต้น
-        $lastInactiveInvPeriod = InvoicePeriod::where('status', 'inactive')
-            ->where('deleted', '<>', 1)
-            ->get()->last();
-        $sql = DB::table('user_meter_infos as umf')
-            ->join('invoice as iv', 'iv.meter_id', '=', 'umf.id')
-            ->join('user_profile as upf', 'upf.user_id', '=', 'umf.user_id')
-            ->join('zone as z', 'z.id', '=', 'umf.undertake_zone_id')
-            ->join('zone as zz', 'zz.id', '=', 'upf.zone_id')
-            ->join('subzone as sz', 'sz.id', '=', 'umf.undertake_subzone_id')
-            ->where('iv.inv_period_id', '=', $lastInactiveInvPeriod->id)
-            ->where('umf.undertake_subzone_id', '=', $subzone_id)
-            ->where('umf.status', '=', 'active')
-        // ->limit(1)
-            ->get([
-                'iv.currentmeter as init_meter', 'iv.inv_period_id', 'iv.status',
-                'upf.name', 'upf.address', 'upf.zone_id', 'zz.zone_name as user_zonename',
-                'umf.id', 'umf.meternumber', 'umf.user_id',
-            ]);
-        $allmember = DB::table('user_meter_infos as umf')
-            ->where('umf.undertake_subzone_id', '=', $subzone_id)
-            ->get(['umf.user_id']);
-        $allM = collect([]);
-        foreach ($allmember as $m) {
-            $allM->push($m->user_id);
-        }
-        $memberHasInvoice = DB::table('user_meter_infos as umf')
-            ->join('invoice as iv', 'iv.meter_id', '=', 'umf.id')
-            ->where('iv.inv_period_id', '=', $presentInvoicePeriod->id)
-            ->where('umf.undertake_subzone_id', '=', $subzone_id)
-            ->get(['umf.user_id']);
-        $hasInv = collect([]);
-        foreach ($memberHasInvoice as $m) {
-            $hasInv->push($m->user_id);
-        }
 
-        $filter = collect($sql)->filter(function ($v) use ($hasInv) {
 
-            if (!collect($hasInv)->contains($v->user_id)) {
-                return $v;
-            }
-        });
-
-        return \response()->json(collect($filter)->values());
-
-    }
 
     public function delete($id)
     {
         try {
-            Subzone::where('id' , $id)->delete();
+            Subzone::where('id', $id)->delete();
             // FunctionsController::reset_auto_increment_when_deleted('subzones');
             return 1;
         } catch (Exception $e) {
             return 0;
         }
     }
-
 }

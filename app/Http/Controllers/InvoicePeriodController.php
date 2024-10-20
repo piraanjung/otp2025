@@ -3,8 +3,10 @@
 namespace App\Http\Controllers;
 
 use App\Http\Controllers\Api\FunctionsController;
+use App\Models\AccTransactions;
 use App\Models\BudgetYear;
 use App\Models\Invoice;
+use App\Models\InvoiceHistoty;
 use App\Models\InvoicePeriod;
 use App\Models\UserMerterInfo;
 use Illuminate\Http\Request;
@@ -14,6 +16,7 @@ class InvoicePeriodController extends Controller
 {
     public function index()
     {
+
         $funcCtrl = new FunctionsController();
 
         //1.check ว่ามีปีงบประมาณที่ active ไหม ถ้าไม่มีให้ทำการสร้างปีงบประมาณก่อน
@@ -40,17 +43,17 @@ class InvoicePeriodController extends Controller
     public function store(Request $request, InvoicePeriod $invoice_period)
     {
         $request->validate([
-            'startdate' => 'required',
-            'enddate' => 'required',
-            'inv_period_name' => 'required',
+            'startdate'         => 'required',
+            'enddate'           => 'required',
+            'inv_period_name'   => 'required',
         ],[
-            'required' =>'ใส่ข้อมูล',
+            'required'          =>'ใส่ข้อมูล',
         ]);
 
         //เปลี่ยน last inv period เป็น inactive
         $last_inv_prd = InvoicePeriod::orderBy('id', 'desc')->first();
         $last_inv_prd->update([
-            'status' => 'inactive',
+            'status'    => 'inactive',
             'updated_at'=> date('Y-m-d H:i:s'),
         ]);
 
@@ -58,28 +61,105 @@ class InvoicePeriodController extends Controller
         $req = $request->all();
         $funcCtrl = new FunctionsController();
         //เปลี่ยนวันที่ไทยเป็นอังกฤษ
-        $req['startdate'] = $funcCtrl->thaiDateToEngDateFormat($request->get('startdate'));
-        $req['enddate'] = $funcCtrl->thaiDateToEngDateFormat($request->get('enddate'));
-        $req['inv_p_name'] = $request->get('inv_period_name')."-".$request->get("inv_period_name_year");
-        $req["status"] = 'active';
+        $req['startdate']   = $funcCtrl->thaiDateToEngDateFormat($request->get('startdate'));
+        $req['enddate']     = $funcCtrl->thaiDateToEngDateFormat($request->get('enddate'));
+        $req['inv_p_name']  = $request->get('inv_period_name')."-".$request->get("inv_period_name_year");
+        $req["status"]      = 'active';
         //สร้าง new inv period
-        $current_inv_prd = $invoice_period->create($req);
+        $current_inv_prd    = $invoice_period->create($req);
 
         //สร้าง invoice status init ของรอบบิลใหม่
-        $user_meter_infos = UserMerterInfo::where('status', 'active')->get();
+        $idLastInvPeriod = $last_inv_prd->id;
+
+        $user_meter_infos = UserMerterInfo::where('status', 'active')
+            ->with([
+                'invoice' => function ($q) use ($idLastInvPeriod) {
+                    return $q->select('meter_id_fk', 'inv_period_id_fk', 'currentmeter', 'acc_trans_id_fk')
+                        ->where('inv_period_id_fk', $idLastInvPeriod);
+                },
+                'invoice_not_paid' => function ($q) {
+                    return $q->select('inv_id', 'meter_id_fk', 'inv_period_id_fk', 'status', 'acc_trans_id_fk')
+                        ->whereIn('status', ['owe', 'invoice']);
+                }
+            ])
+            ->get(['meter_id', 'user_id']);
+
+        $newInvoiceArray = [];
         foreach ($user_meter_infos as $user_meter_info) {
-            $invoice_prev_inv_prd = Invoice::where(['meter_id_fk'=> $user_meter_info->meter_id, 'inv_period_id_fk'=> $last_inv_prd->id])->first();
-            $invoice = new Invoice;
-                $invoice ->meter_id_fk       = $user_meter_info->meter_id;
-                $invoice ->inv_period_id_fk  = $current_inv_prd->id;
-                $invoice ->lastmeter         = collect($invoice_prev_inv_prd)->isEmpty() ? 0 : $invoice_prev_inv_prd->currentmeter;
-                $invoice ->currentmeter      = 0;
-                $invoice ->status            = "init";
-                $invoice ->recorder_id       = Auth::user()->id;
-                $invoice ->save();
+
+            $newInvoiceArray[] = [
+                'meter_id_fk'       => $user_meter_info->meter_id,
+                'user_id'           => $user_meter_info->meter_id,
+                'inv_period_id_fk'  => $current_inv_prd->id,
+                'lastmeter'         => collect($user_meter_info->invoice)->isEmpty() ? 0 : $user_meter_info->invoice[0]->currentmeter,
+                'currentmeter'      => 0,
+                'status'            => 'init',
+                'acc_trans_id_fk'   => 0,
+                'recorder_id'       => Auth::user()->id,
+                'created_at'        => date('Y-m-d H:i:s'),
+            ];
+
+            if(collect($user_meter_info->invoice_not_paid)->isNotEmpty() ){
+                //มียอดค้างชำระเกินรอบบิลปัจจุบัน
+                $accTrans = AccTransactions::create([
+                    'user_id_fk'    => $user_meter_info->meter_id,
+                    'paidsum'       => 0,
+                    'vatsum'        => 0,
+                    'totalpaidsum'  => 0,
+                    'net'           => 0,
+                    'status'        => 2,//hold
+                    'cashier'       =>Auth::user()->id
+                ]);
+                foreach( $user_meter_info->invoice_not_paid as $owe ){
+                    Invoice::where('inv_id', $owe->inv_id)->update([
+                        'acc_trans_id_fk'   => $accTrans->id,
+                        'updated_at'        => date('Y-m-d H:i:s'),
+                    ]);
+                }
+
+            }
 
         }
 
+        Invoice::insert($newInvoiceArray);
+
+        //เปลี่ยน invoice ที่ inv_period_id_fk รอบบิลที่แล้วให้ สถานะ เป็น Owe
+        Invoice::where('inv_period_id_fk', $idLastInvPeriod)
+            ->where('status', 'invoice')
+            ->update(['status'=> 'owe', 'updated_at' => date('Y-m-d H:i:s')]);
+
+
+        // เอา invoice ที่ status == paid ไปที่ invoice_history table
+        $copyInvPaidStatusArr = [];
+        // $invoicePaid = Invoice::where('inv_period_id_fk', $idLastInvPeriod)->where('status', 'paid')->get();
+        // foreach (collect($invoicePaid)->chunk(500) as $k => $vv) {
+        //     foreach($vv as $v){
+        //         $copyInvPaidStatusArr[] = [
+        //             'inv_id'           => $v->inv_id,
+        //             'user_id'          => $v->user_id,
+        //             'meter_id_fk'      => $v->meter_id_fk,
+        //             'inv_period_id_fk' => $v->inv_period_id_fk,
+        //             'lastmeter'        => $v->lastmeter,
+        //             'currentmeter'     => $v->currentmeter,
+        //             'water_used'       => $v->water_used,
+        //             'inv_type'         => $v->inv_type,
+        //             'paid'             => $v->paid,
+        //             'vat'              => $v->vat,
+        //             'totalpaid'        => $v->totalpaid,
+        //             'status'           => $v->status,
+        //             'acc_trans_id_fk'  => $v->acc_trans_id_fk,
+        //             'comment'          => $v->comment,
+        //             'recorder_id'      => $v->recorder_id,
+        //             'created_at'       => $v->created_at,
+        //             'updated_at'       => $v->updated_at
+        //         ];
+        //     }
+        // }
+        // InvoiceHistoty::insert($copyInvPaidStatusArr);
+        // //ทำการลบ invoice status paid ของรอบบิลก่อน ที่ copy ไปที่ invoice_history แล้ว
+        // Invoice::where('inv_period_id_fk', $idLastInvPeriod)->where('status', 'paid')->delete(); //where('inv_period_id_fk', $idLastInvPeriod)
+
+        $request->session()->flash('subzone_id', $request->get('subzone_id'));
         return redirect()->route('admin.invoice_period.index')->with('message','ทำการบันทึกข้อมูลแล้ว');
     }
     public function edit(InvoicePeriod $invoice_period)

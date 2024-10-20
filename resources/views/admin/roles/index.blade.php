@@ -4,7 +4,6 @@
     <div class="row mt-4">
         <div class="col-12">
             <div class="card mb-4">
-
                 <div class="card-body p-3">
                     <div class="row">
                         @foreach ($roles as $role)
@@ -40,7 +39,7 @@
                                 </div>
                             </div>
                         @endforeach
-                        <div class="col-lg-4 col-md-4 col-12  mb-3 mt-md-0">
+                        {{-- <div class="col-lg-4 col-md-4 col-12  mb-3 mt-md-0">
                             <div class="card"
                                 style="background-image: url('{{ asset('soft-ui/assets/img/curved-images/white-curved.jpeg') }}')">
                                 <span class="mask bg-gradient-dark opacity-9 border-radius-xl"></span>
@@ -70,7 +69,7 @@
                                     </div>
                                 </div>
                             </div>
-                        </div>
+                        </div> --}}
 
                         <div class="col-lg-4 col-md-4 col-12  mb-3 ">
                             <div class="cardcard-plain border border-radius-xl">

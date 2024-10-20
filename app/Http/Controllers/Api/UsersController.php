@@ -14,6 +14,7 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Str;
+use PhpParser\Node\Expr\AssignOp\Concat;
 
 class UsersController extends Controller
 {
@@ -22,8 +23,8 @@ class UsersController extends Controller
     }
     public function index()
     {
-        $active_users = $this->usersInfos('all');
-        return response()->json($active_users);
+      return  $active_users = $this->usersInfos('all');
+
     }
 
     public function users()
@@ -44,12 +45,11 @@ class UsersController extends Controller
         $session_id = User::where('id', $user_id)->get('remember_token');
         $user['session_id'] = $session_id[0]->remember_token;
         $fn = new FunctionsController;
-        foreach ($user[0]->usermeterinfos->invoice as $u) {
+        foreach ($user[0]->usermeterinfos[0]->invoice as $u) {
             $date = explode(" ", $u->updated_at);
-            $u->updated_at_th = $fn->engDateToThaiDateFormat($date[0]);
+            $u->updated_at_th = date_format(date_create($date[0]),'d-m-Y');//$fn->engDateToThaiDateFormat($date[0]);
         }
         return response()->json($user);
-
     }
 
     public function by_zone($subzone_id)
@@ -100,7 +100,6 @@ class UsersController extends Controller
             return 0;
         }
         return \response()->json($user);
-
     }
 
     public function update_line_id($user_id, $line_id)
@@ -169,23 +168,30 @@ class UsersController extends Controller
             $result = ['message' => 'ไม่พบผู้ใช้งาน'];
             $code = 204;
         } else {
-            if ($user_cate_id == 4) {
+            if ($user_cate_id == 5) {
                 //เจ้าหน้าที่บันทึกมิเตอร์
-                $result = User::where('username', $username)
-                    ->with(
-                        'user_profile',
-                        'undertaker_subzone',
-                        'undertaker_subzone.subzone',
-                        'undertaker_subzone.subzone.zone'
-                    )
-                    ->first();
+                $result = User::where('username', $username)->where('role_id', $user_cate_id)
+                    ->with([
+                        'undertaker_subzone.subzone' => function ($q) {
+                            return $q->select('id', 'subzone_name', 'zone_id');
+                        },
+                        'undertaker_subzone.subzone.zone' => function ($q) {
+                            return $q->select('id', 'zone_name');
+                        }
+                    ])
+                    ->get(['id', 'username', 'prefix', 'firstname', 'lastname', 'subzone_id', 'zone_id', 'password']);
 
-                $currentInvoicePeriod = InvoicePeriod::where('status', 'active')->first();
-                $result->inv_period = $currentInvoicePeriod;
+                foreach ($result[0]->undertaker_subzone as $key => $subzone) {
+                    $subzone->members                = $this->users_subzone_count($subzone->subzone_id);
+                    $subzone->members_status_init    = $this->usermeter_info_get_invoice_status_count($subzone->subzone_id, 'init');
+                    $subzone->members_status_invoice = $this->usermeter_info_get_invoice_status_count($subzone->subzone_id, 'invoice');
+                    $subzone->members_status_paid    = $this->usermeter_info_get_invoice_status_count($subzone->subzone_id, 'paid');
+                }
+
+                $result[0]->inv_period = InvoicePeriod::where('status', 'active')->get(['id', 'inv_p_name']);
             } else {
                 $result = User::where('username', $username)
                     ->with(
-                        'user_profile',
                         'undertaker_subzone',
                         'undertaker_subzone.subzone',
                     )
@@ -193,13 +199,11 @@ class UsersController extends Controller
             }
 
             if (collect($result)->isNotEmpty()) {
-                $result = $this->verifyhasPassword($passwords, $result);
+                $result = $this->verifyhasPassword($passwords, $result[0]);
             } else {
                 $code = 204;
             }
-
         } //else
-
         return response()->json(['data' => $result, 'code' => $code]);
     }
 
@@ -213,7 +217,6 @@ class UsersController extends Controller
 
             $result['remember_token'] = base64_encode(Str::random(40));
             $this->updateApiToken($result->id, $result->remember_token);
-
         } else {
             $result = array();
             $result['rows'] = 0;
@@ -232,7 +235,6 @@ class UsersController extends Controller
             $userfilter = $this->searchQueryForAddresAndName($val, 'address', $type, 'aa');
             foreach ($userfilter as $user) {
                 array_push($userArray, ' เลขที่ ' . $user->address . ' ' . $user->zone_name . ' - ' . $user->name . ' - ' . $user->meternumber);
-
             }
         } elseif (preg_match('/[HhSs]+[--0-9]/', $val) || preg_match('/[HhSs]+[0-9]/', $val)) {
             //หาว่ามี "-" หรือไม่ถ้ามีให้ replace ด้วย ""
@@ -257,7 +259,6 @@ class UsersController extends Controller
             foreach ($userfilter as $user) {
                 // array_push($userArray, $user->meternumber);
                 array_push($userArray, $user->name . ' - ' . ' เลขที่ ' . $user->address . ' ' . $user->zone_name . ' - ' . $user->meternumber);
-
             }
         } else if (preg_match('/^[ก-ฮ]/', $val)) {
             //ค้นหาจากรายชื่อ
@@ -287,7 +288,6 @@ class UsersController extends Controller
             //ค้นหาโดยบ้านเลขที่
             $userfilter = $this->searchQueryForAddresAndName($val, 'address', $type, $val_lenght);
             $userArray = collect($userfilter)->pluck('aa');
-
         } elseif (preg_match('/[HhSs]+[0-9]/', $val)) {
             $userfilter = DB::table('user_meter_infos as umf')
                 ->join('zone as z', 'umf.undertake_zone_id', '=', 'z.id')
@@ -347,7 +347,6 @@ class UsersController extends Controller
                 ->orderBy('uf.address', 'asc')
                 ->get();
         }
-
     }
     private function updateApiToken($id, $token)
     {
@@ -356,49 +355,104 @@ class UsersController extends Controller
         $result->save();
     }
 
-    private function usersInfos($subzone_id)
+    private function usersInfos($subzone_id = "all")
     {
-        $fnCtrl = new FunctionsController();
         $active_users = DB::table('user_meter_infos as umf')
-            ->join('zone', 'zone.id', '=', 'umf.undertake_zone_id')
-            ->join('subzone', 'subzone.id', '=', 'umf.undertake_subzone_id')
-            ->join('user_profile as uf', 'uf.user_id', '=', 'umf.user_id')
+            ->join('users as u', 'u.id', '=', 'umf.user_id')
+            ->join('zones', 'zones.id', '=', 'u.zone_id')
             ->where('umf.status', '=', 'active')
             ->select(
                 'umf.meternumber',
                 'umf.user_id',
-                'umf.id as meterId',
-                'zone.zone_name',
-                'subzone.subzone_name',
-                'uf.name',
-                'uf.address',
+                'u.prefix','u.firstname','u.lastname',
+                'umf.acceptance_date',
+                'u.address', 'u.created_at',
+                'zones.zone_name',
             );
         if ($subzone_id != 'all') {
-            $active_users = $active_users->where('umf.undertake_subzone_id', '=', $subzone_id);
+            $active_users = $active_users->where('u.subzone_id', '=', $subzone_id);
         }
-        $active_users = $active_users->orderBy('umf.user_id', 'asc')
-            ->get();
+        $active_users = $active_users->orderBy('umf.user_id', 'asc')->get();
 
+        $arr = [];
         foreach ($active_users as $key => $user) {
-            //$meternumber = substr($user->meternumber, 2);
+            $arr[] =[
+               'meternumber'       => $user->meternumber,
+                'user_id'           => $user->user_id,
+                'fullname'          => $user->prefix."".$user->firstname." ".$user->lastname,
+                'acceptance_date'   => $user->acceptance_date,
+                'address'           => $user->address,
+                'zone_name'         => $user->zone_name,
+                'showLink'          => '<div class="dropstart float-lg-end ms-auto pe-0">
+                                            <a href="javascript:;" class="cursor-pointer" id="dropdownTable'.$user->user_id.'" data-bs-toggle="dropdown" aria-expanded="true">
+                                            <i class="fa fa-ellipsis-h text-secondary" aria-hidden="true"></i>
+                                            </a>
+                                            <ul class="dropdown-menu px-2 py-3 ms-sm-n4 ms-n5 " aria-labelledby="dropdownTable'.$user->user_id.'"  data-popper-placement="left-start">
+                                                <li><a class="dropdown-item border-radius-md" href="/admin/users/'.$user->user_id.'/edit">แก้ไขข้อมูล</a></li>
+                                                <li><a class="dropdown-item border-radius-md" href="/admin/users/'.$user->user_id.'/cancel">ยกเลิกการใช้งาน</a></li>
+                                            </ul>
+                                            </div>
+                                            '
 
-            $active_users[$key]->user_id_str = $user->user_id; //$fnCtrl->createInvoiceNumberString($user->user_id);
-            $active_users[$key]->showLink = '<a href="users/show/' . $user->meterId . '" class="btn btn-block btn-info">ดู</a>';
-            $active_users[$key]->editLink = '<a href="users/edit/3/' . $user->meterId . '" class="btn btn-block btn-warning">แก้ไข</a>';
+            ];
         }
-        return $active_users;
+        return $arr;
     }
     public function set_session_id($user_id, $session_id)
     {
         User::where('id', $user_id)->update([
             'remember_token' => $session_id,
         ]);
-
     }
 
-    public function users_count()
+    public function users_subzone_count($subzone_id = null)
     {
-        return UserMerterInfo::where('deleted', 0)->count();
+        return UserMerterInfo::where('status', 'active')
+            ->where('undertake_subzone_id', $subzone_id)->count();
+    }
+
+    public function usermeter_info_get_invoice_status_count($subzone_id, $status)
+    {
+
+    //    $users = User::where('zone_id', 19)->where('status', 1)
+    //     ->with([
+    //         'usermeterinfos' => function($q){
+    //             return $q->select('meter_id', 'user_id', 'status', 'undertake_zone_id')
+    //             ->whereIn('status', ['active']);
+    //         },
+    //         'usermeterinfos.invoice' => function($q){
+    //             return $q->select('meter_id_fk', 'inv_period_id_fk', 'status')
+    //             ->where('inv_period_id_fk',  51);
+    //         }
+    //     ])
+    //     ->where('role_id', 3)
+    //     ->get(['id', 'firstname', 'lastname','zone_id']);
+
+    //     $usermeterinfoNotEmpty = collect($users)->filter(function($v){
+    //         return collect($v->usermeterinfos)->isNotEmpty();
+    //     });
+    //     foreach($usermeterinfoNotEmpty as $user){
+    //         UserMerterInfo::where('user_id', $user->id)->update([
+    //             'undertake_zone_id' => $user->zone_id,
+    //             'undertake_subzone_id' => $user->zone_id,
+    //         ]);
+    //     }
+    //     return 'ss';    
+        // return  collect($users)->filter(function($v){
+        //     return $v->zone_id != $v->usermeterinfos[0]->undertake_zone_id;
+        // });
+
+
+        $curr_inv_period = InvoicePeriod::where('status', 'active')->get('id')->first();
+        $curr_inv_period_id = $curr_inv_period->id;
+        $res = UserMerterInfo::where('undertake_subzone_id', $subzone_id)
+            ->with(['invoice' => function ($query) use ($status,$curr_inv_period_id) {
+                return $query->select('meter_id_fk')->where('status', $status)->where('inv_period_id_fk', $curr_inv_period_id);
+            }])
+            ->where('status', 'active')->get(['meter_id', 'status']);
+        return collect($res)->filter(function ($item) {
+            return collect($item->invoice)->isNotEmpty();
+        })->count();
     }
 
 }

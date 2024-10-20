@@ -21422,7 +21422,7 @@ html {
 
 .container,.container-fluid,.container-lg,.container-md,.container-sm,.container-xl,.container-xxl {
     padding-right: calc(var(--bs-gutter-x) * 1);
-    padding-left: calc(var(--bs-gutter-x) * 1)
+    padding-left: calc(var(--bs-gutter-x) * 2)
 }
 
 .navbar {
@@ -21651,7 +21651,7 @@ html {
     top: 0;
     bottom: 0;
     width: 100%;
-    max-width: 15.625rem!important;
+    max-width: 18.625rem!important;
     overflow-y: auto;
     padding: 0;
     box-shadow: none
@@ -22437,7 +22437,7 @@ html {
 }
 
 .navbar-vertical .navbar-nav .nav-item .collapse .nav .nav-item .nav-link.active,.navbar-vertical .navbar-nav .nav-item .collapsing .nav .nav-item .nav-link.active {
-    color: #3a416f
+    color: #001bf9;
 }
 
 .navbar-vertical .navbar-nav .nav-item .collapse .nav .nav-item .nav-link.active:before,.navbar-vertical .navbar-nav .nav-item .collapsing .nav .nav-item .nav-link.active:before {

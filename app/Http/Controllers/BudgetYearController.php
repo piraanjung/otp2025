@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Http\Controllers\Api\FunctionsController;
 use App\Models\BudgetYear;
+use App\Models\InvoicePeriod;
 use Illuminate\Http\Request;
 
 class BudgetYearController extends Controller
@@ -48,7 +49,7 @@ class BudgetYearController extends Controller
         // create new budgetyear
         $funcCtrl = new FunctionsController();
         BudgetYear::create([
-                "budgetyear" => $request->get('budgetyear'),
+                "budgetyear_name" => $request->get('budgetyear'),
                 "startdate" => $funcCtrl->thaiDateToEngDateFormat($request->get('start')),
                 "enddate" => $funcCtrl->thaiDateToEngDateFormat($request->get('end')),
                 "status" => 'active',
@@ -88,5 +89,9 @@ class BudgetYearController extends Controller
         $budgetyear->save();
 
         return redirect()->route('admin.budgetyear.index')->with('success','บันทึกการแก้ไขแล้ว');
+    }
+
+    public function invoice_period_list($budgetyear_id){
+        return InvoicePeriod::where('budgetyear_id', $budgetyear_id)->orderBy('id', 'desc')->get(['id', 'inv_p_name']);
     }
 }

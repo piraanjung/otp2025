@@ -44,12 +44,12 @@ integrity="sha384-rbsA2VBKQhggwzxH7pPCaAqO46MgnOM80zW1RWuH61DGLwZJEdK2Kadq2F9CUG
                             <div class="row">
                                 <div class="col-5">
                                     <input class="form-control text-center" type="text" name="inv_period_name"
-                                        value="{{ date('m') }}" id="inv_period_name" placeholder="01">
+                                        value="{{ date('m')+1 }}" id="inv_period_name" placeholder="01">
                                 </div>
                                 <div class="col-2 text-center h3">-</div>
                                 <div class="col-5">
                                     <input class="form-control text-center bg-gray-200" type="text" name="inv_period_name_year"
-                                        value="{{ substr(date('Y') + 543, 2) }}" readonly>
+                                        value="{{ substr($budgetyear->budgetyear_name , 2) }}" readonly>
                                 </div>
                             </div>
 
