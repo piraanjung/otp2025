@@ -13,7 +13,10 @@
                     ['id' => 'logo', 'text' => 'ข้อมูลองค์กร'],
                     ['id' => 'address', 'text' => 'ประเภทมิเตอร์'],
                     ['id' => 'sign', 'text' => 'พื้นที่จัดเก็บค่าน้ำประปา'],
-                    ['id' => 'meter_code', 'text' => 'ปีงบประมาณ/รอบบิล']
+                    ['id' => 'meter_code', 'text' => 'ปีงบประมาณ/รอบบิล'],
+                    ['id' => 'invoice', 'text' => 'เลขมิเตอร์น้ำ'],
+                    ['id' => 'invoiceByZone', 'text' => 'เพิ่ม Invoice By Zone'],
+                    ['id' => 'invoice_old', 'text' => 'เพิ่ม Invoice Old']
                 ];
                     ?>
                     <ul class="nav flex-column bg-white border-radius-lg p-3">
@@ -96,7 +99,7 @@
                                     <input type="file" class="form-control w-70" name="file" id="">
                                     <input type="submit" class="btn btn-success mt-2 d-flex mr-0 ml-auto d-lg-flex" value="import">
                                 </form>
-                                <table class="table">
+                                {{-- <table class="table">
                                     <tbody>
                                         @foreach ($users as $user)
                                         <tr>
@@ -107,7 +110,7 @@
                                         @endforeach
 
                                     </tbody>
-                                </table>
+                                </table> --}}
                             </div>
                         </div>
                     </div>
@@ -167,6 +170,68 @@
                           <form action="{{ route('admin.excel.store')}}" enctype="multipart/form-data" method="post">
                             @csrf
                             <label class="label-control">Upload file excel ->พื้นที่จัดเก็บค่าน้ำประปา</label>
+                            <input type="file" class="form-control" name="file" id="">
+                            <input type="submit" class="btn btn-success mt-2 d-flex mr-0 ml-auto d-lg-flex" value="import">
+                        </form>
+                    </div>
+                </div>
+                <div class="card mt-4" id="{{ $arrs[5]['id'] }}">
+                    <div class="card-header">
+                        <h5>{{ $arrs[5]['text'] }}</h5>
+                    </div>
+                    <div class="card-body pt-0">
+                          <!-- organization infos -->
+                          <form action="{{ route('admin.excel.store_invoice')}}" enctype="multipart/form-data" method="post">
+                            @csrf
+                            <label class="label-control">Upload file excel ->เลขมิเตอร์น้ำ</label>
+                            <input type="file" class="form-control" name="file" id="">
+                            <input type="submit" class="btn btn-success mt-2 d-flex mr-0 ml-auto d-lg-flex" value="import">
+                        </form>
+                    </div>
+                </div>
+                <div class="card mt-4" id="{{ $arrs[6]['id'] }}">
+                    <div class="card-header">
+                        <h5>{{ $arrs[6]['text'] }}</h5>
+                    </div>
+                    <div class="card-body pt-0">
+                          <!-- organization infos -->
+                          <form action="{{ route('admin.excel.import_invoice_byzone')}}" enctype="multipart/form-data" method="post">
+                            @csrf
+                            <label class="label-control">Upload file excel ->import_invoice_byzone</label>
+                            @php
+                                    $subzones = App\Models\Subzone::where('status', 'active')->get(['id', 'subzone_name']);
+                                    
+                            @endphp
+                            <select name="subzone" class="form-control">
+                                <option>เลือก..</option>
+                             @foreach ($subzones as $key => $subzone)
+                                 <option value="{{$subzone->id}}">{{$subzone->subzone_name}} </option>
+                             @endforeach
+                            </select>
+                            <input type="file" class="form-control" name="file" id="">
+                            <input type="submit" class="btn btn-success mt-2 d-flex mr-0 ml-auto d-lg-flex" value="import">
+                        </form>
+                    </div>
+                </div>
+                 <div class="card mt-4" id="{{ $arrs[7]['id'] }}">
+                    <div class="card-header">
+                        <h5>{{ $arrs[7]['text'] }}</h5>
+                    </div>
+                    <div class="card-body pt-0">
+                          <!-- organization infos -->
+                          <form action="{{ route('admin.excel.import_invoice_old')}}" enctype="multipart/form-data" method="post">
+                            @csrf
+                            <label class="label-control">Upload file excel ->import_invoice old</label>
+                            @php
+                                    $subzones = App\Models\Subzone::where('status', 'active')->get(['id', 'subzone_name']);
+                                    
+                            @endphp
+                            <select name="subzone" class="form-control">
+                                <option>เลือก..</option>
+                             @foreach ($subzones as $key => $subzone)
+                                 <option value="{{$subzone->id}}">{{$subzone->subzone_name}} </option>
+                             @endforeach
+                            </select>
                             <input type="file" class="form-control" name="file" id="">
                             <input type="submit" class="btn btn-success mt-2 d-flex mr-0 ml-auto d-lg-flex" value="import">
                         </form>

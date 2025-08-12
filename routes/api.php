@@ -4,7 +4,6 @@ use App\Http\Controllers\Api\SubzoneController;
 use App\Http\Controllers\Api\ZoneController;
 use App\Http\Controllers\Api\UsersController;
 use App\Http\Controllers\Api\InvoiceController;
-use App\Http\Controllers\Api\CutmeterController;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 
@@ -58,6 +57,7 @@ Route::middleware(['throttle:api'])->name('api.')->group(function () {
         Route::post('/update2', [InvoiceController::class, 'update2']);
         Route::post('/create', [InvoiceController::class, 'create']);
         Route::post('/create_for_mobile_app', [InvoiceController::class, 'create_for_mobile_app']);
+        Route::post('/create_for_mobile_app2', [InvoiceController::class, 'create_for_mobile_app2']);
         Route::get('/getLastInvoice/{user_id}', [InvoiceController::class, 'getLastInvoice']);
         Route::get('/get_user_invoice/{user_id}/{status?}', [InvoiceController::class, 'get_user_invoice']);
         Route::get('/invoice_history_current_budget_year/{user_id}', [InvoiceController::class, 'invoice_history_current_budget_year']);
@@ -82,18 +82,18 @@ Route::middleware(['throttle:api'])->name('api.')->group(function () {
         Route::get('/get_members_last_inactive_invperiod/{zone_id}', [SubzoneController::class, 'get_members_last_inactive_invperiod']);
     });
 
-    Route::prefix('cutmeter')->group(function () {
-        Route::get('/index/{zone_id?}/{subzone_id?}', [CutmeterController::class,'index']);
-        Route::get('/owe', 'Api\CutmeterController@owe');
-        Route::get('/get_reciepting', 'Api\CutmeterController@get_reciepting');
-        Route::get('/user_owe_infos/{user_id}', 'Api\CutmeterController@user_owe_infos');
-        Route::get('/get_cutmeter_history/{user_id}', 'Api\CutmeterController@get_cutmeter_history');
-        Route::get('/get_process_history/{user_id}/{inv_period_id}', 'Api\CutmeterController@get_process_history');
-        Route::get('/count', 'Api\CutmeterController@count');
-        Route::get('/test', 'Api\CutmeterController@test');
-        Route::get('/getOweOver3CountDivideBySubzone', 'Api\CutmeterController@getOweOver3CountDivideBySubzone');
+    // Route::prefix('cutmeter')->group(function () {
+    //     Route::get('/index/{zone_id?}/{subzone_id?}', [CutmeterController::class,'index']);
+    //     Route::get('/owe', 'Api\CutmeterController@owe');
+    //     Route::get('/get_reciepting', 'Api\CutmeterController@get_reciepting');
+    //     Route::get('/user_owe_infos/{user_id}', 'Api\CutmeterController@user_owe_infos');
+    //     Route::get('/get_cutmeter_history/{user_id}', 'Api\CutmeterController@get_cutmeter_history');
+    //     Route::get('/get_process_history/{user_id}/{inv_period_id}', 'Api\CutmeterController@get_process_history');
+    //     Route::get('/count', 'Api\CutmeterController@count');
+    //     Route::get('/test', 'Api\CutmeterController@test');
+    //     Route::get('/getOweOver3CountDivideBySubzone', 'Api\CutmeterController@getOweOver3CountDivideBySubzone');
 
-    });
+    // });
 
 });
 

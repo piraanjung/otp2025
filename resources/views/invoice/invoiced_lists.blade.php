@@ -12,50 +12,52 @@
 @section('nav-current')
     ปริ้นใบแจ้งหนี้
 @endsection
-@section('page-topic')
+@section('nav-topic')
     เส้นทาง:: {{ $subzone_id }}
     รอบบิลที่ <span id="invPeriod"></span> ปีงบประมาณ <span id="_budgetyear"></span>
 @endsection
 @section('style')
-<style>
-    .selected {
-        background: lightblue
-    }
+    <style>
+        .selected {
+            background: lightblue
+        }
 
-    .dataTables_length,
-    .dt-buttons,
-    .dataTables_filter,
-    .select_row_all,
-    .deselect_row_all {
-        display: inline-flex;
-    }
+        .dataTables_length,
+        .dt-buttons,
+        .dataTables_filter,
+        .select_row_all,
+        .deselect_row_all {
+            display: inline-flex;
+        }
 
-    .dt-buttons,
-    .select_row_all,
-    .deselect_row_all {
-        flex-direction: column
-    }
+        .dt-buttons,
+        .select_row_all,
+        .deselect_row_all {
+            flex-direction: column
+        }
 
-    .dt-buttons {
-        margin-left: 3%
-    }
+        .dt-buttons {
+            margin-left: 3%
+        }
 
-    #print_multi_inv {
-        margin-left: 50%
-    }
-    .table{
-        border-collapse: collapse
-    }
-    .search_col{
-        border-radius: 10px 10px;
-        border:1px solid lightskyblue;
-        min-width: 90px;
-    }
-</style>
+        #print_multi_inv {
+            margin-left: 50%
+        }
+
+        .table {
+            border-collapse: collapse
+        }
+
+        .search_col {
+            border-radius: 10px 10px;
+            border: 1px solid lightskyblue;
+            min-width: 90px;
+        }
+    </style>
 @endsection
 @section('content')
     <div class="card">
-        <form action="{{ url('invoice/print_multi_invoice') }}" id="form" method="POST" >
+        <form action="{{ url('invoice/print_multi_invoice') }}" id="form" method="POST">
             @csrf
             <div class="card-body table-responsive">
                 <input type="hidden" id="zone_id" name="zone_id" value="">
@@ -89,7 +91,7 @@
 @endsection
 
 @section('script')
-<script src="https://cdn.datatables.net/buttons/2.4.2/js/dataTables.buttons.min.js"></script>
+    <script src="https://cdn.datatables.net/buttons/2.4.2/js/dataTables.buttons.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/pdfmake/0.1.53/pdfmake.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/pdfmake/0.1.53/vfs_fonts.js"></script>
@@ -132,13 +134,13 @@
                             [10, 25, 50, 150, "ทั้งหมด"]
                         ],
                         dom: 'lBfrtip',
-                buttons: [{
-                    extend: 'excelHtml5',
-                    'text': 'Excel',
-                    exportOptions: {
-                        rows: ['.selected']
-                    }
-                }],
+                        buttons: [{
+                            extend: 'excelHtml5',
+                            'text': 'Excel',
+                            exportOptions: {
+                                rows: ['.selected']
+                            }
+                        }],
                         "language": {
                             "search": "ค้นหา:",
                             "lengthMenu": "แสดง _MENU_ แถว",
@@ -321,7 +323,7 @@
                 </div>`).insertAfter('.dataTables_length')
 
                 $(`<input type="submit" class="btn btn-primary mt-6"  id="print_multi_inv" value="ปริ้นใบแจ้งหนี้ผู้ใช้ที่เลือก">`)
-                .insertAfter('.dt-buttons')
+                    .insertAfter('.dt-buttons')
 
             }) //.get
 
@@ -340,7 +342,5 @@
             $('.invoice_id').prop('checked', true)
 
         });
-
-
     </script>
 @endsection

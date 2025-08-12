@@ -1,11 +1,16 @@
 @extends('layouts.admin1')
 
-@section('mainheader')
+@section('nav-header')
+    รายงาน
+@endsection
+@section('nav-main')
+    <a href="{{ route('reports.water_used') }}">ปริมาณการใช้น้ำประปา</a>
+@endsection
+
+@section('nav-topic')
     ข้อมูลปริมาณการใช้น้ำประปา
 @endsection
-@section('nav')
-    <a href="{{ url('/reports') }}"> รายงาน</a>
-@endsection
+
 @section('report-water_used')
     active
 @endsection
@@ -16,7 +21,7 @@
             width: 100% !important;
         }
     </style>
-    <script src="{{asset('js/chartjs/chart.js_2.7.1.js')}}"></script>
+    <script src="{{ asset('js/chartjs/chart.js_2.7.1.js') }}"></script>
 @endsection
 @section('content')
     <div class="card">
@@ -31,10 +36,10 @@
 
                                 <select class="form-control" name="budgetyear_id" id="budgetyear_id">
                                     <option value="all"="">ทั้งหมด</option>
-                                    <option value="1">2564</option>
+                                    {{-- <option value="1">2564</option>
                                     <option value="2">2565</option>
-                                    <option value="3">2566</option>
-                                    <option value="4" selected>2567</option>
+                                    <option value="3">2566</option> --}}
+                                    <option value="1" selected>2567</option>
                                 </select>
                             </div>
                             <div class="col-md-2">
@@ -53,13 +58,7 @@
                                     <option value="10">หมู่ 10</option>
                                     <option value="11">หมู่ 11</option>
                                     <option value="12">หมู่ 12</option>
-                                    <option value="13">หมู่ 13</option>
-                                    <option value="14">หมู่ 14</option>
-                                    <option value="15">หมู่ 15</option>
-                                    <option value="16">หมู่ 16</option>
-                                    <option value="17">หมู่ 17</option>
-                                    <option value="18">หมู่ 18</option>
-                                    <option value="19">หมู่ 19</option>
+
                                 </select>
                             </div>
                             <div class="col-md-2">
@@ -121,11 +120,11 @@
         </div>
         <div class="card-body" id="DivIdToExport">
             <?php
-            $sum_total = 0;
-            $colspan = collect($waterUsedDataTables[0]['classify_by_inv_period'])->count();
-            $last_colspan = $colspan + 2;
-            $head_info_colspan = $colspan + 2;
-            ?>
+    $sum_total = 0;
+    $colspan = collect($waterUsedDataTables[0]['classify_by_inv_period'])->count();
+    $last_colspan = $colspan + 2;
+    $head_info_colspan = $colspan + 2;
+                ?>
 
             <div class="card-body table-responsive">
                 <table class="table table-striped text-nowrap" id="example">
@@ -133,8 +132,9 @@
                         <tr>
                             <td colspan="{{ $head_info_colspan }}" class="text-center" style="opacity: 1">
                                 <h5> ตารางสรุปปริมาณการใช้น้ำ
-                                    {{ $zone_and_subzone_selected_text == 'ทั้งหมด' ? 'หมู่ที่ 1 - 19' : $zone_and_subzone_selected_text }}
-                                    ปีงบประมาณ {{ $selected_budgetYear->budgetyear_name }}</h5>
+                                    {{ $zone_and_subzone_selected_text == 'ทั้งหมด' ? 'หมู่ที่ 1 - 12' : $zone_and_subzone_selected_text }}
+                                    ปีงบประมาณ {{ $selected_budgetYear->budgetyear_name }}
+                                </h5>
                             </td>
                         </tr>
                         <tr class="">
@@ -148,14 +148,12 @@
                         </tr>
                     </thead>
                     <tbody>
+                        <?php $a = 1; ?>
                         @foreach ($waterUsedDataTables as $data)
-                            {{-- {{dd($data)}} --}}
-                            <?php $index = 0; ?>
-                            <?php $sum_total += $data['water_used']; ?>
+                            <?php    $index = 0; ?>
+                            <?php    $sum_total += $data['water_used']; ?>
                             <tr>
-                                {{-- <td class="bg-dark">
-                                    {{ $data['zone_id'] }}
-                                </td> --}}
+
                                 <td class="">
                                     {{ $data['zone_name'] }}
                                 </td>
@@ -166,10 +164,7 @@
                                     </td>
                                 @endforeach
 
-                                @if ($selected_budgetYear->id == 3 && $data['zone_id'] == 7)
-                                    @for ($i = 0; $i < 6; $i++)
-                                        <td>0</td>
-                                    @endfor
+                                @if ($selected_budgetYear->id == 1 && $data['zone_id'] == 8 && $a == 1)
                                 @endif
                                 <td class="text-end h6">{{ number_format($data['water_used']) }}</td>
                             </tr>
@@ -177,15 +172,13 @@
                     </tbody>
                     <tfoot>
                         <tr>
-                        @for ($i=0 ; $i < $head_info_colspan; $i++)
-                        @if ($i==0)
-                        <th class="text-end  tfoot_col{{ $i }}">รวม</th>
-                        @else
-                        <th class="text-end  tfoot_col{{ $i }}"></th>
-
-                        @endif
-
-                        @endfor
+                            @for ($i = 0; $i < $head_info_colspan; $i++)
+                                @if ($i == 0)
+                                    <th class="text-end  tfoot_col{{ $i }}">รวม</th>
+                                @else
+                                    <th class="text-end  tfoot_col{{ $i }}"></th>
+                                @endif
+                            @endfor
                         </tr>
                     </tfoot>
                 </table>
@@ -205,7 +198,6 @@
     <script src="https://cdn.datatables.net/buttons/2.4.2/js/buttons.print.min.js"></script>
     <script src="https://cdn.datatables.net/select/1.7.0/js/dataTables.select.min.js"></script>
     <script>
-
         $(document).ready(() => {
             let sum = 0;
             let total = 0;
@@ -216,8 +208,8 @@
                 });
                 // if(sum >0){
                 $('.xx').append(`<th class="text-right">
-                ${new Intl.NumberFormat('en-IN').format(sum)}
-                </th>`)
+                    ${new Intl.NumberFormat('en-IN').format(sum)}
+                    </th>`)
                 total += sum;
                 // }
 
@@ -228,10 +220,10 @@
         });
 
 
-        $('#zone_id').change(function() {
+        $('#zone_id').change(function () {
             //get ค่าsubzone
             $.get(`../api/subzone/getSubzone/${$(this).val()}`)
-                .done(function(data) {
+                .done(function (data) {
                     let text = '<option value="all" selected>ทั้งหมด</option>';
                     data.forEach(element => {
                         text += `<option value="${element.id}">${element.subzone_name}</option>`
@@ -240,13 +232,13 @@
                 });
         }); //$#zone_id
 
-        $('#printBtn').click(function() {
+        $('#printBtn').click(function () {
             var tagid = 'DivIdToExport'
             var hashid = "#" + tagid;
             var tagname = $(hashid).prop("tagName").toLowerCase();
             var attributes = "";
             var attrs = document.getElementById(tagid).attributes;
-            $.each(attrs, function(i, elem) {
+            $.each(attrs, function (i, elem) {
                 attributes += " " + elem.name + " ='" + elem.value + "' ";
             })
             var divToPrint = $(hashid).html();
@@ -257,12 +249,12 @@
             newWin.document.open();
             newWin.document.write(allcontent);
             newWin.document.close();
-            setTimeout(function() {
+            setTimeout(function () {
                 newWin.close();
             }, 10);
         })
 
-        $('#excelBtn').click(function() {
+        $('#excelBtn').click(function () {
             $("#example").table2excel({
                 // exclude CSS class
                 // exclude: ".noExl",
@@ -297,117 +289,117 @@
                 'text': 'ปริ้น'
             }],
 
-            footerCallback: function(row, data, start, end, display) {
-                    let api = this.api();
+            footerCallback: function (row, data, start, end, display) {
+                let api = this.api();
 
-                    // Remove the formatting to get integer data for summation
-                    let intVal = function(i) {
-                        return typeof i === 'string' ?
-                            i.replace(/[\$,]/g, '') * 1 :
-                            typeof i === 'number' ?
+                // Remove the formatting to get integer data for summation
+                let intVal = function (i) {
+                    return typeof i === 'string' ?
+                        i.replace(/[\$,]/g, '') * 1 :
+                        typeof i === 'number' ?
                             i :
                             0;
-                    };
+                };
 
-                    for(let i = 1; i<=14; i++){
-                      let  total_water_used = api
+                for (let i = 1; i <= 14; i++) {
+                    let total_water_used = api
                         .column(i)
                         .data()
                         .reduce((a, b) => intVal(a) + intVal(b), 0);
-                        // pageTotal_water_used = api
-                        //     .column(i, {
-                        //         page: 'current'
-                        //     })
-                        //     .data()
-                            // .reduce((a, b) => intVal(a) + intVal(b), 0);
-                        api.column(i).footer().innerHTML = '<div> ' +parseInt(total_water_used) + ' </div>';
-                    }
-                    // _water_used
-
-
-                    // total_paid
-                    // total_paid = api
-                    //     .column(13)
-                    //     .data()
-                    //     .reduce((a, b) => intVal(a) + intVal(b), 0);
-
-                    // // Total_paid over this page
-                    // pageTotal_paid = api
-                    //     .column(13, {
+                    // pageTotal_water_used = api
+                    //     .column(i, {
                     //         page: 'current'
                     //     })
                     //     .data()
-                    //     .reduce((a, b) => intVal(a) + intVal(b), 0);
-
-                    // // Update footer
-                    // api.column(13).footer().innerHTML =
-                    //     '<div class="subtotal"> ' + pageTotal_paid +
-                    //     '</div> <div class="total" id="paid">  ' +
-                    //     total_paid + ' </div>';
-
-                    // // total_reserve
-                    // total_reserve = api
-                    //     .column(14)
-                    //     .data()
-                    //     .reduce((a, b) => parseFloat(a) + parseFloat(b), 0);
-
-                    // // Total_reserve over this page
-                    // pageTotal_reserve = api
-                    //     .column(14, {
-                    //         page: 'current'
-                    //     })
-                    //     .data()
-                    //     .reduce((a, b) => parseFloat(a) + parseFloat(b), 0);
-
-                    // // Update footer
-                    // api.column(14).footer().innerHTML =
-                    //     '<div class="subtotal"> ' + pageTotal_reserve.toFixed(2) +
-                    //     '</div> <div class="total" id="reserve">  ' +
-                    //     total_reserve.toFixed(2) + ' </div>';
-
-
-                    // // total_vat
-                    // total_vat = api
-                    //     .column(15)
-                    //     .data()
-                    //     .reduce((a, b) => parseFloat(a) + parseFloat(b), 0);
-
-                    // // Total_totalp idover this page
-                    // pageTotal_vat = api
-                    //     .column(15, {
-                    //         page: 'current'
-                    //     })
-                    //     .data()
-                    //     .reduce((a, b) => parseFloat(a) + parseFloat(b), 0);
-
-                    // // Update footer
-                    // api.column(15).footer().innerHTML =
-                    //     '<div class="subtotal"> ' + pageTotal_vat.toFixed(2) +
-                    //     '</div> <div class="total" id="vat">  ' +
-                    //     total_vat.toFixed(2) + ' </div>';
-
-
-                    //    // total_totalpaid
-                    //    total_totalpaid = api
-                    //     .column(16)
-                    //     .data()
-                    //     .reduce((a, b) => parseFloat(a) + parseFloat(b), 0);
-
-                    // // Total_totalp idover this page
-                    // pageTotal_totalpaid = api
-                    //     .column(16, {
-                    //         page: 'current'
-                    //     })
-                    //     .data()
-                    //     .reduce((a, b) => parseFloat(a) + parseFloat(b), 0);
-
-                    // // Update footer
-                    // api.column(16).footer().innerHTML =
-                    //     '<div class="subtotal"> ' + pageTotal_totalpaid.toFixed(2) +
-                    //     '</div> <div class="total" id="totalpaid">  ' +
-                    //     total_totalpaid.toFixed(2) + ' </div>';
-
+                    // .reduce((a, b) => intVal(a) + intVal(b), 0);
+                    api.column(i).footer().innerHTML = '<div> ' + parseInt(total_water_used) + ' </div>';
                 }
+                // _water_used
+
+
+                // total_paid
+                // total_paid = api
+                //     .column(13)
+                //     .data()
+                //     .reduce((a, b) => intVal(a) + intVal(b), 0);
+
+                // // Total_paid over this page
+                // pageTotal_paid = api
+                //     .column(13, {
+                //         page: 'current'
+                //     })
+                //     .data()
+                //     .reduce((a, b) => intVal(a) + intVal(b), 0);
+
+                // // Update footer
+                // api.column(13).footer().innerHTML =
+                //     '<div class="subtotal"> ' + pageTotal_paid +
+                //     '</div> <div class="total" id="paid">  ' +
+                //     total_paid + ' </div>';
+
+                // // total_reserve
+                // total_reserve = api
+                //     .column(14)
+                //     .data()
+                //     .reduce((a, b) => parseFloat(a) + parseFloat(b), 0);
+
+                // // Total_reserve over this page
+                // pageTotal_reserve = api
+                //     .column(14, {
+                //         page: 'current'
+                //     })
+                //     .data()
+                //     .reduce((a, b) => parseFloat(a) + parseFloat(b), 0);
+
+                // // Update footer
+                // api.column(14).footer().innerHTML =
+                //     '<div class="subtotal"> ' + pageTotal_reserve.toFixed(2) +
+                //     '</div> <div class="total" id="reserve">  ' +
+                //     total_reserve.toFixed(2) + ' </div>';
+
+
+                // // total_vat
+                // total_vat = api
+                //     .column(15)
+                //     .data()
+                //     .reduce((a, b) => parseFloat(a) + parseFloat(b), 0);
+
+                // // Total_totalp idover this page
+                // pageTotal_vat = api
+                //     .column(15, {
+                //         page: 'current'
+                //     })
+                //     .data()
+                //     .reduce((a, b) => parseFloat(a) + parseFloat(b), 0);
+
+                // // Update footer
+                // api.column(15).footer().innerHTML =
+                //     '<div class="subtotal"> ' + pageTotal_vat.toFixed(2) +
+                //     '</div> <div class="total" id="vat">  ' +
+                //     total_vat.toFixed(2) + ' </div>';
+
+
+                //    // total_totalpaid
+                //    total_totalpaid = api
+                //     .column(16)
+                //     .data()
+                //     .reduce((a, b) => parseFloat(a) + parseFloat(b), 0);
+
+                // // Total_totalp idover this page
+                // pageTotal_totalpaid = api
+                //     .column(16, {
+                //         page: 'current'
+                //     })
+                //     .data()
+                //     .reduce((a, b) => parseFloat(a) + parseFloat(b), 0);
+
+                // // Update footer
+                // api.column(16).footer().innerHTML =
+                //     '<div class="subtotal"> ' + pageTotal_totalpaid.toFixed(2) +
+                //     '</div> <div class="total" id="totalpaid">  ' +
+                //     total_totalpaid.toFixed(2) + ' </div>';
+
+            }
         })
 
         // fetch(`{{ url('../api/reports/water_used') }}`)
@@ -436,7 +428,7 @@
         //                     data: 'user_id',
         //                     render: function(data){
         //                         return `<i class="fa fa-plus-circle text-success findInfo"
-    //                                     data-user_id="${data}"></i>`
+        //                                     data-user_id="${data}"></i>`
         //                         }
         //                 },
         //                 {'title': 'เลขผู้ใช้งาน', data: 'user_id_str'},
@@ -452,7 +444,7 @@
         //         // $('.overlay').css('display', 'none');
         //         $('#example').find('.overlay_tr').remove()
         //         $('#example thead').find('#title').remove()
-        //         let title = 'ตารางข้อมูลผู้ใช้น้ำประปาบ้านห้องแซง';
+        //         let title = 'ตารางข้อมูลผู้ใช้น้ำประปาบ้านขามป้อม';
         //         title += $('#zone_id').val() === 'all' ? 'หมู่ที่ 1 - 19' :data[0].zone_name;
         //         // $('#example thead').first().remove()
         //         $('#example thead').prepend(`<tr id="title"><td colspan="7" class="text-center h4">${title}</td></tr>`)

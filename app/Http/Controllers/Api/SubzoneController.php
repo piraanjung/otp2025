@@ -130,7 +130,7 @@ class SubzoneController extends Controller
             ->get([
                 'iv.inv_id','iv.lastmeter as init_meter', 'iv.currentmeter',  'iv.inv_period_id_fk', 'iv.status',
                 'u.prefix', 'u.firstname', 'u.lastname', 'u.address', 'u.zone_id', 'zz.zone_name as user_zonename',
-                'umf.meter_id', 'umf.meternumber', 'umf.user_id',
+                'umf.meter_id', 'umf.meternumber', 'umf.user_id', 'umf.submeter_name'
         ]);
 
         $presentInvoicePeriodId = $presentInvoicePeriod->id;

@@ -14,12 +14,12 @@ return new class extends Migration
     public function up()
     {
         Schema::create('subzones', function (Blueprint $table) {
-            $table->bigIncrements('id');
-            $table->unsignedBigInteger('zone_id');
-            $table->string('subzone_name');
-            $table->enum('status', ['active', 'inactive'])->default('active');
-            $table->timestamps();
-            $table->foreign('zone_id')->references('id')->on('zones')->onDelete('cascade');
+        $table->bigIncrements('id');
+        $table->unsignedBigInteger('zone_id');
+        $table->string('subzone_name');
+        $table->enum('status', ['active', 'inactive'])->default('active');
+        $table->timestamps();
+        $table->foreign('zone_id')->references('id')->on('zones')->onDelete('cascade');
         });
     }
 
@@ -33,3 +33,4 @@ return new class extends Migration
         Schema::dropIfExists('subzones');
     }
 };
+

@@ -68,7 +68,6 @@ class MetertypeController extends Controller
     public function destroy(MeterType $metertype)
     {
         MeterType::destroy($metertype);
-        FunctionsController::reset_auto_increment_when_deleted('meter_types');
         return redirect()->route("admin.metertype.index")->with("message","บันทึกการแก้ไขแล้ว");
     }
     public function infos($id){

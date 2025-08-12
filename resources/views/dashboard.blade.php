@@ -10,8 +10,8 @@
     <a href="{{ route('dashboard') }}">หน้าหลัก</a>
 @endsection
 
-@section('page-topic')
-    <h3>งานประปา เทศบาลตำบลห้องแซง</h3>
+@section('nav-topic')
+    <h3>งานประปา องค์การบริหารส่วนตำบลขามป้อม</h3>
 @endsection
 @section('style')
     <script src="{{ asset('js/chartjs/chart.js_2.7.1.js') }}"></script>
@@ -39,11 +39,13 @@
                                 <div class="d-flex">
                                     <div>
                                         <h6 class="mb-0 text-white opacity-7">จำนวนหมู่บ้าน</h6>
-                                        <h3 class="text-white">{{$subzone_count}} <small class="text-sm align-top">หมู่บ้าน</small></h3>
+                                        <h3 class="text-white">{{ $subzone_count }} <small
+                                                class="text-sm align-top">หมู่บ้าน</small></h3>
                                     </div>
                                     <div class="ms-lg-6 ms-4">
                                         <h6 class="mb-0 text-white opacity-7">จำนวนสมาชิก</h6>
-                                        <h3 class="text-white">{{number_format($user_count_sum)}} <small class="text-sm align-top">ราย</small></h3>
+                                        <h3 class="text-white">{{ number_format($user_count_sum) }} <small
+                                                class="text-sm align-top">ราย</small></h3>
                                     </div>
                                 </div>
                             </div>
@@ -54,11 +56,13 @@
                                 <div class="d-flex">
                                     <div>
                                         <h6 class="mb-0 text-white opacity-7">ปริมาณการใช้น้ำ</h6>
-                                        <h3 class="text-white">{{number_format($water_used_total)}} <small class="text-sm align-top">หน่วย</small></h3>
+                                        <h3 class="text-white">{{ number_format($water_used_total) }} <small
+                                                class="text-sm align-top">หน่วย</small></h3>
                                     </div>
                                     <div class="ms-lg-6 ms-4">
-                                        <h6 class="mb-0 text-white opacity-7">จำนวนเงิน(รวม Vat 7%)</h6>
-                                        <h3 class="text-white">{{number_format(($paid_total + $vat),2)}} <small class="text-sm align-top">บาท</small>
+                                        <h6 class="mb-0 text-white opacity-7">จำนวนเงิน</h6>
+                                        <h3 class="text-white">{{ number_format($paid_total, 2) }} <small
+                                                class="text-sm align-top">บาท</small>
                                         </h3>
                                     </div>
                                 </div>
@@ -292,7 +296,7 @@
                     <div class="card-body px-0 py-0">
                         <iframe width="100%" height="450" style="border:1px" loading="lazy" allowfullscreen
                             referrerpolicy="no-referrer-when-downgrade"
-                            src="https://www.google.com/maps/embed/v1/place?key= AIzaSyA-5AlIGzLhFXErl2STRT6GacX0616iW2o&q=16.269136,104.402197&language=th-TH&zoom=16">
+                            src="https://www.google.com/maps/embed/v1/place?key= AIzaSyA-5AlIGzLhFXErl2STRT6GacX0616iW2o&q=16.2966141,102.66817&language=th-TH&zoom=16">
                         </iframe>
                     </div>
                     <div class="card-footer">
@@ -337,8 +341,8 @@
                                 <div id="sliderRegular" class="noUi-target noUi-ltr noUi-horizontal">
                                     <div class="noUi-base">
                                         <div class="noUi-connects">
-                                            <div class="noUi-connect"
-                                                style="transform: translate(0%, 0px) scale(0.4, 1);"></div>
+                                            <div class="noUi-connect" style="transform: translate(0%, 0px) scale(0.4, 1);">
+                                            </div>
                                         </div>
                                         <div class="noUi-origin" style="transform: translate(-600%, 0px); z-index: 4;">
                                             <div class="noUi-handle noUi-handle-lower" data-handle="0" tabindex="0"
@@ -352,8 +356,7 @@
                             </div>
                             <div class="col-lg-1 col-md-6 col-4 my-auto ms-auto">
                                 <i class="ni ni-bullet-list-67 text-white mt-3 ms-auto" data-bs-toggle="tooltip"
-                                    data-bs-placement="top" aria-label="Hide menu"
-                                    data-bs-original-title="Hide menu"></i>
+                                    data-bs-placement="top" aria-label="Hide menu" data-bs-original-title="Hide menu"></i>
                                 <i class="ni ni-chat-round text-white ms-3 mt-3" data-bs-toggle="tooltip"
                                     data-bs-placement="top" aria-label="Track messages"
                                     data-bs-original-title="Track messages"></i>
@@ -381,8 +384,8 @@
                     <div class="col-lg-6">
                         <ul class="nav nav-footer justify-content-center justify-content-lg-end">
                             <li class="nav-item">
-                                <a href="https://www.creative-tim.com" class="nav-link text-muted"
-                                    target="_blank">Creative Tim</a>
+                                <a href="https://www.creative-tim.com" class="nav-link text-muted" target="_blank">Creative
+                                    Tim</a>
                             </li>
                             <li class="nav-item">
                                 <a href="https://www.creative-tim.com/presentation" class="nav-link text-muted"

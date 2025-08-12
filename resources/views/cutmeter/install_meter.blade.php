@@ -12,7 +12,7 @@
 {{-- @section('nav-current')
     ข้อมูลใบแจ้งหนี้แยกตามเส้นทางจัดเก็บ
 @endsection --}}
-@section('page-topic')
+@section('nav-topic')
     ข้อมูลใบแจ้งหนี้แยกตามเส้นทางจัดเก็บ
 @endsection
 @section('style')

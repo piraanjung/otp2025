@@ -148,7 +148,7 @@ class InvoiceController extends Controller
         $invoice = Invoice::where('meter_id_fk', $meter_id)
             ->with([
                 'usermeterinfos' => function ($query) {
-                    $query->select('meter_id', 'user_id', 'meternumber', 'undertake_zone_id', 'undertake_subzone_id', 'metertype_id');
+                    $query->select('meter_id', 'user_id', 'meternumber', 'undertake_zone_id', 'undertake_subzone_id', 'metertype_id', 'submeter_name');
                 },
                 'usermeterinfos.user' => function ($query) {
                     return $query->select('id', 'prefix', 'firstname', 'lastname', 'address', 'zone_id', 'phone', 'subzone_id', 'tambon_code', 'district_code', 'province_code');
@@ -467,7 +467,7 @@ class InvoiceController extends Controller
     }
     public function create_for_mobile_app(Request $request)
     {
-
+        
         date_default_timezone_set('Asia/Bangkok');
         //create acc_trans table
         $invSql = Invoice::where('inv_id', $request->get('inv_id'));
@@ -479,12 +479,13 @@ class InvoiceController extends Controller
                 return $q->select('id', 'inv_p_name');
             }])
             ->whereIn('status', ['invoice', 'owe']);
-        $invOweAndInvoiceStatus    = $invOweAndInvoiceStatusSql->get(['inv_period_id_fk', 'paid', 'vat', 'acc_trans_id_fk', 'totalpaid', 'status']);
+        $invOweAndInvoiceStatus    = $invOweAndInvoiceStatusSql->get(['inv_period_id_fk', 'paid', 'inv_no', 'vat', 'acc_trans_id_fk', 'totalpaid', 'status']);
+        
         $accTransIdFK = 0;
         if (collect($invOweAndInvoiceStatus)->isNotEmpty()) {
             $accTransIdFK = $invOweAndInvoiceStatus[0]->acc_trans_id_fk;
         } else {
-              $newAccTrans = AccTransactions::create([
+            $newAccTrans = AccTransactions::create([
                 'user_id_fk'    => $getInvMeterIdFK[0]->meter_id_fk,
                 'paidsum'       => 0,
                 'vatsum'        => 0,
@@ -492,21 +493,23 @@ class InvoiceController extends Controller
                 'net'           => 0,
                 'cashier'       => 0,
                 'status'        => 2, //hold
+                'inv_no_fk'     => 0,
                 'created_at'    => date('Y-m-d H:i:s'),
                 'updated_at'    => date('Y-m-d H:i:s'),
             ]);
             $accTransIdFK = $newAccTrans->id;
         }
         $water_used = $request->get('water_used');
-        $paid = $water_used == 0 ? 10 : $water_used * 8;
-        $vat = $water_used == 0 ? 0.7 : $paid * 0.07;
+        $paid = $water_used * 6;
+        $vat = $water_used == 0 ? 0 : $paid * 0;
+        $reserve_meter = 10;
         $updateInv = $invSql->update([
             'currentmeter'      => $request->get('currentmeter'),
             'water_used'        => $request->get('water_used'),
             'inv_type'          => $water_used == 0 ? 'r' : 'u',
             'paid'              => $paid,
             'vat'               => $vat,
-            'totalpaid'         => $paid + $vat,
+            'totalpaid'         => $paid + $reserve_meter,
             'recorder_id'       => $request->get('recorder_id'),
             'acc_trans_id_fk'   => $accTransIdFK,
             'status'            => 'invoice',
@@ -530,20 +533,126 @@ class InvoiceController extends Controller
             ->whereIn('status', ['invoice', 'owe'])->get(['totalpaid']);
         $datas = [
             'acc_trans_id_fk'   => $accTransIdFK,
+            'inv_no'            => $invOweAndInvoiceStatus[0]->inv_no,
             'user_id_fk'        => $getInvMeterIdFK[0]->meter_id_fk,
-            'vatsum'            => number_format($vat_sum, 2),
+            'vatsum'            => floatval($vat_sum),
             'invoic_status'     => collect($invOweAndInvoiceStatus)->filter(function ($v) {
                 return $v->status == 'invoice';
             })->values(),
             'owe_count'         => collect($invOweAndInvoiceStatus)->filter(function ($v) {
                 return $v->status == 'owe';
             })->count(),
-            'owe_sum'           => number_format($owe_sum, 2),
-            'net_paid'          => number_format(collect($net_paid)->sum('totalpaid'), 2),
+            'owe_sum'           => floatval($owe_sum),
+            'net_paid'          => floatval(collect($net_paid)->sum('totalpaid')),
             'expire_date'       => date_format($date, "Y-m-d"),
             'water_used'        => $water_used,
             'paid'              => $paid,
             'vat'               => $vat,
+            'submeter_name'     => $getInvMeterIdFK[0]->usermeterinfos->submeter_name
+        ];
+
+        $res = $updateInv > 0 ? ['code' => 200, 'datas' => $datas] : ['code' => 204];
+
+
+        return response()->json(["res" => $res]);
+    }
+
+    public function create_for_mobile_app2(Request $request)
+    {
+        
+        date_default_timezone_set('Asia/Bangkok');
+        //create acc_trans table
+        $invSql = Invoice::where('inv_id', $request->get('inv_id'));
+        $getInvMeterIdFK = $invSql
+        ->with(['invoice_period' => function ($q) {
+            return $q->select('id', 'inv_p_name');
+        }])
+        ->get(['meter_id_fk', 'inv_no', 'inv_period_id_fk', 'updated_at']);
+
+
+        $invOweAndInvoiceStatusSql = Invoice::where('meter_id_fk', $getInvMeterIdFK[0]->meter_id_fk)
+            ->with(['invoice_period' => function ($q) {
+                return $q->select('id', 'inv_p_name');
+            }])
+            ->whereIn('status', ['invoice', 'owe']);
+        $invOweAndInvoiceStatus    = $invOweAndInvoiceStatusSql->get(['inv_period_id_fk', 'paid', 'inv_no', 'vat', 'acc_trans_id_fk', 
+        'totalpaid', 'status']);
+        
+        $accTransIdFK = 0;
+        if (collect($invOweAndInvoiceStatus)->isNotEmpty()) {
+            $accTransIdFK = $invOweAndInvoiceStatus[0]->acc_trans_id_fk;
+        } else {
+            $newAccTrans = AccTransactions::create([
+                'user_id_fk'    => $getInvMeterIdFK[0]->meter_id_fk,
+                'paidsum'       => 0,
+                'vatsum'        => 0,
+                'totalpaidsum'  => 0,
+                'net'           => 0,
+                'cashier'       => 0,
+                'status'        => 2, //hold
+                'inv_no_fk'     => 0,
+                'created_at'    => date('Y-m-d H:i:s'),
+                'updated_at'    => date('Y-m-d H:i:s'),
+            ]);
+            $accTransIdFK = $newAccTrans->id;
+        }
+        $water_used = $request->get('water_used');
+        $paid = $water_used * 6;
+        $vat = $water_used == 0 ? 0 : $paid * 0;
+        $reserve_meter = 10;
+        $updateInv = $invSql->update([
+            'currentmeter'      => $request->get('currentmeter'),
+            'water_used'        => $request->get('water_used'),
+            'inv_type'          => $water_used == 0 ? 'r' : 'u',
+            'paid'              => $paid,
+            'vat'               => $vat,
+            'reserve_meter'     => $reserve_meter,
+            'totalpaid'         => $paid + $reserve_meter,
+            'recorder_id'       => $request->get('recorder_id'),
+            'acc_trans_id_fk'   => $accTransIdFK,
+            'status'            => 'invoice',
+            'created_at'        => date('Y-m-d H:i:s'),
+            'updated_at'        => date('Y-m-d H:i:s'),
+        ]);
+
+        // $updateInvAccTransIdFK = $invOweAndInvoiceStatusSql->update([
+        //     'acc_trans_id_fk' => $newAccTrans->id,
+        //     'updated_at'      => date('Y-m-d H:i:s'),
+        // ]);
+
+        $date = date_create(date('Y-m-d'));
+        date_add($date, date_interval_create_from_date_string("15 days"));
+        $owe_sum = collect($invOweAndInvoiceStatus)->filter(function ($v) {
+            return $v->status == 'owe';
+        })->sum('totalpaid');
+        $vat_sum = collect($invOweAndInvoiceStatus)->sum('vat');
+        $totalpaidsum = collect($invOweAndInvoiceStatus)->isEmpty() ?  $request->get('totalpaid') :  collect($invOweAndInvoiceStatus)->sum('totalpaid');
+          $net_paid = Invoice::where('meter_id_fk', $getInvMeterIdFK[0]->meter_id_fk)
+            ->whereIn('status', ['invoice', 'owe'])->get(['totalpaid']);
+        $datas = [
+            'acc_trans_id_fk'   => $accTransIdFK,
+            'inv_no'            => $getInvMeterIdFK[0]->inv_no,
+            'user_id_fk'        => $getInvMeterIdFK[0]->meter_id_fk,
+            'vatsum'            => floatval($vat_sum),
+            'invoic_status'     => collect($invOweAndInvoiceStatus)->filter(function ($v) {
+                return $v->status == 'invoice';
+            })->values(),
+            'owe_status'     => collect($invOweAndInvoiceStatus)->filter(function ($v) {
+                return $v->status == 'owe';
+            })->values(),
+            'owe_count'         => collect($invOweAndInvoiceStatus)->filter(function ($v) {
+                return $v->status == 'owe';
+            })->count(),
+            'owe_sum'           => floatval($owe_sum),
+            'net_paid'          => floatval(collect($net_paid)->sum('totalpaid')),
+            'expire_date'       => date_format($date, "Y-m-d"),
+            'water_used'        => $water_used,
+            'paid'              => $paid,
+            'vat'               => $vat,
+            'current_period'    => $getInvMeterIdFK[0]->invoice_period,
+            'submeter_name'     => $getInvMeterIdFK[0]->usermeterinfos->submeter_name,
+            'updated_at'        => '2024-12-26 14:30:00'//$getInvMeterIdFK[0]->updated_at,
+
         ];
 
         $res = $updateInv > 0 ? ['code' => 200, 'datas' => $datas] : ['code' => 204];

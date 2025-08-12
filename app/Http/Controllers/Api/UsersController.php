@@ -26,8 +26,7 @@ class UsersController extends Controller
       return  $active_users = $this->usersInfos('all');
 
     }
-
-    public function users()
+       public function users()
     {
         $users = DB::table('user')->get(['firstname', 'lastname']);
         $userArray = [];
@@ -361,8 +360,13 @@ class UsersController extends Controller
             ->join('users as u', 'u.id', '=', 'umf.user_id')
             ->join('zones', 'zones.id', '=', 'u.zone_id')
             ->where('umf.status', '=', 'active')
+            ->orWhere('umf.status', '=', 'inactive')
             ->select(
                 'umf.meternumber',
+                'umf.meter_id',
+                'umf.factory_no',
+                'umf.submeter_name',
+                'umf.meter_address',
                 'umf.user_id',
                 'u.prefix','u.firstname','u.lastname',
                 'umf.acceptance_date',
@@ -379,17 +383,23 @@ class UsersController extends Controller
             $arr[] =[
                'meternumber'       => $user->meternumber,
                 'user_id'           => $user->user_id,
+                'factory_no'        => $user->factory_no,
                 'fullname'          => $user->prefix."".$user->firstname." ".$user->lastname,
                 'acceptance_date'   => $user->acceptance_date,
-                'address'           => $user->address,
+                'submeter_name'     => $user->submeter_name == "" ? "-" : $user->submeter_name,
+                'address'           => $user->meter_address,
                 'zone_name'         => $user->zone_name,
                 'showLink'          => '<div class="dropstart float-lg-end ms-auto pe-0">
-                                            <a href="javascript:;" class="cursor-pointer" id="dropdownTable'.$user->user_id.'" data-bs-toggle="dropdown" aria-expanded="true">
+                                            <a href="javascript:;" class="cursor-pointer" id="dropdownTable'.$user->meter_id.'" data-bs-toggle="dropdown" aria-expanded="true">
                                             <i class="fa fa-ellipsis-h text-secondary" aria-hidden="true"></i>
                                             </a>
-                                            <ul class="dropdown-menu px-2 py-3 ms-sm-n4 ms-n5 " aria-labelledby="dropdownTable'.$user->user_id.'"  data-popper-placement="left-start">
-                                                <li><a class="dropdown-item border-radius-md" href="/admin/users/'.$user->user_id.'/edit">แก้ไขข้อมูล</a></li>
-                                                <li><a class="dropdown-item border-radius-md" href="/admin/users/'.$user->user_id.'/cancel">ยกเลิกการใช้งาน</a></li>
+                                            <ul class="dropdown-menu px-2 py-3 ms-sm-n4 ms-n5 " aria-labelledby="dropdownTable'.$user->meter_id.'"  data-popper-placement="left-start">
+                                                <li><a class="dropdown-item border-radius-md" href="/admin/users/'.$user->meter_id.'/edit/addmeter">เพิ่มมิเตอร์ใหม่</a></li>
+                                                <li><a class="dropdown-item border-radius-md" href="/admin/users/'.$user->meter_id.'/edit">แก้ไขข้อมูล</a></li>
+                                                <li>
+
+                                                <a class="dropdown-item border-radius-md destroy" href="/admin/users/'.$user->user_id.'/destroy">ยกเลิกการใช้งาน</a>
+                                                </li>
                                             </ul>
                                             </div>
                                             '

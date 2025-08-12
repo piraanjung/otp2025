@@ -17,6 +17,8 @@ return new class extends Migration
             $table->unsignedBigInteger('meter_id');
             $table->unsignedBigInteger('user_id');
             $table->string('meternumber');
+            $table->string('factory_no');
+            $table->string('submeter_name')->nullable();
             $table->string('meter_address');
             $table->unsignedBigInteger('undertake_zone_id');
             $table->unsignedBigInteger('undertake_subzone_id');

@@ -3,25 +3,25 @@
 
 
 @section('content')
-    <?php
-    use App\Http\Controllers\Api\FunctionsController;
-    use App\Http\Controllers\Api\ZoneController;
-    use App\Http\Controllers\Api\SubzoneController;
-    $fnc = new FunctionsController();
-    $zoneApi = new ZoneController();
-    $subzoneApi = new SubzoneController();
+<?php
+use App\Http\Controllers\Api\FunctionsController;
+use App\Http\Controllers\Api\ZoneController;
+use App\Http\Controllers\Api\SubzoneController;
+$fnc = new FunctionsController();
+$zoneApi = new ZoneController();
+$subzoneApi = new SubzoneController();
     ?>
 
-    <head>
+<head>
 
-        <link rel="stylesheet" href="{{ asset('adminlte/dist/css/adminlte.min.css') }}">
-        <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
-        <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.16.0/umd/popper.min.js"></script>
-        <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
+    <link rel="stylesheet" href="{{ asset('adminlte/dist/css/adminlte.min.css') }}">
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.16.0/umd/popper.min.js"></script>
+    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
 
-    </head>
+</head>
 
-    <?php $index = 0; ?>
+<?php $index = 0; ?>
 
 @section('style')
     <style>
@@ -47,8 +47,8 @@
 
     $headText = 'ดำเนินการติดตั้งมิเตอร์น้ำประปา';
 
-    ?>
-    <table class="table"  id="logo" style="width:220mm; margin-left:5rem; margin-top:1rem">
+        ?>
+    <table class="table" id="logo" style="width:220mm; margin-left:5rem; margin-top:1rem">
         <tr>
             <td class="text-center">
                 <img src="{{ asset('logo/hs_logo.jpg') }}" style="width: 3cm; height:3cm">
@@ -57,9 +57,9 @@
         <tr>
             <td>
 
-                <div>กิจการประปาเทศบาลตำบลห้องแซง</div>
-                <div>222 หมู่ 17 ต.ห้องแซง</div>
-                <div>อ.เลิงนกทา จ.ยโสธร 35120</div>
+                <div>กิจการประปาเทศบาลตำบลขามป้อม</div>
+                <div>222 หมู่ 17 ต.ขามป้อม</div>
+                <div>อ.พระยืน จ.ขอนแก่น 40003</div>
             </td>
 
         </tr>
@@ -75,9 +75,9 @@
                     <div class="col-5"></div>
                     <div class="col-4 date mb-4">
                         <?php
-                        $currentYear = date('Y') + 543;
-                        $monthThai = $fnc->fullThaiMonth(date('m'));
-                        ?>
+    $currentYear = date('Y') + 543;
+    $monthThai = $fnc->fullThaiMonth(date('m'));
+                            ?>
                         วันที่ {{ date('d') . ' ' . $monthThai . ' ' . $currentYear }}
                     </div>
                 </div>
@@ -98,9 +98,9 @@
                         บ้านเลขที่
                         {{ $cutmeterArr[0]['usermeterinfos'][0]->user->address }}
                         <?php
-                        echo ' ' . $cutmeterArr[0]['usermeterinfos'][0]->user->user_zone->zone_name;
-                        ?>
-                        ต.ห้องแซง อ.เลิงนกทา จ.ยโสธร
+    echo ' ' . $cutmeterArr[0]['usermeterinfos'][0]->user->user_zone->zone_name;
+                            ?>
+                        ต.ขามป้อม อ.พระยืน จ.ขอนแก่น
                         <br>
                         ได้ทำการชำระค่าน้ำประปาที่ค้างชำระเรียบร้อยแล้ว
                         <br>จึงขอให้เจ้าหน้าที่ไปทำการติดตั้งมิเตอร์น้ำ
@@ -177,7 +177,7 @@
 @section('script')
 
     <script>
-        $(document).ready(function() {
+        $(document).ready(function () {
             $('.btnprint').hide();
             var css = '@page {  }',
                 head = document.head || document.getElementsByTagName('head')[0],
@@ -203,9 +203,9 @@
             head.appendChild(style);
 
             window.print();
-            setTimeout(function(){
+            setTimeout(function () {
 
-                    window.location.href = '/cutmeter';
+                window.location.href = '/cutmeter';
 
             }, 200);
 

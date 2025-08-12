@@ -9,17 +9,28 @@
 @section('nav-main')
     <a href="{{ route('invoice.index') }}"> ออกใบแจ้งหนี้</a>
 @endsection
+
+@section('style')
+    <style>
+        .btn-sm {
+            --bs-btn-padding-y: 0.5rem;
+            --bs-btn-padding-x: 0.1rem !important;
+            --bs-btn-font-size: 0.75rem;
+            --bs-btn-border-radius: 0.5rem;
+        }
+    </style>
+@endsection
 {{-- @section('nav-current')
     ข้อมูลใบแจ้งหนี้แยกตามเส้นทางจัดเก็บ
 @endsection --}}
-@section('page-topic')
-    ข้อมูลใบแจ้งหนี้แยกตามเส้นทางจัดเก็บ
+@section('nav-topic')
+    ข้อมูลใบแจ้งหนี้แยกตามเส้นทางจัดเก็บ เดือน {{ $current_inv_period->inv_p_name }}
 @endsection
 
 @section('content')
     <div class="container-fluid my-3 py-3">
         <div class="row mb-5">
-            <div class="col-lg-4">
+            <div class="col-lg-3 col-md-3">
                 <div class="card position-sticky top-1">
                     <ul class="nav bg-white border-radius-lg p-3 row">
                         <?php $i = 0; ?>
@@ -27,8 +38,8 @@
                             <h5>เส้นทางจดมิเตอร์</h5>
                         </li>
                         @foreach ($zones as $key => $zone)
-                            <li class="nav-item pt-2 col-12 col-lg-6">
-                                <a class="nav-link text-body" data-scroll="" href="#b{{ $i++ }}">
+                            <li class="nav-item  col-12 col-lg-12" style="height: 30px">
+                                <a class="nav-link text-body"  data-scroll="" href="#b{{ $i++ }}">
                                     <div class="icon me-2">
                                         <svg class="text-dark mb-1" width="16px" height="16px" viewBox="0 0 40 44"
                                             version="1.1" xmlns="http://www.w3.org/2000/svg"
@@ -52,141 +63,218 @@
                                         </svg>
                                     </div>
                                     <span class="text-sm">
-                                        {{ $zone['zone_info']['undertake_subzone']->subzone_name }}</span>
+
+                                        {{ $zone['zone_info']['undertake_subzone']['subzone_name'] }}
+                                        @if ($zone['user_notyet_inv_info'] > 0)
+                                            <span class="badge badge-md badge-circle float-right badge-floating badge-danger border-white">
+                                                <i class="fa fa-user"></i>
+                                                {{$zone['user_notyet_inv_info']}}
+                                            </span>
+                                        @endif
+                                    </span>
                                 </a>
                             </li>
                         @endforeach
                     </ul>
                 </div>
             </div>
-            <div class="col-lg-8 mt-lg-0 mt-4">
+            <div class="col-lg-9 col-md-6">
                 <?php $i = 0; ?>
                 @foreach ($zones as $zone)
-                    @if ($i == 0)
-                        <div class="card" id="b{{ $i++ }}">
-                        @else
-                            <div class="card mt-4" id="b{{ $i++ }}">
-                    @endif
-                    <div class="card-header col-12">
-                        <div class="card">
-                            <span class="mask bg-gradient-dark opacity-9 border-radius-xl"></span>
-                            <div class="card-body p-3 position-relative">
-                                <div class="row">
-                                    <div class="col-8 text-start">
+                    <div class="card mt-4" id="b{{ $i++ }}">
+                        <div class="card-header col-12">
+                            <div class="card">
+                                <span class="mask bg-gradient-dark opacity-9 border-radius-xl"></span>
+                                <div class="card-body p-3 position-relative">
+                                    <div class="row">
+                                        <div class="col-8 text-start">
 
-                                        <h5 class="text-white font-weight-bolder mb-0 mt-3">
-                                            {{ $zone['zone_info']['undertake_zone']->zone_name }}
-                                        </h5>
-                                        <span class="text-white text-sm">เส้นทาง :
-                                            {{ $zone['zone_info']['undertake_subzone']->subzone_name }}</span>
-                                    </div>
-                                    <div class="col-4">
+                                            <h5 class="text-white font-weight-bolder mb-0 mt-3">
+                                                {{ $zone['zone_info']['undertake_zone']['zone_name'] }}
+                                            </h5>
+                                            <span class="text-white text-sm">เส้นทาง :
+                                                {{ $zone['zone_info']['undertake_subzone']['subzone_name'] }}</span>
+                                        </div>
+                                        <div class="col-4">
 
-                                        <p class="text-white text-sm text-end font-weight-bolder mt-auto mb-0">สมาชิก
-                                            {{ $zone['members_count'] }} คน</p>
+                                            <p class="text-white text-sm text-end font-weight-bolder mt-auto mb-0">สมาชิก
+                                                {{ $zone['members_count'] }} คน</p>
+                                        </div>
                                     </div>
                                 </div>
                             </div>
-                        </div>
 
+                        </div>
+                        <div class="card-body">
+                            <div class="row">
+                                <div class="col-7">
+                                    <div class="row">
+                                        <p class="my-auto text-bold col-12 col-md-6">ยังไม่บันทึกข้อมูลมิเตอร์</p>
+                                        <p class="text-secondary h5 my-auto col-12 col-md-3  text-xl-end">
+                                            {{ $zone['initTotalCount'] }} <sup> คน</sup>
+                                        </p>
+                                        {{-- @can('tadbwater') --}}
+                                        <div class="col-12 col-md-3">
+                                            <a href="{{ route('invoice.zone_create', [
+                                                'zone_id' => $zone['zone_info']['undertake_subzone_id'],
+                                                'curr_inv_prd' => $current_inv_period->id,
+                                            ]) }}"
+                                                class=" btn btn-sm w-100  mb-0  {{ $zone['initTotalCount'] == 0 ? 'disabled' : 'bg-gradient-success' }}">เพิ่มข้อมูล
+                                            </a>
+                                        </div>
+                                        {{-- @endcan --}}
+                                    </div>
+
+                                    <hr class="horizontal dark">
+
+                                    <div class="row">
+                                        <p class="my-auto text-bold col-12 col-md-6">บันทึกข้อมูลแล้ว</p>
+                                        <p class="text-secondary h5 my-auto col-12 col-md-3  text-xl-end">
+                                            {{ $zone['invoiceTotalCount'] }} <sup> คน</sup>
+                                        </p>
+                                        <div class="col-12 col-md-3">
+
+                                            <a style=""
+                                                href="{{ route('invoice.zone_edit', [
+                                                    'subzone_id' => $zone['zone_info']['undertake_subzone_id'],
+                                                    'curr_inv_prd' => $current_inv_period,
+                                                ]) }}"
+                                                class=" btn btn-sm w-100  mb-0  btn-sm {{ $zone['invoiceTotalCount'] == 0 ? 'disabled' : 'bg-gradient-success' }}">
+                                                แก้ไขข้อมูล
+                                            </a>
+                                        </div>
+                                    </div>
+                                    <hr class="horizontal dark">
+                                    @can('admin')
+                                        <div class="row">
+                                            <p class="my-auto text-bold col-12 col-md-6">ชำระเงินแล้ว</p>
+                                            <p class="text-secondary h5 my-auto col-12 col-md-3  text-xl-end">
+                                                {{ $zone['paidTotalCount'] }} <sup> คน</sup>
+                                            </p>
+                                            <div class="col-12 col-md-3">
+                                                <a href="{{ url('payment/paymenthistory/' . $current_inv_period->id . '/' . $zone['zone_info']['undertake_subzone_id']) }}"
+                                                    class="foatright btn btn-sm w-100 mb-0 {{ $zone['paidTotalCount'] == 0 ? 'disabled' : 'bg-gradient-success' }} ">
+                                                    ดูข้อมูล
+                                                </a>
+                                            </div>
+                                        </div>
+
+                                        <hr class="horizontal dark">
+
+                                        <div class="row">
+                                            <p class="my-auto text-bold col-12 col-md-6">เพิ่มผู้ใช้น้ำระหว่างรอบบิล</p>
+                                            <p class="text-secondary h5 my-auto col-12 col-md-3  text-xl-end">
+                                                {{ $zone['user_notyet_inv_info'] }} <sup> คน</sup>
+                                            </p>
+                                            <div class="col-12 col-md-3">
+
+                                                <a href="{{ route('invoice.zone_create', [
+                                                    'zone_id' => $zone['zone_info']['undertake_subzone_id'],
+                                                    'curr_inv_prd' => $current_inv_period->id,
+                                                    'new_user' => 1,
+                                                ]) }}"
+                                                    class="foatright btn btn-sm w-100  mb-0  {{ $zone['user_notyet_inv_info'] == 0 ? 'disabled' : 'bg-gradient-success' }}">เพิ่มข้อมูล
+                                                </a>
+                                            </div>
+                                        </div>
+                                        <hr class="horizontal dark">
+
+                                        <div class="row">
+                                            <p class="my-auto text-bold col-12 col-md-6">Export Excel</p>
+                                            <p class="text-secondary h5 my-auto col-12 col-md-3  text-xl-end">
+                                                
+                                            </p>
+                                            <div class="col-12 col-md-3">
+
+                                                <a href="{{ route('invoice.export_excel', [
+                                                    'zone_id' => $zone['zone_info']['undertake_subzone_id'],
+                                                    'curr_inv_prd' => $current_inv_period->id,
+                                                ]) }}"
+                                                    class="foatright btn btn-sm w-100  mb-0 bg-gradient-info">Export
+                                                </a>
+                                            </div>
+                                        </div>
+                                    @endcan
+                                </div>
+                                <div class="col-5">
+                                    <div class="card shadow h-80">
+                                        <div class="card-header pb-0 p-3">
+                                            <h6 class="mb-0">ข้อมูลการชำระเงินประจำรอบบิล</h6>
+                                        </div>
+                                        <div class="card-body pb-0 p-3">
+                                            <ul class="list-group">
+                                                <li class="list-group-item border-0 d-flex align-items-center px-0 mb-0">
+                                                    <div class="w-100">
+                                                        <div class="d-flex mb-2">
+                                                            <span
+                                                                class="me-2 text-sm font-weight-bold text-dark">จำนวนที่ต้องชำระ</span>
+                                                            <span
+                                                                class="ms-auto text-sm font-weight-bold">{{ number_format($zone['total_paid'], 2) }}
+                                                                บาท</span>
+                                                        </div>
+                                                        <div>
+                                                            <div class="progress progress-md">
+                                                                <div class="progress-bar bg-primary w-100"
+                                                                    role="progressbar" aria-valuenow="60" aria-valuemin="0"
+                                                                    aria-valuemax="100"></div>
+                                                            </div>
+                                                        </div>
+                                                    </div>
+                                                </li>
+                                                <li class="list-group-item border-0 d-flex align-items-center px-0 mb-0">
+                                                    <div class="w-100">
+                                                        <div class="d-flex mb-2">
+                                                            <span
+                                                                class="me-2 text-sm font-weight-bold text-dark">ชำระเงินแล้ว</span>
+                                                            <span
+                                                                class="ms-auto text-sm font-weight-bold">{{ number_format($zone['paidTotalAmount'], 2) }}
+                                                                บาท</span>
+                                                        </div>
+                                                        <div>
+                                                            <div class="progress progress-md">
+                                                                <div class="progress-bar bg-success"
+                                                               
+                                                                    style="width:{{ 
+                                                                    $zone['total_paid'] == 0 ? 0 :
+                                                                    number_format(($zone['paidTotalAmount'] / $zone['total_paid']) * 100, 2) }}%"
+                                                                    role="progressbar" aria-valuenow="60"
+                                                                    aria-valuemin="0" aria-valuemax="100"></div>
+                                                            </div>
+                                                        </div>
+                                                    </div>
+                                                </li>
+                                                <li class="list-group-item border-0 d-flex align-items-center px-0 mb-0">
+                                                    <div class="w-100">
+                                                        <div class="d-flex mb-2">
+                                                            <span
+                                                                class="me-2 text-sm font-weight-bold text-dark">ยังไม่ชำระเงิน</span>
+                                                            <span
+                                                                class="ms-auto text-sm font-weight-bold">{{ number_format($zone['total_paid'] - $zone['paidTotalAmount'], 2) }}
+                                                                บาท</span>
+                                                        </div>
+                                                        <div>
+                                                            <div class="progress progress-md">
+                                                                <div class="progress-bar bg-warning"
+                                                                    style="width:{{ 
+                                                                    $zone['total_paid'] == 0 ? 0 :
+                                                                    number_format((($zone['total_paid'] - $zone['paidTotalAmount']) / $zone['total_paid']) * 100, 2) }}%"
+                                                                    role="progressbar" aria-valuenow="90"
+                                                                    aria-valuemin="0" aria-valuemax="100"></div>
+                                                            </div>
+                                                        </div>
+                                                    </div>
+                                                </li>
+                                            </ul>
+                                        </div>
+
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
                     </div>
-                    <div class="card-body">
-                        <div class="row">
-                            <p class="my-auto text-bold col-12 col-md-4">ยังไม่บันทึกข้อมูลมิเตอร์</p>
-                            <p class="text-secondary h5 my-auto col-12 col-md-2  text-xl-end">
-
-                                {{ $zone['initTotalCount'] }} <sup> คน</sup>
-
-
-                            </p>
-                            {{-- @can('tadbwater') --}}
-                            <div class="col-12 col-md-6">
-                                <a href="{{ route('invoice.zone_create', [
-                                    'zone_id' => $zone['zone_info']->undertake_subzone_id,
-                                    'curr_inv_prd' => $current_inv_period->id,
-                                ]) }}"
-                                    class="foatright btn btn-sm btn-outline-dark mb-0  {{ $zone['initTotalCount'] == 0 ? 'disabled' : '' }}">เพิ่มข้อมูล
-                                </a>
-                            </div>
-                            {{-- @endcan --}}
-                        </div>
-
-                        <hr class="horizontal dark">
-                        {{-- @can('admin')
-                            <div class="row">
-                                <p class="my-auto text-bold col-12 col-md-4">ค้างชำระเกิน 3 รอบบิล</p>
-                                <p class="text-secondary h5 my-auto col-12 col-md-2  text-xl-end">
-
-                                    {{ $zone['owe_over3'] }} <sup> คน</sup>
-                                </p>
-                                <div class="col-12 col-md-6">
-                                    <a href="{{ url('cutmeter/index/' . $zone['zone_info']->undertake_subzone_id) }}"
-                                        class="foatright btn btn-sm btn-outline-dark mb-0 {{ $zone['owe_over3'] == 0 ? 'disabled' : '' }}">ดูข้อมูล
-                                    </a>
-                                </div>
-                            </div>
-                            <hr class="horizontal dark">
-                        @endcan --}}
-                        <div class="row">
-                            <p class="my-auto text-bold col-12 col-md-4">บันทึกข้อมูลแล้ว</p>
-                            <p class="text-secondary h5 my-auto col-12 col-md-2  text-xl-end">
-                                {{ $zone['invoiceTotalCount'] }} <sup> คน</sup>
-                            </p>
-                            <div class="col-12 col-md-6">
-                                <a href="{{ route('invoice.invoiced_lists', $zone['zone_info']->undertake_subzone_id) }}"
-                                    class="foatright btn btn-sm btn-outline-dark mb-0 {{ $zone['invoiceTotalCount'] == 0 ? 'disabled' : '' }}">
-                                    ปริ้นใบแจ้งหนี้
-                                </a>
-                                <a style="margin-right: 5px"
-                                    href="{{ route('invoice.zone_edit', [
-                                        'subzone_id' => $zone['zone_info']->undertake_subzone_id,
-                                        'curr_inv_prd' => $current_inv_period,
-                                    ]) }}"
-                                    class="foatright btn btn-sm  btn-outline-dark mb-0  btn-sm {{ $zone['invoiceTotalCount'] == 0 ? 'disabled' : '' }}">
-                                    แก้ไขข้อมูล
-                                </a>
-                            </div>
-                        </div>
-                        <hr class="horizontal dark">
-                        @can('admin')
-                            <div class="row">
-                                <p class="my-auto text-bold col-12 col-md-4">ชำระเงินแล้ว</p>
-                                <p class="text-secondary h5 my-auto col-12 col-md-2  text-xl-end">
-                                    {{ $zone['paidTotalCount'] }} <sup> คน</sup>
-                                </p>
-                                <div class="col-12 col-md-6">
-                                    <a href="{{ url('payment/paymenthistory/' . $current_inv_period->id . '/' . $zone['zone_info']->undertake_subzone_id) }}"
-                                        class="foatright btn btn-sm btn-outline-dark mb-0 {{ $zone['paidTotalCount'] == 0 ? 'disabled' : '' }} ">
-                                        ดูข้อมูล
-                                    </a>
-                                </div>
-                            </div>
-
-                            <hr class="horizontal dark">
-
-                            <div class="row">
-                                <p class="my-auto text-bold col-12 col-md-4">เพิ่มผู้ใช้น้ำระหว่างรอบบิล</p>
-                                <p class="text-secondary h5 my-auto col-12 col-md-2  text-xl-end">
-                                    {{ $zone['user_notyet_inv_info'] }} <sup> คน</sup>
-                                </p>
-                                <div class="col-12 col-md-6">
-                                    {{-- <a href="{{ url('/users') }}"
-                                        class="foatright btn btn-sm btn-outline-dark mb-0">เพิ่มข้อมูล </a> --}}
-                                    <a href="{{ route('invoice.zone_create', [
-                                        'zone_id' => $zone['zone_info']->undertake_subzone_id,
-                                        'curr_inv_prd' => $current_inv_period->id,
-                                        'new_user' => 1
-                                    ]) }}"
-                                        class="foatright btn btn-sm btn-outline-dark mb-0  {{ $zone['user_notyet_inv_info'] == 0 ? 'disabled' : '' }}">เพิ่มข้อมูล
-                                    </a>
-                                </div>
-                            </div>
-                        @endcan
-                    </div>
+                @endforeach
             </div>
-            @endforeach
         </div>
-    </div>
     </div>
 @endsection
 

@@ -11,8 +11,8 @@
     <a href="{{ route('reports.owe') }}"> ผู้ค้างชำระค่าน้ำประปา</a>
 @endsection
 
-@section('page-topic')
-ตารางผู้ค้างชำระค่าน้ำประปา
+@section('nav-topic')
+    ตารางผู้ค้างชำระค่าน้ำประปา
 @endsection
 @section('style')
     <style>
@@ -47,7 +47,8 @@
             display: inline-flex;
             margin-right: 5px;
         }
-        .hidden{
+
+        .hidden {
             display: none
         }
     </style>
@@ -65,33 +66,50 @@
             Loading...
         </button>
     </div>
+{{--    
+     ปีงบประมาณ {{$budgetyears[0]->budgetyear_name}}
+     รอบบิล 
 
+     @php
+     
+        if($selected_inv_periods[0] == 'all'){
+            echo 'ทั้งหมด';
+        }else{
+            foreach ($selected_inv_periods as $invp){
+                echo $invp->inv_p_name;
+            }
+        }
+     @endphp
+    
+     หมู่ที่  ทั้งหมด เส้นทาง ทั้งหมด --}}
     <div class="row mb-4">
         <div class="col-8">
             <div class="card">
-                <form action="{{ route('reports.owe_search') }}" method="post">
+                <form action="{{ route('reports.owe_search') }}" method="post" onsubmit="return submit()">
                     @csrf
                     <div class="card-body row">
                         <div class="col-2">
                             <div class="form-group">
                                 <label for="exampleFormControlInput1">ปีงบประมาณ</label>
-                                <select class="form-control js-example-tokenizer" name="budgetyear[]" id="budgetyear" data-placeholder="เลือก.."
-                                    multiple>
+                                <select class="form-control js-example-tokenizer" name="budgetyear[]" id="budgetyear"
+                                    data-placeholder="เลือก.." multiple>
                                     @foreach ($budgetyears as $budgetyear)
-                                        <option value="{{ $budgetyear->id }}" {{ in_array($budgetyear->id, $budgetyears_selected) ? 'selected' : '' }}>{{ $budgetyear->budgetyear_name }}</option>
+                                        <option value="{{ $budgetyear->id }}" {{ in_array($budgetyear->id, $budgetyears_selected) ? 'selected' : '' }}>
+                                            {{ $budgetyear->budgetyear_name }}</option>
                                     @endforeach
-
                                 </select>
                             </div>
                         </div>
-                        <div class="col-2">
+                        <div class="col-3">
                             <div class="form-group">
                                 <label for="exampleFormControlInput1">รอบบิล</label>
-                                <select class="form-control js-example-tokenizer" name="inv_period[]" id="inv_period" data-placeholder="เลือก.."
-                                    multiple>
-                                    <option value="all" selected>ทั้งหมด</option>
-                                    @foreach ($selected_inv_periods as $inv_period)
-                                        <option value="{{ $inv_period->id }}">{{ $inv_period->inv_p_name }}</option>
+                                <select class="form-control js-example-tokenizer" name="inv_period[]" id="inv_period"
+                                    data-placeholder="เลือก.." multiple>
+                                    <option value="all" {{$selected_inv_periods[0] == 'all' ? 'selected' : ''}} >ทั้งหมด</option>
+                                    @foreach ($inv_periods as $inv_period)
+                                        <option value="{{ $inv_period->id }}"
+                                            {{ in_array($inv_period->id, collect($selectedInvPeriodID)->toArray()) ? 'selected' : '' }}>
+                                            {{ $inv_period->inv_p_name }}</option>
                                     @endforeach
                                 </select>
                             </div>
@@ -99,12 +117,12 @@
                         <div class="col-3">
                             <div class="form-group">
                                 <label for="exampleFormControlInput1">หมู่ที่</label>
-                                <select class="form-control js-example-tokenizer" id="zone" name="zone[]" data-placeholder="เลือก.."
-                                    multiple>
-                                    <option value="all" selected>ทั้งหมด</option>
+                                <select class="form-control js-example-tokenizer" id="zone" name="zone[]"
+                                    data-placeholder="เลือก.." multiple>
+                                    <option value="all" {{$zone_selected[0] == 'all' ? 'selected' : ''}}>ทั้งหมด</option>
 
                                     @foreach ($zones as $zone)
-                                        <option value="{{$zone->id}}">{{ $zone->zone_name }}</option>
+                                        <option value="{{ $zone->id }}" {{in_array($zone->id, $zone_selected) ? 'selected' : ''}}>{{ $zone->zone_name }}</option>
                                     @endforeach
                                 </select>
                             </div>
@@ -112,28 +130,33 @@
                         <div class="col-3">
                             <div class="form-group">
                                 <label for="exampleFormControlInput1">เส้นทาง</label>
-                                <select class="form-control js-example-tokenizer" id="subzone" name="subzone[]" data-placeholder="เลือก.."
-                                    multiple>
-                                    <option value="all" selected>ทั้งหมด</option>
+                                <select class="form-control js-example-tokenizer" id="subzone" name="subzone[]"
+                                    data-placeholder="เลือก.." multiple>
+                                    <option value="all" {{$subzone_selected[0] == 'all' ? 'selected' : ''}}>ทั้งหมด</option>
 
                                     @foreach ($subzones as $subzone)
-                                        <option value="{{$subzone->id}}">{{ $subzone->subzone_name }}</option>
+                                        <option value="{{ $subzone->id }}" {{in_array($subzone->id, $subzone_selected) ? 'selected' : ''}}>{{ $subzone->subzone_name }}</option>
                                     @endforeach
                                 </select>
                             </div>
                         </div>
 
-                        <div class="col-2">
+                        <div class="col-1">
                             <div class="form-group">
-                            <label for="exampleFormControlInput1">&nbsp;</label>
+                                <label for="exampleFormControlInput1">&nbsp;</label>
 
-                            <button type="submit" name="searchBtn" value="true" class=" form-control  btn btn-success"> ค้นหา </button>
+                                <button type="submit" name="searchBtn" value="true"
+                                    class=" form-control  btn btn-success"> 
+                                        <i class="fa fa-search text-bolder"></i>
+                                </button>
                             </div>
                         </div>
 
                         <div class="col-12 pt-2 row" style="border-top: 1px solid gray">
-                            <button type="submit" name="excelBtn" value="overview" class="btn btn-info col-5" style="margin-right:5px" > ดาวน์โหลดไฟล์ Excel <div>แสดงผลรวมการค้างชำระ</div> </button>
-                            <button type="submit" name="excelBtn" value="details" class="btn btn-warning col-5 ml-1"> ดาวน์โหลดไฟล์ Excel <div>แสดงรายละเอียดการค้างชำระ</div></button>
+                            <button type="submit" name="excelBtn" value="overview" class="btn btn-info col-5"
+                                style="margin-right:5px"> ดาวน์โหลดไฟล์ Excel <div>แสดงผลรวมการค้างชำระ</div> </button>
+                            <button type="submit" name="excelBtn" value="details" class="btn btn-warning col-5 ml-1">
+                                ดาวน์โหลดไฟล์ Excel <div>แสดงรายละเอียดการค้างชำระ</div></button>
                         </div>
                     </div>
                 </form>
@@ -141,8 +164,8 @@
         </div>
         <div class="col-4">
             <?php
-            $clude_totalxVat7 = number_format($crudetotal_sum * 0.07, 2);
-            $crudetotal_total = $crudetotal_sum + $crudetotal_sum * 0.07;
+            $clude_totalxVat7 = 0;// number_format($crudetotal_sum * 0, 2);
+            $crudetotal_total = $crudetotal_sum + $crudetotal_sum * 0;
             ?>
             <div class="card  mb-2">
                 <div class="card-body p-3">
@@ -151,7 +174,8 @@
                         <div class="col-6 text-end">{{ number_format($crudetotal_total, 2) }} บาท</div>
                         <div class="col-12">
                             <div class="text-success text-sm font-weight-bolder">
-                                [ {{ number_format($crudetotal_sum, 2) }} + {{ $clude_totalxVat7 }}<sup>(vat 7%)</sup> ]
+                                [ {{ number_format($crudetotal_sum, 2) }} + {{ $clude_totalxVat7 }}<sup>(vat 7%)</sup>
+                                ]
                             </div>
                         </div>
                     </div>
@@ -162,14 +186,14 @@
                     <div class="row">
                         <?php
                         $_reservemeter_sum = number_format($reservemeter_sum, 2);
-                        $retservemeterxVat7 = number_format($reservemeter_sum * 0.07, 2);
-                        $retservemeter_total = $reservemeter_sum + $reservemeter_sum * 0.07;
+                        $reservemeterxVat7 = 0;//number_format($reservemeter_sum * 0.07, 2);
+                        $reservemeter_total = $reservemeter_sum ;//+ $reservemeter_sum * 0.07;
                         ?>
                         <div class="col-6">ค้างค่ารักษามิเตอร์</div>
-                        <div class="col-6 text-end">{{ number_format($retservemeter_total, 2) }} บาท</div>
+                        <div class="col-6 text-end">{{ number_format($reservemeter_total, 2) }} บาท</div>
                         <div class="col-12">
                             <div class="text-success text-sm font-weight-bolder">
-                                [ {{ $_reservemeter_sum }} + {{ $retservemeterxVat7 }}<sup>(vat 7%)</sup> ]
+                                [ {{ $_reservemeter_sum }} + {{ $reservemeterxVat7 }}<sup>(vat 7%)</sup> ]
                             </div>
                         </div>
                     </div>
@@ -180,7 +204,7 @@
                 <div class="card-body p-3">
                     <div class="row">
                         <?php
-                        $total = $crudetotal_total + $retservemeter_total;
+                        $total = $crudetotal_total + $reservemeter_total;
                         ?>
                         <div class="col-6">รวมทั้งสิ้น</div>
                         <div class="col-6 text-end">{{ number_format($total, 2) }} บาท</div>
@@ -191,72 +215,110 @@
             </div>
         </div>
     </div>
-    <div class="card">
-        <div class="card-body table-responsive">
-            <form action="{{ route('admin.owepaper.print') }}" method="POST" onsubmit="return check();">
-                @csrf
-                <input type="hidden" name="from_view" value="owepaper">
+    @if (collect($owes)->isNotEmpty())
 
-                <input type="submit" class="btn mb-3 text-end hidden" style="background-color:#17c1e8;color:white !important" id="print_multi_inv"
-                    value="ปริ้นใบแจ้งเตือนชำระหนี้ที่เลือก">
+        <div class="card">
+            <div class="card-body table-responsive">
+                <form action="{{ route('admin.owepaper.print') }}" method="POST" onsubmit="return check();">
+                    @csrf
+                    <input type="hidden" name="from_view" value="owepaper">
 
-                <table class="table" id="example">
-                    <thead>
-                        <tr>
-                            <td>#</td>
-                            <td></td>
-                            <td>เลขมิเตอร์</td>
-                            <td>ชื่อ-สกุล</td>
-                            <td>บ้านเลขที่</td>
-                            <td>หมู่ที่</td>
-                            <td>ซอย</td>
-                            <td>เส้นทางจดมิเตอร์</td>
-                            <td>ค้างชำระ <div><sup>รอบบิล</sup></div>
-                            </td>
-                            <td>เป็นเงิน <div><sup>บาท</sup></div>
-                            </td>
-                            <td>Vat 7% <div><sup>บาท</sup></div>
-                            </td>
-                            <td>รวมเป็นเงิน <div><sup>บาท</sup></div>
-                            </td>
-                            {{-- <td></td> --}}
-                        </tr>
-                    </thead>
-                    <tbody>
-                        <?php
-                        $name_first_row = true;
+                    <input type="submit" class="btn mb-3 text-end hidden"
+                        style="background-color:#17c1e8;color:white !important" id="print_multi_inv"
+                        value="ปริ้นใบแจ้งเตือนชำระหนี้ที่เลือก">
 
-                        $index_row = 0;
-                        ?>
-                        @foreach ($owes as $owe)
+                    <table class="table" id="example">
+                        <thead>
                             <tr>
-                                <td>{{ ++$index_row }}</td>
-                                <td>
-                                    <input type="checkbox" class="invoice_id" style="opacity:0"
-                                        name="meter_id[{{ $owe['meter_id_fk'] }}]">
-                                          <i class="fa fa-plus-circle text-success fa-2x findInfo"
-                                        data-user_id="{{ $owe['meter_id_fk'] }}"></i>
+                                <td>#</td>
+                                <td></td>
+                                <td>เลขมิเตอร์</td>
+                                <td>แจ้งเตือน(ครั้ง)</td>
+                                <td>ชื่อ-สกุล</td>
+                                <td>บ้านเลขที่</td>
+                                <td>หมู่ที่</td>
+                                <td>ซอย</td>
+                                <td>เส้นทางจดมิเตอร์</td>
+                                <td>ค้างชำระ <div><sup>รอบบิล</sup></div>
                                 </td>
-                                <td>{{ $owe['meter_id_fk'] }}</td>
-                                <td>{{ $owe['name'] }}</td>
+                                <td>เป็นเงิน <div><sup>บาท</sup></div>
+                                </td>
+                                <td>Vat 7% <div><sup>บาท</sup></div>
+                                </td>
+                                <td>ค่ารักษามิเตอร์<div><sup>บาท</sup></div>
+                                </td>
+                                <td>รวมเป็นเงิน <div><sup>บาท</sup></div>
+                                </td>
+                            </td>
+                            {{-- <td  class="text-center">สถานะ 
+                            </td> --}}
                                 {{-- <td></td> --}}
-                                <td>{{ $owe['address'] }}</td>
-                                <td>{{ $owe['zone'] }}</td>
-                                <td>{{ $owe['subzone'] }}</td>
-                                <td>{{ $owe['undertake_subzone'] }}</td>
-                                <td class="text-end">{{ $owe['owe_count'] }}</td>
-                                <td class="text-end">{{ $owe['paid'] }}</td>
-                                <td class="text-end">{{ $owe['vat'] }}</td>
-                                <td class="text-end">{{ $owe['totalpaid'] }}</td>
-
                             </tr>
-                        @endforeach
-                    </tbody>
-                </table>
-            </form>
+                        </thead>
+                        <tbody>
+                            <?php
+                            $name_first_row = true;
+                            
+                            $index_row = 0;
+                           
+                            ?>
+                            @foreach ($owes as $owe)
+                            {{-- {{dd($owe['owe_infos'][0]->usermeterinfos->user->address)}} --}}
+                                <tr>
+                                    <td>{{ ++$index_row }}/ </td>
+                                    <td>
+                                        <input type="checkbox" class="invoice_id" style="opacity:0"
+                                            name="meter_id[{{ $owe['meter_id_fk'] }}]">
+                                        <i class="fa fa-plus-circle text-success fa-2x findInfo"
+                                            data-user_id="{{ $owe['user_id'] }}"></i>
+                                    </td>
+                                    <td>{{ $owe['meter_id_fk'] }}</td>
+                                    <td class="text-center">{{ $owe['printed_time'] }}</td>
+                                    <td>{{ $owe['owe_infos'][0]->usermeterinfos->user->prefix."".$owe['owe_infos'][0]->usermeterinfos->user->firstname." ".$owe['owe_infos'][0]->usermeterinfos->user->lastname }}</td>
+                                    {{-- <td></td> --}}
+                                    <td>{{$owe['owe_infos'][0]->usermeterinfos->user->address }}</td>
+                                    <td>{{ $owe['owe_infos'][0]->usermeterinfos->user->user_zone->zone_name}}</td>
+                                    <td>{{ $owe['owe_infos'][0]->usermeterinfos->user->user_subzone->subzone_name}}</td>
+                                    <td>{{ 
+                                        $owe['owe_infos'][0]->usermeterinfos->user->subzone_id == 13 ? 'เส้นหมู่13' : 
+                                            $owe['owe_infos'][0]->usermeterinfos->user->user_subzone->subzone_name
+                                    }}</td>
+                                    <td class="text-end">
+                                        {{-- {{ $owe['owe_count'] }} --}}
+                                        @foreach ($owe['owe_infos'] as $item)
+                                        <div>{{$item->invoice_period->inv_p_name}}</div>
 
+                                        @endforeach
+                                    </td>
+                                    <td class="text-end">{{ $owe['paid'] }}</td>
+                                    <td class="text-end">{{ $owe['vat'] }}</td>
+                                    <td class="text-end">{{$owe['owe_count']*10}}</td>
+                                    <td class="text-end">{{ $owe['totalpaid'] }}</td>
+                                    {{-- <td class="text-center">{{ $owe['status'] =='owe' ? 'ค้างชำระ' : 'กำลังออกใบแจ้งหนี้' }}</td> --}}
+
+                                </tr>
+                            @endforeach
+                        </tbody>
+                    </table>
+                </form>
+            </div>
         </div>
-    </div>
+    @else
+        <div class="card">
+            <div class="card-body text-center">
+                <h3>ไม่พบข้อมูลการค้างชำระ 
+
+                @php
+                
+                if(isset($owe_inv_periods)){
+                    // dd($owe_zones[0]);
+                    echo "<br>ของ หมู่ ".$owe_zones[0]." ประจำเดือน ". $owe_inv_periods;
+                }
+                @endphp
+                </h3>
+            </div>
+        </div>
+    @endif
 @endsection
 
 @section('script')
@@ -273,10 +335,11 @@
             tokenSeparators: [',', ' ']
         });
 
-        let table
+        let a = true
         let preloaderwrapper = document.querySelector('.preloader-wrapper')
+        
         $(document).ready(function() {
-
+            $('.select2-search--inline').addClass('hidden')
             table = $('#example').DataTable({
                 "lengthMenu": [
                     [10, 25, 50, 150, -1],
@@ -292,18 +355,10 @@
                         // "info": "แสดง _MENU_ แถว",
                     },
                 },
-                // dom: 'lBfrtip',
-                // buttons: [{
-                //     extend: 'excelHtml5',
-                //     'text': 'Excel',
-                //     exportOptions: {
-                //         rows: ['.selected']
-                //     }
-                // }],
+               
 
             });
 
-            // $('.dt-buttons').prepend('<label class="m-0">ดาวน์โหลด:</label>')
 
             $(`<div class="deselect_row_all ml-2">
                     <label class="m-0">&nbsp;</label>
@@ -318,13 +373,17 @@
 
         });
 
+        function submit(){
+            preloaderwrapper.classList.add('fade-out-animation')
+            return true
+        }
 
         $(document).on('click', 'tbody tr', function() {
             $(this).hasClass('selected') ? $(this).removeClass('selected') : $(this).addClass('selected');
-            if($('tbody tr').hasClass('selected')){
+            if ($('tbody tr').hasClass('selected')) {
                 $('#print_multi_inv').removeClass('hidden')
                 $(this).first().find('input[type=checkbox]').prop('checked', true)
-            }else{
+            } else {
                 $('#print_multi_inv').addClass('hidden')
 
                 $(this).first().find('input[type=checkbox]').prop('checked', false)
@@ -359,10 +418,10 @@
                     zone_id: zone_id
                 })
                 .done(function(data) {
-                    text =``;
+                    text = ``;
                     data.forEach(element => {
 
-                            console.log('unde', element)
+                        console.log('unde', element)
 
                         text +=
                             `<option value="${element.id}" selected>${element.zone.zone_name} - ${element.subzone_name}</option>`
@@ -376,15 +435,15 @@
             let budgetyear_arr = $(this).val()
             console.log('budgetyear_arr1', budgetyear_arr)
             $.post(`../api/invoice_period/inv_period_lists_post`, {
-                budgetyear_id: budgetyear_arr
+                    budgetyear_id: budgetyear_arr
                 })
                 .done(function(data) {
                     let text = ""
                     data.forEach(element => {
                         text += `  <optgroup label="ปีงบ ${element.budgetyear_name}">`
                         element.invoice_period.forEach(ele => {
-                        text +=
-                            `<option value="${ele.budgetyear_id}">${ele.inv_p_name}</option>`
+                            text +=
+                                `<option value="${ele.budgetyear_id}">${ele.inv_p_name}</option>`
                         });
                         text += `</optgroup>`
                     });
@@ -452,6 +511,7 @@
                 <tbody>`;
             d[0].usermeterinfos[0].invoice.forEach(element => {
                 let status
+                console.log('forEach', element.status)
                 if (element.status === 'owe' || element.status === 'invoice') {
                     if (element.status == 'owe') {
                         status = `<span class="text-danger">ค้างชำระ</span>`
@@ -459,7 +519,7 @@
                         status = `<span class="text-warning">กำลังออกใบแจ้งหนี้</span>`
                     }
                     let diff = element.currentmeter - element.lastmeter
-                    let total = diff > 0 ? diff * 8 : 10
+                    let total = diff > 0 ? (diff * 6)+10 : 10
                     text += `
                                     <tr>
                                     <td class="text-center">${element.updated_at_th}</td>
@@ -477,15 +537,15 @@
 
                 } // if
             });
-            if (a === 0) {
+            if ( Object.keys(d[0].usermeterinfos[0].invoice) === 0) {
                 console.log('sss')
                 text += `<tr><td colspan="7" class="text-center h4">ไม่พบข้อมูลการค้างชำระ</td></tr>`
             }
             text += `</tbody>
             </table>
             </div>`;
+            console.log('text', text)
             return text;
         }
-
     </script>
 @endsection

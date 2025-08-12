@@ -67,7 +67,7 @@ $fnc = new FunctionsController();
 
 <body>
     <div class="wrapper">
-        <App/>
+        <App />
         {{-- <div class="content-wrapper">
             <section class="content">
 
@@ -122,7 +122,7 @@ $fnc = new FunctionsController();
                                             <div class="row">
                                                 <div class="col-12">
                                                     <h5>
-                                                        <i class="fas fa-globe"></i> กิจการประปา เทศบาลตำบลห้องแซง
+                                                        <i class="fas fa-globe"></i> กิจการประปา เทศบาลตำบลขามป้อม
                                                     </h5>
                                                     โทร: 08-81005436
                                                 </div>
@@ -143,7 +143,7 @@ $fnc = new FunctionsController();
                                                     <div class="col-8">
                                                         <strong class="address"></strong>
                                                         <strong class="zone_name"></strong>
-                                                        <strong>ต.ห้องแซง <br> อ.เลิงนกทา จ.ยโสธร 35120</strong>
+                                                        <strong>ต.ขามป้อม <br> อ.พระยืน จ.ขอนแก่น 40003</strong>
                                                     </div>
                                                 </div>
                                             </div>
@@ -186,8 +186,7 @@ $fnc = new FunctionsController();
                                                     <tr>
                                                         <td class="hder2" rowspan="3" colspan="2"
                                                             style="font-size: 13px;">
-                                                            <div id="test" style="margin-left: 10px"
-                                                                class=""></div>
+                                                            <div id="test" style="margin-left: 10px" class=""></div>
                                                             เลขใบแจ้งหนี้: <span class="inv_id"></span>
                                                         </td>
                                                         <td class="hder2" colspan="2">ค่ารักษามาตร (บาท)</td>
@@ -243,21 +242,21 @@ $fnc = new FunctionsController();
         })
 
         liff.openWindow({
-  url: "https://webbluetoothcg.github.io/demos/bluetooth-printer/",
-  external: true,
-})
+            url: "https://webbluetoothcg.github.io/demos/bluetooth-printer/",
+            external: true,
+        })
 
-liff
-  .initPlugins(["bluetooth"])
-  .then(() => {
-    liffCheckAvailablityAndDo(() => liffRequestDevice());
-  })
-  .catch((error) => {
-    alert(error);
-  });
-liff.bluetooth.getAvailability().then((available) => {
-  alert("available?" + available);
-});
+        liff
+            .initPlugins(["bluetooth"])
+            .then(() => {
+                liffCheckAvailablityAndDo(() => liffRequestDevice());
+            })
+            .catch((error) => {
+                alert(error);
+            });
+        liff.bluetooth.getAvailability().then((available) => {
+            alert("available?" + available);
+        });
 
 
 
@@ -293,7 +292,7 @@ liff.bluetooth.getAvailability().then((available) => {
 
     function check_user(profile) {
         //chek ว่า user มี การบันทึก line_id ในระบบหรือยัง
-        $.get(`../api/users/check_line_id/${profile.userId}`).done(function(data) {
+        $.get(`../api/users/check_line_id/${profile.userId}`).done(function (data) {
             if (data === "0") {
                 //ถ้ายังไม่ได้ทำการบันทึก
                 document.getElementById('pictureUrl').src = profile.pictureUrl;
@@ -312,11 +311,11 @@ liff.bluetooth.getAvailability().then((available) => {
 
     }
 
-    $('.btn-register').click(function() {
+    $('.btn-register').click(function () {
         let user_id = $('#user_id').val()
         let line_id = $('#line_id').val()
         //ทำการลงทะเบียน line_id ของ user ใน database
-        $.get(`../api/users/update_line_id/${user_id}/${line_id}`).done(function(data) {
+        $.get(`../api/users/update_line_id/${user_id}/${line_id}`).done(function (data) {
             //จากนั้น ไปเอาข้อมูลใบแจ้งหนี้มาแสดง
             $.get(`../api/invoice/${data[0].user_id}`).done((res) => {
 
