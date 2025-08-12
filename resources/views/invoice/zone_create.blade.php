@@ -4,6 +4,17 @@
     active
 @endsection
 
+@section('nav-header')
+            ออกใบแจ้งหนี้
+@endsection
+ิ
+@section('nav-current')
+    เพิ่มผู้ใช้น้ำระหว่างรอบบิล
+@endsection
+
+@section('nav-topic')
+เพิ่มผู้ใช้น้ำระหว่างรอบบิล
+@endsection
 
 @section('style')
     <style>
@@ -39,49 +50,51 @@
                                 <tr>
                                     <th></th>
                                     <th class="text-center">เลขมิเตอร์</th>
+                                    <th class="text-center">Factory No.</th>
                                     <th class="text-center">ชื่อ-สกุล</th>
                                     <th class="text-center">บ้านเลขที่</th>
                                     <th class="text-center">ยกยอดมา</th>
-                                    <th class="text-center">มิเตอร์ปัจจุบัน</th>
-                                    <th class="text-center">ใช้น้ำ (หน่วย)</th>
-                                    <th class="text-center">เป็นเงิน (บาท)</th>
-                                    <th class="text-center">ค่ารักษามาตร (บาท)</th>
-                                    <th class="text-center">ภาษีมูลค่าเพิ่ม 7% (บาท)</th>
-                                    <th class="text-center">รวมทั้งสิ้น (บาท)</th>
+                                    <th class="text-center">มิเตอร์<div>ปัจจุบัน</div></th>
+                                    <th class="text-center">ใช้น้ำ<div> (หน่วย)</div></th>
+                                    <th class="text-center">เป็นเงิน <div>(บาท)</div></th>
+                                    <th class="text-center">ค่ารักษา<div>มาตร (บาท)</div></th>
+                                    <th class="text-center">ภาษีมูลค่า<div>เพิ่ม 7% (บาท)</div></th>
+                                    <th class="text-center">รวมทั้งสิ้น <div>(บาท)</div></th>
                                 </tr>
                             </thead>
 
                             <tbody id="app">
                                 <?php $i = 1; ?>
-
                                 @if (collect($member_not_yet_recorded_present_inv_period)->count() > 0)
-                                    @foreach ($member_not_yet_recorded_present_inv_period as $key => $invoice)
+                                    @foreach ($member_not_yet_recorded_present_inv_period[0] as $key => $invoice)
                                         <tr data-id="{{ $i }}" class="data">
                                         <td>{{ $i }}</td>
                                         <td class="border-0 text-center">
-                                            {{ $invoice[$key]->meternumber }}
-                                            <input type="hidden" value="{{ $invoice[0]->meternumber }}"
+                                            {{ $invoice->meternumber }}
+                                            <input type="hidden" value="{{ $invoice->meternumber }}"
                                                 name="data[{{ $i }}][meternumber]"
                                                 data-id="{{ $i }}" id="meternumber{{ $i }}"
                                                 class="form-control text-right meternumber border-primary text-sm text-bold"
                                                 readonly>
                                             <input type="hidden" value="new_inv" name="data[{{ $i }}][inv_id]">
-                                            <input type="hidden" value="{{ $invoice[$key]->meter_id }}" name="data[{{ $i }}][meter_id]">
+                                            <input type="hidden" value="{{ $invoice->meter_id }}" name="data[{{ $i }}][meter_id]">
 
                                         </td>
+                                        <td>{{ $invoice->factory_no }}</td>
+
                                         <td class="border-0 text-left">
                                             <span class="username"
-                                                data-user_id="{{ $invoice[0]->user_id }}"><i
+                                                data-user_id="{{ $invoice->user_id }}"><i
                                                     class="fas fa-search-plus"></i>
-                                                {{ $invoice[0]->user->firstname . ' ' . $invoice[0]->user->lastname }}</span>
+                                                {{ $invoice->user->firstname . ' ' . $invoice->user->lastname }}</span>
                                             <input type="hidden" name="data[{{ $i }}][user_id]"
-                                                value="{{ $invoice[0]->user_id }}">
+                                                value="{{ $invoice->user_id }}">
 
                                         </td>
                                         <td class="text-center">
-                                            {{ $invoice[0]->user->address }}
+                                            {{ $invoice->user->address }}
                                             <input type="hidden" readonly class="form-control "
-                                                value="{{ $invoice[0]->user->address }}"
+                                                value="{{ $invoice->user->address }}"
                                                 name="data[{{ $i }}][address]">
                                         </td>
 
@@ -89,14 +102,14 @@
                                             <input type="text" value="0"
                                                 name="data[{{ $i }}][lastmeter]" data-id="{{ $i }}"
                                                 id="lastmeter{{ $i }}"
-                                                data-price_per_unit="{{ $invoice[0]->meter_type->price_per_unit }}"
+                                                data-price_per_unit="{{ $invoice->meter_type->price_per_unit }}"
                                                 class="form-control text-end lastmeter">
                                         </td>
                                         <td class="border-0 text-right">
                                             <input type="text" value="0"
                                                 name="data[{{ $i }}][currentmeter]"
                                                 data-id="{{ $i }}" id="currentmeter{{ $i }}"
-                                                data-price_per_unit="{{ $invoice[0]->meter_type->price_per_unit }}"
+                                                data-price_per_unit="{{ $invoice->meter_type->price_per_unit }}"
                                                 class="form-control text-end currentmeter border-success">
 
                                         </td>
@@ -145,11 +158,13 @@
                                                     name="data[{{ $i }}][meter_id]">
                                                 <input type="hidden" value="{{ $invoice->inv_id }}" name="data[{{ $i }}][inv_id]">
                                             </td>
+                                            <td class="text-center">{{ $invoice->usermeterinfos->factory_no }}</td>
+
                                             <td class="border-0 text-left">
                                                 <span class="username"
                                                     data-user_id="{{ $invoice->usermeterinfos->user_id }}"><i
                                                         class="fas fa-search-plus"></i>
-                                                    {{ $invoice->usermeterinfos->user->firstname . ' ' . $invoice->usermeterinfos->user->lastname }}</span>
+                                                    {{ $invoice->usermeterinfos->user->firstname . ' ' . $invoice->usermeterinfos->user->lastname." ".  $invoice->usermeterinfos->submeter_name}}</span>
                                                 <input type="hidden" name="data[{{ $i }}][user_id]"
                                                     value="{{ $invoice->usermeterinfos->user_id }}">
 
@@ -250,7 +265,7 @@
                 let net = currentmeter == '' ? 0 : currentmeter - lastmeter;
                 let paid = net == 0 ? 0 : net * price_per_unit;
                 let meter_reserve_price = net == 0 ? 10 : 0;
-                let vat = net == 0 ? 0.7 : net * price_per_unit*0.07;
+                let vat = 0// net == 0 ? 0.7 : net * price_per_unit*0.07;
                 let total = (net * price_per_unit) + check_meter_reserve_price(inv_id)+vat;
                 $('#vat' + inv_id).val(vat.toFixed(2))
                 $('#water_used_net' + inv_id).val(net)
@@ -282,7 +297,7 @@
 
                 let diff = currentmeter - lastmeter;
 
-                let res = diff == 0 ? 10 : 0;
+                let res = 10//diff == 0 ? 10 : 0;
                 $('#meter_reserve_price' + inv_id).val(res)
                 return res;
             }
@@ -314,7 +329,7 @@
                     var title = $(this).text();
                     $(this).removeClass('sorting')
                     $(this).removeClass('sorting_asc')
-                    if (index > 0 && index < 4) {
+                    if (index >0 && index < 5) {
                         $(this).html(
                             `<input type="text" data-id="${index}" class="col-md-12" id="search_col_${index}" placeholder="ค้นหา" />`
                         );
@@ -339,7 +354,7 @@
                     setTimeout(function() {
 
                         let _val = that.val()
-                        if (col === 3) {
+                        if (col === 4) {
                             var val = $.fn.dataTable.util.escapeRegex(
                                 _val
                             );

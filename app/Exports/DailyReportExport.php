@@ -76,19 +76,21 @@ class DailyReportExport implements FromView
         $fromdate           = $this->request->get('fromdate');
         $todate             = $this->request->get('todate');
         $cashier_id         = $this->request->get('cashier_id');
-
+        
         $paidsQuery = Invoice::whereBetween("updated_at",  [$fromdate . " 00:00:00", $todate . " 23:59:59"])
-            ->where('status', 'paid');
+         ->where('status', 'paid') ;
 
         $paidCurrentInfos = $paidsQuery->with([
             'usermeterinfos' => function ($query) {
-                return $query->select('meter_id', 'user_id', 'meternumber', 'undertake_zone_id', 'undertake_subzone_id');
+                return $query->select('meter_id', 'user_id', 'meternumber', 'undertake_zone_id', 'undertake_subzone_id', 'deleted')
+                ->where('deleted', '0');
             },
             'acc_transactions.cashier_info' => function ($query) {
                 return $query->select('id', 'prefix', 'firstname', 'lastname');
             }
         ])->get([
             "inv_id",
+            'inv_no',
             "inv_period_id_fk",
             "meter_id_fk",
             "lastmeter",
@@ -99,16 +101,21 @@ class DailyReportExport implements FromView
             "vat",
             "totalpaid",
             "status",
+            "deleted",
             "acc_trans_id_fk",
             "updated_at"
-        ])->groupBy('acc_trans_id_fk')->values();
-
+        ])
+        // ->groupBy('inv_no')
+        ->values();
+        
         $paidsHistoryQuery = InvoiceHistoty::whereBetween("updated_at",  [$todate . " 00:00:00", $fromdate . " 23:59:59"])
             ->where('status', 'paid');
         
         $paidHistoryInfos = $paidsHistoryQuery->with([
             'usermeterinfos' => function ($query) {
-                return $query->select('meter_id', 'user_id', 'meternumber', 'undertake_zone_id', 'undertake_subzone_id');
+                return $query->select('meter_id', 'user_id', 'meternumber', 'undertake_zone_id', 'undertake_subzone_id', 'deleted')
+                ->where('deleted', '0');
+                
             },
             'acc_transactions.cashier_info' => function ($query) {
                 return $query->select('id', 'prefix', 'firstname', 'lastname');
@@ -116,6 +123,7 @@ class DailyReportExport implements FromView
         ])->get([
             "inv_id",
             "inv_period_id_fk",
+            "inv_no",
             "meter_id_fk",
             "lastmeter",
             "currentmeter",
@@ -125,41 +133,53 @@ class DailyReportExport implements FromView
             "vat",
             "totalpaid",
             "status",
+            "deleted",
             "acc_trans_id_fk",
             "updated_at"
-        ])->groupBy('acc_trans_id_fk')->values();
+        ])
+        // ->groupBy('inv_no')
+        ->values();
 
         $paidInfos = collect($paidCurrentInfos)->merge($paidHistoryInfos);
+        $paidInfos = collect($paidInfos)->filter(function($v){
+            return collect($v->usermeterinfos)->isNotEmpty();
+        });
+       
         if ($cashier_id != 'all') {
             //filter เอาผู้รับเงินที่ต้องการ
             $paidInfos =  collect($paidInfos)->filter(function ($v) use ($cashier_id) {
-                if (collect($v[0]->acc_transactions['cashier_info'])->isNotEmpty()) {
-                    return $v[0]->acc_transactions['cashier_info']['id'] == $cashier_id;
+                if (collect($v->acc_transactions['cashier_info'])->isNotEmpty()) {
+                    return $v->acc_transactions['cashier_info']['id'] == $cashier_id;
                 }
             });
         }
-        // dd($paidInfos);
+
         if($zone_id !="all"){
             $paidInfos =  collect($paidInfos)->filter(function ($v) use ($zone_id) {
-                if (collect($v[0]->usermeterinfos['undertake_zone_id'])->isNotEmpty()) {
-                    return $v[0]->usermeterinfos['undertake_zone_id'] == $zone_id;
+                if (collect($v->usermeterinfos['undertake_zone_id'])->isNotEmpty()) {
+                    return $v->usermeterinfos['undertake_zone_id'] == $zone_id;
                 }
             });
         }
+
         if($subzone_id !="all"){
             $paidInfos =  collect($paidInfos)->filter(function ($v) use ($subzone_id) {
-                if (collect($v[0]->usermeterinfos['undertake_subzone_id'])->isNotEmpty()) {
-                    return $v[0]->usermeterinfos['undertake_subzone_id'] == $subzone_id;
+                if (collect($v->usermeterinfos['undertake_subzone_id'])->isNotEmpty()) {
+                    return $v->usermeterinfos['undertake_subzone_id'] == $subzone_id;
                 }
             });
         }
         if($inv_period_id !="all"){
             $paidInfos =  collect($paidInfos)->filter(function ($v) use ($inv_period_id) {
-                if (collect($v[0]['inv_period_id_fk'])->isNotEmpty()) {
-                    return $v[0]['inv_period_id_fk'] == $inv_period_id;
+                if (collect($v['inv_period_id_fk'])->isNotEmpty()) {
+                    return $v['inv_period_id_fk'] == $inv_period_id;
                 }
             });
         }
+      
+        
+        $paidInfos = collect($paidInfos)->groupBy('inv_no');
+
         $zones          = Zone::all();
         $subzones       = $zone_id != 'all' && $subzone_id != 'all' ? Subzone::all() : 'all';
         $budgetyears    = BudgetYear::all();
@@ -176,7 +196,7 @@ class DailyReportExport implements FromView
             'subzone' => $this->request->get('subzone_id') == 'all' ? ['ทั้งหมด'] : collect(Subzone::where('id', $this->request->get('subzone_id'))->get(['subzone_name']))->pluck('subzone_name'),
             'cashier' => $this->request->get('cashier_id') == "all" ? [['firstname' => 'ทั้งหมด', 'lastname' => '']] : $cashier    = User::where('id', $this->request->get('cashier_id'))->get(['id', 'firstname', 'lastname'])
         ];
-        // dd($request_selected);
+
         return view('reports.export_dailypayment', [
             'zones' => $zones,
             'subzones' => $subzones,

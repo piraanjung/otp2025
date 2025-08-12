@@ -1,5 +1,13 @@
 <ul class="navbar-nav">
     <li class="nav-item">
+        <a class="nav-link active mb-2 bg-warning @yield('nav-accessmenu')" href="{{ route('accessmenu') }}">
+            <div class="icon icon-shape icon-sm bg-white shadow text-center border-radius-2xl padding4px" >
+                <i class="ni ni-shop  text-dark text-white text-lg opacity-10  justify-content-center" aria-hidden="true"></i>
+            </div>
+            <span class="nav-link-text ms-1">หน้าเมนูหลัก</span>
+        </a>
+    </li>
+    <li class="nav-item">
         <a class="nav-link  @yield('nav-dashboard')" href="{{ route('dashboard') }}">
             <div
                 class="icon icon-shape icon-sm shadow border-radius-md bg-white text-center me-2 d-flex align-items-center justify-content-center">
@@ -69,8 +77,8 @@
                     </li> --}}
 
 
-                    <li class="nav-item ">
-                        <a href="{{url('cutmeter')}}" class="nav-link @yield('nav-cutmeter')">
+                    <li class="nav-item  hidden">
+                        <a href="{{ url('cutmeter') }}" class="nav-link @yield('nav-cutmeter')">
                             ตัดมิเตอร์
                             {{-- <span id="owe_over3_period"
                                     class="badge badge-danger right mr-4"> {{ App\Http\Controllers\CutmeterController::cutmeterUserCount() }} มิเตอร์</span> --}}
@@ -179,7 +187,7 @@
                     <li class="nav-item ">
                         <form action="{{ route('reports.dailypayment') }}" method="post" class="mb-0">
                             @csrf
-                            <button type="submit" class="nav-link @yield('nav-reports-dailypayment') border-0"  >
+                            <button type="submit" class="nav-link @yield('nav-reports-dailypayment') border-0">
                                 <input type="hidden" value="nav" name="nav">
                                 <span class="sidenav-mini-icon"> P </span>
                                 <span class="sidenav-normal">การชำระค่าน้ำประปาประจำวัน </span>
@@ -187,7 +195,7 @@
                         </form>
                     </li>
                     <li class="nav-item ">
-                        <a class="nav-link " href="{{route('reports.meter_record_history')}}" @yield('report-meter_record_history')>
+                        <a class="nav-link @yield('report-meter_record_history')" href="{{ route('reports.meter_record_history') }}">
                             <span class="sidenav-mini-icon"> P </span>
                             <span class="sidenav-normal">สมุดจดเลขอ่านมาตรวัดน้ำ(ป.31)</span>
                         </a>
@@ -195,7 +203,7 @@
 
 
                     <li class="nav-item ">
-                        <a class="nav-link " href="{{route('reports.water_used')}}" @yield('report-water_used')>
+                        <a class="nav-link @yield('report-water_used')" href="{{ route('reports.water_used') }}">
                             <span class="sidenav-mini-icon"> P </span>
                             <span class="sidenav-normal">ปริมาณการใช้น้ำประปา</span>
                         </a>
@@ -231,7 +239,7 @@
             </a>
             <div class="collapse show" id="pagesExamples" style="">
                 <ul class="nav ms-4 ps-3">
-                    <li class="nav-item ">
+                    <li class="nav-item">
                         <a class="nav-link collapsed @yield('user-show')" data-bs-toggle="collapse" aria-expanded="false"
                             href="#profileExample">
                             <span class="sidenav-mini-icon"> P </span>
@@ -239,22 +247,22 @@
                         </a>
                         <div class="collapse @yield('user-show')" id="profileExample" style="">
                             <ul class="nav nav-sm flex-column">
-                                <li class="nav-item @yield('nav-user')">
-                                    <a class="nav-link nav-user" href="{{ route('admin.users.index') }}">
+                                <li class="nav-item ">
+                                    <a class="nav-link nav-user @yield('nav-user')" href="{{ route('admin.users.index') }}">
                                         <span class="sidenav-mini-icon text-xs"> P </span>
                                         <span class="sidenav-normal"> ผู้ใช้น้ำประปา </span>
                                     </a>
                                 </li>
-                                <li class="nav-item @yield('nav-staff')">
+                                {{-- <li class="nav-item @yield('nav-staff')">
                                     <a class="nav-link " href="{{ route('admin.users.staff') }}">
                                         <span class="sidenav-mini-icon text-xs"> T </span>
                                         <span class="sidenav-normal"> เจ้าหน้าที่ </span>
                                     </a>
-                                </li>
+                                </li> --}}
                             </ul>
                         </div>
                     </li>
-                    <li class="nav-item @yield('nav-metertype')">
+                    <li class="nav-item @yield('nav-metertype') hidden">
                         <a class="nav-link " href="{{ route('admin.metertype.index') }}">
                             <span class="sidenav-mini-icon"> P </span>
                             <span class="sidenav-normal">ประเภทมิเตอร์ </span>
@@ -268,14 +276,14 @@
                         </a>
                         <div class="collapse @yield('budgetyear-show') @yield('inv_prd-show')" id="budgetyear" style="">
                             <ul class="nav nav-sm flex-column">
-                                <li class="nav-item @yield('nav-budgetyear')">
-                                    <a class="nav-link " href="{{ route('admin.budgetyear.index') }}">
+                                <li class="nav-item">
+                                    <a class="nav-link  @yield('nav-budgetyear')" href="{{ route('admin.budgetyear.index') }}">
                                         <span class="sidenav-mini-icon text-xs"> P </span>
                                         <span class="sidenav-normal"> ปีงบประมาณ </span>
                                     </a>
                                 </li>
-                                <li class="nav-item @yield('nav-inv_prd')">
-                                    <a class="nav-link " href="{{ route('admin.invoice_period.index') }}">
+                                <li class="nav-item ">
+                                    <a class="nav-link @yield('nav-inv_prd')" href="{{ route('admin.invoice_period.index') }}">
                                         <span class="sidenav-mini-icon text-xs"> T </span>
                                         <span class="sidenav-normal"> รอบบิล </span>
                                     </a>
@@ -283,13 +291,14 @@
                             </ul>
                         </div>
                     </li>
-                    <li class="nav-item ">
-                        <a class="nav-link collapsed" data-bs-toggle="collapse" aria-expanded="false" href="#zone">
+                    @role('super admin')
+                    <li class="nav-item">
+                        <a class="nav-link collapsed @yield('header_nav_undertaker-subzone')" data-bs-toggle="collapse" aria-expanded="false" href="#zone">
                             <span class="sidenav-mini-icon"> P </span>
                             <span class="sidenav-normal">พื้นที่จัดเก็บค่าน้ำประปา<b class="caret"></b></span>
                         </a>
                         <div class="collapse" id="zone" style="">
-                            <ul class="nav nav-sm flex-column">
+                            <ul class="nav nav-sm flex-column ">
                                 <li class="nav-item">
                                     <a class="nav-link " href="{{ route('admin.zone.index') }}">
                                         <span class="sidenav-mini-icon text-xs"> P </span>
@@ -297,7 +306,7 @@
                                     </a>
                                 </li>
                                 <li class="nav-item">
-                                    <a class="nav-link " href="{{ route('admin.invoice_period.index') }}">
+                                    <a class="nav-link  @yield('nav_undertaker-subzone')" href="{{ route('admin.undertaker_subzone') }}">
                                         <span class="sidenav-mini-icon text-xs"> T </span>
                                         <span class="sidenav-normal"> ผู้รับผิดชอบพื้นที่จดมิเตอร์ </span>
                                     </a>
@@ -305,6 +314,7 @@
                             </ul>
                         </div>
                     </li>
+                   
 
                     <li class="nav-item ">
                         <a class="nav-link " href="{{ route('admin.settings.index') }}">
@@ -318,8 +328,8 @@
                             <span class="sidenav-normal">ใบแจ้งหนี้/vat </span>
                         </a>
                     </li>
-                    <li class="nav-item @yield('nav-excel')">
-                        <a class="nav-link " href="{{ route('admin.excel.index') }}">
+                    <li class="nav-item ">
+                        <a class="nav-link  @yield('nav-excel')" href="{{ route('admin.excel.index') }}">
                             <span class="sidenav-mini-icon"> P </span>
                             <span class="sidenav-normal">Import excel </span>
                         </a>
@@ -346,7 +356,7 @@
                             </ul>
                         </div>
                     </li>
-
+                    @endrole
                 </ul>
             </div>
         </li>

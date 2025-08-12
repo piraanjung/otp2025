@@ -1,33 +1,125 @@
 @extends('layouts.admin1')
-
 @section('style')
+<script src="https://code.jquery.com/jquery-1.12.4.js" integrity="sha256-Qw82+bXyGq6MydymqBxNPYTaUXXq7c8v3CwiYwLLNXU="
+        crossorigin="anonymous"></script>
+    <script type="text/javascript" src="{{ asset('js/bootstrap-datepicker/js/bootstrap-datepicker-thai.js') }}"></script>
+    <script type="text/javascript" src="{{ asset('js/bootstrap-datepicker/js/locales/bootstrap-datepicker.th.js') }}">
+    </script>
+<style>
+.datepicker.dropdown-menu {
+            position: absolute;
+            top: 100%;
+            left: 0;
+            z-index: 1040 !important;
+            display: none;
+            float: left;
+            min-width: 360px;
+            list-style: none;
+            background-color: #fff;
+            border: 1px solid #ccc;
+            border: 1px solid rgba(0, 0, 0, 0.15);
+            border-radius: 4px;
+            -webkit-box-shadow: 0 6px 12px rgb(0 0 0 / 18%);
+            -moz-box-shadow: 0 6px 12px rgba(0, 0, 0, 0.175);
+            box-shadow: 0 6px 12px rgb(0 0 0 / 18%);
+            -webkit-background-clip: padding-box;
+            -moz-background-clip: padding;
+            background-clip: padding-box;
+            color: #333333;
+            font-size: 13px;
+            line-height: 1.42857143;
+        }
+        .old.day,
+        td.new.day {
+            text-align: center;
+            background: #f0e3e3;
+            border: 1px solid white;
+        }
 
-<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.2.3/dist/css/bootstrap.min.css"
-integrity="sha384-rbsA2VBKQhggwzxH7pPCaAqO46MgnOM80zW1RWuH61DGLwZJEdK2Kadq2F9CUG65" crossorigin="anonymous">
-<script type="text/javascript" src="{{ asset('js/bootstrap-datepicker/js/bootstrap-datepicker-thai.js') }}"></script>
-<script type="text/javascript" src="{{ asset('js/bootstrap-datepicker/js/locales/bootstrap-datepicker.th.js') }}">
-</script>
+        td.day {
+            text-align: center;
+            background: #44ffbb;
+            font-weight: bold;
+            border: 2px solid white;
+        }
+
+        td.active.day {
+            background: white;
+            color: red;
+        }
+
+        th.dow {
+            text-align: center;
+            color: green;
+            solid;
+            border: 1px solid blue;
+        }
+
+        th.datepicker-switch {
+            text-align: center;
+            font-size: 1.2rem;
+        }
+
+        th.prev,
+        th.next {
+            text-align: center;
+            font-size: 1.2rem;
+        }
+
+        span.month {
+            text-align: center;
+            margin: 2px;
+            !;
+            background: #52f0ee;
+            padding: 5px;
+
+        }
+
+        span.year {
+            border: 1px solid;
+            margin: 2px;
+            padding: 2px;
+        }
+
+        table.table-condensed {
+            width: 100%;
+        }
+
+
+        th.today {
+            display: none !important;
+          
+        }
+        
+</style>
 @endsection
-@section('invoice_period')
+@section('nav_invoice_period')
     active
 @endsection
-@section('nav')
-    <a href="{{ url('/invoice_period') }}"> สร้างรอบบิล</a>
+
+@section('nav-header')
+    ปีงบประมาณ/รอบบิล
+@endsection
+@section('nav-current')
+    <a href="{{ url('/invoice_period') }}"> แก้ไขรอบบิล</a>
 @endsection
 
+@section('nav-topic')
+    แก้ไขรอบบิล
+@endsection
+
+
 @section('content')
-    <div class="row">
-        <div class="row-12">
+  
             <div class="card">
                 <div class="card-body">
                     <form class="col-3 sm-auto" action="{{ route('admin.invoice_period.update', $invoice_period->id) }}" method="post">
                         @csrf
                         @method('PUT')
-
                         <div class="form-group">
                             <label>ปีงบประมาณ</label>
                             <input class="form-control text-center" type="text" name="budgetyear_name"
-                                value="{{ $invoice_period['budgetyear']->budgetyear }}" placeholder="" readonly>
+                                value="{{ $invoice_period->budgetyear->budgetyear_name }}" placeholder="" readonly>
                             <input class="form-control text-center" type="text" name="budgetyear_id"
                                 value="{{ $invoice_period->budgetyear_id }}" hidden>
                         </div>
@@ -65,8 +157,6 @@ integrity="sha384-rbsA2VBKQhggwzxH7pPCaAqO46MgnOM80zW1RWuH61DGLwZJEdK2Kadq2F9CUG
                 </div>
             </div>
 
-        </div>
-    </div>
 @endsection
 
 @section('script')

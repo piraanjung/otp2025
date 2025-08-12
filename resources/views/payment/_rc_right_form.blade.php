@@ -45,10 +45,10 @@ $receipt_th_date = $fnc->engDateToThaiDateFormat($exp[0]);
     </tr>
     <tr>
         <td colspan="7" class="text-left text-primary row2">
-            {{-- เทศบาลตำบลห้องแซง --}}
+            {{-- เทศบาลตำบลขามป้อม --}}
             &nbsp;
             <div class="address2">
-                {{-- 222 หมู่ 17 ตำบลห้องแซง อำเภอเลิงนกทา จังหวัดยโสธร 35120 --}}
+                {{-- หมู่ 1 ตำบลขามป้อม อำเภอพระยืน จังหวัดขอนแก่น 40320 --}}
                 &nbsp;
             </div>
         </td>
@@ -60,7 +60,7 @@ $receipt_th_date = $fnc->engDateToThaiDateFormat($exp[0]);
         </td>
     </tr>
     <tr>
-        <td colspan="2" class="waterUsedHisHead pl-2 header-bg">
+        <td colspan="2" class="waterUsedHisHead  header-bg">
             {{-- ชื่อผู้ใช้น้ำ --}}
             {{-- &nbsp; --}}
         </td>
@@ -75,13 +75,13 @@ $receipt_th_date = $fnc->engDateToThaiDateFormat($exp[0]);
     </tr>
 
     <tr>
-        <td colspan="2" class="waterUsedHisHead pl-2 header-bg">
+        <td colspan="2" class="waterUsedHisHead  header-bg">
             {{-- ที่อยู่ --}}
             &nbsp;
         </td>
         <td colspan="5" class="address pt-1" style="height: 3rem !important">
-            {{ $invoicesPaidForPrint[0]->usermeterinfos->user->address }}
-            {{ $invoicesPaidForPrint[0]->usermeterinfos->user->user_zone->zone_name }}
+            {{ $invoicesPaidForPrint[0]->usermeterinfos->meter_address }}
+            {{ $invoicesPaidForPrint[0]->usermeterinfos->undertake_subzone->subzone_name }}
             ต.{{ $invoicesPaidForPrint[0]->usermeterinfos->user->user_tambon->tambon_name }}
             อ.{{ $invoicesPaidForPrint[0]->usermeterinfos->user->user_district->district_name }}
             จ.{{ $invoicesPaidForPrint[0]->usermeterinfos->user->user_province->province_name }}
@@ -93,12 +93,13 @@ $receipt_th_date = $fnc->engDateToThaiDateFormat($exp[0]);
 </table>
 <table border="0" width="93.5%" class="t2_r" style="margin-top:5px !important">
     <tr>
-
         <td width="20%" class="waterUsedHisHead pl-2 header-bg">
             {{-- เลขผู้ใช้มิเตอร์ --}}
             &nbsp;
         </td>
-        <td width="30%" class="text-center pl-1"> {{ $invoicesPaidForPrint[0]->usermeterinfos->user_id }}</td>
+
+        <?php $sunmeter_name  = $invoicesPaidForPrint[0]->usermeterinfos->submeter_name == "" ? "" : " (".$invoicesPaidForPrint[0]->usermeterinfos->submeter_name.")"; ?>
+        <td width="30%" class="text-center pl-1"> {{ $invoicesPaidForPrint[0]->usermeterinfos->user_id."".$sunmeter_name }}</td>
         <td width="20%" class="waterUsedHisHead pl-2 header-bg">
             {{-- เลขมิเตอร์ --}}
             &nbsp;
@@ -113,7 +114,7 @@ $receipt_th_date = $fnc->engDateToThaiDateFormat($exp[0]);
 <table border="0" width="93.5%" id="tabwater_info" class="t2_r" style="margin-top:10px !important">
 
     <tr>
-        <td class="waterUsedHisHead2 header-bg text-center"  width="11%">
+        <td class="waterUsedHisHead2 header-bg text-center" width="11%">
             <div>
                 {{-- ประจำ --}}
                 &nbsp;
@@ -190,7 +191,7 @@ $receipt_th_date = $fnc->engDateToThaiDateFormat($exp[0]);
                     &nbsp; {{-- (บาท) --}}
                 </sup></div>
         </td>
-        <td class="waterUsedHisHead2 header-bg text-center" width="9%">
+        <td class="waterUsedHisHead2 header-bg text-center" width="7%">
             <div>
                 &nbsp; {{-- Vat 7% --}}
             </div>
@@ -198,7 +199,7 @@ $receipt_th_date = $fnc->engDateToThaiDateFormat($exp[0]);
                     &nbsp; {{-- (บาท) --}}
                 </sup></div>
         </td>
-        <td class="waterUsedHisHead2 header-bg text-center" width="12%">
+        <td class="waterUsedHisHead2 header-bg text-center" width="14%">
             <div>
                 &nbsp; {{-- จำนวนเงิน --}}
             </div>
@@ -212,29 +213,33 @@ $receipt_th_date = $fnc->engDateToThaiDateFormat($exp[0]);
     $totalVat7 = 0;
     ?>
 
-@if(strlen($invoicesPaidForPrint[0]['currentmeter']) >= 4 )
-<style>
-    .inv_p{
-        font-size: 12px !important;
-    }
-    .inf{
-        font-size: 12px !important;
-    }
-</style>
-@endif
+    @if (strlen($invoicesPaidForPrint[0]['currentmeter']) >= 4)
+        <style>
+            .inv_p {
+                font-size: 12px !important;
+            }
+
+            .inf {
+                font-size: 12px !important;
+            }
+        </style>
+    @endif
     @foreach ($invoicesPaidForPrint as $key => $item)
-        <tr id="{{collect($invoicesPaidForPrint)->count() > 6 ? 'info_over6' :'info' }}">
-            <td class="text-center inv_p">
+        <tr id="{{ collect($invoicesPaidForPrint)->count() > 6 ? 'info_over6' : 'info' }}">
+            <td class="text-center inv_p" style="padding-left: 5px !important">
                 <?php
                 $exp = explode('-', $item->invoice_period->inv_p_name);
                 $year = date('y') + 43;
-                echo $item->invoice_period->inv_p_name;
+                echo str_replace($exp[1], $year, $item->invoice_period->inv_p_name);
                 ?>
             </td>
             <td class="text-center inf">
                 <?php
                 $date = Str::substr($item->created_at, 0, 10);
-                echo $fnc->engDateToThaiDateFormat($date);
+                echo str_replace($exp[1], $year, $fnc->engDateToThaiDateFormat($date));
+                
+                // echo $fnc->engDateToThaiDateFormat($date);
+                
                 ?>
             </td>
 
@@ -243,17 +248,17 @@ $receipt_th_date = $fnc->engDateToThaiDateFormat($exp[0]);
             <td class="text-right inf number">
                 <?php
                 $waterUsedNet = intval($item['currentmeter']) - intval($item['lastmeter']);
-                $reserveMeter = $waterUsedNet == 0 ? 10 : 0;
-                $used_price = $waterUsedNet * 8;
+                $reserveMeter = 10; //$waterUsedNet == 0 ? 10 : 0;
+                $used_price = $waterUsedNet * 6;
                 $paid = $used_price + $reserveMeter;
-                $vat7 = $paid * 0.07;
+                $vat7 = 0; // $paid * 0.07;
                 $total += $paid;
                 $totalVat7 += $vat7;
                 ?>
                 <span id="unit_used">{{ number_format($waterUsedNet) }}</span>
             </td>
-            <td class="text-right inf number">{{  number_format($used_price,2) }}</td>
-            <td class="text-right inf number"><?php echo number_format($reserveMeter,2); ?></td>
+            <td class="text-right inf number">{{ number_format($used_price, 2) }}</td>
+            <td class="text-right inf number"><?php echo number_format($reserveMeter, 2); ?></td>
             <td class="text-right inf number">{{ $vat7 }}</td>
             <td class="text-right inf number t2-pr-3">{{ number_format($paid + $vat7, 2) }}</td>
         </tr>
@@ -302,8 +307,8 @@ $receipt_th_date = $fnc->engDateToThaiDateFormat($exp[0]);
                     <h5>{{ number_format($total + $totalVat7, 2) }}</h5>
                 </div>
             </div>
-            <div class="text-right pt-2" style="font-size: 0.8rem">
-                ({{ App\Http\Controllers\Api\FunctionsController::convertAmountToLetter(number_format($total + $totalVat7, 2)) }})
+            <div class="text-right" style="font-size: 0.85em; padding-right: 3px;">
+                ({{ App\Http\Controllers\Api\FunctionsController::convertAmountToLetter(number_format($total + $totalVat7, 2))}})
             </div>
 
         </td>
@@ -311,15 +316,36 @@ $receipt_th_date = $fnc->engDateToThaiDateFormat($exp[0]);
 </table>
 <table border="0" width="93.5%" class="t">
     <tr>
-        <td colspan="7" class="text-center border-left-none border-right-none pt-4">
-            {{-- (ลงชื่อ) --}}
-            {{-- <span style="text-decoration: underline  dotted black;"> --}}
-            &nbsp;&nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp;&nbsp;
-            &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
-            {{ $invoicesPaidForPrint[0]->acc_transactions->cashier_info->prefix . '' . $invoicesPaidForPrint[0]->acc_transactions->cashier_info->firstname . ' ' . $invoicesPaidForPrint[0]->acc_transactions->cashier_info->lastname }}
-            &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
-            {{-- </span>ผู้รับเงิน --}}
-            <br>&nbsp;
+        <td colspan="7" class="text-center border-left-none border-right-none pt-1">
+            {{-- (ลงชื่อ)  --}}
+            {{-- ddf --}}
+            <div class="d-flex justify-content-center row_sign">
+                <div class="" >
+                    <div  style="font-size: 0.90rem">
+                        {{-- <img src="{{ asset('/sign/sign2.png') }}" class="imgtest"> --}}
+                        <br>
+                        &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+                        {{ $invoicesPaidForPrint[0]->acc_transactions->cashier_info->prefix . '' . $invoicesPaidForPrint[0]->acc_transactions->cashier_info->firstname . ' ' . $invoicesPaidForPrint[0]->acc_transactions->cashier_info->lastname }}
+                        &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+                        {{-- </span>ผู้รับเงิน --}}
+                        <br>&nbsp;
+                    </div>
+                </div>
+                <div class="">
+                    <div  style="font-size: 0.88rem" class="text-left">
+                        {{-- <img src="{{ asset('/sign/sign.png') }}" class="imgtest"> --}}
+
+                        &nbsp;&nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp;&nbsp;
+                        &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+                        {{-- (นางสาวฐานันพัชร ยศตีนเทียน) --}}
+                        {{-- ({{ $invoicesPaidForPrint[0]->acc_transactions->cashier_info->prefix . '' . $invoicesPaidForPrint[0]->acc_transactions->cashier_info->firstname . ' ' . $invoicesPaidForPrint[0]->acc_transactions->cashier_info->lastname }}) --}}
+                        &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+                        {{-- </span>ผู้อำนวยการกองคลัง --}}
+                        <br>&nbsp;
+                    </div>
+                </div>
+            </div>
+
         </td>
     </tr>
 </table>

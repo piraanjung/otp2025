@@ -8,22 +8,23 @@
     รายงาน
 @endsection
 @section('nav-main')
-<form action="{{ route('reports.dailypayment') }}" method="post" class="mb-0 mt-0">
-    @csrf
-    <button type="submit" class="btn-link" style="
+    <form action="{{ route('reports.dailypayment') }}" method="post" class="mb-0 mt-0">
+        @csrf
+        <button type="submit" class="btn-link"
+            style="
     padding-top: -30px;
     float: left;
     margin-top: -20px;
     margin-left: 10px;
 ">การชำระค่าน้ำประปาประจำวัน</button>
 
-   
-    <input type="hidden" value="nav" name="nav">
-</form>
+
+        <input type="hidden" value="nav" name="nav">
+    </form>
 @endsection
 
-@section('page-topic')
-ตารางรายงานการรับชำระค่าน้ำประจำวัน
+@section('nav-topic')
+    ตารางรายงานการรับชำระค่าน้ำประจำวัน
 @endsection
 @section('style')
     <style>
@@ -34,7 +35,8 @@
             border: 1px solid black;
             border-radius: 10px
         }
-        .selected_header{
+
+        .selected_header {
             font-weight: bold
         }
 
@@ -157,7 +159,7 @@
                             <div class="col-md-3">
                                 <div class="form-group">
                                     <label for="search" class="col-form-label">จากวันที่:</label>
-                                    <input class="form-control datepicker" type="text" name="fromdate"  id="fromdate">
+                                    <input class="form-control datepicker" type="text" name="fromdate" id="fromdate">
                                 </div>
                             </div>
                             <div class="col-md-3">
@@ -173,7 +175,6 @@
                                     <label for="search" class="col-form-label">ปีงบประมาณ:</label>
                                     <select name="budgetyear_id" id="budgetyear_id" class="form-control">
                                         @foreach ($budgetyears as $budgetyear)
-
                                             <option value="{{ $budgetyear->id }}"
                                                 {{ $budgetyear->status == 'active' ? 'selected' : '' }}>
                                                 {{ $budgetyear->budgetyear_name }}</option>
@@ -185,9 +186,12 @@
                                 <div class="form-group">
                                     <label for="search" class="col-form-label">รอบบิล:</label>
                                     <select name="inv_period_id" id="inv_period_id" class="form-control">
-                                        <option value="all" {{$inv_period_id =="all" ? 'selected' : '' }}>ทั้งหมด</option>
+                                        <option value="all" {{ $inv_period_id == 'all' ? 'selected' : '' }}>ทั้งหมด
+                                        </option>
                                         @foreach ($inv_periods as $item)
-                                            <option value="{{ $item->id }}" {{$inv_period_id == $item->id ? 'selected' : '' }}>{{ $item->inv_p_name }}</option>
+                                            <option value="{{ $item->id }}"
+                                                {{ $inv_period_id == $item->id ? 'selected' : '' }}>
+                                                {{ $item->inv_p_name }}</option>
                                         @endforeach
                                     </select>
                                 </div>
@@ -198,7 +202,8 @@
                                     <select class="form-control" name="cashier_id" id="cashier_id">
                                         <option value="all" selected>ทั้งหมด</option>
                                         @foreach ($receiptions as $receiption)
-                                            <option value="{{ $receiption->id }}" {{$request_selected['cashier'][0]['id'] == $receiption->id ? 'selected' : ''}}>
+                                            <option value="{{ $receiption->id }}"
+                                                {{ $request_selected['cashier'][0]['id'] == $receiption->id ? 'selected' : '' }}>
                                                 {{ $receiption->firstname . ' ' . $receiption->lastname }}</option>
                                         @endforeach
                                     </select>
@@ -215,11 +220,11 @@
                         <div class="row pt-2" style="border-top: 1px solid rgb(202, 196, 196)">
                             <div class="col-6">
                                 <button type="submit" id="excel" name="excel" value="true"
-                                class="form-control btn btn-info">download excel</button>
+                                    class="form-control btn btn-info">download excel</button>
                             </div>
                             <div class="col-6">
                                 <button type="submit" id="print" name="print" value="true"
-                                class="form-control btn btn-info">print</button>
+                                    class="form-control btn btn-info">print</button>
                             </div>
                         </div>
 
@@ -346,22 +351,27 @@
         <div class="card-header">
             <div class="card-title">
                 {{-- {{dd($request_selected)}} --}}
-                <h5> ตารางรายงานการรับชำระค่าน้ำประจำวันที่ {{$fromdateTh}} - {{$todateTh}}</h5>
+                <h5> ตารางรายงานการรับชำระค่าน้ำประจำวันที่ {{ $fromdateTh }} - {{ $todateTh }}</h5>
                 <div class="row">
                     <div class="col-2">
-                        <span class="selected_header">  ปีงบประมาณ : </span> <span id="budgetyear_header">{{ $request_selected['budgeryear'][0] }}</span>
+                        <span class="selected_header"> ปีงบประมาณ : </span> <span
+                            id="budgetyear_header">{{ $request_selected['budgeryear'][0] }}</span>
                     </div>
                     <div class="col-2">
-                        <span class="selected_header"> รอบบิลที่ : </span> <span id="inv_period_header">{{ $request_selected['inv_period'][0] }}</span>
+                        <span class="selected_header"> รอบบิลที่ : </span> <span
+                            id="inv_period_header">{{ $request_selected['inv_period'][0] }}</span>
                     </div>
                     <div class="col-2">
-                        <span class="selected_header"> หมู่ที่  : </span> <span id="zone_header">{{ $request_selected['zone'][0] }}</span>
+                        <span class="selected_header"> หมู่ที่ : </span> <span
+                            id="zone_header">{{ $request_selected['zone'][0] }}</span>
                     </div>
                     <div class="col-2">
-                        <span class="selected_header">เส้นทางจด : </span> <span id="subzone_header">{{ $request_selected['subzone'][0] }}</span>
+                        <span class="selected_header">เส้นทางจด : </span> <span
+                            id="subzone_header">{{ $request_selected['subzone'][0] }}</span>
                     </div>
                     <div class="col-3">
-                        <span class="selected_header"> ผู้รับเงิน : </span> <span id="cashier_header">{{ $request_selected['cashier'][0]['firstname']." ".$request_selected['cashier'][0]['lastname'] }}</span>
+                        <span class="selected_header"> ผู้รับเงิน : </span> <span
+                            id="cashier_header">{{ $request_selected['cashier'][0]['firstname'] . ' ' . $request_selected['cashier'][0]['lastname'] }}</span>
                     </div>
                 </div>
             </div>
@@ -397,9 +407,65 @@
                     </tr>
                 </thead>
                 <tbody>
+
                     <?php $i = 1; ?>
+                    @if (isset($paidInfos[0]))
+                        @if (collect($paidInfos[0]->invoice)->isNotEmpty())
+                      
+                            @foreach ($paidInfos as $key => $infos)
+                                @foreach ($infos->invoice as $invoice)
+                            <tr>
+                                <td>#</td>
+                                <td>{{$infos->meter_id}}</td>
+                                <td>{{$infos->user->firstname." ".$infos->user->lastname}}</td>
+                                <td>{{$infos->meter_address}}</td>
+                                <td>{{$infos->undertake_zone->zone_name}}</td>
+                                <td>{{$infos->undertake_zone->zone_name}}</td>
+                                <td>
+                                    {{-- {{$invoice->acc_transactions->cashier_info->firstname." ".$invoice->acc_transactions->cashier_info->firstname}} --}}
+                                </td>
+                                <td>{{ $invoice->updated_at }}</td>
+                                <td>{{ $invoice->inv_no }}</td>
+                                <td>{{ $invoice->invoice_period->inv_p_name }}</td>
+                                <td>{{ $invoice->lastmeter }}</td>
+                                <td>{{ $invoice->currentmeter }}</td>
+                                <td>{{ $invoice->water_used }} </td>
+                                <td>{{ $invoice->paid }}</td>
+                                <td>{{ $invoice->reserve_meter }}</td>
+                                <td>{{ $invoice->vat }}</td>
+                                <td>{{ $invoice->totalpaid }}</td>
+                            </tr>
+                                @endforeach
+                            @endforeach
+                        @endif
+                    @endif
+                </tbody>
+                
+                <tfoot>
+                    <tr>
+                        <th></th>
+                        <th></th>
+                        <th></th>
+                        <th></th>
+                        <th></th>
+                        <th></th>
+                        <th></th>
+                        <th></th>
+                        <th></th>
+                        <th></th>
+                        <th></th>
+                        <th></th>
+                        <th class="text-end">ใช้น้ำ</th>
+                        <th class="text-end">เป็นเงิน</th>
+                        <th class="text-end">reserve</th>
+                        <th class="text-end">Vat 7%</th>
+                        <th class="text-end">รวมเป็นเงิน</th>
+                    </tr>
+                </tfoot>
+
+                    {{-- <php $i = 1; ?>
                     @foreach ($paidInfos as $key => $infos)
-                        <?php $firstRow = 1; ?>
+                        <php $firstRow = 1; ?>
                         @foreach ($infos as $owe)
                             <tr>
                                 @if ($firstRow == 1)
@@ -409,11 +475,11 @@
                                     <td class="text-start">
                                         {{ $owe->usermeterinfos->user->prefix . '' . $owe->usermeterinfos->user->firstname . ' ' . $owe->usermeterinfos->user->lastname }}
                                     </td>
-                                    <td class="text-right">{{ $owe->usermeterinfos->user->address }}</td>
+                                    <td class="text-right">{{ $owe->usermeterinfos->meter_address }}</td>
                                     <td class="text-right">
-                                        {{ $owe->usermeterinfos->user->user_zone->zone_name }}</td>
+                                        {{ $owe->usermeterinfos->undertake_zone->zone_name }}</td>
                                     <td class="text-right">
-                                        {{ collect($owe->usermeterinfos->user->user_subzone)->isEmpty() ? '-' : $owe->usermeterinfos->user->user_subzone->subzone_name }}
+                                        {{ collect($owe->usermeterinfos->undertake_subzone->subzone_name)->isEmpty() ? '-' : $owe->usermeterinfos->undertake_subzone->subzone_name }}
                                     </td>
 
                                     <td class="text-end">
@@ -457,7 +523,7 @@
 
                             </tr>
                         @endforeach
-                        <?php $i++; ?>
+                        <php $i++; ?>
                     @endforeach
                 </tbody>
                 <tfoot>
@@ -480,7 +546,7 @@
                         <th class="text-end">Vat 7%</th>
                         <th class="text-end">รวมเป็นเงิน</th>
                     </tr>
-                </tfoot>
+                </tfoot> --}}
             </table>
         </div>
     </div>
@@ -522,14 +588,16 @@
         let table
         let preloaderwrapper = document.querySelector('.preloader-wrapper')
         $(document).ready(function() {
-            console.log('<?=$fromdateTh; ?>')
+            console.log('fromdate')
+            console.log('<?= $fromdate ?>')
+
             $('.datepicker').datepicker({
                 format: 'dd/mm/yyyy',
                 todayBtn: true,
                 language: 'th', //เปลี่ยน label ต่างของ ปฏิทิน ให้เป็น ภาษาไทย   (ต้องใช้ไฟล์ bootstrap-datepicker.th.min.js นี้ด้วย)
                 thaiyear: true,
 
-            }).datepicker("setDate", '<?=$fromdate; ?>');//กำหนดเป็นวันปัจุบัน
+            }).datepicker("setDate", '<?= $fromdate ?>'); //กำหนดเป็นวันปัจุบัน
 
             $('.datepicker2').datepicker({
                 format: 'dd/mm/yyyy',
@@ -537,7 +605,7 @@
                 language: 'th', //เปลี่ยน label ต่างของ ปฏิทิน ให้เป็น ภาษาไทย   (ต้องใช้ไฟล์ bootstrap-datepicker.th.min.js นี้ด้วย)
                 thaiyear: true,
 
-            }).datepicker("setDate", '<?=$todate; ?>');//กำหนดเป็นวันปัจุบัน
+            }).datepicker("setDate", '<?= $todate ?>'); //กำหนดเป็นวันปัจุบัน
 
             table = $('#example').DataTable({
                 "lengthMenu": [
@@ -554,102 +622,7 @@
                         // "info": "แสดง _MENU_ แถว",
                     },
                 },
-                // dom: 'lBfrtip',
-                // buttons: [{
-                //     extend: 'excelHtml5',
-                //     'text': 'Excel',
-                //     exportOptions: {
-                //         rows: ['.selected']
-                //     },
-                //     filename: function() {
-                //         return $('#topic').text()
-                //     },
-                //     customize: function(xlsx) {
 
-                //         //copy _createNode function from source
-                //         function _createNode(doc, nodeName, opts) {
-                //             var tempNode = doc.createElement(nodeName);
-
-                //             if (opts) {
-                //                 if (opts.attr) {
-                //                     $(tempNode).attr(opts.attr);
-                //                 }
-
-                //                 if (opts.children) {
-                //                     $.each(opts.children, function(key, value) {
-                //                         tempNode.appendChild(value);
-                //                     });
-                //                 }
-
-                //                 if (opts.text !== null && opts.text !== undefined) {
-                //                     tempNode.appendChild(doc.createTextNode(opts.text));
-                //                 }
-                //             }
-
-                //             return tempNode;
-                //         }
-
-                //         var sheet = xlsx.xl.worksheets['sheet1.xml'];
-                //         var mergeCells = $('mergeCells', sheet);
-                //         var mergeCells2 = $('mergeCells', sheet);
-                //         mergeCells[0].children[0].remove(); // remove merge cell 1st row
-                //         var rows = $('row', sheet);
-                //         rows[0].children[0].remove(); // clear header cell
-                //         // create new cell
-                //         rows[0].appendChild(_createNode(sheet, 'c', {
-                //             attr: {
-                //                 t: 'inlineStr',
-                //                 r: 'A2', //address of new cell
-                //                 s: 51 // center style - https://www.datatables.net/reference/button/excelHtml5
-                //             },
-                //             children: {
-                //                 row: _createNode(sheet, 'is', {
-                //                     children: {
-                //                         row: _createNode(sheet, 't', {
-                //                             text: $('.card-title').text()
-                //                         }),
-                //                     }
-                //                 }),
-
-                //             }
-                //         }));
-                //         rows[0].appendChild(_createNode(sheet, 'c', {
-                //             attr: {
-                //                 t: 'inlineStr',
-                //                 r: 'A1', //address of new cell
-                //                 s: 51 // center style - https://www.datatables.net/reference/button/excelHtml5
-                //             },
-                //             children: {
-                //                 row: _createNode(sheet, 'is', {
-                //                     children: {
-                //                         row: _createNode(sheet, 't', {
-                //                             text: $('.card-title').text()
-                //                         }),
-                //                     }
-                //                 }),
-
-                //             }
-                //         }));
-
-
-                //         // set new cell merged
-                //         mergeCells[0].appendChild(_createNode(sheet, 'mergeCell', {
-                //             attr: {
-                //                 ref: 'A1:Q1' // merge address
-                //             }
-                //         }));
-                //         mergeCells[1].appendChild(_createNode(sheet, 'mergeCell', {
-                //             attr: {
-                //                 ref: 'A2:Q2' // merge address
-                //             }
-                //         }));
-
-                //         mergeCells.attr('count', mergeCells.attr('count') + 1);
-                //         // mergeCells2.attr('count', mergeCells2.attr('count') + 1);
-
-                //         // add another merged cell
-                //     }
-                // }],
                 footerCallback: function(row, data, start, end, display) {
                     let api = this.api();
 
@@ -770,7 +743,7 @@
             $('#total_totalpaid').html($('#totalpaid').text())
 
 
-             preloaderwrapper.classList.add('fade-out-animation')
+            preloaderwrapper.classList.add('fade-out-animation')
 
         });
 
@@ -789,16 +762,16 @@
 
         $(document).on('change', "#budgetyear_id", function(e) {
             let budgetyear_id = $(this).val();
-            $.get(`../admin/budgetyear/invoice_period_list/${budgetyear_id}`).done(function(data){
+            $.get(`../admin/budgetyear/invoice_period_list/${budgetyear_id}`).done(function(data) {
                 let text = '<option value="">เลือก</option>';
-                    if (data.length > 1) {
-                        text += `<option value="all" selected>ทั้งหมด</option>`;
-                    }
-                    data.forEach(element => {
-                        text +=
-                            `<option value="${element.id}"> ${element.inv_p_name}</option>`
-                    });
-                    $('#inv_period_id').html(text)
+                if (data.length > 1) {
+                    text += `<option value="all" selected>ทั้งหมด</option>`;
+                }
+                data.forEach(element => {
+                    text +=
+                        `<option value="${element.id}"> ${element.inv_p_name}</option>`
+                });
+                $('#inv_period_id').html(text)
             });
 
         });

@@ -26,7 +26,7 @@ $c2 = 1;
         * {
             font: 10.3pt "Sarabun";
             font-weight: bold;
-            /* color:red !important */
+            /* color:aquamarine !important */
         }
 
         td {
@@ -128,11 +128,16 @@ $c2 = 1;
         }
 
         .t2 {
-            margin-left: 15px !important;
+            /* margin-left: 72px !important; */
+            margin-left: 30px !important;
+        }
+        .t2_for_name_address {
+            margin-left: 62px !important;
             /* margin-left: 8px !important; */
         }
         .t2_r {
-            margin-left: 8px !important;
+            /* margin-left: 41px !important; */
+            margin-left: 10px !important;
         }
 
         .waterUsedHisHead2,
@@ -254,6 +259,21 @@ $c2 = 1;
                 padding-top: 4px !important;
                 padding-bottom: 4px !important
             }
+            .row_info{
+                opacity: 1 !important;
+            }
+        }
+        .imgtest{
+            position: absolute;
+            z-index: 100;
+            float: right;
+            width: 40%;
+            height:40px !important;
+            margin-top: -6%;
+            margin-left: 10%
+        }
+        .row_sign{
+            margin-top: -0.5% !important
         }
     </style>
 @endsection
@@ -262,7 +282,7 @@ $c2 = 1;
 
     <br>
 
-    <div class="row">
+    <div class="row row_info" style="opacity: 1">
         <div class="col-6">
             @include('payment._rc_left_form')
         </div>
@@ -286,8 +306,8 @@ $c2 = 1;
     <script src="https://cdn.jsdelivr.net/npm/jquery.qrcode@1.0.3/jquery.qrcode.min.js"></script>
     <script>
         $(document).ready(function() {
-            console.log($('#qrcode_text').val())
-            $('#qrcode').qrcode($('#qrcode_text').val());
+            // console.log($('#qrcode_text').val())
+            // $('#qrcode').qrcode($('#qrcode_text').val());
 
 
             var os = navigator.platform;
@@ -320,22 +340,16 @@ $c2 = 1;
             head.appendChild(style);
 
              window.print();
-             if ($('#type').val() == 'paid_receipt') {
+            if ($('#type').val() == 'paid_receipt') {
                 setTimeout(function() {
                      window.location.href = '/payment';
                  }, 200);
              } else {
                  //type == history_recipt
                  setTimeout(function() {
-
-                    document.querySelector("form").addEventListener("submit", function(evt) {
-                         evt.preventDefault();
-                     });
-
-                     // Just call the .click method of the button
                      $("input[type='submit']").click();
 
-                 }, 200);
+             }, 200);
 
              }
         });

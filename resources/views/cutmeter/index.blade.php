@@ -11,7 +11,7 @@
     <a href="{{ route('cutmeter.index') }}">ตัดมิเตอร์</a>
 @endsection
 
-@section('page-topic')
+@section('nav-topic')
     รายชื่อผู้ใช้น้ำประปาค้างชำระเกิน 3 รอบบิล
 @endsection
 
@@ -41,7 +41,8 @@
                                             <div class="row">
                                                 <div class="col-8">
                                                     <div class="numbers">
-                                                        <p class="text-sm mb-0 text-capitalize font-weight-bold">ค้างชำระ
+                                                        <p class="text-sm mb-0 text-capitalize font-weight-bold">
+                                                            ค้างชำระเงิน 3 รอบบิล
                                                         </p>
                                                         <h5 class="font-weight-bolder mb-0">
                                                             {{ collect($cutmeters)->count() }}
@@ -61,12 +62,15 @@
                                     </div>
                                 </div>
                                 <div class="col-xl-5">
-                                    <button type="submit" name="submitBtn" value="print" class="btn btn-primary "
-                                        id="print_multi_inv">
-                                        ปริ้นใบแจ้งเตือน</button>
-                                    <button type="submit" class="btn btn-info" name="submitBtn" value="excel"
-                                        id="print_list">
-                                        ดาวน์โหลดเป็นไฟล์ Excel</button>
+                                    @if (collect($cutmeters)->isNotEmpty())
+                                        <button type="submit" name="submitBtn" value="print" class="btn btn-primary "
+                                            id="print_multi_inv">
+                                            ปริ้นใบแจ้งเตือน</button>
+                                        <button type="submit" class="btn btn-info" name="submitBtn" value="excel"
+                                            id="print_list">
+                                            ดาวน์โหลดเป็นไฟล์ Excel</button>
+                                    @endif
+
                                 </div>
                             </div>
 
@@ -133,25 +137,24 @@
                                                                                 $progress = json_decode(
                                                                                     $item->cutmeter[0]->progress,
                                                                                 );
-                                                                            $i =1;
+                                                                                $i = 1;
                                                                             @endphp
                                                                             @if (collect($progress)->isNotEmpty())
-
-                                                                            <ul class="list-group">
-                                                                                @foreach ($progress as $val)
-
-                                                                                    <li
-                                                                                        class="list-group-item border-0 d-flex align-items-center px-0 mb-2">
-                                                                                        <h5>{{$i++}}.&nbsp;&nbsp;</h5>
-                                                                                        <div class="avatar me-3">
-                                                                                            <img src="{{ asset('templatemo/images/avatar/pretty-blonde-woman-wearing-white-t-shirt.jpg') }}"
-                                                                                                alt="kal"
-                                                                                                class="border-radius-lg shadow">
-                                                                                        </div>
-                                                                                        <div
-                                                                                            class="d-flex align-items-start flex-column justify-content-center">
-                                                                                            <h6 class="mb-0 text-sm">
-                                                                                                <div>ผู้รับผิดชอบ</div>
+                                                                                <ul class="list-group">
+                                                                                    @foreach ($progress as $val)
+                                                                                        <li
+                                                                                            class="list-group-item border-0 d-flex align-items-center px-0 mb-2">
+                                                                                            <h5>{{ $i++ }}.&nbsp;&nbsp;
+                                                                                            </h5>
+                                                                                            <div class="avatar me-3">
+                                                                                                <img src="{{ asset('templatemo/images/avatar/pretty-blonde-woman-wearing-white-t-shirt.jpg') }}"
+                                                                                                    alt="kal"
+                                                                                                    class="border-radius-lg shadow">
+                                                                                            </div>
+                                                                                            <div
+                                                                                                class="d-flex align-items-start flex-column justify-content-center">
+                                                                                                <h6 class="mb-0 text-sm">
+                                                                                                    <div>ผู้รับผิดชอบ</div>
 
 
                                                                                                     @foreach ($val->undertaker as $taker)
@@ -167,7 +170,7 @@
                                                                                                             echo '<div>- ' .
                                                                                                                 $u[0]
                                                                                                                     ->name .
-                                                                                                                ' '.
+                                                                                                                ' ' .
                                                                                                                 $u[0]
                                                                                                                     ->firstname .
                                                                                                                 ' ' .
@@ -176,19 +179,20 @@
                                                                                                                 '</div>';
                                                                                                         @endphp
                                                                                                     @endforeach
-                                                                                            </h6>
-                                                                                            <p class="mb-0 text-xs">วันที่
-                                                                                                {{ date('d-m-Y H:i:s', $val->created_at) }}
-                                                                                            </p>
-                                                                                        </div>
-                                                                                        <a class="btn btn-link pe-3 ps-0 mb-0 ms-auto"
-                                                                                            href="javascript:;">
-                                                                                            <div>สถานะ</div>
-                                                                                            {{ $val->topic }}
-                                                                                        </a>
-                                                                                    </li>
-                                                                                @endforeach
-                                                                            </ul>
+                                                                                                </h6>
+                                                                                                <p class="mb-0 text-xs">
+                                                                                                    วันที่
+                                                                                                    {{ date('d-m-Y H:i:s', $val->created_at) }}
+                                                                                                </p>
+                                                                                            </div>
+                                                                                            <a class="btn btn-link pe-3 ps-0 mb-0 ms-auto"
+                                                                                                href="javascript:;">
+                                                                                                <div>สถานะ</div>
+                                                                                                {{ $val->topic }}
+                                                                                            </a>
+                                                                                        </li>
+                                                                                    @endforeach
+                                                                                </ul>
                                                                             @endif
                                                                         </div>
                                                                     </div>

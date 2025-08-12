@@ -11,7 +11,7 @@
     <a href="{{ route('invoice.index') }}">รับชำระค่าน้ำประปา</a>
 @endsection
 
-@section('page-topic')
+@section('nav-topic')
     รายชื่อผู้ใช้น้ำประปาที่ยังไม่ได้ชำระค่าน้ำประปา
     @foreach ($selected_subzone_name_array as $item)
         {{ $item }}
@@ -157,7 +157,8 @@
 
                                     @foreach ($invoices as $invoice)
                                         <tr>
-                                            <td class="text-end">{{ "Iv".$invoice->meter_id."".$invoice->invoice[0]->inv_no }}</td>
+                                            <td class="text-end">
+                                                {{ 'Iv' . $invoice->meter_id . '' . $invoice->invoice[0]->inv_no }}</td>
                                             <td>{{ $invoice->user->prefix . '' . $invoice->user->firstname . ' ' . $invoice->user->lastname }}
                                             </td>
                                             <td class="meternumber text-center" data-meter_id={{ $invoice->meter_id }}>
@@ -542,7 +543,7 @@
                     $('#mustpaid').val(parseFloat(totalpaidsum).toFixed(2))
                     $('.mustpaid').html(parseFloat(totalpaidsum).toFixed(2))
                     $('#meter_id').val(invoices[0].usermeterinfos.meter_id);
-                    $('#inv_no').val(invoices[0].usermeterinfos.meter_id+""+invoices[0].inv_no)
+                    $('#inv_no').val(invoices[0].usermeterinfos.meter_id + "" + invoices[0].inv_no)
                     let init = "000000000000000000"
                     let meter_id_length = invoices[0].usermeterinfos.meter_id.toString().length
                     let meter_id_str = init.substring(meter_id_length) + "" + invoices[0].usermeterinfos.meter_id
@@ -558,7 +559,7 @@
                         .user.firstname + " " + invoices[0].usermeterinfos.user.lastname + "\n");
                     $('#qrcode').append(
                         `<div font-size:1.1rem">จำนวนที่ต้องชำระ ${parseFloat(totalpaidsum).toFixed(2)} บาท</div>`
-                        );
+                    );
                     $('#qrcode').append().qrcode({
                         text: $('#qrcode_text').val(),
                         width: 135,

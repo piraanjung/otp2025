@@ -3,7 +3,7 @@
 
 <head>
     <meta charset="utf-8" />
-    
+
     <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
     <link rel="apple-touch-icon" sizes="76x76" href="{{ asset('soft-ui/assets/img/apple-icon.png') }}">
     <link rel="icon" type="image/png" href="{{ asset('soft-ui/assets/img/favicon.png') }}">
@@ -21,55 +21,66 @@
     <link href="{{ asset('soft-ui/assets/css/nucleo-svg.css') }}" rel="stylesheet" />
 
     <link id="pagestyle" href="{{ asset('soft-ui/assets/css/soft-ui-dashboard.min.css') }}" rel="stylesheet" />
-    <link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.15.4/css/all.css" integrity="sha384-DyZ88mC6Up2uqS4h/KRgHuoeGwBcD4Ng9SiP4dIRy0EXTlnuz47vAwmeGwVChigm" crossorigin="anonymous"/>    <script src="{{asset('adminlte/plugins/jquery/jquery.js')}}"></script>
+    <link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.15.4/css/all.css"
+        integrity="sha384-DyZ88mC6Up2uqS4h/KRgHuoeGwBcD4Ng9SiP4dIRy0EXTlnuz47vAwmeGwVChigm" crossorigin="anonymous" />
+    <script src="{{ asset('adminlte/plugins/jquery/jquery.js') }}"></script>
     <style>
         .navbar-vertical.navbar-expand-xs .navbar-collapse {
             display: block;
             overflow: auto;
             height: calc(100vh) !important;
         }
-        .navbar-vertical .navbar-nav .nav-item .collapse .nav .nav-item .nav-link, .navbar-vertical .navbar-nav .nav-item .collapsing .nav .nav-item .nav-link {
-    position: relative;
-    background-color: transparent;
-    box-shadow: none;
-    color: black;
-    margin-left: 1.35rem;
-}
-.btn-link{
-  border:none;
-  outline:none;
-  background:none;
-  cursor:pointer;
-  padding:0;
-  font-family:inherit;
-  font-size:inherit;
-}
-.btn-link:active{
-  color:#FF0000;
-}
-.navbar-vertical .navbar-nav>.nav-item .nav-link.active {
-    color: #344767;
-    background-color: #fff;
-    font-size: 1.15rem;
-}π
-.form-label, label {
-    font-size: 1rem;
-    font-weight: 700;
-    margin-bottom: .5rem;
-    color: #344767;
-    margin-left: .25rem;
-}
-.navbar-vertical .navbar-nav .nav-item .collapse .nav .nav-item .nav-link, .navbar-vertical .navbar-nav .nav-item .collapsing .nav .nav-item .nav-link {
-    position: relative;
-    background-color: transparent;
-    box-shadow: none;
-    color: black;
-    margin-left: 1.35rem;
-    font-size: 1rem;
-}
+
+        .navbar-vertical .navbar-nav .nav-item .collapse .nav .nav-item .nav-link,
+        .navbar-vertical .navbar-nav .nav-item .collapsing .nav .nav-item .nav-link {
+            position: relative;
+            background-color: transparent;
+            box-shadow: none;
+            color: black;
+            margin-left: 1.35rem;
+        }
+
+        .btn-link {
+            border: none;
+            outline: none;
+            background: none;
+            cursor: pointer;
+            padding: 0;
+            font-family: inherit;
+            font-size: inherit;
+        }
+
+        .btn-link:active {
+            color: #FF0000;
+        }
+
+        .navbar-vertical .navbar-nav>.nav-item .nav-link.active {
+            color: #344767;
+            background-color: #fff;
+            font-size: 1.15rem;
+        }
+
+        .form-label,
+        label {
+            font-size: 1rem;
+            font-weight: 700;
+            margin-bottom: .5rem;
+            color: #344767;
+            margin-left: .25rem;
+        }
+
+        .navbar-vertical .navbar-nav .nav-item .collapse .nav .nav-item .nav-link,
+        .navbar-vertical .navbar-nav .nav-item .collapsing .nav .nav-item .nav-link {
+            position: relative;
+            background-color: transparent;
+            box-shadow: none;
+            color: black;
+            margin-left: 1.35rem;
+            font-size: 1rem;
+        }
 
         input:read-only {
-            background-color:rgb(170 175 188);
+            background-color: rgb(170 175 188);
             color: black !important
         }
 
@@ -122,23 +133,36 @@
         }
 
         @media (max-width: 1199.98px) {
-    .g-sidenav-show.rtl .sidenav {
-        transform:translateX(19.125rem)
-    }
+            .g-sidenav-show.rtl .sidenav {
+                transform: translateX(19.125rem)
+            }
 
-    .g-sidenav-show:not(.rtl) .sidenav {
-        transform: translateX(-19.125rem);
-    }
+            .g-sidenav-show:not(.rtl) .sidenav {
+                transform: translateX(-19.125rem);
+            }
 
-    .g-sidenav-show .sidenav.fixed-start~.main-content {
-        margin-left: 0!important
-    }
+            .g-sidenav-show .sidenav.fixed-start~.main-content {
+                margin-left: 0 !important
+            }
 
-    .g-sidenav-show.g-sidenav-pinned .sidenav {
-        transform: translateX(0)
-    }
+            .g-sidenav-show.g-sidenav-pinned .sidenav {
+                transform: translateX(0)
+            }
 
-}
+        }
+
+        .hidden {
+            display: none
+        }
+
+        .card {
+            border: 1px solid #ccc;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+
+        }
+        .padding4px{
+            padding: 4px !important
+        }
     </style>
     <script src="https://code.jquery.com/jquery-3.7.0.js"></script>
     <script src="https://cdn.datatables.net/1.13.6/js/jquery.dataTables.min.js"></script>
@@ -156,9 +180,8 @@
                 aria-hidden="true" id="iconSidenav"></i>
             <a class="navbar-brand m-0" href=" https://demos.creative-tim.com/soft-ui-dashboard/pages/dashboard.html "
                 target="_blank">
-                <img src="{{ asset('soft-ui/assets/img/logo-ct-dark.png') }}" class="navbar-brand-img h-100"
-                    alt="main_logo">
-                <span class="ms-1 font-weight-bold">งานประปา ทต.ห้องแซง</span>
+                <img src="{{ asset('logo/khampom.png') }}" class="navbar-brand-img h-100" alt="main_logo">
+                <span class="ms-1 font-weight-bold">งานประปา อบต.ขามป้อม</span>
             </a>
         </div>
         <hr class="horizontal dark mt-0">
@@ -207,7 +230,8 @@
 
                         <li class="nav-item px-3 d-flex align-items-center">
                             <a href="javascript:;" class="nav-link text-white p-0">
-                                {{-- <i class="fa fa-cog fixed-plugin-button-nav cursor-pointer" aria-hidden="true"></i> --}}
+                                {{-- <i class="fa fa-cog fixed-plugin-button-nav cursor-pointer" aria-hidden="true"></i>
+                                --}}
                             </a>
                         </li>
                         <li class="nav-item dropdown pe-2 d-flex align-items-center">
@@ -218,12 +242,13 @@
                                 <div class="dropdown-item border-radius-md" href="javascript:;">
                                     <div class="d-flex py-1">
                                         <div class="my-auto">
-                                            <img src="{{ asset('adminlte/dist/img/avatar2.png') }}" class="avatar avatar-sm me-3"
-                                                alt="user image">
+                                            <img src="{{ asset('adminlte/dist/img/avatar2.png') }}"
+                                                class="avatar avatar-sm me-3" alt="user image">
                                         </div>
                                         <div class="d-flex flex-column justify-content-center">
                                             <h6 class="font-weight-normal mb-1">
-                                                <span class="font-weight-bold pr-3 text-white">{{Auth::user()->firstname." ".Auth::user()->lastname ." (".Auth::user()->id.")"}}</span>
+                                                <span
+                                                    class="font-weight-bold pr-3 text-white">{{ Auth::user()->firstname . ' ' . Auth::user()->lastname . ' (' . Auth::user()->id . ')' }}</span>
                                             </h6>
 
                                         </div>
@@ -245,8 +270,7 @@
                                                     @csrf
                                                     <a href="#"
                                                         onclick="event.preventDefault();this.closest('form').submit();"
-                                                        class="nav-link  font-weight-bold px-0"
-                                                        target="_blank">
+                                                        class="nav-link  font-weight-bold px-0" target="_blank">
                                                         <i class="fa fa-sign-out me-sm-1" aria-hidden="true"></i>
                                                         <span class="d-sm-inline d-none">Log out</span>
                                                     </a>
@@ -266,8 +290,7 @@
         </nav>
 
         <div class="container-fluid">
-            <div class="page-header min-height-200 border-radius-xl mt-4"
-                style=" background-position-y: 50%;">
+            <div class="page-header min-height-200 border-radius-xl mt-4" style=" background-position-y: 50%;">
                 <span class="mask bg-gradient-primary opacity-6"></span>
             </div>
             <div class="card card-body blur shadow-blur mx-4 mt-n6 overflow-hidden">
@@ -281,7 +304,7 @@
                     <div class="col-auto my-auto">
                         <div class="h-100">
                             <h5 class="mb-1">
-                                @yield('page-topic')
+                                @yield('nav-topic')
                             </h5>
                         </div>
                     </div>
@@ -294,11 +317,18 @@
             </div>
         </div>
         <div class="container-fluid py-4">
-            @if (Session::has('message'))
-                <div class="alert alert-{{Session::get('color')}} alert-block" id="alert_message">
+            @if (session()->has('message'))
+            <div class="alert alert-{{session()->get('color')}} alert-dismissible fade show" role="alert">
+                                    <strong>{{ session()->get('message') }}</strong>
+
+                <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+            </div>
+        @endif
+            {{-- @if (Session::has('message'))
+                <div class="alert alert-{{ Session::get('color') }} alert-block" id="alert_message">
                     <strong>{{ Session::get('message') }}</strong>
                 </div>
-            @endif
+            @endif --}}
             @yield('content')
         </div>
     </main>
@@ -313,10 +343,10 @@
     @yield('script')
 
     <script>
-        $(document).ready(function(){
-            setTimeout(function(){
+        $(document).ready(function () {
+            setTimeout(function () {
                 $('.alert').toggle();
-            },1000);
+            }, 1000);
             $('.alert').hide()
         })
     </script>

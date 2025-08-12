@@ -21,6 +21,7 @@
                         <th colspan="3">
                              ผู้รับเงิน : {{ $request_selected['cashier'][0]['firstname']." ".$request_selected['cashier'][0]['lastname'] }}
                         </th>
+                    
                     </tr>
                     <tr><th colspan="18"></th></tr>
                     <tr>
@@ -48,11 +49,13 @@
                         </th>
                         <th style="background-color: #07e2f6; border:1px solid black">รวมเป็นเงิน <div><sup>บาท</sup></div>
                         </th>
+                        
                     </tr>
                 </thead>
                 <tbody>
                     <?php $i = 1; $water_used =0; $paid = 0; $vat = 0; $reserve = 0; $totalpaid = 0; ?>
                     @foreach ($paidInfos as $key => $infos)
+                    {{-- @dd($infos) --}}
                         <?php $firstRow = 1; ?>
                         @foreach ($infos as $owe)
 
@@ -72,6 +75,9 @@
                                     </td>
 
                                     <td class="text-end">
+                                        @if (collect($owe->acc_transactions)->isEmpty())
+                                        @dd($owe)
+                                    @endif
                                         {{ $owe->acc_transactions->cashier_info->prefix . '' . $owe->acc_transactions->cashier_info->firstname . ' ' . $owe->acc_transactions->cashier_info->lastname }}
                                     </td>
 
@@ -94,12 +100,14 @@
                                         {{ collect($owe->usermeterinfos->user->user_subzone)->isEmpty() ? '-' : $owe->usermeterinfos->user->user_subzone->subzone_name }}
                                     </td>
                                     <td class="info_blur text-end">
-
+                                        @if (collect($owe->acc_transactions)->isEmpty())
+                                        @dd($owe)
+                                    @endif
                                         {{ $owe->acc_transactions->cashier_info->prefix . '' . $owe->acc_transactions->cashier_info->firstname . ' ' . $owe->acc_transactions->cashier_info->lastname }}
                                     </td>
                                     <td class="info_blur text-center">{{ $owe->updated_at }}</td>
                                 @endif
-                                <td class="text-end">{{ $owe->inv_id }}</td>
+                                <td class="text-end">{{ $owe->inv_no }}</td>
                                 <td class="text-end">{{ $owe->invoice_period->inv_p_name }}</td>
                                 <td class="text-end">{{ $owe->lastmeter }}</td>
                                 <td class="text-end">{{ $owe->currentmeter }}</td>

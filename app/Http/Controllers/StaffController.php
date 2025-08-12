@@ -2,152 +2,204 @@
 
 namespace App\Http\Controllers;
 
-use App\Models\Province;
-use App\Subzone;
-use App\Models\TabwaterMeter;
+use App\Models\Staff;
 use App\Models\User;
-use App\UserProfile;
-use App\Models\Zone;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Hash;
+use Illuminate\Validation\Rule;
+use Illuminate\Support\Facades\DB;
+use Spatie\Permission\Models\Permission; // NEW: Import Permission model
 
 class StaffController extends Controller
 {
-    public function index()
+    /**
+     * Display a listing of the staff members.
+     *
+     * @return \Illuminate\Http\Response
+     */
+    public function index(Request $request)
     {
-        $checkZone = Zone::all();
-
-        $staffsQuery = User::with('user_profile', 'user_profile.zone', 'user_profile.subzone')
-            ->whereIn('user_cat_id', [1, 2, 4])
-            ->where('status', '=', 'active')
-            ->get();
-        $staffs = collect($staffsQuery)->sort();
-        foreach ($staffs as $staff) {
-            if ($staff->user_cat_id == 1) {
-                $staff->position = 'ผู้ดูแลระบบ';
-            } else if ($staff->user_cat_id == 2) {
-                $staff->position = 'การเงิน';
-            } else if ($staff->user_cat_id == 4) {
-                $staff->position = 'พนักงานจดมิเตอร์';
-            }
-
-        }
-        return view('staff.index', compact('staffs'));
-    }
-
-    public function create($renew = 0, $user_id = 0)
-    {
-        $user = new User();
-        $provinces = Province::all();
-        // $usercategories = Usercategory::where('id', '<>', 3)->get();
-
-        $zones = Zone::all();
-
-        return view('staff.create', compact('user', 'provinces', 'usercategories', 'zones'));
-    }
-
-    public function store(REQUEST $request)
-    {
-        date_default_timezone_set('Asia/Bangkok');
-        $user = new User;
-        $user->username = $request->get('username');
-        $user->password = Hash::make($request->get('password'));
-        $user->email = $user->username . '@gmail.com';
-        $user->user_cat_id = $request->get('usercategory_id');
-        $user->created_at = date('Y-m-d H:i:s');
-        $user->updated_at = date('Y-m-d H:i:s');
-        $user->save();
-
-        $user_id = $user->id;
-        $user_profile = new UserProfile;
-        $user_profile->user_id = $user->id;
-        $user_profile->name = $request->get('name');
-        $user_profile->gender = $request->get('gender');
-        $user_profile->id_card = $request->get('id_card');
-        $user_profile->phone = $request->get('phone');
-        $user_profile->address = $request->get('address');
-        $user_profile->province_code = $request->get('province_code');
-        $user_profile->district_code = $request->get('district_code');
-        $user_profile->tambon_code = $request->get('tambon_code');
-        $user_profile->zone_id = $request->get('zone_id');
-        $user_profile->subzone_id = $request->get('zone_id');
-        $user_profile->created_at = date('Y-m-d H:i:s');
-        $user_profile->updated_at = date('Y-m-d H:i:s');
-        $user_profile->save();
-
-        //กำหนด user_role  ให้กับเจ้าหน้าที่
-        $user = User::find($user->id);
-        if ($user->user_cat_id == 1) {
-            $user->attachRole('superadministrator');
-        } elseif ($user->user_cat_id == 2) {
-            $user->attachRole('accounting');
-        } elseif ($user->user_cat_id == 4) {
-            $user->attachRole('twman');
+        $perPage = $request->input('per_page', 10);
+        $allowedPerPage = [10, 20, 50, 100];
+        if (!in_array($perPage, $allowedPerPage) && $perPage !== 'all') {
+            $perPage = 10;
         }
 
-        return redirect('staff')->with(['massage' => 'ทำการบันทึกข้อมูลเรียบร้อยแล้ว', 'color' => 'success']);
+        $searchName = $request->input('search_name');
+        $searchStatus = $request->input('search_status');
+        $searchCanAccessWasteBank = $request->input('search_can_access_waste_bank');
+        $searchCanAccessAnnualCollection = $request->input('search_can_access_annual_collection');
+
+        // Load user and their permissions
+        $query = Staff::with(['user', 'user.permissions']); // NEW: Load user permissions
+
+        $query->when($searchName, function ($q, $name) {
+            $q->whereHas('user', function ($userQ) use ($name) {
+                $userQ->where('firstname', 'like', '%' . $name . '%')
+                      ->orWhere('lastname', 'like', '%' . $name . '%')
+                      ->orWhere('username', 'like', '%' . $name . '%');
+            });
+        });
+
+        $query->when($searchStatus && $searchStatus !== 'any', function ($q, $status) {
+            $q->where('status', $status);
+        });
+
+        // NEW: Filter by Spatie Permissions
+        $query->when($searchCanAccessWasteBank && $searchCanAccessWasteBank !== 'any', function ($q) use ($searchCanAccessWasteBank) {
+            $q->whereHas('user', function ($userQ) use ($searchCanAccessWasteBank) {
+                if ($searchCanAccessWasteBank === 'true') {
+                    $userQ->permission('access waste bank module');
+                } else { // 'false'
+                    $userQ->whereDoesntHave('permissions', function ($permQ) {
+                        $permQ->where('name', 'access waste bank module');
+                    });
+                }
+            });
+        });
+
+        $query->when($searchCanAccessAnnualCollection && $searchCanAccessAnnualCollection !== 'any', function ($q) use ($searchCanAccessAnnualCollection) {
+            $q->whereHas('user', function ($userQ) use ($searchCanAccessAnnualCollection) {
+                if ($searchCanAccessAnnualCollection === 'true') {
+                    $userQ->permission('access annual collection module');
+                } else { // 'false'
+                    $userQ->whereDoesntHave('permissions', function ($permQ) {
+                        $permQ->where('name', 'access annual collection module');
+                    });
+                }
+            });
+        });
+
+
+        if ($perPage === 'all') {
+            $staffs = $query->get();
+        } else {
+            $staffs = $query->paginate($perPage)->appends($request->query());
+        }
+
+        if ($request->ajax()) {
+            return view('keptkaya.staffs._table_body', compact('staffs'))->render();
+        }
+
+        return view('keptkaya.staffs.index', compact('staffs', 'perPage', 'searchName', 'searchStatus', 'searchCanAccessWasteBank', 'searchCanAccessAnnualCollection'));
     }
 
-    public function edit($id)
+    /**
+     * Show the form for creating a new staff member.
+     *
+     * @return \Illuminate\Http\Response
+     */
+    public function create()
     {
-        $user = User::where('id', $id)
-            ->with('user_profile')
-            ->get()
-            ->first();
-        $provinces = Province::all();
-        $usercategories = Usercategory::where('id', '<>', 3)->get();
-        $zones = Zone::all();
-        $tabwatermeters = TabwaterMeter::all(['id', 'typemetername']);
-        $user_subzone = Subzone::where('zone_id', $user->undertake_zone_id)->get();
-        return view('staff.edit', compact('user', 'zones', 'provinces', 'usercategories',
-            'user_subzone'));
+        // Get users who are not already staff members
+        $eligibleUsers = User::doesntHave('staff')->get();
+        // Get all permissions for display in form
+        $permissions = Permission::all(); // NEW
+        return view('keptkaya.staffs.create', compact('eligibleUsers', 'permissions')); // NEW: Pass permissions
     }
 
-    public function update(REQUEST $request, $id)
+    /**
+     * Store a newly created staff member in storage.
+     *
+     * @param  \Illuminate\Http\Request  $request
+     * @return \Illuminate\Http\Response
+     */
+    public function store(Request $request)
     {
-        date_default_timezone_set('Asia/Bangkok');
-
-        // แก้ไขข้อมูล UserProfile
-        $user = User::where('id', $id)->update([
-            'username' => $request->get('username'),
-            // 'email' => 'username.'gmail.com',
-            'user_cat_id' => $request->get('usercategory_id'),
-            'updated_at' => date('Y-m-d H:i:s'),
+        $request->validate([
+            'user_id' => 'required|exists:users,id|unique:staffs,user_id',
+            'status' => ['required', Rule::in(['active', 'inactive', 'suspended'])],
+            'permissions' => 'array', // NEW: Validate permissions array
+            'permissions.*' => 'exists:permissions,name', // NEW: Validate each permission name
         ]);
-        if ($request->get('password') != '') {
-            $user = User::where('id', $id)->update([
-                'password' => Hash::make($request->get('password')),
+
+        DB::transaction(function () use ($request) {
+            $staff = Staff::create([
+                'user_id' => $request->user_id,
+                'status' => $request->status,
+                'deleted' => '0',
             ]);
-        }
 
-        $userProfile = UserProfile::where('user_id', $id)->update([
-            'name' => $request->get('name'),
-            'id_card' => $request->get('id_card'),
-            'phone' => $request->get('phone'),
-            'gender' => $request->get('gender'),
-            'address' => $request->get('address'),
-            'zone_id' => $request->get('zone_id'),
-            'subzone_id' => $request->get('zone_id'),
-            'tambon_code' => $request->get('tambon_code'),
-            'district_code' => $request->get('district_code'),
-            'province_code' => $request->get('province_code'),
-        ]);
+            // NEW: Assign permissions to the associated User
+            $user = $staff->user;
+            if ($request->has('permissions')) {
+                $user->syncPermissions($request->input('permissions'));
+            } else {
+                $user->syncPermissions([]); // Revoke all if none selected
+            }
+        });
 
-        return redirect('staff')->with(['massage' => 'ทำการบันทึกการแก้ไขเรียบร้อยแล้ว', 'color' => 'warning']);
-
+        return redirect()->route('keptkaya.staffs.index')->with('success', 'เพิ่มเจ้าหน้าที่เรียบร้อยแล้ว!');
     }
 
-    public function delete($id)
+    /**
+     * Display the specified staff member.
+     *
+     * @param  \App\Models\Staff  $staff
+     * @return \Illuminate\Http\Response
+     */
+    public function show(Staff $staff)
     {
-        $user = User::where('id', $id)->update([
-            'status' => 'deleted',
+        $staff->load('user');
+        return view('keptkaya.staffs.show', compact('staff'));
+    }
+
+    public function edit(Staff $staff)
+    {
+        dd('ss');
+        return $staff;
+        $staff->load('user.permissions'); // NEW: Load user permissions
+        $permissions = Permission::all(); // NEW: Get all permissions for form
+        return view('keptkaya.staffs.edit', compact('staff', 'permissions')); // NEW: Pass permissions
+    }
+
+    /**
+     * Update the specified staff member in storage.
+     *
+     * @param  \Illuminate\Http\Request  $request
+     * @param  \App\Models\Staff  $staff
+     * @return \Illuminate\Http\Response
+     */
+    public function update(Request $request, Staff $staff)
+    {
+        $request->validate([
+            'status' => ['required', Rule::in(['active', 'inactive', 'suspended'])],
+            'deleted' => 'boolean',
+            'permissions' => 'array', // NEW: Validate permissions array
+            'permissions.*' => 'exists:permissions,name', // NEW: Validate each permission name
         ]);
 
-        $user_profile = UserProfile::where('user_id', $id)->update([
-            'status' => 0,
-        ]);
+        DB::transaction(function () use ($request, $staff) {
+            $staff->update([
+                'status' => $request->status,
+                'deleted' => $request->has('deleted'),
+            ]);
 
-        return redirect('staff')->with(['massage' => 'การลบข้อมูลเรียบร้อยแล้ว', 'color' => 'danger']);
+            // NEW: Sync permissions to the associated User
+            $user = $staff->user;
+            if ($request->has('permissions')) {
+                $user->syncPermissions($request->input('permissions'));
+            } else {
+                $user->syncPermissions([]); // Revoke all if none selected
+            }
+        });
 
+        return redirect()->route('keptkaya.staffs.index')->with('success', 'อัปเดตข้อมูลเจ้าหน้าที่เรียบร้อยแล้ว!');
+    }
+
+    /**
+     * Remove the specified staff member from storage.
+     *
+     * @param  \App\Models\Staff  $staff
+     * @return \Illuminate\Http\Response
+     */
+    public function destroy(Staff $staff)
+    {
+        DB::transaction(function () use ($staff) {
+            // NEW: Revoke all permissions from the associated User before deleting staff record
+            $staff->user->syncPermissions([]);
+            $staff->delete();
+        });
+
+        return redirect()->route('keptkaya.staffs.index')->with('success', 'ลบข้อมูลเจ้าหน้าที่เรียบร้อยแล้ว!');
     }
 }

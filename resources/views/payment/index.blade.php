@@ -11,7 +11,7 @@
     <a href="{{ route('invoice.index') }}">รับชำระค่าน้ำประปา</a>
 @endsection
 
-@section('page-topic')
+@section('nav-topic')
     รายชื่อผู้ใช้น้ำประปาที่ยังไม่ได้ชำระค่าน้ำประปา
     @foreach ($selected_subzone_name_array as $item)
         {{ $item }}
@@ -84,20 +84,60 @@
                 margin-left: auto
             }
         }
-        .text-cutmeter{
+
+        .text-cutmeter {
             background-color: #fbdcf4;
             color: #000000
         }
+        tfoot th{
+            background: #e9ecef !important
+        }
+        .total {
+            color: blue
+        }
+
+        #topic {
+            font-size: 1.3rem;
+            font-weight: bold;
+            color: black;
+            margin-bottom: 1remπ
+        }
+
+        .subtotal {
+            color: black;
+            border-bottom: 1px solid black
+        }
+        .icon-shape {
+    width: 40px !important;
+    height: 40px !important;
+    background-position: 50%;
+    border-radius: .75rem;
+}
+      
     </style>
 @endsection
 @section('content')
+<div class="preloader-wrapper">
+    <button class="btn btn-primary btn-sm mb-2" type="button" disabled>
+        <span class="spinner-border spinner-border-sm" role="status"></span>
+        Loading...
+    </button>
+</div>
     <div class="row">
-        <div class="col-3">
+        <div class="col-12 mb-2">
             <form action="{{ route('payment.index') }}" method="get">
                 @csrf
                 <div class="card">
+
                     <div class="card-body row">
+                        <a href="javascript:;" class="w-auto" style="position: absolute; margin-left:80%">
+                            <button type="submit" class="avatar avatar-md border-1 rounded-circle">
+                                <i class="fas fa-search text-secondary" aria-hidden="true"></i>
+                            </button>
+                            ค้นหา
+                        </a>
                         <h6>ค้นหาจากเส้นทางจดมิเตอร์</h6>
+
                         <div class="form-check">
                             <input class="form-check-input" type="checkbox" name="check-input-select-all"
                                 id="check-input-select-all" {{ $select_all == true ? 'checked' : '' }}>
@@ -105,19 +145,19 @@
                         </div>
 
                         @foreach ($subzones as $key => $subzone)
-                            <div class="col-lg-6 col-md-3 col-sm-3 mt-025">
+                            <div class="col-lg-2 col-md-3 col-sm-3 mt-025">
                                 <div class="row">
                                     <div class="col-1">
                                         @if (isset($subzone_selected))
                                             <div class="form-check">
-                                                <input class="form-check-input" type="checkbox" name="subzone_id_lists[]"
-                                                    value="{{ $subzone->id }}"
+                                                <input class="form-check-input subzone_checkbox " type="checkbox"
+                                                    name="subzone_id_lists[]" value="{{ $subzone->id }}"
                                                     {{ in_array($subzone->id, $subzone_selected) == true ? 'checked' : '' }}>
                                             </div>
                                         @else
                                             <div class="form-check">
-                                                <input class="form-check-input" type="checkbox" name="subzone_id_lists[]"
-                                                    value="{{ $subzone->id }}">
+                                                <input class="form-check-input subzone_checkbox" type="checkbox"
+                                                    name="subzone_id_lists[]" value="{{ $subzone->id }}">
                                             </div>
                                         @endif
                                     </div>
@@ -131,61 +171,179 @@
 
                             </div>
                         @endforeach
-                        <a href="javascript:;" class="w-auto mt-3">
-                            <button type="submit" class="avatar avatar-md border-1 rounded-circle">
-                                <i class="fas fa-search text-secondary" aria-hidden="true"></i>
-                            </button>
-                            ค้นหา
-                        </a>
+
                     </div>
                 </div>
             </form>
         </div>
-        <div class="col-9">
-            <div class="col-12">
-                <div class="card">
-                    <div class="card-body">
+        
+        
+        <div class="col-12">
+            
+            <div class="card">
+                <div class="card-body">
+                    <div class="row">
+                        <div class="col-lg-4 col-md-6 col-sm-6 col-xs-12">
+                          <div class="card ">
+                            <div class="card-body p-3">
+                              <div class="row">
+                                <div class="col-10">
+                                  <div class="numbers">
+                                    <p class="text-sm mb-0 text-capitalize font-weight-bold mb-2">ยอดทั้งหมด</p>
+                                    <h5 class="font-weight-bolder mb-0 d-flex justify-content-between">
+                                        &nbsp;&nbsp;ใช้น้ำ <div><span id="main_total_water_used"></span>
+                                      <span class="text-success text-sm font-weight-bolder"> หน่วย</span></div>
+                                    </h5>
+                                 
+                                    <h5 class="font-weight-bolder mb-0 d-flex justify-content-between">
+                                        &nbsp;&nbsp;ต้องชำระ <div><span id="main_total_paid">2,300</span>
+                                      <span class="text-success text-sm font-weight-bolder">&nbsp;&nbsp;บาท</span></div>
+                                    </h5>
+                                  </div>
+                                </div>
+                                <div class="col-2 text-end">
+                                  <div class="icon icon-shape bg-primary shadow text-center border-radius-md">
+                                    <i class="ni ni-cart text-lg opacity-10" aria-hidden="true"></i>
+                                  </div>
+                                </div>
+                              </div>
+                            </div>
+                          </div>
+                        </div>
+                        <div class="col-lg-4 col-md-6 col-sm-6 col-xs-12 mt-sm-0">
+                          <div class="card ">
+                            <div class="card-body p-3">
+                              <div class="row">
+                                <div class="col-10">
+                                    <div class="numbers">
+                                        <p class="text-sm mb-0 text-capitalize font-weight-bold mb-2">ยอดที่เลือก</p>
+                                        <h5 class="font-weight-bolder mb-0 d-flex justify-content-between">
+                                            &nbsp;&nbsp;ใช้น้ำ <div><span id="main_total_water_used_selected">0.00</span>
+                                          <span class="text-success text-sm font-weight-bolder"> หน่วย</span></div>
+                                        </h5>
+                                     
+                                        <h5 class="font-weight-bolder mb-0 d-flex justify-content-between">
+                                            &nbsp;&nbsp;ต้องชำระ <div><span id="main_total_paid_selected">0.00</span>
+                                          <span class="text-success text-sm font-weight-bolder">&nbsp;&nbsp;บาท</span></div>
+                                        </h5>
+                                      </div>
+                                </div>
+                                <div class="col-2 text-end">
+                                  <div class="icon icon-shape bg-primary shadow text-center border-radius-md">
+                                    <i class="ni ni-cart text-lg opacity-10" aria-hidden="true"></i>
+                                  </div>
+                                </div>
+                              </div>
+                            </div>
+                          </div>
+                        </div>
+                      </div>
+                    
+                    <div class="preloader-wrapper hidden">
+                        <button class="btn btn-primary btn-sm mb-2" type="button" disabled>
+                            <span class="spinner-border spinner-border-sm" role="status"></span>
+                            กำลังบันทึกข้อมูล...
+                        </button>
+                    </div>
+                    <form action="{{ route('payment.store_by_inv_no') }}" method="POST" >
+                        {{-- onsubmit="return check()" --}}
+                        @csrf
+                        <input type="submit" class="btn btn-info hidden mt-3" id="submitbtn" value="บันทึกการชำระเงินหลายรายการ">
                         <div class="table-responsive">
                             <table class="table" id="invoiceTable">
                                 <thead>
+                                    <th>
+                                        <input type="checkbox" class="form-check-input" id="check_all">
+                                    </th>
+                                    <th></th>
                                     <th>เลขใบแจ้งหนี้</th>
                                     <th>ชื่อ</th>
                                     <th>เลขมิเตอร์</th>
                                     <th>บ้านเลขที่</th>
                                     <th>หมู่</th>
                                     <th>เส้นทางจดมิเตอร์</th>
+                                    <th>ใช้น้ำ(หน่วย)</th>
+                                    <th>ต้องชำระ(บาท)</th>
+                                    <th>ค้างชำระ(รอบบิล)</th>
                                     <th>สถานะ</th>
                                     {{-- <th>หมายเหตุ</th> --}}
                                 </thead>
+                                <tfoot>
+                                    <tr>
+                                        <th></th>
+                                        <th></th>
+                                        <th></th>
+                                        <th></th>
+                                        <th></th>
+                                        <th></th>
+                                        <th class="text-end"></th>
+                                        <th class="text-end"></th>
+                                        <th class="text-end"></th>
+                                        <th class="text-end"></th>
+                                        <th class="text-end"></th>
+                                        <th class="text-end"></th>
+                                    </tr>
+                                </tfoot>
                                 <tbody>
                                     @foreach ($invoices as $invoice)
-                                        <tr class="{{$invoice->cutmeter == 1 ? 'text-cutmeter' : ''}}">
-
-                                            <td class="text-end">
-                                            {{$invoice->invoice[0]->acc_trans_id_fk}}
-                                                <!-- {{ "Iv".$invoice->meter_id."".$invoice->invoice[0]->inv_no }} -->
+                                        <tr class="{{ $invoice->cutmeter == 1 ? 'text-cutmeter' : '' }}">
+                                            <td class="text-center ">
+                                              
+                                                @if ($invoice->same == true)
+                                                    <input type="checkbox" class="form-check-input checkbox main_checkbox" name="datas[]"
+                                                        value="{{ $invoice->invoice[0]->meter_id_fk."|".$invoice->invoice[0]->inv_no }}"
+                                                        data-main_checkbox_totalpaid="{{collect($invoice->invoice)->sum('totalpaid')}}"  
+                                                        data-main_total_water_used_selected="{{collect($invoice->invoice)->sum('water_used')}}"  
+                                                        
+                                                    >
+                                                    
+                                                @endif
+                                                
 
                                             </td>
-                                            <td>{{ $invoice->user->prefix . '' . $invoice->user->firstname . ' ' . $invoice->user->lastname }}
+                                            <td> {{ $invoice->invoice[0]->inv_id }}</td>
+                                            <td class="popup text-end">
+                                                {{ $invoice->invoice[0]->inv_no }}
+
                                             </td>
-                                            <td class="meternumber text-center" data-meter_id={{ $invoice->meter_id }}>
+                                            @if (collect($invoice->user)->isEmpty())
+                                                @dd($invoice)
+                                            @endif
+                                            <td class="popup">
+                                                {{ $invoice->user->prefix . '' . $invoice->user->firstname . ' ' . $invoice->user->lastname }}
+                                            </td>
+                                            <td class="popup meternumber text-center"
+                                                data-meter_id={{ $invoice->meter_id }}>
                                                 {{ $invoice->meternumber }}
                                             </td>
-                                            <td class="text-center">{{ $invoice->user->address }}</td>
-                                            <td class="text-center">
+                                            <td class="popup text-center">{{ $invoice->meter_address }}</td>
+                                            <td class="popup text-center">
                                                 {{ $invoice->undertake_zone->zone_name }}
                                             </td>
-                                            <td class="text-center">
+                                            <td class="popup text-center">
                                                 @if (!isset($invoice->undertake_subzone->subzone_name))
                                                     {{ dd($invoice) }}
                                                 @endif
                                                 {{ $invoice->undertake_subzone->subzone_name }}
                                             </td>
+                                            <td class="popup text-end">
+                                                {{ number_format(collect($invoice->invoice)->sum('water_used'), 2) }}
+                                            </td>
+                                            <td class="popup text-end">
+                                                {{-- @dd($invoice->invoice) --}}
+                                                {{ collect($invoice->invoice)->sum('totalpaid') }}
+
+                                            </td>
+                                            <td class="popup text-end">
+
+                                                {{ $invoice->owe_count }}
+
+                                            </td>
                                             <td class="text-center">
                                                 @if ($invoice->cutmeter == 1)
-                                                <span class="badge badge-sm bg-gradient-danger">ตัดมิเตอร์</span>
+                                                    <span class="badge badge-sm bg-gradient-danger">ตัดมิเตอร์</span>
                                                 @else
-                                                <span class="badge badge-sm bg-gradient-info">ค้างชำระ</span>
+                                                    <span class="badge badge-sm bg-gradient-info">ค้างชำระ</span>
                                                 @endif
                                             </td>
                                         </tr>
@@ -193,9 +351,10 @@
 
 
                                 </tbody>
+                             
                             </table>
                         </div>
-                    </div>
+                    </form>
                 </div>
             </div>
         </div>
@@ -206,7 +365,7 @@
     <!-- Modal -->
     <form action="{{ route('payment.store') }}" method="post" onsubmit="return check()">
         @csrf
-        <div class="modal fade" id="modal-success">
+        <div class="modal fade" id="modal-success ">
             <div class="modal-dialog modal-dialog-scrollable">
                 <div class="modal-content">
                     <div class="modal-header">
@@ -266,6 +425,14 @@
                                                     </span>
                                                     <span class="text-dark font-weight-bold ms-2">
                                                         <span class="vat7"></span><sup class="sup">บาท</sup>
+                                                    </span>
+                                                </div>
+                                                <div class="d-flex justify-content-between">
+                                                    <span class="mb-2 text-sm">
+                                                        ค่ารักษามิเตอร์:
+                                                    </span>
+                                                    <span class="text-dark font-weight-bold ms-2">
+                                                        <span class="reserve_meter"></span><sup class="sup">บาท</sup>
                                                     </span>
                                                 </div>
                                                 <hr class="horizontal" style="background-color: black; margin:0.3rem 0">
@@ -332,7 +499,7 @@
                                             </div>
                                             <span>&nbsp;&nbsp;&nbsp;&nbsp;</span>
                                             <button type="submit" style="height:120px; width:150px"
-                                                class="btn btn-success  btn-block submitbtn hidden mt-4  m-2">
+                                                class="btn btn-success  btn-block submitbtn reciept_money_btn hidden mt-4  m-2">
                                                 <h6><i class="fa fa-solid fa-money text-secondary mb-1 text-white"
                                                         aria-hidden="true"></i></h6>
                                                 <h5 class="text-white"> ชำระเงิน</h5>
@@ -353,6 +520,11 @@
     <script src="https://cdn.jsdelivr.net/npm/jquery.qrcode@1.0.3/jquery.qrcode.min.js"></script>
     <script>
         let a = true
+        let preloaderwrapper = document.querySelector('.preloader-wrapper')
+        $(document).ready(function(){
+            preloaderwrapper.classList.add('fade-out-animation')
+
+        })
         table = $('#invoiceTable').DataTable({
             responsive: true,
 
@@ -372,6 +544,58 @@
 
             },
             select: true,
+
+            footerCallback: function(row, data, start, end, display) {
+                let api = this.api();
+                let intVal = function(i) {
+                        return typeof i === 'string' ?
+                            i.replace(/[\$,]/g, '') * 1 :
+                            typeof i === 'number' ?
+                            i :
+                            0;
+                    };
+
+                    // _water_used
+                    total_water_used = api
+                        .column(8)
+                        .data()
+                        .reduce((a, b) => intVal(a) + intVal(b), 0);
+                    pageTotal_water_used = api
+                        .column(8, {
+                            page: 'current'
+                        })
+                        .data()
+                        .reduce((a, b) => intVal(a) + intVal(b), 0);
+                    // api.column(7).header().innerHTML =
+                    //     '<div class="subtotal text-end">' + pageTotal_water_used.toFixed(2).replace(/\d(?=(\d{3})+\.)/g, '$&,') +
+                    //     '</div> <div class="total text-end" id="water_used"> ' +
+                    //     total_water_used.toFixed(2).replace(/\d(?=(\d{3})+\.)/g, '$&,') + ' </div>'+
+                    //     '<div class="text-center">ใช้น้ำ (บาท)</div>';
+                        $('#main_total_water_used').html(total_water_used.toFixed(2).replace(/\d(?=(\d{3})+\.)/g, '$&,'))
+                    
+
+                        // _water_used
+                    total_water_used = api
+                        .column(9)
+                        .data()
+                        .reduce((a, b) => intVal(a) + intVal(b), 0);
+                    pageTotal_water_used = api
+                        .column(9, {
+                            page: 'current'
+                        })
+                        .data()
+                        .reduce((a, b) => intVal(a) + intVal(b), 0);
+                        
+                        $('#main_total_paid').html(total_water_used.toFixed(2).replace(/\d(?=(\d{3})+\.)/g, '$&,'))
+
+                    // api.column(8).header().innerHTML =
+                        
+                    //     '<div class="subtotal text-end">' + pageTotal_water_used.toFixed(2).replace(/\d(?=(\d{3})+\.)/g, '$&,') +
+                    //     '</div> <div class="total text-end" id="water_used"> ' +
+                    //     total_water_used.toFixed(2).replace(/\d(?=(\d{3})+\.)/g, '$&,') + ' </div>'+
+                    //     '<div class="text-center">ต้องชำระ (บาท)</div>';
+                    
+            }
         }) //table
         $('#invoiceTable_filter').remove()
         if (a) {
@@ -382,7 +606,7 @@
             var title = $(this).text();
             $(this).removeClass('sorting')
             $(this).removeClass('sorting_asc')
-            if (index < 4) {
+            if (index > 0 && index < 5) {
                 $(this).html(
                     `<input type="text" data-id="${index}" class="col-md-12 input-search-by-title" id="search_col_${index}" placeholder="ค้นหา" />`
                 );
@@ -405,7 +629,7 @@
             setTimeout(function() {
 
                 let _val = that.val()
-                if (col === 0 || col === 3) {
+                if (col === 1 || col === 4) {
                     var val = $.fn.dataTable.util.escapeRegex(
                         _val
                     );
@@ -423,27 +647,27 @@
 
         });
 
-        $('body').on('click', '#invoiceTable tbody tr', function() {
-            let meternumber = $(this).find('td.meternumber').data('meter_id')
-            if ($(this).hasClass('selected')) {
-                $(this).removeClass('selected')
+        $('body').on('click', '#invoiceTable tbody td.popup', function() {
+            let meternumber = $(this).parent().find('td.meternumber').data('meter_id')
+            if ($(this).parent().hasClass('selected')) {
+                $(this).parent().removeClass('selected')
             } else {
                 $.each($('#invoiceTable tbody tr'), function(key, value) {
-
                     $(this).removeClass('selected')
                 });
-                $(this).addClass('selected')
+                $(this).parent().addClass('selected')
             }
-
             findReciept(meternumber)
         });
+
+        let invoice_local;
 
         function findReciept(meter_id) {
             let txt = '';
             let totalpaidsum = parseFloat(0);
             let paidsum = parseFloat(0);
             let vatsum = parseFloat(0);
-            let vat = 0.07;
+            let vat = 0; //0.07;
             let i = 0;
 
             $('.cashback').val(0)
@@ -457,13 +681,14 @@
 
 
             $.get(`/api/invoice/get_user_invoice/${meter_id}/inv_and_owe`).done(function(invoices) {
-
+                invoice_local = invoices
                 let i = 0;
                 if (Object.keys(invoices).length > 0) {
+
                     console.log(invoices)
                     txt += `<div class="card card-success border border-success rounded">
                                 <div class="card-header p-1">
-                                    <h6 class="card-title bg-gray-100">รายการค้างชำระ [ ${Object.keys(invoices).length} <sup class="sup">รอบบิล</sup> ] <span style="padding-left:30px">เลขใบเสร็จรับเงิน  ${invoices[0].acc_trans_id_fk}</span> </h6>
+                                    <h6 class="card-title bg-gray-100">รายการค้างชำระ [ ${Object.keys(invoices).length} <sup class="sup">รอบบิล</sup> ]  </h6>
                                 </div>
                                 <div class="card-body p-0 " style="display: block;height:250px; overflow-y: scroll;">
                                     <table class="table">
@@ -490,7 +715,7 @@
                                         </thead>
                                         <tbody>`;
                     invoices.forEach(element => {
-                        totalpaidsum += parseFloat(element.totalpaid)
+                        totalpaidsum += parseFloat(element.paid)
                         vatsum += parseFloat(element.vat);
                         paidsum += parseFloat(element.paid)
 
@@ -502,11 +727,11 @@
                         txt += ` <tr>
                                 <td class="text-center">
                                     <div class="form-check">
-                                        <input type="checkbox"  checked  class="form-check-input invoice_id checkbox"
+                                        <input type="checkbox"  checked  class="form-check-input invoice_id checkbox modalcheckbox"
                                             data-inv_id="${element.inv_id}" name="payments[${i}][on]">
                                     </div>
                                 </td>
-                                <td class="text-center">${"Iv"+element.meter_id_fk+""+element.inv_no}</td>
+                                <td class="text-center">${element.inv_no}</td>
                                 <td class="text-center">${element.inv_id}</td>
                                 <td class="text-center">${element.usermeterinfos.meternumber}</td>
                                 <td class="text-center">${element.invoice_period.inv_p_name}</td>
@@ -518,9 +743,9 @@
                                     <input type="hidden" name="payments[${i}][iv_id]" value="${ element.inv_id }">
                                     <input type="hidden" name="payments[${i}][status]" value="${ element.status }">
                                 </td>
-                                <td class="text-end">${ element.inv_type === 'r' ? element.paid : 0}</td>
+                                <td class="text-end">${ element.inv_type === 'r' ? 10 : 10}</td>
                                 <td class="text-end" id="vat${element.inv_id}" data-vat="${element.inv_id}">${parseFloat(_vat).toFixed(2)}</td>
-                                <td class="total text-end" id="total${element.inv_id}" data-total="${element.inv_id}">${parseFloat(totalpaid).toFixed(2)}</td>
+                                <td class="total text-end" id="total${element.inv_id}" data-total="${element.inv_id}">${parseFloat(totalpaid +10).toFixed(2)}</td>
                                 <td class="text-center">${status}</td>
 
                             </tr>
@@ -554,31 +779,21 @@
                     $('.paidsum').html(parseFloat(paidsum).toFixed(2))
                     $('#vat7').val(parseFloat(vatsum).toFixed(2))
                     $('.vat7').html(parseFloat(vatsum).toFixed(2))
-                    $('#mustpaid').val(parseFloat(totalpaidsum).toFixed(2))
-                    $('.mustpaid').html(parseFloat(totalpaidsum).toFixed(2))
+                    $('#reserve_meter').val(parseFloat(invoices.length * 10).toFixed(2))
+                    $('.reserve_meter').html(parseFloat(invoices.length * 10).toFixed(2))
+                    $('#mustpaid').val(parseFloat(totalpaidsum + invoices.length * 10).toFixed(2))
+                    $('.mustpaid').html(parseFloat(totalpaidsum + invoices.length * 10).toFixed(2))
                     $('#meter_id').val(invoices[0].usermeterinfos.meter_id);
-                    $('#inv_no').val(invoices[0].usermeterinfos.meter_id+""+invoices[0].inv_no)
-                    let init = "000000000000000000"
-                    let meter_id_length = invoices[0].usermeterinfos.meter_id.toString().length
-                    let meter_id_str = init.substring(meter_id_length) + "" + invoices[0].usermeterinfos.meter_id
-                        .toString()
-                    let inv_no_length = $('#inv_no').val().toString().length
-                    let inv_no_str = init.substring(inv_no_length) + "" + $('#inv_no').val()
-                        .toString()
-                    let paidVal = parseFloat(totalpaidsum).toFixed(2).toString().replace(".", "")
-                    let res = `|099400035262000\n${meter_id_str}\n${inv_no_str}\n${paidVal}`
-                    $('#qrcode_text').val(res)
-                    $('#qrcode').html("")
-                    $('#qrcode').append(invoices[0].usermeterinfos.user.prefix + "" + invoices[0].usermeterinfos
-                        .user.firstname + " " + invoices[0].usermeterinfos.user.lastname + "\n");
-                    $('#qrcode').append(
-                        `<div font-size:1.1rem">จำนวนที่ต้องชำระ ${parseFloat(totalpaidsum).toFixed(2)} บาท</div>`
-                        );
-                    $('#qrcode').append().qrcode({
-                        text: $('#qrcode_text').val(),
-                        width: 135,
-                        height: 135
-                    });
+                    $('#inv_no').val(invoices[0].inv_no)
+
+                    createQrCode({
+                        meter_id: invoices[0].usermeterinfos.meter_id,
+                        totalpaidsum: totalpaidsum + invoices.length * 10,
+                        prefix: invoices[0].usermeterinfos.user.prefix,
+                        firstname: invoices[0].usermeterinfos.user.firstname,
+                        lastname: invoices[0].usermeterinfos.user.lastname,
+                        invoices_length: invoices.length
+                    })
 
                 } else {
                     $('#empty-invoice').removeClass('hidden')
@@ -588,7 +803,28 @@
             });
         } //text
 
-
+        function createQrCode(data) {
+            let init = "000000000000000000"
+            let meter_id_length = data.meter_id.toString().length
+            let meter_id_str = init.substring(meter_id_length) + "" + data.meter_id
+                .toString()
+            let inv_no_length = $('#inv_no').val().toString().length
+            let inv_no_str = init.substring(inv_no_length) + "" + $('#inv_no').val()
+                .toString()
+            let paidVal = parseFloat(data.totalpaidsum).toFixed(2).toString().replace(".", "")
+            let res = `|099400035262000\n${meter_id_str}\n${inv_no_str}\n${paidVal}`
+            $('#qrcode_text').val(res)
+            $('#qrcode').html("")
+            $('#qrcode').append(data.prefix + "" + data.firstname + " " + data.lastname + "\n");
+            $('#qrcode').append(
+                `<div font-size:1.1rem">จำนวนที่ต้องชำระ ${parseFloat(data.totalpaidsum  ).toFixed(2)} บาท</div>`
+            );
+            $('#qrcode').append().qrcode({
+                text: $('#qrcode_text').val(),
+                width: 135,
+                height: 135
+            });
+        }
         $('.cash_from_user').keyup(function() {
             let mustpaid = $('#mustpaid').val()
             let cash_from_user = $(this).val()
@@ -608,7 +844,7 @@
         }); //$('.cash_from_user')
 
 
-        $(document).on('click', '.checkbox', function() {
+        $(document).on('click', '.invoice_id', function() {
             checkboxclicked()
         }); //$(document).on('click','.checkbox',
 
@@ -616,13 +852,14 @@
             let totalsum = 0;
             let vatsum = 0;
             let paidsum = 0;
-            $('.checkbox').each(function(index, element) {
+            let checkboxSelectCount = 0;
+            $('.invoice_id').each(function(index, element) {
                 if ($(this).is(":checked")) {
                     let id = $(this).data('inv_id')
                     totalsum = parseFloat(totalsum) + parseFloat($(`#total${id}`).text())
                     paidsum = parseFloat(paidsum) + parseFloat($(`#paid${id}`).text())
                     vatsum = parseFloat(vatsum) + parseFloat($(`#vat${id}`).text())
-
+                    checkboxSelectCount++;
                 } else {
                     $('#check-input-select-all').prop('checked', false)
                 }
@@ -652,6 +889,15 @@
             $('#paidsum').val(paidsum)
             $('#mustpaid').val(totalsum)
             $('.mustpaid').text(totalsum)
+            $('.reserve_meter').html((checkboxSelectCount * 10).toFixed(2))
+            createQrCode({
+                meter_id: invoice_local[0].usermeterinfos.meter_id,
+                totalpaidsum: totalsum,
+                prefix: invoice_local[0].usermeterinfos.user.prefix,
+                firstname: invoice_local[0].usermeterinfos.user.firstname,
+                lastname: invoice_local[0].usermeterinfos.user.lastname,
+                invoices_length: invoice_local.length
+            })
         }
 
         function check() {
@@ -678,22 +924,84 @@
 
                 alert(errText)
                 return false;
-            } else {
-                return true;
-
-            }
+            } 
         }
 
+        $(document).on('click', '#submitbtn', function(){
+            return window.confirm('คุณต้องการบันทึกการรับชำระเงินแบบ หลายการใช่หรือไม่ ???')
+        })
+
+        $(document).on('click', '.checkbox', function() {
+            $('#submitbtn').hasClass('hidden') ? '' : $('#submitbtn').addClass('hidden')
+            $('.checkbox').each(function() {
+                if ($(this).is(':checked')) {
+                    $('#submitbtn').removeClass('hidden')
+                
+                }
+            })
+           
+        })
+
+        $(document).on('click', '.main_checkbox', function() {
+            sum_payment_selected_main_checkbox()
+        })
+
+        function sum_payment_selected_main_checkbox(){
+            let main_checkbox_totalpaid = 0
+            let main_total_water_used_selected = 0
+            $('.main_checkbox').each(function() {
+                if ($(this).is(':checked')) {
+                    main_checkbox_totalpaid  = $(this).data('main_checkbox_totalpaid') + main_checkbox_totalpaid
+                    main_total_water_used_selected  = $(this).data('main_total_water_used_selected') + main_total_water_used_selected
+                    
+                }
+            })
+            $('#main_total_paid_selected').html(main_checkbox_totalpaid.toFixed(2).replace(/\d(?=(\d{3})+\.)/g, '$&,'))
+            $('#main_total_water_used_selected').html(main_total_water_used_selected.toFixed(2).replace(/\d(?=(\d{3})+\.)/g, '$&,'))
+        }
+        
         $('#check-input-select-all').on('click', function() {
             if (!$(this).is(':checked')) {
-                $('.form-check-input').prop('checked', false)
+                $('.subzone_checkbox').prop('checked', false)
             } else {
-                $('.form-check-input').prop('checked', true)
+                $('.subzone_checkbox').prop('checked', true)
             }
         });
+        $('#check_all').on('click', function() {
+            // $('.main_checkbox').each(function(){
+            //     $(this).attr('checked', true)
+            // })
+
+            if ($(this).is(':checked')) {
+                $('.main_checkbox').prop('checked', true)
+                $('#submitbtn').removeClass('hidden')
+            } else {
+                $('.main_checkbox').prop('checked', false)
+                $('#submitbtn').addClass('hidden')
+
+            }
+            sum_payment_selected_main_checkbox()
+
+        });
+
+        $(document).on('click', '#checkAll', function() {
+            let state = true
+           if($(this).prop('checked') == false){
+            state = false
+           }
+            $('.modalcheckbox').each(function(){
+                $(this).attr('checked', state)
+            })
+
+        });
+
+        // function check(){
+        //     $('.preloader-wrapper').removeClass('hidden')
+        //     return true
+        // }
 
         $('.close').click(() => {
-            $('.modal').modal('close')
+            $('.modal').modal('hide')
         })
     </script>
 @endsection

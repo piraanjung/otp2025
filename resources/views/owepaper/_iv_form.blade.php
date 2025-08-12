@@ -22,9 +22,9 @@ $fnc = new FunctionsController();
             <div class="row">
                 <div class="col-12">
                     <div style="margin-top: 2rem"></div>
-                    <div>กิจการประปาเทศบาลตำบลห้องแซง</div>
-                    <div>222 หมู่ 17 ต.ห้องแซง</div>
-                    <div>อ.เลิงนกทา จ.ยโสธร 35120</div>
+                    <div>กิจการประปาองค์การบริหารส่วนตำบลขามป้อม</div>
+                    <div>หมู่ 1 ต.ขามป้อม</div>
+                    <div>อ.พระยืน จ.ขอนแก่น 40320</div>
                 </div>
             </div>
             <div class="row mb-4" style="margin-top:1.5rem">
@@ -36,8 +36,9 @@ $fnc = new FunctionsController();
 
                     <div class="pl-5">
                         {{ $item['res'][0]->usermeterinfos->user->address . ' ' . $item['res'][0]->usermeterinfos->user->user_zone->zone_name }}
-                        ต.ห้องแซง </div>
-                    <div class="pl-5">อ.เลิงนกทา จ.ยโสธร 35120</div>
+                        ต.ขามป้อม
+                    </div>
+                    <div class="pl-5">อ.พระยืน จ.ขอนแก่น 40320</div>
                 </div>
             </div>
             <hr>
@@ -45,21 +46,21 @@ $fnc = new FunctionsController();
             <div style="margin-top: 1.5rem"></div>
 
             <div class="row">
-                <div class="col-3 textbetweenKrut">ที่ ยส 73602/</div>
+                <div class="col-3 textbetweenKrut">ที่ ขก 78002/</div>
                 <div class="col-4 text-right">
                     <img src="{{ asset('/logo/krut.png') }}" style="width: 3cm; height:3cm">
                 </div>
                 <div class="col-5 textbetweenKrut tesabanAddr">
-                    <div>สำนักงานเทศบาลตำบลห้องแซง</div>
-                    <div>ถนนเลิงนกทา-หนองพอก 35120</div>
+                    <div>องค์การบริหารส่วนตำบลขามป้อม</div>
+                    <div>หมู่ 1 ต.ขามป้อม อ.พระยืน จ.ขอนแก่น 40320</div>
                 </div>
             </div>
             <div class="row mt-4">
                 <div class="col-5"></div>
                 <div class="col-4 date">
                     <?php
-                    $currentYear = date('Y') + 543;
-                    $monthThai = $fnc->fullThaiMonth(date('m'));
+$currentYear = date('Y') + 543;
+$monthThai = $fnc->fullThaiMonth(date('m'));
                     ?>
                     วันที่ {{ date('d') . ' ' . $monthThai . ' ' . $currentYear }}
                 </div>
@@ -69,12 +70,13 @@ $fnc = new FunctionsController();
             </div>
             <div class="row mt-3">
                 <div class="col-12">เรียน &nbsp;
-                    <b id="user_name">{{ $item['res'][0]->usermeterinfos->user->prefix . '' . $item['res'][0]->usermeterinfos->user->firstname . ' ' . $item['res'][0]->usermeterinfos->user->lastname }}</b>
+                    <b
+                        id="user_name">{{ $item['res'][0]->usermeterinfos->user->prefix . '' . $item['res'][0]->usermeterinfos->user->firstname . ' ' . $item['res'][0]->usermeterinfos->user->lastname }}</b>
                 </div>
             </div>
             <div class="row mt-3">
                 <div class="col-12 indent">
-                    <div style="letter-spacing: 1.2px;">ตามที่ท่านเป็นผู้ใช้น้ำของ กิจการประปาเทศบาลตำบลห้องแซง
+                    <div style="letter-spacing: 1.2px;">ตามที่ท่านเป็นผู้ใช้น้ำของ กิจการประปาเทศบาลตำบลขามป้อม
                         เลขที่ผู้ใช้น้ำ
                         <b>{{ $item['res'][0]->usermeterinfos->meternumber }}</b>
                         <input type="hidden" id="meter_id" value="{{ $item['res'][0]->usermeterinfos->meter_id }}">
@@ -101,14 +103,14 @@ $fnc = new FunctionsController();
                             <?php $oweSum = 0; ?>
                             <?php $count_history = 0; ?>
                             @foreach ($item['res'] as $history)
-                                <?php $oweSum += $history->totalpaid; ?>
+                                <?php    $oweSum += $history->totalpaid; ?>
                                 <td class="text-center td_history">
                                     {{ $history->totalpaid }}
                                 </td>
                             @endforeach
                             <td class="text-center td_history" id="oweSum">
                                 <?php
-                                echo number_format($oweSum, 2);
+echo number_format($oweSum, 2);
                                 ?>
                             </td>
                         </tr>
@@ -119,33 +121,35 @@ $fnc = new FunctionsController();
             <div class="row">
                 <div class="col-12 indent" style="">
                     ค้างชำระ <b>{{ collect($item['res'])->count() }}</b> เดือน
-                    รวมเป็นเงินที่ต้องชำระทั้งสิ้น <b id="oweSum{{$item['res'][0]->usermeterinfos->meter_id}}">{{ number_format($oweSum, 2) }} </b>บาท
+                    รวมเป็นเงินที่ต้องชำระทั้งสิ้น <b
+                        id="oweSum{{ $item['res'][0]->usermeterinfos->meter_id }}">{{ number_format($oweSum, 2) }}
+                    </b>บาท
                 </div>
             </div>
             <div class="row">
                 <div class="col-12 indent" style="line-height: 1.8rem">
                     <?php
-                    $currentMonthExpTemp = date('m');
-                    $splitArr = str_split($currentMonthExpTemp);
-                    $currentYear = date('Y') + 543;
-                    $currentMonthExp = '';
-                    if ($splitArr[0] == '0') {
-                        $plus = $splitArr[1] + 1;
-                        $currentMonthExp = $plus < 10 ? '0' . $plus : $plus;
-                    } else {
-                        //check เดือน 12 ?
-                        if ($currentMonthExpTemp == 12) {
-                            $currentMonthExp = '01';
-                            $currentYear = $currentYear + 1;
-                        } else {
-                            $currentMonthExp = $currentMonthExpTemp + 1;
-                        }
-                    }
-                    $monthThai = $fnc->fullThaiMonth($currentMonthExp);
-                    $paidBeforeDate = 30;
+$currentMonthExpTemp = date('m');
+$splitArr = str_split($currentMonthExpTemp);
+$currentYear = date('Y') + 543;
+$currentMonthExp = '';
+if ($splitArr[0] == '0') {
+    $plus = $splitArr[1] + 1;
+    $currentMonthExp = $plus < 10 ? '0' . $plus : $plus;
+} else {
+    //check เดือน 12 ?
+    if ($currentMonthExpTemp == 12) {
+        $currentMonthExp = '01';
+        $currentYear = $currentYear + 1;
+    } else {
+        $currentMonthExp = $currentMonthExpTemp + 1;
+    }
+}
+$monthThai = $fnc->fullThaiMonth($currentMonthExp);
+$paidBeforeDate = 30;
                     ?>
                     <div style="letter-spacing: -0.35px;">
-                        ในการนี้ จึงขอให้ท่านโปรดติดต่อชำระค่าน้ำประปา ได้ที่ กองคลังเทศบาลตำบลห้องแซง ให้แล้วเสร็จ
+                        ในการนี้ จึงขอให้ท่านโปรดติดต่อชำระค่าน้ำประปา ได้ที่ กองคลังเทศบาลตำบลขามป้อม ให้แล้วเสร็จ
                     </div>
                     ภายในวันที่_________________________
                     {{-- <b>{{ $paidBeforeDate.' '.$monthThai. ' ' .$currentYear}}</b> --}}
@@ -166,10 +170,13 @@ $fnc = new FunctionsController();
                 <div class="col-3">
                     <div class="card">
                         <div class="card-body text-center" style="color:black;">
-                            <textarea id="qrcode_text" class="qrcode_text" data-id="{{$item['res'][0]->usermeterinfos->meter_id}}" style="opacity: 0" cols="1" rows="1">{{$item['qrcode']}}</textarea>
+                            <textarea id="qrcode_text" class="qrcode_text"
+                                data-id="{{ $item['res'][0]->usermeterinfos->meter_id }}" style="opacity: 0" cols="1"
+                                rows="1">{{ $item['qrcode'] }}</textarea>
                             <div style="font-size:0.9rem; text-align:center;">สแกน QR CODE</div>
-                            <div style="font-size:0.9rem; text-align:center; border-bottom:1px solid black">ชำระเงินค่าน้ำประปา</div>
-                            <div id="qrcode{{$item['res'][0]->usermeterinfos->meter_id}}"></div>
+                            <div style="font-size:0.9rem; text-align:center; border-bottom:1px solid black">
+                                ชำระเงินค่าน้ำประปา</div>
+                            <div id="qrcode{{ $item['res'][0]->usermeterinfos->meter_id }}"></div>
                         </div>
                     </div>
 
@@ -180,12 +187,12 @@ $fnc = new FunctionsController();
                         <div class="col-5"></div>
                         <div class="col-6 text-center pt-3" style="line-height: 1.8rem">
                             <div>( นางละเอียด ศรีสุข )</div>
-                            <div>นายกเทศมนตรีตำบลห้องแซง </div>
+                            <div>นายกเทศมนตรีตำบลขามป้อม </div>
                         </div>
                     </div>
                     <div class="row mt-4">
                         <div class="col-12" style="line-height: 1.8rem; font-size:0.9rem">
-                            <div>กิจการประปา เทศบาลตำบลห้องแซง</div>
+                            <div>กิจการประปา เทศบาลตำบลขามป้อม</div>
                             <div>โทร 088-100-5436 </div>
                         </div>
                     </div>

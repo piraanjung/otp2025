@@ -10,7 +10,7 @@
 @section('nav-current')
     บันทึกข้อมูลใบแจ้งหนี้
 @endsection
-@section('page-topic')
+@section('nav-topic')
     {{ $subzone->zone->zone_name }}
     <div class="text-sm">เส้นทาง::
         {{ $subzone->subzone_name }}</div>

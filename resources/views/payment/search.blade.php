@@ -4,6 +4,18 @@
 @section('nav-payment-search')
     active
 @endsection
+@section('nav-header')
+จัดการใบเสร็จรับเงิน
+@endsection
+@section('nav-main')
+    <a href="{{ route('payment.search') }}">ค้นหาใบเสร็จรับเงิน</a>
+@endsection
+
+@section('nav-topic')
+    ค้นหาใบเสร็จรับเงิน
+@endsection
+
+
 @section('style')
     <link href="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/css/select2.min.css" rel="stylesheet" />
     <script src="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/js/select2.min.js"></script>
@@ -52,23 +64,37 @@
 @endsection
 
 @section('content')
+<div class="preloader-wrapper">
+    <button class="btn btn-primary btn-sm mb-2" type="button" disabled>
+        <span class="spinner-border spinner-border-sm" role="status"></span>
+        Loading...
+    </button>
+</div>
     <div class="col-5 my-auto">
         <div class="h-100">
             <h5 class="mb-1">ค้นหา : ชื่อ,ที่อยู่ ,เลขมิเตอร์</h5>
-            <form action="{{ route('payment.search') }}" method="POST" class="d-flex justify-content-between">
+            <form action="{{ route('payment.search') }}" method="POST" id="searchform" class="d-flex justify-content-between">
                 @csrf
                 <select class="js-example-basic-single form-control" name="user_info">
                     <option>เลือก...</option>
                     @foreach ($users as $user)
-                        <option value="{{ $user->usermeterinfos[0]->meter_id }}">
+                        @foreach ($user->usermeterinfos as $usermeterinfo)
+                            <option value="{{ $usermeterinfo->meter_id }}">
+                            {{ $user->prefix . '' . $user->firstname . ' ' . $user->lastname . '     [บ้านเลขที่ ' . $user->address . ' ' . $user->user_zone->zone_name }}
+
+                                - [{{ $usermeterinfo->meternumber }}]
+
+                            </option>
+                        @endforeach
+                        {{-- <option value="{{ $user->usermeterinfos[0]->meter_id }}">
                             {{ $user->prefix . '' . $user->firstname . ' ' . $user->lastname . '     [บ้านเลขที่ ' . $user->address . ' ' . $user->user_zone->zone_name }}
 
                             - [{{ $user->usermeterinfos[0]->meternumber }}]
 
-                        </option>
+                        </option> --}}
                     @endforeach
                 </select>
-                <button type="submit" class="btn btn-secondary ms-3"><i class="fa fa-search">ค้นหา</i></button>
+                {{-- <button type="submit" class="btn btn-secondary ms-3"><i class="fa fa-search">ค้นหา</i></button> --}}
             </form>
 
         </div>
@@ -336,6 +362,7 @@
     <script>
         $(document).ready(function() {
             $('.js-example-basic-single').select2();
+            $('.preloader-wrapper').addClass('hidden')
         });
 
         $(document).on('click', '.del_dup_inv', function(){
@@ -343,9 +370,13 @@
             let res = window.confirm('ต้องการลบข้อมูลใช่หรือไม่? !!!')
             if(res){
                 $.get('/invioice/delete_duplicate_inv/'+inv_id, function(res){
-                    
+
                 })
             }
+        })
+
+        $('.js-example-basic-single').change(function(){
+            $('#searchform').submit()
         })
     </script>
 @endsection
