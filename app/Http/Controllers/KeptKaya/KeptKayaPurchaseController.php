@@ -28,6 +28,9 @@ class KeptKayaPurchaseController extends Controller
      */
     public function selectUser(Request $request)
     {
+        $request->session()->remove('purchase_user_id');
+        $request->session()->remove('purchase_cart');
+        
         $query = User::whereHas('wastePreference', function($query) {
                                   $query->where('is_waste_bank', true);
                               });
@@ -76,6 +79,8 @@ class KeptKayaPurchaseController extends Controller
         $user = null;
         if ($userId) {
             $user = User::find($userId);
+        }else{
+            return 'ss';
         }
 
         return view('keptkaya.purchase.cart', compact('cart', 'user'));
@@ -157,20 +162,24 @@ class KeptKayaPurchaseController extends Controller
         return view('keptkaya.purchase.receipt', compact('transaction'));
     }
 
-    public function showPurchaseForm(User $user)
+     public function showPurchaseForm(Request $request, User $user)
     {
+        $request->session()->put('purchase_user_id', $user->id);
+        // ตรวจสอบว่าผู้ใช้งานที่เลือกเป็นสมาชิกธนาคารขยะหรือไม่
+        if (!$user->wastePreference || !$user->wastePreference->is_waste_bank) {
+             return redirect()->route('keptkaya.purchase.select_user')->with('error', 'ผู้ใช้งานนี้ไม่ได้เป็นสมาชิกธนาคารขยะ');
+        }
+
         // ดึงรายการขยะทั้งหมด และโหลดราคาที่ Active
         $recycleItems = KpTbankItems::with(['activePrices.kp_units_info'])->get();
 
         // ดึงข้อมูลหน่วยนับทั้งหมด (ถ้าต้องการใช้ใน dropdown)
         $allUnits = KpTbankUnits::all();
-        Session::put('purchase_user_id', $user->id);
-
-        // Clear the cart session for a new transaction
-        // Session::forget('purchase_cart');
 
         return view('keptkaya.purchase.purchase_form', compact('user', 'recycleItems', 'allUnits'));
     }
+    
+
 
     /**
      * Remove an item from the purchase cart.

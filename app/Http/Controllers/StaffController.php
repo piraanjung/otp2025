@@ -2,7 +2,7 @@
 
 namespace App\Http\Controllers;
 
-use App\Models\Staff;
+use App\Models\Admin\Staff;
 use App\Models\User;
 use Illuminate\Http\Request;
 use Illuminate\Validation\Rule;
@@ -131,22 +131,16 @@ class StaffController extends Controller
         return redirect()->route('keptkaya.staffs.index')->with('success', 'เพิ่มเจ้าหน้าที่เรียบร้อยแล้ว!');
     }
 
-    /**
-     * Display the specified staff member.
-     *
-     * @param  \App\Models\Staff  $staff
-     * @return \Illuminate\Http\Response
-     */
+  
     public function show(Staff $staff)
     {
+        return 'ss';
         $staff->load('user');
         return view('keptkaya.staffs.show', compact('staff'));
     }
 
     public function edit(Staff $staff)
     {
-        dd('ss');
-        return $staff;
         $staff->load('user.permissions'); // NEW: Load user permissions
         $permissions = Permission::all(); // NEW: Get all permissions for form
         return view('keptkaya.staffs.edit', compact('staff', 'permissions')); // NEW: Pass permissions
@@ -163,15 +157,14 @@ class StaffController extends Controller
     {
         $request->validate([
             'status' => ['required', Rule::in(['active', 'inactive', 'suspended'])],
-            'deleted' => 'boolean',
+            'deleted' => 'boolean|nullable',
             'permissions' => 'array', // NEW: Validate permissions array
             'permissions.*' => 'exists:permissions,name', // NEW: Validate each permission name
         ]);
-
         DB::transaction(function () use ($request, $staff) {
             $staff->update([
                 'status' => $request->status,
-                'deleted' => $request->has('deleted'),
+                'deleted' => $request->has('deleted') ? 1 : 0,
             ]);
 
             // NEW: Sync permissions to the associated User
@@ -186,12 +179,6 @@ class StaffController extends Controller
         return redirect()->route('keptkaya.staffs.index')->with('success', 'อัปเดตข้อมูลเจ้าหน้าที่เรียบร้อยแล้ว!');
     }
 
-    /**
-     * Remove the specified staff member from storage.
-     *
-     * @param  \App\Models\Staff  $staff
-     * @return \Illuminate\Http\Response
-     */
     public function destroy(Staff $staff)
     {
         DB::transaction(function () use ($staff) {

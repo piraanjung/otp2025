@@ -2,6 +2,7 @@
 
 namespace App\Models\Admin;
 
+use App\Models\Tabwater\InvoicePeriod;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 
@@ -19,6 +20,6 @@ class BudgetYear extends Model
 
     public function invoicePeriod()
     {
-        return $this->hasMany('App\Models\InvoicePeriod', 'budgetyear_id', 'id');
+        return $this->hasMany(InvoicePeriod::class, 'budgetyear_id', 'id');
     }
 }

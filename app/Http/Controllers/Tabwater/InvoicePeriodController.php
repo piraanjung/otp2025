@@ -4,12 +4,12 @@ namespace App\Http\Controllers\Tabwater;
 
 use App\Http\Controllers\Controller;
 use App\Http\Controllers\Api\FunctionsController;
-use App\Models\AccTransactions;
-use App\Models\BudgetYear;
-use App\Models\Invoice;
-use App\Models\InvoiceHistoty;
-use App\Models\InvoicePeriod;
-use App\Models\UserMerterInfo;
+use App\Models\Tabwater\AccTransactions;
+use App\Models\Admin\BudgetYear;
+use App\Models\Tabwater\Invoice;
+use App\Models\Tabwater\InvoiceHistoty;
+use App\Models\Tabwater\InvoicePeriod;
+use App\Models\Tabwater\UserMerterInfo;
 use Exception;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;

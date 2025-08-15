@@ -14,7 +14,7 @@
                 Schema::create('kp_sell_transactions', function (Blueprint $table) {
                     $table->id();
                     $table->string('kp_u_trans_no')->unique(); // เลขที่ธุรกรรมการขาย
-                    $table->string('shop_name'); // ชื่อร้านรับซื้อ
+                    $table->foreignId('shop_id_fk')->nullable()->constrained('kp_purchase_shops')->onDelete('set null');; // ชื่อร้านรับซื้อ
                     $table->date('transaction_date');
                     $table->decimal('total_weight', 10, 2)->default(0.00); // น้ำหนักรวม
                     $table->decimal('total_amount', 10, 2)->default(0.00); // ยอดรวมเป็นเงิน

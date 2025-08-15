@@ -10,6 +10,8 @@ class WasteBinSubscription extends Model
 {
     use HasFactory;
 
+    protected $table = 'waste_bin_subscriptions';
+
     protected $fillable = [
         'waste_bin_id',
         'fiscal_year',
@@ -19,6 +21,8 @@ class WasteBinSubscription extends Model
         'total_paid_amt',
         'status',
     ];
+
+
 
     /**
      * Get the waste bin associated with the subscription.

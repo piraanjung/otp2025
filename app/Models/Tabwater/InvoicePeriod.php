@@ -1,7 +1,8 @@
 <?php
 
-namespace App\Models;
+namespace App\Models\Tabwater;
 
+use App\Models\Admin\BudgetYear;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 

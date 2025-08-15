@@ -57,7 +57,7 @@
                             <label class="form-label">สิทธิ์เข้าถึงโมดูล:</label>
                             <div class="row">
                                 @foreach($permissions as $permission)
-                                    @if(in_array($permission->name, ['access waste bank module', 'access annual collection module'])) {{-- Only show relevant permissions --}}
+                                    @if(in_array($permission->name, ['access waste bank', 'access annual collection'])) {{-- Only show relevant permissions --}}
                                         <div class="col-md-6 col-lg-4">
                                             <div class="form-check">
                                                 <input class="form-check-input" type="checkbox"
@@ -66,8 +66,8 @@
                                                        value="{{ $permission->name }}"
                                                        {{ in_array($permission->name, old('permissions', [])) ? 'checked' : '' }}>
                                                 <label class="form-check-label" for="perm_{{ Str::slug($permission->name) }}">
-                                                    {{ $permission->name == 'access waste bank module' ? 'เข้าถึงธนาคารขยะ' : '' }}
-                                                    {{ $permission->name == 'access annual collection module' ? 'เข้าถึงจัดเก็บรายปี' : '' }}
+                                                    {{ $permission->name == 'access waste bank' ? 'เข้าถึงธนาคารขยะ' : '' }}
+                                                    {{ $permission->name == 'access annual collection' ? 'เข้าถึงจัดเก็บรายปี' : '' }}
                                                 </label>
                                             </div>
                                         </div>

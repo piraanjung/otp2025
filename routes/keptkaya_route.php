@@ -3,6 +3,7 @@
 use App\Http\Controllers\Keptkaya\Admin\ExcelController;
 use App\Http\Controllers\Keptkaya\Admin\IndexController;
 use App\Http\Controllers\Keptkaya\Admin\KpUserController;
+use App\Http\Controllers\KeptKaya\KpPurchaseShopController;
 use App\Http\Controllers\KeptKaya\KpTbankPriceController;
 use App\Http\Controllers\Keptkaya\KpUserGroupController;
 use App\Http\Controllers\Keptkaya\CartController;
@@ -31,7 +32,7 @@ use Firebase\JWT\Key;
 use Spatie\Permission\Models\Permission;
 use Spatie\Permission\Models\Role;
 
-Route::middleware(['auth', 'role:super admin|admin'])->prefix('keptkaya/')->name('keptkaya.')->group(function () {
+Route::middleware(['auth', 'role:super admin|admin|Recycle Bank Staff'])->prefix('keptkaya')->name('keptkaya.')->group(function () {
     
     Route::resource('users', UserWasteController::class);
     Route::get('/users/search/{query}', [UserWasteController::class, 'search'])->name('users.search');
@@ -67,6 +68,7 @@ Route::middleware(['auth', 'role:super admin|admin'])->prefix('keptkaya/')->name
         Route::get('receipt/{transaction}', [KpSellController::class, 'showReceipt'])->name('receipt');
         Route::delete('/users/{transaction}', [KpSellController::class, 'destroy'])->name('destroy');
     });
+    Route::resource('purchase-shops', KpPurchaseShopController::class);
     
     Route::get('/dashboard', function () {
         if (collect(BudgetYear::where('status', 'active')->first())->isEmpty()) {
@@ -87,11 +89,12 @@ Route::middleware(['auth', 'role:super admin|admin'])->prefix('keptkaya/')->name
 
      Route::prefix('annual-payments')->name('annual_payments.')->group(function () {
         Route::get('/', [WasteBinSubscriptionController::class, 'index'])->name('index');
+        Route::get('/invoice', [WasteBinSubscriptionController::class, 'invoice'])->name('invoice');
         Route::get('/{wasteBinSubscription}', [WasteBinSubscriptionController::class, 'show'])->name('show');
         Route::get('print/{wasteBinSubscription}', [WasteBinSubscriptionController::class, 'print'])->name('print');
         Route::get('printReceipt/{wasteBinSubscription}', [WasteBinSubscriptionController::class, 'printReceipt'])->name('printReceipt');
         Route::post('/{wasteBinSubscription}/payments', [WasteBinSubscriptionController::class, 'storePayment'])->name('store_payment');
-        // Route สำหรับสร้าง Subscription ใหม่ (อาจถูกเรียกจาก WasteBinController)
+        Route::post('print-selected-invoices', [WasteBinSubscriptionController::class, 'printSelectedInvoices'])->name('print_selected_invoices');
         Route::post('/create-subscription', [WasteBinSubscriptionController::class, 'createSubscription'])->name('create_subscription');
     });
 

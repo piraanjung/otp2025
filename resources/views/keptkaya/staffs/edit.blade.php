@@ -53,7 +53,7 @@
                                 @foreach($permissions as $permission)
                                     @php
                                         // Check if the permission should be displayed in this form
-                                        $isRelevantPermission = in_array($permission->name, ['access waste bank module', 'access annual collection module']);
+                                        $isRelevantPermission = in_array($permission->name, ['access waste bank', 'access annual collection']);
                                         // Check if the permission was old input or if the user currently has it
                                         $isChecked = (old('permissions') && in_array($permission->name, old('permissions'))) ||
                                                      (!$errors->any() && $staff->user->hasPermissionTo($permission->name));
@@ -67,8 +67,8 @@
                                                        value="{{ $permission->name }}"
                                                        {{ $isChecked ? 'checked' : '' }}>
                                                 <label class="form-check-label" for="perm_{{ Str::slug($permission->name) }}">
-                                                    {{ $permission->name == 'access waste bank module' ? 'เข้าถึงธนาคารขยะ' : '' }}
-                                                    {{ $permission->name == 'access annual collection module' ? 'เข้าถึงจัดเก็บรายปี' : '' }}
+                                                    {{ $permission->name == 'access waste bank' ? 'เข้าถึงธนาคารขยะ' : '' }}
+                                                    {{ $permission->name == 'access annual collection' ? 'เข้าถึงจัดเก็บรายปี' : '' }}
                                                 </label>
                                             </div>
                                         </div>

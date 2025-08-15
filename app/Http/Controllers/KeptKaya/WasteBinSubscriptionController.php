@@ -16,6 +16,8 @@ use Carbon\Carbon;
 use DateTime;
 use Illuminate\Support\Facades\Log;
 
+use function PHPUnit\Framework\returnSelf;
+
 class WasteBinSubscriptionController extends Controller
 {
     public function index(Request $request)
@@ -275,7 +277,42 @@ class WasteBinSubscriptionController extends Controller
 
         return view('keptkaya.annual_payments.receipt',compact('data'));
         // This is the core logic to generate the PDF
-        $pdf = Pdf::loadView('keptkaya.annual_payments.receipt', $data);
-        return $pdf->download('receipt-' . $receiptCode . '.pdf');
+        // $pdf = Pdf::loadView('keptkaya.annual_payments.receipt', $data);
+        // return $pdf->download('receipt-' . $receiptCode . '.pdf');
+    }
+
+      public function invoice(){
+         $invoices = WasteBinSubscription::with('wasteBin.user')
+            ->whereIn('status', ['partially_paid', 'pending'])->get();
+        
+        return view('keptkaya.annual_payments.invoice', compact('invoices'));
+      }
+
+      public function printSelectedInvoices(Request $request)
+    {
+        $request->validate([
+            'invoice_ids' => 'required|array|min:1',
+            'invoice_ids.*' => 'required|exists:waste_bin_subscriptions,id',
+        ]);
+
+    $invoices = WasteBinSubscription::with('wasteBin.user')
+    ->whereIn('status', ['partially_paid', 'pending'])
+    ->get();
+
+// จัดกลุ่ม Collection ตาม user_id
+ $invoicesByUser = $invoices->groupBy(function($item) {
+    return $item->wasteBin->user_id;
+});
+
+// ตอนนี้ $invoicesByUser จะเป็น Collection ที่มี key เป็น user_id
+// และ value เป็น Collection ของ invoices ที่มี user_id นั้นๆ
+
+        
+       
+        if ($invoices->isEmpty()) {
+            return back()->with('error', 'ไม่พบใบแจ้งหนี้ที่เลือก');
+        }
+
+        return view('keptkaya.annual_payments.print_invoices', compact('invoicesByUser'));
     }
 }

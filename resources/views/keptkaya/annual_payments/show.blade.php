@@ -1,6 +1,12 @@
 @extends('layouts.keptkaya')
 
-@section('title_page', 'รายละเอียดค่าถังขยะรายปี')
+@section('page-topic', 'รายละเอียดค่าถังขยะรายปี')
+@section('nav-header', 'รับชำระค่าจัดเก็บถังขยะรายปี')
+@section('route-header')
+ {{ route('keptkaya.annual_payments.index') }}
+@endsection
+@section('nav-main', 'รายละเอียดค่าถังขยะรายปี')
+    
 @section('style')
     <style>
         form-check-input:disabled ~ .form-check-label, .form-check-input[disabled] ~ .form-check-label {
@@ -10,7 +16,6 @@
     </style>
 @endsection
 @section('content')
-<div class="container-fluid py-4">
     <div class="row">
         <div class="col-lg-12 col-md-12 mx-auto">
             <div class="card mb-4">
@@ -62,8 +67,8 @@
                                         <li class="list-group-item border-0 ps-0 text-sm"><strong class="text-dark">ปีงบประมาณ:</strong> &nbsp; {{ $wasteBinSubscription->fiscal_year }}     </li>                                   
                                         <li class="list-group-item border-0 ps-0 text-sm"><strong class="text-dark">ค่าธรรมเนียมรายปี:</strong> &nbsp; {{ number_format($wasteBinSubscription->annual_fee, 2) }} ฿ </li>
                                         <li class="list-group-item border-0 ps-0 text-sm"><strong class="text-dark">ค่าธรรมเนียมรายเดือน:</strong> &nbsp; {{ number_format($wasteBinSubscription->month_fee, 2) }} ฿ </li>
-                                        <li class="list-group-item border-0 ps-0 text-sm"><strong class="text-dark">ชำระแล้วรวม:</strong> &nbsp; {{ number_format($wasteBinSubscription->total_paid_amount, 2) }} ฿</li>
-                                        <li class="list-group-item border-0 ps-0 pb-0 text-sm"><strong class="text-dark">ค้างชำระ:</strong> &nbsp; <span class="text-danger font-weight-bold">{{ number_format($wasteBinSubscription->annual_fee - $wasteBinSubscription->total_paid_amount, 2) }} ฿</span>
+                                    <li class="list-group-item border-0 ps-0 text-sm"><strong class="text-dark">ชำระแล้วรวม:</strong> &nbsp; {{ number_format($wasteBinSubscription->total_paid_amt, 2) }} ฿</li>
+                                    <li class="list-group-item border-0 ps-0 pb-0 text-sm"><strong class="text-dark">ค้างชำระ:</strong> &nbsp; <span class="text-danger font-weight-bold">{{ number_format($wasteBinSubscription->annual_fee - $wasteBinSubscription->total_paid_amt, 2) }} ฿</span>
                                         <li class="list-group-item border-0 ps-0 text-sm"><strong class="text-dark">สถานะ:</strong> &nbsp;
                                             @php
                                                 $statusClass = '';
@@ -164,7 +169,6 @@
             </div>
         </div>
     </div>
-</div>
 
 
 @endsection

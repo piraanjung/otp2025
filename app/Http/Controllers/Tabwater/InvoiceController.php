@@ -7,14 +7,15 @@ use App\Exports\InvoiceInCurrentInvoicePeriodExport;
 use App\Models\Account;
 use App\Http\Controllers\Api\FunctionsController as ApiFunctionsController;
 use App\Http\Controllers\Api\InvoiceController as ApiInvoiceCtrl;
-use App\Models\Cutmeter;
-use App\Models\Invoice;
-use App\Models\InvoicePeriod;
-use App\Models\Setting;
-use App\Models\Subzone;
+use App\Http\Controllers\FunctionsController;
+use App\Models\Tabwater\Cutmeter;
+use App\Models\Tabwater\Invoice;
+use App\Models\Tabwater\InvoicePeriod;
+use App\Models\Tabwater\Setting;
+use App\Models\Admin\Subzone;
 use App\Models\User;
-use App\Models\UserMerterInfo;
-use App\Models\Zone;
+use App\Models\Tabwater\UserMerterInfo;
+use App\Models\Admin\Zone;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
@@ -30,7 +31,6 @@ class InvoiceController extends Controller
     public function index($_budgetyearId = '', $_invPeriod = '')
     {
 
-        // return $this->transferDataToKPNEWDb();
         $funcCtrl = new FunctionsController();
         $orgInfos = $funcCtrl->getOrgInfos()[0];
 
@@ -138,245 +138,14 @@ class InvoiceController extends Controller
         return view('invoice.index', compact('zones', 'current_inv_period', 'orgInfos'));
     }
 
-    private function transferDataToKPNEWDb()
-    {
-        for ($inv = 1; $inv <= 1; $inv++) {
-            $old_inv_period = $inv == 1 ? 1 : $inv;
-            $undertake_zone_id = 1;
-           
-           
-            $oldPeroids = (new User())->on('mysql')->where('zone_id', $undertake_zone_id)
-                ->with([
-                    'usermeterinfos' => function ($q) use ($undertake_zone_id) {
-                        return $q->select('*')
-                            ->where('undertake_zone_id', $undertake_zone_id);
-                    },
-                    'usermeterinfos.invoice' => function ($q) use ($old_inv_period) {
-                        return $q->select('*')
-                            ->where('inv_period_id_fk', $old_inv_period);
-                    },
-                ])
-                ->get(['id', 'firstname']);
-
-            $curr_period = (new User())->on('mysql')->where('zone_id', $undertake_zone_id)
-                ->with([
-                    'usermeterinfos' => function ($q) use ($undertake_zone_id) {
-                        return $q->select('*')
-                            ->where('undertake_zone_id', $undertake_zone_id);
-                    },
-                    'usermeterinfos.invoice' => function ($q) use ($inv) {
-                        return $q->select('*')
-                            ->where('inv_period_id_fk', $inv);
-                    },
-                ])
-                ->get(['id', 'firstname']);
-
-
-
-            $oldPeroidsFilter = collect($oldPeroids)->filter(function ($v) {
-                // dd($v->usermeterinfos[0]->invoice);
-                if (isset($v->usermeterinfos[0]->invoice))
-                    return collect($v->usermeterinfos[0]->invoice)->isNotEmpty();
-            });
-
-            $curr_periodFilter = collect($curr_period)->filter(function ($v) {
-                // dd($v->usermeterinfos[0]->invoice);
-                if (isset($v->usermeterinfos[0]->invoice))
-                    return collect($v->usermeterinfos[0]->invoice)->isNotEmpty();
-            });
-
-
-             $c = 0;
-            $userCurrMonth = [];
-            foreach ($oldPeroidsFilter as $a) {
-                $c += collect($a->usermeterinfos)->count();
-                foreach ($a->usermeterinfos as $meter) {
-                    $userCurrMonth[] = $meter->meter_id;
-                }
-            }
-
-            $cNext = 0;
-            $userNextMonth = [];
-            foreach ($curr_periodFilter as $a) {
-                $cNext += collect($a->usermeterinfos)->count();
-                foreach ($a->usermeterinfos as $meter) {
-                    $userNextMonth[] = $meter->meter_id;
-                }
-            }
-            $invInsert = $userCurrMonth;
-            if($inv == 1){
-                foreach($curr_periodFilter as $meters){
-                    foreach($meters->usermeterinfos as $meter){
-                        // return $meter;
-                        DB::connection('kp_new')->table('user_meter_infos')->insert([
-                            "meter_id" => $meter->meter_id,
-                            "meter_address" => $meter->meter_address,
-                            "user_id" => $meter->user_id,
-                            "meternumber" => $meter->meternumber,
-                            "metertype_id" => $meter->metertype_id,
-                            "undertake_zone_id" => $meter->undertake_zone_id,
-                            "undertake_subzone_id" => $meter->undertake_subzone_id,
-                            "acceptance_date" => $meter->acceptance_date,
-                            "status" => $meter->status,
-                            "payment_id" => $meter->payment_id,
-                            "discounttype" => $meter->discounttype,
-                            "recorder_id" => $meter->recorder_id,
-                            "cutmeter" => $meter->cutmeter,
-                            "factory_no" => $meter->factory_no,
-                        ]);
-                    }
-                }
-            }else{
-                //add or remove meterInfos
-                 if (collect($userNextMonth)->count() >= collect($userCurrMonth)->count()) {
-                    $diff =  collect($userNextMonth)->diff($userCurrMonth);
-                    // เพิ่ม
-                    foreach($diff as $d){
-                        $invInsert[] = $d;
-                    }
-                } else {
-                    
-                    $invInsert =  array_diff($userCurrMonth, $userNextMonth);
-                    //เอาออก
-                   
-
-                }
-            }
-            $year = $inv <4 ? '2024' : '2025';
-            $m = ['10','11','12','01','02','03','04'];
-             $mm = $m[$inv-1];
-           foreach($invInsert as $meter_id){
-                $invoiceOld = Invoice::where('meter_id_fk', $meter_id)->where('inv_period_id_fk', $inv)->get()[0];
-                 DB::connection('kp_new')->table('invoice')->insert([
-                    'inv_id' => $invoiceOld->inv_id,
-                    'inv_period_id_fk' => $invoiceOld->inv_period_id_fk,
-                    'meter_id_fk' => $invoiceOld->meter_id_fk,
-                    'user_id' => $invoiceOld->user_id,
-                    'lastmeter' => $invoiceOld->lastmeter,
-                    'water_used' => $invoiceOld->water_used,
-                    'inv_type' => $invoiceOld->inv_type,
-                    'inv_no' => $invoiceOld->inv_no,
-                    'paid' => $invoiceOld->paid,
-                    'vat' => $invoiceOld->vat,
-                    'totalpaid' => $invoiceOld->totalpaid,
-                    'acc_trans_id_fk' => $invoiceOld->acc_trans_id_fk,
-                    'currentmeter' => $invoiceOld->currentmeter,
-                    'status' => $invoiceOld->status,
-                    'recorder_id' => $invoiceOld->recorder_id,
-                    'created_at' => date_create($year.'-'.$mm.'-01 00:00:00'),
-                    'updated_at' =>date_create($year.'-'.$mm.'-28 00:00:00'),
-                 ]);
-           }
-        }//for inv
-
-       
-                  return 12;
-
-
-        return [
-            'userCurrMonthCount' => $c,
-            'userCurrMonthMeter' => $userCurrMonth,
-            'userNextMonthCount' => $c2,
-            'userNextMonthMeter' => $userNextMonth,
-        ];
-
-
-
-        $arr = [];
-        $userM10 = [];
-        // for($i = 1; $i <=7 ; $i++){
-        $c = 0;
-        $total = 0;
-        $owecount = 0;
-        $paidcount = 0;
-        $otherCount = 0;
-        foreach ($oldUsersFilter as $a) {
-            $c += collect($a->usermeterinfos)->count();
-            foreach ($a->usermeterinfos as $meter) {
-                $userM10[] = $meter->meter_id;
-                $total += $meter->invoice[0]->totalpaid;
-
-                if ($meter->invoice[0]->status == 'owe') {
-                    $owecount += 1;
-                } else if ($meter->invoice[0]->status == 'paid') {
-                    $paidcount += 1;
-                } else {
-                    $otherCount += 1;
-                }
-            }
-        }
-        return $userM10;
-        $arr[] = [
-            'peroid' => $inv_period_id,
-            'meter_count' => $c,
-            'paidcount' => $paidcount,
-            'total_paid' =>  $total,
-            'owecount' => $owecount,
-            'otherCount' => $otherCount
-        ];
-        // }
-        return $arr;
-    }
-
-    private function test($undertake_subzone)
-    {
-        return $usermeter_infos = UserMerterInfo::where('undertake_zone_id', $undertake_subzone)
-            ->with([
-                'invoice' => function ($a) {
-                    return $a->select('meter_id_fk', 'lastmeter', 'currentmeter', 'water_used', 'recorder_id')
-                        ->where('deleted', '0');
-                },
-            ])
-            ->where('status', 'active')
-            ->get();
-        return  $aa =  collect($usermeter_infos)->filter(function ($v) {
-            return collect($v->invoice)->count() > 1;
-        });
-
-        foreach ($aa as $a) {
-            foreach ($a->invoice as $inv) {
-                if ($inv->recorder_id == 1898) {
-                    Invoice::where('inv_id', $inv->inv_id)->update([
-                        'deleted' => 1,
-                        'status' => 'deleted',
-                        'acc_trans_id_fk' => 0,
-                        'comment' => 'acc_trans_id_fk ==' . $inv->acc_trans_id_fk
-                    ]);
-                }
-            }
-        }
-        return 'ss';
-
-        $umf = UserMerterInfo::where('status', 'active')
-            ->with([
-                'invoice' => function ($a) {
-                    return $a->select('meter_id_fk', 'lastmeter', 'currentmeter', 'water_used', 'recorder_id')
-                        ->where('deleted', '0');
-                },
-                'user' => function ($a) {
-                    return $a->select('id', 'firstname', 'lastname', 'zone_id');
-                },
-            ])
-            ->where('undertake_subzone_id', 1)
-            ->get(['meter_id', 'user_id', 'undertake_subzone_id']);
-
-        $aa = collect($umf)->groupBy('user_id');
-
-        return collect($aa)->filter(function ($v) {
-            return collect($v)->count() > 1;
-
-            // return collect($v->invoice)->count() > 1;
-        });
-    }
-
-
+    
 
 
     public function paid($id)
     {
         $inv = $this->apiInvoiceCtrl->get_user_invoice($id);
         $invoice = json_decode($inv->getContent());
-        // dd($invoice);
+
         return view('invoice.paid', compact('invoice'));
     }
 

@@ -10,6 +10,8 @@ class Staff extends Model
 {
     use HasFactory;
     protected $table = 'staffs';
+    protected $primaryKey = 'user_id';
+
     protected $fillable = [
         'user_id',
         'status',

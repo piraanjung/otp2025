@@ -4,6 +4,7 @@ namespace App\Http\Controllers\KeptKaya;
 
 use App\Http\Controllers\Controller;
 use App\Models\Admin\Staff;
+use App\Models\KeptKaya\KpPurchaseShop;
 use Illuminate\Http\Request;
 use App\Models\KeptKaya\KpSellTransaction;
 use App\Models\KeptKaya\KpSellDetail;
@@ -27,8 +28,8 @@ class KpSellController extends Controller
         // Fetch necessary data for the form
         $recycleItems = KpTbankItems::with('units')->get(); // Load all items with their units
         $staffs = Staff::all(); // Get users with 'staff' role
-
-        return view('keptkaya.sell.sell_form', compact('recycleItems', 'staffs'));
+        $shops =  KpPurchaseShop::where('status', 'active')->get();
+        return view('keptkaya.sell.sell_form', compact('recycleItems', 'staffs', 'shops'));
     }
 
     /**
@@ -40,7 +41,7 @@ class KpSellController extends Controller
     public function storeSellTransaction(Request $request)
     {
         $validated = $request->validate([
-            'shop_name' => 'required|string|max:255',
+            'shop_name' => 'required',
             'sell_date' => 'required|date',
             'details' => 'required|array|min:1',
             'details.*.kp_recycle_item_id' => 'required|exists:kp_tbank_items,id',
@@ -58,7 +59,7 @@ class KpSellController extends Controller
             // 1. Create the main sell transaction
             $transaction = KpSellTransaction::create([
                 'kp_u_trans_no' => 'S-' . Carbon::now()->format('YmdHis') . Str::random(4),
-                'shop_name' => $validated['shop_name'],
+                'shop_id_fk' => $validated['shop_name'],
                 'transaction_date' => $validated['sell_date'],
                 'total_weight' => $totalWeight,
                 'total_amount' => $totalAmount,

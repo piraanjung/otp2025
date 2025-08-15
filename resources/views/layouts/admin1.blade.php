@@ -13,8 +13,9 @@
 
 
 
-    <link href="https://fonts.googleapis.com/css?family=Open+Sans:300,400,600,700" rel="stylesheet" />
-
+    {{-- <link href="https://fonts.googleapis.com/css?family=Open+Sans:300,400,600,700" rel="stylesheet" /> --}}
+    <link href="https://fonts.googleapis.com/css2?family=Sarabun:ital,wght@0,500;0,700;1,400;1,500&display=swap"
+        rel="stylesheet">
     <link href="{{ asset('soft-ui/assets/css/nucleo-icons.css') }}" rel="stylesheet" />
     <link href="{{ asset('soft-ui/assets/css/nucleo-svg.css') }}" rel="stylesheet" />
 
@@ -25,6 +26,9 @@
         integrity="sha384-DyZ88mC6Up2uqS4h/KRgHuoeGwBcD4Ng9SiP4dIRy0EXTlnuz47vAwmeGwVChigm" crossorigin="anonymous" />
     <script src="{{ asset('adminlte/plugins/jquery/jquery.js') }}"></script>
     <style>
+        body{
+             font-family: "Sarabun", sans-serif;
+        }
         .navbar-vertical.navbar-expand-xs .navbar-collapse {
             display: block;
             overflow: auto;
