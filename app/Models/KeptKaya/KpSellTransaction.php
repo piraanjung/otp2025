@@ -17,7 +17,7 @@ class KpSellTransaction extends Model
 
     protected $fillable = [
         'kp_u_trans_no',
-        'shop_name',
+        'shop_id_fk',
         'transaction_date',
         'total_weight',
         'total_amount',
@@ -41,4 +41,10 @@ class KpSellTransaction extends Model
     {
         return $this->hasMany(KpSellDetail::class, 'kp_sell_trans_id');
     }
+
+    public function shop()
+    {
+        return $this->belongsTo(KpPurchaseShop::class, 'shop_id_fk');
+    }
+
 }

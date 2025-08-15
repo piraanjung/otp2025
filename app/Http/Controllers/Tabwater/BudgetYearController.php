@@ -4,8 +4,8 @@ namespace App\Http\Controllers\Tabwater;
 
 use App\Http\Controllers\Controller;
 use App\Http\Controllers\Api\FunctionsController;
-use App\Models\BudgetYear;
-use App\Models\InvoicePeriod;
+use App\Models\Admin\BudgetYear;
+use App\Models\Tabwater\InvoicePeriod;
 use Illuminate\Http\Request;
 
 class BudgetYearController extends Controller

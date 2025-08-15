@@ -3,7 +3,7 @@
 
 <head>
     <meta charset="utf-8" />
-    <meta name="csrf-token" content="{{ csrf_token() }}">  <!-- เพิ่มบรรทัดนี้ -->
+    <meta name="csrf-token" content="{{ csrf_token() }}"> <!-- เพิ่มบรรทัดนี้ -->
     <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
     <link rel="apple-touch-icon" sizes="76x76" href="{{ asset('soft-ui/assets/img/apple-icon.png') }}">
     <link rel="icon" type="image/png" href="{{ asset('soft-ui/assets/img/favicon.png') }}">
@@ -14,11 +14,12 @@
 
 
     <link href="https://fonts.googleapis.com/css?family=Open+Sans:300,400,600,700" rel="stylesheet" />
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css" integrity="sha512-..." crossorigin="anonymous" referrerpolicy="no-referrer" />
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css"
+        integrity="sha512-..." crossorigin="anonymous" referrerpolicy="no-referrer" />
 
     {{-- DataTables CSS --}}
     <link rel="stylesheet" href="https://cdn.datatables.net/2.3.0/css/dataTables.dataTables.css">
-    
+
 
     <link href="{{ asset('soft-ui/assets/css/nucleo-icons.css') }}" rel="stylesheet" />
     <link href="{{ asset('soft-ui/assets/css/nucleo-svg.css') }}" rel="stylesheet" />
@@ -27,30 +28,49 @@
 
     <link id="pagestyle" href="{{ asset('soft-ui/assets/css/soft-ui-dashboard.min.css') }}" rel="stylesheet" />
     <link href="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/css/select2.min.css" rel="stylesheet" />
-   
-    <style>
 
-            .navbar-vertical.navbar-expand-xs .navbar-collapse {
-                display: block;
-                overflow: auto;
-                height: calc(100vh) !important;
+    <style>
+        @media (max-width: 767px) {
+            .navbar-vertical.navbar-expand-xs {
+                max-width: 14.625rem !important;
             }
-            #overlay {
-                position: fixed;
-                top: 0;
-                z-index: 1050;
-                width: 100%;
-                height: 100%;
-                display: none;
-                background: rgba(0, 0, 0, 0.6);
+
+            .container,
+            .container-fluid,
+            .container-lg,
+            .container-md,
+            .container-sm,
+            .container-xl,
+            .container-xxl {
+                padding-left: 5px;
+                padding-right: 5px;
             }
-            input:read-only {
-                background-color: #e9ecef !important;
-            }
-            .table thead th {
-                padding: 0.2rem 0.2rem !important;
-            }
-            .form-control {
+        }
+        .navbar-vertical.navbar-expand-xs .navbar-collapse {
+            display: block;
+            overflow: auto;
+            height: calc(100vh) !important;
+        }
+
+        #overlay {
+            position: fixed;
+            top: 0;
+            z-index: 1050;
+            width: 100%;
+            height: 100%;
+            display: none;
+            background: rgba(0, 0, 0, 0.6);
+        }
+
+        input:read-only {
+            background-color: #e9ecef !important;
+        }
+
+        .table thead th {
+            padding: 0.2rem 0.2rem !important;
+        }
+
+        .form-control {
             display: block;
             width: 100%;
             padding: 0.2rem 0.2rem !important;
@@ -62,9 +82,20 @@
             background-clip: padding-box;
             border: 1px solid #d2d6da;
             appearance: none;
-            transition: box-shadow .15s ease,border-color .15s ease;
+            transition: box-shadow .15s ease, border-color .15s ease;
         }
 
+        .navbar-vertical.navbar-expand-xs .navbar-nav .nav .nav-link {
+            padding-top: .417rem;
+            padding-bottom: .417rem;
+            padding-left: 0;
+        }
+        .ps-3 {
+            padding-left: 0rem !important;
+        }
+        .btn-group-sm>.btn i, .btn.btn-sm i {
+            font-size: 1rem
+        }
     </style>
     <script src="https://code.jquery.com/jquery-3.7.0.js"></script>
     <script src="https://cdn.datatables.net/1.13.6/js/jquery.dataTables.min.js"></script>
@@ -80,7 +111,7 @@
             <button class="btn btn-primary btn-sm ml-2 mb-2" type="button" disabled>
                 <span class="spinner-border spinner-border" role="status" aria-hidden="true"></span>
                 <span class="h3 text-white">โปรดรอสักครู่! มีการสร้างข้อมูลจำนวนมาก...</span>
-              </button>
+            </button>
         </div>
     </div>
     <aside class="sidenav navbar navbar-vertical navbar-expand-xs border-0 border-radius-xl my-3 fixed-start ms-3 "
@@ -97,7 +128,7 @@
         </div>
         <hr class="horizontal dark mt-0">
         <div class="collapse navbar-collapse  w-auto " id="sidenav-collapse-main">
-            @include('layouts.keptkaya_navigation' )
+            @include('layouts.keptkaya_navigation')
         </div>
 
     </aside>
@@ -108,8 +139,9 @@
                 <nav aria-label="breadcrumb">
                     <ol class="breadcrumb bg-transparent mb-0 pb-0 pt-1 ps-2 me-sm-6 me-5">
                         <li class="breadcrumb-item text-sm"><a class="text-white opacity-8"
-                                href="javascript:;">@yield('nav-header')</a></li>
-                        <li class="breadcrumb-item text-sm text-white active" aria-current="page">@yield('nav-main')</li>
+                                href="@yield('route-header')">@yield('nav-header')</a></li>
+                        <li class="breadcrumb-item text-sm text-white active" aria-current="page">@yield('nav-main')
+                        </li>
                     </ol>
                     <h6 class="text-white font-weight-bolder ms-2">@yield('nav-current')</h6>
                 </nav>
@@ -128,8 +160,7 @@
                     </div>
                     <ul class="navbar-nav justify-content-end">
                         <li class="nav-item d-flex align-items-center">
-                            <a href="{{ route('logout') }}"
-                                class="nav-link text-white font-weight-bold px-0">
+                            <a href="{{ route('logout') }}" class="nav-link text-white font-weight-bold px-0">
                                 <i class="fa fa-user me-sm-1" aria-hidden="true"></i>
                                 <span class="d-sm-inline d-none">Log Out</span>
                             </a>
@@ -197,12 +228,11 @@
                                     <a class="dropdown-item border-radius-md" href="javascript:;">
                                         <div class="d-flex py-1">
                                             <div class="avatar avatar-sm bg-gradient-secondary me-3 my-auto">
-                                                <svg width="12px" height="12px" viewBox="0 0 43 36"
-                                                    version="1.1" xmlns="http://www.w3.org/2000/svg"
+                                                <svg width="12px" height="12px" viewBox="0 0 43 36" version="1.1"
+                                                    xmlns="http://www.w3.org/2000/svg"
                                                     xmlns:xlink="http://www.w3.org/1999/xlink">
                                                     <title>credit-card</title>
-                                                    <g stroke="none" stroke-width="1" fill="none"
-                                                        fill-rule="evenodd">
+                                                    <g stroke="none" stroke-width="1" fill="none" fill-rule="evenodd">
                                                         <g id="Rounded-Icons"
                                                             transform="translate(-2169.000000, -745.000000)"
                                                             fill="#FFFFFF" fill-rule="nonzero">
@@ -278,9 +308,9 @@
             @yield('content')
         </div>
     </main>
-    <script src="https://code.jquery.com/jquery-1.12.4.js" integrity="sha256-Qw82+bXyGq6MydymqBxNPYTaUXXq7c8v3CwiYwLLNXU="
-        crossorigin="anonymous"></script>
-     <script src="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/js/select2.min.js"></script>
+    <script src="https://code.jquery.com/jquery-1.12.4.js"
+        integrity="sha256-Qw82+bXyGq6MydymqBxNPYTaUXXq7c8v3CwiYwLLNXU=" crossorigin="anonymous"></script>
+    <script src="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/js/select2.min.js"></script>
 
     <script src="{{ asset('soft-ui/assets/js/core/popper.min.js') }}"></script>
     <script src="{{ asset('soft-ui/assets/js/core/bootstrap.min.js') }}"></script>
@@ -291,16 +321,16 @@
     @yield('script')
 
     <script>
-        $(document).ready(function(){
+        $(document).ready(function () {
             setTimeout(() => {
                 $('.alert').toggle('slow')
             }, 3000);
 
         })
 
-    $(document).ready(function() {
-        $('.js-example-basic-single').select2();
-    });
+        $(document).ready(function () {
+            $('.js-example-basic-single').select2();
+        });
     </script>
 
 </body>

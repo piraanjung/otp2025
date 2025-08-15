@@ -3,8 +3,8 @@
 namespace App\Http\Controllers\Api;
 
 use App\Http\Controllers\Controller;
-use App\Models\BudgetYear;
-use App\Models\InvoicePeriod;
+use App\Models\Admin\BudgetYear;
+use App\Models\Tabwater\InvoicePeriod;
 use Illuminate\Http\Request;
 
 class InvoicePeriodController extends Controller

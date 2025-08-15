@@ -3,7 +3,6 @@
 @section('title_page', 'ผู้ใช้งาน')
 
 @section('content')
-<div class="container-fluid py-4">
     <div class="row">
         <div class="col-12">
             <div class="card mb-4">
@@ -99,7 +98,7 @@
                                  <form action="{{ route('keptkaya.users.updateWasteServicePreferences') }}" method="POST">
                                             @csrf
 
-                                    <input type="submit" value="xx">
+                                    <input type="submit" class="btn btn-primary" value="บันทึกข้อมูล">
                                 @forelse($users as $user)
                                 <tr>
                                     <td>
@@ -177,7 +176,6 @@
             </div>
         </div>
     </div>
-</div>
 @endsection
 
 @section('script')

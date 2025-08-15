@@ -15,13 +15,13 @@
         <span class="badge badge-sm bg-gradient-{{ $staff->status == 'active' ? 'success' : ($staff->status == 'inactive' ? 'secondary' : 'warning') }}">{{ ucfirst($staff->status) }}</span>
     </td>
     <td class="align-middle text-center text-sm">
-        @if($staff->user->hasPermissionTo('access waste bank module'))
+        @if($staff->user->hasPermissionTo('access waste bank'))
             <span class="badge badge-sm bg-gradient-info me-1">ธนาคารขยะ</span>
         @endif
-        @if($staff->user->hasPermissionTo('access annual collection module'))
+        @if($staff->user->hasPermissionTo('access annual collection'))
             <span class="badge badge-sm bg-gradient-success">เก็บรายปี</span>
         @endif
-        @if(!$staff->user->hasPermissionTo('access waste bank module') && !$staff->user->hasPermissionTo('access annual collection module'))
+        @if(!$staff->user->hasPermissionTo('access waste bank') && !$staff->user->hasPermissionTo('access annual collection'))
             <span class="text-xs text-muted">ไม่มีสิทธิ์</span>
         @endif
     </td>

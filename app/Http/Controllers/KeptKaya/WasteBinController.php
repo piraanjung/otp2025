@@ -191,7 +191,17 @@ class WasteBinController extends Controller
 
       public function map()
     {
-        $bins = WasteBin::with('user')->get(['id', 'bin_code', 'latitude', 'longitude', 'status', 'bin_type']);
+        $bins = WasteBin::with([
+            'user' => function($q){
+                return $q->select('id', 'firstname', 'lastname', 'address', 'zone_id', 'subzone_id');
+            },
+            'user.user_zone' => function($q){
+                return $q->select('id', 'zone_name');
+            },
+              'user.user_subzone' => function($q){
+                return $q->select('id', 'subzone_name');
+            },
+        ])->get(['id', 'user_id',  'bin_code', 'latitude', 'longitude', 'status', 'bin_type']);
         return response()->json($bins);
     }
 }

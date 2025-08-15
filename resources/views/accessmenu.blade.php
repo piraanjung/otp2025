@@ -1,206 +1,306 @@
-<!doctype html>
+<!DOCTYPE html>
 <html lang="en">
 
 <head>
-    <meta charset="utf-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1">
-
-    <meta name="description" content="">
-    <meta name="author" content="">
-
-    <title>PpP</title>
-
-    <!-- CSS FILES -->
-    <link href="{{ asset('templatemo/css/bootstrap.min.css') }}" rel="stylesheet">
-
-    <link href="{{ asset('templatemo/css/bootstrap-icons.css') }}" rel="stylesheet">
-
-    <link href="{{ asset('templatemo/css/templatemo-kind-heart-charity.css') }}" rel="stylesheet">
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+    {{--
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Tangerine&effect=shadow-multiple|3d-float">
+    --}}
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Sarabun:ital,wght@0,500;0,700;1,400;1,500&display=swap"
+        rel="stylesheet">
     <style>
-        .carousel-inner {
-            position: relative;
+        @keyframes rotateMain {
+            from {
+                transform: rotate(0deg);
+            }
+
+            to {
+                transform: rotate(360deg);
+            }
+        }
+
+        @keyframes rotateInner {
+            from {
+                transform: rotate(0deg);
+            }
+
+            to {
+                transform: rotate(-360deg);
+            }
+        }
+
+        body {
+            font-family: "Sarabun", sans-serif;
+            font-weight: 700;
+            font-style: normal;
+            background: linear-gradient(to right, #8e9eab, #eef2f3);
+            height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            flex-wrap: wrap;
+            gap: 30px;
+        }
+
+        .centralized {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        .centralized a{
+            color: #000
+        }
+
+        .main-container {
+            /* border: solid 1px #000; */
+            margin: 16rem 0 0 11rem;
+            /* padding-top: 300px; */
+            /* height: 350px; */
             width: 100%;
-            overflow: hidden;
-            height: 600px;
+            position: relative;
+            `
         }
 
-        #hero-slide .carousel-item {
-            height: 600px;
-            min-height: 600px;
-        }
-
-        .hero-section-full-height {
-            height: 580px;
-            min-height: 580px;
+        .main-container .main-circle {
+            border: 6px solid #bcbcbc;
+            border-radius: 100%;
+            box-sizing: border-box;
+            padding: 24px;
+            height: 400px;
+            width: 400px;
             position: relative;
         }
 
-        .section-padding {
-            padding-top: 60px;
-            padding-bottom: 50px;
+        .main-container .main-circle .inner {
+            background: #ededed;
+            border: 4px solid #e3e3e3;
+            border-radius: 100%;
+            box-shadow: 4px 5px 5px 0px rgba(0, 0, 0, 0.2);
+            box-sizing: border-box;
+            color: #8dc03f;
+            font-size: 34px;
+            height: 100%;
+            line-height: 1.5;
+            text-align: center;
+            width: 100%;
+            text-shadow: 1px 1px 1px #000;
+
+            text-align: center
         }
 
-        .carousel-caption {
-            margin-top: -3rem
+        .main-container .bubble-container {
+            border: 6px;
+            box-sizing: border-box;
+            height: 300px;
+            position: absolute;
+            width: 300px;
+            opacity: 0;
+            transform: rotate(0deg);
+            transition: transform ease-in 0.7s, opacity ease 1s;
         }
 
-        .cus-btn {
-            margin-top: -2.5rem;
-            /* width: 50% */
+        .main-container .bubble-container .pointer {
+            background: #fff;
+            border: 4px solid #bcbcbc;
+            border-radius: 100%;
+            box-sizing: border-box;
+            position: absolute;
+            left: calc(50% -117px);
+            height: 54px;
+            top: calc(50% - 167px);
+            width: 54px;
         }
 
-        .inactive-menu {
-            opacity: 0.3;
+        .main-container .bubble-container .pointer .arrow {
+            width: 0;
+            height: 0;
+            border-style: solid;
+            border-width: 7px 14px 7px 0;
+            border-color: transparent #bcbcbc transparent transparent;
+            position: absolute;
+            left: -15px;
+            top: 5.52px;
         }
 
-        .inactive-menu .align-items-center a:hover {
-            cursor: none !important;
+        .main-container .bubble-container .pointer .inner {
+            background: #000;
+            border-radius: 100%;
+            box-sizing: border-box;
+            height: 14px;
+            width: 14px;
+        }
+
+        .main-container .bubble-container .bubble {
+            border-radius: 100%;
+            box-sizing: border-box;
+            position: absolute;
+            height: 210px;
+            top: calc(50% - 215px);
+            left: -280px;
+            width: 210px;
+            transform: rotate(0deg);
+            transition: all ease 0.8s;
+
+            text-align: center
+        }
+
+        .bubble .inner:hover {
+            transform: rotate(0deg);
+            transition: all ease 0.8s;
+            transform: scale(1.08) !important;
+        }
+
+        .main-container .bubble-container .bubble .inner {
+            background: #fff;
+            border-radius: 100%;
+            box-shadow: 4px 5px 5px 0px rgba(0, 0, 0, 0.2);
+            box-sizing: border-box;
+            height: 184px;
+            width: 184px;
+            overflow: hidden;
+            font-size: 30px;
+        }
+
+        .main-container .bubble-container.black .bubble,
+        .main-container .bubble-container.black .pointer .inner {
+            background: #505269;
+        }
+
+        .main-container .bubble-container.blue-dark .bubble,
+        .main-container .bubble-container.blue-dark .pointer .inner {
+            background: #4c67aa;
+        }
+
+        .main-container .bubble-container.blue-light .bubble,
+        .main-container .bubble-container.blue-light .pointer .inner {
+            background: #25ade1;
+        }
+
+        .main-container .bubble-container.green .bubble,
+        .main-container .bubble-container.green .pointer .inner {
+            background: #8dc03f;
+        }
+
+        .main-container .bubble-container.orange .bubble {
+            background: #fa9128;
+        }
+
+        .main-container .bubble-container.orange .pointer .inner {
+            background: #fa9128;
+        }
+
+        .main-container .bubble-container.red .bubble,
+        .main-container .bubble-container.red .pointer .inner {
+            background: #e46020;
+        }
+
+
+
+        #org {
+            position: absolute;
+            margin-top: 180px;
+            left: -8rem;
+            font-size: 5rem;
+            font-weight: bolder;
+            text-shadow: 2px 2px 2px #ffffff;
+
+        }
+
+        #org_addr {
+            font-size: 1.5rem;
+            text-align: center;
+            text-shadow: 1px 1px 1px #ffffff;
         }
     </style>
 
 </head>
 
-<body id="section_1">
-
-    <nav class="navbar navbar-expand-lg bg-light shadow-lg">
-        <div class="container">
-            <a class="navbar-brand" href="#">
-                <img src="{{ asset('/logo/' . $orgInfos->org_logo_img) }}" class="logo img-fluid">
-                <span>
-                    {{$orgInfos->org_type_name . "" . $orgInfos->org_name}}
-                    <small>อำเภอ{{$orgInfos->districts->district_name}}
-                        จังหวัด{{$orgInfos->provinces->province_name}}</small>
-                </span>
-            </a>
-
-            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav"
-                aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
-                <span class="navbar-toggler-icon"></span>
-            </button>
-
+<body>
+    <div class="main-container centralized ">
+        <div id="org">
+            เทศบาล
+            <div>ตำบลห้องแซง</div>
+            <hr style="    margin-bottom: 3px;margin-top: 3px;">
+            <div id="org_addr">ตำบลห้องแซง อำเภอเลิงนกทา จังหวัดยโสธร</div>
         </div>
-    </nav>
-
-    <main>
-
-
-
-        <section class="section-padding">
-            {{-- <div class="col-lg-10 col-12 text-center mx-auto">
-                <h2 class="">{{$orgInfos->org_type_name . "" . $orgInfos->org_name}}</h2>
-            </div> --}}
-            <div class="container">
-                <div class="row">
-
-
-
-
-                    <div class="col-lg-3 cus-btn col-md-6 col-12 mb-4 mb-lg-0
-                        {{-- {{ Auth::user()->hasPermission('access-tabwater-menu') ? '' : " inactive-menu" }} --}} " >
-                        <div class=" featured-block d-flex justify-content-center align-items-center">
-                        <a href="{{'dashboard'}}" class="d-block">
-                            <img src="{{ asset('soft-ui/assets/img/water.png') }}"
-                                class="featured-block-image img-fluid" style="height:220px" alt="">
-
-                            {{-- <p class="featured-block-text"> <strong>ระบบ</strong></p> --}}
-                            <p class="featured-block-text">จดมิเตอร์ประปา</p>
-
-                        </a>
+        <div class="main-circle">
+            <div class="inner centralized">
+                ระบบบริหารจัดการ
+            </div>
+        </div>
+        <div class="bubble-container centralized blue-dark">
+            <a href="{{'dashboard'}}">
+                <div class="bubble centralized">
+                    <div class="inner centralized">
+                        งานประปา
                     </div>
                 </div>
-
-
-                <div class="col-lg-3 cus-btn col-md-6 col-12 mb-4 mb-lg-0 mb-md-4
-                    {{ Auth::user()->can('access waste bank') ? '' : "inactive-menu" }}
-                    ">
-                    <div class="featured-block d-flex justify-content-center align-items-center">
-
-
-                        <button type="submit" class="btn btn-outline-white">
-                            <a href="{{Auth::user()->can('access waste bank') ? route('keptkaya.dashboard') : '#'}}"
-                                class="d-block">
-                                <img src="{{ asset('imgs/recycle_sys.jpg') }}"
-                                 style="width: 60%"
-                                    class="featured-block-image img-fluid" alt="">
-
-                                {{-- <p class="featured-block-text"><strong>ระบบ</strong> </p> --}}
-                                <p class="featured-block-text">ธนาคารขยะชุมชน</p>
-                            </a>
-
-                        </button>
-
+            </a>
+        </div>
+        <div class="bubble-container centralized green">
+            <a href="{{Auth::user()->can('access waste bank') ? route('keptkaya.dashboard') : '#'}}">
+                <div class="bubble centralized">
+                    <div class="inner centralized">
+                        ธนาคาร<br>ขยะรีไซเคิล
                     </div>
                 </div>
-
-                 <div class="col-lg-3 cus-btn col-md-6 col-12 mb-4 mb-lg-0 mb-md-4
-                    {{ Auth::user()->can('access waste bank') ? '' : "inactive-menu" }}
-                    ">
-                    <div class="featured-block d-flex justify-content-center align-items-center">
-
-
-                        <button type="submit" class="btn btn-outline-white">
-                            <a href="{{Auth::user()->can('access waste bank') ? route('keptkaya.dashboard') : '#'}}"
-                                class="d-block">
-                                <img src="{{ asset('imgs/bin_empty.png') }}"
-                                    style="width: 67%"
-                                    class="featured-block-image img-fluid" alt="">
-
-                                {{-- <p class="featured-block-text"><strong>ระบบ</strong> </p> --}}
-                                <p class="featured-block-text">จัดเก็บค่าจัดการขยะรายปี</p>
-                            </a>
-
-                        </button>
-
+            </a>
+        </div>
+        <div class="bubble-container centralized orange">
+            <a href="{{Auth::user()->can('access waste bank') ? route('keptkaya.dashboard') : '#'}}">
+                <div class="bubble centralized">
+                    <div class="inner centralized">
+                        จัดเก็บ<br>ถังขยะรายปี
                     </div>
                 </div>
+            </a>
+        </div>
+        <div class="bubble-container centralized red">
 
-                <div class="col-lg-3 cus-btn col-md-6 col-12 mb-4 mb-lg-0 mb-md-4
-                    {{ Auth::user()->can('access waste bank') ? '' : "inactive-menu" }}
-                    ">
-                    <div class="featured-block d-flex justify-content-center align-items-center">
-                        <a href="{{Auth::user()->can('access waste bank') ? route('keptkaya.dashboard') : '#'}}"
-                            class="d-block">
-
-                            <img src="{{ asset('templatemo/images/icons/receive.png') }}"
-                                class="featured-block-image img-fluid" alt="">
-
-                            <p class="featured-block-text"> <strong>ระบบ</strong></p>
-                            <p class="featured-block-text">ธนาคารขยะเปียก</p>
-
-                        </a>
-                    </div>
-                </div>
-
-                <div class="col-lg-3 cus-btn col-md-6 col-12 mb-4 mb-lg-0 
-                    {{-- {{ Auth::user()->hasPermission('access-local-bank-menu') ? '' : " inactive-menu" }} --}} " >
-                        <div class=" featured-block d-flex justify-content-center align-items-center">
-                    <a href="#" class="d-block">
-                        <img src="{{ asset('templatemo/images/icons/scholarship.png') }}"
-                            class="featured-block-image img-fluid" alt="">
-
-                        <p class="featured-block-text"><strong>ระบบ</strong> </p>
-                        <p class="featured-block-text">ธนาคารชุมชนออมทรัพย์</p>
-                    </a>
+            <div class="bubble centralized">
+                <div class="inner centralized">
+                    ถังหมัก<br>เศษอาหาร
                 </div>
             </div>
+        </div>
+        <div class="bubble-container centralized black">
 
+            <div class="bubble centralized">
+                <div class="inner centralized">
+                    ธนาคาร<br>ออมทรัพย์
+                </div>
             </div>
+        </div>
+        <div class="bubble-container centralized blue-light">
+
+            <div class="bubble centralized">
+                <div class="inner centralized">
+                    ผู้ดูแลระบบ
+                </div>
             </div>
-        </section>
+        </div>
+    </div>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.6.1/jquery.min.js"></script>
+    <script>
+        $(document).ready(function () {
+            var bubbleList = $('.bubble-container');
+            const bubbleCount = bubbleList.length;
+            const degStep = 180 / (bubbleCount - 1);
 
+            $('.bubble-container').each((index) => {
+                const deg = index * degStep;
+                const invertDeg = deg * -1;
 
-    </main>
-
-
-
-    <!-- JAVASCRIPT FILES -->
-    <script src="{{ asset('templatemo/js/jquery.min.js') }}"></script>
-    <script src="{{ asset('templatemo/js/bootstrap.min.js') }}"></script>
-    <script src="{{ asset('templatemo/js/jquery.sticky.js') }}"></script>
-    <script src="{{ asset('templatemo/js/click-scroll.js') }}"></script>
-    <script src="{{ asset('templatemo/js/counter.js') }}"></script>
-    <script src="{{ asset('templatemo/js/custom.js') }}"></script>
-
+                $(bubbleList[index]).css('transform', `rotate(${deg}deg)`);
+                $(bubbleList[index]).css('opacity', `1`);
+                $(bubbleList[index]).find('.bubble').css('transform', `rotate(${invertDeg}deg)`);
+            })
+        })
+    </script>
 </body>
 
 </html>

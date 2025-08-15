@@ -92,7 +92,6 @@ Route::get('/dashboard', function (Request $request) {
 
 Route::get('/accessmenu', function () {
     $user = User::find(Auth::id());
-//    return $user->givePermissionTo('access waste bank module');
     $orgInfos = OrgSettings::where('org_id_fk', 2)->get([
         'org_type_name',
         'org_name',
@@ -105,6 +104,22 @@ Route::get('/accessmenu', function () {
     $user = User::find(Auth::id());
     return view('accessmenu', compact('orgInfos', 'user'));
 })->middleware(['auth', 'role:admin'])->name('accessmenu');
+
+Route::get('/staff_accessmenu', function () {
+    $user = User::find(Auth::id());
+    $orgInfos = OrgSettings::where('org_id_fk', 2)->get([
+        'org_type_name',
+        'org_name',
+        'org_short_name',
+        'org_province_id',
+        'org_logo_img',
+        'org_district_id',
+        'org_tambon_id'
+    ])[0];
+    $user = User::find(Auth::id());
+    return view('staff_accessmenu', compact('orgInfos', 'user'));
+})->middleware(['auth', 'role:Tabwater Staff|Recycle Bank Staff'])->name('staff_accessmenu');
+
 
 
 Route::prefix('staffs')->name('keptkaya.staffs.')->group(function () {

@@ -1,9 +1,10 @@
 <?php
 
-namespace App\Models;
+namespace App\Models\Tabwater;
 
 use App\Http\Controllers\FunctionsController;
 use App\Models\Admin\UserProfile;
+use App\Models\User;
 use Exception;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;

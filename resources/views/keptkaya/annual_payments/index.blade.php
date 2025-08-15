@@ -1,9 +1,14 @@
 @extends('layouts.keptkaya')
 
-@section('title_page', 'ค่าถังขยะรายปี')
+@section('title_page', 'รับชำระค่าจัดเก็บถังขยะรายปี')
 
+@section('page-topic', 'รายละเอียดค่าถังขยะรายปี')
+@section('nav-header', 'รับชำระค่าจัดเก็บถังขยะรายปี')
+@section('route-header')
+ {{ route('keptkaya.annual_payments.index') }}
+@endsection
+@section('nav-main', 'รับชำระค่าจัดเก็บถังขยะรายปี')
 @section('content')
-<div class="container-fluid py-4">
     <div class="row">
         <div class="col-12">
             <div class="card mb-4">
@@ -76,10 +81,10 @@
                                                     <span class="text-xs font-weight-bold">{{ number_format($sub->annual_fee, 2) }}</span>
                                                 </td>
                                                 <td class="align-middle text-center text-sm">
-                                                    <span class="text-xs font-weight-bold">{{ number_format($sub->total_paid_amount, 2) }}</span>
+                                                    <span class="text-xs font-weight-bold">{{ number_format($sub->total_paid_amt, 2) }}</span>
                                                 </td>
                                                 <td class="align-middle text-center text-sm">
-                                                    <span class="text-xs font-weight-bold">{{ number_format($sub->annual_fee - $sub->total_paid_amount, 2) }}</span>
+                                                    <span class="text-xs font-weight-bold">{{ number_format($sub->annual_fee - $sub->total_paid_amt, 2) }}</span>
                                                 </td>
                                                 <td class="align-middle text-center text-sm">
                                                     @php
@@ -120,5 +125,4 @@
             </div>
         </div>
     </div>
-</div>
 @endsection

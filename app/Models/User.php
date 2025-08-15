@@ -12,6 +12,8 @@ use App\Models\KeptKaya\UserWastePreference;
 use App\Models\KeptKaya\WasteBin;
 use App\Models\KeptKaya\AnnualCollectionPayment;
 use App\Models\KeptKaya\KpPurchaseTransaction;
+use App\Models\Tabwater\UndertakerSubzone;
+use App\Models\Tabwater\UserMerterInfo;
 use Laravel\Sanctum\HasApiTokens;
 use Spatie\Permission\Traits\HasRoles;
 use Illuminate\Notifications\Notifiable;

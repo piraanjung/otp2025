@@ -3,9 +3,9 @@
 namespace App\Http\Controllers;
 
 
-use App\Models\District;
+use App\Models\Admin\District;
 use App\Models\KeptKaya\WasteBin;
-use App\Models\Tambon;
+use App\Models\Admin\Tambon;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Auth;

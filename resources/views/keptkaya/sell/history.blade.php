@@ -1,7 +1,6 @@
     @extends('layouts.keptkaya')
 
     @section('content')
-    <div class="container-fluid">
         <div class="d-flex justify-content-between align-items-center mb-4">
             <h1 class="mb-0">ประวัติการขายขยะ</h1>
             <a href="{{ route('keptkaya.sell.form') }}" class="btn btn-primary">
@@ -47,12 +46,12 @@
                                     <td>{{ $transaction->recorder->firstname ?? 'N/A' }}</td>
                                     <td>
                                         <a href="{{ route('keptkaya.sell.receipt', $transaction->id) }}" class="btn btn-info btn-sm">
-                                            <i class="bi bi-receipt me-1"></i> ใบเสร็จ
+                                            <i class="fa fa-receipt me-1"></i> ใบเสร็จ
                                         </a>
                                         <form action="{{ route('keptkaya.sell.destroy', $transaction->id) }}" method="POST" class="d-inline">
                                             @csrf
                                             @method('DELETE')
-                                            <button type="submit" class="btn btn-danger btn-sm" onclick="return confirm('คุณแน่ใจหรือไม่ที่จะลบธุรกรรมนี้?')"><i class="bi bi-trash"></i></button>
+                                            <button type="submit" class="btn btn-danger btn-sm" onclick="return confirm('คุณแน่ใจหรือไม่ที่จะลบธุรกรรมนี้?')"><i class="fa fa-trash"></i> ลบ</button>
                                         </form>
                                     </td>
                                 </tr>
@@ -69,6 +68,5 @@
                 </div>
             </div>
         </div>
-    </div>
     @endsection
     

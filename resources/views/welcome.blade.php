@@ -443,7 +443,7 @@
                   @csrf
                   <div class="row">
                     <div class="col">
-                      <input type="text" id="your_name" class="form-input w-100" value="superman1@isann.com" name="email"
+                      <input type="text" id="your_name" class="form-input w-100" value="isann_admin1" name="username"
                         placeholder="Username" required>
                     </div>
                     <div class="col">

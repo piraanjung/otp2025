@@ -3,7 +3,6 @@
 @section('title_page', 'แผนที่แสดงถังขยะ')
 
 @section('content')
-<div class="container-fluid py-4">
     <div class="row">
         <div class="col-12">
             <div class="card mb-4">
@@ -16,7 +15,6 @@
             </div>
         </div>
     </div>
-</div>
 @endsection
 
 @section('script')
@@ -36,6 +34,7 @@
             .then(response => response.json())
             .then(bins => {
                 bins.forEach(bin => {
+                    console.log(bin)
                     if (bin.latitude && bin.longitude) {
                         const latLng = new google.maps.LatLng(bin.latitude, bin.longitude);
                         
@@ -53,6 +52,8 @@
                         // Create info window content
                         const infoContent = `
                             <h6>${bin.bin_code}</h6>
+                            <p><strong>ชื่อ-สกุล:</strong> ${bin.user.firstname}  ${bin.user.lastame}</p>
+                            <p><strong>ที่อยู่:</strong> ${bin.user.address} บ้าน ${bin.user.user_subzone.subzone_name} หมู่ ${bin.user.user_zone.zone_name}</p>
                             <p><strong>ประเภท:</strong> ${bin.bin_type}</p>
                             <p><strong>สถานะ:</strong> ${bin.status}</p>
                             <p><strong>ละติจูด:</strong> ${bin.latitude}</p>

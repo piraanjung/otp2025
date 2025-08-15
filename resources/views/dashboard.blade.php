@@ -296,7 +296,7 @@
                     <div class="card-body px-0 py-0">
                         <iframe width="100%" height="450" style="border:1px" loading="lazy" allowfullscreen
                             referrerpolicy="no-referrer-when-downgrade"
-                            src="https://www.google.com/maps/embed/v1/place?key= AIzaSyA-5AlIGzLhFXErl2STRT6GacX0616iW2o&q=16.2966141,102.66817&language=th-TH&zoom=16">
+                        src="https://www.google.com/maps/embed/v1/place?key= AIzaSyA-5AlIGzLhFXErl2STRT6GacX0616iW2o&q=16.2966141,102.66817&language=th-TH&zoom=16">
                         </iframe>
                     </div>
                     <div class="card-footer">
