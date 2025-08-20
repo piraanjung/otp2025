@@ -289,21 +289,22 @@
                                         <tr class="{{ $invoice->cutmeter == 1 ? 'text-cutmeter' : '' }}">
                                             <td class="text-center ">
                                               
-                                                @if ($invoice->same == true)
+                                                 {{-- @if ($invoice->same == true) --}}
                                                     <input type="checkbox" class="form-check-input checkbox main_checkbox" name="datas[]"
-                                                        value="{{ $invoice->invoice[0]->meter_id_fk."|".$invoice->invoice[0]->inv_no }}"
+                                                        value="{{ $invoice->invoice[0]->meter_id_fk."|".$invoice->inv_no_index }}"
                                                         data-main_checkbox_totalpaid="{{collect($invoice->invoice)->sum('totalpaid')}}"  
                                                         data-main_total_water_used_selected="{{collect($invoice->invoice)->sum('water_used')}}"  
                                                         
                                                     >
                                                     
-                                                @endif
+                                                {{-- @endif  --}}
                                                 
 
                                             </td>
                                             <td> {{ $invoice->invoice[0]->inv_id }}</td>
                                             <td class="popup text-end">
-                                                {{ $invoice->invoice[0]->inv_no }}
+                                                {{ "IV01".substr('0000',strlen($invoice->invoice[0]->meter_id_fk)).$invoice->invoice[0]->meter_id_fk
+                                                .substr('00',strlen($invoice->inv_no_index)).$invoice->inv_no_index  }}
 
                                             </td>
                                             @if (collect($invoice->user)->isEmpty())
@@ -384,7 +385,7 @@
                                 <div class="col-12">
                                     {{-- ข้อมูลใบแจ้งหนี้และการชำระ --}}
                                     <input type="hidden" name="mode" id="mode" value="payment">
-                                    <input type="hidden" name="inv_no" id="inv_no">
+                                    {{-- <input type="text" name="inv_no" id="inv_no"> --}}
                                     <input type="hidden" name="user_id" id="user_id" value="">
                                     <input type="hidden" name="meter_id" id="meter_id" value="">
                                     <input type="hidden" class="form-control text-bold text-center  paidform" readonly
@@ -731,7 +732,7 @@
                                             data-inv_id="${element.inv_id}" name="payments[${i}][on]">
                                     </div>
                                 </td>
-                                <td class="text-center">${element.inv_no}</td>
+                                <td class="text-center">${element.meter_id_fk}</td>
                                 <td class="text-center">${element.inv_id}</td>
                                 <td class="text-center">${element.usermeterinfos.meternumber}</td>
                                 <td class="text-center">${element.invoice_period.inv_p_name}</td>
@@ -784,7 +785,7 @@
                     $('#mustpaid').val(parseFloat(totalpaidsum + invoices.length * 10).toFixed(2))
                     $('.mustpaid').html(parseFloat(totalpaidsum + invoices.length * 10).toFixed(2))
                     $('#meter_id').val(invoices[0].usermeterinfos.meter_id);
-                    $('#inv_no').val(invoices[0].inv_no)
+                    // $('#inv_no').val(invoices[0].inv_no)
 
                     createQrCode({
                         meter_id: invoices[0].usermeterinfos.meter_id,
@@ -808,7 +809,7 @@
             let meter_id_length = data.meter_id.toString().length
             let meter_id_str = init.substring(meter_id_length) + "" + data.meter_id
                 .toString()
-            let inv_no_length = $('#inv_no').val().toString().length
+            let inv_no_length = '1';//$('#inv_no').val().toString().length
             let inv_no_str = init.substring(inv_no_length) + "" + $('#inv_no').val()
                 .toString()
             let paidVal = parseFloat(data.totalpaidsum).toFixed(2).toString().replace(".", "")

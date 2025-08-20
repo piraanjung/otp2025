@@ -24,7 +24,7 @@
             /* top: 3vh; */
             text-align: right;
             width: 40vh;
-            font-size: 6vh;
+            font-size: 5vh;
             /* font-family: 'Raleway', cursive; */
         }
 
@@ -37,6 +37,7 @@
         .legend-bottom {
             font-weight: 300;
             clear: both;
+            font-size: 1.5rem
         }
 
         .item {
@@ -138,6 +139,9 @@
 .my-button:hover {
     background-color: #f0f0f0;
 }
+#container{
+    margin-top: 30px
+}
 
 /* สำหรับจอมือถือ */
 @media (pointer: coarse) {
@@ -154,20 +158,26 @@
 <body>
     <div id='container'>
         <div class='legend' id="myElement">
-            <div class='legend-top my-button'>เจ้าหน้าที่</div>
-            <div class='legend-bottom'>ANDROID</div>
+            <div class='legend-top my-button'>OPT-CONNECT</div>
+            <div class='legend-bottom'>
+                {{$orgInfos->org_type_name}}
+            </div>
+            <div class='legend-bottom'>
+                {{$orgInfos->org_name}}
+            </div>
         </div>
-        <a href="{{ route('keptkaya.purchase.select_user') }}">
+        <a href="{{ route('tabwater.staff.mobile.index') }}">
         <div id='first' class='item'>
             <div class='value'>
-                <div>ธนาคารขยะ<br>รีไซเคิล</div>
+                <div>จดมิเตอร์<br>ประปา</div>
+                
             </div>
             <div class='title'> <i class="fa fa-trash"></i> </div>
         </div>
         </a>
         <div id='second' class='item'>
             <div class='value'>
-                <div>จดมิเตอร์<br>ประปา</div>
+                <div>ธนาคารขยะ<br>รีไซเคิล</div>                  
             </div>
             <div class='title'> <i class="fa fa-film" aria-hidden="true"></i> </div>
         </div>

@@ -31,6 +31,7 @@ return new class extends Migration
             $table->integer('payment_id')->default(0);
             $table->integer('discounttype')->default(0);
             $table->integer('recorder_id');
+            $table->integer('last_meter_recording')->default(0);
             $table->timestamps();
             $table->primary(['meter_id']);
             $table->foreign('user_id')->references('id')->on('users')->onDelete('cascade');

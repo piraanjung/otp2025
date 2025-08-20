@@ -3,14 +3,14 @@
 namespace App\Http\Controllers\Admin;
 
 use App\Imports\UsersImport;
-use App\Models\Invoice;
 use App\Models\InvoiceOld;
+use App\Models\Tabwater\Invoice;
+use App\Models\Tabwater\SequenceNumber;
+use App\Models\Tabwater\UserMerterInfo;
 use App\Models\User;
 use Illuminate\Http\Request;
 use App\Http\Controllers\Controller;
 use App\Http\Controllers\FunctionsController;
-use App\Models\SequenceNumber;
-use App\Models\UserMerterInfo;
 use Exception;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Hash;
@@ -136,12 +136,12 @@ class ExcelController extends Controller
                     $meternumberCount = SequenceNumber::where('id', 1)->get('tabmeter')[0];
                     $i = $meternumberCount->tabmeter;
                     foreach ($worksheet_arr as $worksheet) {
-                        try {
+                        // try {
 
                             // list($code , $meter_id) = explode("KP10",$worksheet[15]);
                             $meterCode = substr("0000", strlen($i)) . $i;
                             
-                            $usermeter = UserMerterInfo::create([
+                         $usermeter = UserMerterInfo::create([
                                 'submeter_name' => $worksheet[7],
                                 "meter_address" => $worksheet[14],
                                 "user_id" => $worksheet[2],
@@ -156,57 +156,57 @@ class ExcelController extends Controller
                                 "recorder_id" => 1848,
                                 'cutmeter' => 0,
                                 'inv_no_index' => 0,
-                                'factory_no' => $worksheet[0]
+                                'factory_no' => $worksheet[0],
+                                'deleted' => '0'
                             ]);
 
-
-                           //list($code,$meter_id_fk_old) = explode('KP10',$worksheet[0]);
-                            $invoice_old = InvoiceOld::where('meter_id_fk', $worksheet[4])
-                                ->whereIn('status', ['owe','invioce'])
-                                ->where('inv_period_id_fk', '<>',7)->get();
                             $inv_no_index_temp = 0;
-                            if (collect($invoice_old)->isNotEmpty()) {
-                                foreach ($invoice_old as $inv) {
-                                    $inv_no_index = substr($inv->inv_no, 0, 4);
+                           //list($code,$meter_id_fk_old) = explode('KP10',$worksheet[0]);
+                            // $invoice_old = InvoiceOld::where('meter_id_fk', $worksheet[4])
+                            //     ->whereIn('status', ['owe','invioce'])
+                            //     ->where('inv_period_id_fk', '<>',7)->get();
+                            // $inv_no_index_temp = 0;
+                            // if (collect($invoice_old)->isNotEmpty()) {
+                            //     foreach ($invoice_old as $inv) {
+                            //         $inv_no_index = substr($inv->inv_no, 0, 4);
 
-                                    Invoice::create([
-                                        'inv_period_id_fk' => $inv->inv_period_id_fk,
-                                        'meter_id_fk' => $usermeter->id,
-                                        'user_id' => $inv->user_id,
-                                        'lastmeter' => $inv->lastmeter,
-                                        'currentmeter' => $inv->currentmeter,
-                                        'water_used' => $inv->water_used,
-                                        'inv_type' =>  $inv->inv_type,
-                                        'inv_no' =>     $inv_no_index . $meterCode,
-                                        'paid' => $inv->paid,
-                                        'vat' => 0,
-                                        'reserve_meter' => 10,
-                                        'totalpaid' => $inv->totalpaid,
-                                        'acc_trans_id_fk' => 0,
-                                        'status' => 'owe',
-                                        'comment' => $inv->meter_id_fk,
-                                        'recorder_id' => $inv->recorder_id,
-                                        'created_at' =>$inv->created_at,
-                                        'updated_at' => $inv->updated_at
-                                    ]);
-                                    $inv_no_index_temp =substr($inv_no_index, -1);
+                            //         Invoice::create([
+                            //             'inv_period_id_fk' => $inv->inv_period_id_fk,
+                            //             'meter_id_fk' => $usermeter->id,
+                            //             'user_id' => $inv->user_id,
+                            //             'lastmeter' => $inv->lastmeter,
+                            //             'currentmeter' => $inv->currentmeter,
+                            //             'water_used' => $inv->water_used,
+                            //             'inv_type' =>  $inv->inv_type,
+                            //             'inv_no' =>     $inv_no_index . $meterCode,
+                            //             'paid' => $inv->paid,
+                            //             'vat' => 0,
+                            //             'reserve_meter' => 10,
+                            //             'totalpaid' => $inv->totalpaid,
+                            //             'acc_trans_id_fk' => 0,
+                            //             'status' => 'owe',
+                            //             'comment' => $inv->meter_id_fk,
+                            //             'recorder_id' => $inv->recorder_id,
+                            //             'created_at' =>$inv->created_at,
+                            //             'updated_at' => $inv->updated_at
+                            //         ]);
+                            //         $inv_no_index_temp =substr($inv_no_index, -1);
                                    
                                    
-                                }
-                            }
-
+                            //     }
+                            // }
 
 
                             $inv_no_index_next = $inv_no_index_temp + 1;
+                            
                             Invoice::create([
                                 'inv_period_id_fk' => 7,
                                 'meter_id_fk' => $usermeter->id,
-                                'user_id' => $usermeter->user_id,
                                 'lastmeter' => $worksheet[15],
                                 'currentmeter' => $worksheet[16],
                                 'water_used' => $worksheet[17],
                                 'inv_type' =>  $worksheet[17] == 0 ? 'r' : 'u',
-                                'inv_no' => '010'.$inv_no_index_next . $meterCode,
+                                'inv_no' => 1,
                                 'paid' => $worksheet[18],
                                 'vat' => 0,
                                 'reserve_meter' => 10,
@@ -217,17 +217,15 @@ class ExcelController extends Controller
                                 'created_at' => date_create('2025-04-01 00:00:00'),
                                 'updated_at' => date_create('2025-04-21 00:00:00')
                             ]);
-
                              UserMerterInfo::where('meter_id', $usermeter->meter_id)->update([
                                         'inv_no_index' =>  $inv_no_index_next
                                     ]);
                             $i++;
-                           
 
-                        } catch (Exception $e) {
-                            array_push($err, $worksheet);
-                            // return $worksheet;
-                        }
+                        // } catch (Exception $e) {
+                        //     array_push($err, $worksheet);
+                        //     // return $worksheet;
+                        // }
                         //insert into invoice table
                         SequenceNumber::where('id', 1)->update(['tabmeter' => $i]);
 
@@ -244,41 +242,41 @@ class ExcelController extends Controller
 
     public function import_invoice_old(Request $request)
     {
-        try {
-            $invoice_old = InvoiceOld::where('meter_id_fk', $request->get('old_meter_id'))
-                ->whereIn('status', ['owe'])->get();
-            if (collect($invoice_old)->isNotEmpty()) {
-                foreach ($invoice_old as $inv) {
-                    $inv_no_index = substr($inv->inv_no, 0, 4);
+        // try {
+        //     $invoice_old = InvoiceOld::where('meter_id_fk', $request->get('old_meter_id'))
+        //         ->whereIn('status', ['owe'])->get();
+        //     if (collect($invoice_old)->isNotEmpty()) {
+        //         foreach ($invoice_old as $inv) {
+        //             $inv_no_index = substr($inv->inv_no, 0, 4);
 
-                    Invoice::create([
-                        'inv_period_id_fk' => $inv->inv_period_id_fk,
-                        'meter_id_fk' => $request->get('new_meter_id'),
-                        'user_id' => $inv->user_id,
-                        'lastmeter' => $inv->lastmeter,
-                        'currentmeter' => $inv->currentmeter,
-                        'water_used' => $inv->water_used,
-                        'inv_type' =>  $inv->inv_type,
-                        'inv_no' =>     $inv_no_index . $request->get('$meterCode'),
-                        'paid' => $inv->paid,
-                        'vat' => 0,
-                        'reserve_meter' => 10,
-                        'totalpaid' => $inv->totalpaid,
-                        'acc_trans_id_fk' => 0,
-                        'status' => $inv->status,
-                        'recorder_id' => 1849,
-                        'created_at' => date('Y-m-d H:i:s'),
-                        'updated_at' => date('Y-m-d H:i:s')
-                    ]);
+        //             Invoice::create([
+        //                 'inv_period_id_fk' => $inv->inv_period_id_fk,
+        //                 'meter_id_fk' => $request->get('new_meter_id'),
+        //                 'user_id' => $inv->user_id,
+        //                 'lastmeter' => $inv->lastmeter,
+        //                 'currentmeter' => $inv->currentmeter,
+        //                 'water_used' => $inv->water_used,
+        //                 'inv_type' =>  $inv->inv_type,
+        //                 'inv_no' =>     $inv_no_index . $request->get('$meterCode'),
+        //                 'paid' => $inv->paid,
+        //                 'vat' => 0,
+        //                 'reserve_meter' => 10,
+        //                 'totalpaid' => $inv->totalpaid,
+        //                 'acc_trans_id_fk' => 0,
+        //                 'status' => $inv->status,
+        //                 'recorder_id' => 1849,
+        //                 'created_at' => date('Y-m-d H:i:s'),
+        //                 'updated_at' => date('Y-m-d H:i:s')
+        //             ]);
 
-                    UserMerterInfo::where('meter_id', $request->get('new_meter_id'))->update([
-                        'inv_no_index' => substr($inv_no_index, -1)
-                    ]);
-                }
-            }
-        } catch (Exception $e) {
-            array_push($err, $request->get('old_meter_id'));
-            // return $worksheet;
-        }
+        //             UserMerterInfo::where('meter_id', $request->get('new_meter_id'))->update([
+        //                 'inv_no_index' => substr($inv_no_index, -1)
+        //             ]);
+        //         }
+        //     }
+        // } catch (Exception $e) {
+        //     array_push($err, $request->get('old_meter_id'));
+        //     // return $worksheet;
+        // }
     }
 }

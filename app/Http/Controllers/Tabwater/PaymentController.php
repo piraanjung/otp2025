@@ -4,7 +4,7 @@ namespace App\Http\Controllers\Tabwater;
 
 use App\Http\Controllers\Controller;
 
-use App\Http\Controllers\Api\FunctionsController;
+use App\Http\Controllers\FunctionsController;
 use App\Http\Controllers\Api\InvoiceController;
 use App\Models\Tabwater\Account;
 use App\Models\Tabwater\Invoice;
@@ -16,6 +16,7 @@ use App\Models\Admin\Zone;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use App\Http\Controllers\Api\PaymentController as ApiPaymentController;
+use App\Models\Admin\Organization;
 use App\Models\Tabwater\AccTransactions;
 use App\Models\Tabwater\Cutmeter;
 use App\Models\Tabwater\InvoiceHistoty;
@@ -47,10 +48,8 @@ class PaymentController extends Controller
         $usermeterinfosQuery = UserMerterInfo::whereIn('status', ['active', 'inactive', 'deleted'])
             ->with([
                 'invoice' => function ($query) {
-                    return $query->select('meter_id_fk', 'inv_id', 'inv_period_id_fk', 'status', 'water_used', 'totalpaid', 'inv_no', 'acc_trans_id_fk')
-                        ->whereIn('status', ['owe', 'invoice'])
-                        // ->where('inv_period_id_fk','<>',7);   
-                        ->where('inv_period_id_fk',7);   
+                    return $query->select('meter_id_fk', 'inv_id', 'inv_period_id_fk', 'status', 'water_used', 'totalpaid',  'acc_trans_id_fk')
+                        ->whereIn('status', ['owe', 'invoice']);
                           
                 },
                 'meter_type' => function ($query) {
@@ -70,7 +69,8 @@ class PaymentController extends Controller
             'metertype_id',
             'meternumber',
             'owe_count',
-            'cutmeter'
+            'cutmeter',
+            'inv_no_index'
         ]);
 
         $invoices = collect($usermeterinfos)->filter(function ($v) {
@@ -79,26 +79,26 @@ class PaymentController extends Controller
             }
         });
 
-        foreach($usermeterinfos as $umf){
-             $umf['same'] = false;
-            if ( collect($umf['invoice'])->isNotEmpty() ) {
-                $firstInvNo = $umf['invoice'][0]->inv_no;
-                $allInvNoAreSame = true;
-                foreach ($umf['invoice'] as $inv){
-                    if ($inv->inv_no !== $firstInvNo) {
-                        $allInvNoAreSame = false;
-                        break;
-                    }
-                }
+        // foreach($usermeterinfos as $umf){
+        //      $umf['same'] = false;
+        //     if ( collect($umf['invoice'])->isNotEmpty() ) {
+        //         $firstInvNo = $umf['invoice'][0]->inv_no;
+        //         $allInvNoAreSame = true;
+        //         foreach ($umf['invoice'] as $inv){
+        //             if ($inv->inv_no !== $firstInvNo) {
+        //                 $allInvNoAreSame = false;
+        //                 break;
+        //             }
+        //         }
                
-                if ($allInvNoAreSame) {
-                    $umf['same'] = true;
-                    // ทำสิ่งที่คุณต้องการเมื่อ inv_no ทั้ง 6 ตัวเหมือนกัน
-                    // เช่น dd('Inv_no ทั้ง 6 ตัวเหมือนกัน: ' . $firstInvNo);
-                    // หรือเก็บค่าในตัวแปรเพื่อนำไปใช้ต่อไป
-                } 
-            } 
-        }
+        //         if ($allInvNoAreSame) {
+        //             $umf['same'] = true;
+        //             // ทำสิ่งที่คุณต้องการเมื่อ inv_no ทั้ง 6 ตัวเหมือนกัน
+        //             // เช่น dd('Inv_no ทั้ง 6 ตัวเหมือนกัน: ' . $firstInvNo);
+        //             // หรือเก็บค่าในตัวแปรเพื่อนำไปใช้ต่อไป
+        //         } 
+        //     } 
+        // }
         
 
 
@@ -420,7 +420,7 @@ class PaymentController extends Controller
             return isset($v['on']);
         });
 
-
+        
         $accT = AccTransactions::create([
             'user_id_fk'    => $request->get('user_id'),
             'paidsum'       => $request->get('paidsum'),
@@ -566,60 +566,63 @@ class PaymentController extends Controller
     public function store_by_inv_no(Request $request)
     {
         $arr = [];
+        
         foreach ($request->get('datas') as $dataArray) {
              list($req_meter_id, $req_inv_no) = explode("|",$dataArray);
          
              $inv = new Invoice();
             //sum paid vat และ totalpaid แล้ว create acc_transactions table
               $inv_infos = Invoice::where('meter_id_fk', $req_meter_id)
-                ->where('inv_no', $req_inv_no)
                 ->whereIn('status', ['invoice', 'owe'])
-                ->get(['inv_id', 'inv_no', 'paid', 'vat', 'totalpaid', 'meter_id_fk', 'status']);
+                ->get(['inv_id',  'paid', 'vat', 'totalpaid', 'meter_id_fk', 'status']);
 
             //update Invoice row ที่ตรงกับ inv_no
+            
             $paid_sum = 0;
             $vat_sum = 0;
+            $reserve_meter_sum = 0;
             $totalpaid_sum = 0;
             foreach($inv_infos as $inv){
-                Invoice::where('inv_id', $inv->inv_id)->update([
-                    'status' => 'paid',
-                    'recorder_id' => Auth::user()->id,
-                    'updated_at' => date('Y-m-d H:i:s')
-                ]);
                 $paid_sum += $inv->paid;
                 $vat_sum += $inv->vat;
                 $totalpaid_sum += $inv->totalpaid;
-                
+                $reserve_meter_sum += $inv->reserve_meter_sum;
             }
 
             $acc_trans = AccTransactions::create([
                     'user_id_fk' => $inv->meter_id_fk,
-                    'inv_no_fk' => $inv->inv_id,
                     'paidsum' => $paid_sum,
                     'vatsum' => $vat_sum,
+                    'reserve_meter_sum' => $reserve_meter_sum,
                     'totalpaidsum' => $totalpaid_sum,
-                    'net' => $totalpaid_sum,
-                    'status' => 1,
+                    'status' => '1',
                     'cashier' => Auth::user()->id,
                     'created_at' => date('Y-m-d H:i:s'),
                     'updated_at' => date('Y-m-d H:i:s')
                 ]);
-
-            //update invoice ด้วย acc_trans_id
-            Invoice::where('meter_id_fk', $req_meter_id)->where('inv_no', $req_inv_no)->where('status', 'paid')->update([
+             foreach($inv_infos as $inv){
+                Invoice::where('inv_id', $inv->inv_id)->update([
+                    'status' => 'paid',
+                    'recorder_id' => Auth::user()->id,
+                    'updated_at' => date('Y-m-d H:i:s'),
                     'acc_trans_id_fk' => $acc_trans->id,
-            ]);
+                    'inv_no' => $req_inv_no
+                ]);
+               
+            }
+
 
             //update usermeter_info 
-            $invStatusOwesCount = Invoice::where('meter_id_fk', $req_meter_id)->whereIn('status', ['owe', 'invoice'])->count();
+            // $invStatusOwesCount = Invoice::where('meter_id_fk', $req_meter_id)->whereIn('status', ['owe', 'invoice'])->count();
            
             $usermeter_infos = UserMerterInfo::where('meter_id', $req_meter_id)
-                ->get('owe_count');
+                ->get(['owe_count','inv_no_index']);
 
-            $res = $usermeter_infos[0]->owe_count - $invStatusOwesCount < 0 ? 0 : $usermeter_infos[0]->owe_count - $invStatusOwesCount;
+            // $res = $usermeter_infos[0]->owe_count - $invStatusOwesCount < 0 ? 0 : $usermeter_infos[0]->owe_count - $invStatusOwesCount;
             UserMerterInfo::where('meter_id', $req_meter_id)
                 ->update([
-                    'owe_count' => $res
+                    'owe_count' => $usermeter_infos[0]->owe_count - collect($inv_infos)->count(),
+                    'inv_no_index' =>  $usermeter_infos[0]->inv_no_index +1
                 ]);
             
 
@@ -633,7 +636,7 @@ class PaymentController extends Controller
                         return $query->select('meter_id', 'user_id', 'meternumber', 'undertake_zone_id', 'undertake_subzone_id', 'meter_address');
                     },
                     'acc_transactions' => function ($query) {
-                        return $query->select('id', 'inv_no_fk', 'user_id_fk', 'paidsum', 'vatsum', 'totalpaidsum', 'cashier', 'updated_at')
+                        return $query->select('id', 'reserve_meter_sum', 'user_id_fk', 'paidsum', 'vatsum', 'totalpaidsum', 'cashier', 'updated_at')
                             ->where('status', 1);
                     },
                     'acc_transactions.cashier_info' => function ($query) {
@@ -646,11 +649,10 @@ class PaymentController extends Controller
             $invoicesPaidForPrint[0]['casheir'] = User::where('id', Auth::user()->id)->get(['id', 'prefix', 'firstname', 'lastname']);
             array_push($arr, $invoicesPaidForPrint);
         } //foreach
-
-        $funcCtrl = new FunctionsController();
+        $funcCtrl = new \App\Http\Controllers\FunctionsController();
         $settingModel = new Setting();
         // $setting = $settingModel->getSettingInfosByGovId(Auth::user()->settings_id_fk);
-        $newId = "-RC-" . $funcCtrl->createNumberString($acc_trans->id, 'RC');
+        $newId = "-RC-" . $funcCtrl->createInvoiceNumberString($acc_trans->id, 'RC');
         $type = 'paid_receipt';
         $from_blade = 'payment.index';
         return view('payment.receipt_print_multi', compact('arr', 'newId', 'type', 'from_blade'));
@@ -722,7 +724,7 @@ class PaymentController extends Controller
             ])
             ->get(['inv_id', 'inv_period_id_fk', 'meter_id_fk', 'lastmeter', 'currentmeter', 'status', 'acc_trans_id_fk', 'recorder_id', 'updated_at', 'created_at']);
 
-        $newId = FunctionsController::createInvoiceNumberString($receipt_id);
+        $newId = (new FunctionsController())->createInvoiceNumberString($receipt_id);
         $type = 'paid_receipt';
         return view('payment.receipt_print', compact('invoicesPaidForPrint', 'newId', 'type', 'from_blade'));
     }
@@ -742,7 +744,7 @@ class PaymentController extends Controller
                     return $query->select('meter_id', 'user_id', 'meternumber', 'undertake_subzone_id');
                 },
                 'acc_transactions' => function ($query) {
-                    return $query->select('id', 'user_id_fk', 'paidsum', 'inv_no_fk',  'vatsum', 'totalpaidsum', 'cashier', 'updated_at')
+                    return $query->select('id', 'user_id_fk', 'paidsum',  'vatsum', 'totalpaidsum', 'cashier', 'updated_at')
                         ->where('status', 1);
                 },
                 'acc_transactions.cashier_info' => function ($query) {
@@ -752,7 +754,7 @@ class PaymentController extends Controller
             ])
             ->get(['inv_id', 'inv_period_id_fk', 'meter_id_fk', 'inv_no', 'lastmeter', 'currentmeter', 'status', 'acc_trans_id_fk', 'recorder_id', 'updated_at', 'created_at']);
 
-        $newId = FunctionsController::createInvoiceNumberString($receipt_id);
+        $newId = (new FunctionsController())->createInvoiceNumberString($receipt_id);
         $type = 'paid_receipt';
         return view('payment.receipt_print', compact('invoicesPaidForPrint', 'newId', 'type', 'from_blade'));
     }
@@ -785,7 +787,7 @@ class PaymentController extends Controller
                     return $query->select('meter_id', 'user_id', 'meternumber', 'undertake_subzone_id', 'submeter_name');
                 },
                 'acc_transactions' => function ($query) {
-                    return $query->select('id', 'user_id_fk', 'inv_no_fk', 'paidsum', 'vatsum', 'totalpaidsum', 'cashier', 'updated_at')
+                    return $query->select('id', 'user_id_fk', 'paidsum', 'vatsum', 'totalpaidsum', 'cashier', 'updated_at')
                         ->where('status', 1);
                 },
                 'acc_transactions.cashier_info' => function ($query) {
@@ -808,7 +810,7 @@ class PaymentController extends Controller
 
         $invoicesPaidForPrint = collect($invoiceTable)->merge($invoiceHistoryTable);
 
-        $newId = FunctionsController::createInvoiceNumberString($receipt_id);
+        $newId = (new FunctionsController())->createInvoiceNumberString($receipt_id);
         $type = 'payment_search';
         return view('payment.receipt_print', compact('invoicesPaidForPrint', 'newId', 'type'));
     }

@@ -24,20 +24,20 @@ class FunctionsController extends Controller
 
     public function getOrgInfos()
     {
-        return  DB::connection('mysql')->table('org_settings as st')
-            ->where('st.id', '=', Auth::user()->settings_id_fk)
-            ->join('provinces as pv', 'pv.id', '=', 'st.org_province_id')
-            ->join('tambons as tb', 'tb.id', '=', 'st.org_tambon_id')
-            ->join('districts as dt', 'dt.id', '=', 'st.org_district_id')
+        return  DB::connection('mysql')->table('organizations as st')
+            ->where('st.id', '=', Auth::user()->org_id_fk)
+            ->join('provinces as pv', 'pv.id', '=', 'st.org_province_id_fk')
+            ->join('tambons as tb', 'tb.id', '=', 'st.org_tambon_id_fk')
+            ->join('districts as dt', 'dt.id', '=', 'st.org_district_id_fk')
             ->get();
     }
 
     public  function createInvoiceNumberString($id)
     {
-        $meternumber_code = DB::connection('mysql')->table('settings')
-            ->where('id', Auth::user()->settings_id_fk)->get('meter_code_format');
+        $meternumber_code = DB::connection('mysql')->table('organizations')
+            ->where('id', Auth::user()->org_id_fk)->get('org_code');
 
-        return $meternumber_code[0]->meter_code_format . "TM" . $this->createNumberString($id);
+        return $meternumber_code[0]->org_code. $this->createNumberString($id);
     }
     public  function createNumberString($id)
     {

@@ -18,8 +18,9 @@ return new class extends Migration
             $table->unsignedBigInteger('user_id_fk');
             $table->float('paidsum', 8,2);
             $table->float('vatsum', 8,2);
+            $table->float('reserve_meter_sum', 8,2);
             $table->float('totalpaidsum', 8,2);
-            $table->enum('status', [1,0])->comment('1= active, 0=deleted');
+            $table->enum('status', ['1','0'])->comment('1= active, 0=deleted');
             $table->unsignedBigInteger('cashier')->comment('ผู้รับเงิน');
             $table->timestamps();
 

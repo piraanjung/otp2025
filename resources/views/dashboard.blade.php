@@ -30,7 +30,7 @@
                                     src="{{ asset('soft-ui/assets/img/water.png') }}" alt="car image">
                                 <div class="d-flex align-items-center">
                                     <h4 class="text-white opacity-7 ms-0 ms-md-auto">ปีงบประมาณ</h4>
-                                    <h2 class="text-white ms-2 me-auto">2567</h2>
+                                    <h2 class="text-white ms-2 me-auto">{{$current_budgetyear->budgetyear_name}}</h2>
                                 </div>
                             </div>
                             <div class="col-lg-3 col-12 my-auto">

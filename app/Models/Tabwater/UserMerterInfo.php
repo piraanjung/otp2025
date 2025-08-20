@@ -14,7 +14,7 @@ class UserMerterInfo extends Model
     protected $fillable = [
         "meter_id","meter_address",'submeter_name',
         "user_id", "meternumber", "metertype_id", "undertake_zone_id",  "undertake_subzone_id", "acceptance_date",
-        "status",  "payment_id", "discounttype", "recorder_id", 'cutmeter', 'factory_no', 'inv_no_index'
+        "status",  "payment_id", "discounttype", "recorder_id", 'cutmeter', 'factory_no', 'inv_no_index', 'last_meter_recording'
     ];
     protected $table = "user_meter_infos";
 

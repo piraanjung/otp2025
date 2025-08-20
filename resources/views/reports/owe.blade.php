@@ -82,6 +82,8 @@
      @endphp
     
      หมู่ที่  ทั้งหมด เส้นทาง ทั้งหมด --}}
+         @if (collect($owes)->isNotEmpty())
+
     <div class="row mb-4">
         <div class="col-8">
             <div class="card">
@@ -89,6 +91,7 @@
                     @csrf
                     <div class="card-body row">
                         <div class="col-2">
+                            {{-- {{dd($budgetyears)}} --}}
                             <div class="form-group">
                                 <label for="exampleFormControlInput1">ปีงบประมาณ</label>
                                 <select class="form-control js-example-tokenizer" name="budgetyear[]" id="budgetyear"
@@ -215,7 +218,6 @@
             </div>
         </div>
     </div>
-    @if (collect($owes)->isNotEmpty())
 
         <div class="card">
             <div class="card-body table-responsive">

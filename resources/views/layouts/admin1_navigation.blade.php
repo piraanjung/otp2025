@@ -1,4 +1,5 @@
 <ul class="navbar-nav">
+
     <li class="nav-item">
         <a class="nav-link active mb-2 bg-warning @yield('nav-accessmenu')" href="{{ route('accessmenu') }}">
             <div class="icon icon-shape icon-sm bg-white shadow text-center border-radius-2xl padding4px" >
@@ -33,7 +34,7 @@
             <span class="nav-link-text ms-1">Dashboard</span>
         </a>
     </li>
-    @can('admin')
+    @role('Super Admin')
         <li class="nav-item">
             <a data-bs-toggle="collapse" href="#invoices" class="nav-link active" aria-controls="invoices" role="button"
                 aria-expanded="true">
@@ -90,8 +91,6 @@
                 </ul>
             </div>
         </li>
-    @endcan
-    @can('admin')
         <li class="nav-item">
             <a data-bs-toggle="collapse" href="#receipt" class="nav-link active" aria-controls="receipt" role="button"
                 aria-expanded="true">
@@ -240,6 +239,21 @@
             <div class="collapse show" id="pagesExamples" style="">
                 <ul class="nav ms-4 ps-3">
                     <li class="nav-item">
+    <a class="nav-link  " href="{{ route('admin.pricing_types.index') }}">
+        <div
+          class="icon icon-shape icon-sm shadow border-radius-md bg-white text-center me-2 d-flex align-items-center justify-content-center">
+          <i class="fa-solid fa-file-csv"></i></i>
+        </div>
+        <span class="nav-link-text ms-1">Manage Pricing Types </span>
+      </a>
+    </li>
+                     <li class="nav-item ">
+            <a class="nav-link " href="{{ route('admin.meter_rates.index') }}">
+              <span class="sidenav-mini-icon"> MR </span>
+              <span class="sidenav-normal"> Manage Meter Rates </span>
+            </a>
+          </li>
+                    <li class="nav-item">
                         <a class="nav-link collapsed @yield('user-show')" data-bs-toggle="collapse" aria-expanded="false"
                             href="#profileExample">
                             <span class="sidenav-mini-icon"> P </span>
@@ -291,7 +305,7 @@
                             </ul>
                         </div>
                     </li>
-                    @role('super admin')
+                    @role('Super Admin')
                     <li class="nav-item">
                         <a class="nav-link collapsed @yield('header_nav_undertaker-subzone')" data-bs-toggle="collapse" aria-expanded="false" href="#zone">
                             <span class="sidenav-mini-icon"> P </span>
@@ -360,5 +374,78 @@
                 </ul>
             </div>
         </li>
-    @endcan
+    @endrole
+
+    @role('Super Admin')
+      {{-- <li class="nav-item">
+                    <a class="nav-link collapsed @yield('header_nav_undertaker-subzone')" data-bs-toggle="collapse"
+                        aria-expanded="false" href="#zone">
+                        <span class="sidenav-mini-icon"> P </span>
+                        <span class="sidenav-normal">พื้นที่จัดเก็บค่าน้ำประปา<b class="caret"></b></span>
+                    </a>
+                    <div class="collapse" id="zone" style="">
+                        <ul class="nav nav-sm flex-column ">
+                            <li class="nav-item">
+                                <a class="nav-link " href="{{ route('admin.zone.index') }}">
+                                    <span class="sidenav-mini-icon text-xs"> P </span>
+                                    <span class="sidenav-normal"> พื้นที่-เส้นทางจัดเก็บค่าน้ำประปา </span>
+                                </a>
+                            </li>
+                            <li class="nav-item">
+                                <a class="nav-link  @yield('nav_undertaker-subzone')"
+                                    href="{{ route('admin.undertaker_subzone') }}">
+                                    <span class="sidenav-mini-icon text-xs"> T </span>
+                                    <span class="sidenav-normal"> ผู้รับผิดชอบพื้นที่จดมิเตอร์ </span>
+                                </a>
+                            </li>
+                        </ul>
+                    </div>
+                </li>
+                <li class="nav-item @yield('nav-metertype')">
+                    <a class="nav-link " href="{{ route('admin.metertype.index') }}">
+                        <span class="sidenav-normal">ประเภทมิเตอร์ </span>
+                    </a>
+                </li>
+
+                <li class="nav-item ">
+                    <a class="nav-link " href="{{ route('admin.settings.index') }}">
+                        <span class="sidenav-normal">ตั้งค่าข้อมูลองค์กร </span>
+                    </a>
+                </li>
+                <li class="nav-item ">
+                    <a class="nav-link " href="{{ route('admin.settings.invoice') }}">
+                        <span class="sidenav-mini-icon"> P </span>
+                        <span class="sidenav-normal">ใบแจ้งหนี้/vat </span>
+                    </a>
+                </li>
+                <li class="nav-item ">
+                    <a class="nav-link  @yield('nav-excel')" href="{{ route('admin.excel.index') }}">
+                        <span class="sidenav-mini-icon"> P </span>
+                        <span class="sidenav-normal">Import excel </span>
+                    </a>
+                </li>
+                <li class="nav-item ">
+                    <a class="nav-link collapsed" data-bs-toggle="collapse" aria-expanded="false" href="#roles">
+                        <span class="sidenav-mini-icon"> P </span>
+                        <span class="sidenav-normal">สิทธิ์การใช้งานระบบ<b class="caret"></b></span>
+                    </a>
+                    <div class="collapse" id="roles" style="">
+                        <ul class="nav nav-sm flex-column">
+                            <li class="nav-item">
+                                <a class="nav-link " href="{{ route('admin.roles.index') }}">
+                                    <span class="sidenav-mini-icon text-xs"> P </span>
+                                    <span class="sidenav-normal"> Roles </span>
+                                </a>
+                            </li>
+                            <li class="nav-item">
+                                <a class="nav-link " href="{{ route('admin.permissions.index') }}">
+                                    <span class="sidenav-mini-icon text-xs"> T </span>
+                                    <span class="sidenav-normal"> Permission </span>
+                                </a>
+                            </li>
+                        </ul>
+                    </div>
+                </li> --}}
+    @endrole
 </ul>
+

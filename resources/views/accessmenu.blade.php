@@ -4,14 +4,18 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Document</title>
-    {{--
-    <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Tangerine&effect=shadow-multiple|3d-float">
-    --}}
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Sarabun:ital,wght@0,500;0,700;1,400;1,500&display=swap"
+    <title>OPT-ConnecT</title>
+
+
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/bxslider/4.2.12/jquery.bxslider.css">
+
+
+    <link
+        href="https://fonts.googleapis.com/css2?family=Bruno+Ace+SC&family=Sarabun:ital,wght@0,500;0,700;1,400;1,500&display=swap"
         rel="stylesheet">
+
+    <link rel="stylesheet" href="{{ asset('Applight/css/animate.css')}}">
+
     <style>
         @keyframes rotateMain {
             from {
@@ -51,13 +55,14 @@
             align-items: center;
             justify-content: center;
         }
-        .centralized a{
+
+        .centralized a {
             color: #000
         }
 
         .main-container {
             /* border: solid 1px #000; */
-            margin: 16rem 0 0 11rem;
+            margin: 16rem 0 0 16rem;
             /* padding-top: 300px; */
             /* height: 350px; */
             width: 100%;
@@ -201,35 +206,74 @@
 
 
         #org {
+            z-index: 998;
             position: absolute;
-            margin-top: 180px;
-            left: -8rem;
-            font-size: 5rem;
+            margin-top: 30rem;
+            left: 5rem;
+            font-size: 4.5rem;
             font-weight: bolder;
             text-shadow: 2px 2px 2px #ffffff;
 
         }
 
         #org_addr {
-            font-size: 1.5rem;
+            font-size: 2rem;
             text-align: center;
-            text-shadow: 1px 1px 1px #ffffff;
+            color: black;
+
+            text-shadow: 2px 2px 2px #ffffff;
+        }
+
+        #org_addr2 {
+            font-size: 1.8rem;
+            text-align: center;
+            color: black;
+
+            text-shadow: 2px 2px 2px #ffffff;
+        }
+
+        #otp-connect {
+            z-index: 999;
+            position: absolute;
+            top: 0;
+            margin-top: 2rem;
+            left: 5rem;
+            font-size: 4rem;
+            /* font-weight: bolder; */
+            color: white;
+            text-shadow: 10px 5px 2px #000;
+            font-family: "Bruno Ace SC", sans-serif;
+            font-weight: 800;
+            font-style: normal;
+        }
+        .a-disbled{
+            opacity: 0.3;
         }
     </style>
 
 </head>
 
 <body>
-    <div class="main-container centralized ">
-        <div id="org">
-            เทศบาล
-            <div>ตำบลห้องแซง</div>
-            <hr style="    margin-bottom: 3px;margin-top: 3px;">
-            <div id="org_addr">ตำบลห้องแซง อำเภอเลิงนกทา จังหวัดยโสธร</div>
+    <div id="otp-connect">
+        <div class="icon-box wow fadeInUp" data-wow-delay="0.2s">
+            OPT-CONECT
+            {{--
+            <hr style="margin-bottom: 3px;margin-top: 3px;">
+            <div id="org_addr">พัฒนาชุมชน เชื่อมใจ ให้ใกล้กัน</div> --}}
         </div>
+    </div>
+    <div id="org" class="icon-box wow fadeInUp" data-wow-delay="0.4s">
+        องค์การบริหาร
+        <div>ส่วนตำบลขามป้อม</div>
+        <hr style="    margin-bottom: 3px;margin-top: 3px;">
+        <div id="org_addr2">ตำบลขามป้อม อำเภอพระยืน จังหวัดขอนแก่น</div>
+    </div>
+    <div class="main-container centralized ">
+
         <div class="main-circle">
             <div class="inner centralized">
-                ระบบบริหารจัดการ
+                <img src="{{asset('logo/khampom.png')}}" width="90%">
+                {{-- ระบบบริหารจัดการ --}}
             </div>
         </div>
         <div class="bubble-container centralized blue-dark">
@@ -241,39 +285,43 @@
                 </div>
             </a>
         </div>
-        <div class="bubble-container centralized green">
-            <a href="{{Auth::user()->can('access waste bank') ? route('keptkaya.dashboard') : '#'}}">
-                <div class="bubble centralized">
-                    <div class="inner centralized">
-                        ธนาคาร<br>ขยะรีไซเคิล
-                    </div>
+        <div class="bubble-container centralized green ">
+            <a href="{{route('keptkaya.dashboard', ['keptkayatype' => 'recycle'])}}">
+            <div class="bubble centralized">
+                <div class="inner centralized">
+                    ธนาคาร<br>ขยะรีไซเคิล
                 </div>
+            </div>
             </a>
         </div>
         <div class="bubble-container centralized orange">
-            <a href="{{Auth::user()->can('access waste bank') ? route('keptkaya.dashboard') : '#'}}">
-                <div class="bubble centralized">
-                    <div class="inner centralized">
-                        จัดเก็บ<br>ถังขยะรายปี
-                    </div>
+            <a href="{{route('keptkaya.dashboard', ['keptkayatype' => 'annual'])}}">
+            <div class="bubble centralized">
+                <div class="inner centralized">
+                    ค่าจัดการ<br>ถังขยะรายปี
                 </div>
+            </div>
             </a>
+
         </div>
         <div class="bubble-container centralized red">
+            <a href="{{route('keptkaya.dashboard')}}">
 
             <div class="bubble centralized">
                 <div class="inner centralized">
                     ถังหมัก<br>เศษอาหาร
                 </div>
             </div>
+            </a>
         </div>
         <div class="bubble-container centralized black">
-
+            <a href="#">
             <div class="bubble centralized">
                 <div class="inner centralized">
                     ธนาคาร<br>ออมทรัพย์
                 </div>
             </div>
+            </a>
         </div>
         <div class="bubble-container centralized blue-light">
 
@@ -284,7 +332,78 @@
             </div>
         </div>
     </div>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.6.1/jquery.min.js"></script>
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.12.4/jquery.min.js"></script>
+    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.1.1/js/bootstrap.min.js"
+        integrity="sha384-smHYKdLADwkXOn1EmN1qk/HfnUcbVRZyYmZ4qpPea6sjB/pTJ0euyQp0Mk8ck+5T"
+        crossorigin="anonymous"></script>
+    <script src="https://cdn.jsdelivr.net/bxslider/4.2.12/jquery.bxslider.min.js"></script>
+    <!-- scrollIt js -->
+    <script src="{{ asset('Applight/js/scrollIt.min.js')}}"></script>
+    <script src="{{ asset('Applight/js/wow.min.js')}}"></script>
+    <script>
+        wow = new WOW();
+        wow.init();
+        $(document).ready(function (e) {
+
+            $('#video-icon').on('click', function (e) {
+                e.preventDefault();
+                $('.video-popup').css('display', 'flex');
+                $('.iframe-src').slideDown();
+            });
+            $('.video-popup').on('click', function (e) {
+                var $target = e.target.nodeName;
+                var video_src = $(this).find('iframe').attr('src');
+                if ($target != 'IFRAME') {
+                    $('.video-popup').fadeOut();
+                    $('.iframe-src').slideUp();
+                    $('.video-popup iframe').attr('src', " ");
+                    $('.video-popup iframe').attr('src', video_src);
+                }
+            });
+
+            $('.slider').bxSlider({
+                pager: false
+            });
+        });
+
+        $(window).on("scroll", function () {
+
+            var bodyScroll = $(window).scrollTop(),
+                navbar = $(".navbar");
+
+            if (bodyScroll > 50) {
+                $('.navbar-logo img').attr('src', 'images/logo-black.png');
+                navbar.addClass("nav-scroll");
+
+            } else {
+                $('.navbar-logo img').attr('src', 'images/logo.png');
+                navbar.removeClass("nav-scroll");
+            }
+
+        });
+        $(window).on("load", function () {
+            var bodyScroll = $(window).scrollTop(),
+                navbar = $(".navbar");
+
+            if (bodyScroll > 50) {
+                $('.navbar-logo img').attr('src', 'images/logo-black.png');
+                navbar.addClass("nav-scroll");
+            } else {
+                $('.navbar-logo img').attr('src', 'images/logo-white.png');
+                navbar.removeClass("nav-scroll");
+            }
+
+            $.scrollIt({
+
+                easing: 'swing',      // the easing function for animation
+                scrollTime: 900,       // how long (in ms) the animation takes
+                activeClass: 'active', // class given to the active nav element
+                onPageChange: null,    // function(pageIndex) that is called when page is changed
+                topOffset: -63
+            });
+        });
+
+    </script>
     <script>
         $(document).ready(function () {
             var bubbleList = $('.bubble-container');

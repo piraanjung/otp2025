@@ -1,5 +1,5 @@
 <?php
-use App\Http\Controllers\Api\FunctionsController;
+use App\Http\Controllers\FunctionsController;
 $fnc = new FunctionsController();
 // dd($invoicesPaidForPrint[0]);
 
@@ -105,9 +105,9 @@ $receipt_th_date = $fnc->engDateToThaiDateFormat($exp[0]);
             &nbsp;
         </td>
         <td width="30%" class="text-center">
-            {{ $fnc::createInvoiceNumberString($invoicesPaidForPrint[0]->usermeterinfos->meter_id) }} /
+            {{ $fnc->createInvoiceNumberString($invoicesPaidForPrint[0]->usermeterinfos->meter_id) }} /
             <span
-                style="font-size: 0.8rem">{{ $fnc::createNumberString($invoicesPaidForPrint[0]->inv_id, 'B') }}</span>
+                style="font-size: 0.8rem">{{ $fnc->createNumberString($invoicesPaidForPrint[0]->inv_id) }}</span>
         </td>
     </tr>
 </table>

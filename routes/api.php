@@ -6,8 +6,11 @@ use App\Http\Controllers\Api\UsersController;
 use App\Http\Controllers\Api\InvoiceController;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
+use App\Http\Controllers\Api\CP_SensorDataController;
 
 
+
+Route::post('/sensor-data', [CP_SensorDataController::class, 'store']);
 
 Route::middleware('auth:sanctum')->get('/user', function (Request $request) {
     return $request->user();

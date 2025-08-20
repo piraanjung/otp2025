@@ -2,6 +2,7 @@
 
 namespace App\Models\Admin;
 
+use App\Http\Controllers\Tabwater\UserMeterInfosController;
 use App\Models\Admin\Zone;
 use App\Models\UndertakerSubzone;
 use App\Models\UserMerterInfo;
@@ -20,10 +21,10 @@ class Subzone extends Model
     }
 
     public function users_in_subzone(){
-        return $this->hasMany(UserMerterInfo::class,'undertake_subzone_id', 'id');
+        return $this->hasMany(\App\Models\Tabwater\UserMerterInfo::class,'undertake_subzone_id', 'id');
     }
 
     public function undertaker_subzone(){
-        return $this->hasOne(UndertakerSubzone::class, 'subzone_id');
+        return $this->hasOne(\App\Models\Tabwater\UserMerterInfo::class, 'subzone_id');
     }
 }

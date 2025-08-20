@@ -32,7 +32,7 @@ use Firebase\JWT\Key;
 use Spatie\Permission\Models\Permission;
 use Spatie\Permission\Models\Role;
 
-Route::middleware(['auth', 'role:super admin|admin|Recycle Bank Staff'])->prefix('keptkaya')->name('keptkaya.')->group(function () {
+Route::middleware(['auth', 'role:Super Admin|admin|Recycle Bank Staff'])->prefix('keptkaya')->name('keptkaya.')->group(function () {
     
     Route::resource('users', UserWasteController::class);
     Route::get('/users/search/{query}', [UserWasteController::class, 'search'])->name('users.search');
@@ -70,7 +70,8 @@ Route::middleware(['auth', 'role:super admin|admin|Recycle Bank Staff'])->prefix
     });
     Route::resource('purchase-shops', KpPurchaseShopController::class);
     
-    Route::get('/dashboard', function () {
+    Route::get('/dashboard', function (Request $request) {
+        $request->session()->put('keptkaya_type', $request->get('keptkayatype'));
         if (collect(BudgetYear::where('status', 'active')->first())->isEmpty()) {
             session(['hiddenMenu' => true]);
         }

@@ -199,7 +199,7 @@
                             @csrf
                             <label class="label-control">Upload file excel ->import_invoice_byzone</label>
                             @php
-                                    $subzones = App\Models\Subzone::where('status', 'active')->get(['id', 'subzone_name']);
+                                    $subzones = App\Models\Admin\Subzone::where('status', 'active')->get(['id', 'subzone_name']);
                                     
                             @endphp
                             <select name="subzone" class="form-control">
@@ -223,7 +223,7 @@
                             @csrf
                             <label class="label-control">Upload file excel ->import_invoice old</label>
                             @php
-                                    $subzones = App\Models\Subzone::where('status', 'active')->get(['id', 'subzone_name']);
+                                    $subzones = App\Models\Admin\Subzone::where('status', 'active')->get(['id', 'subzone_name']);
                                     
                             @endphp
                             <select name="subzone" class="form-control">

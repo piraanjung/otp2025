@@ -34,7 +34,7 @@ class User extends Authenticatable
      */
     protected $fillable = [
         'id',
-        'settings_id_fk',
+        'org_id_fk',
         'username',
         'prefix',
         'firstname',

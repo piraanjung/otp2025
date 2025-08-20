@@ -2,18 +2,17 @@
 
 namespace App\Http\Controllers\Api;
 
-use App\Models\BudgetYear;
+use App\Models\Admin\BudgetYear;
 use App\Http\Controllers\Api\FunctionsController;
 use App\Http\Controllers\Controller;
-use App\Models\AccTransactions;
-use App\Models\Invoice;
-use App\Models\InvoiceHistoty;
-use App\Models\InvoicePeriod;
-use App\Models\Subzone;
-use App\Models\UserMerterInfo;
+use App\Models\Tabwater\AccTransactions;
+use App\Models\Tabwater\Invoice;
+use App\Models\Tabwater\InvoiceHistoty;
+use App\Models\Tabwater\InvoicePeriod;
+use App\Models\Admin\Subzone;
+use App\Models\Tabwater\UserMerterInfo;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
-use Illuminate\Support\Facades\Auth;
 
 class InvoiceController extends Controller
 {
@@ -126,7 +125,6 @@ class InvoiceController extends Controller
         $invoices = $invoices->get([
             'inv_id',
             'meter_id_fk',
-            'inv_no',
             'inv_period_id_fk',
             'lastmeter',
             'currentmeter',
@@ -479,7 +477,7 @@ class InvoiceController extends Controller
                 return $q->select('id', 'inv_p_name');
             }])
             ->whereIn('status', ['invoice', 'owe']);
-        $invOweAndInvoiceStatus    = $invOweAndInvoiceStatusSql->get(['inv_period_id_fk', 'paid', 'inv_no', 'vat', 'acc_trans_id_fk', 'totalpaid', 'status']);
+        $invOweAndInvoiceStatus    = $invOweAndInvoiceStatusSql->get(['inv_period_id_fk', 'paid', 'vat', 'acc_trans_id_fk', 'totalpaid', 'status']);
         
         $accTransIdFK = 0;
         if (collect($invOweAndInvoiceStatus)->isNotEmpty()) {
@@ -533,7 +531,6 @@ class InvoiceController extends Controller
             ->whereIn('status', ['invoice', 'owe'])->get(['totalpaid']);
         $datas = [
             'acc_trans_id_fk'   => $accTransIdFK,
-            'inv_no'            => $invOweAndInvoiceStatus[0]->inv_no,
             'user_id_fk'        => $getInvMeterIdFK[0]->meter_id_fk,
             'vatsum'            => floatval($vat_sum),
             'invoic_status'     => collect($invOweAndInvoiceStatus)->filter(function ($v) {
@@ -631,7 +628,7 @@ class InvoiceController extends Controller
             ->whereIn('status', ['invoice', 'owe'])->get(['totalpaid']);
         $datas = [
             'acc_trans_id_fk'   => $accTransIdFK,
-            'inv_no'            => $getInvMeterIdFK[0]->inv_no,
+            // 'inv_no'            => $getInvMeterIdFK[0]->inv_no,
             'user_id_fk'        => $getInvMeterIdFK[0]->meter_id_fk,
             'vatsum'            => floatval($vat_sum),
             'invoic_status'     => collect($invOweAndInvoiceStatus)->filter(function ($v) {

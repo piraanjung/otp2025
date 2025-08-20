@@ -9,7 +9,7 @@ use App\Models\Accounting;
 use App\Models\AccTransactions;
 use App\Models\Admin\UserProfile;
 use App\Models\SequenceNumber;
-use App\Models\Setting;
+use App\Models\Tabwater\Setting;
 use App\Models\Staff;
 use App\Models\User;
 use App\Models\UserMerterInfo;

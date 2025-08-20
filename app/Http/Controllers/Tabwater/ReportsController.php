@@ -32,13 +32,12 @@ class ReportsController extends Controller
             'meter_id_fk',
             'currentmeter',
             'lastmeter',
-            'user_id',
+            'inv_no',
             'water_used',
             'inv_period_id_fk',
             'paid',
             'inv_type',
             'vat',
-            'printed_time',
             'totalpaid',
             'updated_at',
             'status'
@@ -66,11 +65,6 @@ class ReportsController extends Controller
             return [
                 'meter_id_fk' => $ar[0]->meter_id_fk,
                 'user_id' => $ar[0]->user_id,
-                // 'name' => $ar[0]->usermeterinfos->user->prefix . "" . $ar[0]->usermeterinfos->user->firstname . " " . $ar[0]->usermeterinfos->user->lastname,
-                // 'address' => $ar[0]->usermeterinfos->user->address,
-                // 'zone' => $ar[0]->usermeterinfos->user->user_zone->zone_name,
-                // 'subzone' =>  $ar[0]->usermeterinfos->user->user_subzone->subzone_name,
-                // 'undertake_subzone' =>   $ar[0]->usermeterinfos->undertake_subzone->subzone_name,
                 'paid' => collect($ar)->sum('paid'),
                 'printed_time' => $ar[0]->printed_time,
                 'vat' => number_format(collect($ar)->sum('vat'), 2),
@@ -394,7 +388,7 @@ class ReportsController extends Controller
                 return $query;
             },
             'invoice.acc_transactions' => function($q) {
-                return $q->select('id', 'cashier' ,'inv_no_fk');
+                return $q->select('id', 'cashier' );
             },
             'invoice.acc_transactions.cashier_info' => function($q){
                 return $q->select('id','firstname', 'lastname');
@@ -434,8 +428,7 @@ class ReportsController extends Controller
         $budgetyears = BudgetYear::get(['id', 'budgetyear_name', 'status']);;
 
         //หารอบบิลที่เปิดใช้งานของ ปีงบประมาณปัจจุบัน
-        $active_inv_periods = InvoicePeriod::where('deleted', 0)
-            ->whereIn('budgetyear_id', $budgetyear_selected_array)
+        $active_inv_periods = InvoicePeriod::whereIn('budgetyear_id', $budgetyear_selected_array)
             ->orderBy('id', 'asc')->get('id');
 
         $inv_periods_list_array = collect($active_inv_periods)->pluck('id');
@@ -539,7 +532,7 @@ class ReportsController extends Controller
         if (collect($request)->isEmpty()) {
             $selected_budgetYear = BudgetYear::where('status', 'active')
                 ->with(['invoicePeriod' => function ($query) {
-                    $query->select('budgetyear_id', 'id')->where('deleted', '=', 0);
+                    $query->select('budgetyear_id', 'id');
                 }])
                 ->get(['id', 'budgetyear_name'])
                 ->first();
@@ -610,7 +603,7 @@ class ReportsController extends Controller
             //แต่งตามรอบบิล ในzone
              $waterUsedByInvPeriodCollection = collect($zone)->groupBy('inv_period_id_fk')->values();
             
-            $invpCounts = InvoicePeriod::where(['budgetyear_id' => $waterUsedByInvPeriodCollection[0][0]->budgetyear_id, 'deleted' => 0])->get(['inv_p_name'])->pluck('inv_p_name');
+            $invpCounts = InvoicePeriod::where(['budgetyear_id' => $waterUsedByInvPeriodCollection[0][0]->budgetyear_id])->get(['inv_p_name'])->pluck('inv_p_name');
             
             for($i= 0; $i < collect($invpCounts)->count(); $i++){
                 $checkIssetInvPName = isset($waterUsedByInvPeriodCollection[$i][0]->inv_p_name) ? 1 : 0; 

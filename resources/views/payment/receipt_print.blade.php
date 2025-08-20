@@ -131,10 +131,12 @@ $c2 = 1;
             /* margin-left: 72px !important; */
             margin-left: 30px !important;
         }
+
         .t2_for_name_address {
             margin-left: 62px !important;
             /* margin-left: 8px !important; */
         }
+
         .t2_r {
             /* margin-left: 41px !important; */
             margin-left: 10px !important;
@@ -240,7 +242,8 @@ $c2 = 1;
                 padding-top: 4px !important;
                 padding-bottom: 4px !important
             }
-            #info_over6 td{
+
+            #info_over6 td {
                 padding-top: 4px !important;
                 padding-bottom: 0px !important;
             }
@@ -259,20 +262,23 @@ $c2 = 1;
                 padding-top: 4px !important;
                 padding-bottom: 4px !important
             }
-            .row_info{
+
+            .row_info {
                 opacity: 1 !important;
             }
         }
-        .imgtest{
+
+        .imgtest {
             position: absolute;
             z-index: 100;
             float: right;
             width: 40%;
-            height:40px !important;
+            height: 40px !important;
             margin-top: -6%;
             margin-left: 10%
         }
-        .row_sign{
+
+        .row_sign {
             margin-top: -0.5% !important
         }
     </style>
@@ -294,10 +300,10 @@ $c2 = 1;
     </div>
     <br class="print">
 
-    <form action="{{ route('payment.search') }}" method = "post" style="opacity: 0">
+    <form action="{{ route('payment.search') }}" method="post" style="opacity: 0">
         @csrf
-        <input type ="submit">
-        <input type = "hidden" value = "nav" name = "nav">
+        <input type="submit">
+        <input type="hidden" value="nav" name="nav">
 
     </form>
 @endsection
@@ -305,7 +311,7 @@ $c2 = 1;
 @section('script')
     <script src="https://cdn.jsdelivr.net/npm/jquery.qrcode@1.0.3/jquery.qrcode.min.js"></script>
     <script>
-        $(document).ready(function() {
+        $(document).ready(function () {
             // console.log($('#qrcode_text').val())
             // $('#qrcode').qrcode($('#qrcode_text').val());
 
@@ -339,19 +345,19 @@ $c2 = 1;
 
             head.appendChild(style);
 
-             window.print();
+            window.print();
             if ($('#type').val() == 'paid_receipt') {
-                setTimeout(function() {
-                     window.location.href = '/payment';
-                 }, 200);
-             } else {
-                 //type == history_recipt
-                 setTimeout(function() {
-                     $("input[type='submit']").click();
+                setTimeout(function () {
+                    window.location.href = '/payment';
+                }, 200);
+            } else {
+                //type == history_recipt
+                setTimeout(function () {
+                    $("input[type='submit']").click();
 
-             }, 200);
+                }, 200);
 
-             }
+            }
         });
     </script>
 @endsection

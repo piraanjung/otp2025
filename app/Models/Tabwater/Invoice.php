@@ -18,19 +18,18 @@ class Invoice extends Model
         'inv_id',
         'inv_period_id_fk',
         'meter_id_fk',
-        'user_id',
         'lastmeter',
         'water_used',
         'reserve_meter',
         'inv_type',
-        'inv_no',
         'paid',
         'vat',
         'totalpaid',
         'acc_trans_id_fk',
         'currentmeter',
-        'status',
         'recorder_id',
+        'status',
+        'created_at',
         'updated_at'
     ];
     protected $table = 'invoice';

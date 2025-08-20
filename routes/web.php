@@ -5,17 +5,22 @@ use App\Http\Controllers\Admin\IndexController;
 use App\Http\Controllers\Admin\MetertypeController;
 use App\Http\Controllers\Admin\PermissionController;
 use App\Http\Controllers\Admin\RoleController;
+use App\Http\Controllers\Admin\SuperAdminAuthController;
+use App\Http\Controllers\Admin\SuperAdminSettingsController;
 use App\Http\Controllers\Admin\UserController;
 use App\Http\Controllers\Admin\ZoneController;
+use App\Http\Controllers\IoTCompost\CP_DashboardController;
 use App\Http\Controllers\Tabwater\CutmeterController;
 use App\Http\Controllers\Tabwater\BudgetYearController;
 use App\Http\Controllers\Tabwater\InvoiceController;
 use App\Http\Controllers\Tabwater\InvoicePeriodController;
 use App\Http\Controllers\Tabwater\LineLiffController;
+use App\Http\Controllers\Tabwater\MeterRateConfigController;
 use App\Http\Controllers\Tabwater\OwePaperController;
 use App\Http\Controllers\Tabwater\PaymentController;
 use App\Http\Controllers\Tabwater\ReportsController;
 use App\Http\Controllers\Tabwater\SettingsController;
+use App\Http\Controllers\Tabwater\StaffMobileController;
 use App\Http\Controllers\Tabwater\SubzoneController;
 use App\Http\Controllers\TestController;
 use App\Http\Controllers\Tabwater\TransferOldDataToNewDBController;
@@ -24,18 +29,19 @@ use Illuminate\Support\Facades\Auth;
 use Illuminate\Http\Request;
 use App\Http\Controllers\Api\UsersController as apiUserCtrl;
 use App\Http\Controllers\StaffController;
-// use App\Http\Controllers\UndertakerSubzoneController;
-use App\Models\AccTransactions;
-use App\Models\Invoice;
+use App\Http\Controllers\Tabwater\TwPricingTypeController;
+use App\Http\Controllers\Tabwater\UndertakerSubzoneController;
+use App\Models\Admin\BudgetYear;
+use App\Models\Admin\Organization;
 use App\Models\Admin\OrgSettings;
 use App\Models\Admin\Subzone;
+use App\Models\Tabwater\Invoice;
 use App\Models\User;
-use App\Models\UserMerterInfo;
-use PhpOffice\PhpSpreadsheet\Calculation\MathTrig\Subtotal;
 
 Route::get('/', function () {
     return view('welcome');
-});
+})->name('welcome');
+
 Route::get('/liff', function () {
     return view('liff');
 });
@@ -57,8 +63,6 @@ Route::resource('/lineliff', LineLiffController::class);
 
 
 Route::get('/dashboard', function (Request $request) {
-
-
     $apiUserCtrl = new apiUserCtrl();
     $reportCtrl = new ReportsController();
     $subzones  = Subzone::where('status', 'active')->get(['id', 'subzone_name', 'zone_id'])->sortBy('zone_id');
@@ -74,10 +78,12 @@ Route::get('/dashboard', function (Request $request) {
     ];
     $data = $reportCtrl->water_used($request, 'dashboard');
     $water_used_total = collect($data['data'])->sum();
-    $paid_total = $water_used_total * 8;
-    $vat = $paid_total * 0.07;
+    $invoice_paid = Invoice::where('status', 'paid')->get('vat','total_paid');
+    $paid_total = collect($invoice_paid)->sum('total_paid');
+    $vat =  collect($invoice_paid)->sum('vat');;
     $user_count_sum = collect($user_count)->sum();
     $subzone_count = collect($subzones)->count();
+    $current_budgetyear = BudgetYear::where('status', 'active')->get('budgetyear_name')[0];
     return view('dashboard', compact(
         'data',
         'user_in_subzone_data',
@@ -85,42 +91,56 @@ Route::get('/dashboard', function (Request $request) {
         'paid_total',
         'vat',
         'user_count_sum',
-        'subzone_count'
+        'subzone_count',
+        'current_budgetyear'
     ));
 })->middleware(['auth'])->name('dashboard');
 
 
-Route::get('/accessmenu', function () {
+Route::get('/accessmenu', function (Request $request) {
+     $user = User::find(Auth::id());
+    if($user->hasRole('Tabwater Staff')){
+        return redirect()->route('staff_accessmenu');
+    }
+    $request->session()->forget('keptkayatype');
     $user = User::find(Auth::id());
-    $orgInfos = OrgSettings::where('org_id_fk', 2)->get([
+    $orgInfos = Organization::where('id', 2)->get([
         'org_type_name',
         'org_name',
-        'org_short_name',
-        'org_province_id',
+        'org_short_type_name',
+        'org_province_id_fk',
         'org_logo_img',
-        'org_district_id',
-        'org_tambon_id'
+        'org_district_id_fk',
+        'org_tambon_id_fk'
     ])[0];
     $user = User::find(Auth::id());
     return view('accessmenu', compact('orgInfos', 'user'));
-})->middleware(['auth', 'role:admin'])->name('accessmenu');
+})->middleware(['auth'])->name('accessmenu');
 
 Route::get('/staff_accessmenu', function () {
     $user = User::find(Auth::id());
-    $orgInfos = OrgSettings::where('org_id_fk', 2)->get([
+    $orgInfos = OrgSettings::where('id', $user->org_id_fk)->get([
         'org_type_name',
         'org_name',
-        'org_short_name',
-        'org_province_id',
+        'org_short_type_name',
+        'org_province_id_fk',
         'org_logo_img',
-        'org_district_id',
-        'org_tambon_id'
+        'org_district_id_fk',
+        'org_tambon_id_fk'
     ])[0];
     $user = User::find(Auth::id());
     return view('staff_accessmenu', compact('orgInfos', 'user'));
 })->middleware(['auth', 'role:Tabwater Staff|Recycle Bank Staff'])->name('staff_accessmenu');
 
 
+Route::prefix('tabwater/staff/mobile/')->name('tabwater.staff.mobile.')->group(function () {
+    Route::get('{subzone_id}/members',[ StaffMobileController::class, 'members'])->name('members');
+    Route::get('{meter_id}/meter_reading',[ StaffMobileController::class, 'meter_reading'])->name('meter_reading');
+    Route::post('process-meter-image', [StaffMobileController::class, 'process_meter_image'])->name('process_meter_image');
+    Route::resource('/',StaffMobileController::class);
+   
+   
+});
 
 Route::prefix('staffs')->name('keptkaya.staffs.')->group(function () {
     Route::get('/', [StaffController::class, 'index'])->name('index');
@@ -132,7 +152,7 @@ Route::prefix('staffs')->name('keptkaya.staffs.')->group(function () {
     Route::delete('/{staff}', [StaffController::class, 'destroy'])->name('destroy');
 });
 
-Route::middleware(['auth', 'role:admin'])->name('admin.')->prefix('admin')->group(function () {
+Route::middleware(['auth', 'role:admin|Super Admin'])->name('admin.')->prefix('admin')->group(function () {
     Route::get('/transfer_old_data', [TransferOldDataToNewDBController::class, 'index'])->name('transfer_old_data');
     Route::get('/', [IndexController::class, 'index'])->name('index');
     Route::resource('/roles', RoleController::class);
@@ -172,7 +192,7 @@ Route::middleware(['auth', 'role:admin'])->name('admin.')->prefix('admin')->grou
     Route::get('/subzone/{zone_id}/getSubzone', [SubzoneController::class, 'getSubzone'])->name('subzone.getSubzone');
 
 
-    Route::get('/settings/invoice', [SettingsController::class, 'invoice'])->name('settings.invoice');
+     Route::get('/settings/invoice', [SettingsController::class, 'invoice'])->name('settings.invoice');
     Route::post('/settings/invoice_and_vat', [SettingsController::class, 'update_invoice_and_vat'])->name('settings.invoice_and_vat');
     Route::post('/settings/create_and_update', [SettingsController::class, 'create_and_update'])->name('settings.create_and_update');
     Route::post('/settings/store_users', [SettingsController::class, 'store_users'])->name('settings.store_users');
@@ -186,11 +206,44 @@ Route::middleware(['auth', 'role:admin'])->name('admin.')->prefix('admin')->grou
 
     Route::get('/owepaper/index', [OwePaperController::class, 'index'])->name('owepaper.index');
     Route::post('/owepaper/print', [OwePaperController::class, 'print'])->name('owepaper.print');
+    Route::resource('meter_rates', MeterRateConfigController::class);
+    Route::resource('pricing_types', TwPricingTypeController::class);
+
+    // Route::prefix('settings')->name('settings.')->group(function () {
+    //     Route::get('/', [SuperAdminSettingsController::class, 'showSettingsForm'])->name('settings_form');
+
+    //     Route::post('/import-provinces', [SuperAdminSettingsController::class, 'importProvinces'])->name('import.provinces');
+    //     Route::get('/export-provinces', [SuperAdminSettingsController::class, 'exportProvinces'])->name('export.provinces');
+    //     // Routes สำหรับ Import/Export Districts
+    //     Route::post('/import-districts', [SuperAdminSettingsController::class, 'importDistricts'])->name('import.districts');
+    //     Route::get('/export-districts', [SuperAdminSettingsController::class, 'exportDistricts'])->name('export.districts');
+    //     Route::get('/user-to-tabwater', [SuperAdminSettingsController::class, 'userToTabwater'])->name('user_to_tabwater');
+
+    //     // Routes สำหรับ Import/Export Tambons
+    //     Route::post('/import-tambons', [SuperAdminSettingsController::class, 'importTambons'])->name('import.tambons');
+    //     Route::get('/export-tambons', [SuperAdminSettingsController::class, 'exportTambons'])->name('export.tambons');
+
+    //     Route::post('/import-tw_zones', [SuperAdminSettingsController::class, 'importTWZones'])->name('import.tw_zones');
+    //     Route::get('/export-tw_zones', [SuperAdminSettingsController::class, 'exportTWZones'])->name('export.tw_zones');
+
+    //     // Routes สำหรับ Import/Export TW_ZoneBlocks
+    //     Route::post('/import-tw-zoneblocks', [SuperAdminSettingsController::class, 'importTWZoneBlocks'])->name('import.tw_zoneblocks');
+    //     Route::get('/export-tw-zoneblocks', [SuperAdminSettingsController::class, 'exportTWZoneBlocks'])->name('export.tw_zoneblocks');
+
+    //     // Routes สำหรับ Import/Export Organizations
+    //     Route::post('/import-organizations', [SuperAdminSettingsController::class, 'importOrganizations'])->name('import.organizations');
+    //     Route::get('/export-organizations', [SuperAdminSettingsController::class, 'exportOrganizations'])->name('export.organizations');
+
+    //     Route::post('/import-users', [SuperAdminSettingsController::class, 'importUsers'])->name('import.users');
+    //     Route::get('/export-users', [SuperAdminSettingsController::class, 'exportUsers'])->name('export.users');
+
+    //     // Routes สำหรับ Import/Export TwMeters
+    //     Route::post('/import-twmeters', [SuperAdminSettingsController::class, 'importTwMeters'])->name('import.tw_meters');
+    //     Route::get('/export-twmeters', [SuperAdminSettingsController::class, 'exportTwMeters'])->name('export.tw_meters');
+    // });
 
 
-
-
-    // Route::get('undertaker_subzone', [UndertakerSubzoneController::class, 'index'])->name('undertaker_subzone');
+    Route::get('undertaker_subzone', [UndertakerSubzoneController::class, 'index'])->name('undertaker_subzone');
     // Route::get('undertaker_subzone/create', 'UndertakerSubzoneController@create');
     // Route::post('undertaker_subzone/store', 'UndertakerSubzoneController@store');
     // Route::get('undertaker_subzone/update/{id}', 'UndertakerSubzoneController@update');
@@ -199,7 +252,7 @@ Route::middleware(['auth', 'role:admin'])->name('admin.')->prefix('admin')->grou
 });
 
 
-Route::middleware(['auth', 'role:admin|finance'])->group(function () {
+Route::middleware(['auth', 'role:admin|finance|Super Admin'])->group(function () {
     Route::get('/payment/paymenthistory/{inv_period}/{subzone_id}', [PaymentController::class, 'paymenthistory'])->name('payment.paymenthistory');
     Route::match(['get', 'post'], '/payment/search', [PaymentController::class, 'search'])->name('payment.search');
     Route::delete('/payment/acc_trans_id_fk/destroy', [PaymentController::class, 'destroy'])->name('payment.destroy');
@@ -231,7 +284,7 @@ Route::middleware(['auth', 'role:admin|finance'])->group(function () {
     Route::get('/meter_record_history/{budgetyear?}/{zone_id?}', [ReportsController::class, 'meter_record_history'])->name('reports.meter_record_history');
 });
 
-Route::group(['middleware' => ['role:admin|tabwater']], function () {
+Route::group(['middleware' => ['role:admin|tabwater|Super Admin']], function () {
 
     Route::resource('/invoice', InvoiceController::class);
     Route::get('/invoice/zone_create/{zone_id}/{curr_inv_prd}/{new_user?}', [InvoiceController::class, 'zone_create'])->name('invoice.zone_create');
@@ -245,6 +298,23 @@ Route::group(['middleware' => ['role:admin|tabwater']], function () {
     Route::get('/cutmeter/cutmeterProgress/{id}', [CutmeterController::class, 'cutmeterProgress'])->name('cutmeter.progress');
     Route::get('/cutmeter/installMeterProgress/{id}', [CutmeterController::class, 'installMeterProgress'])->name('cutmeter.installmeter');
     Route::resource('/cutmeter', CutmeterController::class);
+    Route::resource('meter_types', MeterTypeController::class);
+});
+
+
+
+
+Route::prefix('superadmin')->name('superadmin.')->group(function () {
+    Route::get('/login', [SuperAdminAuthController::class, 'showLoginForm'])->name('login');
+    Route::post('/login', [SuperAdminAuthController::class, 'login'])->name('login.post');
+    Route::post('/logout', [SuperAdminAuthController::class, 'logout'])->name('logout');
+});
+
+Route::middleware(['auth'])->group(function () {
+    Route::get('superadmin/dashboard', function () {
+        return view('superadmin.dashboard'); // หน้า Dashboard หลัง Login
+
+    })->name('superadmin.dashboard');
 });
 
 require __DIR__ . '/auth.php';

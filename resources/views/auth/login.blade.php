@@ -52,7 +52,7 @@
                 <x-label for="password" :value="__('Password')" />
 
                 <x-input id="password" class="block mt-1 w-full" type="password" name="password" required 
-                    value="1234"
+                    value="tw1234"
                     autocomplete="current-password" />
             </div>
 

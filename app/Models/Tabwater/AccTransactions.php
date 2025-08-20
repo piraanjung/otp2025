@@ -12,7 +12,7 @@ class AccTransactions extends Model
 
     protected $table = 'acc_transactions';
 
-    protected $fillable = ['id' , 'user_id_fk','vatsum', 'inv_no_fk', 'paidsum', 'totalpaidsum', 'cashier'];
+    protected $fillable = ['id' , 'user_id_fk','vatsum', 'reserve_meter_sum', 'paidsum', 'totalpaidsum', 'cashier'];
 
     public function cashier_info(){
         return $this->belongsTo(User::class,'cashier', 'id');
