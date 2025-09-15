@@ -3,6 +3,7 @@
 use App\Http\Controllers\Keptkaya\Admin\ExcelController;
 use App\Http\Controllers\Keptkaya\Admin\IndexController;
 use App\Http\Controllers\Keptkaya\Admin\KpUserController;
+use App\Http\Controllers\keptkaya\DashboardController;
 use App\Http\Controllers\KeptKaya\KpPurchaseShopController;
 use App\Http\Controllers\KeptKaya\KpTbankPriceController;
 use App\Http\Controllers\Keptkaya\KpUserGroupController;
@@ -14,6 +15,7 @@ use App\Http\Controllers\Keptkaya\KpPaymentController;
 use App\Http\Controllers\KeptKaya\KpSellController;
 use App\Http\Controllers\Keptkaya\KpUsergroupPayratePerMonthController;
 use App\Http\Controllers\Keptkaya\KpUserMonthlyStatusController;
+use App\Http\Controllers\KeptKaya\RecycleWasteStaffCotroller;
 use App\Http\Controllers\Keptkaya\SettingsController;
 use App\Http\Controllers\Keptkaya\KpSubzoneController;
 use App\Http\Controllers\Keptkaya\KpTbankItemsController;
@@ -32,8 +34,13 @@ use Firebase\JWT\Key;
 use Spatie\Permission\Models\Permission;
 use Spatie\Permission\Models\Role;
 
-Route::middleware(['auth', 'role:Super Admin|admin|Recycle Bank Staff'])->prefix('keptkaya')->name('keptkaya.')->group(function () {
-    
+Route::middleware(['auth', 'role:super admin|Admin|Recycle Bank Staff|Tabwater Staff'])->prefix('keptkayas')->name('keptkayas.')->group(function () {
+
+    Route::prefix('/staffs')->name('staffs.')->group(function () {
+        Route::prefix('/mobile')->name('mobile.')->group(function () {
+            Route::resource('/recycle', RecycleWasteStaffCotroller::class);
+        });
+    });
     Route::resource('users', UserWasteController::class);
     Route::get('/users/search/{query}', [UserWasteController::class, 'search'])->name('users.search');
     Route::post('users/waste-service-preferences', [UserWasteController::class, 'updateWasteServicePreferences'])->name('users.updateWasteServicePreferences');
@@ -41,7 +48,7 @@ Route::middleware(['auth', 'role:Super Admin|admin|Recycle Bank Staff'])->prefix
 
     Route::prefix('purchase/')->name('purchase.')->group(function () {
         // Step 1: User Selection
-        Route::get('select_user', [KeptKayaPurchaseController::class, 'selectUser'])->name('select_user');
+        Route::get('select_user', [KeptKayaPurchaseController::class, 'select_user'])->name('select_user');
         Route::get('start_purchase/{user}', [KeptKayaPurchaseController::class, 'startPurchase'])->name('start_purchase');
         
         // Step 2: Purchase Form (To be created next)`
@@ -70,13 +77,7 @@ Route::middleware(['auth', 'role:Super Admin|admin|Recycle Bank Staff'])->prefix
     });
     Route::resource('purchase-shops', KpPurchaseShopController::class);
     
-    Route::get('/dashboard', function (Request $request) {
-        $request->session()->put('keptkaya_type', $request->get('keptkayatype'));
-        if (collect(BudgetYear::where('status', 'active')->first())->isEmpty()) {
-            session(['hiddenMenu' => true]);
-        }
-        return view('keptkaya/dashboard');
-    })->name('dashboard');
+    Route::get('/dashboard/{keptkayatype?}', [DashboardController::class, 'index'])->name('dashboard');
 
     Route::prefix('/{w_user}/waste-bins')->name('waste_bins.')->group(function () {
         Route::get('/', [WasteBinController::class, 'index'])->name('index');

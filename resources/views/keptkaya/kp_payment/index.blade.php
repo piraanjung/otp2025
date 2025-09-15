@@ -7,7 +7,7 @@
     จัดการใบเสร็จรับเงิน
 @endsection
 @section('nav-main')
-    <a href="{{ route('keptkaya.kp_payment.index') }}"> รับชำระค่าน้ำประปา</a>
+    <a href="{{ route('keptkayas.kp_payment.index') }}"> รับชำระค่าน้ำประปา</a>
 @endsection
 @section('nav-current')
     รายชื่อผู้ใช้น้ำประปาที่ยังไม่ได้ชำระค่าน้ำประปา
@@ -446,7 +446,7 @@
 @endsection
 
 @section('content')
-    <form action="{{ route('keptkaya.kp_payment.index_search_by_suzone') }}" method="POST">
+    <form action="{{ route('keptkayas.kp_payment.index_search_by_suzone') }}" method="POST">
         @csrf
         <div class="card">
             <div class="card-header d-flex justify-content-between align-items-center">
@@ -552,7 +552,7 @@
         </div>
     </div>
 
-    <form action="{{ route('keptkaya.kp_payment.store') }}" method="post">
+    <form action="{{ route('keptkayas.kp_payment.store') }}" method="post">
         @csrf
         <div class="modal fade" id="modal-success" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel"
             aria-hidden="true">

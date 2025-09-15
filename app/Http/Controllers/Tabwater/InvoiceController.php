@@ -8,6 +8,7 @@ use App\Models\Account;
 use App\Http\Controllers\Api\FunctionsController as ApiFunctionsController;
 use App\Http\Controllers\Api\InvoiceController as ApiInvoiceCtrl;
 use App\Http\Controllers\FunctionsController;
+use App\Models\Admin\Organization;
 use App\Models\Tabwater\Cutmeter;
 use App\Models\Tabwater\Invoice;
 use App\Models\Tabwater\InvoicePeriod;
@@ -16,6 +17,7 @@ use App\Models\Admin\Subzone;
 use App\Models\User;
 use App\Models\Tabwater\UserMerterInfo;
 use App\Models\Admin\Zone;
+use Carbon\Carbon;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
@@ -305,14 +307,14 @@ class InvoiceController extends Controller
         if ($request->get('mode') == 'payment') {
             //การเป็นการจ่ายเงิน ให้ทำการบันทึกยอดเงินใน accounting
             foreach ($request->get('payments') as $key => $val) {
-                $acc = new Account();
-                $acc->net = $val['total'];
-                $acc->recorder_id = Auth::id();
-                $acc->printed_time = 1;
-                $acc->status = 1;
-                $acc->created_at = date('Y-m-d H:i:s');
-                $acc->updated_at = date('Y-m-d H:i:s');
-                $acc->save();
+                // $acc = new Account();
+                // $acc->net = $val['total'];
+                // $acc->recorder_id = Auth::id();
+                // $acc->printed_time = 1;
+                // $acc->status = 1;
+                // $acc->created_at = date('Y-m-d H:i:s');
+                // $acc->updated_at = date('Y-m-d H:i:s');
+                // $acc->save();
 
                 //แล้ว update invoice  status = paid
                 invoice::where('meter_id_fk', $key)->update([
@@ -398,10 +400,108 @@ class InvoiceController extends Controller
         return view('invoice.zone_info', compact('zoneInfo', 'memberHasInvoice', 'memberNoInvoice'));
     }
 
+    public function print_invoice($zone_id, $curr_inv_prd){
+         $usermeter_infos = UserMerterInfo::where('undertake_subzone_id', $zone_id)
+                    ->with('invoice')
+                    ->whereHas('invoice', function($q){
+                        return $q->whereIn('status',['invoice', 'owe']);
+                    })->get(['meter_id', 'user_id']);
+        return view('invoice.print_invoice', compact('usermeter_infos'));
+    }
+
+    public function invoice_bill_print(Request $request){
+        $print_infos = [];
+        foreach($request->get('a') as $meter_id){
+            $umf = UserMerterInfo::where('meter_id', $meter_id)
+                ->with(['invoice' => function($q){
+                    return $q->select('*')->where('inv_period_id_fk', 7);
+                }])->get()->first();
+            $inv_owes = Invoice::where('meter_id_fk', $meter_id)
+                        ->with('invoice_period')
+                        ->where('status', 'owe')->get();
+            $owe_infos = [];
+            foreach($inv_owes as $owe){
+                $a = explode('-',$owe->invoice_period->inv_p_name);
+                $thaiMonthStr = FunctionsController::fullThaiMonth($a[0]);
+                array_push($owe_infos,[
+                    'inv_id' => $owe->inv_id,
+                    'inv_period' => $thaiMonthStr." ".$a[1],
+                    'totalpaid' => $owe->totalpaid
+                ]);
+            } 
+            $currentPeriod = InvoicePeriod::where('status', 'active')->get()->first();
+            $a = explode('-',$currentPeriod->inv_p_name);
+            $thaiMonthStr = FunctionsController::fullThaiMonth($a[0]);
+            if(!isset($umf->invoice[0]->created_at)){
+                return $umf;
+            }
+            $inv_created_at = explode(' ',$umf->invoice[0]->created_at);
+            $date =  Carbon::parse($inv_created_at[0]);
+            $expired_date = $date->addDays(15)->format('Y-m-d');
+
+            $thai_created_date = (new FunctionsController())->engDateToThaiDateFormat($inv_created_at[0]);
+            $thai_expired_date = (new FunctionsController())->engDateToThaiDateFormat($expired_date);
+            
+
+            array_push($print_infos, [
+                'meter_id' => $umf->meter_id,
+                'inv_id' =>  $umf->invoice[0]->inv_id,
+                'meternumber' => $umf->meternumber,
+                'submeter_name' => $umf->submeter_name,
+                'user_id' => $umf->user_id,
+                'name' => $umf->user->prefix.$umf->user->firstname." ".$umf->user->lastname,
+                'user_address' => $umf->user->address." ".$umf->user->user_zone->zone_name,
+                'lastmeter' => $umf->invoice[0]->lastmeter,
+                'currentmeter' => $umf->invoice[0]->currentmeter,
+                'water_used' =>  $umf->invoice[0]->water_used,
+                'paid' =>  $umf->invoice[0]->paid,
+                'vat' =>  $umf->invoice[0]->vat,
+                'reservemeter' =>  $umf->invoice[0]->reservemeter,
+                'totalpaid' =>  $umf->invoice[0]->totalpaid,
+                'period' => $thaiMonthStr." ".$a[1],
+                'created_at' => $thai_created_date,
+                'expired_date' => $thai_expired_date,
+                'owe_infos' => $owe_infos
+            ]);
+        }
+        // return $print_infos;
+        $org = Organization::where('id',2)->get()->first();
+        return view('invoice.print_invoice_bills',compact('org', 'print_infos'));
+        
+    }
     public function export_excel(Request $request, $subzone_id, $curr_inv_prd)
     {
         $zone = Zone::where('id', $subzone_id)->get();
         $inv_p = InvoicePeriod::where('id', $curr_inv_prd)->get();
+        // $current_inv_period = 7;
+        // return   $umfs = UserMerterInfo::where('undertake_subzone_id', $subzone_id)
+        // ->with([
+        //     'invoice_currrent_inv_period' => function($q) use($current_inv_period){
+        //         return $q->select('inv_no', 'meter_id_fk', 'lastmeter', 'currentmeter', 'inv_period_id_fk', 'water_used', 'paid', 'totalpaid')
+        //         ->where('inv_period_id_fk', $current_inv_period);
+        //     },
+        //     'invoice_currrent_inv_period.invoice_period' => function($q){
+        //         return $q->select('id', 'inv_p_name');
+        //     },
+        //     'user' =>  function($q){
+        //         return $q->select('id','prefix', 'firstname', 'lastname');
+        //     },
+        //     'undertake_zone' =>  function($q){
+        //         return $q->select('id','zone_name');
+        //     },
+        //     'undertake_subzone' =>  function($q){
+        //         return $q->select('id','subzone_name');
+        //     },
+        //     'undertake_subzone.undertaker_subzone' =>  function($q){
+        //         return $q->select('subzone_id','twman_id', 'id');
+        //     },
+        //     'undertake_subzone.undertaker_subzone.twman_info' =>  function($q){
+        //         return $q->select('id', 'prefix','firstname', 'lastname');
+        //     },
+        // ])
+        // ->get(['meter_id', 'user_id', 'meternumber', 'undertake_zone_id',
+        // 'undertake_subzone_id',
+        //  'submeter_name', 'factory_no', 'meter_address']);
         $text = 'ฟอร์มกรอกข้อมูลเลขมิเตอร์ ' . $zone[0]->zone_name . ' รอบบิลเดือน ' . $inv_p[0]->inv_p_name . '.xlsx';
         return Excel::download(new InvoiceInCurrentInvoicePeriodExport(
             [

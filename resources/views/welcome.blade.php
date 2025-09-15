@@ -18,6 +18,9 @@
     background-repeat: no-repeat;
     background-size: 100% 100%;
   }
+  .disabled-section{
+    display: none
+  }
 </style>
 </head>
 

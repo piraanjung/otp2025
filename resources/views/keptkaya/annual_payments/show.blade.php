@@ -3,7 +3,7 @@
 @section('page-topic', 'รายละเอียดค่าถังขยะรายปี')
 @section('nav-header', 'รับชำระค่าจัดเก็บถังขยะรายปี')
 @section('route-header')
- {{ route('keptkaya.annual_payments.index') }}
+ {{ route('keptkayas.annual_payments.index') }}
 @endsection
 @section('nav-main', 'รายละเอียดค่าถังขยะรายปี')
     
@@ -21,7 +21,7 @@
             <div class="card mb-4">
                 <div class="card-header pb-0 d-flex justify-content-between align-items-center">
                     <h6>รายละเอียดค่าถังขยะรายปี</h6>
-                    <a href="{{ route('keptkaya.annual_payments.index') }}" class="btn btn-link text-secondary px-0 mb-0">
+                    <a href="{{ route('keptkayas.annual_payments.index') }}" class="btn btn-link text-secondary px-0 mb-0">
                         <i class="fas fa-arrow-left me-1"></i> กลับ
                     </a>
                 </div>
@@ -92,7 +92,7 @@
                                         <h6 class="">บันทึกการชำระเงิน</h6>
                                     </div>
                                     <div class="card-body">
-                                        <form id="paymentForm" action="{{ route('keptkaya.annual_payments.store_payment', $wasteBinSubscription->id) }}" method="POST">
+                                        <form id="paymentForm" action="{{ route('keptkayas.annual_payments.store_payment', $wasteBinSubscription->id) }}" method="POST">
                                             @csrf
                                             <div class="row">
                                                 <div class="col-md-12">

@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Controllers\Api\OwepaperController;
 use App\Http\Controllers\Api\SubzoneController;
 use App\Http\Controllers\Api\ZoneController;
 use App\Http\Controllers\Api\UsersController;
@@ -8,7 +9,9 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\Api\CP_SensorDataController;
 
+use App\Http\Controllers\Api\OcrController;
 
+Route::post('/ocr', [OcrController::class, 'readMeter']);
 
 Route::post('/sensor-data', [CP_SensorDataController::class, 'store']);
 
@@ -84,7 +87,10 @@ Route::middleware(['throttle:api'])->name('api.')->group(function () {
         Route::get('/get_members_subzone_infos/{zone_id}', [SubzoneController::class, 'get_members_subzone_infos']);
         Route::get('/get_members_last_inactive_invperiod/{zone_id}', [SubzoneController::class, 'get_members_last_inactive_invperiod']);
     });
+ Route::prefix('owepaper')->group(function () {
+            Route::get('/testIndex', [OwepaperController::class, 'testIndex']);
 
+ });
     // Route::prefix('cutmeter')->group(function () {
     //     Route::get('/index/{zone_id?}/{subzone_id?}', [CutmeterController::class,'index']);
     //     Route::get('/owe', 'Api\CutmeterController@owe');

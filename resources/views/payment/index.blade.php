@@ -171,8 +171,17 @@
 
                             </div>
                         @endforeach
-
+                      <div class="col-3 mt-3">
+                            <label>รอบบิล ปีงบประมาณ {{ $current_budgetyear[0]->budgetyear_name}}</label>
+                            <select name="inv_period_id" id="" class="form-control">
+                                    <option value="0" >เลือก..</option>
+                                @foreach ($current_budgetyear[0]->invoicePeriod as $inv_period)
+                                    <option value="{{ $inv_period->id }}">{{ $inv_period->inv_p_name }}</option>
+                                @endforeach
+                            </select>
+                        </div>
                     </div>
+
                 </div>
             </form>
         </div>
@@ -308,6 +317,7 @@
 
                                             </td>
                                             @if (collect($invoice->user)->isEmpty())
+                                            sfds
                                                 @dd($invoice)
                                             @endif
                                             <td class="popup">

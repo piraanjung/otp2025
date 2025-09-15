@@ -4,15 +4,15 @@ namespace App\Http\Controllers\Tabwater;
 
 use App\Http\Controllers\Controller;
 
+use App\Models\Admin\Zone;
 use Illuminate\Http\Request;
 use App\Http\Controllers\Api\FunctionsController;
 use App\Http\Controllers\Api\InvoiceController as ApiInvoiceCtrl;
 use App\Http\Controllers\Api\OwepaperController as ApiOwepaperController;
 use App\Models\Cutmeter;
 use App\Models\Invoice;
-use App\Models\InvoicePeriod;
+use App\Models\Tabwater\InvoicePeriod;
 use App\Models\UserMerterInfo;
-use App\Models\Zone;
 use Illuminate\Support\Facades\Auth;
 
 class OwePaperController extends Controller

@@ -9,8 +9,8 @@
                 <h1>Create New Unit</h1>
 
 
-                <form action="{{ route('keptkaya.tbank.units.store') }}" method="POST">
-                @csrf
+                <form action="{{ route('keptkayas.tbank.units.store') }}" method="POST">
+                    @csrf
 
                     {{-- Container for dynamic input fields --}}
                     <div id="unit-fields">
@@ -20,18 +20,21 @@
                             <div class="row">
                                 <div class="col-4">
                                     <label for="unitname_0" class="form-label">Unit Name</label>
-                                    <input type="text" class="form-control" id="unitname_0" name="unitname[0][unitname]" value="{{ old('unitname.0') }}" required>
+                                    <input type="text" class="form-control" id="unitname_0" name="unitname[0][unitname]"
+                                        value="{{ old('unitname.0') }}" required>
                                 </div>
                                 <div class="col-4">
                                     <label for="unit_short_name_0" class="form-label">Unit Short Name</label>
-                                    <input type="text" class="form-control" id="unit_short_name_0" name="unitname[0][unit_short_name]" value="{{ old('unit_short_name.0') }}">
+                                    <input type="text" class="form-control" id="unit_short_name_0"
+                                        name="unitname[0][unit_short_name]" value="{{ old('unit_short_name.0') }}">
                                 </div>
                                 <div class="col-2">
                                     <label for="unit_short_name_0" class="form-label">&nbsp;</label>
-                                    <button type="button" class="btn btn-outline-danger remove-field form-control" style="display:none; border: 1px solid red;">ลบ</button>
+                                    <button type="button" class="btn btn-outline-danger remove-field form-control"
+                                        style="display:none; border: 1px solid red;">ลบ</button>
                                 </div>
                             </div>
-                            
+
                         </div>
                     </div>
 
@@ -50,19 +53,19 @@
                     </div>
 
                     <button type="submit" class="btn btn-success">Create Unit</button>
-                    <a href="{{ route('keptkaya.tbank.units.index') }}" class="btn btn-secondary">Back to List</a>
+                    <a href="{{ route('keptkayas.tbank.units.index') }}" class="btn btn-secondary">Back to List</a>
                 </form>
             </div>
         </div>
     </div>
 
-   
+
 
 @endsection
 
 @section('script')
-     <script>
-        document.addEventListener('DOMContentLoaded', function() {
+    <script>
+        document.addEventListener('DOMContentLoaded', function () {
             const addFieldButton = document.getElementById('add-field-button');
             const unitFields = document.getElementById('unit-fields');
             let fieldCount = 1; // Start counting from 1 for new fields
@@ -81,33 +84,33 @@
             // Initial call to set button visibility
             updateRemoveButtons();
 
-            addFieldButton.addEventListener('click', function() {
+            addFieldButton.addEventListener('click', function () {
                 const newFieldHtml = `
-                    <div class="mb-3 input-group-row border p-3 rounded mb-3">
-                        <h5 class="mb-3">Unit Entry ${fieldCount + 1}</h5>
-                        <div class="row">
-                            <div class="col-4">
-                                <label for="unitname_${fieldCount}" class="form-label">Unit Name</label>
-                                <input type="text" class="form-control" id="unitname_${fieldCount}" name="unitname[${fieldCount}][unitname]" required>
-                            </div>
-                            <div class="col-4">
-                                <label for="unit_short_name_${fieldCount}" class="form-label">Unit Short Name</label>
-                                <input type="text" class="form-control" id="unit_short_name_${fieldCount}" name="unitname[${fieldCount}][unit_short_name]">
-                            </div>
-                            <div class="col-2">
-                                <label for="unit_short_name_${fieldCount}" class="form-label">&nbsp;</label>
-                                <button type="button" class="btn btn-outline-danger remove-field form-control">ลบ</button>
+                        <div class="mb-3 input-group-row border p-3 rounded mb-3">
+                            <h5 class="mb-3">Unit Entry ${fieldCount + 1}</h5>
+                            <div class="row">
+                                <div class="col-4">
+                                    <label for="unitname_${fieldCount}" class="form-label">Unit Name</label>
+                                    <input type="text" class="form-control" id="unitname_${fieldCount}" name="unitname[${fieldCount}][unitname]" required>
+                                </div>
+                                <div class="col-4">
+                                    <label for="unit_short_name_${fieldCount}" class="form-label">Unit Short Name</label>
+                                    <input type="text" class="form-control" id="unit_short_name_${fieldCount}" name="unitname[${fieldCount}][unit_short_name]">
+                                </div>
+                                <div class="col-2">
+                                    <label for="unit_short_name_${fieldCount}" class="form-label">&nbsp;</label>
+                                    <button type="button" class="btn btn-outline-danger remove-field form-control">ลบ</button>
+                                </div>
                             </div>
                         </div>
-                    </div>
-                `;
+                    `;
                 unitFields.insertAdjacentHTML('beforeend', newFieldHtml);
                 fieldCount++;
                 updateRemoveButtons(); // Update visibility of remove buttons
             });
 
             // Event delegation for remove buttons
-            unitFields.addEventListener('click', function(event) {
+            unitFields.addEventListener('click', function (event) {
                 if (event.target.classList.contains('remove-field')) {
                     if (fieldCount > 1) { // Prevent removing the last field
                         event.target.closest('.input-group-row').remove();

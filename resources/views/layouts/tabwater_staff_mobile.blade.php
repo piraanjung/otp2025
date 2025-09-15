@@ -170,19 +170,24 @@
         .min-height-200 {
             min-height: 50px !important;
         }
+        .container, .container-fluid, .container-lg, .container-md, .container-sm, .container-xl, .container-xxl
+ {
+    padding-right: calc(var(--bs-gutter-x) * 1);
+    padding-left: calc(var(--bs-gutter-x) * 1);
+}
     </style>
     <script src="https://code.jquery.com/jquery-3.7.0.js"></script>
-    <script src="https://cdn.datatables.net/1.13.6/js/jquery.dataTables.min.js"></script>
-    <script src="https://cdn.datatables.net/1.13.6/js/dataTables.bootstrap5.min.js"></script>
+    {{-- <script src="https://cdn.datatables.net/1.13.6/js/jquery.dataTables.min.js"></script>
+    <script src="https://cdn.datatables.net/1.13.6/js/dataTables.bootstrap5.min.js"></script> --}}
 
-    <script src="https://cdn.datatables.net/plug-ins/1.13.6/pagination/select.js"></script>
+    {{-- <script src="https://cdn.datatables.net/plug-ins/1.13.6/pagination/select.js"></script> --}}
    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200&icon_names=arrow_circle_right" />
     @yield('style')
 </head>
 
 <body class="g-sidenav-show  bg-gray-100">
 
-    <aside class="sidenav navbar navbar-vertical navbar-expand-xs border-0 border-radius-xl my-3 fixed-start ms-3 "
+    <aside class="sidenav navbar navbar-vertical navbar-expand-xs border-0 border-radius-xl my-3 fixed-start ms-3 pr-5"
         id="sidenav-main">
         <div class="sidenav-header">
             <i class="fas fa-times p-3 cursor-pointer text-secondary opacity-5 position-absolute end-0 top-0 d-none d-xl-none"
@@ -194,7 +199,7 @@
             </a>
         </div>
         <hr class="horizontal dark mt-0">
-        <div class="collapse navbar-collapse  w-auto " id="sidenav-collapse-main">
+        <div class="collapse navbar-collapse  w-auto  p-3" id="sidenav-collapse-main">
               <div class="row">
         <div class="col-12">
             <div class="card  mb-4">

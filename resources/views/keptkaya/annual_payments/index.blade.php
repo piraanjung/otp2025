@@ -5,7 +5,7 @@
 @section('page-topic', 'รายละเอียดค่าถังขยะรายปี')
 @section('nav-header', 'รับชำระค่าจัดเก็บถังขยะรายปี')
 @section('route-header')
- {{ route('keptkaya.annual_payments.index') }}
+ {{ route('keptkayas.annual_payments.index') }}
 @endsection
 @section('nav-main', 'รับชำระค่าจัดเก็บถังขยะรายปี')
 @section('content')
@@ -14,7 +14,7 @@
             <div class="card mb-4">
                 <div class="card-header pb-0 d-flex justify-content-between align-items-center">
                     <h6>รายการค่าถังขยะรายปี (ปีงบประมาณ {{ $fiscalYear }})</h6>
-                    <form action="{{ route('keptkaya.annual_payments.index') }}" method="GET" class="d-flex align-items-center">
+                    <form action="{{ route('keptkayas.annual_payments.index') }}" method="GET" class="d-flex align-items-center">
                         <label for="fy" class="form-label mb-0 me-2">ปีงบประมาณ:</label>
                         <select name="fy" id="fy" class="form-select form-select-sm" onchange="this.form.submit()">
                             @foreach($availableFiscalYears as $year)
@@ -99,7 +99,7 @@
                                                     <span class="badge badge-sm bg-gradient-{{ $statusClass }}">{{ ucfirst(str_replace('_', ' ', $sub->status)) }}</span>
                                                 </td>
                                                 <td class="align-middle">
-                                                    <a href="{{ route('keptkaya.annual_payments.show', $sub->id) }}" class="btn btn-link text-secondary font-weight-bold text-xs px-0 mb-0 me-2">
+                                                    <a href="{{ route('keptkayas.annual_payments.show', $sub->id) }}" class="btn btn-link text-secondary font-weight-bold text-xs px-0 mb-0 me-2">
                                                         <i class="fas fa-eye me-1"></i> ดูรายละเอียด/ชำระ
                                                     </a>
                                                 </td>

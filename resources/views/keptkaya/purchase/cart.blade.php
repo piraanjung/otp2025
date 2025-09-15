@@ -1,10 +1,20 @@
-    @extends('layouts.keptkaya')
+@can('access waste bank mobile')
+    @php
+        $layout = 'layouts.keptkaya_mobile';
+    @endphp
 
-    @section('content')
+@elsecan('access tabwater2')
+    @php
+        $layout = 'layouts.keptkaya_mobile';
+     @endphp
+@endcan
+
+@extends($layout)
+@section('content')
     <div class="container-fluid">
         <div class="d-flex justify-content-between align-items-center mb-4">
             <h1 class="mb-0">สรุปการซื้อขยะรีไซเคิล</h1>
-            <a href="{{ route('keptkaya.purchase.select_user') }}" class="btn btn-secondary">
+            <a href="{{ route('keptkayas.purchase.select_user') }}" class="btn btn-secondary">
                 <i class="bi bi-person-fill me-1"></i> เลือกผู้ใช้งานใหม่
             </a>
         </div>
@@ -16,7 +26,7 @@
             </div>
         @endif
         @if (session('error'))
-            <div class="alert alert-danger alert-dismissible fade show" role="alert">
+            <div class="xx" role="alert">
                 {{ session('error') }}
                 <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
             </div>
@@ -24,7 +34,7 @@
 
         @if (empty($cart))
             <div class="alert alert-info text-center">รถเข็นว่างเปล่า</div>
-            <a href="{{ route('keptkaya.purchase.form', $user->id) }}" class="btn btn-primary mt-3">
+            <a href="{{ route('keptkayas.purchase.form', $user->id) }}" class="btn btn-primary mt-3">
                 <i class="bi bi-arrow-left me-1"></i> กลับไปเพิ่มรายการ
             </a>
         @else
@@ -81,10 +91,11 @@
                                         <td>{{ number_format($item['amount'], 2) }}</td>
                                         <td>{{ number_format($item['points']) }}</td>
                                         <td>
-                                            <form action="{{ route('keptkaya.purchase.remove_from_cart', $index) }}" method="POST">
+                                            <form action="{{ route('keptkayas.purchase.remove_from_cart', $index) }}" method="POST">
                                                 @csrf
                                                 @method('DELETE')
-                                                <button type="submit" class="btn btn-danger btn-sm"><i class="fa fa-trash"></i></button>
+                                                <button type="submit" class="btn btn-danger btn-sm"><i
+                                                        class="fa fa-trash"></i></button>
                                             </form>
                                         </td>
                                     </tr>
@@ -105,10 +116,10 @@
 
             {{-- Save Transaction Buttons --}}
             <div class="d-flex justify-content-between mt-4">
-                <a href="{{ route('keptkaya.purchase.form', $user->id) }}" class="btn btn-secondary">
+                <a href="{{ route('keptkayas.purchase.form', $user->id) }}" class="btn btn-secondary">
                     <i class="bi bi-arrow-left me-1"></i> กลับไปเพิ่มรายการ
                 </a>
-                <form action="{{ route('keptkaya.purchase.save_transaction') }}" method="POST">
+                <form action="{{ route('keptkayas.purchase.save_transaction') }}" method="POST">
                     @csrf
                     <button type="submit" class="btn btn-success btn-lg">
                         <i class="bi bi-save me-1"></i> บันทึกธุรกรรม
@@ -117,5 +128,4 @@
             </div>
         @endif
     </div>
-    @endsection
-    
+@endsection

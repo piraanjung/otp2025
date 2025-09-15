@@ -29,6 +29,10 @@
         body{
              font-family: "Sarabun", sans-serif;
         }
+        .card .card-body {
+            font-family: "Sarabun", sans-serif;
+            padding: 1.5rem;
+        }
         .navbar-vertical.navbar-expand-xs .navbar-collapse {
             display: block;
             overflow: auto;

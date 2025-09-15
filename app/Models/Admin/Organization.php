@@ -54,9 +54,13 @@ class Organization extends Model
         return $this->belongsTo(Tambon::class, 'org_tambon_id_fk', 'id');
     }
 
+    public function zones(){
+        return $this->belongsTo(Zone::class, 'org_zone_id_fk', 'id');
+    }
+
     public static function getOrgInfos($org_id_fk){
         $connection = (new Organization)->on('mysql')->where('id', $org_id_fk)
-            ->with(['provinces', 'tambons', 'districts'])
+            ->with(['provinces', 'tambons', 'districts', 'zones'])
             ->get()->first();
         return [
             'id'  => $org_id_fk,
@@ -70,6 +74,7 @@ class Organization extends Model
             'org_provinces' => $connection->provinces->province_name,
             'org_districts' => $connection->districts->district_name,
             'org_tambons' => $connection->tambons->tambon_name,
+            'org_zone' => $connection->zones->zone_name,
             'org_logo_img' => $connection->org_logo_img,
             'org_type_name' => $connection->org_type_name,
             'org_name' => $connection->org_name,

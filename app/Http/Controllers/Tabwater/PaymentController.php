@@ -6,6 +6,7 @@ use App\Http\Controllers\Controller;
 
 use App\Http\Controllers\FunctionsController;
 use App\Http\Controllers\Api\InvoiceController;
+use App\Models\Admin\BudgetYear;
 use App\Models\Tabwater\Account;
 use App\Models\Tabwater\Invoice;
 use App\Models\Tabwater\InvoicePeriod;
@@ -28,6 +29,8 @@ class PaymentController extends Controller
 {
     public function index(REQUEST $request)
     {
+
+
         // return $this->test($request);
 
         if ($request->session()->has('payment_subzone_selected')) {
@@ -45,12 +48,21 @@ class PaymentController extends Controller
             $request->session()->put('payment_subzone_selected', collect($subzone_selected)->toJson());
         }
 
+        $inv_period_id = 0;
+        if( $request->has('inv_period_id') ){
+            $inv_period_id = $request->get('inv_period_id');
+        }
+
         $usermeterinfosQuery = UserMerterInfo::whereIn('status', ['active', 'inactive', 'deleted'])
             ->with([
-                'invoice' => function ($query) {
-                    return $query->select('meter_id_fk', 'inv_id', 'inv_period_id_fk', 'status', 'water_used', 'totalpaid',  'acc_trans_id_fk')
+                'invoice' => function ($query) use ($inv_period_id){
+                    $query->select('meter_id_fk', 'inv_id', 'inv_period_id_fk', 'status', 'water_used', 'totalpaid', 'inv_no', 'acc_trans_id_fk')
                         ->whereIn('status', ['owe', 'invoice']);
-                          
+                    if($inv_period_id > 0){
+                        $query->where('inv_period_id_fk', $inv_period_id);
+                    }
+                    return  $query;
+                      
                 },
                 'meter_type' => function ($query) {
                     $query->select('id', 'price_per_unit');
@@ -79,27 +91,26 @@ class PaymentController extends Controller
             }
         });
 
-        // foreach($usermeterinfos as $umf){
-        //      $umf['same'] = false;
-        //     if ( collect($umf['invoice'])->isNotEmpty() ) {
-        //         $firstInvNo = $umf['invoice'][0]->inv_no;
-        //         $allInvNoAreSame = true;
-        //         foreach ($umf['invoice'] as $inv){
-        //             if ($inv->inv_no !== $firstInvNo) {
-        //                 $allInvNoAreSame = false;
-        //                 break;
-        //             }
-        //         }
+        foreach($usermeterinfos as $umf){
+             $umf['same'] = false;
+            if ( collect($umf['invoice'])->isNotEmpty() ) {
+                $firstInvNo = $umf['invoice'][0]->inv_no;
+                $allInvNoAreSame = true;
+                foreach ($umf['invoice'] as $inv){
+                    if ($inv->inv_no !== $firstInvNo) {
+                        $allInvNoAreSame = false;
+                        break;
+                    }
+                }
                
-        //         if ($allInvNoAreSame) {
-        //             $umf['same'] = true;
-        //             // ทำสิ่งที่คุณต้องการเมื่อ inv_no ทั้ง 6 ตัวเหมือนกัน
-        //             // เช่น dd('Inv_no ทั้ง 6 ตัวเหมือนกัน: ' . $firstInvNo);
-        //             // หรือเก็บค่าในตัวแปรเพื่อนำไปใช้ต่อไป
-        //         } 
-        //     } 
-        // }
-        
+                if ($allInvNoAreSame) {
+                    $umf['same'] = true;
+                    // ทำสิ่งที่คุณต้องการเมื่อ inv_no ทั้ง 6 ตัวเหมือนกัน
+                    // เช่น dd('Inv_no ทั้ง 6 ตัวเหมือนกัน: ' . $firstInvNo);
+                    // หรือเก็บค่าในตัวแปรเพื่อนำไปใช้ต่อไป
+                } 
+            } 
+        }
 
 
         $subzones = collect(Subzone::all())->sortBy('zone_id');
@@ -119,6 +130,11 @@ class PaymentController extends Controller
         $total_water_used = collect($invoices)->sum(function ($v) {
             return $v->invoice[0]->water_used;
         });
+          $current_budgetyear = BudgetYear::where('status', 'active')->with([
+            'invoicePeriod' => function($q){
+                return $q->select('id', 'budgetyear_id','inv_p_name')->where('deleted', 0);
+            }
+        ])->get(['id', 'budgetyear_name']);
 
         $select_all = collect($subzones)->count() == collect($subzone_selected)->count() ? true : false;
         return view('payment.index', compact(
@@ -128,7 +144,8 @@ class PaymentController extends Controller
             'subzone_selected',
             'select_all',
             'selected_subzone_name_array',
-            'total_water_used'
+            'total_water_used',
+            'current_budgetyear'
         ));
     }
 

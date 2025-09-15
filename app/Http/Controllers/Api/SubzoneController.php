@@ -3,10 +3,10 @@
 namespace App\Http\Controllers\Api;
 
 use App\Http\Controllers\Controller;
-use App\Models\InvoicePeriod;
-use App\Models\Invoice;
-use App\Models\Subzone;
-use App\Models\Zone;
+use App\Models\Tabwater\InvoicePeriod;
+use App\Models\Tabwater\Invoice;
+use App\Models\Admin\Subzone;
+use App\Models\Admin\Zone;
 use Exception;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
@@ -101,10 +101,10 @@ class SubzoneController extends Controller
         $infos = [
             'inv_period_id' => $currentIvPeriod[0]->id,
             'inv_period_name' => $currentIvPeriod[0]->inv_period_name,
-            'zone_name' => $subzoneAndZoneName[0]->zone_name,
-            'zone_id' => $subzoneAndZoneName[0]->zone_id,
-            'subzone_id' => $subzoneAndZoneName[0]->subzone_id,
-            'subzone_name' => $subzoneAndZoneName[0]->subzone_name,
+            // 'zone_name' => $subzoneAndZoneName[0]->zone_name,
+            // 'zone_id' => $subzoneAndZoneName[0]->zone_id,
+            // 'subzone_id' => $subzoneAndZoneName[0]->subzone_id,
+            // 'subzone_name' => $subzoneAndZoneName[0]->subzone_name,
             'member_in_subzone' => $memberCount,
             'record_status' => $record_status,
             'unRecordMembers' => $unRecordMembers,

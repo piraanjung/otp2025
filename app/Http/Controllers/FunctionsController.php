@@ -4,8 +4,13 @@ namespace App\Http\Controllers;
 
 
 use App\Models\Admin\District;
+use App\Models\KeptKaya\KpPurchaseShop;
 use App\Models\KeptKaya\WasteBin;
 use App\Models\Admin\Tambon;
+use App\Models\KeptKaya\KpTbankItems;
+use App\Models\KeptKaya\KpTbankItemsGroups;
+use App\Models\KeptKaya\KpTbankItemsPriceAndPoint;
+use App\Models\KeptKaya\KpTbankUnits;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Auth;
@@ -25,7 +30,7 @@ class FunctionsController extends Controller
     public function getOrgInfos()
     {
         return  DB::connection('mysql')->table('organizations as st')
-            ->where('st.id', '=', Auth::user()->org_id_fk)
+            ->where('st.id', '=', Auth::user()->settings_id_fk)
             ->join('provinces as pv', 'pv.id', '=', 'st.org_province_id_fk')
             ->join('tambons as tb', 'tb.id', '=', 'st.org_tambon_id_fk')
             ->join('districts as dt', 'dt.id', '=', 'st.org_district_id_fk')
@@ -35,7 +40,7 @@ class FunctionsController extends Controller
     public  function createInvoiceNumberString($id)
     {
         $meternumber_code = DB::connection('mysql')->table('organizations')
-            ->where('id', Auth::user()->org_id_fk)->get('org_code');
+            ->where('id', Auth::user()->settings_id_fk)->get('org_code');
 
         return $meternumber_code[0]->org_code. $this->createNumberString($id);
     }
@@ -54,6 +59,8 @@ class FunctionsController extends Controller
         return $invString;
     }
 
+    
+
     public function engDateToThaiDateFormat($date)
     {
         $dateExp = explode("-", $date);
@@ -66,5 +73,25 @@ class FunctionsController extends Controller
         $wasteBin = WasteBin::get('bin_code')->last();
         $int = (int)explode('KP-B',$wasteBin->bin_code)[1]+1;
         return "KP-B" .$this->createNumberString($int);
+    }
+
+     public static function fullThaiMonth($m)
+    {
+        $month = ['มกราคม' => '01', 'กุมภาพันธ์' => '02', 'มีนาคม' => '03',
+            'เมษายน' => '04', 'พฤษภาคม' => '05', 'มิถุนายน' => '06',
+            'กรกฎาคม' => '07', 'สิงหาคม' => '08', 'กันยายน' => '09',
+            'ตุลาคม' => '10', 'พฤศจิกายน' => '11', 'ธันวาคม' => '12',
+        ];
+        return array_search($m, $month);
+    }
+
+    public static function keptkaya_nav_infos(){
+        return  [
+            'items_group_count' => KpTbankItemsGroups::where('status', 'active')->count(),
+            'units_count' => KpTbankUnits::where('status', 'active')->count(),
+            'items_count' => KpTbankItems::where('status', 'active')->count(),
+            'items_prices_count' => KpTbankItemsPriceAndPoint::where('status', 'active')->count(),
+            'shop_count' => KpPurchaseShop::where('status', 'active')->count(),
+        ];
     }
 }

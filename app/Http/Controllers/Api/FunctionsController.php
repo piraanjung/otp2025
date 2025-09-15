@@ -3,11 +3,11 @@
 namespace App\Http\Controllers\Api;
 
 use App\Http\Controllers\Controller;
-use App\Models\Invoice;
+use App\Models\Tabwater\Invoice;
 use App\Models\User;
-use App\Models\UserMerterInfo;
+use App\Models\Tabwater\UserMerterInfo;
 use App\Models\UserProfile;
-use App\Models\Setting;
+use App\Models\Tabwater\Setting;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;

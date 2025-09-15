@@ -7,7 +7,7 @@
     รับซื้อขยะ
 @endsection
 @section('nav-main')
-    <a href="{{route('keptkaya.tbank.cart.index')}}"> รับซื้อขยะ</a>
+    <a href="{{route('keptkayas.tbank.cart.index')}}"> รับซื้อขยะ</a>
 @endsection
 @section('nav-current')
     รับซื้อขยะ
@@ -24,7 +24,7 @@
                     <div class="card-header">
                         <div class="card-title"></div>
                         <div class="card-tools">
-                            <a href="{{route('keptkaya.tbank.cart.create')}}" class="btn btn-info">รับซื้อขยะ</a>
+                            <a href="{{route('keptkayas.tbank.cart.create')}}" class="btn btn-info">รับซื้อขยะ</a>
                         </div>
                     </div>
                     <div class="card-body">

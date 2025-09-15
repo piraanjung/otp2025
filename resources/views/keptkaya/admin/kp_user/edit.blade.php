@@ -46,7 +46,7 @@
                         <div class="row ">
                             <div class="col-12 col-lg-10 m-auto">
                                 <form class="multisteps-form__form mb-8"
-                                    action="{{ route('keptkaya.admin.kp_user.update', $kp_user) }}" method="post"
+                                    action="{{ route('keptkayas.admin.kp_user.update', $kp_user) }}" method="post"
                                     style="height: 492px;">
                                     @method('put')
                                     @csrf

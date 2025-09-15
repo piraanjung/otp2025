@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Controllers\AccessMenusController;
 use App\Http\Controllers\Admin\ExcelController;
 use App\Http\Controllers\Admin\IndexController;
 use App\Http\Controllers\Admin\MetertypeController;
@@ -14,7 +15,7 @@ use App\Http\Controllers\Tabwater\CutmeterController;
 use App\Http\Controllers\Tabwater\BudgetYearController;
 use App\Http\Controllers\Tabwater\InvoiceController;
 use App\Http\Controllers\Tabwater\InvoicePeriodController;
-use App\Http\Controllers\Tabwater\LineLiffController;
+use App\Http\Controllers\LineLiffController;
 use App\Http\Controllers\Tabwater\MeterRateConfigController;
 use App\Http\Controllers\Tabwater\OwePaperController;
 use App\Http\Controllers\Tabwater\PaymentController;
@@ -22,13 +23,17 @@ use App\Http\Controllers\Tabwater\ReportsController;
 use App\Http\Controllers\Tabwater\SettingsController;
 use App\Http\Controllers\Tabwater\StaffMobileController;
 use App\Http\Controllers\Tabwater\SubzoneController;
+use App\Http\Controllers\Tabwater\UserMeterInfosController;
 use App\Http\Controllers\TestController;
 use App\Http\Controllers\Tabwater\TransferOldDataToNewDBController;
 use Illuminate\Support\Facades\Route;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Http\Request;
 use App\Http\Controllers\Api\UsersController as apiUserCtrl;
+use App\Http\Controllers\KeptKaya\KeptKayaPurchaseController;
+use App\Http\Controllers\SqlToJsonController;
 use App\Http\Controllers\StaffController;
+use App\Http\Controllers\Tabwater\TwManMobileController;
 use App\Http\Controllers\Tabwater\TwPricingTypeController;
 use App\Http\Controllers\Tabwater\UndertakerSubzoneController;
 use App\Models\Admin\BudgetYear;
@@ -37,10 +42,12 @@ use App\Models\Admin\OrgSettings;
 use App\Models\Admin\Subzone;
 use App\Models\Tabwater\Invoice;
 use App\Models\User;
+use PhpParser\Node\Stmt\Else_;
 
 Route::get('/', function () {
-    return view('welcome');
-})->name('welcome');
+    // return view('welcome');
+    return redirect()->route('login');
+});
 
 Route::get('/liff', function () {
     return view('liff');
@@ -54,95 +61,31 @@ Route::get('/logout', function () {
     return redirect('/');
 });
 
+Route::get('/upload-form', function () {
+    return view('upload');
+});
+
+Route::post('/upload-and-convert', [SqlToJsonController::class, 'uploadAndProcess']);
+
 
 Route::resource('/test', TestController::class);
 
 
 Auth::routes();
+
+Route::get('/accessmenu', [AccessMenusController::class, 'accessmenu'])->middleware(['auth'])->name('accessmenu');
+
+
+Route::get('/dashboard', [AccessMenusController::class, 'dashboard'])->middleware(['auth'])->name('dashboard');
+
 Route::resource('/lineliff', LineLiffController::class);
+Route::get('/line/dashboard/{user_waste_pref_id}', [LineLiffController::class , 'dashboard']);
+Route::get('/line/fine_line_id/{lineUserId}/{displayName}/{imagUrl}', [LineLiffController::class , 'fine_line_id']);
+Route::post('/line/login', [LineLiffController::class , 'handleLineLogin']);
 
 
-Route::get('/dashboard', function (Request $request) {
-    $apiUserCtrl = new apiUserCtrl();
-    $reportCtrl = new ReportsController();
-    $subzones  = Subzone::where('status', 'active')->get(['id', 'subzone_name', 'zone_id'])->sortBy('zone_id');
-    $user_in_subzone = [];
-    $user_in_subzone_label = collect($subzones)->pluck('subzone_name');
-    $user_count = [];
-    foreach ($subzones as $subzone) {
-        $user_count[] = $apiUserCtrl->users_subzone_count($subzone->id);
-    }
-    $user_in_subzone_data = [
-        'labels' => $user_in_subzone_label,
-        'data' => $user_count,
-    ];
-    $data = $reportCtrl->water_used($request, 'dashboard');
-    $water_used_total = collect($data['data'])->sum();
-    $invoice_paid = Invoice::where('status', 'paid')->get('vat','total_paid');
-    $paid_total = collect($invoice_paid)->sum('total_paid');
-    $vat =  collect($invoice_paid)->sum('vat');;
-    $user_count_sum = collect($user_count)->sum();
-    $subzone_count = collect($subzones)->count();
-    $current_budgetyear = BudgetYear::where('status', 'active')->get('budgetyear_name')[0];
-    return view('dashboard', compact(
-        'data',
-        'user_in_subzone_data',
-        'water_used_total',
-        'paid_total',
-        'vat',
-        'user_count_sum',
-        'subzone_count',
-        'current_budgetyear'
-    ));
-})->middleware(['auth'])->name('dashboard');
-
-
-Route::get('/accessmenu', function (Request $request) {
-     $user = User::find(Auth::id());
-    if($user->hasRole('Tabwater Staff')){
-        return redirect()->route('staff_accessmenu');
-    }
-    $request->session()->forget('keptkayatype');
-    $user = User::find(Auth::id());
-    $orgInfos = Organization::where('id', 2)->get([
-        'org_type_name',
-        'org_name',
-        'org_short_type_name',
-        'org_province_id_fk',
-        'org_logo_img',
-        'org_district_id_fk',
-        'org_tambon_id_fk'
-    ])[0];
-    $user = User::find(Auth::id());
-    return view('accessmenu', compact('orgInfos', 'user'));
-})->middleware(['auth'])->name('accessmenu');
-
-Route::get('/staff_accessmenu', function () {
-    $user = User::find(Auth::id());
-    $orgInfos = OrgSettings::where('id', $user->org_id_fk)->get([
-        'org_type_name',
-        'org_name',
-        'org_short_type_name',
-        'org_province_id_fk',
-        'org_logo_img',
-        'org_district_id_fk',
-        'org_tambon_id_fk'
-    ])[0];
-    $user = User::find(Auth::id());
-    return view('staff_accessmenu', compact('orgInfos', 'user'));
-})->middleware(['auth', 'role:Tabwater Staff|Recycle Bank Staff'])->name('staff_accessmenu');
-
-
-Route::prefix('tabwater/staff/mobile/')->name('tabwater.staff.mobile.')->group(function () {
-    Route::get('{subzone_id}/members',[ StaffMobileController::class, 'members'])->name('members');
-    Route::get('{meter_id}/meter_reading',[ StaffMobileController::class, 'meter_reading'])->name('meter_reading');
-    Route::post('process-meter-image', [StaffMobileController::class, 'process_meter_image'])->name('process_meter_image');
-    Route::resource('/',StaffMobileController::class);
-   
-   
-});
-
-Route::prefix('staffs')->name('keptkaya.staffs.')->group(function () {
+Route::get('/staff_accessmenu', [AccessMenusController::class, 'staff_accessmenu'])->middleware(['auth', 'permission:access waste bank mobile'])->name('staff_accessmenu');
+Route::prefix('staffs')->name('keptkayas.staffs.')->group(function () {
     Route::get('/', [StaffController::class, 'index'])->name('index');
     Route::get('/create', [StaffController::class, 'create'])->name('create');
     Route::post('/', [StaffController::class, 'store'])->name('store');
@@ -152,7 +95,23 @@ Route::prefix('staffs')->name('keptkaya.staffs.')->group(function () {
     Route::delete('/{staff}', [StaffController::class, 'destroy'])->name('destroy');
 });
 
-Route::middleware(['auth', 'role:admin|Super Admin'])->name('admin.')->prefix('admin')->group(function () {
+Route::prefix('tabwater/staff/mobile/')->name('tabwater.staff.mobile.')->group(function () {
+    Route::get('{subzone_id}/{status}/members',[ StaffMobileController::class, 'members'])->name('members');
+    Route::get('{subzone_id}/membersJson',[ StaffMobileController::class, 'membersJson'])->name('membersJson');
+    Route::get('{meter_id}/meter_reading',[ StaffMobileController::class, 'meter_reading'])->name('meter_reading');
+    Route::post('process-meter-image', [StaffMobileController::class, 'process_meter_image'])->name('process_meter_image');
+    Route::resource('/',StaffMobileController::class);
+   
+   
+});
+
+Route::get('twmanmobile', [TwManMobileController::class, 'index'])->name('twmanmobile');
+Route::get('twmanmobile/main', [TwManMobileController::class, 'main'])->name('twmanmobile.main');
+Route::get('twmanmobile/edit_members_subzone_selected', [TwManMobileController::class, 'edit_members_subzone_selected'])->name('twmanmobile.edit_members_subzone_selected');
+
+
+ 
+Route::middleware(['auth', 'role:Admin|Super Admin'])->name('admin.')->prefix('admin')->group(function () {
     Route::get('/transfer_old_data', [TransferOldDataToNewDBController::class, 'index'])->name('transfer_old_data');
     Route::get('/', [IndexController::class, 'index'])->name('index');
     Route::resource('/roles', RoleController::class);
@@ -252,7 +211,7 @@ Route::middleware(['auth', 'role:admin|Super Admin'])->name('admin.')->prefix('a
 });
 
 
-Route::middleware(['auth', 'role:admin|finance|Super Admin'])->group(function () {
+Route::middleware(['auth', 'role:Admin|finance|Super Admin'])->group(function () {
     Route::get('/payment/paymenthistory/{inv_period}/{subzone_id}', [PaymentController::class, 'paymenthistory'])->name('payment.paymenthistory');
     Route::match(['get', 'post'], '/payment/search', [PaymentController::class, 'search'])->name('payment.search');
     Route::delete('/payment/acc_trans_id_fk/destroy', [PaymentController::class, 'destroy'])->name('payment.destroy');
@@ -271,6 +230,8 @@ Route::middleware(['auth', 'role:admin|finance|Super Admin'])->group(function ()
     Route::get('/invoice/reset_invioce_bill/{inv_id}', [InvoiceController::class, 'reset_invioce_bill'])->name('invoice.reset_invioce_bill');
     Route::post('invoice/print_multi_invoice', [InvoiceController::class, 'print_multi_invoice'])->name('invoice.print_multi_invoice');
     Route::post('invoice/delete_duplicate_inv', [InvoiceController::class, 'delete_duplicate_inv'])->name('invoice.delete_duplicate_inv');
+    Route::get('invoice/print_invoice/{zone_id}/{curr_inv_prd}', [InvoiceController::class, 'print_invoice'])->name('invoice.print_invoice');
+    Route::post('invoice/invoice_bill_print', [InvoiceController::class, 'invoice_bill_print'])->name('invoice.invoice_bill_print');
 
 
     Route::post('reports/export', [ReportsController::class, 'export'])->name('reports.export');
@@ -284,7 +245,7 @@ Route::middleware(['auth', 'role:admin|finance|Super Admin'])->group(function ()
     Route::get('/meter_record_history/{budgetyear?}/{zone_id?}', [ReportsController::class, 'meter_record_history'])->name('reports.meter_record_history');
 });
 
-Route::group(['middleware' => ['role:admin|tabwater|Super Admin']], function () {
+Route::group(['middleware' => ['role:Admin|tabwater|Super Admin']], function () {
 
     Route::resource('/invoice', InvoiceController::class);
     Route::get('/invoice/zone_create/{zone_id}/{curr_inv_prd}/{new_user?}', [InvoiceController::class, 'zone_create'])->name('invoice.zone_create');
@@ -299,6 +260,12 @@ Route::group(['middleware' => ['role:admin|tabwater|Super Admin']], function () 
     Route::get('/cutmeter/installMeterProgress/{id}', [CutmeterController::class, 'installMeterProgress'])->name('cutmeter.installmeter');
     Route::resource('/cutmeter', CutmeterController::class);
     Route::resource('meter_types', MeterTypeController::class);
+
+    Route::prefix('usermeter_infos')->name('usermeter_infos.')->group(function () {
+    Route::resource('/',  UserMeterInfosController::class);
+    Route::get('/edit_invoices/{meter_id}',  [UserMeterInfosController::class, 'edit_invoices'])->name('edit_invoices');
+    Route::post('/store_edited_invoice',  [UserMeterInfosController::class, 'store_edited_invoice'])->name('store_edited_invoice');
+    });
 });
 
 
@@ -319,3 +286,4 @@ Route::middleware(['auth'])->group(function () {
 
 require __DIR__ . '/auth.php';
 require __DIR__ . '/keptkaya_route.php';
+// require __DIR__ . '/tabwater.php';

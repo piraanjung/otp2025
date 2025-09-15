@@ -3,11 +3,13 @@
 namespace App\Http\Controllers\Tabwater;
 
 use App\Http\Controllers\Controller;
-
-use App\Models\UserMerterInfo;
+use App\Models\Admin\BudgetYear;
+use App\Models\Tabwater\UserMerterInfo;
 use Illuminate\Http\Request;
 use App\UserMeterInfos;
-use App\Models\Subzone;
+use App\Models\Admin\Subzone;
+use App\Models\Tabwater\Invoice;
+use App\Models\Tabwater\InvoicePeriod;
 
 class UserMeterInfosController extends Controller
 {
@@ -35,5 +37,19 @@ class UserMeterInfosController extends Controller
         }
 
         return $resVal;
+    }
+
+    public function edit_invoices($meter_id){
+        $inv_period = InvoicePeriod::where('status', 'active')->get('id')->first();
+        $usermeter_infos = UserMerterInfo::with([
+            'invoice' => function($q) use ($inv_period){
+                $budget_year = BudgetYear::with('invoicePeriod:id,budgetyear_id')->where('status', 'active')
+                ->get()->first();
+                $inv_period_lists = collect($budget_year->invoicePeriod)->pluck('id');
+                return $q->select('*')->whereIn( 'inv_period_id_fk', $inv_period_lists);
+            }
+        ])->where('meter_id', $meter_id)->get()->first();
+        return view('tabwater.usermeter_infos.index' , compact('usermeter_infos'));
+
     }
 }

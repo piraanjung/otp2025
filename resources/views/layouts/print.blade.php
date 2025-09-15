@@ -21,6 +21,7 @@
         <div class="content-wrappe">
 
             <section class="content">
+                
                 @yield('content')
             </section>
         </div>

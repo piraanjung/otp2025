@@ -180,20 +180,26 @@
                                         <hr class="horizontal dark">
 
                                         <div class="row">
-                                            <p class="my-auto text-bold col-12 col-md-6">Export Excel</p>
-                                            <p class="text-secondary h5 my-auto col-12 col-md-3  text-xl-end">
-                                                
-                                            </p>
-                                            <div class="col-12 col-md-3">
+                                          
+                                            <div class="col-6 col-md-3">
 
                                                 <a href="{{ route('invoice.export_excel', [
                                                     'zone_id' => $zone['zone_info']['undertake_subzone_id'],
                                                     'curr_inv_prd' => $current_inv_period->id,
                                                 ]) }}"
-                                                    class="foatright btn btn-sm w-100  mb-0 bg-gradient-info">Export
+                                                    class="foatright btn btn-sm w-100  mb-0 bg-gradient-info">Export Excel
+                                                </a>
+                                            </div>
+                                            <div class="col-6 col-md-3">
+                                                <a href="{{ route('invoice.print_invoice', [
+                                                    'zone_id' => $zone['zone_info']['undertake_subzone_id'],
+                                                    'curr_inv_prd' => $current_inv_period->id,
+                                                ]) }}"
+                                                    class="foatright btn btn-sm w-100  mb-0 bg-gradient-info">print ใบแจ้งหนี้
                                                 </a>
                                             </div>
                                         </div>
+                                        
                                     @endcan
                                 </div>
                                 <div class="col-5">

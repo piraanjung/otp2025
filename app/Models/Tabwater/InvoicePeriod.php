@@ -10,7 +10,7 @@ class InvoicePeriod extends Model
 {
     use HasFactory;
 
-    protected $fillable = [ "inv_p_name","budgetyear_id","startdate","enddate","status"];
+    protected $fillable = [ 'id', "inv_p_name","budgetyear_id","startdate","enddate","status"];
     protected $table = "invoice_period";
 
     public function budgetyear()

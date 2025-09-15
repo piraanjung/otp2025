@@ -1,10 +1,10 @@
 @extends('layouts.keptkaya')
 
 @section('content')
-   
+
     <div class="card">
         <div class="card-header">
-             <a class="btn btn-primary btn-sm" href="{{ route('keptkaya.tbank.items.create') }}">
+            <a class="btn btn-primary btn-sm" href="{{ route('keptkayas.tbank.items.create') }}">
                 <i class="fas fa-folder">
                 </i>
                 สร้างข้อมูล

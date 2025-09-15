@@ -34,31 +34,31 @@ class KpBudgetYearController extends Controller
         $userKeptKayaInfos = KpUserKeptkayaInfos::with([
             'kp_bins' => function ($query) {
                 return $query->select('id', 'kp_u_infos_idfk', 'bincode', 'status')
-                    ->where('status',"<>", 'inactive')->where('deleted','0');
+                    ->where('status', "<>", 'inactive')->where('deleted', '0');
             }
         ])->where([
             'status' => 'active',
             'as_tbank' => "0"
         ])->get();
 
-        $userKeptKayaInfos = collect($userKeptKayaInfos)->filter(function($v){
+        $userKeptKayaInfos = collect($userKeptKayaInfos)->filter(function ($v) {
             return collect($v->kp_bins)->isNotEmpty();
         });
         $users = collect($userKeptKayaInfos)->groupBy('kp_usergroup_idfk');
         $zones = Zone::all();
-        
+
         $currentBudgetYear = KpBudgetYear::where('status', 'active')->get();
-        
+
         $budgetyear_id = 1;
-        if(collect($currentBudgetYear)->isNotEmpty()){
+        if (collect($currentBudgetYear)->isNotEmpty()) {
             $budgetyear_id = $currentBudgetYear[0]->id;
         }
-        
+
         $usergroups = KpUserGroup::where('status', 'active')
             ->with([
-                'kp_usergroup_payrate_permonth' => function ($q)use($budgetyear_id) {
+                'kp_usergroup_payrate_permonth' => function ($q) use ($budgetyear_id) {
                     return $q->select('id', 'kp_usergroup_id_fk', 'vat', 'budgetyear_idfk', 'payrate_permonth')
-                    ->where('budgetyear_idfk', $budgetyear_id);
+                        ->where('budgetyear_idfk', $budgetyear_id);
                 },
             ])->get();
 
@@ -77,7 +77,7 @@ class KpBudgetYearController extends Controller
                 "endDate"     => date("01/10/" . $currentBudgetYear[0]->budgetyearname + 1)
             ];
         }
-        return view('admin.kp_budgetyear.create', compact('budgetYear','usergroups'));
+        return view('admin.kp_budgetyear.create', compact('budgetYear', 'usergroups'));
     }
 
     public function store(Request $request, KpBudgetYear $budgetYear)
@@ -93,7 +93,7 @@ class KpBudgetYearController extends Controller
         ]);
 
         date_default_timezone_set('Asia/Bangkok');
-        
+
         //inactive ปีงบประมาณก่อนหน้านี้
         KpBudgetYear::where('status', 'active')->update([
             'status' => 'inactive'
@@ -119,7 +119,7 @@ class KpBudgetYearController extends Controller
         ]);
 
         //create kp_usergroup_payrate_permonth สำหรับปีงบประมาณใหม่
-        foreach($request->get('payrate') as $payrate){
+        foreach ($request->get('payrate') as $payrate) {
             KpUsergroupPayratePerMonth::create([
                 'kp_usergroup_id_fk' => $payrate['usergroup'],
                 'budgetyear_idfk' => $currentBGYear->id,
@@ -127,23 +127,23 @@ class KpBudgetYearController extends Controller
                 'vat' => $payrate['vat'],
                 'created_at' => date('Y-m-d H:i:s'),
                 'updated_at' => date('Y-m-d H:i:s')
-            ]);   
+            ]);
         }
 
-        
+
         //getข้อมูลสมาชิก keptkaya  ทั้งที่ as_tbank =0 และ 1
         $userKeptKayaInfos = KpUserKeptkayaInfos::with([
             'kp_bins' => function ($query) {
-                return $query->select('id', 'kp_u_infos_idfk', 'bincode','next_invoice_num', 'kp_payrate_permonth_idfk', 'status')
-                    ->where('status',"<>", 'inactive')->where('deleted','0');
+                return $query->select('id', 'kp_u_infos_idfk', 'bincode', 'next_invoice_num', 'kp_payrate_permonth_idfk', 'status')
+                    ->where('status', "<>", 'inactive')->where('deleted', '0');
             },
-            'kp_bins.kp_bins_payrate_permonth' => function($q){
-                return $q->select('id', 'kp_usergroup_id_fk', 'payrate_permonth', 'vat','budgetyear_idfk');
+            'kp_bins.kp_bins_payrate_permonth' => function ($q) {
+                return $q->select('id', 'kp_usergroup_id_fk', 'payrate_permonth', 'vat', 'budgetyear_idfk');
             }
         ])->where('status', 'active')->get();
 
         //filter เอาเฉพาะสมาชิกที่มีถังขยะ
-        $userKeptKayaInfos = collect($userKeptKayaInfos)->filter(function($v){
+        $userKeptKayaInfos = collect($userKeptKayaInfos)->filter(function ($v) {
             return collect($v->kp_bins)->isNotEmpty();
         });
 
@@ -183,14 +183,14 @@ class KpBudgetYearController extends Controller
         // 12
         // ];
         $activeKpInvoicePeriodsId = [];
-        foreach($months as $month){
+        foreach ($months as $month) {
             $kpInvoicePeriod = KpInvoicePeriods::create([
                 'kp_inv_p_name' => $month,
                 'kp_budgetyear_idfk' => $currentBGYear->id,
                 'status'  => 'active',
                 'deleted'    => '0',
                 'created_at'  => date('Y-m-d H:i:s'),
-                'updated_at'  => date('Y-m-d H:i:s'),	
+                'updated_at'  => date('Y-m-d H:i:s'),
             ]);
             $activeKpInvoicePeriodsId[] = $kpInvoicePeriod->id;
         }
@@ -200,40 +200,39 @@ class KpBudgetYearController extends Controller
         $inv_datas = [];
         foreach ($userKeptKayaInfos as $key => $userKeptKayaInfo) {
             return $userKeptKayaInfo;
-            foreach($userKeptKayaInfo->kp_bins as $bin){
+            foreach ($userKeptKayaInfo->kp_bins as $bin) {
 
-                    $kp_u_infos_str = substr('0000',strlen($bin->kp_u_infos_idfk))."".$bin->kp_u_infos_idfk;
-                    foreach($activeKpInvoicePeriodsId as $inv_p_id){
-                        $paid = $bin->kp_bins_payrate_permonth[0]->payrate_permonth;
-                      return  $vat =  round($bin->kp_bins_payrate_permonth[0]->payrate_permonth * ($bin->kp_bins_payrate_permonth[0]->vat/100),2);
-                        $inv_datas[] = [
-                            'inv_no' => "06".$kp_u_infos_str."0".$bin->kp_bins_payrate_permonth[0]->id."0".$bin->kp_bins_payrate_permonth[0]->next_invoice_num,
-                            'kp_bin_idfk' => $bin->kp_bins_payrate_permonth[0]->id,
-                            'kp_inv_period_idfk' => $inv_p_id,
-                            'kp_acc_trans_idfk' => 0,
-                            'paid' => $paid,
-                            'vat' => $vat,
-                            'totalpaid' => $paid + $vat,
-                            'recorder_idfk' => Auth::user()->id,
-                            'status'  => 'active',
-                            'deleted'    => '0',
-                            'created_at'  => date('Y-m-d H:i:s'),
-                            'updated_at'  => date('Y-m-d H:i:s'),	
-                        ];
-                    }
+                $kp_u_infos_str = substr('0000', strlen($bin->kp_u_infos_idfk)) . "" . $bin->kp_u_infos_idfk;
+                foreach ($activeKpInvoicePeriodsId as $inv_p_id) {
+                    $paid = $bin->kp_bins_payrate_permonth[0]->payrate_permonth;
+                    return  $vat =  round($bin->kp_bins_payrate_permonth[0]->payrate_permonth * ($bin->kp_bins_payrate_permonth[0]->vat / 100), 2);
+                    $inv_datas[] = [
+                        'inv_no' => "06" . $kp_u_infos_str . "0" . $bin->kp_bins_payrate_permonth[0]->id . "0" . $bin->kp_bins_payrate_permonth[0]->next_invoice_num,
+                        'kp_bin_idfk' => $bin->kp_bins_payrate_permonth[0]->id,
+                        'kp_inv_period_idfk' => $inv_p_id,
+                        'kp_acc_trans_idfk' => 0,
+                        'paid' => $paid,
+                        'vat' => $vat,
+                        'totalpaid' => $paid + $vat,
+                        'recorder_idfk' => Auth::user()->id,
+                        'status'  => 'active',
+                        'deleted'    => '0',
+                        'created_at'  => date('Y-m-d H:i:s'),
+                        'updated_at'  => date('Y-m-d H:i:s'),
+                    ];
+                }
             }
         }
         //สร้าง kp_invoice สำหรับแต่ละถังของ user จำนวนถังละ 12 เดือน 
         //โดยแบ่งบันทึกข้อมูลเป็นกลุ่มย่อยๆ
         return $inv_datas;
-        foreach(collect($inv_datas)->chunk(200) as $chunks){
+        foreach (collect($inv_datas)->chunk(200) as $chunks) {
             return $chunks;
-            foreach($chunks as $invoice){
-                
+            foreach ($chunks as $invoice) {
+
                 KpBinsInvoices::insert($invoice);
             }
-
-         }
+        }
 
         return redirect()->route('admin.kp_budgetyear.index')->with(['color' => 'success', 'message' => 'บันทึกข้อมูลเรียบร้อย']);
     }

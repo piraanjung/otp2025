@@ -34,7 +34,7 @@ class UserMerterInfo extends Model
 
     public function undertake_subzone()
     {
-        return $this->belongsTo(Subzone::class, 'undertake_subzone_id');
+        return $this->belongsTo(Subzone::class, 'undertake_subzone_id','id');
     }
 
     public function cutmeter()

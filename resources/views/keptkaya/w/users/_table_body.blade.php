@@ -33,14 +33,14 @@
     <td class="align-middle">
         
         @if(optional($user->wastePreference)->is_annual_collection)
-            <a href="{{ route('keptkaya.waste_bins.index', $user->id) }}" class="btn btn-link text-info text-gradient px-0 mb-0 me-2">
+            <a href="{{ route('keptkayas.waste_bins.index', $user->id) }}" class="btn btn-link text-info text-gradient px-0 mb-0 me-2">
                 <i class="fas fa-trash-alt me-1"></i> จัดการถังขยะ
             </a>
         @endif
-        <a href="{{ route('keptkaya.users.edit', $user->id) }}" class="btn btn-link text-secondary font-weight-bold text-xs px-0 mb-0 me-2">
+        <a href="{{ route('keptkayas.users.edit', $user->id) }}" class="btn btn-link text-secondary font-weight-bold text-xs px-0 mb-0 me-2">
                 <i class="fas fa-edit me-1"></i> แก้ไข
             </a>
-        <form action="{{ route('keptkaya.users.destroy', $user->id) }}" method="POST" class="d-inline">
+        <form action="{{ route('keptkayas.users.destroy', $user->id) }}" method="POST" class="d-inline">
             @csrf
             @method('DELETE')
             <button type="submit" class="btn btn-link text-danger text-gradient px-0 mb-0" onclick="return confirm('คุณแน่ใจหรือไม่ที่จะลบผู้ใช้งานนี้?')">

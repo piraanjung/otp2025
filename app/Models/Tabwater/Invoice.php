@@ -16,6 +16,7 @@ class Invoice extends Model
      public $timestamps = false;
     protected $fillable = [
         'inv_id',
+        'inv_no',
         'inv_period_id_fk',
         'meter_id_fk',
         'lastmeter',
@@ -30,7 +31,8 @@ class Invoice extends Model
         'recorder_id',
         'status',
         'created_at',
-        'updated_at'
+        'updated_at',
+        'printed_time'
     ];
     protected $table = 'invoice';
 
@@ -85,4 +87,9 @@ class Invoice extends Model
         }
         return $budgetyear_id_str . "" . $inv_no . "" . $funcCtrl->createNumberString($meter_id);
     }
+
+    public function aaa(){
+        return 'aa';
+    }
 }
+

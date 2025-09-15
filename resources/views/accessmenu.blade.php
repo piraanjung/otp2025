@@ -246,8 +246,10 @@
             font-weight: 800;
             font-style: normal;
         }
-        .a-disbled{
-            opacity: 0.3;
+
+        .a-disbled {
+            /* display: none  */
+            /* opacity: 0.3; */
         }
     </style>
 
@@ -276,7 +278,7 @@
                 {{-- ระบบบริหารจัดการ --}}
             </div>
         </div>
-        <div class="bubble-container centralized blue-dark">
+        <div class="bubble-container centralized  red a-disbled">
             <a href="{{'dashboard'}}">
                 <div class="bubble centralized">
                     <div class="inner centralized">
@@ -285,45 +287,45 @@
                 </div>
             </a>
         </div>
-        <div class="bubble-container centralized green ">
-            <a href="{{route('keptkaya.dashboard', ['keptkayatype' => 'recycle'])}}">
-            <div class="bubble centralized">
-                <div class="inner centralized">
-                    ธนาคาร<br>ขยะรีไซเคิล
+        <div class="bubble-container centralized green a-disbled">
+            <a href="{{route('keptkayas.dashboard', 'recycle')}}">
+                <div class="bubble centralized">
+                    <div class="inner centralized">
+                        ธนาคาร<br>ขยะรีไซเคิล
+                    </div>
                 </div>
-            </div>
             </a>
         </div>
-        <div class="bubble-container centralized orange">
-            <a href="{{route('keptkaya.dashboard', ['keptkayatype' => 'annual'])}}">
-            <div class="bubble centralized">
-                <div class="inner centralized">
-                    ค่าจัดการ<br>ถังขยะรายปี
+        <div class="bubble-container centralized orange a-disbled">
+            <a href="{{route('keptkayas.dashboard', 'annual')}}">
+                <div class="bubble centralized">
+                    <div class="inner centralized">
+                        ค่าจัดการ<br>ถังขยะรายปี
+                    </div>
                 </div>
-            </div>
             </a>
 
         </div>
-        <div class="bubble-container centralized red">
-            <a href="{{route('keptkaya.dashboard')}}">
+        <div class="bubble-container centralized  blue-dark">
+            <a href="{{route('dashboard')}}">
 
-            <div class="bubble centralized">
-                <div class="inner centralized">
-                    ถังหมัก<br>เศษอาหาร
+                <div class="bubble centralized">
+                    <div class="inner centralized">
+                        งานประปา
+                    </div>
                 </div>
-            </div>
             </a>
         </div>
-        <div class="bubble-container centralized black">
+        <div class="bubble-container centralized black a-disbled">
             <a href="#">
-            <div class="bubble centralized">
-                <div class="inner centralized">
-                    ธนาคาร<br>ออมทรัพย์
+                <div class="bubble centralized">
+                    <div class="inner centralized">
+                        ธนาคาร<br>ออมทรัพย์
+                    </div>
                 </div>
-            </div>
             </a>
         </div>
-        <div class="bubble-container centralized blue-light">
+        <div class="bubble-container centralized blue-light a-disbled">
 
             <div class="bubble centralized">
                 <div class="inner centralized">

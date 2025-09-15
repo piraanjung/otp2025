@@ -8,10 +8,8 @@ use App\Models\KeptKaya\KpPurchaseTransaction;
 use App\Models\KeptKaya\KpTbankItems;
 use App\Models\KeptKaya\KpTbankItemsPriceAndPoint;
 use App\Models\KeptKaya\KpTbankUnits;
+use App\Models\KeptKaya\UserWastePreference;
 use App\Models\User;
-// ลบ App\Models\Admin\Staff;
-// ลบ App\Models\KeptKaya\KpUserKeptkayaInfos;
-use App\Models\KeptKaya\UserWastePreference; // เพิ่ม Model UserWastePreference
 use Carbon\Carbon;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
@@ -26,31 +24,33 @@ class KeptKayaPurchaseController extends Controller
      * แสดงหน้ารายการผู้ใช้งานเพื่อเลือกทำธุรกรรม
      * @return \Illuminate\View\View
      */
-    public function selectUser(Request $request)
+    public function select_user(Request $request)
     {
         $request->session()->remove('purchase_user_id');
         $request->session()->remove('purchase_cart');
-        
-        $query = User::whereHas('wastePreference', function($query) {
-                                  $query->where('is_waste_bank', true);
-                              });
 
+        $query = User::whereHas('wastePreference', function ($query) {
+            $query->where('is_waste_bank', true);
+        });
         if ($request->filled('name_search')) {
             $nameSearch = $request->input('name_search');
-            $query->where(function($q) use ($nameSearch) {
+            $query->where(function ($q) use ($nameSearch) {
                 $q->where('firstname', 'like', '%' . $nameSearch . '%')
-                  ->orWhere('lastname', 'like', '%' . $nameSearch . '%');
+                    ->orWhere('lastname', 'like', '%' . $nameSearch . '%');
             });
         }
 
         if ($request->filled('username_search')) {
             $usernameSearch = $request->input('username_search');
-            $query->where('username', 'like', '%' . $usernameSearch . '%');
+            $query->with('wastePreference')
+                ->whereHas('wastePreference', function($q) use ($usernameSearch){
+                     $q->select('*')->where('id' ,$usernameSearch);
+                });
         }
 
         $keptKayaMembers = $query->orderBy('firstname')
-                                 ->orderBy('lastname')
-                                 ->get();
+            ->orderBy('lastname')
+            ->get();
 
         // Load today's purchase transactions for all members
         $today = Carbon::now()->toDateString();
@@ -66,11 +66,11 @@ class KeptKayaPurchaseController extends Controller
      * @param \App\Models\User $user
      * @return \Illuminate\Http\RedirectResponse
      */
-    public function startPurchase(User $user)
+    public function startPurchase(UserWastePreference $user)
     {
         // This is just a redirect to the next step.
         // In a real application, you might pass user data or a transaction ID.
-        return redirect()->route('keptkaya.purchase.form', $user->id);
+        return redirect()->route('keptkayas.purchase.form', $user->id);
     }
     public function showCart()
     {
@@ -79,7 +79,7 @@ class KeptKayaPurchaseController extends Controller
         $user = null;
         if ($userId) {
             $user = User::find($userId);
-        }else{
+        } else {
             return 'ss';
         }
 
@@ -96,17 +96,16 @@ class KeptKayaPurchaseController extends Controller
     {
         // The cart items are stored in the session, so we don't need to validate them here.
         // We only validate the user and total amounts if needed.
-
         $cart = Session::get('purchase_cart', []);
         $userId = Session::get('purchase_user_id');
 
         if (empty($cart) || !$userId) {
-            return redirect()->route('keptkaya.purchase.select_user')->with('error', 'ไม่พบรายการในรถเข็นหรือผู้ใช้งาน กรุณาเริ่มทำธุรกรรมใหม่');
+            return redirect()->route('keptkayas.purchase.select_user')->with('error', 'ไม่พบรายการในรถเข็นหรือผู้ใช้งาน กรุณาเริ่มทำธุรกรรมใหม่');
         }
 
         $user = User::find($userId);
         if (!$user) {
-            return redirect()->route('keptkaya.purchase.select_user')->with('error', 'ผู้ใช้งานไม่ถูกต้อง กรุณาเริ่มทำธุรกรรมใหม่');
+            return redirect()->route('keptkayas.purchase.select_user')->with('error', 'ผู้ใช้งานไม่ถูกต้อง กรุณาเริ่มทำธุรกรรมใหม่');
         }
 
         $totalWeight = array_sum(array_column($cart, 'amount_in_units')); // Assuming 'weight' is stored in 'amount_in_units'
@@ -117,9 +116,10 @@ class KeptKayaPurchaseController extends Controller
         DB::beginTransaction();
         try {
             // 1. Create the main purchase transaction
+            $userWastePref = UserWastePreference::where('user_id', $userId)->get()->first();
             $transaction = KpPurchaseTransaction::create([
                 'kp_u_trans_no' => 'T-' . Carbon::now()->format('YmdHis') . Str::random(4), // Example transaction number
-                'kp_user_id_fk' => $user->id,
+                'kp_user_w_pref_id_fk' => $userWastePref->id,
                 'transaction_date' => Carbon::now()->toDateString(),
                 'total_weight' => $totalWeight,
                 'total_amount' => $totalAmount,
@@ -138,6 +138,7 @@ class KeptKayaPurchaseController extends Controller
                     'amount' => $item['amount'],
                     'points' => $item['points'],
                     'unit_type' => $item['unit_name'], // Assuming unit_name is passed
+                    'recorder_id' => $recorderId
                 ]);
             }
 
@@ -147,7 +148,7 @@ class KeptKayaPurchaseController extends Controller
 
             DB::commit();
 
-            return redirect()->route('keptkaya.purchase.receipt', $transaction->id);
+            return redirect()->route('keptkayas.purchase.receipt', $transaction->id);
         } catch (\Exception $e) {
             DB::rollBack();
             return back()->with('error', 'เกิดข้อผิดพลาดในการบันทึกธุรกรรม: ' . $e->getMessage());
@@ -157,28 +158,31 @@ class KeptKayaPurchaseController extends Controller
     public function showReceipt(KpPurchaseTransaction $transaction)
     {
         // Load relationships needed for the receipt
-        $transaction->load(['user.user', 'details.item', 'details.pricePoint.kp_units_info']);
+        $transaction->load(['user_waste_pref.user', 'details.item', 'details.pricePoint.kp_units_info']);
 
         return view('keptkaya.purchase.receipt', compact('transaction'));
     }
 
-     public function showPurchaseForm(Request $request, User $user)
+    public function showPurchaseForm(Request $request, UserWastePreference $user)
     {
+        $user = User::find($user->user_id);
         $request->session()->put('purchase_user_id', $user->id);
         // ตรวจสอบว่าผู้ใช้งานที่เลือกเป็นสมาชิกธนาคารขยะหรือไม่
         if (!$user->wastePreference || !$user->wastePreference->is_waste_bank) {
-             return redirect()->route('keptkaya.purchase.select_user')->with('error', 'ผู้ใช้งานนี้ไม่ได้เป็นสมาชิกธนาคารขยะ');
+            return redirect()->route('keptkayas.purchase.select_user')->with('error', 'ผู้ใช้งานนี้ไม่ได้เป็นสมาชิกธนาคารขยะ');
         }
 
         // ดึงรายการขยะทั้งหมด และโหลดราคาที่ Active
-        $recycleItems = KpTbankItems::with(['activePrices.kp_units_info'])->get();
+        $recycleItems = KpTbankItems::with(['activePrices.kp_units_info'])
+            ->whereHas('activePrices.kp_units_info')
+            ->get();
 
         // ดึงข้อมูลหน่วยนับทั้งหมด (ถ้าต้องการใช้ใน dropdown)
         $allUnits = KpTbankUnits::all();
 
         return view('keptkaya.purchase.purchase_form', compact('user', 'recycleItems', 'allUnits'));
     }
-    
+
 
 
     /**
@@ -209,7 +213,7 @@ class KeptKayaPurchaseController extends Controller
     {
         Session::forget('purchase_cart');
         Session::forget('purchase_user_id');
-        return redirect()->route('keptkaya.purchase.select_user');
+        return redirect()->route('keptkayas.purchase.select_user');
     }
 
     public function addToCart(Request $request)

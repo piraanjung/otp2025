@@ -14,7 +14,7 @@
         body {
             font-family: 'Inter', sans-serif;
             background-color: #f0f4f8;
-            display: flex;
+            /* display: flex; */
             justify-content: center;
             align-items: center;
             min-height: 100vh;
@@ -105,7 +105,7 @@
             เชื่อมต่อกับเครื่องพิมพ์ความร้อน Bluetooth ของคุณและส่งข้อความเพื่อทดสอบ
         </p>
 
-        <div class="flex flex-col sm:flex-row justify-center gap-4 mb-6">
+         <div class="flex flex-col sm:flex-row justify-center gap-4 mb-6">
             <button id="connectButton" class="btn btn-primary">
                 <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
                     <path fill-rule="evenodd"
@@ -122,21 +122,9 @@
                 </svg>
                 พิมพ์ข้อความ (เป็นรูปภาพ)
             </button>
-            {{-- <button id="printTextButton" class="btn btn-primary btn-disabled" disabled>
-                <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
-                    <path fill-rule="evenodd"
-                        d="M5 4a3 3 0 00-3 3v6a3 3 0 003 3h10a3 3 0 003-3V7a3 3 0 00-3-3H5zm-1 9v-1h3v2H5a1 1 0 01-1-1zm7 0h4a1 1 0 011 1v-1h-5v2zm0-7H5a1 1 0 00-1 1v1h12V7a1 1 0 00-1-1h-7z"
-                        clip-rule="evenodd" />
-                </svg>
-                พิมพ์ข้อความ (ตรง)
-            </button> --}}
+
         </div>
-
-        {{-- <textarea id="printContent" rows="6" placeholder="พิมพ์ข้อความที่คุณต้องการพิมพ์ที่นี่..."></textarea> --}}
-
-
-
-        <div id="status" class="status-message">
+       <div id="status" class="status-message">
             สถานะ: ยังไม่ได้เชื่อมต่อ
         </div>
 
@@ -158,8 +146,8 @@
 
                 <div class="row mb-4">
                     <div class="col-md-6">
-                        <strong>ผู้ขาย:</strong> {{ $transaction->user->user->firstname }}
-                        {{ $transaction->user->user->lastname }}
+                        <strong>ผู้ขาย:</strong> {{ $transaction->user_waste_pref->user->firstname }}
+                        {{ $transaction->user_waste_pref->user->lastname }}
                     </div>
                     <div class="col-md-6 text-md-end">
                         <strong>ผู้บันทึก:</strong> {{ $transaction->recorder->firstname ?? 'N/A' }}
@@ -183,7 +171,8 @@
                                 <tr>
                                     <td>{{ $detail->item->kp_itemsname ?? 'N/A' }}</td>
                                     <td>{{ number_format($detail->amount_in_units, 2) }}
-                                        {{ $detail->pricePoint->kp_units_info->unitname ?? 'N/A' }}</td>
+                                        {{ $detail->pricePoint->kp_units_info->unitname ?? 'N/A' }}
+                                    </td>
                                     <td>{{ number_format($detail->price_per_unit, 2) }} บาท</td>
                                     <td>{{ number_format($detail->amount, 2) }} บาท</td>
                                     <td>{{ number_format($detail->points) }} คะแนน</td>
@@ -224,32 +213,33 @@
                     <i class="bi bi-download me-1"></i> บันทึกเป็นรูปภาพ
                 </button>
 
-                <a href="{{ route('keptkaya.purchase.select_user') }}" class="btn btn-secondary">
+                <a href="{{ route('keptkayas.purchase.select_user') }}" class="btn btn-secondary">
                     <i class="bi bi-arrow-left me-1"></i> กลับหน้าเลือกผู้ใช้งาน
                 </a>
             </div>
         </div>
     </div>
-    <img src="{{ asset('/logo/hs_logo.jpg') }}" id="zh_logo" style="opacity: 0">
-    <canvas id="canvas" width="100" height="100"></canvas>
+    <br>
+    {{-- <img src="{{ asset('/logo/hs_logo.jpg') }}" id="zh_logo" style="opacity: 1"> --}}
+    <canvas id="canvas" width="100" height="100" style="opacity: 1"></canvas>
 
     <script>
 
-        
-        let ctx2
-        document.addEventListener('DOMContentLoaded', function() {
-                     const receiptCard = document.querySelector('.card.shadow-lg');
-        const resultCanvas = document.getElementById('canvas');
-       ctx2 = resultCanvas.getContext('2d');
-        function renderToCanvas() {
-            // คืนค่า Promise ของ html2canvas
-            return html2canvas(receiptCard, {
-                scale: 2,
-                useCORS: true
-            });
-        }
 
-           renderToCanvas().then(canvas => {
+        let ctx2
+        document.addEventListener('DOMContentLoaded', function () {
+            const receiptCard = document.querySelector('.card.shadow-lg');
+            const resultCanvas = document.getElementById('canvas');
+            ctx2 = resultCanvas.getContext('2d');
+            function renderToCanvas() {
+                // คืนค่า Promise ของ html2canvas
+                return html2canvas(receiptCard, {
+                    scale: 2,
+                    useCORS: true
+                });
+            }
+
+            renderToCanvas().then(canvas => {
                 // ปรับขนาด Canvas ผลลัพธ์ให้เท่ากับ Canvas ที่สร้างโดย html2canvas
                 resultCanvas.width = 400;//canvas.width;
                 resultCanvas.height = 1000;//canvas.height;

@@ -13,7 +13,7 @@ use Illuminate\Support\Facades\Log;
 
 class UserWasteController extends Controller
 {
-     protected $wasteStatusService;
+    protected $wasteStatusService;
 
     public function __construct(UserWasteStatusService $wasteStatusService)
     {
@@ -46,10 +46,10 @@ class UserWasteController extends Controller
 
         // Apply search filters
         $query->when($searchName, function ($q, $name) {
-            $q->where(function($subQ) use ($name) {
+            $q->where(function ($subQ) use ($name) {
                 $subQ->where('firstname', 'like', '%' . $name . '%')
-                     ->orWhere('lastname', 'like', '%' . $name . '%')
-                     ->orWhere('username', 'like', '%' . $name . '%');
+                    ->orWhere('lastname', 'like', '%' . $name . '%')
+                    ->orWhere('username', 'like', '%' . $name . '%');
             });
         });
 
@@ -107,7 +107,7 @@ class UserWasteController extends Controller
             } else {
                 $users = $query->paginate($perPage)->appends($request->query()); // Append search queries to pagination links
             }
-            
+
 
             // Pass all search parameters back to the view to pre-fill search fields
             return view('keptkaya.w.users.index', compact('users', 'perPage', 'searchName', 'searchEmail', 'searchStatus', 'searchIsAnnualCollection', 'searchIsWasteBank'));
@@ -216,14 +216,14 @@ class UserWasteController extends Controller
         ]);
 
         // ดึงหรือสร้าง UserWastePreference
-        foreach($request->get('waste') as $key => $waste){
+        foreach ($request->get('waste') as $key => $waste) {
             $user = User::find($key);
             $preference = $user->wastePreference()->firstOrCreate(['user_id' => $user->id]);
             // อัปเดตค่าตามที่ส่งมาจากฟอร์ม
             $preference->is_annual_collection = isset($waste['is_annual_collection']) ? $waste['is_annual_collection'] : 0;
-         
+
             $preference->is_waste_bank = isset($waste['is_waste_bank']) ? $waste['is_waste_bank'] : 0;
-            
+
             $preference->save();
         }
 
@@ -242,13 +242,15 @@ class UserWasteController extends Controller
         // ดึงผู้ใช้ที่ยังไม่มี record ใน user_waste_preferences
         // หรือมี record แล้วแต่ทั้ง is_annual_collection และ is_waste_bank เป็น false
         $eligibleUsers = User::leftJoin('user_waste_preferences', 'users.id', '=', 'user_waste_preferences.user_id')
-            ->select('users.*',
+            ->select(
+                'users.*',
                 'user_waste_preferences.is_annual_collection',
-                'user_waste_preferences.is_waste_bank')
+                'user_waste_preferences.is_waste_bank'
+            )
             ->whereNull('user_waste_preferences.user_id') // ผู้ใช้ที่ยังไม่มี preference record
             ->orWhere(function ($query) { // หรือมีแล้วแต่ทั้งสองเป็น false
                 $query->where('user_waste_preferences.is_annual_collection', false)
-                      ->where('user_waste_preferences.is_waste_bank', false);
+                    ->where('user_waste_preferences.is_waste_bank', false);
             })
             ->get();
 
@@ -332,7 +334,7 @@ class UserWasteController extends Controller
         return redirect()->route('users.enroll.show')->with('success', 'ผู้ใช้ที่เลือกถูกเพิ่มเข้าสู่บริการเรียบร้อยแล้ว!');
     }
 
-    public function search( $query)
+    public function search($query)
     {
 
         if (!$query) {
@@ -341,19 +343,18 @@ class UserWasteController extends Controller
 
         $users = UserWastePreference::where('id', $query)
             ->with('user')
-            ->where('is_waste_bank',true)
+            ->where('is_waste_bank', true)
             ->get();
-        // where(function ($q) use ($query) {
-        //         $q->where('firstname', 'like', '%' . $query . '%')
-        //           ->orWhere('lastname', 'like', '%' . $query . '%')
-        //           ->orWhere('email', 'like', '%' . $query . '%')
-        //           ->orWhere('phone', 'like', '%' . $query . '%')
-        //           ->orWhere('username', 'like', '%' . $query . '%');
-        //     })
+            // where(function ($q) use ($query) {
+            //         $q->where('firstname', 'like', '%' . $query . '%')
+            //           ->orWhere('lastname', 'like', '%' . $query . '%')
+            //           ->orWhere('email', 'like', '%' . $query . '%')
+            //           ->orWhere('phone', 'like', '%' . $query . '%')
+            //           ->orWhere('username', 'like', '%' . $query . '%');
+            //     })
             // คุณอาจจะเพิ่มเงื่อนไขเพื่อกรองเฉพาะสมาชิกธนาคารขยะที่ active ได้
-;
+        ;
 
         return response()->json($users);
     }
-
 }

@@ -22,7 +22,7 @@
 @section('content')
   <div class="mb-3">
                            
-    <form action="{{ route('keptkaya.admin.kp_user.store_multi_users') }}" method="post">
+    <form action="{{ route('keptkayas.admin.kp_user.store_multi_users') }}" method="post">
                  @csrf
 
           <input type="submit" value="บันทึก" class="btn btn-info">
@@ -194,7 +194,7 @@
                         <div class="row ">
                             <div class="col-12 col-lg-10 m-auto">
                                 <form class="multisteps-form__form mb-8"
-                                    action="{{ route('keptkaya.admin.kp_user.store') }}" method="post"
+                                    action="{{ route('keptkayas.admin.kp_user.store') }}" method="post"
                                     style="height: 492px;">
                                     @csrf
                                     <div class="card multisteps-form__panel p-3 border-radius-xl bg-white  js-active"

@@ -29,17 +29,17 @@ class WasteBinSubscriptionController extends Controller
         $users = User::whereHas('wasteBins.subscriptions', function ($q) use ($fiscalYear) {
             $q->where('fiscal_year', $fiscalYear);
         })
-        ->with(['wasteBins.subscriptions' => function ($q) use ($fiscalYear) {
-            $q->where('fiscal_year', $fiscalYear);
-        }])
-        ->paginate(10);
+            ->with(['wasteBins.subscriptions' => function ($q) use ($fiscalYear) {
+                $q->where('fiscal_year', $fiscalYear);
+            }])
+            ->paginate(10);
 
 
         // For fiscal year filter dropdown
         $availableFiscalYears = WasteBinSubscription::select('fiscal_year')
-                                ->distinct()
-                                ->orderBy('fiscal_year', 'desc')
-                                ->pluck('fiscal_year');
+            ->distinct()
+            ->orderBy('fiscal_year', 'desc')
+            ->pluck('fiscal_year');
 
         // NEW: Pass users instead of subscriptions to the view
         return view('keptkaya.annual_payments.index', compact('users', 'fiscalYear', 'availableFiscalYears'));
@@ -64,7 +64,7 @@ class WasteBinSubscriptionController extends Controller
 
             $monthNum = $currentMonthDate->month;
             $year = $currentMonthDate->year;
-            
+
             $monthName = $currentMonthDate->locale('th')->monthName; // Get Thai month name
 
             $paymentSchedule[] = [
@@ -103,7 +103,7 @@ class WasteBinSubscriptionController extends Controller
 
             $monthNum = $currentMonthDate->month;
             $year = $currentMonthDate->year;
-            
+
             $monthName = $currentMonthDate->locale('th')->monthName; // Get Thai month name
 
             $paymentSchedule[] = [
@@ -119,7 +119,7 @@ class WasteBinSubscriptionController extends Controller
         // Pass the payment_date from session if redirected from storePayment
         $lastPaymentDate = session('last_payment_date');
 
-       // return view('keptkaya.annual_payments.show', compact('wasteBinSubscription', 'paymentSchedule', 'lastPaymentDate', 'isBinActiveForAnnualCollection'));
+        // return view('keptkaya.annual_payments.show', compact('wasteBinSubscription', 'paymentSchedule', 'lastPaymentDate', 'isBinActiveForAnnualCollection'));
     }
     public function storePayment(Request $request, WasteBinSubscription $wasteBinSubscription)
     {
@@ -134,88 +134,88 @@ class WasteBinSubscriptionController extends Controller
         $totalAmountFromCheckboxes = 0;
         $processedMonths = []; // To prevent duplicate processing if somehow value is sent twice
 
-            foreach ($request->selected_months as $monthYearString) {
-                list($monthNum, $year) = explode('|', $monthYearString);
+        foreach ($request->selected_months as $monthYearString) {
+            list($monthNum, $year) = explode('|', $monthYearString);
 
-                $monthNum = (int) $monthNum;
-                $year = (int) $year;
+            $monthNum = (int) $monthNum;
+            $year = (int) $year;
 
-                // Ensure we haven't processed this specific month/year combination already in this request
-                if (in_array("{$monthNum}-{$year}", $processedMonths)) {
-                    continue;
-                }
-                $processedMonths[] = "{$monthNum}-{$year}";
+            // Ensure we haven't processed this specific month/year combination already in this request
+            if (in_array("{$monthNum}-{$year}", $processedMonths)) {
+                continue;
+            }
+            $processedMonths[] = "{$monthNum}-{$year}";
 
-                // Get the due amount for this specific month from the subscription's monthly fee
-                $dueAmountForThisMonth = $wasteBinSubscription->month_fee;
+            // Get the due amount for this specific month from the subscription's monthly fee
+            $dueAmountForThisMonth = $wasteBinSubscription->month_fee;
 
-                // Check if a payment for this month/year already exists
-                $existingPayment = $wasteBinSubscription->payments()
-                                ->where('pay_mon', $monthNum)
-                                ->where('pay_yr', $year)
-                                ->first();
+            // Check if a payment for this month/year already exists
+            $existingPayment = $wasteBinSubscription->payments()
+                ->where('pay_mon', $monthNum)
+                ->where('pay_yr', $year)
+                ->first();
 
-                $amount_paid_temp = $request->amount_paid;             
-                if ($existingPayment) {
-                    // If payment exists, update it (e.g., add to amount_paid)
-                    // We only add if the existing payment is less than the due amount for this month
-                    $remainingDue =   $dueAmountForThisMonth - $existingPayment->amount_paid;
-                    if ($remainingDue > 0) {
-                        $amountToAddToExisting = min($amount_paid_temp, $remainingDue); // Take min of remaining due or total amount paid in form
-                        $existingPayment->update([
-                            'amount_paid' => $existingPayment->amount_paid + $amountToAddToExisting,
-                            'payment_date' =>  date('Y-m-d'), // Update to latest payment date
-                            'notes' => $request->notes,
-                            'staff_id' => Auth::id(),
-                        ]);
-                        // Deduct from the total amount paid in the form, as it's being distributed
-                        $amount_paid_temp -= $amountToAddToExisting;
-                    }
-                } else {
-
-                    // Otherwise, create a new payment record
-                    // Assume the user is paying the full monthly fee for the selected month(s)
-                    $amountToPayForNewMonth = min($amount_paid_temp, $dueAmountForThisMonth);
-                    WasteBinPayment::create([
-                        'wbs_id' => $wasteBinSubscription->id,
-                        'pay_mon' => $monthNum,
-                        'pay_yr' => $year,
-                        'amount_paid' => $amountToPayForNewMonth, // Pay up to the monthly fee
-                        'payment_date' => date('Y-m-d'),
+            $amount_paid_temp = $request->amount_paid;
+            if ($existingPayment) {
+                // If payment exists, update it (e.g., add to amount_paid)
+                // We only add if the existing payment is less than the due amount for this month
+                $remainingDue =   $dueAmountForThisMonth - $existingPayment->amount_paid;
+                if ($remainingDue > 0) {
+                    $amountToAddToExisting = min($amount_paid_temp, $remainingDue); // Take min of remaining due or total amount paid in form
+                    $existingPayment->update([
+                        'amount_paid' => $existingPayment->amount_paid + $amountToAddToExisting,
+                        'payment_date' =>  date('Y-m-d'), // Update to latest payment date
                         'notes' => $request->notes,
                         'staff_id' => Auth::id(),
                     ]);
-                    // Deduct from the total amount paid in the form
-                    $amount_paid_temp -= $amountToPayForNewMonth;
+                    // Deduct from the total amount paid in the form, as it's being distributed
+                    $amount_paid_temp -= $amountToAddToExisting;
                 }
-                $totalAmountFromCheckboxes += $dueAmountForThisMonth; // Sum up the due amounts of selected months
-            }
-
-            // Validate that the amount_paid from the form matches the sum of selected months' due amounts
-            // This is a crucial check to ensure the user pays the correct calculated amount
-            if (abs($request->amount_paid_from_js_calc - $totalAmountFromCheckboxes) > 0.01) { // Use a small tolerance for float comparison
-                 // If the amounts don't match, it indicates tampering or a calculation error
-                 // You might want to throw a validation exception or log an error
-                 // For now, we'll just log it.
-                 Log::error("Payment amount mismatch for subscription {$wasteBinSubscription->id}. Expected: {$totalAmountFromCheckboxes}, Received: {$request->amount_paid_from_js_calc}");
-                 // Optionally, return an error or throw an exception
-                 // throw \Illuminate\Validation\ValidationException::withMessages(['amount_paid' => 'จำนวนเงินที่ชำระไม่ตรงกับยอดรวมเดือนที่เลือก']);
-            }
-
-
-            // Update total_paid_amount and status of the subscription
-            // Recalculate total_paid_amount from all payments for this subscription
-            $wasteBinSubscription->total_paid_amt = $wasteBinSubscription->payments()->sum('amount_paid');
-            if ($wasteBinSubscription->total_paid_amt >= $wasteBinSubscription->annual_fee) {
-                $wasteBinSubscription->status = 'paid';
-            } elseif ($wasteBinSubscription->total_paid_amt > 0) {
-                $wasteBinSubscription->status = 'partially_paid';
             } else {
-                $wasteBinSubscription->status = 'pending';
+
+                // Otherwise, create a new payment record
+                // Assume the user is paying the full monthly fee for the selected month(s)
+                $amountToPayForNewMonth = min($amount_paid_temp, $dueAmountForThisMonth);
+                WasteBinPayment::create([
+                    'wbs_id' => $wasteBinSubscription->id,
+                    'pay_mon' => $monthNum,
+                    'pay_yr' => $year,
+                    'amount_paid' => $amountToPayForNewMonth, // Pay up to the monthly fee
+                    'payment_date' => date('Y-m-d'),
+                    'notes' => $request->notes,
+                    'staff_id' => Auth::id(),
+                ]);
+                // Deduct from the total amount paid in the form
+                $amount_paid_temp -= $amountToPayForNewMonth;
             }
-            // You might add 'overdue' status logic based on current date vs due dates
-            $wasteBinSubscription->save();
-        
+            $totalAmountFromCheckboxes += $dueAmountForThisMonth; // Sum up the due amounts of selected months
+        }
+
+        // Validate that the amount_paid from the form matches the sum of selected months' due amounts
+        // This is a crucial check to ensure the user pays the correct calculated amount
+        if (abs($request->amount_paid_from_js_calc - $totalAmountFromCheckboxes) > 0.01) { // Use a small tolerance for float comparison
+            // If the amounts don't match, it indicates tampering or a calculation error
+            // You might want to throw a validation exception or log an error
+            // For now, we'll just log it.
+            Log::error("Payment amount mismatch for subscription {$wasteBinSubscription->id}. Expected: {$totalAmountFromCheckboxes}, Received: {$request->amount_paid_from_js_calc}");
+            // Optionally, return an error or throw an exception
+            // throw \Illuminate\Validation\ValidationException::withMessages(['amount_paid' => 'จำนวนเงินที่ชำระไม่ตรงกับยอดรวมเดือนที่เลือก']);
+        }
+
+
+        // Update total_paid_amount and status of the subscription
+        // Recalculate total_paid_amount from all payments for this subscription
+        $wasteBinSubscription->total_paid_amt = $wasteBinSubscription->payments()->sum('amount_paid');
+        if ($wasteBinSubscription->total_paid_amt >= $wasteBinSubscription->annual_fee) {
+            $wasteBinSubscription->status = 'paid';
+        } elseif ($wasteBinSubscription->total_paid_amt > 0) {
+            $wasteBinSubscription->status = 'partially_paid';
+        } else {
+            $wasteBinSubscription->status = 'pending';
+        }
+        // You might add 'overdue' status logic based on current date vs due dates
+        $wasteBinSubscription->save();
+
 
         return redirect()->route('keptkaya.annual_payments.printReceipt', $wasteBinSubscription->id)->with('success', 'บันทึกการชำระเงินเรียบร้อยแล้ว!');
     }
@@ -231,7 +231,7 @@ class WasteBinSubscriptionController extends Controller
 
         DB::transaction(function () use ($request) {
             $annualFee = $request->annual_fee; // <--- ประกาศตัวแปร annualFee ตรงนี้
-            $monthlyFee = $annualFee / 12; 
+            $monthlyFee = $annualFee / 12;
 
             WasteBinSubscription::firstOrCreate(
                 [
@@ -250,13 +250,13 @@ class WasteBinSubscriptionController extends Controller
         return redirect()->back()->with('success', 'สร้างการสมัครสมาชิกรายปีเรียบร้อยแล้ว!');
     }
 
-     public function printReceipt(WasteBinSubscription $wasteBinSubscription)
+    public function printReceipt(WasteBinSubscription $wasteBinSubscription)
     {
         $paymentDate = Carbon::parse(date('Y-m-d'));
 
         $payments = $wasteBinSubscription->payments()
-                                         ->whereDate('payment_date', $paymentDate)
-                                         ->get();
+            ->whereDate('payment_date', $paymentDate)
+            ->get();
 
         if ($payments->isEmpty()) {
             return redirect()->back()->with('error', 'ไม่พบรายการชำระเงินสำหรับวันที่นี้.');
@@ -269,46 +269,47 @@ class WasteBinSubscriptionController extends Controller
         $data = [
             'subscription' => $wasteBinSubscription,
             'payments' => $payments,
-            'paymentDate' => date('Y-m-d'),//$paymentDateString,
+            'paymentDate' => date('Y-m-d'), //$paymentDateString,
             'totalPaidAmount' => $totalPaidAmount,
             'staff' => $staff,
             'receiptCode' => $receiptCode,
         ];
 
-        return view('keptkaya.annual_payments.receipt',compact('data'));
+        return view('keptkaya.annual_payments.receipt', compact('data'));
         // This is the core logic to generate the PDF
         // $pdf = Pdf::loadView('keptkaya.annual_payments.receipt', $data);
         // return $pdf->download('receipt-' . $receiptCode . '.pdf');
     }
 
-      public function invoice(){
-         $invoices = WasteBinSubscription::with('wasteBin.user')
+    public function invoice()
+    {
+        $invoices = WasteBinSubscription::with('wasteBin.user')
             ->whereIn('status', ['partially_paid', 'pending'])->get();
-        
-        return view('keptkaya.annual_payments.invoice', compact('invoices'));
-      }
 
-      public function printSelectedInvoices(Request $request)
+        return view('keptkaya.annual_payments.invoice', compact('invoices'));
+    }
+
+    public function printSelectedInvoices(Request $request)
     {
         $request->validate([
             'invoice_ids' => 'required|array|min:1',
             'invoice_ids.*' => 'required|exists:waste_bin_subscriptions,id',
         ]);
 
-    $invoices = WasteBinSubscription::with('wasteBin.user')
-    ->whereIn('status', ['partially_paid', 'pending'])
-    ->get();
+        $invoices = WasteBinSubscription::with('wasteBin.user')
+            ->whereIn('status', ['partially_paid', 'pending'])
+            ->get();
 
-// จัดกลุ่ม Collection ตาม user_id
- $invoicesByUser = $invoices->groupBy(function($item) {
-    return $item->wasteBin->user_id;
-});
+        // จัดกลุ่ม Collection ตาม user_id
+        $invoicesByUser = $invoices->groupBy(function ($item) {
+            return $item->wasteBin->user_id;
+        });
 
-// ตอนนี้ $invoicesByUser จะเป็น Collection ที่มี key เป็น user_id
-// และ value เป็น Collection ของ invoices ที่มี user_id นั้นๆ
+        // ตอนนี้ $invoicesByUser จะเป็น Collection ที่มี key เป็น user_id
+        // และ value เป็น Collection ของ invoices ที่มี user_id นั้นๆ
 
-        
-       
+
+
         if ($invoices->isEmpty()) {
             return back()->with('error', 'ไม่พบใบแจ้งหนี้ที่เลือก');
         }

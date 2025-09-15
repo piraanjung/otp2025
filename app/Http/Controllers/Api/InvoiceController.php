@@ -11,6 +11,7 @@ use App\Models\Tabwater\InvoiceHistoty;
 use App\Models\Tabwater\InvoicePeriod;
 use App\Models\Admin\Subzone;
 use App\Models\Tabwater\UserMerterInfo;
+use Carbon\Carbon;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 
@@ -511,17 +512,18 @@ class InvoiceController extends Controller
             'recorder_id'       => $request->get('recorder_id'),
             'acc_trans_id_fk'   => $accTransIdFK,
             'status'            => 'invoice',
-            'created_at'        => date('Y-m-d H:i:s'),
+            //'created_at'        => date('Y-m-d H:i:s'),
             'updated_at'        => date('Y-m-d H:i:s'),
         ]);
-
         // $updateInvAccTransIdFK = $invOweAndInvoiceStatusSql->update([
         //     'acc_trans_id_fk' => $newAccTrans->id,
         //     'updated_at'      => date('Y-m-d H:i:s'),
         // ]);
+        $date = $invSql->get('created_at')->first();
+        // $date = date_create(date('Y-m-d'));
+        $exp_date =  Carbon::parse($date->created_at);
+        $exp_date15 = explode(" ",$exp_date->addDays(15))[0];
 
-        $date = date_create(date('Y-m-d'));
-        date_add($date, date_interval_create_from_date_string("15 days"));
         $owe_sum = collect($invOweAndInvoiceStatus)->filter(function ($v) {
             return $v->status == 'owe';
         })->sum('totalpaid');
@@ -536,12 +538,16 @@ class InvoiceController extends Controller
             'invoic_status'     => collect($invOweAndInvoiceStatus)->filter(function ($v) {
                 return $v->status == 'invoice';
             })->values(),
+             'owe_status'     => collect($invOweAndInvoiceStatus)->filter(function ($v) {
+                return $v->status == 'owe';
+            })->values(),
             'owe_count'         => collect($invOweAndInvoiceStatus)->filter(function ($v) {
                 return $v->status == 'owe';
             })->count(),
             'owe_sum'           => floatval($owe_sum),
             'net_paid'          => floatval(collect($net_paid)->sum('totalpaid')),
-            'expire_date'       => date_format($date, "Y-m-d"),
+            'expire_date'       => $exp_date15,
+            // 'exp'               => $exp_date,
             'water_used'        => $water_used,
             'paid'              => $paid,
             'vat'               => $vat,
@@ -734,7 +740,7 @@ class InvoiceController extends Controller
             'iv.comment',
             'iv.status',
             DB::raw('iv.currentmeter - iv.lastmeter as meter_net'),
-            DB::raw('(iv.currentmeter - iv.lastmeter)*8 as total'),
+            DB::raw('(iv.currentmeter - iv.lastmeter)* as total'),
         )->get();
 
         //ถ้ายังไม่มีข้อมูล invoice ในรอบบิลปัจจุบัน ของ subzone ที่เลือกให้ยย้อนกลับ

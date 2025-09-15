@@ -56,7 +56,7 @@
                         </td>
                         <td>
                             {{-- ส่ง KpUser Model ไปยัง route manage --}}
-                            <a href="{{ route('keptkaya.user-monthly-status.manage', $userInfo->kp_user) }}" class="btn btn-primary btn-sm">
+                            <a href="{{ route('keptkayas.user-monthly-status.manage', $userInfo->kp_user) }}" class="btn btn-primary btn-sm">
                                 <i class="fas fa-calendar-alt me-1"></i> จัดการสถานะรายเดือน
                             </a>
                         </td>

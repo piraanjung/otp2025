@@ -22,8 +22,8 @@ class KpTbankPriceController extends Controller
     public function index()
     {
         $prices = KpTbankItemsPriceAndPoint::with(['item', 'kp_units_info'])
-                                           ->orderByDesc('effective_date')
-                                           ->paginate(20);
+            ->orderByDesc('effective_date')
+            ->paginate(20);
         return view('keptkaya.tbank.prices.index', compact('prices'));
     }
 
@@ -45,6 +45,7 @@ class KpTbankPriceController extends Controller
      */
     public function store(Request $request)
     {
+        // return $request;
         $validated = $request->validate([
             'kp_items_idfk' => 'required|exists:kp_tbank_items,id',
             // 'price_from_dealer' => 'required|numeric|min:0',
@@ -58,46 +59,47 @@ class KpTbankPriceController extends Controller
             'recorder_id' => 'nullable|exists:staffs,user_id',
         ]);
 
-        
+
         // DB::beginTransaction();
-        try {
-            // If new price is set to active, deactivate old active price for the same item
-            // if ($request->has('is_active') && $request->boolean('is_active')) {
+        // try {
+        // If new price is set to active, deactivate old active price for the same item
+        // if ($request->has('is_active') && $request->boolean('is_active')) {
 
-            //     KpTbankItemsPriceAndPoint::where('kp_items_idfk', $validated['kp_items_idfk'])
-            //                              ->where('is_active', true)
-            //                              ->update([
-            //                                  'is_active' => false,
-            //                                  'end_date' => Carbon::parse($validated['effective_date'])->subDay()
-            //                              ]);
-            // }
-            foreach($request->get('units_data') as $unit){
-                 KpTbankItemsPriceAndPoint::create([
-                    'kp_items_idfk' =>  $unit['kp_units_idfk'],
-                    'price_from_dealer' => $unit['price_from_dealer'],
-                    'price_for_member' => $unit['price_for_member'],
-                    'point' => $unit['point'],
-                    'type'=> 'tbank',
-                    'kp_units_idfk' => $unit['kp_units_idfk'],
-                    'status' => 'active',
-                    'deleted' => '0',
-                    'recorder_id' => $validated['recorder_id'] ?? Auth::id(),
-                    'effective_date' => $request->get('effective_date'),
-                    'end_date' => $request->get('end_date'),
-                    'created_at' => date('Y-m-d H:i:s'),
-                    'updated_at' => date('Y-m-d H:i:s'),
-                ]);
-            }
+        //     KpTbankItemsPriceAndPoint::where('kp_items_idfk', $validated['kp_items_idfk'])
+        //                              ->where('is_active', true)
+        //                              ->update([
+        //                                  'is_active' => false,
+        //                                  'end_date' => Carbon::parse($validated['effective_date'])->subDay()
+        //                              ]);
+        // }
+        foreach ($request->get('units_data') as $unit) {
 
-
-
-           
-            
-            return redirect()->route('keptkaya.tbank.prices.index')
-                             ->with('success', 'ราคารับซื้อถูกสร้างเรียบร้อยแล้ว');
-        } catch (\Exception $e) {
-            return back()->with('error', 'เกิดข้อผิดพลาดในการบันทึกราคา: ' . $e->getMessage())->withInput();
+            KpTbankItemsPriceAndPoint::create([
+                'kp_items_idfk' =>  $validated['kp_items_idfk'],
+                'price_from_dealer' => $unit['price_from_dealer'],
+                'price_for_member' => $unit['price_for_member'],
+                'point' => $unit['point'],
+                'type' => 'tbank',
+                'kp_units_idfk' => $unit['kp_units_idfk'],
+                'status' => 'active',
+                'deleted' => '0',
+                'recorder_id' => $validated['recorder_id'] ?? Auth::id(),
+                'effective_date' => $request->get('effective_date'),
+                'end_date' => $request->get('end_date'),
+                'created_at' => date('Y-m-d H:i:s'),
+                'updated_at' => date('Y-m-d H:i:s'),
+            ]);
         }
+
+
+
+
+
+        return redirect()->route('keptkaya.tbank.prices.index')
+            ->with('success', 'ราคารับซื้อถูกสร้างเรียบร้อยแล้ว');
+        // } catch (\Exception $e) {
+        //     return back()->with('error', 'เกิดข้อผิดพลาดในการบันทึกราคา: ' . $e->getMessage())->withInput();
+        // }
     }
 
     /**
@@ -129,7 +131,7 @@ class KpTbankPriceController extends Controller
             'status' => 'required|in:active,inactive',
             'recorder_id' => 'nullable|exists:users,id',
         ]);
-        
+
         DB::beginTransaction();
         try {
             // Logic to handle old active price is in the model's boot method
@@ -140,7 +142,7 @@ class KpTbankPriceController extends Controller
 
             DB::commit();
             return redirect()->route('keptkaya.tbank.prices.index')
-                             ->with('success', 'ราคารับซื้อถูกอัปเดตเรียบร้อยแล้ว');
+                ->with('success', 'ราคารับซื้อถูกอัปเดตเรียบร้อยแล้ว');
         } catch (\Exception $e) {
             DB::rollBack();
             return back()->with('error', 'เกิดข้อผิดพลาดในการอัปเดตราคา: ' . $e->getMessage())->withInput();
@@ -157,6 +159,6 @@ class KpTbankPriceController extends Controller
 
         $price->delete();
         return redirect()->route('keptkaya.tbank.prices.index')
-                         ->with('success', 'ราคารับซื้อถูกลบเรียบร้อยแล้ว');
+            ->with('success', 'ราคารับซื้อถูกลบเรียบร้อยแล้ว');
     }
 }

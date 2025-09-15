@@ -1,8 +1,15 @@
 @extends('layouts.tabwater_staff_mobile')
+@section('style')
+    <style>
+        .card {
+            box-shadow: 5px 5px lightblue;
+        }
+    </style>
+@endsection
 @section('content')
     @foreach ($staff->undertaker_subzone as $undertaker_subzone)
 
-        <div class="card">
+        <div class="card mt-2">
             <div class="card-header pb-0 p-3">
                 <h6 class="mb-0">{{ $undertaker_subzone->subzone->subzone_name }}</h6>
             </div>
@@ -14,13 +21,12 @@
                                 <i class="fa fa-users  text-white"></i>
                             </div>
                             <div class="d-flex flex-column">
-                                <h6 class="mb-1 text-dark text-sm">Devices</h6>
-                                <span class="text-xs">250 in stock, <span class="font-weight-bold">346+ sold</span></span>
+                                <h6 class="mb-1 text-dark text-sm">สมาชิก</h6><span class="font-weight-bold">{{$undertaker_subzone->members}} คน</span>
                             </div>
                         </div>
                         <div class="d-flex">
                             <a class="btn btn-link btn-icon-only btn-rounded btn-sm text-dark icon-move-right my-auto"
-                                href="{{route('tabwater.staff.mobile.members', $undertaker_subzone->id)}}"><span
+                                href="{{route('tabwater.staff.mobile.members', ['status'=> 'invoice', 'subzone_id'=>$undertaker_subzone->subzone_id])}}"><span
                                     class="material-symbols-outlined">
                                     arrow_circle_right
                                 </span></a>
@@ -52,13 +58,16 @@
                                 </svg>
                             </div>
                             <div class="d-flex flex-column">
-                                <h6 class="mb-1 text-dark text-sm">Tickets</h6>
-                                <span class="text-xs">123 closed, <span class="font-weight-bold">15 open</span></span>
+                                <h6 class="mb-1 text-dark text-sm">บันทึกข้อมูลแล้ว</h6>
+                                <span class="font-weight-bold">{{$undertaker_subzone->invoice_status}} คน</span>
                             </div>
                         </div>
-                        <div class="d-flex">
-                            <button class="btn btn-link btn-icon-only btn-rounded btn-sm text-dark icon-move-right my-auto"><i
-                                    class="ni ni-bold-right" aria-hidden="true"></i></button>
+                                               <div class="d-flex">
+                            <a class="btn btn-link btn-icon-only btn-rounded btn-sm text-dark icon-move-right my-auto"
+                                href="{{route('tabwater.staff.mobile.members', ['status'=> 'invoice', 'subzone_id'=>$undertaker_subzone->subzone_id])}}"><span
+                                    class="material-symbols-outlined">
+                                    arrow_circle_right
+                                </span></a>
                         </div>
                     </li>
                     <li class="list-group-item border-0 d-flex justify-content-between ps-0 mb-2 border-radius-lg">
@@ -87,16 +96,19 @@
                                 </svg>
                             </div>
                             <div class="d-flex flex-column">
-                                <h6 class="mb-1 text-dark text-sm">Error logs</h6>
-                                <span class="text-xs">1 is active, <span class="font-weight-bold">40 closed</span></span>
+                                <h6 class="mb-1 text-dark text-sm">ยังไม่บันทึกข้อมูล</h6>
+                                 <span class="font-weight-bold">{{$undertaker_subzone->init_status}} คน</span>
                             </div>
                         </div>
-                        <div class="d-flex">
-                            <button class="btn btn-link btn-icon-only btn-rounded btn-sm text-dark icon-move-right my-auto"><i
-                                    class="ni ni-bold-right" aria-hidden="true"></i></button>
+                         <div class="d-flex">
+                            <a class="btn btn-link btn-icon-only btn-rounded btn-sm text-dark icon-move-right my-auto"
+                                href="{{route('tabwater.staff.mobile.members', ['status'=> 'init', 'subzone_id'=>$undertaker_subzone->subzone_id])}}"><span
+                                    class="material-symbols-outlined">
+                                    arrow_circle_right
+                                </span></a>
                         </div>
                     </li>
-                    <li class="list-group-item border-0 d-flex justify-content-between ps-0 border-radius-lg">
+                    {{-- <li class="list-group-item border-0 d-flex justify-content-between ps-0 border-radius-lg">
                         <div class="d-flex align-items-center">
                             <div class="icon icon-shape icon-sm me-3 bg-gradient-dark shadow text-center">
                                 <svg width="12px" height="12px" viewBox="0 0 46 42" version="1.1"
@@ -130,7 +142,7 @@
                             <button class="btn btn-link btn-icon-only btn-rounded btn-sm text-dark icon-move-right my-auto"><i
                                     class="ni ni-bold-right" aria-hidden="true"></i></button>
                         </div>
-                    </li>
+                    </li> --}}
                 </ul>
             </div>
         </div>

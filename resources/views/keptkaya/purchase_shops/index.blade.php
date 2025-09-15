@@ -1,9 +1,9 @@
 @extends('layouts.keptkaya')
 @section('nav-header', ' ร้านรับซื้อขยะ')
 @section('page-topic', ' ร้านรับซื้อขยะ')
-   
+
 @section('content')
-   
+
     @if (session('success'))
         <div class="alert alert-success alert-dismissible fade show" role="alert">
             {{ session('success') }}
@@ -20,7 +20,7 @@
     <div class="card mb-4 shadow-sm">
         <div class="card-header bg-light d-flex justify-content-between align-items-center">
             <h5 class="mb-0">รายการร้านรับซื้อ</h5>
-            <a href="{{ route('keptkaya.purchase-shops.create') }}" class="btn btn-primary">
+            <a href="{{ route('keptkayas.purchase-shops.create') }}" class="btn btn-primary">
                 <i class="fa fa-plus-circle me-1"></i> เพิ่มร้านรับซื้อใหม่
             </a>
         </div>
@@ -50,12 +50,17 @@
                                     </span>
                                 </td>
                                 <td>
-                                    <a href="{{ route('keptkaya.purchase-shops.show', $shop->id) }}" class="btn btn-info btn-sm" title="ดูรายละเอียด"><i class="fa fa-eye"></i></a>
-                                    <a href="{{ route('keptkaya.purchase-shops.edit', $shop->id) }}" class="btn btn-warning btn-sm" title="แก้ไข"><i class="fa fa-edit"></i></a>
-                                    <form action="{{ route('keptkaya.purchase-shops.destroy', $shop->id) }}" method="POST" class="d-inline">
+                                    <a href="{{ route('keptkayas.purchase-shops.show', $shop->id) }}"
+                                        class="btn btn-info btn-sm" title="ดูรายละเอียด"><i class="fa fa-eye"></i></a>
+                                    <a href="{{ route('keptkayas.purchase-shops.edit', $shop->id) }}"
+                                        class="btn btn-warning btn-sm" title="แก้ไข"><i class="fa fa-edit"></i></a>
+                                    <form action="{{ route('keptkayas.purchase-shops.destroy', $shop->id) }}" method="POST"
+                                        class="d-inline">
                                         @csrf
                                         @method('DELETE')
-                                        <button type="submit" class="btn btn-danger btn-sm" onclick="return confirm('คุณแน่ใจหรือไม่ที่จะลบร้านรับซื้อนี้?')"><i class="fa fa-trash"></i></button>
+                                        <button type="submit" class="btn btn-danger btn-sm"
+                                            onclick="return confirm('คุณแน่ใจหรือไม่ที่จะลบร้านรับซื้อนี้?')"><i
+                                                class="fa fa-trash"></i></button>
                                     </form>
                                 </td>
                             </tr>

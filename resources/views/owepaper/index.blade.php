@@ -106,7 +106,7 @@
                             </div>
                         </div>
                         <!--card-body-->
-                        <div class="overlay"><i class="fas fa-2x fa-sync-alt fa-spin"></i></div>
+                        {{-- <div class="overlay"><i class="fas fa-2x fa-sync-alt fa-spin"></i></div> --}}
 
                     </div>
                 </form>
@@ -121,7 +121,7 @@
 
 @section('script')
     <script src="{{ asset('/datatables.1.10.20/dataTables.select.min.js') }}"></script>
-    <script src="{{ asset('js/my_script.js') }}"></script>
+  oweAndInvoiceCount  {{-- <script src="{{ asset('js/my_script.js') }}"></script> --}}
     <script src="https://cdn.datatables.net/buttons/1.2.2/js/buttons.html5.js"></script>
     <script src="https://cdn.datatables.net/buttons/1.5.1/js/dataTables.buttons.min.js"></script>
     <script src="https://cdn.datatables.net/buttons/1.5.1/js/buttons.colVis.min.js"></script>
@@ -131,11 +131,11 @@
     <script type="text/javascript" language="javascript"
         src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.1.3/jszip.min.js"></script>
 
-    <script
+    {{-- <script
         src="https://www.jqueryscript.net/demo/Export-Html-Table-To-Excel-Spreadsheet-using-jQuery-table2excel/src/jquery.table2excel.js">
-    </script>
+    </script> --}}
     <script src="https://cdn.datatables.net/select/1.3.3/js/dataTables.select.min.js"></script>
-    <script src="{{ asset('/js/my_script.js') }}"></script>
+    {{-- <script src="{{ asset('/js/my_script.js') }}"></script> --}}
     <script>
         let table;
         let cloneThead = true

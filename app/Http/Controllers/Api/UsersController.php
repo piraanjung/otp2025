@@ -158,6 +158,13 @@ class UsersController extends Controller
 
     public function authen(Request $request)
     {
+        // $jsonString = $request->getContent();
+        // $data = json_decode($jsonString, true); // true เพื่อให้ได้เป็น Associative Array
+
+        // เข้าถึงข้อมูลได้เหมือน PHP Array
+        // $username = $data['username'];
+        // $passwords = $data['password'];
+        // $user_cate_id = $data['user_cate_id'];
         $code = 200;
         $username = ($request->has('username') ? $request->username : 0);
         $passwords = ($request->has('passwords') ? $request->passwords : 0);

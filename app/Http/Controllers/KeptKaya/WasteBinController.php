@@ -51,11 +51,11 @@ class WasteBinController extends Controller
 
     public function store(Request $request, User $w_user)
     {
-        
+
         $request->validate([
             'bin_code' => 'nullable|string|unique:waste_bins,bin_code|max:255',
             'bin_type' => 'required|string|max:255',
-            'user_group' =>'required',
+            'user_group' => 'required',
             'location_description' => 'nullable|string|max:255',
             'latitude' => 'nullable|numeric|between:-90,90',
             'longitude' => 'nullable|numeric|between:-180,180',
@@ -77,11 +77,11 @@ class WasteBinController extends Controller
             // If the bin is active for annual collection, create a subscription for the current fiscal year
             if ($wasteBin->is_active_for_annual_collection) {
                 $fiscalYear = WasteBinSubscription::calculateFiscalYear();
-                
+
                 $payratePerMonth = KpUsergroupPayratePerMonth::where('kp_usergroup_idfk', $request->get('user_group'))
                     ->where('status', 'active')
                     ->get()->first();
-                $annualFee = $payratePerMonth->payrate_permonth *12; // Default annual fee (e.g., 100 Baht/month * 12 months)
+                $annualFee = $payratePerMonth->payrate_permonth * 12; // Default annual fee (e.g., 100 Baht/month * 12 months)
                 $monthlyFee = $payratePerMonth->payrate_permonth;
 
                 WasteBinSubscription::firstOrCreate(
@@ -104,7 +104,7 @@ class WasteBinController extends Controller
         });
 
         return redirect()->route('keptkaya.waste_bins.index', $w_user->id)
-                         ->with('success', 'เพิ่มถังขยะเรียบร้อยแล้ว!');
+            ->with('success', 'เพิ่มถังขยะเรียบร้อยแล้ว!');
     }
 
 
@@ -118,7 +118,7 @@ class WasteBinController extends Controller
         return view('keptkaya.waste_bins.edit', compact('wasteBin'));
     }
 
- 
+
     public function update(Request $request, WasteBin $wasteBin)
     {
         $request->validate([
@@ -132,45 +132,45 @@ class WasteBinController extends Controller
         ]);
 
         // DB::transaction(function () use ($request, $wasteBin) {
-            $oldIsActiveForAnnualCollection = $wasteBin->is_active_for_annual_collection;
-            $newIsActiveForAnnualCollection = $request->has('is_active_for_annual_collection');
+        $oldIsActiveForAnnualCollection = $wasteBin->is_active_for_annual_collection;
+        $newIsActiveForAnnualCollection = $request->has('is_active_for_annual_collection');
 
-            $data = $request->all();
-            $data['is_active_for_annual_collection'] = $newIsActiveForAnnualCollection;
+        $data = $request->all();
+        $data['is_active_for_annual_collection'] = $newIsActiveForAnnualCollection;
 
-            $wasteBin->update($data); // Update waste bin data
+        $wasteBin->update($data); // Update waste bin data
 
-            // If status changed to active for annual collection, create/ensure subscription
-            if (!$oldIsActiveForAnnualCollection && $newIsActiveForAnnualCollection) {
-                $fiscalYear = WasteBinSubscription::calculateFiscalYear();
-                $annualFee = 1200.00; // Default annual fee
-                $monthlyFee = $annualFee / 12;
+        // If status changed to active for annual collection, create/ensure subscription
+        if (!$oldIsActiveForAnnualCollection && $newIsActiveForAnnualCollection) {
+            $fiscalYear = WasteBinSubscription::calculateFiscalYear();
+            $annualFee = 1200.00; // Default annual fee
+            $monthlyFee = $annualFee / 12;
 
-                WasteBinSubscription::firstOrCreate(
-                    [
-                        'waste_bin_id' => $wasteBin->id,
-                        'fiscal_year' => $fiscalYear,
-                    ],
-                    [
-                        'annual_fee' => $annualFee,
-                        'monthly_fee' => $monthlyFee,
-                        'total_paid_amount' => 0,
-                        'status' => 'pending',
-                    ]
-                );
-            }
-            // If status changed from active to inactive, you might want to update the subscription status to cancelled/inactive
-            // Or handle this logic in a separate process. For now, we only create on activation.
+            WasteBinSubscription::firstOrCreate(
+                [
+                    'waste_bin_id' => $wasteBin->id,
+                    'fiscal_year' => $fiscalYear,
+                ],
+                [
+                    'annual_fee' => $annualFee,
+                    'monthly_fee' => $monthlyFee,
+                    'total_paid_amount' => 0,
+                    'status' => 'pending',
+                ]
+            );
+        }
+        // If status changed from active to inactive, you might want to update the subscription status to cancelled/inactive
+        // Or handle this logic in a separate process. For now, we only create on activation.
 
-            // Call service to update overall user waste status (waste_preference)
-            $this->wasteStatusService->updateWasteBinAndUserStatus($wasteBin, $data);
+        // Call service to update overall user waste status (waste_preference)
+        $this->wasteStatusService->updateWasteBinAndUserStatus($wasteBin, $data);
         // });
 
         return redirect()->route('keptkaya.waste_bins.index', $wasteBin->user->id)
-                         ->with('success', 'อัปเดตถังขยะเรียบร้อยแล้ว!');
+            ->with('success', 'อัปเดตถังขยะเรียบร้อยแล้ว!');
     }
 
-  
+
     public function destroy(WasteBin $wasteBin)
     {
         $w_user = $wasteBin->user; // Get user before deleting bin
@@ -182,23 +182,24 @@ class WasteBinController extends Controller
         });
 
         return redirect()->route('keptkaya.waste_bins.index', $w_user->id)
-                         ->with('success', 'ลบถังขยะเรียบร้อยแล้ว!');
+            ->with('success', 'ลบถังขยะเรียบร้อยแล้ว!');
     }
 
-    public function viewmap(){
+    public function viewmap()
+    {
         return view('keptkaya.dashboard_map');
     }
 
-      public function map()
+    public function map()
     {
         $bins = WasteBin::with([
-            'user' => function($q){
+            'user' => function ($q) {
                 return $q->select('id', 'firstname', 'lastname', 'address', 'zone_id', 'subzone_id');
             },
-            'user.user_zone' => function($q){
+            'user.user_zone' => function ($q) {
                 return $q->select('id', 'zone_name');
             },
-              'user.user_subzone' => function($q){
+            'user.user_subzone' => function ($q) {
                 return $q->select('id', 'subzone_name');
             },
         ])->get(['id', 'user_id',  'bin_code', 'latitude', 'longitude', 'status', 'bin_type']);

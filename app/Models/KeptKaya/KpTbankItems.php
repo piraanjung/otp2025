@@ -13,7 +13,6 @@ class KpTbankItems extends Model
         'kp_itemscode',
         'kp_itemsname',
         'kp_items_group_idfk',
-        'tbank_item_unit_idfk',
         'status',
         'image_path',
         'deleted'
@@ -38,10 +37,6 @@ class KpTbankItems extends Model
                     ->where('status', 'active');
     }
     
-    public function units(){
-        return $this->belongsTo(KpTbankUnits::class, 'tbank_item_unit_idfk');
-    }
-
     public function kp_items_groups(){
         return $this->belongsTo(KpTbankItemsGroups::class, 'kp_items_group_idfk', 'id');
     }

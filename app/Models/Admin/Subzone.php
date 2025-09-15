@@ -2,10 +2,10 @@
 
 namespace App\Models\Admin;
 
-use App\Http\Controllers\Tabwater\UserMeterInfosController;
 use App\Models\Admin\Zone;
-use App\Models\UndertakerSubzone;
-use App\Models\UserMerterInfo;
+use App\Models\Tabwater\Invoice;
+use App\Models\Tabwater\UndertakerSubzone;
+use App\Models\Tabwater\UserMerterInfo;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 
@@ -13,7 +13,7 @@ class Subzone extends Model
 {
     use HasFactory;
 
-    protected $fillable = [ "zone_id","subzone_name","status"];
+    protected $fillable = [ "id", "zone_id","subzone_name","status"];
     protected $table = "subzones";
     public function zone()
     {
@@ -21,10 +21,11 @@ class Subzone extends Model
     }
 
     public function users_in_subzone(){
-        return $this->hasMany(\App\Models\Tabwater\UserMerterInfo::class,'undertake_subzone_id', 'id');
+        return $this->hasMany(UserMerterInfo::class,'undertake_subzone_id', 'id');
     }
 
     public function undertaker_subzone(){
-        return $this->hasOne(\App\Models\Tabwater\UserMerterInfo::class, 'subzone_id');
+        return $this->hasMany(UndertakerSubzone::class, 'subzone_id');
     }
+
 }

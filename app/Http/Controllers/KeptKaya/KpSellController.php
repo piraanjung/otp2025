@@ -88,19 +88,17 @@ class KpSellController extends Controller
         }
     }
 
-     
-        public function showSellHistory()
-        {
-            $transactions = KpSellTransaction::with(['recorder'])->orderByDesc('transaction_date')->paginate(20);
-            return view('keptkaya.sell.history', compact('transactions'));
-        }
-        public function showReceipt(KpSellTransaction $transaction)
-        {
-            $transaction->load(['details.item', 'recorder']);
-            return view('keptkaya.sell.receipt', compact('transaction'));
-        }
 
-        public function destroy(Request $request, $transaction){
+    public function showSellHistory()
+    {
+        $transactions = KpSellTransaction::with(['recorder'])->orderByDesc('transaction_date')->paginate(20);
+        return view('keptkaya.sell.history', compact('transactions'));
+    }
+    public function showReceipt(KpSellTransaction $transaction)
+    {
+        $transaction->load(['details.item', 'recorder']);
+        return view('keptkaya.sell.receipt', compact('transaction'));
+    }
 
-        }
+    public function destroy(Request $request, $transaction) {}
 }

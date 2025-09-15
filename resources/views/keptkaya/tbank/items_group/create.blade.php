@@ -7,7 +7,7 @@
             <h3 class="card-title">Horizontal Form</h3>
         </div>
         <div class="card-body">
-            <form action="{{ route('keptkaya.tbank.items_group.store') }}" class="form-horizontal" method="post">
+            <form action="{{ route('keptkayas.tbank.items_group.store') }}" class="form-horizontal" method="post">
                 @csrf
 
                 {{-- Container for dynamic input fields --}}
@@ -39,7 +39,7 @@
                 </div>
 
                 <button type="submit" class="btn btn-success">Create Item Group</button>
-                <a href="{{ route('keptkaya.tbank.items_group.index') }}" class="btn btn-secondary">Back to List</a>
+                <a href="{{ route('keptkayas.tbank.items_group.index') }}" class="btn btn-secondary">Back to List</a>
             </form>
         </div>
     </div>
@@ -67,14 +67,14 @@
 
             addFieldButton.addEventListener('click', function () {
                 const newFieldHtml = `
-                        <div class="mb-3 input-group-row">
-                            <label for="kp_items_groupname_${fieldCount}" class="form-label">Group Name ${fieldCount + 1}</label>
-                            <div class="input-group">
-                                <input type="text" class="form-control" id="kp_items_groupname_${fieldCount}" name="kp_items_groupname[]" required>
-                                <button type="button" class="btn btn-outline-danger remove-field">Remove</button>
+                            <div class="mb-3 input-group-row">
+                                <label for="kp_items_groupname_${fieldCount}" class="form-label">Group Name ${fieldCount + 1}</label>
+                                <div class="input-group">
+                                    <input type="text" class="form-control" id="kp_items_groupname_${fieldCount}" name="kp_items_groupname[]" required>
+                                    <button type="button" class="btn btn-outline-danger remove-field">Remove</button>
+                                </div>
                             </div>
-                        </div>
-                    `;
+                        `;
                 itemGroupFields.insertAdjacentHTML('beforeend', newFieldHtml);
                 fieldCount++;
                 updateRemoveButtons(); // Update visibility of remove buttons

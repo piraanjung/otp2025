@@ -68,12 +68,12 @@
         @endif
 
          <div class="mb-3">
-            <a href="{{ route('keptkaya.user-monthly-status.index') }}" class="btn btn-secondary"><i class="fas fa-arrow-left me-1"></i> กลับไปหน้ารายชื่อผู้ใช้งาน</a>
+            <a href="{{ route('keptkayas.user-monthly-status.index') }}" class="btn btn-secondary"><i class="fas fa-arrow-left me-1"></i> กลับไปหน้ารายชื่อผู้ใช้งาน</a>
             {{-- ลบส่วนฟอร์มเลือกปีออกไป --}}
             <span class="ms-3 fw-bold">ปีงบประมาณ: {{ $currentFiscalYearStartYear }} - {{ $currentFiscalYearStartYear + 1 }}</span>
         </div>
 
-        <form action="{{ route('keptkaya.user-monthly-status.save', $user) }}" method="POST">
+        <form action="{{ route('keptkayas.user-monthly-status.save', $user) }}" method="POST">
             @csrf
             <input type="hidden" name="fiscal_year_start_year" value="{{ $currentFiscalYearStartYear }}">
 

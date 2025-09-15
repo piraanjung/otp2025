@@ -1,5 +1,5 @@
+       {{-- @dd($umfs[0]->undertake_subzone->undertaker_subzone[0]->twman_info->firstname) --}}
 
-{{-- @dd($umfs) --}}
 <table class="table">
     <thead>
         <tr>
@@ -12,11 +12,11 @@
             <th colspan="9" style="text-align: center; font-size: 12px;">
                 ประจำเดือน  {{ $umfs[0]->invoice_currrent_inv_period[0]->invoice_period->inv_p_name }} 
                   &nbsp;&nbsp;&nbsp;&nbsp;  ( 
-                    {{ $umfs[0]->undertake_subzone->undertaker_subzone->twman_info->prefix.$umfs[0]->undertake_subzone->undertaker_subzone->twman_info->firstname." ".$umfs[0]->undertake_subzone->undertaker_subzone->twman_info->lastname 
+                    {{ $umfs[0]->undertake_subzone->undertaker_subzone[0]->twman_info->prefix.$umfs[0]->undertake_subzone->undertaker_subzone[0]->twman_info->firstname." ".$umfs[0]->undertake_subzone->undertaker_subzone[0]->twman_info->lastname 
                 }} ผู้จดมิเตอร์)
             </th>
         </tr>
-       
+
         <tr>
             <th rowspan="2" style="border: 1px solid white;background-color: black;color:white; text-align: center;">#</th>
             <th  rowspan="2" style="border: 1px solid white;background-color: black;color:white; text-align: center;">ชื่อ-สกุล</th>

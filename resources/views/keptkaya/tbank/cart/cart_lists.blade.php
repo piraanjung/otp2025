@@ -7,7 +7,7 @@
     รายการรับซื้อ
 @endsection
 @section('nav-main')
-    <a href="{{ route('keptkaya.tbank.cart.index') }}"> รับซื้อขยะ</a>
+    <a href="{{ route('keptkayas.tbank.cart.index') }}"> รับซื้อขยะ</a>
 @endsection
 @section('nav-current')
     รับซื้อขยะ

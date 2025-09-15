@@ -5,7 +5,7 @@
         <div class="card-header"></div>
         <div class="card-body">
             <div class="mb-3">
-                <a href="{{ route('keptkaya.tbank.units.create') }}" class="btn btn-primary">Create New Unit</a>
+                <a href="{{ route('keptkayas.tbank.units.create') }}" class="btn btn-primary">Create New Unit</a>
             </div>
 
             <table class="table">
@@ -27,10 +27,10 @@
                             <td>{{ $unit->status ? 'Active' : 'Inactive' }}</td>
                             <td>{{ $unit->deleted ? 'Yes' : 'No' }}</td>
                             <td>
-                                <a href="{{ route('keptkaya.tbank.units.show', $unit) }}" class="btn btn-info btn-sm">View</a>
-                                <a href="{{ route('keptkaya.tbank.units.edit', $unit) }}"
+                                <a href="{{ route('keptkayas.tbank.units.show', $unit) }}" class="btn btn-info btn-sm">View</a>
+                                <a href="{{ route('keptkayas.tbank.units.edit', $unit) }}"
                                     class="btn btn-warning btn-sm">Edit</a>
-                                <form action="{{ route('keptkaya.tbank.units.destroy', $unit) }}" method="POST"
+                                <form action="{{ route('keptkayas.tbank.units.destroy', $unit) }}" method="POST"
                                     class="d-inline">
                                     @csrf
                                     @method('DELETE')

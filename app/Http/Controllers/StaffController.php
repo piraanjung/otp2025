@@ -5,188 +5,201 @@ namespace App\Http\Controllers;
 use App\Models\Admin\Staff;
 use App\Models\User;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
+use Spatie\Permission\Models\Role;
 use Illuminate\Validation\Rule;
-use Illuminate\Support\Facades\DB;
-use Spatie\Permission\Models\Permission; // NEW: Import Permission model
+use Spatie\Permission\Models\Permission;
 
 class StaffController extends Controller
 {
     /**
-     * Display a listing of the staff members.
-     *
-     * @return \Illuminate\Http\Response
+     * Display a listing of the resource.
      */
     public function index(Request $request)
     {
-        $perPage = $request->input('per_page', 10);
-        $allowedPerPage = [10, 20, 50, 100];
-        if (!in_array($perPage, $allowedPerPage) && $perPage !== 'all') {
-            $perPage = 10;
-        }
+        // รายการ Role ที่ถือว่าเป็น Staff
+        $staffRoles = ['Tabwater Staff', 'Tabwater Header', 'finance staff', 'finance header'];
 
+        // Get search and filter parameters
         $searchName = $request->input('search_name');
         $searchStatus = $request->input('search_status');
+        $perPage = $request->input('per_page', 10);
         $searchCanAccessWasteBank = $request->input('search_can_access_waste_bank');
         $searchCanAccessAnnualCollection = $request->input('search_can_access_annual_collection');
+        $isAjax = $request->input('ajax');
 
-        // Load user and their permissions
-        $query = Staff::with(['user', 'user.permissions']); // NEW: Load user permissions
+        $query = User::role($staffRoles)->with(['roles', 'permissions', 'staff.user']);
 
-        $query->when($searchName, function ($q, $name) {
-            $q->whereHas('user', function ($userQ) use ($name) {
-                $userQ->where('firstname', 'like', '%' . $name . '%')
-                      ->orWhere('lastname', 'like', '%' . $name . '%')
-                      ->orWhere('username', 'like', '%' . $name . '%');
+        // Apply filters
+        if ($searchName) {
+            $query->where(function($q) use ($searchName) {
+                $q->where('firstname', 'like', "%{$searchName}%")
+                  ->orWhere('lastname', 'like', "%{$searchName}%")
+                  ->orWhere('email', 'like', "%{$searchName}%");
             });
-        });
-
-        $query->when($searchStatus && $searchStatus !== 'any', function ($q, $status) {
-            $q->where('status', $status);
-        });
-
-        // NEW: Filter by Spatie Permissions
-        $query->when($searchCanAccessWasteBank && $searchCanAccessWasteBank !== 'any', function ($q) use ($searchCanAccessWasteBank) {
-            $q->whereHas('user', function ($userQ) use ($searchCanAccessWasteBank) {
-                if ($searchCanAccessWasteBank === 'true') {
-                    $userQ->permission('access waste bank module');
-                } else { // 'false'
-                    $userQ->whereDoesntHave('permissions', function ($permQ) {
-                        $permQ->where('name', 'access waste bank module');
-                    });
-                }
-            });
-        });
-
-        $query->when($searchCanAccessAnnualCollection && $searchCanAccessAnnualCollection !== 'any', function ($q) use ($searchCanAccessAnnualCollection) {
-            $q->whereHas('user', function ($userQ) use ($searchCanAccessAnnualCollection) {
-                if ($searchCanAccessAnnualCollection === 'true') {
-                    $userQ->permission('access annual collection module');
-                } else { // 'false'
-                    $userQ->whereDoesntHave('permissions', function ($permQ) {
-                        $permQ->where('name', 'access annual collection module');
-                    });
-                }
-            });
-        });
-
-
-        if ($perPage === 'all') {
-            $staffs = $query->get();
-        } else {
-            $staffs = $query->paginate($perPage)->appends($request->query());
         }
 
-        if ($request->ajax()) {
+        if ($searchStatus && $searchStatus !== 'any') {
+            $query->where('status', $searchStatus);
+        }
+
+        // Filter by permissions (This part is complex and assumes a specific permission structure)
+        if ($searchCanAccessWasteBank === 'true') {
+            $query->permission('access waste bank');
+        } elseif ($searchCanAccessWasteBank === 'false') {
+            $query->whereDoesntHave('permissions', function ($q) {
+                $q->where('name', 'access waste bank');
+            });
+        }
+        
+        if ($searchCanAccessAnnualCollection === 'true') {
+            $query->permission('access annual collection');
+        } elseif ($searchCanAccessAnnualCollection === 'false') {
+            $query->whereDoesntHave('permissions', function ($q) {
+                $q->where('name', 'access annual collection');
+            });
+        }
+
+        if ($perPage === 'all') {
+            $staffs = $query->orderBy('firstname')->get();
+        } else {
+            $staffs = $query->orderBy('firstname')->paginate($perPage);
+        }
+        if ($isAjax) {
             return view('keptkaya.staffs._table_body', compact('staffs'))->render();
         }
 
-        return view('keptkaya.staffs.index', compact('staffs', 'perPage', 'searchName', 'searchStatus', 'searchCanAccessWasteBank', 'searchCanAccessAnnualCollection'));
+        return view('keptkaya.staffs.index', compact('staffs', 'perPage'));
     }
 
-    /**
-     * Show the form for creating a new staff member.
-     *
-     * @return \Illuminate\Http\Response
-     */
+
+    
     public function create()
     {
-        // Get users who are not already staff members
-        $eligibleUsers = User::doesntHave('staff')->get();
-        // Get all permissions for display in form
-        $permissions = Permission::all(); // NEW
-        return view('keptkaya.staffs.create', compact('eligibleUsers', 'permissions')); // NEW: Pass permissions
+        // ดึงผู้ใช้งานที่ไม่มี role ที่เกี่ยวข้องกับ staff/super_admin
+        $usersToAssign = User::doesntHave('roles')
+            ->orWhereHas('roles', function ($query) {
+                $query->whereNotIn('name', ['Tabwater Staff', 'Tabwater Header', 'finance staff', 'finance header', 'super_admin']);
+            })
+            ->get();
+
+        // ดึง roles ที่สามารถ assign ได้
+        $assignableRoles = Role::whereIn('name', ['Tabwater Staff', 'Tabwater Header', 'tabwater header', 'finance staff', 'finance header'])->get();
+        
+        $permissions = Permission::all();
+        $staffRoles = ['Tabwater Staff', 'Tabwater Header', 'finance staff', 'finance header'];
+        $roles = Role::whereIn('name', $staffRoles)->get();
+        return view('keptkaya.staffs.create', compact('usersToAssign', 'assignableRoles', 'permissions', 'roles'));
     }
 
     /**
-     * Store a newly created staff member in storage.
-     *
-     * @param  \Illuminate\Http\Request  $request
-     * @return \Illuminate\Http\Response
+     * Store a newly created resource in storage.
      */
     public function store(Request $request)
     {
+        // return $request->roles;
         $request->validate([
-            'user_id' => 'required|exists:users,id|unique:staffs,user_id',
-            'status' => ['required', Rule::in(['active', 'inactive', 'suspended'])],
-            'permissions' => 'array', // NEW: Validate permissions array
-            'permissions.*' => 'exists:permissions,name', // NEW: Validate each permission name
+            'user_id' => 'required|exists:users,id',
+            'roles' => [
+                'required',
+                // Rule::in(['tabwater staff', 'tabwater header', 'finance staff', 'finance header']),
+                Rule::unique('model_has_roles', 'model_id')->where(function ($query) use ($request) {
+                    $roleId = Role::where('name', $request->roles)->first()->id;
+                    return $query->where('role_id', $roleId)
+                                 ->where('model_type', 'App\\Models\\User');
+                })
+            ],
+        ],
+        [
+            'role_name.unique' => 'ผู้ใช้งานนี้มีบทบาทที่เลือกอยู่แล้ว'
         ]);
-
-        DB::transaction(function () use ($request) {
-            $staff = Staff::create([
-                'user_id' => $request->user_id,
-                'status' => $request->status,
-                'deleted' => '0',
-            ]);
-
-            // NEW: Assign permissions to the associated User
-            $user = $staff->user;
-            if ($request->has('permissions')) {
-                $user->syncPermissions($request->input('permissions'));
-            } else {
-                $user->syncPermissions([]); // Revoke all if none selected
+        $user = User::find($request->user_id);
+        
+        foreach($request->roles as $role){
+            $user->assignRole($role);
+        }
+        if(collect($request->get('permissions'))->isNotEmpty()){
+            foreach($request->get('permissions') as $permission){
+                $user->givePermissionTo($permission);
             }
-        });
+        }
 
-        return redirect()->route('keptkaya.staffs.index')->with('success', 'เพิ่มเจ้าหน้าที่เรียบร้อยแล้ว!');
-    }
+        $staff = Staff::where('user_id',$request->user_id)->get()->first();
+        if(collect($staff)->isEmpty()){
+            $staff->user_id = $request->user_id;
+            $staff->status  = 'active';
+            $staff->deleted	= '0';
+            $staff->save();
+        }
+        
+        
 
-  
-    public function show(Staff $staff)
-    {
-        return 'ss';
-        $staff->load('user');
-        return view('keptkaya.staffs.show', compact('staff'));
-    }
-
-    public function edit(Staff $staff)
-    {
-        $staff->load('user.permissions'); // NEW: Load user permissions
-        $permissions = Permission::all(); // NEW: Get all permissions for form
-        return view('keptkaya.staffs.edit', compact('staff', 'permissions')); // NEW: Pass permissions
+        return redirect()->route('keptkaya.staffs.index')->with('success', 'เพิ่มเจ้าหน้าที่ใหม่เรียบร้อยแล้ว');
     }
 
     /**
-     * Update the specified staff member in storage.
-     *
-     * @param  \Illuminate\Http\Request  $request
-     * @param  \App\Models\Staff  $staff
-     * @return \Illuminate\Http\Response
+     * Display the specified resource.
      */
-    public function update(Request $request, Staff $staff)
+    public function show(User $staff)
     {
-        $request->validate([
-            'status' => ['required', Rule::in(['active', 'inactive', 'suspended'])],
-            'deleted' => 'boolean|nullable',
-            'permissions' => 'array', // NEW: Validate permissions array
-            'permissions.*' => 'exists:permissions,name', // NEW: Validate each permission name
-        ]);
-        DB::transaction(function () use ($request, $staff) {
-            $staff->update([
-                'status' => $request->status,
-                'deleted' => $request->has('deleted') ? 1 : 0,
-            ]);
-
-            // NEW: Sync permissions to the associated User
-            $user = $staff->user;
-            if ($request->has('permissions')) {
-                $user->syncPermissions($request->input('permissions'));
-            } else {
-                $user->syncPermissions([]); // Revoke all if none selected
-            }
-        });
-
-        return redirect()->route('keptkaya.staffs.index')->with('success', 'อัปเดตข้อมูลเจ้าหน้าที่เรียบร้อยแล้ว!');
+        // โหลด permissions และ roles สำหรับการแสดงผล
+        $staff->load('permissions', 'roles');
+        return view('keptkaya.staffs.show', compact('staff'));
     }
 
-    public function destroy(Staff $staff)
+    /**
+     * Show the form for editing the specified resource.
+     */
+    public function edit(User $staff)
     {
-        DB::transaction(function () use ($staff) {
-            // NEW: Revoke all permissions from the associated User before deleting staff record
-            $staff->user->syncPermissions([]);
-            $staff->delete();
-        });
+        // ดึง roles ที่สามารถ assign ได้
+        $assignableRoles = Role::whereIn('name', ['staff', 'tabwater staff', 'tabwater header', 'finance staff', 'finance header'])->get();
+        $staff->load('roles');
+        return view('keptkaya.staffs.edit', compact('staff', 'assignableRoles'));
+    }
 
-        return redirect()->route('keptkaya.staffs.index')->with('success', 'ลบข้อมูลเจ้าหน้าที่เรียบร้อยแล้ว!');
+    /**
+     * Update the specified resource in storage.
+     */
+    public function update(Request $request, User $staff)
+    {
+        $request->validate([
+            'role_name' => [
+                'required',
+                Rule::in(['staff', 'tabwater staff', 'tabwater header', 'finance staff', 'finance header']),
+                Rule::unique('model_has_roles', 'model_id')->where(function ($query) use ($request, $staff) {
+                    $roleId = Role::where('name', $request->role_name)->first()->id;
+                    return $query->where('role_id', $roleId)
+                                 ->where('model_type', 'App\\Models\\User')
+                                 ->where('model_id', '!=', $staff->id);
+                })
+            ],
+            'status' => ['required', Rule::in(['active', 'inactive', 'suspended'])],
+        ],
+        [
+            'role_name.unique' => 'ผู้ใช้งานนี้มีบทบาทที่เลือกอยู่แล้ว'
+        ]);
+
+        $staff->syncRoles([$request->role_name]);
+        $staff->status = $request->status;
+        $staff->save();
+
+        return redirect()->route('keptkaya.staffs.index')->with('success', 'อัปเดตข้อมูลเจ้าหน้าที่เรียบร้อยแล้ว');
+    }
+
+    /**
+     * Remove the specified resource from storage.
+     */
+    public function destroy(User $staff)
+    {
+        // ดึง roles ทั้งหมดที่เกี่ยวข้องกับ staff
+        $staffRoles = ['staff', 'tabwater staff', 'tabwater header', 'finance staff', 'finance header'];
+        
+        // ลบ roles ทั้งหมดที่อยู่ในรายการนี้ออกจากผู้ใช้งาน
+        foreach ($staffRoles as $roleName) {
+            $staff->removeRole($roleName);
+        }
+
+        return redirect()->route('keptkaya.staffs.index')->with('success', 'ลบบทบาทเจ้าหน้าที่ออกจากผู้ใช้งานเรียบร้อยแล้ว');
     }
 }

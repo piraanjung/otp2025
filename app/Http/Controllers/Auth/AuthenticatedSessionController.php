@@ -32,11 +32,17 @@ class AuthenticatedSessionController extends Controller
         $request->authenticate();
 
         $user = User::find(Auth::id());
-    //    dd($user);
+        $userAgent = $_SERVER['HTTP_USER_AGENT'] ?? '';
+        $ismobile = preg_match(
+            "/(android|avantgo|blackberry|bolt|boost|cello|hiptop|irengin|mobi|mini|mo(bil|si)|ntellect|palm|pda|phone|plucker|pocket|psp|series(4|6)0|symbian|treo|up\.(browser|link)|wap|windows ce|xda|xiino)/i",
+            $userAgent
+        );
         $request->session()->regenerate();
-        if($user->hasRole(['Tabwater Staff', 'Recycle Bank Staff'])){
+
+        if ($ismobile) {
             return redirect()->intended(route('staff_accessmenu', absolute: false));
         }
+
         return redirect()->intended(route('accessmenu', absolute: false));
 
         // return redirect()->intended(RouteServiceProvider::HOME);

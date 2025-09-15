@@ -7,7 +7,7 @@
     รับซื้อขยะ
 @endsection
 @section('nav-main')
-    <a href="{{ route('keptkaya.tbank.cart.index') }}"> รับซื้อขยะ</a>
+    <a href="{{ route('keptkayas.tbank.cart.index') }}"> รับซื้อขยะ</a>
 @endsection
 @section('nav-current')
     ค้นหาชื่อสมาชิก
@@ -54,10 +54,10 @@
                     </thead>
                     <tbody>
                         @foreach ($members as $member)
-                                        <tr>
-                                            <td class="text-center">{{ $member->user->firstname }}</td>
-                                        </tr>
-                                    @endforeach
+                        <tr>
+                            <td class="text-center">{{ $member->user->firstname }}</td>
+                        </tr>
+                        @endforeach
                     </tbody>
                 </table>
             </div>
@@ -71,7 +71,7 @@
             </tr>
         </thead>
         <tbody>
-           
+
             @foreach ($members as $member)
                 <tr>
                     <td>
@@ -90,7 +90,7 @@
                                                     {{$member->user->user_tambon->tambon_name}}
                                                     {{$member->user->user_district->district_name}}
                                                     {{$member->user->user_province->province_name}}
-{{-- 
+                                                    {{--
                                                     {{$member->trash_zone->zone_name}}
                                                     {{$member->trash_subzone->subzone_name}} --}}
 
@@ -99,7 +99,8 @@
                                         </div>
                                     </div>
                                     <div class="col-4 text-end">
-                                        <a href="{{route('keptkaya.tbank.cart.cart_lists',$member->id)}}" class="btn btn-info">รับซื้อขยะ</a>
+                                        <a href="{{route('keptkayas.tbank.cart.cart_lists', $member->id)}}"
+                                            class="btn btn-info">รับซื้อขยะ</a>
 
                                     </div>
                                 </div>
@@ -112,7 +113,7 @@
 
     </table>
     {{-- <div class="for-mobile">
-        @include('keptkaya.tbank.cart.create_for_mobile')
+        @include('keptkayas.tbank.cart.create_for_mobile')
     </div> --}}
 @endsection
 

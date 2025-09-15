@@ -3,7 +3,7 @@
     @section('content')
             <div class="d-flex justify-content-between align-items-center mb-4">
                 <h1 class="mb-0">บันทึกการขายขยะ</h1>
-                <a href="{{ route('keptkaya.purchase.select_user') }}" class="btn btn-secondary">
+                <a href="{{ route('keptkayas.purchase.select_user') }}" class="btn btn-secondary">
                     <i class="fa fa-arrow-left me-1"></i> กลับหน้าหลัก
                 </a>
             </div>
@@ -31,7 +31,7 @@
                 </div>
             @endif
 
-            <form action="{{ route('keptkaya.sell.store') }}" method="POST">
+            <form action="{{ route('keptkayas.sell.store') }}" method="POST">
                 @csrf
                 <div class="row">
                     {{-- Sell Transaction Header --}}

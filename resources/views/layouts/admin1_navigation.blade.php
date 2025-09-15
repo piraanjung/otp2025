@@ -34,7 +34,7 @@
             <span class="nav-link-text ms-1">Dashboard</span>
         </a>
     </li>
-    @role('Super Admin')
+    @role('Super Admin|Admin')
         <li class="nav-item">
             <a data-bs-toggle="collapse" href="#invoices" class="nav-link active" aria-controls="invoices" role="button"
                 aria-expanded="true">
@@ -238,21 +238,7 @@
             </a>
             <div class="collapse show" id="pagesExamples" style="">
                 <ul class="nav ms-4 ps-3">
-                    <li class="nav-item">
-    <a class="nav-link  " href="{{ route('admin.pricing_types.index') }}">
-        <div
-          class="icon icon-shape icon-sm shadow border-radius-md bg-white text-center me-2 d-flex align-items-center justify-content-center">
-          <i class="fa-solid fa-file-csv"></i></i>
-        </div>
-        <span class="nav-link-text ms-1">Manage Pricing Types </span>
-      </a>
-    </li>
-                     <li class="nav-item ">
-            <a class="nav-link " href="{{ route('admin.meter_rates.index') }}">
-              <span class="sidenav-mini-icon"> MR </span>
-              <span class="sidenav-normal"> Manage Meter Rates </span>
-            </a>
-          </li>
+                   
                     <li class="nav-item">
                         <a class="nav-link collapsed @yield('user-show')" data-bs-toggle="collapse" aria-expanded="false"
                             href="#profileExample">
@@ -305,7 +291,7 @@
                             </ul>
                         </div>
                     </li>
-                    @role('Super Admin')
+                    @role('admin')
                     <li class="nav-item">
                         <a class="nav-link collapsed @yield('header_nav_undertaker-subzone')" data-bs-toggle="collapse" aria-expanded="false" href="#zone">
                             <span class="sidenav-mini-icon"> P </span>
@@ -369,6 +355,13 @@
                                 </li>
                             </ul>
                         </div>
+                    </li>
+
+                      <li class="nav-item ">
+                        <a class="nav-link  @yield('nav-excel')" href="{{ route('admin.excel.index') }}">
+                            <span class="sidenav-mini-icon"> P </span>
+                            <span class="sidenav-normal">Import excel </span>
+                        </a>
                     </li>
                     @endrole
                 </ul>

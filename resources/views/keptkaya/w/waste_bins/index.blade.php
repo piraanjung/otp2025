@@ -9,7 +9,7 @@
             <div class="card mb-4">
                 <div class="card-header pb-0 d-flex justify-content-between align-items-center">
                     <h6>ถังขยะของ: {{ $w_user->firstname }} {{ $w_user->lastname }}</h6>
-                    <a href="{{ route('keptkaya.waste_bins.create', $w_user->id) }}" class="btn bg-gradient-primary btn-sm mb-0">เพิ่มถังขยะใหม่</a>
+                    <a href="{{ route('keptkayas.waste_bins.create', $w_user->id) }}" class="btn bg-gradient-primary btn-sm mb-0">เพิ่มถังขยะใหม่</a>
                 </div>
                 <div class="card-body px-0 pt-0 pb-2">
                     @if(session('success'))
@@ -60,7 +60,7 @@
                                         <span class="badge badge-sm bg-gradient-{{ $bin->status == 'active' ? 'success' : 'secondary' }}">{{ ucfirst($bin->status) }}</span>
                                     </td>
                                     <td class="align-middle text-center">
-                                        <form action="{{ route('keptkaya.waste_bins.update', $bin->id) }}" method="POST">
+                                        <form action="{{ route('keptkayas.waste_bins.update', $bin->id) }}" method="POST">
                                             @csrf
                                             @method('PUT')
                                             <div class="form-check form-switch ps-0 d-inline-block">
@@ -79,10 +79,10 @@
                                         </form>
                                     </td>
                                     <td class="align-middle">
-                                        <a href="{{ route('keptkaya.waste_bins.edit', $bin->id) }}" class="btn btn-link text-secondary font-weight-bold text-xs px-0 mb-0 me-2" data-toggle="tooltip" data-original-title="Edit bin">
+                                        <a href="{{ route('keptkayas.waste_bins.edit', $bin->id) }}" class="btn btn-link text-secondary font-weight-bold text-xs px-0 mb-0 me-2" data-toggle="tooltip" data-original-title="Edit bin">
                                             <i class="fas fa-edit me-1"></i> แก้ไข
                                         </a>
-                                        <form action="{{ route('keptkaya.waste_bins.edit', $bin->id) }}" method="POST" class="d-inline">
+                                        <form action="{{ route('keptkayas.waste_bins.edit', $bin->id) }}" method="POST" class="d-inline">
                                             @csrf
                                             @method('DELETE')
                                             <button type="submit" class="btn btn-link text-danger text-gradient px-0 mb-0" onclick="return confirm('คุณแน่ใจหรือไม่ที่จะลบถังขยะนี้?')">

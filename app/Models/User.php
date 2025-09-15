@@ -43,6 +43,8 @@ class User extends Authenticatable
         'email',
         'password',
         'id_card',
+        'line_id',
+        'image',
         'phone',
         'gender',
         'role_id',
@@ -75,10 +77,7 @@ class User extends Authenticatable
     ];
     protected $table = 'users';
 
-    public function user_profile()
-    {
-        return $this->hasOne('App\Models\User', 'user_id', 'id');
-    }
+
     public function usercategory()
     {
         return $this->belongsTo('App\Usercategory', 'user_cat_id');

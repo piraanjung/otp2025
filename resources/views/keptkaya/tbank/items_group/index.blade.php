@@ -6,7 +6,7 @@
 
         <div class="card-body">
 
-            <a class="btn btn-primary btn-sm" href="{{ route('keptkaya.tbank.items_group.create') }}">
+            <a class="btn btn-primary btn-sm" href="{{ route('keptkayas.tbank.items_group.create') }}">
                 <i class="fas fa-folder">
                 </i>
                 สร้างข้อมูล

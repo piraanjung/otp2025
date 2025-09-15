@@ -3,7 +3,7 @@
 @section('content')
     <div class="d-flex justify-content-between align-items-center mb-4">
         <h1 class="mb-0">ราคารับซื้อขยะรีไซเคิล</h1>
-        <a href="{{ route('keptkaya.tbank.prices.create') }}" class="btn btn-primary">
+        <a href="{{ route('keptkayas.tbank.prices.create') }}" class="btn btn-primary">
             <i class="fa fa-plus-circle me-1"></i> เพิ่มราคาใหม่
         </a>
     </div>
@@ -46,7 +46,7 @@
                         @forelse ($prices as $price)
                             <tr>
                                 <td>{{ $prices->firstItem() + $loop->index }}</td>
-                                <td>{{ $price->item->item_name ?? 'N/A' }}</td>
+                                <td>{{ $price->item->kp_itemsname ?? 'N/A' }}</td>
                                 <td>{{ $price->kp_units_info->unitname ?? 'N/A' }}</td>
                                 <td>{{ number_format($price->price_for_member, 2) }}</td>
                                 <td>{{ number_format($price->price_from_dealer, 2) }}</td>
@@ -59,12 +59,17 @@
                                     </span>
                                 </td>
                                 <td>
-                                    <a href="{{ route('keptkaya.tbank.prices.show', $price->id) }}" class="btn btn-info btn-sm" title="ดูรายละเอียด"><i class="fa fa-eye"></i></a>
-                                    <a href="{{ route('keptkaya.tbank.prices.edit', $price->id) }}" class="btn btn-warning btn-sm" title="แก้ไข"><i class="fa fa-edit"></i></a>
-                                    <form action="{{ route('keptkaya.tbank.prices.destroy', $price->id) }}" method="POST" class="d-inline">
+                                    <a href="{{ route('keptkayas.tbank.prices.show', $price->id) }}" class="btn btn-info btn-sm"
+                                        title="ดูรายละเอียด"><i class="fa fa-eye"></i></a>
+                                    <a href="{{ route('keptkayas.tbank.prices.edit', $price->id) }}"
+                                        class="btn btn-warning btn-sm" title="แก้ไข"><i class="fa fa-edit"></i></a>
+                                    <form action="{{ route('keptkayas.tbank.prices.destroy', $price->id) }}" method="POST"
+                                        class="d-inline">
                                         @csrf
                                         @method('DELETE')
-                                        <button type="submit" class="btn btn-danger btn-sm" onclick="return confirm('คุณแน่ใจหรือไม่ที่จะลบราคานี้?')"><i class="fa fa-trash"></i></button>
+                                        <button type="submit" class="btn btn-danger btn-sm"
+                                            onclick="return confirm('คุณแน่ใจหรือไม่ที่จะลบราคานี้?')"><i
+                                                class="fa fa-trash"></i></button>
                                     </form>
                                 </td>
                             </tr>
