@@ -1,4 +1,4 @@
-@extends('layouts.keptkaya')
+@extends('layouts.super-admin')
 
 @section('title_page', 'จัดการเจ้าหน้าที่')
 

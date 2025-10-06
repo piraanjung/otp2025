@@ -7,7 +7,7 @@
   <link rel="apple-touch-icon" sizes="76x76" href="{{ asset('soft-ui/assets/img/apple-icon.png')}}">
   <link rel="icon" type="image/png" href="{{ asset('soft-ui/assets/img/favicon.png')}}">
   <title>
-    AIrOTrash
+    EnvSoGo
   </title>
   <!--     Fonts and icons     -->
   <link href="https://fonts.googleapis.com/css?family=Open+Sans:300,400,600,700" rel="stylesheet" />
@@ -16,11 +16,11 @@
   <link href="{{ asset('soft-ui/assets/css/nucleo-svg.css')}}" rel="stylesheet" />
   <!-- Font Awesome Icons -->
   <link href="{{ asset('soft-ui/assets/css/nucleo-svg.css')}}" rel="stylesheet" />
-  <link rel="stylesheet" href="{{asset('fontawesome/css/all.css')}}">
+  {{-- <link rel="stylesheet" href="{{asset('fontawesome/css/all.css')}}"> --}}
   <!-- CSS Files -->
   <link id="pagestyle" href="{{ asset('soft-ui/assets/css/soft-ui-dashboard.css?v=1.0.7')}}" rel="stylesheet" />
   <!-- Nepcha Analytics (nepcha.com) -->
-    <link rel="stylesheet" href="{{asset('css/my_css.css')}}">
+    {{-- <link rel="stylesheet" href="{{asset('css/my_css.css')}}"> --}}
 
 </head>
 
@@ -264,7 +264,7 @@
   <script src="{{ asset('soft-ui/assets/js/plugins/perfect-scrollbar.min.js')}}"></script>
   <script src="{{ asset('soft-ui/assets/js/plugins/smooth-scrollbar.min.js')}}"></script>
   <script src="{{ asset('soft-ui/assets/js/plugins/chartjs.min.js')}}"></script>
-  <script src="{{ asset('fontawesome/js/all.js') }}"></script>
+  {{-- <script src="{{ asset('fontawesome/js/all.js') }}"></script> --}}
 
   <script>
     var win = navigator.platform.indexOf('Win') > -1;

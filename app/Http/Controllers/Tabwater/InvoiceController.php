@@ -9,14 +9,16 @@ use App\Http\Controllers\Api\FunctionsController as ApiFunctionsController;
 use App\Http\Controllers\Api\InvoiceController as ApiInvoiceCtrl;
 use App\Http\Controllers\FunctionsController;
 use App\Models\Admin\Organization;
-use App\Models\Tabwater\Cutmeter;
-use App\Models\Tabwater\Invoice;
-use App\Models\Tabwater\InvoicePeriod;
+use App\Models\Tabwater\TwCutmeter;
+use App\Models\Tabwater\TwInvoice;
+use App\Models\Tabwater\TwInvoicePeriod;
 use App\Models\Tabwater\Setting;
 use App\Models\Admin\Subzone;
 use App\Models\User;
-use App\Models\Tabwater\UserMerterInfo;
+use App\Models\Tabwater\TwUsersInfo;
 use App\Models\Admin\Zone;
+use App\Models\Tabwater\TwAccTransactions;
+use App\Models\Tabwater\TwInvoiceTemp;
 use Carbon\Carbon;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
@@ -33,16 +35,15 @@ class InvoiceController extends Controller
     public function index($_budgetyearId = '', $_invPeriod = '')
     {
 
-        $funcCtrl = new FunctionsController();
-        $orgInfos = $funcCtrl->getOrgInfos()[0];
+        $orgInfos = Organization::getOrgName(Auth::user()->org_id_fk);
 
-        $invPeriodModel = new InvoicePeriod();
-        $current_inv_period = $invPeriodModel->setConnection($orgInfos->org_database)->where('status', 'active')->get(['id', 'inv_p_name'])->first();
+        $invPeriodModel = new TwInvoicePeriod();
+        $current_inv_period = $invPeriodModel->setConnection($orgInfos['org_database'])->where('status', 'active')->get(['id', 'inv_p_name'])->first();
         if (collect($current_inv_period)->isEmpty()) {
             return redirect()->route('admin.invoice_period.index')->with(['message' => 'ยังไม่ได้สร้างรอบบิล', 'color' => 'info']);
         }
         $current_inv_periodId = $current_inv_period->id;
-        $invActive = (new Invoice())->on($orgInfos->org_database)->where('inv_period_id_fk', $current_inv_periodId)
+        $invActive = (new TwInvoiceTemp())->on($orgInfos['org_database'])->where('inv_period_id_fk', $current_inv_periodId)
             ->with([
                 'usermeterinfos' => function ($query) {
                     return $query->select('meter_id', 'undertake_zone_id', 'undertake_subzone_id', 'owe_count');
@@ -54,7 +55,7 @@ class InvoiceController extends Controller
                     $query->select('id', 'subzone_name', 'zone_id');
                 },
             ])
-            ->get(['inv_id', 'inv_period_id_fk', 'meter_id_fk', 'status', 'water_used', 'paid', 'totalpaid', 'vat', 'reserve_meter']);
+            ->get(['id', 'inv_period_id_fk', 'meter_id_fk', 'status', 'water_used', 'paid', 'totalpaid', 'vat', 'reserve_meter']);
 
         $invActiveFilterSubzoneNotNull = collect($invActive)->filter(function ($item) {
             return collect($item->usermeterinfos->undertake_subzone)->isNotEmpty();
@@ -86,7 +87,7 @@ class InvoiceController extends Controller
             if (isset($status_grouped['init'])) {
                 $initTotalCount = collect($status_grouped['init'])->count();
             }
-            $user_notyet_inv_info = (new UserMerterInfo())->on($orgInfos->org_database)->where('undertake_subzone_id', $zone[0]['usermeterinfos']['undertake_subzone_id'])
+            $user_notyet_inv_info = (new TwUsersInfo())->on($orgInfos['org_database'])->where('undertake_subzone_id', $zone[0]['usermeterinfos']['undertake_subzone_id'])
                 ->with([
                     'invoice' => function ($q) {
                         return $q->select('meter_id_fk');
@@ -156,7 +157,7 @@ class InvoiceController extends Controller
         $member_not_yet_recorded_present_inv_period = [];
         $invoices = [];
         if ($new_user > 0) {
-            $subzone_members = UserMerterInfo::where('undertake_subzone_id', $subzone_id)
+            $subzone_members = TwUsersInfo::where('undertake_subzone_id', $subzone_id)
                 ->where('status', 'active')
                 ->with([
                     'invoice' => function ($query) use ($curr_inv_prd) {
@@ -184,14 +185,20 @@ class InvoiceController extends Controller
             }
             $member_not_yet_recorded_present_inv_period[] = collect($member_inv_isEmpty_filtered)->values();
         } else {
-            $curr_inv_init_status = Invoice::where(['inv_period_id_fk' => $curr_inv_prd, 'status' => 'init'])
+            $curr_inv_init_status = TwInvoiceTemp::where(['inv_period_id_fk' => $curr_inv_prd, 'status' => 'init'])
                 ->with([
                     'usermeterinfos' => function ($query) use ($subzone_id) {
                         $query->select('meter_id', 'undertake_subzone_id', 'user_id', 'factory_no', 'submeter_name', 'metertype_id', 'meternumber')
                             ->where('undertake_subzone_id', $subzone_id);
                     },
                     'usermeterinfos.meter_type' => function ($query) {
-                        $query->select('id', 'price_per_unit');
+                        $query->select('id');
+                    },
+                    'usermeterinfos.meter_type.rateConfigs' => function ($query) {
+                        $query->select('*');
+                    },
+                    'usermeterinfos.meter_type.rateConfigs.Ratetiers' => function ($query) {
+                        $query->select('*');
                     }
                 ])->get();
             //filter subzone  ที่ต้องการ
@@ -215,51 +222,51 @@ class InvoiceController extends Controller
             return $val['currentmeter'] > 0 || $val['inv_id'] == 'new_inv';
         });
         //เพิ่มข้อมูลลง invoice
-        $setting_vat    = Setting::where('name', 'vat')->first();
-        $inv_period_table   = InvoicePeriod::where('status', 'active')->get(['id'])->first();
-
-        $price_per_unit = 6;
+        $inv_period_table   = TwInvoicePeriod::where('status', 'active')->get(['id'])->first();
         foreach ($filters as $inv) {
-            $water_used     = $inv['currentmeter'] - $inv['lastmeter'];
-            $paid           = $water_used == 0 ? 0 : $water_used * $price_per_unit;
-            $vat            = (($paid * $setting_vat->values) / 100) * 0;
-            $reserve_meter = 10;
-            $totalPaid      = $paid + $vat + $reserve_meter;
-            $inv_type       =  $water_used == 0 ? "r" : "u";
-            $dataArray = [
-                'inv_period_id_fk' => $inv_period_table->id,
-                'user_id' => $inv['user_id'],
-                'meter_id_fk' => $inv['meter_id'],
-                'lastmeter'   => $inv['lastmeter'],
-                'currentmeter' => $inv['currentmeter'],
-                'water_used'  => $water_used,
-                'reserve_meter' => $reserve_meter,
-                'inv_type'    => $inv_type,
-                'paid'        => $paid,
-                'vat'         => $vat,
-                'totalpaid'   => $totalPaid,
-                'status'      => 'invoice',
-                'recorder_id' => Auth::id(),
-                'created_at'  => date('Y-m-d H:i:s'),
-                'updated_at'  => date('Y-m-d H:i:s'),
-            ];
-            if ($inv['inv_id'] == 'new_inv') {
-                Invoice::insert($dataArray);
-            } else {
-                Invoice::where('inv_id', $inv['inv_id'])
-                    ->update([
-                        'lastmeter'   => $inv['lastmeter'],
-                        'currentmeter' => $inv['currentmeter'],
-                        'water_used'  => $water_used,
-                        'inv_type'    => $inv_type,
-                        'paid'        => $paid,
-                        'vat'         => $vat,
-                        'totalpaid'   => $totalPaid,
-                        'status'      => 'invoice',
-                        'recorder_id' => Auth::id(),
-                        'updated_at'  => date('Y-m-d H:i:s'),
-                    ]);
+            $invoiceTemp = TwInvoiceTemp::find($inv['inv_id']);
+            $twAccTransId = $invoiceTemp->acc_trans_id_fk;
+            if($twAccTransId == 0){
+                //สร้าง Acctrans
+                $newAccTrans = TwAccTransactions::create([
+                    'inv_id_fk' => $invoiceTemp->id,
+                    'cashier' =>Auth::id()
+                ]);
+                $invoiceTemp->acc_trans_id_fk = $newAccTrans->id;
             }
+            
+                $invoiceTemp->inv_period_id_fk = $inv_period_table->id;
+                $invoiceTemp->meter_id_fk = $inv['meter_id'];
+                $invoiceTemp->lastmeter   = $inv['lastmeter'];
+                $invoiceTemp->currentmeter = $inv['currentmeter'];
+                $invoiceTemp->water_used  = $inv['currentmeter']-$inv['lastmeter'];
+                $invoiceTemp->reserve_meter = $inv['meter_reserve_price'];
+                $invoiceTemp->inv_type    = $inv['currentmeter']-$inv['lastmeter'] == 0 ? 'r' : 'u';
+                $invoiceTemp->paid        = $inv['paid'];
+                $invoiceTemp->vat         = $inv['vat'];
+                $invoiceTemp->totalpaid   = $inv['totalpaid'];
+                $invoiceTemp->status      = 'invoice';
+                $invoiceTemp->recorder_id = Auth::id();
+                $invoiceTemp->created_at  = date('Y-m-d H:i:s');
+                $invoiceTemp->updated_at  = date('Y-m-d H:i:s');
+                $invoiceTemp->save();
+            // if ($inv['inv_id'] == 'new_inv') {
+            //     TwInvoiceTemp::insert($dataArray);
+            // } else {
+                // TwInvoice::where('inv_id', $inv['inv_id'])
+                //     ->update([
+                //         'lastmeter'   => $inv['lastmeter'],
+                //         'currentmeter' => $inv['currentmeter'],
+                //         'water_used'  => $water_used,
+                //         'inv_type'    => $inv_type,
+                //         'paid'        => $paid,
+                //         'vat'         => $vat,
+                //         'totalpaid'   => $totalPaid,
+                //         'status'      => 'invoice',
+                //         'recorder_id' => Auth::id(),
+                //         'updated_at'  => date('Y-m-d H:i:s'),
+                //     ]);
+            // }
         }
 
         $subzone_id = $request->get('subzone_id');
@@ -281,7 +288,7 @@ class InvoiceController extends Controller
     public function update(REQUEST $request, $id)
     {
         date_default_timezone_set('Asia/Bangkok');
-        $invoice = invoice::find($id);
+        $invoice = Twinvoice::find($id);
         $invoice->currentmeter = $request->get('currentmeter');
         $invoice->status = $request->get('status');
         $invoice->recorder_id = 5;
@@ -317,7 +324,7 @@ class InvoiceController extends Controller
                 // $acc->save();
 
                 //แล้ว update invoice  status = paid
-                invoice::where('meter_id_fk', $key)->update([
+                Twinvoice::where('meter_id_fk', $key)->update([
                     'status' => 'paid',
                     'updated_at' => date('Y-m-d H:i:s'),
                 ]);
@@ -347,14 +354,14 @@ class InvoiceController extends Controller
     public function search_from_meternumber($meternumber, $zone_id)
     {
         //หาเลขมิเตอร์
-        $usermeterInfos = UserMerterInfo::orWhere('meternumber', 'LIKE', '%' . $meternumber . '%')
+        $usermeterInfos = TwUsersInfo::orWhere('meternumber', 'LIKE', '%' . $meternumber . '%')
             ->where('zone_id', $zone_id)
             ->with('user', 'user.user_profile', 'user.usermeter_info.zone')->get()->first();
 
         if (collect($usermeterInfos)->count() == 0) {
             return $arr = ['usermeterInfos' => null, 'invoice' => null];
         }
-        $invoice = invoice::where('user_id', $usermeterInfos->user_id)
+        $invoice = Twinvoice::where('user_id', $usermeterInfos->user_id)
             ->orderBy('id', 'desc')
             ->get()->first();
         return $arr = ['usermeterInfos' => $usermeterInfos, 'invoice' => $invoice];
@@ -363,7 +370,7 @@ class InvoiceController extends Controller
     public function not_invoiced_lists()
     {
         //แสดงตาราง user ที่ยังไม่ถูกออกใบแจ้งหนี้
-        $invoice = invoice::where('inv_period_id', 1)->get('user_id');
+        $invoice = Twinvoice::where('inv_period_id', 1)->get('user_id');
         $invoiced_array = collect($invoice)->pluck('user_id');
         return $users = User::whereNotIn('id', $invoiced_array)
             ->where('user_cat_id', 3)
@@ -373,14 +380,14 @@ class InvoiceController extends Controller
     public function zone_info($subzone_id)
     {
         $funcCtrl = new FunctionsController();
-        $presentInvoicePeriod = InvoicePeriod::where('status', 'active')->get()->first();
-        $userMeterInfos = UserMerterInfo::where('undertake_subzone_id', $subzone_id)
+        $presentInvoicePeriod = TwInvoicePeriod::where('status', 'active')->get()->first();
+        $userMeterInfos = TwUsersInfo::where('undertake_subzone_id', $subzone_id)
             ->where('status', 'active')
             ->with('user_profile', 'zone', 'subzone')
             ->orderBy('undertake_zone_id')->get(['user_id', 'undertake_zone_id', 'meternumber', 'undertake_subzone_id']);
         //หาว่า มีการบันทึก invoice ในรอบบิลปัจจุบันหรือยัง
         foreach ($userMeterInfos as $user) {
-            $user->invoice = invoice::where('inv_period_id', $presentInvoicePeriod->id)
+            $user->invoice = Twinvoice::where('inv_period_id', $presentInvoicePeriod->id)
                 ->where('user_id', $user->user_id)->get()->first();
         }
 
@@ -401,7 +408,7 @@ class InvoiceController extends Controller
     }
 
     public function print_invoice($zone_id, $curr_inv_prd){
-         $usermeter_infos = UserMerterInfo::where('undertake_subzone_id', $zone_id)
+         $usermeter_infos = TwUsersInfo::where('undertake_subzone_id', $zone_id)
                     ->with('invoice')
                     ->whereHas('invoice', function($q){
                         return $q->whereIn('status',['invoice', 'owe']);
@@ -412,11 +419,11 @@ class InvoiceController extends Controller
     public function invoice_bill_print(Request $request){
         $print_infos = [];
         foreach($request->get('a') as $meter_id){
-            $umf = UserMerterInfo::where('meter_id', $meter_id)
+            $umf = TwUsersInfo::where('meter_id', $meter_id)
                 ->with(['invoice' => function($q){
                     return $q->select('*')->where('inv_period_id_fk', 7);
                 }])->get()->first();
-            $inv_owes = Invoice::where('meter_id_fk', $meter_id)
+            $inv_owes = TwInvoice::where('meter_id_fk', $meter_id)
                         ->with('invoice_period')
                         ->where('status', 'owe')->get();
             $owe_infos = [];
@@ -429,7 +436,7 @@ class InvoiceController extends Controller
                     'totalpaid' => $owe->totalpaid
                 ]);
             } 
-            $currentPeriod = InvoicePeriod::where('status', 'active')->get()->first();
+            $currentPeriod = TwInvoicePeriod::where('status', 'active')->get()->first();
             $a = explode('-',$currentPeriod->inv_p_name);
             $thaiMonthStr = FunctionsController::fullThaiMonth($a[0]);
             if(!isset($umf->invoice[0]->created_at)){
@@ -472,36 +479,8 @@ class InvoiceController extends Controller
     public function export_excel(Request $request, $subzone_id, $curr_inv_prd)
     {
         $zone = Zone::where('id', $subzone_id)->get();
-        $inv_p = InvoicePeriod::where('id', $curr_inv_prd)->get();
-        // $current_inv_period = 7;
-        // return   $umfs = UserMerterInfo::where('undertake_subzone_id', $subzone_id)
-        // ->with([
-        //     'invoice_currrent_inv_period' => function($q) use($current_inv_period){
-        //         return $q->select('inv_no', 'meter_id_fk', 'lastmeter', 'currentmeter', 'inv_period_id_fk', 'water_used', 'paid', 'totalpaid')
-        //         ->where('inv_period_id_fk', $current_inv_period);
-        //     },
-        //     'invoice_currrent_inv_period.invoice_period' => function($q){
-        //         return $q->select('id', 'inv_p_name');
-        //     },
-        //     'user' =>  function($q){
-        //         return $q->select('id','prefix', 'firstname', 'lastname');
-        //     },
-        //     'undertake_zone' =>  function($q){
-        //         return $q->select('id','zone_name');
-        //     },
-        //     'undertake_subzone' =>  function($q){
-        //         return $q->select('id','subzone_name');
-        //     },
-        //     'undertake_subzone.undertaker_subzone' =>  function($q){
-        //         return $q->select('subzone_id','twman_id', 'id');
-        //     },
-        //     'undertake_subzone.undertaker_subzone.twman_info' =>  function($q){
-        //         return $q->select('id', 'prefix','firstname', 'lastname');
-        //     },
-        // ])
-        // ->get(['meter_id', 'user_id', 'meternumber', 'undertake_zone_id',
-        // 'undertake_subzone_id',
-        //  'submeter_name', 'factory_no', 'meter_address']);
+        $inv_p = TwInvoicePeriod::where('id', $curr_inv_prd)->get();
+        
         $text = 'ฟอร์มกรอกข้อมูลเลขมิเตอร์ ' . $zone[0]->zone_name . ' รอบบิลเดือน ' . $inv_p[0]->inv_p_name . '.xlsx';
         return Excel::download(new InvoiceInCurrentInvoicePeriodExport(
             [
@@ -512,13 +491,14 @@ class InvoiceController extends Controller
     }
 
     public function zone_edit($subzone_id, $curr_inv_prd)
-    {
-        $userMeterInfos = UserMerterInfo::where('undertake_subzone_id', $subzone_id)
+    { 
+        
+        $userMeterInfos = TwUsersInfo::where('undertake_subzone_id', $subzone_id)
             ->with([
-                'invoice' => function ($query) {
+                'invoice_temp' => function ($query) {
                     return $query->select(
                         'meter_id_fk',
-                        'inv_id',
+                        'id',
                         'status',
                         'lastmeter',
                         'currentmeter',
@@ -534,8 +514,14 @@ class InvoiceController extends Controller
                         ->whereIn('status', ['invoice']);
                 },
                 'meter_type' => function ($query) {
-                    return $query->select('id', 'price_per_unit');
-                }
+                        $query->select('id');
+                    },
+                    'meter_type.rateConfigs' => function ($query) {
+                        $query->select('*');
+                    },
+                    'meter_type.rateConfigs.Ratetiers' => function ($query) {
+                        $query->select('*');
+                    }
             ])
             ->get(['meter_id', 'undertake_subzone_id', 'user_id', 'meter_address', 'factory_no', 'metertype_id', 'meternumber', 'metertype_id']);
 
@@ -543,7 +529,7 @@ class InvoiceController extends Controller
             return redirect('invioce.index');
         }
         $inv_in_seleted_subzone = collect($userMeterInfos)->filter(function ($value, $key) {
-            return collect($value->invoice)->isNotEmpty();
+            return collect($value->invoice_temp)->isNotEmpty();
         })->values();
 
         // $inv_in_seleted_subzone = collect($inv_status_invoice)->filter(function ($value, $key) use ($subzone_id) {
@@ -555,7 +541,7 @@ class InvoiceController extends Controller
 
     public function reset_invioce_bill($inv_id)
     {
-        Invoice::where('inv_id', $inv_id)->update([
+        TwInvoice::where('inv_id', $inv_id)->update([
             'status'        => 'init',
             'currentmeter'  => 0,
             'water_used'    => 0,
@@ -582,7 +568,7 @@ class InvoiceController extends Controller
         // });
         if (collect($filters_changeValue)->count() > 0) {
             foreach ($filters_changeValue  as $vals) {
-                $invoice = invoice::where('inv_id', $vals['inv_id'])->update([
+                $invoice = Twinvoice::where('inv_id', $vals['inv_id'])->update([
                     "currentmeter"  => $vals['currentmeter'],
                     "lastmeter"     => $vals['lastmeter'],
                     'paid'          => $vals['paid'],
@@ -598,7 +584,7 @@ class InvoiceController extends Controller
         }
         // if (collect($filters_delete_status)->count() > 0) {
         //     foreach ($filters_delete_status as $key => $vals) {
-        //         $invoice = invoice::where('id', $key)->update([
+        //         $invoice = Twinvoice::where('id', $key)->update([
         //             "status" => 'deleted',
         //             "deleted" => 1,
         //             "recorder_id" => Auth::id(),
@@ -610,7 +596,7 @@ class InvoiceController extends Controller
 
         // if (collect($filters_init_status)->count() > 0) {
         //     foreach ($filters_init_status as $key => $vals) {
-        //         $invoice = invoice::where('id', $key)->update([
+        //         $invoice = Twinvoice::where('id', $key)->update([
         //             "currentmeter" => 0,
         //             "status" => 'init',
         //             "recorder_id" => Auth::id(),
@@ -658,7 +644,7 @@ class InvoiceController extends Controller
         });
         if (collect($filters_changeValue)->count() > 0) {
             foreach ($filters_changeValue as $key => $vals) {
-                $invoice = invoice::where('id', $key)->update([
+                $invoice = Twinvoice::where('id', $key)->update([
                     "currentmeter" => $vals['currentmeter'],
                     "lastmeter" => $vals['lastmeter'],
                     "recorder_id" => Auth::id(),
@@ -669,7 +655,7 @@ class InvoiceController extends Controller
         }
         // if (collect($filters_delete_status)->count() > 0) {
         //     foreach ($filters_delete_status as $key => $vals) {
-        //         $invoice = invoice::where('id', $key)->update([
+        //         $invoice = Twinvoice::where('id', $key)->update([
         //             "status" => 'deleted',
         //             "deleted" => 1,
         //             "recorder_id" => Auth::id(),
@@ -681,7 +667,7 @@ class InvoiceController extends Controller
 
         // if (collect($filters_init_status)->count() > 0) {
         //     foreach ($filters_init_status as $key => $vals) {
-        //         $invoice = invoice::where('id', $key)->update([
+        //         $invoice = Twinvoice::where('id', $key)->update([
         //             "currentmeter" => 0,
         //             "status" => 'init',
         //             "recorder_id" => Auth::id(),
@@ -699,8 +685,8 @@ class InvoiceController extends Controller
     public function zone_create_for_new_users(REQUEST $request)
     {
         $user_id_array = collect($request->get('new_users'))->flatten();
-        $presentInvoicePeriod = InvoicePeriod::where("status", "active")->first();
-        $lastInvoicePeriod = InvoicePeriod::where("status", "inactive")->orderBy('id', 'desc')->first();
+        $presentInvoicePeriod = TwInvoicePeriod::where("status", "active")->first();
+        $lastInvoicePeriod = TwInvoicePeriod::where("status", "inactive")->orderBy('id', 'desc')->first();
         if (collect($lastInvoicePeriod)->isEmpty()) {
             $lastInvoicePeriod = $presentInvoicePeriod;
         }
@@ -712,7 +698,7 @@ class InvoiceController extends Controller
         // //หา user ที่ invoice ที่ invoice_period ปัจจุบัน []
         foreach ($new_users as $user) {
             //สร้าง invoice รอบบิลปัจจุบัน
-            $user_query = invoice::where('user_id', $user['user_id'])->where('inv_period_id', $currentInvPeriod_id);
+            $user_query = Twinvoice::where('user_id', $user['user_id'])->where('inv_period_id', $currentInvPeriod_id);
             $userinfo = $user_query->get();
             if (collect($userinfo)->isNotEmpty()) {
                 $user_query->update([
@@ -723,7 +709,7 @@ class InvoiceController extends Controller
                     'updated_at' => date('Y-m-d H:i:s'),
                 ]);
             } else {
-                $InvForNewUser = new Invoice();
+                $InvForNewUser = new TwInvoice();
                 $InvForNewUser->inv_period_id = $currentInvPeriod_id;
                 $InvForNewUser->lastmeter = 0;
                 $InvForNewUser->user_id = $user['user_id'];
@@ -736,7 +722,7 @@ class InvoiceController extends Controller
                 $InvForNewUser->save();
             }
         }
-        $member_not_yet_recorded_present_inv_period = UserMerterInfo::where('undertake_subzone_id', $subzone_id)
+        $member_not_yet_recorded_present_inv_period = TwUsersInfo::where('undertake_subzone_id', $subzone_id)
             ->where('status', 'active')
             ->with([
                 'user_profile:name,address,user_id',
@@ -773,7 +759,7 @@ class InvoiceController extends Controller
 
     public function delete($invoice_id, $comment)
     {
-        $inv = invoice::where('id', $invoice_id)->update([
+        $inv = Twinvoice::where('id', $invoice_id)->update([
             'status' => 'deleted',
             'deleted' => 1,
             'recorder_Id' => Auth::id(),
@@ -823,7 +809,7 @@ class InvoiceController extends Controller
 
     private function manageOweCount()
     {
-        $aa = UserMerterInfo::with([
+        $aa = TwUsersInfo::with([
             'invoice' => function ($query) {
                 return $query->select('inv_period_id_fk', 'status', 'meter_id_fk')
                     ->whereIn('status', ['owe', 'invoice']);
@@ -837,7 +823,7 @@ class InvoiceController extends Controller
             //owe_count ให้  user_meter_infos ใหม่
             $oweInvCount = collect($a->invoice)->count(); // + 1; // บวก row  status == invoice
 
-            UserMerterInfo::where('meter_id', $a->meter_id)->update([
+            TwUsersInfo::where('meter_id', $a->meter_id)->update([
                 'owe_count'     => $oweInvCount,
                 'cutmeter'      => $oweInvCount >= 3 ? '1' : '0',
                 'discounttype'  => $oweInvCount >= 3 ? $oweInvCount : 0,
@@ -853,7 +839,7 @@ class InvoiceController extends Controller
                 ]
             ];
             if ($oweInvCount >= 3) {
-                Cutmeter::create([
+                TwCutmeter::create([
                     'meter_id_fk' => $a->meter_id,
                     'owe_count'   => $oweInvCount,
                     'progress'    => json_encode($arr2),
@@ -868,10 +854,10 @@ class InvoiceController extends Controller
 
     public function changeVatValues()
     {
-        $invoices = Invoice::all();
+        $invoices = TwInvoice::all();
         foreach ($invoices as $inv) {
             $vat = $inv->paid == 10 ? 0.07 : number_format($inv->paid * 0.07, 2);
-            Invoice::where('inv_id', $inv->inv_id)->update([
+            TwInvoice::where('inv_id', $inv->inv_id)->update([
                 'inv_id'    => $inv->inv_id,
                 'vat'       => $vat,
                 'totalpaid' => $inv->paid + $vat

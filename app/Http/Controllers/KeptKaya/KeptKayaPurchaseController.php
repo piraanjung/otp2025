@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\KeptKaya;
 
 use App\Http\Controllers\Controller;
+use App\Models\KeptKaya\KPAccounts;
 use App\Models\KeptKaya\KpPurchaseDetail;
 use App\Models\KeptKaya\KpPurchaseTransaction;
 use App\Models\KeptKaya\KpTbankItems;
@@ -54,11 +55,11 @@ class KeptKayaPurchaseController extends Controller
 
         // Load today's purchase transactions for all members
         $today = Carbon::now()->toDateString();
-        $keptKayaMembers->load(['purchaseTransactions' => function ($q) use ($today) {
+        $keptKayaMembers->load(['wastePreference.purchaseTransactions' => function ($q) use ($today) {
             $q->whereDate('transaction_date', $today);
         }]);
 
-        return view('keptkaya.purchase.select_user', compact('keptKayaMembers'));
+        return view('keptkayas.purchase.select_user', compact('keptKayaMembers'));
     }
     /**
      * Redirect to the purchase form for the selected user.
@@ -83,7 +84,7 @@ class KeptKayaPurchaseController extends Controller
             return 'ss';
         }
 
-        return view('keptkaya.purchase.cart', compact('cart', 'user'));
+        return view('keptkayas.purchase.cart', compact('cart', 'user'));
     }
 
     /**
@@ -126,6 +127,7 @@ class KeptKayaPurchaseController extends Controller
                 'total_points' => $totalPoints,
                 'recorder_id' => $recorderId,
             ]);
+            (new KPAccounts())->updateBalanceAndPoint($userWastePref->id, $totalAmount, $totalPoints);
 
             // 2. Create the purchase details for each item in the cart
             foreach ($cart as $item) {
@@ -160,7 +162,7 @@ class KeptKayaPurchaseController extends Controller
         // Load relationships needed for the receipt
         $transaction->load(['user_waste_pref.user', 'details.item', 'details.pricePoint.kp_units_info']);
 
-        return view('keptkaya.purchase.receipt', compact('transaction'));
+        return view('keptkayas.purchase.receipt', compact('transaction'));
     }
 
     public function showPurchaseForm(Request $request, UserWastePreference $user)
@@ -180,7 +182,7 @@ class KeptKayaPurchaseController extends Controller
         // ดึงข้อมูลหน่วยนับทั้งหมด (ถ้าต้องการใช้ใน dropdown)
         $allUnits = KpTbankUnits::all();
 
-        return view('keptkaya.purchase.purchase_form', compact('user', 'recycleItems', 'allUnits'));
+        return view('keptkayas.purchase.purchase_form', compact('user', 'recycleItems', 'allUnits'));
     }
 
 
@@ -269,6 +271,6 @@ class KeptKayaPurchaseController extends Controller
         // Load purchase transactions for the user
         $user->load(['purchaseTransactions.details.item', 'purchaseTransactions.details.pricePoint.kp_units_info']);
 
-        return view('keptkaya.purchase.history', compact('user'));
+        return view('keptkayas.purchase.history', compact('user'));
     }
 }

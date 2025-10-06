@@ -1,4 +1,4 @@
-@extends('layouts.admin1')
+@extends('layouts.super-admin')
 
 @section('mainheader')
     ขนาดมิเตอร์
@@ -36,7 +36,7 @@
                                                 ขนาดมิเตอร์ (นิ้ว)</th>
                                             <th
                                                 class="text-uppercase text-secondary text-xxs font-weight-bolder opacity-7 ps-2">
-                                                ราคาต่อหน่วย (บาท)</th>
+                                                หมายเหตุ</th>
                                             <th
                                                 class="text-uppercase text-secondary text-xxs font-weight-bolder opacity-7 ps-2">
                                                 วันที่บันทึก</th>
@@ -62,7 +62,7 @@
                                                 </td>
                                                 <td>
                                                     <span class="badge badge-dot me-4">
-                                                        <span class="text-dark text-xs">{{ $item->price_per_unit }}</span>
+                                                        <span class="text-dark text-xs">{{ $item->description }}</span>
                                                     </span>
                                                 </td>
                                                 <td>

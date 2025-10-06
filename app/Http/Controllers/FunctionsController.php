@@ -36,11 +36,10 @@ class FunctionsController extends Controller
             ->join('districts as dt', 'dt.id', '=', 'st.org_district_id_fk')
             ->get();
     }
-
     public  function createInvoiceNumberString($id)
     {
         $meternumber_code = DB::connection('mysql')->table('organizations')
-            ->where('id', Auth::user()->settings_id_fk)->get('org_code');
+            ->where('id', Auth::user()->org_id_fk)->get('org_code');
 
         return $meternumber_code[0]->org_code. $this->createNumberString($id);
     }

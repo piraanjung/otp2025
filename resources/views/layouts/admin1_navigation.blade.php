@@ -2,8 +2,9 @@
 
     <li class="nav-item">
         <a class="nav-link active mb-2 bg-warning @yield('nav-accessmenu')" href="{{ route('accessmenu') }}">
-            <div class="icon icon-shape icon-sm bg-white shadow text-center border-radius-2xl padding4px" >
-                <i class="ni ni-shop  text-dark text-white text-lg opacity-10  justify-content-center" aria-hidden="true"></i>
+            <div class="icon icon-shape icon-sm bg-white shadow text-center border-radius-2xl padding4px">
+                <i class="ni ni-shop  text-dark text-white text-lg opacity-10  justify-content-center"
+                    aria-hidden="true"></i>
             </div>
             <span class="nav-link-text ms-1">หน้าเมนูหลัก</span>
         </a>
@@ -34,343 +35,273 @@
             <span class="nav-link-text ms-1">Dashboard</span>
         </a>
     </li>
-    @role('Super Admin|Admin')
-        <li class="nav-item">
-            <a data-bs-toggle="collapse" href="#invoices" class="nav-link active" aria-controls="invoices" role="button"
-                aria-expanded="true">
-                <div
-                    class="icon icon-shape icon-sm shadow border-radius-md bg-white text-center d-flex align-items-center justify-content-center  me-2">
-                    <svg width="12px" height="12px" viewBox="0 0 42 42" version="1.1" xmlns="http://www.w3.org/2000/svg"
-                        xmlns:xlink="http://www.w3.org/1999/xlink">
-                        <title>office</title>
-                        <g stroke="none" stroke-width="1" fill="none" fill-rule="evenodd">
-                            <g transform="translate(-1869.000000, -293.000000)" fill="#FFFFFF" fill-rule="nonzero">
-                                <g transform="translate(1716.000000, 291.000000)">
-                                    <g id="office" transform="translate(153.000000, 2.000000)">
-                                        <path class="color-background"
-                                            d="M12.25,17.5 L8.75,17.5 L8.75,1.75 C8.75,0.78225 9.53225,0 10.5,0 L31.5,0 C32.46775,0 33.25,0.78225 33.25,1.75 L33.25,12.25 L29.75,12.25 L29.75,3.5 L12.25,3.5 L12.25,17.5 Z"
-                                            opacity="0.6"></path>
-                                        <path class="color-background"
-                                            d="M40.25,14 L24.5,14 C23.53225,14 22.75,14.78225 22.75,15.75 L22.75,38.5 L19.25,38.5 L19.25,22.75 C19.25,21.78225 18.46775,21 17.5,21 L1.75,21 C0.78225,21 0,21.78225 0,22.75 L0,40.25 C0,41.21775 0.78225,42 1.75,42 L40.25,42 C41.21775,42 42,41.21775 42,40.25 L42,15.75 C42,14.78225 41.21775,14 40.25,14 Z M12.25,36.75 L7,36.75 L7,33.25 L12.25,33.25 L12.25,36.75 Z M12.25,29.75 L7,29.75 L7,26.25 L12.25,26.25 L12.25,29.75 Z M35,36.75 L29.75,36.75 L29.75,33.25 L35,33.25 L35,36.75 Z M35,29.75 L29.75,29.75 L29.75,26.25 L35,26.25 L35,29.75 Z M35,22.75 L29.75,22.75 L29.75,19.25 L35,19.25 L35,22.75 Z">
-                                        </path>
-                                    </g>
+    @role('Super Admin|Admin|Tabwater Staff')
+    <li class="nav-item">
+        <a data-bs-toggle="collapse" href="#invoices" class="nav-link active collapsed" aria-controls="invoices" role="button"
+            aria-expanded="false">
+            <div
+                class="icon icon-shape icon-sm shadow border-radius-md bg-white text-center d-flex align-items-center justify-content-center  me-2">
+                <svg width="12px" height="12px" viewBox="0 0 42 42" version="1.1" xmlns="http://www.w3.org/2000/svg"
+                    xmlns:xlink="http://www.w3.org/1999/xlink">
+                    <title>office</title>
+                    <g stroke="none" stroke-width="1" fill="none" fill-rule="evenodd">
+                        <g transform="translate(-1869.000000, -293.000000)" fill="#FFFFFF" fill-rule="nonzero">
+                            <g transform="translate(1716.000000, 291.000000)">
+                                <g id="office" transform="translate(153.000000, 2.000000)">
+                                    <path class="color-background"
+                                        d="M12.25,17.5 L8.75,17.5 L8.75,1.75 C8.75,0.78225 9.53225,0 10.5,0 L31.5,0 C32.46775,0 33.25,0.78225 33.25,1.75 L33.25,12.25 L29.75,12.25 L29.75,3.5 L12.25,3.5 L12.25,17.5 Z"
+                                        opacity="0.6"></path>
+                                    <path class="color-background"
+                                        d="M40.25,14 L24.5,14 C23.53225,14 22.75,14.78225 22.75,15.75 L22.75,38.5 L19.25,38.5 L19.25,22.75 C19.25,21.78225 18.46775,21 17.5,21 L1.75,21 C0.78225,21 0,21.78225 0,22.75 L0,40.25 C0,41.21775 0.78225,42 1.75,42 L40.25,42 C41.21775,42 42,41.21775 42,40.25 L42,15.75 C42,14.78225 41.21775,14 40.25,14 Z M12.25,36.75 L7,36.75 L7,33.25 L12.25,33.25 L12.25,36.75 Z M12.25,29.75 L7,29.75 L7,26.25 L12.25,26.25 L12.25,29.75 Z M35,36.75 L29.75,36.75 L29.75,33.25 L35,33.25 L35,36.75 Z M35,29.75 L29.75,29.75 L29.75,26.25 L35,26.25 L35,29.75 Z M35,22.75 L29.75,22.75 L29.75,19.25 L35,19.25 L35,22.75 Z">
+                                    </path>
                                 </g>
                             </g>
                         </g>
-                    </svg>
-                </div>
-                <span class="nav-link-text ms-1">จัดการใบแจ้งหนี้</span>
-            </a>
-            <div class="collapse show" id="invoices" style="">
-                <ul class="nav ms-4 ps-3">
-
-                    <li class="nav-item  ">
-                        <a class="nav-link @yield('nav-invoice')" href="{{ route('invoice.index') }}">
-                            <span class="sidenav-mini-icon"> P </span>
-                            <span class="sidenav-normal">ออกใบแจ้งหนี้ </span>
-                        </a>
-                    </li>
-                    {{-- <li class="nav-item ">
-                        <a href="{{route('admin.owepaper.index')}}" class="nav-link @yield('owepaper')">
-                            <span class="sidenav-mini-icon"> P </span>
-                            <span class="sidenav-normal">ออกใบแจ้งเตือนค้างชำระหนี้ </span>
-                        </a>
-                    </li> --}}
-
-
-                    <li class="nav-item  hidden">
-                        <a href="{{ url('cutmeter') }}" class="nav-link @yield('nav-cutmeter')">
-                            ตัดมิเตอร์
-                            {{-- <span id="owe_over3_period"
-                                    class="badge badge-danger right mr-4"> {{ App\Http\Controllers\CutmeterController::cutmeterUserCount() }} มิเตอร์</span> --}}
-                        </a>
-
-                    </li>
-
-
-                </ul>
+                    </g>
+                </svg>
             </div>
-        </li>
-        <li class="nav-item">
-            <a data-bs-toggle="collapse" href="#receipt" class="nav-link active" aria-controls="receipt" role="button"
-                aria-expanded="true">
-                <div
-                    class="icon icon-shape icon-sm shadow border-radius-md bg-white text-center d-flex align-items-center justify-content-center  me-2">
-                    <svg width="12px" height="12px" viewBox="0 0 42 42" version="1.1" xmlns="http://www.w3.org/2000/svg"
-                        xmlns:xlink="http://www.w3.org/1999/xlink">
-                        <title>office</title>
-                        <g stroke="none" stroke-width="1" fill="none" fill-rule="evenodd">
-                            <g transform="translate(-1869.000000, -293.000000)" fill="#FFFFFF" fill-rule="nonzero">
-                                <g transform="translate(1716.000000, 291.000000)">
-                                    <g id="office" transform="translate(153.000000, 2.000000)">
-                                        <path class="color-background"
-                                            d="M12.25,17.5 L8.75,17.5 L8.75,1.75 C8.75,0.78225 9.53225,0 10.5,0 L31.5,0 C32.46775,0 33.25,0.78225 33.25,1.75 L33.25,12.25 L29.75,12.25 L29.75,3.5 L12.25,3.5 L12.25,17.5 Z"
-                                            opacity="0.6"></path>
-                                        <path class="color-background"
-                                            d="M40.25,14 L24.5,14 C23.53225,14 22.75,14.78225 22.75,15.75 L22.75,38.5 L19.25,38.5 L19.25,22.75 C19.25,21.78225 18.46775,21 17.5,21 L1.75,21 C0.78225,21 0,21.78225 0,22.75 L0,40.25 C0,41.21775 0.78225,42 1.75,42 L40.25,42 C41.21775,42 42,41.21775 42,40.25 L42,15.75 C42,14.78225 41.21775,14 40.25,14 Z M12.25,36.75 L7,36.75 L7,33.25 L12.25,33.25 L12.25,36.75 Z M12.25,29.75 L7,29.75 L7,26.25 L12.25,26.25 L12.25,29.75 Z M35,36.75 L29.75,36.75 L29.75,33.25 L35,33.25 L35,36.75 Z M35,29.75 L29.75,29.75 L29.75,26.25 L35,26.25 L35,29.75 Z M35,22.75 L29.75,22.75 L29.75,19.25 L35,19.25 L35,22.75 Z">
-                                        </path>
-                                    </g>
+            <span class="nav-link-text ms-1">จัดการใบแจ้งหนี้</span>
+        </a>
+        <div class="collapse" id="invoices" style="">
+            <ul class="nav ms-4 ps-3">
+
+                <li class="nav-item  ">
+                    <a class="nav-link @yield('nav-invoice')" href="{{ route('invoice.index') }}">
+                        <span class="sidenav-mini-icon"> P </span>
+                        <span class="sidenav-normal">ออกใบแจ้งหนี้ </span>
+                    </a>
+                </li>
+                {{-- <li class="nav-item ">
+                    <a href="{{route('admin.owepaper.index')}}" class="nav-link @yield('owepaper')">
+                        <span class="sidenav-mini-icon"> P </span>
+                        <span class="sidenav-normal">ออกใบแจ้งเตือนค้างชำระหนี้ </span>
+                    </a>
+                </li> --}}
+
+
+                <li class="nav-item  hidden">
+                    <a href="{{ url('cutmeter') }}" class="nav-link @yield('nav-cutmeter')">
+                        ตัดมิเตอร์
+                        {{-- <span id="owe_over3_period" class="badge badge-danger right mr-4"> {{
+                            App\Http\Controllers\CutmeterController::cutmeterUserCount() }} มิเตอร์</span> --}}
+                    </a>
+
+                </li>
+
+
+            </ul>
+        </div>
+    </li>
+    <li class="nav-item">
+        <a data-bs-toggle="collapse" href="#receipt" class="nav-link active collapsed" aria-controls="receipt" role="button"
+            aria-expanded="false">
+            <div
+                class="icon icon-shape icon-sm shadow border-radius-md bg-white text-center d-flex align-items-center justify-content-center  me-2">
+                <svg width="12px" height="12px" viewBox="0 0 42 42" version="1.1" xmlns="http://www.w3.org/2000/svg"
+                    xmlns:xlink="http://www.w3.org/1999/xlink">
+                    <title>office</title>
+                    <g stroke="none" stroke-width="1" fill="none" fill-rule="evenodd">
+                        <g transform="translate(-1869.000000, -293.000000)" fill="#FFFFFF" fill-rule="nonzero">
+                            <g transform="translate(1716.000000, 291.000000)">
+                                <g id="office" transform="translate(153.000000, 2.000000)">
+                                    <path class="color-background"
+                                        d="M12.25,17.5 L8.75,17.5 L8.75,1.75 C8.75,0.78225 9.53225,0 10.5,0 L31.5,0 C32.46775,0 33.25,0.78225 33.25,1.75 L33.25,12.25 L29.75,12.25 L29.75,3.5 L12.25,3.5 L12.25,17.5 Z"
+                                        opacity="0.6"></path>
+                                    <path class="color-background"
+                                        d="M40.25,14 L24.5,14 C23.53225,14 22.75,14.78225 22.75,15.75 L22.75,38.5 L19.25,38.5 L19.25,22.75 C19.25,21.78225 18.46775,21 17.5,21 L1.75,21 C0.78225,21 0,21.78225 0,22.75 L0,40.25 C0,41.21775 0.78225,42 1.75,42 L40.25,42 C41.21775,42 42,41.21775 42,40.25 L42,15.75 C42,14.78225 41.21775,14 40.25,14 Z M12.25,36.75 L7,36.75 L7,33.25 L12.25,33.25 L12.25,36.75 Z M12.25,29.75 L7,29.75 L7,26.25 L12.25,26.25 L12.25,29.75 Z M35,36.75 L29.75,36.75 L29.75,33.25 L35,33.25 L35,36.75 Z M35,29.75 L29.75,29.75 L29.75,26.25 L35,26.25 L35,29.75 Z M35,22.75 L29.75,22.75 L29.75,19.25 L35,19.25 L35,22.75 Z">
+                                    </path>
                                 </g>
                             </g>
                         </g>
-                    </svg>
-                </div>
-                <span class="nav-link-text ms-1">จัดการใบเสร็จรับเงิน</span>
-            </a>
-            <div class="collapse show" id="receipt" style="">
-                <ul class="nav ms-4 ps-3">
-
-                    <li class="nav-item">
-                        <a class="nav-link @yield('nav-payment')" href="{{ route('payment.index') }}">
-                            <span class="sidenav-mini-icon"> P </span>
-                            <span class="sidenav-normal">รับชำระค่าน้ำประปา </span>
-                        </a>
-                    </li>
-                    <li class="nav-item ">
-                        <form action="{{ route('payment.search') }}" method="post" class="mb-0">
-                            @csrf
-                            <button type="submit" class="nav-link @yield('nav-payment-search') border-0">
-                                <input type="hidden" value="nav" name="nav">
-                                <span class="sidenav-mini-icon"> P </span>
-                                <span class="sidenav-normal">ค้นหาใบเสร็จรับเงิน </span>
-                            </button>
-                        </form>
-                    </li>
-                    {{-- <li class="nav-item ">
-                        <a class="nav-link " href="http://localhost:8000/admin/settings">
-                            <span class="sidenav-mini-icon"> P </span>
-                            <span class="sidenav-normal">รับชำระค่าน้ำประปาผ่านธนาคาร </span>
-                        </a>
-                    </li> --}}
-
-
-
-                </ul>
+                    </g>
+                </svg>
             </div>
-        </li>
-        <li class="nav-item">
-            <a data-bs-toggle="collapse" href="#reports" class="nav-link active" aria-controls="reports" role="button"
-                aria-expanded="true">
-                <div
-                    class="icon icon-shape icon-sm shadow border-radius-md bg-white text-center d-flex align-items-center justify-content-center  me-2">
-                    <svg width="12px" height="12px" viewBox="0 0 42 42" version="1.1"
-                        xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
-                        <title>office</title>
-                        <g stroke="none" stroke-width="1" fill="none" fill-rule="evenodd">
-                            <g transform="translate(-1869.000000, -293.000000)" fill="#FFFFFF" fill-rule="nonzero">
-                                <g transform="translate(1716.000000, 291.000000)">
-                                    <g id="office" transform="translate(153.000000, 2.000000)">
-                                        <path class="color-background"
-                                            d="M12.25,17.5 L8.75,17.5 L8.75,1.75 C8.75,0.78225 9.53225,0 10.5,0 L31.5,0 C32.46775,0 33.25,0.78225 33.25,1.75 L33.25,12.25 L29.75,12.25 L29.75,3.5 L12.25,3.5 L12.25,17.5 Z"
-                                            opacity="0.6"></path>
-                                        <path class="color-background"
-                                            d="M40.25,14 L24.5,14 C23.53225,14 22.75,14.78225 22.75,15.75 L22.75,38.5 L19.25,38.5 L19.25,22.75 C19.25,21.78225 18.46775,21 17.5,21 L1.75,21 C0.78225,21 0,21.78225 0,22.75 L0,40.25 C0,41.21775 0.78225,42 1.75,42 L40.25,42 C41.21775,42 42,41.21775 42,40.25 L42,15.75 C42,14.78225 41.21775,14 40.25,14 Z M12.25,36.75 L7,36.75 L7,33.25 L12.25,33.25 L12.25,36.75 Z M12.25,29.75 L7,29.75 L7,26.25 L12.25,26.25 L12.25,29.75 Z M35,36.75 L29.75,36.75 L29.75,33.25 L35,33.25 L35,36.75 Z M35,29.75 L29.75,29.75 L29.75,26.25 L35,26.25 L35,29.75 Z M35,22.75 L29.75,22.75 L29.75,19.25 L35,19.25 L35,22.75 Z">
-                                        </path>
-                                    </g>
+            <span class="nav-link-text ms-1">จัดการใบเสร็จรับเงิน</span>
+        </a>
+        <div class="collapse" id="receipt" style="">
+            <ul class="nav ms-4 ps-3">
+
+                <li class="nav-item">
+                    <a class="nav-link @yield('nav-payment')" href="{{ route('payment.index') }}">
+                        <span class="sidenav-mini-icon"> P </span>
+                        <span class="sidenav-normal">รับชำระค่าน้ำประปา </span>
+                    </a>
+                </li>
+                <li class="nav-item ">
+                    <form action="{{ route('payment.search') }}" method="post" class="mb-0">
+                        @csrf
+                        <button type="submit" class="nav-link @yield('nav-payment-search') border-0">
+                            <input type="hidden" value="nav" name="nav">
+                            <span class="sidenav-mini-icon"> P </span>
+                            <span class="sidenav-normal">ค้นหาใบเสร็จรับเงิน </span>
+                        </button>
+                    </form>
+                </li>
+                {{-- <li class="nav-item ">
+                    <a class="nav-link " href="http://localhost:8000/admin/settings">
+                        <span class="sidenav-mini-icon"> P </span>
+                        <span class="sidenav-normal">รับชำระค่าน้ำประปาผ่านธนาคาร </span>
+                    </a>
+                </li> --}}
+
+
+
+            </ul>
+        </div>
+    </li>
+    <li class="nav-item">
+        <a data-bs-toggle="collapse" href="#reports" class="nav-link active collapsed" aria-controls="reports" role="button"
+            aria-expanded="false">
+            <div
+                class="icon icon-shape icon-sm shadow border-radius-md bg-white text-center d-flex align-items-center justify-content-center  me-2">
+                <svg width="12px" height="12px" viewBox="0 0 42 42" version="1.1" xmlns="http://www.w3.org/2000/svg"
+                    xmlns:xlink="http://www.w3.org/1999/xlink">
+                    <title>office</title>
+                    <g stroke="none" stroke-width="1" fill="none" fill-rule="evenodd">
+                        <g transform="translate(-1869.000000, -293.000000)" fill="#FFFFFF" fill-rule="nonzero">
+                            <g transform="translate(1716.000000, 291.000000)">
+                                <g id="office" transform="translate(153.000000, 2.000000)">
+                                    <path class="color-background"
+                                        d="M12.25,17.5 L8.75,17.5 L8.75,1.75 C8.75,0.78225 9.53225,0 10.5,0 L31.5,0 C32.46775,0 33.25,0.78225 33.25,1.75 L33.25,12.25 L29.75,12.25 L29.75,3.5 L12.25,3.5 L12.25,17.5 Z"
+                                        opacity="0.6"></path>
+                                    <path class="color-background"
+                                        d="M40.25,14 L24.5,14 C23.53225,14 22.75,14.78225 22.75,15.75 L22.75,38.5 L19.25,38.5 L19.25,22.75 C19.25,21.78225 18.46775,21 17.5,21 L1.75,21 C0.78225,21 0,21.78225 0,22.75 L0,40.25 C0,41.21775 0.78225,42 1.75,42 L40.25,42 C41.21775,42 42,41.21775 42,40.25 L42,15.75 C42,14.78225 41.21775,14 40.25,14 Z M12.25,36.75 L7,36.75 L7,33.25 L12.25,33.25 L12.25,36.75 Z M12.25,29.75 L7,29.75 L7,26.25 L12.25,26.25 L12.25,29.75 Z M35,36.75 L29.75,36.75 L29.75,33.25 L35,33.25 L35,36.75 Z M35,29.75 L29.75,29.75 L29.75,26.25 L35,26.25 L35,29.75 Z M35,22.75 L29.75,22.75 L29.75,19.25 L35,19.25 L35,22.75 Z">
+                                    </path>
                                 </g>
                             </g>
                         </g>
-                    </svg>
-                </div>
-                <span class="nav-link-text ms-1">รายงาน</span>
-            </a>
-            <div class="collapse show" id="reports" style="">
-                <ul class="nav ms-4 ps-3">
-
-                    <li class="nav-item  ">
-                        <a class="nav-link @yield('nav-reports-owe')" href="{{ route('reports.owe') }}">
-                            <span class="sidenav-mini-icon"> P </span>
-                            <span class="sidenav-normal">ผู้ค้างชำระค่าน้ำประปา </span>
-                        </a>
-                    </li>
-                    <li class="nav-item ">
-                        <form action="{{ route('reports.dailypayment') }}" method="post" class="mb-0">
-                            @csrf
-                            <button type="submit" class="nav-link @yield('nav-reports-dailypayment') border-0">
-                                <input type="hidden" value="nav" name="nav">
-                                <span class="sidenav-mini-icon"> P </span>
-                                <span class="sidenav-normal">การชำระค่าน้ำประปาประจำวัน </span>
-                            </button>
-                        </form>
-                    </li>
-                    <li class="nav-item ">
-                        <a class="nav-link @yield('report-meter_record_history')" href="{{ route('reports.meter_record_history') }}">
-                            <span class="sidenav-mini-icon"> P </span>
-                            <span class="sidenav-normal">สมุดจดเลขอ่านมาตรวัดน้ำ(ป.31)</span>
-                        </a>
-                    </li>
-
-
-                    <li class="nav-item ">
-                        <a class="nav-link @yield('report-water_used')" href="{{ route('reports.water_used') }}">
-                            <span class="sidenav-mini-icon"> P </span>
-                            <span class="sidenav-normal">ปริมาณการใช้น้ำประปา</span>
-                        </a>
-                    </li>
-                </ul>
+                    </g>
+                </svg>
             </div>
-        </li>
-        <li class="nav-item">
-            <a data-bs-toggle="collapse" href="#pagesExamples" class="nav-link active" aria-controls="pagesExamples"
-                role="button" aria-expanded="true">
-                <div
-                    class="icon icon-shape icon-sm shadow border-radius-md bg-white text-center d-flex align-items-center justify-content-center  me-2">
-                    <svg width="12px" height="12px" viewBox="0 0 42 42" version="1.1"
-                        xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
-                        <title>office</title>
-                        <g stroke="none" stroke-width="1" fill="none" fill-rule="evenodd">
-                            <g transform="translate(-1869.000000, -293.000000)" fill="#FFFFFF" fill-rule="nonzero">
-                                <g transform="translate(1716.000000, 291.000000)">
-                                    <g id="office" transform="translate(153.000000, 2.000000)">
-                                        <path class="color-background"
-                                            d="M12.25,17.5 L8.75,17.5 L8.75,1.75 C8.75,0.78225 9.53225,0 10.5,0 L31.5,0 C32.46775,0 33.25,0.78225 33.25,1.75 L33.25,12.25 L29.75,12.25 L29.75,3.5 L12.25,3.5 L12.25,17.5 Z"
-                                            opacity="0.6"></path>
-                                        <path class="color-background"
-                                            d="M40.25,14 L24.5,14 C23.53225,14 22.75,14.78225 22.75,15.75 L22.75,38.5 L19.25,38.5 L19.25,22.75 C19.25,21.78225 18.46775,21 17.5,21 L1.75,21 C0.78225,21 0,21.78225 0,22.75 L0,40.25 C0,41.21775 0.78225,42 1.75,42 L40.25,42 C41.21775,42 42,41.21775 42,40.25 L42,15.75 C42,14.78225 41.21775,14 40.25,14 Z M12.25,36.75 L7,36.75 L7,33.25 L12.25,33.25 L12.25,36.75 Z M12.25,29.75 L7,29.75 L7,26.25 L12.25,26.25 L12.25,29.75 Z M35,36.75 L29.75,36.75 L29.75,33.25 L35,33.25 L35,36.75 Z M35,29.75 L29.75,29.75 L29.75,26.25 L35,26.25 L35,29.75 Z M35,22.75 L29.75,22.75 L29.75,19.25 L35,19.25 L35,22.75 Z">
-                                        </path>
-                                    </g>
-                                </g>
-                            </g>
-                        </g>
-                    </svg>
-                </div>
-                <span class="nav-link-text ms-1">ผู้ดูแลระบบ</span>
-            </a>
-            <div class="collapse show" id="pagesExamples" style="">
-                <ul class="nav ms-4 ps-3">
-                   
-                    <li class="nav-item">
-                        <a class="nav-link collapsed @yield('user-show')" data-bs-toggle="collapse" aria-expanded="false"
-                            href="#profileExample">
-                            <span class="sidenav-mini-icon"> P </span>
-                            <span class="sidenav-normal"> ผู้ใช้งานระบบ <b class="caret"></b></span>
-                        </a>
-                        <div class="collapse @yield('user-show')" id="profileExample" style="">
-                            <ul class="nav nav-sm flex-column">
-                                <li class="nav-item ">
-                                    <a class="nav-link nav-user @yield('nav-user')" href="{{ route('admin.users.index') }}">
-                                        <span class="sidenav-mini-icon text-xs"> P </span>
-                                        <span class="sidenav-normal"> ผู้ใช้น้ำประปา </span>
-                                    </a>
-                                </li>
-                                {{-- <li class="nav-item @yield('nav-staff')">
-                                    <a class="nav-link " href="{{ route('admin.users.staff') }}">
-                                        <span class="sidenav-mini-icon text-xs"> T </span>
-                                        <span class="sidenav-normal"> เจ้าหน้าที่ </span>
-                                    </a>
-                                </li> --}}
-                            </ul>
-                        </div>
-                    </li>
-                    <li class="nav-item @yield('nav-metertype') hidden">
-                        <a class="nav-link " href="{{ route('admin.metertype.index') }}">
-                            <span class="sidenav-mini-icon"> P </span>
-                            <span class="sidenav-normal">ประเภทมิเตอร์ </span>
-                        </a>
-                    </li>
-                    <li class="nav-item">
-                        <a class="nav-link collapsed  @yield('budgetyear-show') @yield('inv_prd-show') @yield('nav-inv_prd')"
-                            data-bs-toggle="collapse" aria-expanded="false" href="#budgetyear">
-                            <span class="sidenav-mini-icon"> P </span>
-                            <span class="sidenav-normal">ปีงบประมาณ/รอบบิล <b class="caret"></b></span>
-                        </a>
-                        <div class="collapse @yield('budgetyear-show') @yield('inv_prd-show')" id="budgetyear" style="">
-                            <ul class="nav nav-sm flex-column">
-                                <li class="nav-item">
-                                    <a class="nav-link  @yield('nav-budgetyear')" href="{{ route('admin.budgetyear.index') }}">
-                                        <span class="sidenav-mini-icon text-xs"> P </span>
-                                        <span class="sidenav-normal"> ปีงบประมาณ </span>
-                                    </a>
-                                </li>
-                                <li class="nav-item ">
-                                    <a class="nav-link @yield('nav-inv_prd')" href="{{ route('admin.invoice_period.index') }}">
-                                        <span class="sidenav-mini-icon text-xs"> T </span>
-                                        <span class="sidenav-normal"> รอบบิล </span>
-                                    </a>
-                                </li>
-                            </ul>
-                        </div>
-                    </li>
-                    @role('admin')
-                    <li class="nav-item">
-                        <a class="nav-link collapsed @yield('header_nav_undertaker-subzone')" data-bs-toggle="collapse" aria-expanded="false" href="#zone">
-                            <span class="sidenav-mini-icon"> P </span>
-                            <span class="sidenav-normal">พื้นที่จัดเก็บค่าน้ำประปา<b class="caret"></b></span>
-                        </a>
-                        <div class="collapse" id="zone" style="">
-                            <ul class="nav nav-sm flex-column ">
-                                <li class="nav-item">
-                                    <a class="nav-link " href="{{ route('admin.zone.index') }}">
-                                        <span class="sidenav-mini-icon text-xs"> P </span>
-                                        <span class="sidenav-normal"> พื้นที่-เส้นทางจัดเก็บค่าน้ำประปา </span>
-                                    </a>
-                                </li>
-                                <li class="nav-item">
-                                    <a class="nav-link  @yield('nav_undertaker-subzone')" href="{{ route('admin.undertaker_subzone') }}">
-                                        <span class="sidenav-mini-icon text-xs"> T </span>
-                                        <span class="sidenav-normal"> ผู้รับผิดชอบพื้นที่จดมิเตอร์ </span>
-                                    </a>
-                                </li>
-                            </ul>
-                        </div>
-                    </li>
-                   
+            <span class="nav-link-text ms-1">รายงาน</span>
+        </a>
+        <div class="collapse" id="reports" style="">
+            <ul class="nav ms-4 ps-3">
 
-                    <li class="nav-item ">
-                        <a class="nav-link " href="{{ route('admin.settings.index') }}">
+                <li class="nav-item  ">
+                    <a class="nav-link @yield('nav-reports-owe')" href="{{ route('reports.owe') }}">
+                        <span class="sidenav-mini-icon"> P </span>
+                        <span class="sidenav-normal">ผู้ค้างชำระค่าน้ำประปา </span>
+                    </a>
+                </li>
+                <li class="nav-item ">
+                    <form action="{{ route('reports.dailypayment') }}" method="post" class="mb-0">
+                        @csrf
+                        <button type="submit" class="nav-link @yield('nav-reports-dailypayment') border-0">
+                            <input type="hidden" value="nav" name="nav">
                             <span class="sidenav-mini-icon"> P </span>
-                            <span class="sidenav-normal">ตั้งค่าข้อมูลองค์กร </span>
-                        </a>
-                    </li>
-                    <li class="nav-item ">
-                        <a class="nav-link " href="{{ route('admin.settings.invoice') }}">
-                            <span class="sidenav-mini-icon"> P </span>
-                            <span class="sidenav-normal">ใบแจ้งหนี้/vat </span>
-                        </a>
-                    </li>
-                    <li class="nav-item ">
-                        <a class="nav-link  @yield('nav-excel')" href="{{ route('admin.excel.index') }}">
-                            <span class="sidenav-mini-icon"> P </span>
-                            <span class="sidenav-normal">Import excel </span>
-                        </a>
-                    </li>
-                    <li class="nav-item ">
-                        <a class="nav-link collapsed" data-bs-toggle="collapse" aria-expanded="false" href="#roles">
-                            <span class="sidenav-mini-icon"> P </span>
-                            <span class="sidenav-normal">สิทธิ์การใช้งานระบบ<b class="caret"></b></span>
-                        </a>
-                        <div class="collapse" id="roles" style="">
-                            <ul class="nav nav-sm flex-column">
-                                <li class="nav-item">
-                                    <a class="nav-link " href="{{ route('admin.roles.index') }}">
-                                        <span class="sidenav-mini-icon text-xs"> P </span>
-                                        <span class="sidenav-normal"> Roles </span>
-                                    </a>
-                                </li>
-                                <li class="nav-item">
-                                    <a class="nav-link " href="{{ route('admin.permissions.index') }}">
-                                        <span class="sidenav-mini-icon text-xs"> T </span>
-                                        <span class="sidenav-normal"> Permission </span>
-                                    </a>
-                                </li>
-                            </ul>
-                        </div>
-                    </li>
+                            <span class="sidenav-normal">การชำระค่าน้ำประปาประจำวัน </span>
+                        </button>
+                    </form>
+                </li>
+                <li class="nav-item ">
+                    <a class="nav-link @yield('report-meter_record_history')"
+                        href="{{ route('reports.meter_record_history') }}">
+                        <span class="sidenav-mini-icon"> P </span>
+                        <span class="sidenav-normal">สมุดจดเลขอ่านมาตรวัดน้ำ(ป.31)</span>
+                    </a>
+                </li>
 
-                      <li class="nav-item ">
-                        <a class="nav-link  @yield('nav-excel')" href="{{ route('admin.excel.index') }}">
-                            <span class="sidenav-mini-icon"> P </span>
-                            <span class="sidenav-normal">Import excel </span>
-                        </a>
-                    </li>
-                    @endrole
-                </ul>
-            </div>
-        </li>
+
+                <li class="nav-item ">
+                    <a class="nav-link @yield('report-water_used')" href="{{ route('reports.water_used') }}">
+                        <span class="sidenav-mini-icon"> P </span>
+                        <span class="sidenav-normal">ปริมาณการใช้น้ำประปา</span>
+                    </a>
+                </li>
+            </ul>
+        </div>
+    </li>
+
     @endrole
 
     @role('Super Admin')
-      {{-- <li class="nav-item">
+
+
+    <li class="nav-item">
+        <a data-bs-toggle="collapse" href="#pagesExamples" class="nav-link active" aria-controls="pagesExamples"
+            role="button" aria-expanded="true">
+            <div
+                class="icon icon-shape icon-sm shadow border-radius-md bg-white text-center d-flex align-items-center justify-content-center  me-2">
+                <svg width="12px" height="12px" viewBox="0 0 42 42" version="1.1" xmlns="http://www.w3.org/2000/svg"
+                    xmlns:xlink="http://www.w3.org/1999/xlink">
+                    <title>office</title>
+                    <g stroke="none" stroke-width="1" fill="none" fill-rule="evenodd">
+                        <g transform="translate(-1869.000000, -293.000000)" fill="#FFFFFF" fill-rule="nonzero">
+                            <g transform="translate(1716.000000, 291.000000)">
+                                <g id="office" transform="translate(153.000000, 2.000000)">
+                                    <path class="color-background"
+                                        d="M12.25,17.5 L8.75,17.5 L8.75,1.75 C8.75,0.78225 9.53225,0 10.5,0 L31.5,0 C32.46775,0 33.25,0.78225 33.25,1.75 L33.25,12.25 L29.75,12.25 L29.75,3.5 L12.25,3.5 L12.25,17.5 Z"
+                                        opacity="0.6"></path>
+                                    <path class="color-background"
+                                        d="M40.25,14 L24.5,14 C23.53225,14 22.75,14.78225 22.75,15.75 L22.75,38.5 L19.25,38.5 L19.25,22.75 C19.25,21.78225 18.46775,21 17.5,21 L1.75,21 C0.78225,21 0,21.78225 0,22.75 L0,40.25 C0,41.21775 0.78225,42 1.75,42 L40.25,42 C41.21775,42 42,41.21775 42,40.25 L42,15.75 C42,14.78225 41.21775,14 40.25,14 Z M12.25,36.75 L7,36.75 L7,33.25 L12.25,33.25 L12.25,36.75 Z M12.25,29.75 L7,29.75 L7,26.25 L12.25,26.25 L12.25,29.75 Z M35,36.75 L29.75,36.75 L29.75,33.25 L35,33.25 L35,36.75 Z M35,29.75 L29.75,29.75 L29.75,26.25 L35,26.25 L35,29.75 Z M35,22.75 L29.75,22.75 L29.75,19.25 L35,19.25 L35,22.75 Z">
+                                    </path>
+                                </g>
+                            </g>
+                        </g>
+                    </g>
+                </svg>
+            </div>
+            <span class="nav-link-text ms-1">ผู้ดูแลระบบ</span>
+        </a>
+        <div class="collapse show" id="pagesExamples">
+            <ul class="nav ms-4 ps-3">
+                <li class="nav-item">
+                    <a class="nav-link collapsed @yield('user-show')" data-bs-toggle="collapse" aria-expanded="false"
+                        href="#profileExample">
+                        <span class="sidenav-mini-icon"> P </span>
+                        <span class="sidenav-normal"> ผู้ใช้งานระบบ <b class="caret"></b></span>
+                    </a>
+                    <div class="collapse @yield('user-show')" id="profileExample" style="">
+                        <ul class="nav nav-sm flex-column">
+                            <li class="nav-item ">
+                                <a class="nav-link nav-user @yield('nav-user')" href="{{ route('admin.users.index') }}">
+                                    <span class="sidenav-mini-icon text-xs"> P </span>
+                                    <span class="sidenav-normal"> ผู้ใช้น้ำประปา </span>
+                                </a>
+                            </li>
+                            <li class="nav-item @yield('nav-staff')">
+                                <a class="nav-link " href="{{ route('admin.users.staff') }}">
+                                    <span class="sidenav-mini-icon text-xs"> T </span>
+                                    <span class="sidenav-normal"> เจ้าหน้าที่ </span>
+                                </a>
+                            </li>
+                        </ul>
+                    </div>
+                </li>
+                <li class="nav-item @yield('nav-metertype')">
+                    <a class="nav-link " href="{{ route('admin.metertype.index') }}">
+                        <span class="sidenav-mini-icon"> P </span>
+                        <span class="sidenav-normal">ประเภทมิเตอร์ </span>
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link collapsed  @yield('budgetyear-show') @yield('inv_prd-show') @yield('nav-inv_prd')"
+                        data-bs-toggle="collapse" aria-expanded="false" href="#budgetyear">
+                        <span class="sidenav-mini-icon"> P </span>
+                        <span class="sidenav-normal">ปีงบประมาณ/รอบบิล <b class="caret"></b></span>
+                    </a>
+                    <div class="collapse @yield('budgetyear-show') @yield('inv_prd-show')" id="budgetyear" style="">
+                        <ul class="nav nav-sm flex-column">
+                            <li class="nav-item">
+                                <a class="nav-link  @yield('nav-budgetyear')"
+                                    href="{{ route('admin.budgetyear.index') }}">
+                                    <span class="sidenav-mini-icon text-xs"> P </span>
+                                    <span class="sidenav-normal"> ปีงบประมาณ </span>
+                                </a>
+                            </li>
+                            <li class="nav-item ">
+                                <a class="nav-link @yield('nav-inv_prd')"
+                                    href="{{ route('admin.invoice_period.index') }}">
+                                    <span class="sidenav-mini-icon text-xs"> T </span>
+                                    <span class="sidenav-normal"> รอบบิล </span>
+                                </a>
+                            </li>
+                        </ul>
+                    </div>
+                </li>
+                @role('Super Admin')
+                <li class="nav-item">
                     <a class="nav-link collapsed @yield('header_nav_undertaker-subzone')" data-bs-toggle="collapse"
                         aria-expanded="false" href="#zone">
                         <span class="sidenav-mini-icon"> P </span>
@@ -394,14 +325,11 @@
                         </ul>
                     </div>
                 </li>
-                <li class="nav-item @yield('nav-metertype')">
-                    <a class="nav-link " href="{{ route('admin.metertype.index') }}">
-                        <span class="sidenav-normal">ประเภทมิเตอร์ </span>
-                    </a>
-                </li>
+
 
                 <li class="nav-item ">
                     <a class="nav-link " href="{{ route('admin.settings.index') }}">
+                        <span class="sidenav-mini-icon"> P </span>
                         <span class="sidenav-normal">ตั้งค่าข้อมูลองค์กร </span>
                     </a>
                 </li>
@@ -438,7 +366,10 @@
                             </li>
                         </ul>
                     </div>
-                </li> --}}
+                </li>
+                @endrole
+            </ul>
+        </div>
+    </li>
     @endrole
 </ul>
-

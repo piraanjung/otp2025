@@ -1,4 +1,4 @@
-@extends('layouts.admin1')
+@extends('layouts.super-admin')
 @section('nav-main')
     อัตราการชำระค่าน้ำ
 @endsection

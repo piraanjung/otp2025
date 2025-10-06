@@ -17,6 +17,7 @@ return new class extends Migration
             $table->foreignId('pricing_type_id')->constrained('tw_pricing_types')->onDelete('restrict'); // Fixed or Progressive
             
             $table->float('min_usage_charge', 8, 2)->nullable(); // ค่ารักษามิเตอร์/ค่าธรรมเนียมขั้นต่ำ (สำหรับ Fixed Rate)
+            $table->float('vat', 4, 2)->default(0); // ค่ารักษามิเตอร์/ค่าธรรมเนียมขั้นต่ำ (สำหรับ Fixed Rate)
             $table->float('fixed_rate_per_unit', 8, 2)->nullable(); // อัตราต่อหน่วย (สำหรับ Fixed Rate)
             
             $table->date('effective_date'); // วันที่เริ่มมีผล

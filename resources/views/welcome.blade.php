@@ -3,7 +3,7 @@
 
 <head>
   <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
-  <title>OPT-ConnecT</title>
+  <title>EnvSoGo</title>
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/bxslider/4.2.12/jquery.bxslider.css">
   <link rel="stylesheet" href="{{ asset('Applight/css/animate.css')}}">
   <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.1.1/css/bootstrap.min.css"
@@ -52,7 +52,7 @@
   
   <div id="otp-connect">
             <div class="icon-box wow fadeInUp" data-wow-delay="0.2s">
-              OPT-CONECT
+              ENVSOGO
               <hr style="margin-bottom: 3px;margin-top: 3px;">
               <div id="org_addr">พัฒนาชุมชน เชื่อมใจ ให้ใกล้กัน</div>
             </div>

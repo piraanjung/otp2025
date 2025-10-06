@@ -45,8 +45,8 @@ use App\Models\User;
 use PhpParser\Node\Stmt\Else_;
 
 Route::get('/', function () {
-    // return view('welcome');
-    return redirect()->route('login');
+    return view('welcome');
+    // return redirect()->route('login');
 });
 
 Route::get('/liff', function () {
@@ -58,6 +58,16 @@ Route::get('/logout', function () {
     Session()->regenerateToken();
     Session()->flush();
 
+    $userAgent = $_SERVER['HTTP_USER_AGENT'] ?? '';
+
+        // ตรวจสอบคำที่บ่งชี้ถึงอุปกรณ์มือถือ
+        $ismobile = preg_match(
+            "/(android|avantgo|blackberry|bolt|boost|cello|hiptop|irengin|mobi|mini|mo(bil|si)|ntellect|palm|pda|phone|plucker|pocket|psp|series(4|6)0|symbian|treo|up\.(browser|link)|wap|windows ce|xda|xiino)/i",
+            $userAgent
+        );
+        if ($ismobile) {
+            return redirect()->route('login');
+        }
     return redirect('/');
 });
 
@@ -78,13 +88,15 @@ Route::get('/accessmenu', [AccessMenusController::class, 'accessmenu'])->middlew
 
 Route::get('/dashboard', [AccessMenusController::class, 'dashboard'])->middleware(['auth'])->name('dashboard');
 
-Route::resource('/lineliff', LineLiffController::class);
-Route::get('/line/dashboard/{user_waste_pref_id}', [LineLiffController::class , 'dashboard']);
-Route::get('/line/fine_line_id/{lineUserId}/{displayName}/{imagUrl}', [LineLiffController::class , 'fine_line_id']);
+Route::get('/lineliff', [LineLiffController::class, 'index'])->name('lineliff.index');
+Route::get('/line/dashboard/{user_waste_pref_id}/{reg?}', [LineLiffController::class , 'dashboard']);
+Route::post('/line/fine_line_id', [LineLiffController::class , 'fine_line_id']);
+Route::post('/line/update_user_by_phone', [LineLiffController::class , 'update_user_by_phone']);
 Route::post('/line/login', [LineLiffController::class , 'handleLineLogin']);
 
 
 Route::get('/staff_accessmenu', [AccessMenusController::class, 'staff_accessmenu'])->middleware(['auth', 'permission:access waste bank mobile'])->name('staff_accessmenu');
+
 Route::prefix('staffs')->name('keptkayas.staffs.')->group(function () {
     Route::get('/', [StaffController::class, 'index'])->name('index');
     Route::get('/create', [StaffController::class, 'create'])->name('create');
@@ -112,6 +124,8 @@ Route::get('twmanmobile/edit_members_subzone_selected', [TwManMobileController::
 
  
 Route::middleware(['auth', 'role:Admin|Super Admin'])->name('admin.')->prefix('admin')->group(function () {
+    Route::get('/register', [UserController::class, 'showRegistrationForm'])->name('register');
+    Route::post('/register', [UserController::class, 'register']);
     Route::get('/transfer_old_data', [TransferOldDataToNewDBController::class, 'index'])->name('transfer_old_data');
     Route::get('/', [IndexController::class, 'index'])->name('index');
     Route::resource('/roles', RoleController::class);
@@ -275,6 +289,8 @@ Route::prefix('superadmin')->name('superadmin.')->group(function () {
     Route::get('/login', [SuperAdminAuthController::class, 'showLoginForm'])->name('login');
     Route::post('/login', [SuperAdminAuthController::class, 'login'])->name('login.post');
     Route::post('/logout', [SuperAdminAuthController::class, 'logout'])->name('logout');
+    Route::resource('staff', StaffController::class);
+
 });
 
 Route::middleware(['auth'])->group(function () {

@@ -103,7 +103,7 @@
                                                             <option value="">เลือกรายการขยะ</option>
                                                             @foreach ($recycleItems as $item)
                                                                 <option value="{{ $item->id }}"
-                                                                    data-units="{{ json_encode($item->units) }}"
+                                                                    data-units="{{ json_encode($item->items_price_and_point_infos[0]->kp_units_info->id) }}"
                                                                     {{ $detail['kp_recycle_item_id'] == $item->id ? 'selected' : '' }}>
                                                                     {{ $item->kp_itemsname }}</option>
                                                             @endforeach
@@ -136,7 +136,7 @@
                                                         <option value="">เลือกรายการขยะ</option>
                                                         @foreach ($recycleItems as $item)
                                                             <option value="{{ $item->id }}"
-                                                                data-units="{{ json_encode($item->units) }}">
+                                                                data-units="{{ json_encode($item->items_price_and_point_infos[0]->kp_units_info->id) }}">
                                                                 {{ $item->kp_itemsname }}</option>
                                                         @endforeach
                                                     </select>

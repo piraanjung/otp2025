@@ -1,4 +1,4 @@
-@extends('layouts.admin1')
+@extends('layouts.super-admin')
 @section('nav-main')
     Manage Meter Types
 @endsection
@@ -63,15 +63,15 @@
 
                                 <td class="d-flex justify-content-sm-between">
                                      <a href="{{ route('admin.meter_rates.show', $config->id) }}"
-                                        class="btn btn-info btn-sm mr-1"><i class="fa fa-eye"></i></a>
+                                        class="btn btn-info btn-sm mr-1"><i class="fa fa-eye"></i>ดูรายละเอียด</a>
                                     <a href="{{ route('admin.meter_rates.edit', $config->id) }}"
-                                        class="btn btn-warning btn-sm mr-1"><i class="fa fa-edit"></i></a>
+                                        class="btn btn-warning btn-sm mr-1"><i class="fa fa-edit"></i>แก้ไข</a>
                                     <form action="{{ route('admin.meter_rates.destroy', $config->id) }}" method="POST">
                                         @csrf
                                         @method('DELETE')
                                         <button type="submit" class="btn btn-danger btn-sm"
                                             onclick="return confirm('Are you sure you want to delete this meter type?')">
-                                        <i class="fa fa-trash"></i>
+                                        <i class="fa fa-trash"></i>ลบ
                                         </button>
                                     </form>
                                 </td>

@@ -6,9 +6,9 @@
     <meta name="csrf-token" content="{{ csrf_token() }}"> <!-- เพิ่มบรรทัดนี้ -->
     <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
     <link rel="apple-touch-icon" sizes="76x76" href="{{ asset('soft-ui/assets/img/apple-icon.png') }}">
-    <link rel="icon" type="image/png" href="{{ asset('soft-ui/assets/img/favicon.png') }}">
+    <link rel="icon" type="image/png" href="{{ asset('logo/ko_envsogo.png') }}">
     <title>
-        Kept Kaya
+        EnvSoGo
     </title>
 
 
@@ -96,6 +96,9 @@
         .btn-group-sm>.btn i, .btn.btn-sm i {
             font-size: 1rem
         }
+        ul{
+            list-style-type: none !important;
+        }
     </style>
     <script src="https://code.jquery.com/jquery-3.7.0.js"></script>
     <script src="https://cdn.datatables.net/1.13.6/js/jquery.dataTables.min.js"></script>
@@ -117,13 +120,11 @@
     <aside class="sidenav navbar navbar-vertical navbar-expand-xs border-0 border-radius-xl my-3 fixed-start ms-3 "
         id="sidenav-main">
         <div class="sidenav-header">
-            <i class="fas fa-times p-3 cursor-pointer text-secondary opacity-5 position-absolute end-0 top-0 d-none d-xl-none"
-                aria-hidden="true" id="iconSidenav"></i>
-            <a class="navbar-brand m-0" href=" https://demos.creative-tim.com/soft-ui-dashboard/pages/dashboard.html "
+            
+            <a class="m-0" href=" https://demos.creative-tim.com/soft-ui-dashboard/pages/dashboard.html "
                 target="_blank">
-                <img src="{{ asset('soft-ui/assets/img/logo-ct-dark.png') }}" class="navbar-brand-img h-100"
-                    alt="main_logo">
-                <span class="ms-1 font-weight-bold">Kept Kaya</span>
+                <img src="{{asset('logo/ko_envsogo.png')}}" style="width:40%;">
+                <span class="ms-1 font-weight-bold h3">Envsogo</span>
             </a>
         </div>
         <hr class="horizontal dark mt-0">

@@ -368,16 +368,25 @@
 
         /* Footer */
         .footer {
-            margin-top: auto;
+            /* margin-top: auto; */
+            position: fixed; /* กำหนดให้องค์ประกอบมีตำแหน่งคงที่ */
+            bottom: 0;      /* ให้อยู่ที่ขอบด้านล่างสุด */
+            left: 0;        /* ให้อยู่ที่ขอบด้านซ้ายสุด */
+            width: 100%;    /* ให้มีความกว้างเต็มหน้าจอ */
+            z-index: 1000;  /* (optional) กำหนดลำดับการแสดงผลให้อยู่ด้านบนองค์ประกอบอื่น */
+            /* คุณอาจต้องเพิ่ม background-color เพื่อให้ footer ไม่โปร่งใสทับเนื้อหาด้านล่าง */
+            /* background-color: #ffffff; */
+            /* หรือสีพื้นหลังตามดีไซน์เดิมของคุณ */
         }
 
         .footer__nav-btn {
-            background: var(--gradient);
-            border-radius: 50%;
-            box-shadow: 1em 1em 2em hsl(var(--hue), 5%, 65%),
-                -1em -1em 2em hsl(0, 0%, 100%);
-            width: 3em;
-            height: 3em;
+            background: var(--primary);
+            border-radius: 10%;
+            /* box-shadow: 1em 1em 2em hsl(var(--hue), 5%, 65%),
+                -1em -1em 2em hsl(0, 0%, 100%); */
+            width: 7.8em;
+            height: 4em;
+            text-align: center
         }
 
         .footer__nav-btn:active {
@@ -676,6 +685,10 @@
         .modal-footer>* {
             margin: 0.25rem;
         }
+        a{
+            text-decoration: none;
+             color: var(--fg);
+        }
     </style>
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/js/bootstrap.bundle.min.js"
         integrity="sha384-MrcW6ZMFYlzcLA8Nl+NtUVF0sA7MsXsP1UyJoMp4YLEuNSfAP+JcXn/tWtIaxVXM"
@@ -713,7 +726,9 @@
                     <span class="sr-only"></span> --}}
                 </button>
                 <div class="main__date">
-                    <strong>OPT-ConnecT</strong>
+                    <img src="{{asset('logo/ko_envsogo.png')}}" alt="" style="width: 35%; margin-top: -3.6rem; position: absolute;">
+                    <strong><span style="">&nbsp;</span><div style="font-size:1.5rem;margin-top: 2rem;
+    border-top: 2px solid white;">Envsogo</div></strong>
                 </div>
                 <button class="main__date-edit-btn" type="button"></button>
             </div>
@@ -835,6 +850,7 @@
                     </div>
                 </div>
                 <div class="main__stat-block">
+                    <a href="{{route('keptkayas.shop.index')}}">
                     <div class="main__stat-graph">
                         <svg class="ring" viewBox="0 0 60 60" height="60" width="60" xmlns="http://www.w3.org/2000/svg">
                             <circle class="ring-track" cx="30" cy="30" r="26" fill="none" stroke="#7f7f7f"
@@ -852,6 +868,7 @@
                     <div class="main__stat-detail">
                         <strong class="main__stat-value">Shopping Cart</strong>
                     </div>
+                    </a>
                 </div>
               
             </div>
@@ -939,7 +956,7 @@
             </div> --}}
         </main>
         <footer class="footer">
-            <button class="footer__nav-btn" type="button" title="Today">
+            {{-- <button class="footer__nav-btn" type="button" title="Today">
                 <svg class="icon" viewBox="0 0 24 24" height="24" width="24" xmlns="http://www.w3.org/2000/svg">
                     <circle cx="2" cy="12" r="1" />
                     <circle cx="7" cy="7" r="1.25" />
@@ -956,19 +973,19 @@
                     <circle cx="22" cy="12" r="2" />
                 </svg>
             </button>
-            <button class="footer__nav-btn" type="button" title="Discover">
-                <svg class="icon" viewBox="0 0 24 24" height="24" width="24" xmlns="http://www.w3.org/2000/svg">
+            <button class="footer__nav-btn" style="text-align: center" type="button" title="Discover">
+                 <svg class="icon" viewBox="0 0 24 24" height="24" width="24" xmlns="http://www.w3.org/2000/svg">
                     <path
-                        d="M4 12C4 7.58172 7.58172 4 12 4C16.4183 4 20 7.58172 20 12C20 16.4183 16.4183 20 12 20C7.58172 20 4 16.4183 4 12ZM12 2C6.47715 2 2 6.47715 2 12C2 17.5228 6.47715 22 12 22C17.5228 22 22 17.5228 22 12C22 6.47715 17.5228 2 12 2ZM13.4142 13.4143L15.5356 8.46451L10.5858 10.5858L8.46448 15.5356L13.4142 13.4143Z" />
-                </svg>
+                        d="M10 4C7.79086 4 6 5.79086 6 8C6 10.2091 7.79086 12 10 12C12.2091 12 14 10.2091 14 8C14 5.79086 12.2091 4 10 4ZM4 8C4 4.68629 6.68629 2 10 2C13.3137 2 16 4.68629 16 8C16 11.3137 13.3137 14 10 14C6.68629 14 4 11.3137 4 8ZM16.8284 3.75736C17.219 3.36683 17.8521 3.36683 18.2426 3.75736C20.5858 6.10051 20.5858 9.8995 18.2426 12.2426C17.8521 12.6332 17.219 12.6332 16.8284 12.2426C16.4379 11.8521 16.4379 11.219 16.8284 10.8284C18.3905 9.26633 18.3905 6.73367 16.8284 5.17157C16.4379 4.78105 16.4379 4.14788 16.8284 3.75736ZM17.5299 16.7575C17.6638 16.2217 18.2067 15.8959 18.7425 16.0299C20.0705 16.3618 20.911 17.2109 21.3944 18.1778C21.8622 19.1133 22 20.1571 22 21C22 21.5523 21.5523 22 21 22C20.4477 22 20 21.5523 20 21C20 20.3429 19.8878 19.6367 19.6056 19.0722C19.339 18.5391 18.9295 18.1382 18.2575 17.9701C17.7217 17.8362 17.3959 17.2933 17.5299 16.7575ZM6.5 18C5.24054 18 4 19.2135 4 21C4 21.5523 3.55228 22 3 22C2.44772 22 2 21.5523 2 21C2 18.3682 3.89347 16 6.5 16H13.5C16.1065 16 18 18.3682 18 21C18 21.5523 17.5523 22 17 22C16.4477 22 16 21.5523 16 21C16 19.2135 14.7595 18 13.5 18H6.5Z" />
+                </svg>งานประปา
             </button>
             <button class="footer__nav-btn" type="button" title="Community">
                 <svg class="icon" viewBox="0 0 24 24" height="24" width="24" xmlns="http://www.w3.org/2000/svg">
                     <path
                         d="M10 4C7.79086 4 6 5.79086 6 8C6 10.2091 7.79086 12 10 12C12.2091 12 14 10.2091 14 8C14 5.79086 12.2091 4 10 4ZM4 8C4 4.68629 6.68629 2 10 2C13.3137 2 16 4.68629 16 8C16 11.3137 13.3137 14 10 14C6.68629 14 4 11.3137 4 8ZM16.8284 3.75736C17.219 3.36683 17.8521 3.36683 18.2426 3.75736C20.5858 6.10051 20.5858 9.8995 18.2426 12.2426C17.8521 12.6332 17.219 12.6332 16.8284 12.2426C16.4379 11.8521 16.4379 11.219 16.8284 10.8284C18.3905 9.26633 18.3905 6.73367 16.8284 5.17157C16.4379 4.78105 16.4379 4.14788 16.8284 3.75736ZM17.5299 16.7575C17.6638 16.2217 18.2067 15.8959 18.7425 16.0299C20.0705 16.3618 20.911 17.2109 21.3944 18.1778C21.8622 19.1133 22 20.1571 22 21C22 21.5523 21.5523 22 21 22C20.4477 22 20 21.5523 20 21C20 20.3429 19.8878 19.6367 19.6056 19.0722C19.339 18.5391 18.9295 18.1382 18.2575 17.9701C17.7217 17.8362 17.3959 17.2933 17.5299 16.7575ZM6.5 18C5.24054 18 4 19.2135 4 21C4 21.5523 3.55228 22 3 22C2.44772 22 2 21.5523 2 21C2 18.3682 3.89347 16 6.5 16H13.5C16.1065 16 18 18.3682 18 21C18 21.5523 17.5523 22 17 22C16.4477 22 16 21.5523 16 21C16 19.2135 14.7595 18 13.5 18H6.5Z" />
                 </svg>
-            </button>
-            <button class="footer__nav-btn" type="button" title="Premium">
+            </button> --}}
+            {{-- <button class="footer__nav-btn" type="button" title="Premium">
                 <svg class="icon" viewBox="0 0 24 24" height="24" width="24" xmlns="http://www.w3.org/2000/svg">
                     <circle cx="2" cy="12" r="1" />
                     <circle cx="7" cy="12" r="1.25" />
@@ -980,7 +997,7 @@
                     <circle cx="17" cy="17" r="1.75" />
                     <circle cx="22" cy="12" r="2" />
                 </svg>
-            </button>
+            </button> --}}
         </footer>
     </div>
 
@@ -988,7 +1005,7 @@
         <div class="modal-dialog modal-sm modal-dialog-centered">
             <div class="modal-content">
                 <div class="modal-header">
-                    <h5 class="modal-title" id="exampleModalLabel">Qr Code</h5>
+                    <h5 class="modal-title" id="exampleModalLabel">สแกน QR Code กับผู้รับซื้อขยะ</h5>
                     <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                 </div>
                 <div class="modal-body">

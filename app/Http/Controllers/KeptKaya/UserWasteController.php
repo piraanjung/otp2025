@@ -99,7 +99,7 @@ class UserWasteController extends Controller
         if ($request->ajax()) {
             // For AJAX, just get the filtered data (no pagination for simplicity in AJAX update)
             $users = $query->get();
-            return view('keptkaya.w.users._table_body', compact('users'))->render();
+            return view('keptkayas.w.users._table_body', compact('users'))->render();
         } else {
             // For full page load, apply pagination
             if ($perPage === 'all') {
@@ -110,7 +110,7 @@ class UserWasteController extends Controller
 
 
             // Pass all search parameters back to the view to pre-fill search fields
-            return view('keptkaya.w.users.index', compact('users', 'perPage', 'searchName', 'searchEmail', 'searchStatus', 'searchIsAnnualCollection', 'searchIsWasteBank'));
+            return view('keptkayas.w.users.index', compact('users', 'perPage', 'searchName', 'searchEmail', 'searchStatus', 'searchIsAnnualCollection', 'searchIsWasteBank'));
         }
     }
 

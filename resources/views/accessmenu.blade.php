@@ -4,7 +4,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>OPT-ConnecT</title>
+    <title>KU:Envsogo</title>
 
 
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/bxslider/4.2.12/jquery.bxslider.css">
@@ -249,8 +249,10 @@
 
         .a-disbled {
             /* display: none  */
-            /* opacity: 0.3; */
+            opacity: 0.1 !important;
+            
         }
+       
     </style>
 
 </head>
@@ -258,28 +260,28 @@
 <body>
     <div id="otp-connect">
         <div class="icon-box wow fadeInUp" data-wow-delay="0.2s">
-            OPT-CONECT
+            {{$orgInfos['org_code']}}:Envsogo
             {{--
             <hr style="margin-bottom: 3px;margin-top: 3px;">
             <div id="org_addr">พัฒนาชุมชน เชื่อมใจ ให้ใกล้กัน</div> --}}
         </div>
     </div>
     <div id="org" class="icon-box wow fadeInUp" data-wow-delay="0.4s">
-        องค์การบริหาร
-        <div>ส่วนตำบลขามป้อม</div>
-        <hr style="    margin-bottom: 3px;margin-top: 3px;">
-        <div id="org_addr2">ตำบลขามป้อม อำเภอพระยืน จังหวัดขอนแก่น</div>
+        <div style="font-size: 3.5rem">{{$orgInfos['org_type_name']}}</div>
+        <div>{{$orgInfos['org_name']}}</div>
+        <hr style="margin-bottom: 3px;margin-top: 3px;">
+        <div id="org_addr2">ตำบล{{$orgInfos['org_tambons']}} อำเภอ{{$orgInfos['org_districts']}} จังหวัด{{$orgInfos['org_provinces']}}</div>
     </div>
     <div class="main-container centralized ">
 
         <div class="main-circle">
             <div class="inner centralized">
-                <img src="{{asset('logo/khampom.png')}}" width="90%">
+                <img src="{{asset('logo/'.$orgInfos['org_logo_img'])}}" width="90%">
                 {{-- ระบบบริหารจัดการ --}}
             </div>
         </div>
-        <div class="bubble-container centralized  red a-disbled">
-            <a href="{{'dashboard'}}">
+        <div class="bubble-container centralized  red {{auth()->user()->can('access tabwater modules') | auth()->user()->hasRole('Super Admin') ? '' : 'a-disbled'}}">
+            <a href="{{auth()->user()->can('access tabwater modules') | auth()->user()->hasRole('Super Admin') ? route('dashboard') : '#'}}">
                 <div class="bubble centralized">
                     <div class="inner centralized">
                         งานประปา
@@ -287,7 +289,8 @@
                 </div>
             </a>
         </div>
-        <div class="bubble-container centralized green a-disbled">
+
+        <div class="bubble-container centralized green {{auth()->user()->can('access recycle bank modules') | auth()->user()->hasRole('Super Admin') ? '': 'a-disbled'}}">
             <a href="{{route('keptkayas.dashboard', 'recycle')}}">
                 <div class="bubble centralized">
                     <div class="inner centralized">
@@ -296,8 +299,9 @@
                 </div>
             </a>
         </div>
-        <div class="bubble-container centralized orange a-disbled">
-            <a href="{{route('keptkayas.dashboard', 'annual')}}">
+        <div class="bubble-container centralized orange {{auth()->user()->can('access annaul modules') | auth()->user()->hasRole('Super Admin') ? '': 'a-disbled'}}">
+            <a href="{{auth()->user()->can('access annaul modules') | auth()->user()->hasRole('Super Admin') ? route('keptkayas.dashboard', 'annual') : 'javascript:void(0)'}}">
+
                 <div class="bubble centralized">
                     <div class="inner centralized">
                         ค่าจัดการ<br>ถังขยะรายปี
@@ -306,17 +310,16 @@
             </a>
 
         </div>
-        <div class="bubble-container centralized  blue-dark">
-            <a href="{{route('dashboard')}}">
-
+        <div class="bubble-container centralized  blue-dark {{auth()->user()->can('access garbage modules') | auth()->user()->hasRole('Super Admin') ? '': 'a-disbled'}}">
+            <a href="{{auth()->user()->can('access garbage modules') | auth()->user()->hasRole('Super Admin') ? route('keptkayas.dashboard', 'annual') : 'javascript:void(0)'}}">
                 <div class="bubble centralized">
                     <div class="inner centralized">
-                        งานประปา
+                        ถังขยะเปียกจากครัวเรือน
                     </div>
                 </div>
             </a>
         </div>
-        <div class="bubble-container centralized black a-disbled">
+        <div class="bubble-container centralized black {{auth()->user()->can('access local saving bank modules') | auth()->user()->hasRole('Super Admin') ? '': 'a-disbled'}}">
             <a href="#">
                 <div class="bubble centralized">
                     <div class="inner centralized">
@@ -325,13 +328,14 @@
                 </div>
             </a>
         </div>
-        <div class="bubble-container centralized blue-light a-disbled">
-
-            <div class="bubble centralized">
-                <div class="inner centralized">
-                    ผู้ดูแลระบบ
+        <div class="bubble-container centralized blue-light {{auth()->user()->can('access admin modules') | auth()->user()->hasRole('Super Admin') ? '': 'a-disbled'}}">
+            <a href="{{auth()->user()->can('access garbage modules') | auth()->user()->hasRole('Super Admin') ? route('superadmin.dashboard') : 'javascript:void(0)'}}">
+                <div class="bubble centralized">
+                    <div class="inner centralized">
+                        ผู้ดูแลระบบ
+                    </div>
                 </div>
-            </div>
+            </a>
         </div>
     </div>
     <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.12.4/jquery.min.js"></script>

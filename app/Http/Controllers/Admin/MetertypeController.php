@@ -4,14 +4,14 @@ namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Api\FunctionsController;
 use App\Http\Controllers\Controller;
-use App\Models\MeterType;
+use App\Models\Tabwater\TwMeterType;
 use Illuminate\Http\Request;
 
 class MetertypeController extends Controller
 {
     public function index()
     {
-        $metertypes = MeterType::all();
+        $metertypes = TwMeterType::all();
         return view("admin.metertype.index", compact("metertypes"));
     }
     public function create()
@@ -25,13 +25,12 @@ class MetertypeController extends Controller
         $validated = $request->validate([
             "meter_type_name"=> "required",
             "metersize"=> "required|numeric",
-            "price_per_unit"=> "required|numeric",
         ],
         [
             "required" => "ใส่ข้อมูล",
             "numeric" => "ใส่ตัวเลข",
         ],);
-        MeterType::create($validated);
+        TwMeterType::create($validated);
         return redirect()->route("admin.metertype.index")->with("message","บันทึกข้อมูลเรียบร้อยแล้ว");
     }
 
@@ -45,12 +44,12 @@ class MetertypeController extends Controller
     {
         //
     }
-    public function edit(MeterType $metertype)
+    public function edit(TwMeterType $metertype)
     {
         return view("admin.metertype.edit", compact("metertype"));
     }
 
-    public function update(Request $request, MeterType $metertype)
+    public function update(Request $request, TwMeterType $metertype)
     {
         $validated = $request->validate([
             "meter_type_name"=> "required",
@@ -65,12 +64,12 @@ class MetertypeController extends Controller
         $metertype->update($validated);
         return redirect()->route("admin.metertype.index")->with("message","บันทึกการแก้ไขแล้ว");
     }
-    public function destroy(MeterType $metertype)
+    public function destroy(TwMeterType $metertype)
     {
-        MeterType::destroy($metertype);
+        TwMeterType::destroy($metertype);
         return redirect()->route("admin.metertype.index")->with("message","บันทึกการแก้ไขแล้ว");
     }
     public function infos($id){
-        return MeterType::find($id);
+        return TwMeterType::find($id);
     }
 }

@@ -145,7 +145,7 @@
                                         </div>
                                     </div>
                                     <hr class="horizontal dark">
-                                    @can('admin')
+                                    @can('access tabwater modules')
                                         <div class="row">
                                             <p class="my-auto text-bold col-12 col-md-6">ชำระเงินแล้ว</p>
                                             <p class="text-secondary h5 my-auto col-12 col-md-3  text-xl-end">

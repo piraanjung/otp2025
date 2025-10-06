@@ -11,7 +11,7 @@
 @endsection
 
 @section('nav-topic')
-    <h3>งานประปา องค์การบริหารส่วนตำบลขามป้อม</h3>
+    <h3>งานประปา  {{$orgInfos['org_type_name'].$orgInfos['org_name']}}</h3>
 @endsection
 @section('style')
     <script src="{{ asset('js/chartjs/chart.js_2.7.1.js') }}"></script>

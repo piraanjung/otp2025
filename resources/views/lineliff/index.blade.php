@@ -262,13 +262,17 @@
 .sky-circle3 {
   animation: fadeInOut 8s 40s ease-in infinite;
 }
+.hidden{
+  display: none
+}
+
 
 </style>
 @endsection
 
 @section('content')
 
-<div class="store-container">
+<div id="store_container" class="store-container" >
 <div class="border-animation">
 	<svg role="img" xmlns="http://www.w3.org/2000/svg" id="store" viewBox="130 0 1230 930">
       <title xml:lang="en">Store animation loader</title>
@@ -441,26 +445,72 @@
 	</div>
 </div>
 
-        <!-- <div id="loading">Loading...</div>
-        <div id="lineProfile"> -->
-            {{-- <img width="100"
-                src="https://profile.line-scdn.net/0hoxtUbDS4MFdZLB15udNOKCl8Mz16XWlFJh8sY24uPTBjGXEHc09-MmUuamJmFCMAIUwoNj8oPG5VP0cxR3rMY14cbmBgG34Hdkp7tg"
-                id="lineImg" alt=""> --}}
-            {{-- <div id="lineName"></div> --}}
-            {{-- <div id="lineUID"></div> --}}
-        <!-- </div>
-        <div id="member" class="hidden">
-            <div>แต้มสะสม</div>
-            <a href="" class="btn btn-success">ขายขยะ</a>
-            <a href="" class="btn btn-success">shopping cart</a>
+<div id="phone_div" class="hidden m-3">
+  <div class="card">
+    <div class="card-body">
+  <label for="">ท่านยังไม่ได้เป็นสมาชิก</label>
+  <label for="">กรอกหมายเลขโทรศัพท์เพื่อลงทะเบียนใช้งานระบบ</label>
+  <input type="text" name="phone" id="phone" class="form-control">
+  <input type="button" value="ค้นหา" id="phone_search_btn" class="btn btn-info m-2">
+  </div>
+  </div>
+</div>
 
-            <a href="" class="btn btn-info">ดูประวัติการขาย</a>
-        </div>
-        <button id="sendMessage" onclick="sendMessage()">sendMessage</button>
-        <button id="logOut" onclick="logOut()">Log Out</button>
-    </div> -->
-
-    
+     
+    {{-- <div class="card hidden">
+            <div class="card-body">
+                <form method="POST" action="{{ route('register') }}">
+                    @csrf
+                    <div>
+                        <label for="organization_id">Organization</label>
+                        <select class="form-control" name="organization_id" id="organization_id">
+                            <option value="">Select Organization</option>
+                            @foreach ($organizations as $organization)
+                                <option value="{{ $organization->id }}">{{ $organization->org_name }}</option>
+                            @endforeach
+                        </select>
+                    </div>
+                    <div>
+                        <label for="username">Lind ID</label>
+                        <input id="line_id" type="text" class="form-control" name="line_id" value="{{ old('line_id') }}" required autofocus>
+                    </div>
+                    <div>
+                        <label for="username">Username</label>
+                        <input id="username" type="text" class="form-control" name="username" value="{{ old('username') }}" required autofocus>
+                    </div>
+                    <div>
+                        <label for="firstname">First Name</label>
+                        <input id="firstname" type="text" class="form-control" name="firstname" value="{{ old('firstname') }}" required>
+                    </div>
+                    <div>
+                        <label for="lastname">Last Name</label>
+                        <input id="lastname" type="text" class="form-control" name="lastname" value="{{ old('lastname') }}" required>
+                    </div>
+                    <div>
+                        <label for="email">Email</label>
+                        <input id="email" type="email" class="form-control" name="email" value="{{ old('email') }}" required>
+                    </div>
+                    <div>
+                        <label for="password">Password</label>
+                        <input id="password" type="password" class="form-control" name="password" required>
+                    </div>
+                    <div>
+                        <label for="password_confirmation">Confirm Password</label>
+                        <input id="password_confirmation" type="password" class="form-control" name="password_confirmation" required>
+                    </div>
+                    <div>
+                        <label for="id_card">ID Card</label>
+                        <input id="id_card" type="text" class="form-control" name="id_card" value="{{ old('id_card') }}">
+                    </div>
+                    <div>
+                        <label for="phone">Phone</label>
+                        <input id="phone" type="text" class="form-control" name="phone" value="{{ old('phone') }}">
+                    </div>
+                    <!-- Add more fields as needed -->
+                    <button type="submit">Register</button>
+                </form>
+            </div>
+    </div> --}}
 @endsection
 
 @section('script')
@@ -473,26 +523,18 @@
     <script src="https://unpkg.com/axios@1.6.7/dist/axios.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/js/bootstrap.bundle.min.js"></script>
     <script>
+      const store_container = document.getElementById('store_container')
+      const phone_div = document.getElementById('phone_div')
+      const phone_search_btn = document.getElementById('phone_search_btn')
+      const phone_text = document.getElementById('phone')
+      let profile;
 
-
-        $(document).on('click', '#qrcode', function () {
-            alert();
-        })
-    </script>
-    <script>
         const LINE_BOT_API = "https://api.line.me/v2/bot";
         const LINE_CHANNAL_ACCESS_TOKEN = "hKQpGAefzUb3nfDPG+kNim34f3uUhEm0RW8h9E2NtyAYZNtRrDTnP8J6qPyPSPvRNU3XV786SyrBZH649FugjcCrHZ4nOKWLtp/yHTdm/ZXQASL72zVoRIS/UFmTKNddkTrWTIci91qA1JinsUbxMAdB04t89/1O/w1cDnyilFU="
-        let profile;
-        const headers = {
-            'Access-Control-Allow-Origin': "*",
-            "Access-Control-Allow-Headers": "Content-Type",
-            "Access-Control-Allow-Methods": "GET, POST, PUT, DELETE, OPTIONS",
-            'Content-Type': 'application/json',
-            'Authorization': 'Bearer hKQpGAefzUb3nfDPG+kNim34f3uUhEm0RW8h9E2NtyAYZNtRrDTnP8J6qPyPSPvRNU3XV786SyrBZH649FugjcCrHZ4nOKWLtp/yHTdm/ZXQASL72zVoRIS/UFmTKNddkTrWTIci91qA1JinsUbxMAdB04t89/1O/w1cDnyilFU=',
-        }
+  
         const main = async () => {
             await liff.init({
-                liffId: '1656703539-Rzmb63NE',
+                liffId: '1656703539-5eopvjK9',
             });
             if (!liff.isLoggedIn()) {
                 liff.login()
@@ -501,18 +543,37 @@
 
             profile = await liff.getProfile();
             console.log('profile', profile)
-            $('#loading').addClass('hidden');
-            let url = (profile.pictureUrl).replace("https://profile.line-scdn.net/", "");
-            $.get(`/line/fine_line_id/${profile.userId}/${profile.displayName}/${url}`).then(function (data) {
+           
+            // 1.ส่ง line user_id ไปcheck ก่อนว่าเป็น memberไหม
+                $.post(`/api/line/fine_line_id`,{
+                  userId: profile.userId,
+              }).then(function (data)  {
                 console.log('dta', data)
-                if (data.res === 1) {
-                   window.location.href ='/line/dashboard/'+data.user_waste_pref_id;
+                if(data.res == 0){
+                  //หา user infoไม่เจอ เปิดให้กรอกข้อมูลเบอร์โทร
+                  phone_div.classList.remove('hidden')
+                }
+                if (data.res == 1) {
+                   window.location.href ='/line/dashboard/'+data.waste_pref_id/1;
                 }
             })
+            // ถ้าไม่เป็นให้แสดง text กรอก phone
 
-           // header__profile_img.src = profile.pictureUrl;
-            // lineName.textContent = `Hello ${profile.displayName}`
-            // lineUID.textContent = `UID ${profile.userId}`
+
+            // $('#loading').addClass('hidden');
+            // let url = (profile.pictureUrl).replace("https://profile.line-scdn.net/", "");
+            // $.post(`api/line/fine_line_id`,{
+            //       userId: profile.userId,
+            //       displayName: profile.displayName,
+            //       url: url,
+            //       phone: profile.phoneNumber
+            //   }).then(function (data)  {
+            //     console.log('dta', data)
+            //     if (data.res === 1) {
+            //        window.location.href ='/line/dashboard/'+data.user_waste_pref_id;
+            //     }
+            // })
+
 
         }
 
@@ -542,8 +603,29 @@
 
         const logOut = async () => {
             liff.logout()
-            window.location.href = '/lineliff'
+            window.location.href = '/line'
         }
+
+        $('#phone_search_btn').on('click', async function(){
+          let phone = phone_text.value;
+          let line_user_image = (profile.pictureUrl).replace("https://profile.line-scdn.net/", "");
+
+          await $.post( `/api/line/update_user_by_phone`,
+            {
+              phoneNum: phone,
+              line_user_id:profile.userId,
+              displayName: profile.displayName,
+              line_user_image: line_user_image,
+            },function(data){
+            if(data.res == 1){
+              //มีข้อมูล user อยู่แล้วและทำการ update user_line_id แล้ว
+              //ให้ไปหา dashboard ของ line  user
+              window.location.href ='/line/dashboard/'+data.waste_pref_id+'/1';
+            }else{
+              // ไม่มีข้อมูล user เป็น new  user ให้ทำการ register
+            }
+          })
+        })
 
         main()
     </script>

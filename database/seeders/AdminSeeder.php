@@ -35,7 +35,7 @@ class AdminSeeder extends Seeder
         'district_code'=> '1',
         'province_code'=> '1',
         'role_id' => '1'
-        ])->assignRole(['admin']);
+        ])->assignRole(['Super Amin']);
 
 
         User::create([
@@ -56,7 +56,7 @@ class AdminSeeder extends Seeder
             'district_code'=> '1',
             'province_code'=> '1',
             'role_id' => '2'
-            ])->assignRole('admin');
+            ])->assignRole('Admin');
 
     }
 }

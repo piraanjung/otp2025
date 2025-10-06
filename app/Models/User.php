@@ -32,6 +32,7 @@ class User extends Authenticatable
      *
      * @var array<int, string>
      */
+    protected $primaryKey = 'id';
     protected $fillable = [
         'id',
         'org_id_fk',
@@ -77,11 +78,6 @@ class User extends Authenticatable
     ];
     protected $table = 'users';
 
-
-    public function usercategory()
-    {
-        return $this->belongsTo('App\Usercategory', 'user_cat_id');
-    }
 
     public function user_zone()
     {
@@ -150,10 +146,6 @@ class User extends Authenticatable
         return $this->hasOne(Staff::class);
     }
 
-     public function purchaseTransactions(): HasMany
-    {
-        // Assuming kp_user_id_fk is the foreign key in the kp_purchase_transactions table
-        return $this->hasMany(KpPurchaseTransaction::class, 'kp_user_id_fk', 'id');
-    }
+    
     
 }

@@ -6,19 +6,19 @@ use App\Models\User;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 
-class AccTransactions extends Model
+class TwAccTransactions extends Model
 {
     use HasFactory;
 
-    protected $table = 'acc_transactions';
+    protected $table = 'tw_acc_transactions';
 
-    protected $fillable = ['id' , 'user_id_fk','vatsum', 'reserve_meter_sum', 'paidsum', 'totalpaidsum', 'cashier'];
+    protected $fillable = ['id' , 'meter_id_fk','vatsum', 'reserve_meter_sum', 'paidsum', 'totalpaidsum', 'cashier'];
 
     public function cashier_info(){
         return $this->belongsTo(User::class,'cashier', 'id');
     }
 
     public function invoice(){
-        return $this->hasMany(Invoice::class,'acc_trans_id_fk');
+        return $this->hasMany(TwInvoiceTemp::class,'acc_trans_id_fk');
     }
 }

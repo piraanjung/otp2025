@@ -1,4 +1,15 @@
-@extends('layouts.keptkaya')
+@can('access waste bank mobile')
+    @php
+        $layout = 'layouts.keptkaya_mobile';
+    @endphp
+
+@elsecan('access tabwater2')
+    @php
+        $layout = 'layouts.keptkaya_mobile';
+     @endphp
+@endcan
+@extends($layout)
+
 
 @section('content')
     <div class="d-flex justify-content-between align-items-center mb-4">
@@ -60,7 +71,7 @@
                         <select id="kp_itemscode" name="kp_itemscode" class="form-select recyclename" required>
                             <option value="">ชื่อขยะ</option>
                             @foreach ($recycleItems as $item)
-                                <option value="{{ $item->kp_itemscode }}" data-id="{{ $item->id }}">{{ $item->kp_itemsname }}</option>
+                                <option value="{{ $item->kp_itemscode }}" data-id="{{ $item->id }}">{{ $item->kp_itemsname }} | {{ $item->kp_itemscode }}</option>
                             @endforeach
                         </select>
 

@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Api\FunctionsController;
 use App\Http\Controllers\Controller;
+use App\Models\Admin\Organization;
 use App\Models\Tabwater\Account;
 use App\Models\Tabwater\Accounting;
 use App\Models\Tabwater\Invoice;
@@ -280,14 +281,6 @@ class UserController extends Controller
 
         return redirect()->route('admin.users.index')->with(['messege', 'บันทึกแล้ว', 'color' => 'success']);
     }
-    // public function show(User $user)
-    // {
-    //     $roles = Role::all();
-    //     $permissions = Permission::all();
-
-    //     return view('admin.users.role', compact('user', 'roles', 'permissions'));
-    // }
-
     public function show($function, $action)
     {
         if ($function == 'store') {
@@ -412,5 +405,69 @@ class UserController extends Controller
         // $user->delete();
         // FunctionsController::reset_auto_increment_when_deleted('users');
         return redirect()->route('admin.users.index')->with(['message' => 'ทำการลบข้อมูลผู้ใช้งานระบบเรียบร้อยแล้ว', 'color' => 'success']);
+    }
+
+     public function showRegistrationForm()
+    {
+        $organizations = Organization::all();
+
+        return view('auth.register', compact('organizations'));
+    }
+
+    /**
+     * Handle user registration.
+     *
+     * @param  \Illuminate\Http\Request  $request
+     * @return \Illuminate\Http\RedirectResponse
+     */
+    public function register(Request $request)
+    {
+        $request->validate([
+            'username' => 'required|string|max:255|unique:users,username',
+            'prefix' => 'nullable|string|max:255',
+            'firstname' => 'required|string|max:255',
+            'lastname' => 'required|string|max:255',
+            'email' => 'required|string|email|max:255|unique:users,email',
+            'password' => 'required|string|min:8|confirmed',
+            'id_card' => 'nullable|string|max:13|unique:users,id_card',
+            'line_id' => 'nullable|string|max:255',
+            'phone' => 'nullable|string|max:20',
+            'gender' => 'nullable|in:male,female,other',
+            'address' => 'nullable|string',
+            'organization_id' => 'nullable|exists:organizations,id',
+            'zone_id' => 'nullable|exists:zones,id',
+            'subzone_id' => 'nullable|exists:subzones,id', // Assuming subzones is the table name
+            'tambon_code' => 'nullable|string|max:10',
+            'district_code' => 'nullable|string|max:10',
+            'province_code' => 'nullable|string|max:10',
+            'status' => 'nullable|string|in:active,inactive,pending',
+        ]);
+
+        $user = User::create([
+            'username' => $request->username,
+            'password' => Hash::make($request->password),
+            'prefix' => $request->prefix,
+            'firstname' => $request->firstname,
+            'lastname' => $request->lastname,
+            'name' => $request->firstname . ' ' . $request->lastname,
+            'email' => $request->email,
+            'id_card' => $request->id_card,
+            'line_id' => $request->line_id,
+            'phone' => $request->phone,
+            'gender' => $request->gender,
+            'address' => $request->address,
+            'organization_id' => $request->organization_id,
+            'zone_id' => $request->zone_id,
+            'subzone_id' => $request->subzone_id,
+            'tambon_code' => $request->tambon_code,
+            'district_code' => $request->district_code,
+            'province_code' => $request->province_code,
+            'status' => $request->status ?? 'pending', // Default to 'pending'
+        ]);
+
+        // You might want to log the user in automatically after registration
+        // Auth::login($user);
+
+        return redirect()->route('login')->with('success', 'Registration successful! Please log in.');
     }
 }

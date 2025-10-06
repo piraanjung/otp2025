@@ -6,18 +6,18 @@ use App\Models\Admin\BudgetYear;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 
-class InvoicePeriod extends Model
+class TwInvoicePeriod extends Model
 {
     use HasFactory;
 
     protected $fillable = [ 'id', "inv_p_name","budgetyear_id","startdate","enddate","status"];
-    protected $table = "invoice_period";
+    protected $table = "tw_invoice_period";
 
     public function budgetyear()
     {
         return $this->belongsTo(BudgetYear::class, 'budgetyear_id', 'id');
     }
     public function get_curr_inv_pd(){
-        return InvoicePeriod::where('status','=', 'active')->first();
+        return TwInvoicePeriod::where('status','=', 'active')->first();
     }
 }

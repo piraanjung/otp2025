@@ -10,12 +10,13 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Facades\DB;
 
-class Invoice extends Model
+class TwInvoice extends Model
 {
     use HasFactory;
      public $timestamps = false;
     protected $fillable = [
-        'inv_id',
+        'id',
+        'inv_temp_id_fk',
         'inv_no',
         'inv_period_id_fk',
         'meter_id_fk',
@@ -32,13 +33,13 @@ class Invoice extends Model
         'status',
         'created_at',
         'updated_at',
-        'printed_time'
+        // 'printed_time'
     ];
-    protected $table = 'invoice';
+    protected $table = 'tw_invoice';
 
     public function invoice_period()
     {
-        return $this->belongsTo(InvoicePeriod::class, 'inv_period_id_fk', 'id');
+        return $this->belongsTo(TwInvoicePeriod::class, 'inv_period_id_fk', 'id');
     }
 
     public function recorder()
@@ -48,16 +49,16 @@ class Invoice extends Model
 
     public function usermeterinfos()
     {
-        return $this->belongsTo(UserMerterInfo::class, 'meter_id_fk', 'meter_id');
+        return $this->belongsTo(TwUsersInfo::class, 'meter_id_fk', 'meter_id');
     }
 
     public function acc_transactions()
     {
-        return $this->belongsTo(AccTransactions::class, 'acc_trans_id_fk', 'id');
+        return $this->belongsTo(TwAccTransactions::class, 'acc_trans_id_fk', 'id');
     }
     public function invoice_inv_pd_active()
     {
-        return $this->hasOne(InvoicePeriod::class, 'inv_period_id_fk', 'id');
+        return $this->hasOne(TwInvoicePeriod::class, 'inv_period_id_fk', 'id');
     }
 
     public function inv_no($meter_id, $db = 'mysql')

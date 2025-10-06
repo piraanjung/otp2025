@@ -22,10 +22,7 @@
             display: none
         }
     </style>
-    {{-- <script src="https://code.jquery.com/jquery-3.7.0.js"></script>
-    <script src="https://cdn.datatables.net/1.13.6/js/jquery.dataTables.min.js"></script>
-    <script src="https://cdn.datatables.net/1.13.6/js/dataTables.bootstrap5.min.js"></script>
---}}
+
     <script src="{{asset('/adminlte/plugins/jquery/jquery.min.js')}}"></script>
     <script src="{{asset('/adminlte/plugins/datatables/jquery.dataTables.js')}}"></script>
     <script src="{{asset('/adminlte/plugins/datatables-bs4/js/dataTables.bootstrap4.min.js')}}"></script>
@@ -156,7 +153,10 @@
                                                     readonly>
                                                 <input type="hidden" value="{{ $invoice->meter_id_fk }}"
                                                     name="data[{{ $i }}][meter_id]">
-                                                <input type="hidden" value="{{ $invoice->inv_id }}" name="data[{{ $i }}][inv_id]">
+                                                <input type="hidden" value="{{ $invoice->id }}" name="data[{{ $i }}][inv_id]">
+                                                <input type="hidden" value="{{ $invoice->usermeterinfos->meter_type->rateConfigs[0]->fixed_rate_per_unit }}" name="data[{{ $i }}][fixed_rate_per_unit]">
+
+
                                             </td>
                                             <td class="text-center">{{ $invoice->usermeterinfos->factory_no }}</td>
 
@@ -180,39 +180,40 @@
                                                 <input type="text" value="{{ $invoice->lastmeter }}"
                                                     name="data[{{ $i }}][lastmeter]" data-id="{{ $i }}"
                                                     id="lastmeter{{ $i }}"
-                                                    data-price_per_unit="{{ $invoice->usermeterinfos->meter_type->price_per_unit }}"
+                                                    data-price_per_unit="{{ $invoice->usermeterinfos->meter_type->rateConfigs[0]->fixed_rate_per_unit }}"
                                                     class="form-control text-end lastmeter">
                                             </td>
                                             <td class="border-0 text-right">
                                                 <input type="text" value="{{ !isset($invoice->currentmeter) ? 0 : $invoice->currentmeter  }}"
                                                     name="data[{{ $i }}][currentmeter]"
                                                     data-id="{{ $i }}" id="currentmeter{{ $i }}"
-                                                    data-price_per_unit="{{ $invoice->usermeterinfos->meter_type->price_per_unit }}"
+                                                    data-price_per_unit="{{ $invoice->usermeterinfos->meter_type->rateConfigs[0]->fixed_rate_per_unit }}"
                                                     class="form-control text-end currentmeter border-success">
 
                                             </td>
                                             <td class="border-0 text-right">
-                                                <input type="text" readonly class="form-control text-end water_used_net"
+                                                <input type="text" readonly class="form-control text-end water_used_net" 
                                                     id="water_used_net{{ $i }}" value="{{ !isset($invoice->water_used) ? 0 : $invoice->water_used  }}">
                                             </td>
                                             <td class="border-0 text-right">
-                                                <input type="text" readonly class="form-control text-end paid"
+                                                <input type="text" readonly class="form-control text-end paid" name="data[{{ $i }}][paid]"
                                                     id="paid{{ $i }}" value="{{ !isset($invoice->paid) ? 0 : $invoice->paid  }}">
                                             </td>
                                             <td class="border-0 text-right">
-                                                <input type="text" readonly
+                                                <input type="text" readonly name="data[{{ $i }}][meter_reserve_price]"
                                                     class="form-control text-end meter_reserve_price"
-                                                    id="meter_reserve_price{{ $i }}" value="{{ !isset($invoice->reserve_price) ? 0 : $invoice->reserve_price  }}">
+                                                    id="meter_reserve_price{{ $i }}" value="{{ !isset($invoice->usermeterinfos->meter_type->rateConfigs[0]) ? 0 : $invoice->usermeterinfos->meter_type->rateConfigs[0]->min_usage_charge  }}">
                                             </td>
+                                            
                                             <td class="border-0 text-right">
-                                                <input type="text" readonly
+                                                <input type="text" readonly name="data[{{ $i }}][vat]"
                                                     class="form-control text-end vat" data-id="{{ $i }}"
-                                                    id="vat{{ $i }}" value="{{ !isset($invoice->vat) ? 0 : $invoice->vat  }}">
+                                                    id="vat{{ $i }}" value="{{ !isset($invoice->usermeterinfos->meter_type->rateConfigs[0]->vat) ? 0 : $invoice->usermeterinfos->meter_type->rateConfigs[0]->vat  }}">
                                             </td>
 
 
                                             <td class="border-0 text-right">
-                                                <input type="text" readonly class="form-control text-end total"
+                                                <input type="text" readonly class="form-control text-end total" name="data[{{ $i }}][totalpaid]"
                                                     id="total{{ $i }}" value="{{ !isset($invoice->totalpaid) ? 0 : $invoice->totalpaid  }}">
                                             </td>
                                         </tr>
@@ -259,18 +260,18 @@
             $('.currentmeter').keyup(function() {
                 let inv_id = $(this).data('id')
                 let price_per_unit = $(this).data('price_per_unit')
-                console.log(price_per_unit)
+
                 let currentmeter = $(this).val()
                 let lastmeter = $(`#lastmeter${inv_id}`).val()
                 let net = currentmeter == '' ? 0 : currentmeter - lastmeter;
                 let paid = net == 0 ? 0 : net * price_per_unit;
-                let meter_reserve_price = net == 0 ? 10 : 0;
-                let vat = 0// net == 0 ? 0.7 : net * price_per_unit*0.07;
-                let total = (net * price_per_unit) + check_meter_reserve_price(inv_id)+vat;
+                let meter_reserve_price = $('#meter_reserve_price'+inv_id).val()
+                let vat = $('#vat' + inv_id).val() * paid;
+
+                let total = (net * price_per_unit) + +vat;
                 $('#vat' + inv_id).val(vat.toFixed(2))
                 $('#water_used_net' + inv_id).val(net)
                 $('#paid'+inv_id).val(paid)
-                $('meter_reserve_price'+inv_id).val(meter_reserve_price.toFixed(2))
                 $('#total' + inv_id).val(total.toFixed(2));
             });
             $('.lastmeter').keyup(function() {

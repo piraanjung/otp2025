@@ -18,7 +18,7 @@ class StaffController extends Controller
     public function index(Request $request)
     {
         // รายการ Role ที่ถือว่าเป็น Staff
-        $staffRoles = ['Tabwater Staff', 'Tabwater Header', 'finance staff', 'finance header'];
+        $staffRoles = ['Tabwater Staff', 'Tabwater Header', 'Finance Staff', 'finance header'];
 
         // Get search and filter parameters
         $searchName = $request->input('search_name');
@@ -66,10 +66,9 @@ class StaffController extends Controller
             $staffs = $query->orderBy('firstname')->paginate($perPage);
         }
         if ($isAjax) {
-            return view('keptkaya.staffs._table_body', compact('staffs'))->render();
+            return view('keptkayas.staffs._table_body', compact('staffs'))->render();
         }
-
-        return view('keptkaya.staffs.index', compact('staffs', 'perPage'));
+        return view('keptkayas.staffs.index', compact('staffs', 'perPage'));
     }
 
 
@@ -89,7 +88,7 @@ class StaffController extends Controller
         $permissions = Permission::all();
         $staffRoles = ['Tabwater Staff', 'Tabwater Header', 'finance staff', 'finance header'];
         $roles = Role::whereIn('name', $staffRoles)->get();
-        return view('keptkaya.staffs.create', compact('usersToAssign', 'assignableRoles', 'permissions', 'roles'));
+        return view('keptkayas.staffs.create', compact('usersToAssign', 'assignableRoles', 'permissions', 'roles'));
     }
 
     /**
@@ -97,7 +96,6 @@ class StaffController extends Controller
      */
     public function store(Request $request)
     {
-        // return $request->roles;
         $request->validate([
             'user_id' => 'required|exists:users,id',
             'roles' => [
@@ -124,9 +122,10 @@ class StaffController extends Controller
             }
         }
 
-        $staff = Staff::where('user_id',$request->user_id)->get()->first();
+        $staff = Staff::find($user->id);
         if(collect($staff)->isEmpty()){
-            $staff->user_id = $request->user_id;
+            $staff = new Staff();
+            $staff->user_id = $user->id;
             $staff->status  = 'active';
             $staff->deleted	= '0';
             $staff->save();
@@ -134,7 +133,7 @@ class StaffController extends Controller
         
         
 
-        return redirect()->route('keptkaya.staffs.index')->with('success', 'เพิ่มเจ้าหน้าที่ใหม่เรียบร้อยแล้ว');
+        return redirect()->route('keptkayas.staffs.index')->with('success', 'เพิ่มเจ้าหน้าที่ใหม่เรียบร้อยแล้ว');
     }
 
     /**
@@ -144,7 +143,7 @@ class StaffController extends Controller
     {
         // โหลด permissions และ roles สำหรับการแสดงผล
         $staff->load('permissions', 'roles');
-        return view('keptkaya.staffs.show', compact('staff'));
+        return view('keptkayas.staffs.show', compact('staff'));
     }
 
     /**
@@ -155,7 +154,7 @@ class StaffController extends Controller
         // ดึง roles ที่สามารถ assign ได้
         $assignableRoles = Role::whereIn('name', ['staff', 'tabwater staff', 'tabwater header', 'finance staff', 'finance header'])->get();
         $staff->load('roles');
-        return view('keptkaya.staffs.edit', compact('staff', 'assignableRoles'));
+        return view('keptkayas.staffs.edit', compact('staff', 'assignableRoles'));
     }
 
     /**
@@ -184,7 +183,7 @@ class StaffController extends Controller
         $staff->status = $request->status;
         $staff->save();
 
-        return redirect()->route('keptkaya.staffs.index')->with('success', 'อัปเดตข้อมูลเจ้าหน้าที่เรียบร้อยแล้ว');
+        return redirect()->route('keptkayas.staffs.index')->with('success', 'อัปเดตข้อมูลเจ้าหน้าที่เรียบร้อยแล้ว');
     }
 
     /**
@@ -200,6 +199,6 @@ class StaffController extends Controller
             $staff->removeRole($roleName);
         }
 
-        return redirect()->route('keptkaya.staffs.index')->with('success', 'ลบบทบาทเจ้าหน้าที่ออกจากผู้ใช้งานเรียบร้อยแล้ว');
+        return redirect()->route('keptkayas.staffs.index')->with('success', 'ลบบทบาทเจ้าหน้าที่ออกจากผู้ใช้งานเรียบร้อยแล้ว');
     }
 }

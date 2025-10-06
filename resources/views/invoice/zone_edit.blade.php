@@ -19,7 +19,7 @@
 @section('content')
     <style>
         .hidden {
-            display: none
+            /* display: none */
         }
     </style>
     <link href="https://cdn.datatables.net/2.2.0/css/dataTables.dataTables.css">
@@ -66,22 +66,15 @@
                             <?php $i = 1; ?>
                             @foreach ($inv_in_seleted_subzone as $u_meter_info)
                                 <tr data-id="{{ $i }}" class="data">
-
-                                    {{-- <th class="text-center" width="2%">
-                                        <a href="javascript:void(0)" class="btn btn-outline-warning delbtn2"
-                                            onclick="del('{{ $u_meter_info->invoice[0]->inv_id }}')">
-                                            <i class="fas fa-trash"></i>
-                                        </a>
-                                    </th> --}}
                                    
                                     <td class="border-0 text-center">
-                                        {{ $u_meter_info->invoice[0]->inv_id }}
-                                        <input type="hidden" value="{{ $u_meter_info->invoice[0]->inv_id }}"
+                                        {{ $u_meter_info->invoice_temp[0]->id }}
+                                        <input type="hidden" value="{{ $u_meter_info->invoice_temp[0]->id }}"
                                             name="data[{{ $i }}][inv_id]" data-id="{{ $i }}"
                                             id="inv_id{{ $i }}"
                                             class="form-control text-right inv_id border-primary text-sm text-bold"
                                             readonly>
-                                        <input type="hidden" value="{{ $u_meter_info->invoice[0]->inv_id }}"
+                                        <input type="hidden" value="{{ $u_meter_info->invoice_temp[0]->id }}"
                                             name="data[{{ $i }}][inv_id]">
                                         <input type="hidden" value="0" id="changevalue{{ $i }}"
                                             name="data[{{ $i }}][changevalue]">
@@ -104,8 +97,7 @@
                                         {{ $u_meter_info->user_id }}
                                     </td>
                                     <td class="border-0 text-left">
-                                        <span class="username" data-user_id="{{ $u_meter_info->user_id }}"><i
-                                                class="fas fa-search-plus"></i>
+                                        <span class="username" data-user_id="{{ $u_meter_info->user_id }}">
                                             {{ $u_meter_info->user->firstname . ' ' . $u_meter_info->user->lastname }}</span>
                                         <input type="hidden" name="data[{{ $i }}][user_id]"
                                             value="{{ $u_meter_info->user_id }}">
@@ -117,25 +109,25 @@
                                             value="{{ $u_meter_info->meter_address }}"
                                             name="data[{{ $i }}][address]">
                                     </td>
-                                    @if (collect($u_meter_info->invoice)->isEmpty())
+                                    @if (collect($u_meter_info->invoice_temp)->isEmpty())
                                         {{ dd($u_meter_info) }}
                                     @endif
                                     <td class="border-0">
-                                        <input type="text" value="{{ $u_meter_info->invoice[0]->lastmeter }}"
+                                        <input type="text" value="{{ $u_meter_info->invoice_temp[0]->lastmeter }}"
                                             name="data[{{ $i }}][lastmeter]" data-id="{{ $i }}"
                                             id="lastmeter{{ $i }}"
                                             data-price_per_unit="{{ $u_meter_info->meter_type->price_per_unit }}"
                                             class="form-control text-right lastmeter">
-                                           <span class="hidden"> {{$u_meter_info->invoice[0]->lastmeter}}</span>
+                                           <span class="hidden"> {{$u_meter_info->invoice_temp[0]->lastmeter}}</span>
 
                                     </td>
                                     <td class="border-0 text-right">
-                                        <input type="text" value="{{ $u_meter_info->invoice[0]->currentmeter }}"
+                                        <input type="text" value="{{ $u_meter_info->invoice_temp[0]->currentmeter }}"
                                             name="data[{{ $i }}][currentmeter]" data-id="{{ $i }}"
                                             id="currentmeter{{ $i }}"
                                             data-price_per_unit="{{ $u_meter_info->meter_type->price_per_unit }}"
                                             class="form-control text-right currentmeter border-success">
-                                           <span class="hidden"> {{$u_meter_info->invoice[0]->currentmeter}}</span>
+                                           <span class="hidden"> {{$u_meter_info->invoice_temp[0]->currentmeter}}</span>
 
                                     </td>
 
@@ -144,16 +136,16 @@
                                         <input type="text" readonly class="form-control text-right water_used_net"
                                             id="water_used_net{{ $i }}"
                                             name="data[{{ $i }}][water_used]"
-                                            value="{{ $u_meter_info->invoice[0]->water_used }}">
-                                            <span class="hidden"> {{$u_meter_info->invoice[0]->water_used}}</span>
+                                            value="{{ $u_meter_info->invoice_temp[0]->water_used }}">
+                                            <span class="hidden"> {{$u_meter_info->invoice_temp[0]->water_used}}</span>
 
                                     </td>
                                     <td class="border-0 text-right">
                                         <!-- เป็นเงิน -->
                                         <input type="text" readonly class="form-control text-right paid"
                                             name="data[{{ $i }}][paid]" id="paid{{ $i }}"
-                                            value="{{ $u_meter_info->invoice[0]->paid }}">
-                                            <span class="hidden"> {{$u_meter_info->invoice[0]->paid}}</span>
+                                            value="{{ $u_meter_info->invoice_temp[0]->paid }}">
+                                            <span class="hidden"> {{$u_meter_info->invoice_temp[0]->paid}}</span>
 
                                     </td>
                                     <td class="border-0 text-right">
@@ -162,37 +154,37 @@
                                             id="meter_reserve_price{{ $i }}" value="10">
                                             <span class="hidden"> 10</span>
 
-                                        {{-- value="{{ $u_meter_info->invoice[0]->inv_type == 'r' ? $u_meter_info->invoice[0]->reserve : 0 }}"> --}}
+                                        {{-- value="{{ $u_meter_info->invoice_temp[0]->inv_type == 'r' ? $u_meter_info->invoice_temp[0]->reserve : 0 }}"> --}}
                                     </td>
                                     <td class="border-0 text-right">
                                         <input type="text" readonly class="form-control text-right vat"
                                             name="data[{{ $i }}][vat]" id="vat{{ $i }}"
-                                            value="{{ $u_meter_info->invoice[0]->vat }}">
-                                            <span class="hidden"> {{$u_meter_info->invoice[0]->vat}}</span>
+                                            value="{{ $u_meter_info->invoice_temp[0]->vat }}">
+                                            <span class="hidden"> {{$u_meter_info->invoice_temp[0]->vat}}</span>
 
                                     </td>
 
                                     <td class="border-0 text-right">
                                         <input type="text" readonly class="form-control text-right total"
                                             id="total{{ $i }}" name="data[{{ $i }}][totalpaid]"
-                                            value="{{ $u_meter_info->invoice[0]->totalpaid }}">
-                                            <span class="hidden"> {{$u_meter_info->invoice[0]->totalpaid}}</span>
+                                            value="{{ $u_meter_info->invoice_temp[0]->totalpaid }}">
+                                            <span class="hidden"> {{$u_meter_info->invoice_temp[0]->totalpaid}}</span>
 
                                     </td>
                                     <td>
-                                        <span class="hidden"> {{$u_meter_info->invoice[0]->status}}</span>
+                                        <span class=""> {{$u_meter_info->invoice_temp[0]->status}}</span>
 
                                     </td>
                                     <td>
-                                        <span class="hidden"> {{$u_meter_info->invoice[0]->created_at}}</span>
+                                        <span class=""> {{$u_meter_info->invoice_temp[0]->created_at}}</span>
 
                                     </td>
                                     <td>
-                                        <span class="hidden"> {{$u_meter_info->invoice[0]->updated_at}}</span>
+                                        <span class=""> {{$u_meter_info->invoice_temp[0]->updated_at}}</span>
 
                                     </td>
                                     <td>
-                                        <span class="hidden"> {{$u_meter_info->invoice[0]->recorder->firstname." ".$u_meter_info->invoice[0]->recorder->lastname."(".$u_meter_info->invoice[0]->recorder_id.")"}}</span>
+                                        <span class=""> {{$u_meter_info->invoice_temp[0]->recorder->firstname." ".$u_meter_info->invoice_temp[0]->recorder->lastname."(".$u_meter_info->invoice_temp[0]->recorder_id.")"}}</span>
 
                                     </td>
                                 </tr>

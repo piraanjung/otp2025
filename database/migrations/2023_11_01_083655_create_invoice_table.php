@@ -22,6 +22,7 @@ return new class extends Migration
                 $table->float('water_used', 8,2);
                 $table->enum('inv_type', ['r', 'u'])->comment('r =รักษามิเตอร์, u=ใช้น้ำ');
                 $table->float('paid', 8,2);
+                $table->float('reserve_meter', 6,2);
                 $table->float('vat', 8,2);
                 $table->float('totalpaid', 8,2)->commet('paid+vat');
                 $table->enum('status', ['init','invoice', 'paid', 'owe', 'deleted']);

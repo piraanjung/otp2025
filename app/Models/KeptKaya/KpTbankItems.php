@@ -22,7 +22,7 @@ class KpTbankItems extends Model
 
 
     public function items_price_and_point_infos(){
-        return $this->hasMany(KpTbankItemsPriceAndPoint::class, 'items_id_fk', 'id');
+        return $this->hasMany(KpTbankItemsPriceAndPoint::class, 'kp_items_idfk', 'id');
     }
 
      public function prices()

@@ -14,7 +14,8 @@ class MeterTypeRateConfig extends Model
         'id',
         'meter_type_id',
         'pricing_type_id',
-        'min_usage_charge',
+        'min_usage_charge',//ค่า reserve meter
+        'vat',
         'fixed_rate_per_unit',
         'effective_date',
         'end_date',

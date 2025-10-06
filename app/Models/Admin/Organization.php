@@ -42,23 +42,28 @@ class Organization extends Model
     protected $casts = [
         'vat' => 'float:2', // แปลง vat เป็น float และแสดง 2 ตำแหน่ง
     ];
-    public function provinces(){
+    public function provinces()
+    {
         return $this->belongsTo(Province::class, 'org_province_id_fk', 'id');
     }
 
-    public function districts(){
+    public function districts()
+    {
         return $this->belongsTo(District::class, 'org_district_id_fk', 'id');
     }
 
-    public function tambons(){
+    public function tambons()
+    {
         return $this->belongsTo(Tambon::class, 'org_tambon_id_fk', 'id');
     }
 
-    public function zones(){
+    public function zones()
+    {
         return $this->belongsTo(Zone::class, 'org_zone_id_fk', 'id');
     }
 
-    public static function getOrgInfos($org_id_fk){
+    public static function getOrgInfos($org_id_fk)
+    {
         $connection = (new Organization)->on('mysql')->where('id', $org_id_fk)
             ->with(['provinces', 'tambons', 'districts', 'zones'])
             ->get()->first();
@@ -85,4 +90,25 @@ class Organization extends Model
         ];
     }
 
+    public static function getOrgName($org_id_fk)
+    {
+        $connection = (new Organization)->on('mysql')->where('id', $org_id_fk)
+            ->with(['provinces', 'tambons', 'districts', 'zones'])
+            ->get()->first();
+        return [
+            'id'  => $org_id_fk,
+            'org_database' => $connection->org_database,
+            'org_code' => $connection->org_code,
+            'org_zipcode' => $connection->org_zipcode,
+            'org_provinces' => $connection->provinces->province_name,
+            'org_districts' => $connection->districts->district_name,
+            'org_tambons' => $connection->tambons->tambon_name,
+            'org_zone' => $connection->zones->zone_name,
+            'org_logo_img' => $connection->org_logo_img,
+            'org_type_name' => $connection->org_type_name,
+            'org_name' => $connection->org_name,
+            'org_short_type_name' => $connection->org_short_name,
+            'org_dept_name' => $connection->org_dept_name,
+        ];
+    }
 }

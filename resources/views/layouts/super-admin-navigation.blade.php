@@ -4,7 +4,7 @@
   <a class="navbar-brand m-0" href=" https://demos.creative-tim.com/soft-ui-dashboard/pages/dashboard.html "
     target="_blank">
     <img src="{{ asset('soft-ui/assets/img/logo-ct-dark.png')}}" class="navbar-brand-img h-100" alt="main_logo">
-    <span class="ms-1 font-weight-bold">AIrOTrash</span>
+    <span class="ms-1 font-weight-bold">ENVSOGO</span>
   </a>
 </div>
 <hr class="horizontal dark mt-0">
@@ -23,13 +23,13 @@
       </a>
     </li>
     <li class="nav-item">
-      <a class="nav-link  " href="{{ route('admin.settings.settings_form') }}">
+      {{-- <a class="nav-link  " href="{{ route('admin.settings.settings_form') }}">
         <div
           class="icon icon-shape icon-sm shadow border-radius-md bg-white text-center me-2 d-flex align-items-center justify-content-center">
           <i class="fa-solid fa-file-csv"></i></i>
         </div>
         <span class="nav-link-text ms-1">Settings & Import</span>
-      </a>
+      </a> --}}
     </li>
     <li class="nav-item">
       <a data-bs-toggle="collapse" href="#meterTypes" class="nav-link" aria-controls="meterTypes" role="button"
@@ -65,6 +65,16 @@
           <i class="fa-solid fa-file-csv"></i></i>
         </div>
         <span class="nav-link-text ms-1">Manage Pricing Types </span>
+      </a>
+    </li>
+
+    <li class="nav-item">
+      <a class="nav-link  " href="{{ route('superadmin.staff.index') }}">
+        <div
+          class="icon icon-shape icon-sm shadow border-radius-md bg-white text-center me-2 d-flex align-items-center justify-content-center">
+          <i class="fa-solid fa-file-csv"></i></i>
+        </div>
+        <span class="nav-link-text ms-1">Staffs </span>
       </a>
     </li>
 

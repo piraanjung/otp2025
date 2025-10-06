@@ -7,7 +7,7 @@ use App\Http\Controllers\Tabwater\ReportsController;
 use App\Models\Admin\BudgetYear;
 use App\Models\Admin\Organization;
 use App\Models\Admin\Subzone;
-use App\Models\Tabwater\Invoice;
+use App\Models\Tabwater\TwInvoice;
 use App\Models\User;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
@@ -31,12 +31,15 @@ class AccessMenusController extends Controller
         ];
         $data = $reportCtrl->water_used($request, 'dashboard');
         $water_used_total = collect($data['data'])->sum();
-        $invoice_paid = Invoice::where('status', 'paid')->get('vat', 'total_paid');
-        $paid_total = collect($invoice_paid)->sum('total_paid');
+        $invoice_paid = TwInvoice::where('status', 'paid')->get(['vat', 'totalpaid']);
+        $paid_total = collect($invoice_paid)->sum('totalpaid');
         $vat =  collect($invoice_paid)->sum('vat');;
         $user_count_sum = collect($user_count)->sum();
         $subzone_count = collect($subzones)->count();
         $current_budgetyear = BudgetYear::where('status', 'active')->get('budgetyear_name')[0];
+        
+        $orgInfos = Organization::getOrgName(Auth::user()->org_id_fk);
+
         return view('dashboard', compact(
             'data',
             'user_in_subzone_data',
@@ -45,14 +48,14 @@ class AccessMenusController extends Controller
             'vat',
             'user_count_sum',
             'subzone_count',
-            'current_budgetyear'
+            'current_budgetyear',
+            'orgInfos'
         ));
     }
 
     public function accessmenu(Request $request)
     {
         $user = User::find(Auth::id());
-
         $userAgent = $_SERVER['HTTP_USER_AGENT'] ?? '';
 
         // ตรวจสอบคำที่บ่งชี้ถึงอุปกรณ์มือถือ
@@ -63,15 +66,7 @@ class AccessMenusController extends Controller
         if ($ismobile) {
             return redirect()->route('staff_accessmenu');
         }
-        $orgInfos = Organization::where('id', 2)->get([
-            'org_type_name',
-            'org_name',
-            'org_short_type_name',
-            'org_province_id_fk',
-            'org_logo_img',
-            'org_district_id_fk',
-            'org_tambon_id_fk'
-        ])[0];
+        $orgInfos = Organization::getOrgName(Auth::user()->org_id_fk);
         return view('accessmenu', compact('orgInfos', 'user'));
     }
 

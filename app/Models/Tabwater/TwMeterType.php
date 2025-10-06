@@ -10,17 +10,17 @@ class TwMeterType extends Model
     use HasFactory;
 
     protected $table = 'tw_meter_types';
-    protected $fillable = ['meter_type_name', 'description']; // ยังคงเหมือนเดิม
+    protected $fillable = ['id','meter_type_name', 'description', 'metersize']; // ยังคงเหมือนเดิม
 
-    public function tabwaterMembers()
-    {
-        return $this->hasMany(TwMerterInfos::class, 'metertype_id');
-    }
+    // public function tabwaterMembers()
+    // {
+    //     return $this->hasMany(TwMerterInfos::class, 'metertype_id');
+    // }
 
     // เพิ่ม Relationship เพื่อเชื่อมโยงกับ MeterTypeRateConfig
     public function rateConfigs()
     {
-        return $this->hasMany(MeterTypeRateConfig::class);
+        return $this->hasMany(MeterTypeRateConfig::class, 'meter_type_id', 'id');
     }
 
     /**

@@ -2,7 +2,7 @@
     $infos_count = App\Http\Controllers\FunctionsController::keptkaya_nav_infos();
 @endphp
 <ul class="navbar-nav">
-    <li class="nav-item">
+    <li class="nav-item1">
         <a href="{{route('accessmenu')}}" class="nav-link active">
             <div
                 class="icon icon-sm shadow-sm border-radius-md bg-yellow text-center d-flex align-items-center justify-content-center  me-2">
@@ -12,7 +12,7 @@
         </a>
 
     </li>
-    <li class="nav-item">
+    {{-- <li class="nav-item1">
         <a class="nav-link  @yield('nav-dashboard')" href="{{route('keptkayas.dashboard')}}">
             <div
                 class="icon icon-shape icon-sm shadow border-radius-md bg-white text-center me-2 d-flex align-items-center justify-content-center">
@@ -37,13 +37,13 @@
             </div>
             <span class="nav-link-text ms-1">Dashboard</span>
         </a>
-    </li>
+    </li> --}}
 
 
 
     {{-- @can('access waste bank') --}}
     {{-- @if (Session::get('keptkaya_type') == 'recycle') --}}
-    <li class="nav-item">
+    <li class="nav-item1">
         <a data-bs-toggle="collapse" href="#cart" class="nav-link active" aria-controls="cart" role="button"
             aria-expanded="true">
             <div
@@ -71,7 +71,7 @@
         </a>
         <div class="collapse show" id="cart" style="">
             <ul class="nav ms-4 ps-3">
-                <li class="nav-item  ">
+                <li class="nav-item1  ">
                     <a class="nav-link @yield('nav-cart')" href="{{ route('keptkayas.purchase.select_user') }}">
                         <div
                             class="icon icon-shape icon-sm shadow border-radius-md bg-white text-center me-2 d-flex align-items-center justify-content-center">
@@ -81,16 +81,16 @@
                     </a>
                 </li>
 
-                <li class="nav-item  ">
+                <li class="nav-item1  ">
                     <a class="nav-link @yield('nav-cart')" href="{{ route('keptkayas.sell.form') }}">
                         <div
                             class="icon icon-shape icon-sm shadow border-radius-md bg-white text-center me-2 d-flex align-items-center justify-content-center">
                             <i class="fa fa-sd-card text-danger text-gradient text-lg"></i>
                         </div>
-                        <span class="sidenav-normal">บันทึกข้อมูลการขายขยะรีไซเคิล</span>
+                        <span class="sidenav-normal">บันทึกการขายขยะรีไซเคิล</span>
                     </a>
                 </li>
-                <li class="nav-item ">
+                <li class="nav-item1 ">
                     <a class="nav-link " href="{{route('logout')}}">
                         <div
                             class="icon icon-shape icon-sm shadow border-radius-md bg-white text-center me-2 d-flex align-items-center justify-content-center">

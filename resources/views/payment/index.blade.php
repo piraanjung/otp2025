@@ -264,17 +264,21 @@
                                     <th>
                                         <input type="checkbox" class="form-check-input" id="check_all">
                                     </th>
-                                    <th></th>
+                                    <th>เลขผู้ใช้น้ำ</th>
                                     <th>เลขใบแจ้งหนี้</th>
-                                    <th>ชื่อ</th>
+                                    <th>ชื่อ-สกุล</th>
                                     <th>เลขมิเตอร์</th>
                                     <th>บ้านเลขที่</th>
                                     <th>หมู่</th>
-                                    <th>เส้นทางจดมิเตอร์</th>
-                                    <th>ใช้น้ำ(หน่วย)</th>
-                                    <th>ต้องชำระ(บาท)</th>
-                                    <th>ค้างชำระ(รอบบิล)</th>
+                                    <th>เส้นทาง<div>จดมิเตอร์</div></th>
+                                     <th>
+                                        ใช้น้ำ<div>(หน่วย)</div>
+                                    </th>
+                                    <th>ต้องชำระ<div>(บาท)</div></th>
+                                    <th>ค้างชำระ<div>(รอบบิล)</div></th>
                                     <th>สถานะ</th>
+                                    
+
                                     {{-- <th>หมายเหตุ</th> --}}
                                 </thead>
                                 <tfoot>
@@ -300,9 +304,9 @@
                                               
                                                  {{-- @if ($invoice->same == true) --}}
                                                     <input type="checkbox" class="form-check-input checkbox main_checkbox" name="datas[]"
-                                                        value="{{ $invoice->invoice[0]->meter_id_fk."|".$invoice->inv_no_index }}"
-                                                        data-main_checkbox_totalpaid="{{collect($invoice->invoice)->sum('totalpaid')}}"  
-                                                        data-main_total_water_used_selected="{{collect($invoice->invoice)->sum('water_used')}}"  
+                                                        value="{{ $invoice->invoice_temp[0]->meter_id_fk."|".$invoice->inv_no_index }}"
+                                                        data-main_checkbox_totalpaid="{{collect($invoice->invoice_temp)->sum('totalpaid')}}"  
+                                                        data-main_total_water_used_selected="{{collect($invoice->invoice_temp)->sum('water_used')}}"  
                                                         
                                                     >
                                                     
@@ -310,14 +314,16 @@
                                                 
 
                                             </td>
-                                            <td> {{ $invoice->invoice[0]->inv_id }}</td>
-                                            <td class="popup text-end">
-                                                {{ "IV01".substr('0000',strlen($invoice->invoice[0]->meter_id_fk)).$invoice->invoice[0]->meter_id_fk
-                                                .substr('00',strlen($invoice->inv_no_index)).$invoice->inv_no_index  }}
-
+                                            <td> 
+                                                {{ substr('0000',strlen($invoice->invoice_temp[0]->meter_id_fk)).$invoice->invoice_temp[0]->meter_id_fk }}
+                                               
+                                            </td>
+                                            <td class="popup text-center">
+                                               @foreach ($invoice->invoice_temp as $invoice_temp)
+                                                     <div>{{ "IV01".substr('0000',strlen($invoice_temp->id)).$invoice_temp->id }}</div>
+                                                @endforeach
                                             </td>
                                             @if (collect($invoice->user)->isEmpty())
-                                            sfds
                                                 @dd($invoice)
                                             @endif
                                             <td class="popup">
@@ -337,12 +343,14 @@
                                                 @endif
                                                 {{ $invoice->undertake_subzone->subzone_name }}
                                             </td>
-                                            <td class="popup text-end">
-                                                {{ number_format(collect($invoice->invoice)->sum('water_used'), 2) }}
+
+                                             <td class="popup text-end">
+                                                {{ number_format(collect($invoice->invoice_temp)->sum('water_used'), 2) }}
                                             </td>
+                                           
                                             <td class="popup text-end">
-                                                {{-- @dd($invoice->invoice) --}}
-                                                {{ collect($invoice->invoice)->sum('totalpaid') }}
+                                                {{-- @dd($invoice->invoice_temp) --}}
+                                                {{ collect($invoice->invoice_temp)->sum('totalpaid') }}
 
                                             </td>
                                             <td class="popup text-end">
@@ -357,6 +365,7 @@
                                                     <span class="badge badge-sm bg-gradient-info">ค้างชำระ</span>
                                                 @endif
                                             </td>
+                                            
                                         </tr>
                                     @endforeach
 
@@ -395,7 +404,7 @@
                                 <div class="col-12">
                                     {{-- ข้อมูลใบแจ้งหนี้และการชำระ --}}
                                     <input type="hidden" name="mode" id="mode" value="payment">
-                                    {{-- <input type="text" name="inv_no" id="inv_no"> --}}
+                                    <input type="hidden" name="inv_no" id="inv_no">
                                     <input type="hidden" name="user_id" id="user_id" value="">
                                     <input type="hidden" name="meter_id" id="meter_id" value="">
                                     <input type="hidden" class="form-control text-bold text-center  paidform" readonly
@@ -660,6 +669,7 @@
 
         $('body').on('click', '#invoiceTable tbody td.popup', function() {
             let meternumber = $(this).parent().find('td.meternumber').data('meter_id')
+
             if ($(this).parent().hasClass('selected')) {
                 $(this).parent().removeClass('selected')
             } else {
@@ -680,7 +690,7 @@
             let vatsum = parseFloat(0);
             let vat = 0; //0.07;
             let i = 0;
-
+            let reserve_metersum = 0;
             $('.cashback').val(0)
             $('#paidvalues').val(0)
             $('#vat7').val(0)
@@ -726,12 +736,13 @@
                                         </thead>
                                         <tbody>`;
                     invoices.forEach(element => {
-                        totalpaidsum += parseFloat(element.paid)
+                        totalpaidsum += parseFloat(element.totalpaid)
                         vatsum += parseFloat(element.vat);
                         paidsum += parseFloat(element.paid)
-
+                        reserve_metersum  +=parseFloat(element.reserve_meter)
                         let _vat = parseFloat(element.paid) == 0 ? parseFloat(vat) : parseFloat(vat) *
                             parseFloat(element.paid)
+                        // let _vat = element.vat
                         let totalpaid = parseFloat(_vat) + parseFloat(element.paid)
 
                         let status = element.status == 'owe' ? 'ค้างชำระ' : 'ออกใบแจ้งหนี้';
@@ -739,24 +750,24 @@
                                 <td class="text-center">
                                     <div class="form-check">
                                         <input type="checkbox"  checked  class="form-check-input invoice_id checkbox modalcheckbox"
-                                            data-inv_id="${element.inv_id}" name="payments[${i}][on]">
+                                            data-inv_id="${element.id}" name="payments[${i}][on]">
                                     </div>
                                 </td>
+                                <td class="text-center">IV01${"0000".substring(element.id.toString().length)}${element.id}</td>
                                 <td class="text-center">${element.meter_id_fk}</td>
-                                <td class="text-center">${element.inv_id}</td>
                                 <td class="text-center">${element.usermeterinfos.meternumber}</td>
                                 <td class="text-center">${element.invoice_period.inv_p_name}</td>
                                 <td class="text-end">   ${element.lastmeter}</td>
                                 <td class="text-end">   ${element.currentmeter}</td>
                                 <td class="text-end">   ${element.water_used}</td>
-                                <td class="text-end" id="paid${element.inv_id}" data-paid="${element.inv_id}">   ${ element.paid }
+                                <td class="text-end" id="paid${element.id}" data-paid="${element.id}">   ${ element.paid }
                                     <input type="hidden" name="payments[${i}][total]" value="${ element.paid }">
-                                    <input type="hidden" name="payments[${i}][iv_id]" value="${ element.inv_id }">
+                                    <input type="hidden" name="payments[${i}][iv_id]" value="${ element.id }">
                                     <input type="hidden" name="payments[${i}][status]" value="${ element.status }">
                                 </td>
                                 <td class="text-end">${ element.inv_type === 'r' ? 10 : 10}</td>
-                                <td class="text-end" id="vat${element.inv_id}" data-vat="${element.inv_id}">${parseFloat(_vat).toFixed(2)}</td>
-                                <td class="total text-end" id="total${element.inv_id}" data-total="${element.inv_id}">${parseFloat(totalpaid +10).toFixed(2)}</td>
+                                <td class="text-end" id="vat${element.id}" data-vat="${element.id}">${element.vat}</td>
+                                <td class="total text-end" id="total${element.id}" data-total="${element.id}">${element.totalpaid}</td>
                                 <td class="text-center">${status}</td>
 
                             </tr>
@@ -790,12 +801,12 @@
                     $('.paidsum').html(parseFloat(paidsum).toFixed(2))
                     $('#vat7').val(parseFloat(vatsum).toFixed(2))
                     $('.vat7').html(parseFloat(vatsum).toFixed(2))
-                    $('#reserve_meter').val(parseFloat(invoices.length * 10).toFixed(2))
-                    $('.reserve_meter').html(parseFloat(invoices.length * 10).toFixed(2))
-                    $('#mustpaid').val(parseFloat(totalpaidsum + invoices.length * 10).toFixed(2))
-                    $('.mustpaid').html(parseFloat(totalpaidsum + invoices.length * 10).toFixed(2))
+                    $('#reserve_meter').val(parseFloat(reserve_metersum).toFixed(2))
+                    $('.reserve_meter').html(parseFloat(reserve_metersum).toFixed(2))
+                    $('#mustpaid').val(parseFloat(totalpaidsum).toFixed(2))
+                    $('.mustpaid').html(parseFloat(totalpaidsum).toFixed(2))
                     $('#meter_id').val(invoices[0].usermeterinfos.meter_id);
-                    // $('#inv_no').val(invoices[0].inv_no)
+                    $('#inv_no').val(invoices[0].inv_no)
 
                     createQrCode({
                         meter_id: invoices[0].usermeterinfos.meter_id,

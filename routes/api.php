@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Controllers\Api\LineController;
 use App\Http\Controllers\Api\OwepaperController;
 use App\Http\Controllers\Api\SubzoneController;
 use App\Http\Controllers\Api\ZoneController;
@@ -12,6 +13,11 @@ use App\Http\Controllers\Api\CP_SensorDataController;
 use App\Http\Controllers\Api\OcrController;
 
 Route::post('/ocr', [OcrController::class, 'readMeter']);
+Route::get('/line', [LineController::class, 'index'])->name('lineliff.index');
+Route::post('/line/fine_line_id', [LineController::class , 'fine_line_id']);
+Route::get('/line/user_qrcode', [LineController::class , 'user_qrcode']);
+Route::post('/line/update_user_by_phone', [LineController::class , 'update_user_by_phone']);
+Route::get('/line/dashboard/{user_waste_pref_id}', [LineController::class , 'dashboard']);
 
 Route::post('/sensor-data', [CP_SensorDataController::class, 'store']);
 

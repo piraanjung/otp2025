@@ -5,6 +5,7 @@ namespace App\Models\KeptKaya;
 use App\Models\User;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\HasMany;
 
 class UserWastePreference extends Model
 {
@@ -32,5 +33,15 @@ class UserWastePreference extends Model
     public function wasteBins()
     {
         return $this->hasMany(WasteBin::class,'user_id', 'user_id');
+    }
+
+    public function purchaseTransactions(): HasMany
+    {
+        // Assuming kp_user_id_fk is the foreign key in the kp_purchase_transactions table
+        return $this->hasMany(KpPurchaseTransaction::class, 'kp_user_w_pref_id_fk', 'id');
+    }
+
+    public function kp_account(){
+        return $this->hasOne(KPAccounts::class, 'u_wpref_id_fk');
     }
 }

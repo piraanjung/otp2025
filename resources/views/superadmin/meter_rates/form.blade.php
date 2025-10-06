@@ -45,7 +45,7 @@
 </div>
 <br>
 
-<div id="fixed_rate_section" style="display:none;">
+<div id="fixed_rate_section">
     <label for="fixed_rate_per_unit">อัตราการชำระค่าน้ำต่อหน่วย:</label><br>
     <input type="number" step="0.5" class="form-control" id="fixed_rate_per_unit" name="fixed_rate_per_unit"
         value="{{ old('fixed_rate_per_unit', $meterRateConfig->fixed_rate_per_unit ?? '') }}">
@@ -53,7 +53,7 @@
 <br>
 {{-- @dd($meterRateConfig->tiers->count()) --}}
 
-<div id="progressive_tiers_section" style="display:none;">
+<div id="progressive_tiers_section">
     <h3>อัตราการชำระค่าน้ำแบบก้าวหน้า</h3>
     <div id="tiers_container">
         {{-- ตรวจสอบว่า $meterRateConfig ถูกส่งมาและเป็น Record จาก DB และมี tiers --}}
@@ -125,8 +125,7 @@
                         </div>
                         <div class="col-12 col-md-2">
                             <label>&nbsp;</label><br>
-                            <button type="button" class="btn btn-danger" onclick="removeTier(this)"><i
-                                    class="fa fa-trash"></i></button>
+                            <button type="button" class="btn btn-danger" onclick="removeTier(this)">ลบ</button>
                         </div>
                     </div>
                 </div>
@@ -180,13 +179,15 @@
 
         function togglePricingFields() {
             const selectedPricingTypeName = pricingTypeSelect.options[pricingTypeSelect.selectedIndex].text;
-            console.log('selectedPricingTypeName', selectedPricingTypeName)
+            const selectedPricingTypeId = pricingTypeSelect.value
 
-            if (selectedPricingTypeName === ('Fixed').toLowerCase()) {
+            // if (selectedPricingTypeName === ('Fixed').toLowerCase()) {
+            if (selectedPricingTypeId == 1) {//Fixed
                 fixedRateSection.style.display = 'block';
                 fixedRateInput.setAttribute('required', 'required'); // บังคับกรอก
                 progressiveTiersSection.style.display = 'none';
-            } else if (selectedPricingTypeName === ('Progressive').toLowerCase()) {
+            } else if (selectedPricingTypeId == 2) {//Progressive
+            // } else if (selectedPricingTypeName === ('Progressive').toLowerCase()) {
                 fixedRateSection.style.display = 'none';
                 fixedRateInput.removeAttribute('required'); // ไม่บังคับกรอก
                 fixedRateInput.value = ''; // เคลียร์ค่า
@@ -229,7 +230,7 @@
                     </div>
                     <div class="col-12 col-md-1">
                          <label class="">&nbsp;</label>
-                        <button type="button" class="btn btn-warning btn-sm" onclick="removeTier(this)"><i class="fa fa-trash"></i></button>
+                        <button type="button" class="btn btn-warning btn-sm" onclick="removeTier(this)">ลบ</button>
                     </div>
                 </div>
                 

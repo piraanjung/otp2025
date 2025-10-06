@@ -52,7 +52,7 @@ class MeterRateConfigController extends Controller
             ]);
 
             // ถ้าเป็น Progressive Pricing ให้บันทึก Tiers
-           return $pricingTypeName = TwPricingType::find($validated['pricing_type_id'])->name;
+            $pricingTypeName = TwPricingType::find($validated['pricing_type_id'])->name;
             if ($pricingTypeName === 'progressive' && isset($validated['tiers'])) {
                 foreach ($validated['tiers'] as $order => $tierData) {
                     $rateConfig->Ratetiers()->create([

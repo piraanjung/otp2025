@@ -12,7 +12,7 @@
 @extends($layout)
 
 @section('content')
-    <div class="card mb-4 shadow-sm">
+    <div class="card shadow-sm">
         <div class="card-header bg-light d-flex justify-content-between">
             <h5 class="mb-0">ค้นหาสมาชิก</h5>
             <button class="btn btn-primary btn-sm " type="button" data-bs-toggle="modal" data-bs-target="#qrScannerModal">
@@ -22,33 +22,33 @@
 
         <div class="card-body">
             <form action="{{ route('keptkayas.purchase.select_user') }}" method="GET" id="user-search-form">
-                <div class="row g-3">
-                    <div class="col-md-5">
+                <div class="row g-2">
+                    <div class="col-8">
                         <label for="name_search" class="form-label">ชื่อ-สกุล:</label>
                         <input type="text" name="name_search" id="name_search" class="form-control"
                             value="{{ request('name_search') }}">
                     </div>
-                    <div class="col-md-4">
-                        <label for="username_search" class="form-label">Username:</label>
+                    <div class="col-4">
+                        <label for="username_search" class="form-label">เลขสมาชิก:</label>
                         <input type="text" name="username_search" id="username_search" class="form-control"
                             value="{{ request('username_search') }}">
                     </div>
-                    <div class="col-md-3 d-flex align-items-end">
+                    <div class="col-md-12 d-flex justify-content-end">
                         <button type="submit" class="btn btn-primary me-2">ค้นหา</button>
                         <a href="{{ route('keptkayas.purchase.select_user') }}"
-                            class="btn btn-outline-secondary">ล้างค่า</a>
+                            class="btn btn-secondary">ล้างค่า</a>
                     </div>
                 </div>
             </form>
         </div>
     </div>
-    <div class="card">
+    <div class="card d-none d-md-block">
         <div class="card-header bg-success text-white d-grid gap-2">
             <h5 class="card-title mb-0">เลือกผู้ใช้งานสำหรับทำธุรกรรม</h5>
         </div>
         <div class="card-body">
 
-            <div class="table-responsive d-none d-md-block"> {{-- Hide table on small screens --}}
+            <div class="table-responsive "> {{-- Hide table on small screens --}}
                 <table class="table table-bordered table-striped align-middle">
                     <thead class="table-light">
                         <tr>
@@ -68,12 +68,12 @@
                                 <td>{{ $member->username }}</td>
                                 <td>{{ Str::limit($member->address ?? 'N/A', 50) }}</td>
                                 <td>
-                                    @if ($member->purchaseTransactions->count() > 0)
+                                    @if ($member->wastePreference->purchaseTransactions->count() > 0)
                                         <div class="p-2 mb-2 rounded bg-light">
                                             <h6 class="mb-1">ธุรกรรมวันนี้:</h6>
                                             <ul class="list-unstyled mb-0 small">
                                                 @php
-                                                    $todayTransactions = $member->purchaseTransactions;
+                                                    $todayTransactions = $member->wastePreference->purchaseTransactions;
                                                 @endphp
                                                 <li>
                                                     <strong>จำนวนรายการ:</strong> {{ $todayTransactions->count() }}
@@ -136,9 +136,9 @@
                                     </div>
                                 </div>
                                 <div class="col-5 text-end text-sm">
-                                    <div class="icon icon-shape bg-secondary shadow text-center border-radius-md pt-3">
+                                    {{-- <div class="icon icon-shape bg-secondary shadow text-center border-radius-md pt-3">
                                         ประวัติ
-                                    </div>
+                                    </div> --}}
                                     <div class="icon icon-shape bg-success shadow text-center border-radius-md pt-3">
                                         <a href="{{ route('keptkayas.purchase.start_purchase', $member->wastePreference->id) }}">
                                             {{-- <i class="ni ni-money-coins text-lg opacity-10" aria-hidden="true"></i><a
@@ -296,5 +296,7 @@
                 }
             });
         });
+
+        
     </script>
 @endsection
