@@ -7,7 +7,7 @@
     จัดการอัตราค่าบริการ
 @endsection
 @section('nav-main')
-    <a href="{{ route('keptkayas.payrate_per_months.index') }}">อัตราค่าบริการรายปี</a>
+    <a href="{{ route('keptkayas.wbin_payrate_per_months.index') }}">อัตราค่าบริการรายปี</a>
 @endsection
 @section('nav-current')
     รายการอัตราค่าบริการรายปีต่อกลุ่มผู้ใช้
@@ -56,7 +56,7 @@
                 <div class="card-header d-flex justify-content-between align-items-center">
                     <h3 class="card-title mb-0">รายการอัตราค่าบริการรายปีต่อกลุ่มผู้ใช้</h3>
                     <div class="card-tools">
-                        <a href="{{ route('keptkayas.payrate_per_months.create') }}" class="btn btn-primary btn-sm">
+                        <a href="{{ route('keptkayas.wbin_payrate_per_months.create') }}" class="btn btn-primary btn-sm">
                             <i class="fas fa-plus me-1"></i> เพิ่มอัตราค่าบริการใหม่
                         </a>
                     </div>
@@ -108,11 +108,11 @@
                                             </span>
                                         </td>
                                         <td>
-                                            <a href="{{ route('keptkayas.payrate_per_months.edit', $payrate->id) }}"
+                                            <a href="{{ route('keptkayas.wbin_payrate_per_months.edit', $payrate->id) }}"
                                                 class="btn btn-sm btn-warning mb-0 me-1">
                                                 <i class="fas fa-edit"></i> แก้ไข
                                             </a>
-                                            <form action="{{ route('keptkayas.payrate_per_months.destroy', $payrate->id) }}"
+                                            <form action="{{ route('keptkayas.wbin_payrate_per_months.destroy', $payrate->id) }}"
                                                 method="POST" class="d-inline">
                                                 @csrf
                                                 @method('DELETE')

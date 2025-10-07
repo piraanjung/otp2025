@@ -276,14 +276,14 @@
                                                                     <tr>
                                                                         <td>
                                                                             @if ($invoice['totalpaid'] == 0)
-                                                                            <i class="fa fa-minus-circle text-danger del_dup_inv" data-inv_id="{{ $invoice['inv_id'] }}"></i>
+                                                                            <i class="fa fa-minus-circle text-danger del_dup_inv" data-inv_id="{{ $invoice['id'] }}"></i>
                                                                             @endif
                                                                         </td>
                                                                         <td>
 
                                                                             <div class="text-center">
                                                                                 <h6 class="mb-0 ">
-                                                                                    {{ $invoice['inv_id'] }}</h6>
+                                                                                    {{ $invoice['id'] }}</h6>
                                                                             </div>
                                                                         </td>
                                                                         <td>

@@ -11,9 +11,8 @@ use App\Models\Admin\Zone;
 use App\Models\KeptKaya\UserWastePreference;
 use App\Models\KeptKaya\WasteBin;
 use App\Models\KeptKaya\AnnualCollectionPayment;
-use App\Models\KeptKaya\KpPurchaseTransaction;
+use App\Models\Tabwater\TwUsersInfo;
 use App\Models\Tabwater\UndertakerSubzone;
-use App\Models\Tabwater\UserMerterInfo;
 use Laravel\Sanctum\HasApiTokens;
 use Spatie\Permission\Traits\HasRoles;
 use Illuminate\Notifications\Notifiable;
@@ -96,7 +95,7 @@ class User extends Authenticatable
 
     public function usermeterinfos()
     {
-        return $this->hasMany(UserMerterInfo::class, 'user_id', 'id');
+        return $this->hasMany(TwUsersInfo::class, 'user_id', 'id');
     }
     public function user_province()
     {

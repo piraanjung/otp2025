@@ -5,15 +5,13 @@ namespace App\Http\Controllers\Admin;
 use App\Http\Controllers\Api\FunctionsController;
 use App\Http\Controllers\Controller;
 use App\Models\Admin\Organization;
-use App\Models\Tabwater\Account;
-use App\Models\Tabwater\Accounting;
-use App\Models\Tabwater\Invoice;
-use App\Models\Tabwater\InvoiceHistoty;
-use App\Models\Tabwater\MeterType;
+use App\Models\Tabwater\TwInvoiceTemp;
+use App\Models\Tabwater\TwInvoiceHistoty;
+use App\Models\Tabwater\TwMeterType;
 use App\Models\Tabwater\SequenceNumber;
 use App\Models\User;
-use App\Models\Tabwater\UserMerterInfo;
 use App\Models\Admin\Zone;
+use App\Models\Tabwater\TwUsersInfo;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Hash;
@@ -24,7 +22,7 @@ class UserController extends Controller
 {
     public function index()
     {
-        $users = UserMerterInfo::with([
+        $users = TwUsersInfo::with([
             'invoice' => function($q){
                 return $q->select('meter_id_fk','status');
             },
@@ -68,7 +66,7 @@ class UserController extends Controller
     {
         $meter_sq_number    = SequenceNumber::get();
         $zones              = Zone::all();
-        $meter_types = MeterType::all();
+        $meter_types        = TwMeterType::all();
         $usergroups         = Role::get(['id', 'name']);
         $usernumber         = FunctionsController::createInvoiceNumberString($meter_sq_number[0]->user);
         $username           = "user" . $meter_sq_number[0]->user;
@@ -140,7 +138,7 @@ class UserController extends Controller
 
         //usermeterinfo table
         try {       
-        UserMerterInfo::create([
+        TwUsersInfo::create([
             "meter_id"              => $number_sequence[0]->tabmeter,
             "user_id"               => $number_sequence[0]->user,
             "submeter_name" => $request->get('submeter_name'),
@@ -176,18 +174,18 @@ class UserController extends Controller
     public function edit($user_id, $addmeter = "")
     {
         $meter_id = $user_id;
-        $user = UserMerterInfo::where('meter_id', $meter_id)
+        $user = TwUsersInfo::where('meter_id', $meter_id)
         ->with('user', 'undertake_subzone')
         ->get();
         $zones = Zone::all();
-        $meter_types = MeterType::all();
+        $meter_types = TwMeterType::all();
         return view('admin.users.edit', compact('user', 'zones', 'meter_types', 'addmeter'));
     }
 
     public function update(Request $request,  $meter_id)
     {
          
-        $checkDuplicateFactNo = UserMerterInfo::where('factory_no', $request->get('factory_no'))->count();
+        $checkDuplicateFactNo = TwUsersInfo::where('factory_no', $request->get('factory_no'))->count();
         if($checkDuplicateFactNo > 1){
             return redirect()->route('admin.users.index')->with(['message'=> 'ไม่สามารถบันทึกข้อมูลได้ \nกรุณาตรวจสอบ รหัสมิเตอร์จากโรงงานเป็นค่าว่าง หรือ ถูกใช้งานแล้ว', 'color' => 'warning']);
         }
@@ -243,7 +241,7 @@ class UserController extends Controller
         if(collect($request->get('addmeter'))->isNotEmpty()){
             $number_sequence = SequenceNumber::where('id', 1)->get();
             
-            UserMerterInfo::create([
+            TwUsersInfo::create([
                 "meter_id"              => $number_sequence[0]->tabmeter,
                 "user_id"               => $request->get('user_id'),
                 "meternumber"           => FunctionsController::createMeterNumberString($number_sequence[0]->tabmeter),
@@ -267,7 +265,7 @@ class UserController extends Controller
         
         
         }else{
-            UserMerterInfo::where('meter_id', $meter_id)->update([
+            TwUsersInfo::where('meter_id', $meter_id)->update([
                 "metertype_id"          => $request->get('metertype_id'),
                 "submeter_name"         => $request->get('submeter_name'),
                 "undertake_zone_id"     => $request->get('undertake_zone_id'),
@@ -347,31 +345,31 @@ class UserController extends Controller
     }
     public function destroy( $meter_id)
     {
-        $usermeterinfos = UserMerterInfo::where('meter_id', $meter_id)->get(['user_id', 'meter_id'])->first();
+        $usermeterinfos = TwUsersInfo::where('meter_id', $meter_id)->get(['user_id', 'meter_id'])->first();
 
         $user = User::find($usermeterinfos->user_id);
         if ($user->hasRole('admin')) {
             return back()->with('message', 'you are admin.');
         }
        
-        $invoices = Invoice::where('meter_id_fk', $usermeterinfos->meter_id)->get();
-        $invoicesHistory = InvoiceHistoty::where('meter_id_fk', $usermeterinfos->meter_id)->get();
+        $invoices = TwInvoiceTemp::where('meter_id_fk', $usermeterinfos->meter_id)->get();
+        $invoicesHistory = TwInvoiceHistoty::where('meter_id_fk', $usermeterinfos->meter_id)->get();
 
         foreach ($invoices as $invoice) {
             if ($invoice->status == 'init') {
-                Invoice::where('inv_id', $invoice->inv_id)->delete();
+                TwInvoiceTemp::where('inv_id', $invoice->inv_id)->delete();
             }else if ($invoice->status == 'invoice') {
-                Invoice::where('inv_id', $invoice->inv_id)->update([
+                TwInvoiceTemp::where('inv_id', $invoice->inv_id)->update([
                     'status'        => 'owe',
                     'updated_at'    => date('Y-m-d H:i:s')
 
                 ]);
             }
         }
-        Invoice::where('meter_id_fk', $usermeterinfos->meter_id)->update([
+        TwInvoiceTemp::where('meter_id_fk', $usermeterinfos->meter_id)->update([
             'deleted' => '1',
         ]);
-        InvoiceHistoty::where('meter_id_fk', $usermeterinfos->meter_id)->update([
+        TwInvoiceHistoty::where('meter_id_fk', $usermeterinfos->meter_id)->update([
             'deleted' => '1',
         ]);
         $checkInvoiceHasHistoryInfos = collect($invoices)->filter(function($v){
@@ -380,7 +378,7 @@ class UserController extends Controller
         $checkInvoiceHistoryHasHistoryInfos = collect($invoicesHistory)->filter(function($v){
             return $v->status == 'paid';
         })->count();
-        UserMerterInfo::where('meter_id', $meter_id)->update([
+        TwUsersInfo::where('meter_id', $meter_id)->update([
             'status'        => $checkInvoiceHasHistoryInfos >0 && $checkInvoiceHistoryHasHistoryInfos > 0  ? 'deleted' : 'inactive',
             'deleted'       => '1',
             'comment'       => $checkInvoiceHasHistoryInfos >0 && $checkInvoiceHistoryHasHistoryInfos > 0 ? 'ยกเลิกการใช้งาน' :  'ยกเลิกการใช้งานแต่มีข้อมูลเก่า',

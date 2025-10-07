@@ -1,4 +1,4 @@
-@extends('layouts.adminlte')
+@extends('layouts.keptkaya')
 @section('mainheader')
     สร้างประเภทผู้ใช้งาน
 @endsection
@@ -15,7 +15,7 @@
       <h3 class="card-title">ประเภทผู้ใช้งาน</h3>
     </div>
     <div class="card-body">
-        <form action="{{ route('admin.kp_usergroup.store') }}" method="POST">
+        <form action="{{ route('keptkayas.kp_usergroup.store') }}" method="POST">
             @csrf
             <div class="col-sm-12 col-md-10">
                 <div class="form-row">

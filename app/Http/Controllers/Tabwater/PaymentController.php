@@ -563,25 +563,24 @@ class PaymentController extends Controller
     }
     public function search(Request $request)
     {
-        $funcCtrl = new FunctionsController();
-        $orgInfos = $funcCtrl->getOrgInfos()[0];
+        $orgInfos = Organization::getOrgInfos(Auth::user()->org_id_fk);
 
         $inv_by_budgetyear = [];
         if ($request->has('user_info')) {
             $invoiceApi = new InvoiceController();
 
-            $invoice_infos = json_decode($invoiceApi->get_invoice_and_invoice_history($request->get('user_info'), 'paid', $orgInfos->org_database)->content(), true);
+            $invoice_infos = json_decode($invoiceApi->get_invoice_and_invoice_history($request->get('user_info'), 'paid', $orgInfos['org_database'])->content(), true);
 
             $inv_by_budgetyear = collect($invoice_infos)->groupBy(function ($invoice_info) {
                 return $invoice_info['invoice_period']['budgetyear_id'];
             })->values();
         }
-        $usersQuery = (new User())->on($orgInfos->org_database)->with('usermeterinfos')->where('role_id', 3)->get(['prefix', 'firstname', 'lastname', 'address', 'id', 'zone_id']);
+        $usersQuery = (new User())->on($orgInfos['org_database'])->with('usermeterinfos')->where('role_id', 3)->get(['prefix', 'firstname', 'lastname', 'address', 'id', 'zone_id']);
         $users = collect($usersQuery)->filter(function ($v) {
             return collect($v->usermeterinfos)->isNotEmpty();
         })->values();
-        $zones = (new Zone())->on($orgInfos->org_database)->where('status', 'active')->get();
-        $invoice_period = (new TwInvoicePeriod())->on($orgInfos->org_database)->where('status', 'active')->get()->first();
+        $zones = (new Zone())->on($orgInfos['org_database'])->where('status', 'active')->get();
+        $invoice_period = (new TwInvoicePeriod())->on($orgInfos['org_database'])->where('status', 'active')->get()->first();
 
         return view('payment.search', compact('zones', 'invoice_period', 'users', 'inv_by_budgetyear', 'orgInfos'));
     }

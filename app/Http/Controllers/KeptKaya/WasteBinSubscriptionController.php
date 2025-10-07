@@ -27,6 +27,7 @@ class WasteBinSubscriptionController extends Controller
 
         // NEW: Query users who have subscriptions for the fiscal year
         $users = User::whereHas('wasteBins.subscriptions', function ($q) use ($fiscalYear) {
+         
             $q->where('fiscal_year', $fiscalYear);
         })
             ->with(['wasteBins.subscriptions' => function ($q) use ($fiscalYear) {
@@ -42,7 +43,7 @@ class WasteBinSubscriptionController extends Controller
             ->pluck('fiscal_year');
 
         // NEW: Pass users instead of subscriptions to the view
-        return view('keptkaya.annual_payments.index', compact('users', 'fiscalYear', 'availableFiscalYears'));
+        return view('keptkayas.annual_payments.index', compact('users', 'fiscalYear', 'availableFiscalYears'));
     }
     public function show(WasteBinSubscription $wasteBinSubscription)
     {
@@ -58,7 +59,8 @@ class WasteBinSubscriptionController extends Controller
 
         // Determine the actual calendar year for the start of the fiscal year
         $startCalYear = $wasteBinSubscription->fiscal_year - 1; // Fiscal year 2024 starts in Oct 2023
-
+        $currMonth = (int)date('m');
+        $currentYear = date('Y');
         for ($i = 0; $i < 12; $i++) {
             $currentMonthDate = Carbon::createFromDate($startCalYear, $startMonth, 1)->addMonths($i);
 
@@ -66,9 +68,17 @@ class WasteBinSubscriptionController extends Controller
             $year = $currentMonthDate->year;
 
             $monthName = $currentMonthDate->locale('th')->monthName; // Get Thai month name
-
+            $active = 1;
+            if($currentYear > $year){
+                $active = 0;
+            }else if($currentYear == $year){
+                if($currMonth > $monthNum){
+                    $active = 0;
+                }
+            }
             $paymentSchedule[] = [
                 'month_num' => $monthNum,
+                'active' => $active,
                 'year' => $year,
                 'month_name' => $monthName,
                 'due_amount' => $wasteBinSubscription->month_fee, // Use month_fee from model
@@ -76,11 +86,10 @@ class WasteBinSubscriptionController extends Controller
                 'is_paid' => $wasteBinSubscription->isMonthPaid($monthNum, $year),
             ];
         }
-
         // Pass the payment_date from session if redirected from storePayment
         $lastPaymentDate = session('last_payment_date');
 
-        return view('keptkaya.annual_payments.show', compact('wasteBinSubscription', 'paymentSchedule', 'lastPaymentDate', 'isBinActiveForAnnualCollection'));
+        return view('keptkayas.annual_payments.show', compact('wasteBinSubscription', 'paymentSchedule', 'lastPaymentDate', 'isBinActiveForAnnualCollection'));
     }
 
     public function print(WasteBinSubscription $wasteBinSubscription)
@@ -119,7 +128,7 @@ class WasteBinSubscriptionController extends Controller
         // Pass the payment_date from session if redirected from storePayment
         $lastPaymentDate = session('last_payment_date');
 
-        // return view('keptkaya.annual_payments.show', compact('wasteBinSubscription', 'paymentSchedule', 'lastPaymentDate', 'isBinActiveForAnnualCollection'));
+        // return view('keptkayas.annual_payments.show', compact('wasteBinSubscription', 'paymentSchedule', 'lastPaymentDate', 'isBinActiveForAnnualCollection'));
     }
     public function storePayment(Request $request, WasteBinSubscription $wasteBinSubscription)
     {
@@ -164,7 +173,7 @@ class WasteBinSubscriptionController extends Controller
                     $amountToAddToExisting = min($amount_paid_temp, $remainingDue); // Take min of remaining due or total amount paid in form
                     $existingPayment->update([
                         'amount_paid' => $existingPayment->amount_paid + $amountToAddToExisting,
-                        'payment_date' =>  date('Y-m-d'), // Update to latest payment date
+                        'pay_date' =>  date('Y-m-d'), // Update to latest payment date
                         'notes' => $request->notes,
                         'staff_id' => Auth::id(),
                     ]);
@@ -181,7 +190,7 @@ class WasteBinSubscriptionController extends Controller
                     'pay_mon' => $monthNum,
                     'pay_yr' => $year,
                     'amount_paid' => $amountToPayForNewMonth, // Pay up to the monthly fee
-                    'payment_date' => date('Y-m-d'),
+                    'pay_date' => date('Y-m-d'),
                     'notes' => $request->notes,
                     'staff_id' => Auth::id(),
                 ]);
@@ -217,7 +226,7 @@ class WasteBinSubscriptionController extends Controller
         $wasteBinSubscription->save();
 
 
-        return redirect()->route('keptkaya.annual_payments.printReceipt', $wasteBinSubscription->id)->with('success', 'บันทึกการชำระเงินเรียบร้อยแล้ว!');
+        return redirect()->route('keptkayas.annual_payments.printReceipt', $wasteBinSubscription->id)->with('success', 'บันทึกการชำระเงินเรียบร้อยแล้ว!');
     }
 
 
@@ -254,10 +263,12 @@ class WasteBinSubscriptionController extends Controller
     {
         $paymentDate = Carbon::parse(date('Y-m-d'));
 
-        $payments = $wasteBinSubscription->payments()
-            ->whereDate('payment_date', $paymentDate)
+         $payments = $wasteBinSubscription->payments()
+            ->whereDate('pay_date', $paymentDate)
             ->get();
+        $paidMonthArr = collect($payments)->pluck('pay_mon');
 
+     
         if ($payments->isEmpty()) {
             return redirect()->back()->with('error', 'ไม่พบรายการชำระเงินสำหรับวันที่นี้.');
         }
@@ -275,9 +286,9 @@ class WasteBinSubscriptionController extends Controller
             'receiptCode' => $receiptCode,
         ];
 
-        return view('keptkaya.annual_payments.receipt', compact('data'));
+        return view('keptkayas.annual_payments.receipt', compact('data', 'paidMonthArr'));
         // This is the core logic to generate the PDF
-        // $pdf = Pdf::loadView('keptkaya.annual_payments.receipt', $data);
+        // $pdf = Pdf::loadView('keptkayas.annual_payments.receipt', $data);
         // return $pdf->download('receipt-' . $receiptCode . '.pdf');
     }
 
@@ -286,7 +297,7 @@ class WasteBinSubscriptionController extends Controller
         $invoices = WasteBinSubscription::with('wasteBin.user')
             ->whereIn('status', ['partially_paid', 'pending'])->get();
 
-        return view('keptkaya.annual_payments.invoice', compact('invoices'));
+        return view('keptkayas.annual_payments.invoice', compact('invoices'));
     }
 
     public function printSelectedInvoices(Request $request)
@@ -314,6 +325,6 @@ class WasteBinSubscriptionController extends Controller
             return back()->with('error', 'ไม่พบใบแจ้งหนี้ที่เลือก');
         }
 
-        return view('keptkaya.annual_payments.print_invoices', compact('invoicesByUser'));
+        return view('keptkayas.annual_payments.print_invoices', compact('invoicesByUser'));
     }
 }

@@ -6,6 +6,7 @@ use App\Http\Controllers\Controller;
 use App\Http\Controllers\FunctionsController;
 use App\Models\Keptkaya\KpUserGroup;
 use App\Models\Keptkaya\KpUsergroupPayratePerMonth;
+use App\Models\KeptKaya\WasteBinPayratePerMonth;
 use App\Models\User;
 use App\Models\KeptKaya\WasteBinSubscription; // Import WasteBinSubscription model
 use App\Models\KeptKaya\WasteBin;
@@ -32,7 +33,7 @@ class WasteBinController extends Controller
     public function index(User $w_user)
     {
         $wasteBins = $w_user->wasteBins()->paginate(10);
-        return view('keptkaya.w.waste_bins.index', compact('w_user', 'wasteBins'));
+        return view('keptkayas.w.waste_bins.index', compact('w_user', 'wasteBins'));
     }
 
     /**
@@ -46,11 +47,12 @@ class WasteBinController extends Controller
         $user_groups = KpUserGroup::all();
         $func = new FunctionsController();
         $bin_code = $func->wastBinCode();
-        return view('keptkaya.w.waste_bins.create', compact('w_user', 'user_groups', 'bin_code'));
+        return view('keptkayas.w.waste_bins.create', compact('w_user', 'user_groups', 'bin_code'));
     }
 
     public function store(Request $request, User $w_user)
     {
+        // return $request;
 
         $request->validate([
             'bin_code' => 'nullable|string|unique:waste_bins,bin_code|max:255',
@@ -63,7 +65,6 @@ class WasteBinController extends Controller
             'is_active_for_annual_collection' => 'boolean',
         ]);
 
-        DB::transaction(function () use ($request, $w_user) {
             $wasteBin = $w_user->wasteBins()->create([
                 'bin_code' => $request->bin_code,
                 'bin_type' => $request->bin_type,
@@ -75,10 +76,11 @@ class WasteBinController extends Controller
             ]);
 
             // If the bin is active for annual collection, create a subscription for the current fiscal year
+            // if ($wasteBin->is_active_for_annual_collection) {
             if ($wasteBin->is_active_for_annual_collection) {
                 $fiscalYear = WasteBinSubscription::calculateFiscalYear();
 
-                $payratePerMonth = KpUsergroupPayratePerMonth::where('kp_usergroup_idfk', $request->get('user_group'))
+                $payratePerMonth = WasteBinPayratePerMonth::where('kp_usergroup_idfk', $request->get('user_group'))
                     ->where('status', 'active')
                     ->get()->first();
                 $annualFee = $payratePerMonth->payrate_permonth * 12; // Default annual fee (e.g., 100 Baht/month * 12 months)
@@ -87,11 +89,11 @@ class WasteBinController extends Controller
                 WasteBinSubscription::firstOrCreate(
                     [
                         'waste_bin_id' => $wasteBin->id,
-                        'fiscal_year' => $fiscalYear,
                     ],
                     [
+                        'payrate_permonth_id_fk' => $payratePerMonth->id,
+                        'fiscal_year' => $fiscalYear,
                         'annual_fee' => $annualFee,
-                        'payrate_permonth_id' => $payratePerMonth->id,
                         'month_fee' => $monthlyFee,
                         'total_paid_amt' => 0,
                         'status' => 'pending',
@@ -101,21 +103,20 @@ class WasteBinController extends Controller
 
             // Call service to update overall user waste status (waste_preference)
             $this->wasteStatusService->updateOverallUserWasteStatus($w_user);
-        });
 
-        return redirect()->route('keptkaya.waste_bins.index', $w_user->id)
+        return redirect()->route('keptkayas.waste_bins.index', $w_user->id)
             ->with('success', 'เพิ่มถังขยะเรียบร้อยแล้ว!');
     }
 
 
     public function show(WasteBin $wasteBin)
     {
-        return view('keptkaya.waste_bins.show', compact('wasteBin'));
+        return view('keptkayas.waste_bins.show', compact('wasteBin'));
     }
 
     public function edit(WasteBin $wasteBin)
     {
-        return view('keptkaya.waste_bins.edit', compact('wasteBin'));
+        return view('keptkayas.waste_bins.edit', compact('wasteBin'));
     }
 
 
@@ -166,7 +167,7 @@ class WasteBinController extends Controller
         $this->wasteStatusService->updateWasteBinAndUserStatus($wasteBin, $data);
         // });
 
-        return redirect()->route('keptkaya.waste_bins.index', $wasteBin->user->id)
+        return redirect()->route('keptkayas.waste_bins.index', $wasteBin->user->id)
             ->with('success', 'อัปเดตถังขยะเรียบร้อยแล้ว!');
     }
 
@@ -181,13 +182,13 @@ class WasteBinController extends Controller
             $this->wasteStatusService->updateOverallUserWasteStatus($w_user);
         });
 
-        return redirect()->route('keptkaya.waste_bins.index', $w_user->id)
+        return redirect()->route('keptkayas.waste_bins.index', $w_user->id)
             ->with('success', 'ลบถังขยะเรียบร้อยแล้ว!');
     }
 
     public function viewmap()
     {
-        return view('keptkaya.dashboard_map');
+        return view('keptkayas.dashboard_map');
     }
 
     public function map()

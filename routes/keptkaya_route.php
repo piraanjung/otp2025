@@ -23,6 +23,7 @@ use App\Http\Controllers\Keptkaya\KpTbankItemsGroupsController;
 use App\Http\Controllers\Keptkaya\KpTbankUnitsController;
 use App\Http\Controllers\KeptKaya\UserWasteController;
 use App\Http\Controllers\KeptKaya\WasteBinController;
+use App\Http\Controllers\KeptKaya\WasteBinPayratePerMonthController;
 use App\Http\Controllers\KeptKaya\WasteBinSubscriptionController;
 use App\Http\Controllers\KpMemberShopController;
 use App\Http\Controllers\KpShopProductController;
@@ -58,6 +59,8 @@ Route::middleware(['auth', 'role:Super Admin|Admin|Recycle Bank Staff|Tabwater S
         });
     });
     Route::resource('users', UserWasteController::class);
+    
+    Route::get('/users/waste_bin_users', [UserWasteController::class, 'waste_bin_users'])->name('users.waste_bin_users');
     Route::get('/users/search/{query}', [UserWasteController::class, 'search'])->name('users.search');
     Route::post('users/waste-service-preferences', [UserWasteController::class, 'updateWasteServicePreferences'])->name('users.updateWasteServicePreferences');
     Route::post('users/batch-update-service-preferences', [UserWasteController::class, 'batchUpdateWasteServicePreferences'])->name('users.batchUpdateWasteServicePreferences');
@@ -116,7 +119,7 @@ Route::middleware(['auth', 'role:Super Admin|Admin|Recycle Bank Staff|Tabwater S
     });
 
     Route::resource('/kp_budgetyear', KpBudgetYearController::class);
-    Route::resource('payrate_per_months', KpUsergroupPayratePerMonthController::class);
+    Route::resource('wbin_payrate_per_months', WasteBinPayratePerMonthController::class);
 
     Route::prefix('tbank/')->name('tbank.')->group(function () {
         Route::resource('/items_group', KpTbankItemsGroupsController::class);

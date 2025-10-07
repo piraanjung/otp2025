@@ -5,7 +5,7 @@
                             <td colspan="12" style="text-align: center; background-color:aquamarine">
                                 รายงานผู้ค้างชำระค่าน้ำประปา       ปีงบประมาณ 
                                 @php
-                                  echo App\Models\BudgetYear::where('id', $budgetyears_selected)->get('budgetyear_name')[0]->budgetyear_name;
+                                  echo App\Models\Admin\BudgetYear::where('id', $budgetyears_selected)->get('budgetyear_name')[0]->budgetyear_name;
                                 @endphp
                                
                             </td>
@@ -31,7 +31,7 @@
                                 
                                 @if ($zone_selected[0] == "all")
                                   @php
-                                  $zone_selected =  App\Models\Zone::get('zone_name');
+                                  $zone_selected =  App\Models\Admin\Zone::get('zone_name');
                                   foreach ($zone_selected as $zone){
                                         echo $zone->zone_name.", ";
                                   }
@@ -40,7 +40,7 @@
                                 @else
                                     @foreach ($zone_selected as $zone)
                                         @php
-                                        $zone =App\Models\Zone::where('id', $zone)->get('zone_name');
+                                        $zone =App\Models\Admin\Zone::where('id', $zone)->get('zone_name');
                                         echo $zone[0]->zone_name.", ";
                                         @endphp
                                     @endforeach
@@ -92,7 +92,7 @@
                         <?php $a = 0;  $sumwater_used=0; $sumpaid=0; $sumvat= 0; $sumreserve_meter=0; $sumtotalpaid = 0;?>
                          @foreach ($owes as $owe)
                          @php
-                             $userInfos = App\Models\UserMerterInfo::with('user')
+                             $userInfos = App\Models\Tabwater\TwUsersInfo::with('user')
                             ->where('meter_id', $owe['meter_id_fk'])->get();
                             
                             $sumpaid += str_replace( ',', '', $owe['paid'] ) ;;

@@ -15,13 +15,13 @@ class WasteBinPayment extends Model
         'pay_mon',
         'pay_yr',
         'amount_paid',
-        'payment_date',
+        'pay_date',
         'notes',
         'staff_id',
     ];
 
     protected $casts = [
-        'payment_date' => 'date',
+        'pay_date' => 'date',
     ];
 
     /**

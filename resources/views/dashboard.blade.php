@@ -25,7 +25,7 @@
                         class="position-absolute opacity-4 start-0 top-0 w-100">
                     <div class="card-body px-5 z-index-1 bg-cover">
                         <div class="row">
-                            <div class="col-lg-4 col-12 text-center">
+                            <div class="col-lg-3 col-12 text-center">
                                 <img class="w-75 w-lg-auto mt-n7 mt-lg-n9 d-none d-md-block"
                                     src="{{ asset('soft-ui/assets/img/water.png') }}" alt="car image">
                                 <div class="d-flex align-items-center">
@@ -50,7 +50,7 @@
                                 </div>
                             </div>
 
-                            <div class="col-lg-4 col-12 my-auto">
+                            <div class="col-lg-5 col-12 my-auto">
                                 <h4 class="text-white opacity-9">&nbsp;</h4>
                                 <hr class="horizontal light mt-1 mb-3">
                                 <div class="d-flex">
@@ -60,7 +60,7 @@
                                                 class="text-sm align-top">หน่วย</small></h3>
                                     </div>
                                     <div class="ms-lg-6 ms-4">
-                                        <h6 class="mb-0 text-white opacity-7">จำนวนเงิน</h6>
+                                        <h6 class="mb-0 text-white opacity-7">จำนวนเงินชำระแล้ว</h6>
                                         <h3 class="text-white">{{ number_format($paid_total, 2) }} <small
                                                 class="text-sm align-top">บาท</small>
                                         </h3>

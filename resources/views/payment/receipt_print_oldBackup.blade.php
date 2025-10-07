@@ -42,17 +42,17 @@ $c2 = 1;
         }
 
         .number {
-            /* padding-top: 2px !important;
-            padding-bottom: 2px !important */
+            padding-top: 2px !important;
+            padding-bottom: 2px !important
         }
 
         .t2-pr-3 {
-            /* padding-right: 0.8rem !important; */
+            padding-right: 0.8rem !important;
         }
 
         td.waterUsedHisHead {
             /* font-size: 10pt; */
-            /* padding: 2pt; */
+            padding: 2pt;
         }
 
         .head {
@@ -69,7 +69,7 @@ $c2 = 1;
         }
 
         .head {
-            /* height: 3pc; */
+            height: 3pc;
         }
 
         .noneborder_top_left {
@@ -83,20 +83,20 @@ $c2 = 1;
         }
 
         .border-bottom-none {
-            /* border-bottom: 1px solid white; */
+            border-bottom: 1px solid white;
         }
 
         .border-right-none {
-            /* border-right: 1px solid white; */
+            border-right: 1px solid white;
         }
 
         .border-top-none {
-            /* border-top: 1px solid white;
-            padding-left: 10px */
+            border-top: 1px solid white;
+            padding-left: 10px
         }
 
         .border-left-none {
-            /* border-left: 1px solid white; */
+            border-left: 1px solid white;
         }
 
         .border-bottom-fill {
@@ -129,7 +129,7 @@ $c2 = 1;
 
         .t2 {
             /* margin-left: 72px !important; */
-            /* margin-left: 30px !important; */
+            margin-left: 30px !important;
         }
 
         .t2_for_name_address {
@@ -144,11 +144,10 @@ $c2 = 1;
 
         .waterUsedHisHead2,
         .waterUsedHisHead2 div {
-            font-size: 14px;
-            /* font-weight: bold; */
-            /* padding-top: 1px !important;
-            padding-bottom: 1px !important */
-            padding: 0;
+            font-size: 16px;
+            font-weight: bold;
+            padding-top: 1px !important;
+            padding-bottom: 1px !important
         }
 
         .waterUsedHisHead2,
@@ -176,7 +175,7 @@ $c2 = 1;
         }
 
         td {
-            border: 1px solid black
+            border: 1px solid white
         }
 
         .qrcode_description {
@@ -186,14 +185,14 @@ $c2 = 1;
         }
 
         .header-bg {
-            /* background-color: #1955b0;
-            color: white; */
+            /* background-color: #1955b0; */
+            /* color: white */
             color: #000;
         }
 
         #ref td {
             padding: 0px !important;
-            /* border-top: 1px solid white */
+            border-top: 1px solid white
         }
 
         .summary_text {
@@ -282,9 +281,6 @@ $c2 = 1;
         .row_sign {
             margin-top: -0.5% !important
         }
-        .test{
-            border: #000 solid 1px
-        }
     </style>
 @endsection
 @section('content')
@@ -293,13 +289,13 @@ $c2 = 1;
     <br>
 
     <div class="row row_info" style="opacity: 1">
-        <div class="col-6" style="border: 1px solid #000">
+        <div class="col-6">
             @include('payment._rc_left_form')
         </div>
-        <div class="col-6" style="border: 1px solid #000">
+        <div class="col-6">
             @include('payment._rc_right_form')
         </div>
-        {{-- <p style=" page-break-after: avoid;"></p> --}}
+        <p style=" page-break-after: avoid;"></p>
 
     </div>
     <br class="print">
@@ -349,19 +345,19 @@ $c2 = 1;
 
             head.appendChild(style);
 
-            // window.print();
-            // if ($('#type').val() == 'paid_receipt') {
-            //     setTimeout(function () {
-            //         window.location.href = '/payment';
-            //     }, 200);
-            // } else {
-            //     //type == history_recipt
-            //     setTimeout(function () {
-            //         $("input[type='submit']").click();
+            window.print();
+            if ($('#type').val() == 'paid_receipt') {
+                setTimeout(function () {
+                    window.location.href = '/payment';
+                }, 200);
+            } else {
+                //type == history_recipt
+                setTimeout(function () {
+                    $("input[type='submit']").click();
 
-            //     }, 200);
+                }, 200);
 
-            // }
+            }
         });
     </script>
 @endsection

@@ -2,16 +2,16 @@
 
 namespace App\Models\KeptKaya;
 
-use App\Models\BudgetYear;
+use App\Models\Admin\BudgetYear as AdminBudgetYear;
 use App\Models\Keptkaya\KpUserGroup;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 
-class KpUsergroupPayratePerMonth extends Model
+class WasteBinPayratePerMonth extends Model
 {
     use HasFactory;
 
-    protected $table = 'kp_usergroup_payrate_permonth';
+    protected $table = 'waste_bin_payrate_permonth';
 
     protected $fillable = [
         'id',
@@ -27,6 +27,6 @@ class KpUsergroupPayratePerMonth extends Model
     }
 
     public function budgetyear(){
-        return $this->belongsTo(KpBudgetYear::class, 'budgetyear_idfk','id');
+        return $this->belongsTo(AdminBudgetYear::class, 'budgetyear_idfk','id');
     }
 }

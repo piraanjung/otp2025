@@ -5,11 +5,11 @@ namespace App\Http\Controllers\Api;
 use App\Http\Controllers\Api\FunctionsController;
 use App\Http\Controllers\Api\ZoneController;
 use App\Http\Controllers\Controller;
-use App\Models\Tabwater\Invoice;
-use App\Models\Tabwater\InvoicePeriod;
+use App\Models\Tabwater\TwInvoiceTemp;
+use App\Models\Tabwater\TwInvoicePeriod;
+use App\Models\Tabwater\TwUsersInfo;
 use App\Models\Tabwater\UndertakerSubzone;
 use App\Models\User;
-use App\Models\Tabwater\UserMerterInfo;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Hash;
@@ -123,7 +123,7 @@ class UsersController extends Controller
             ])->first();
 
         foreach ($users->user_meter_infos as $invoice) {
-            $invoice->invoice = Invoice::where('user_id', $invoice->user_id)
+            $invoice->invoice = TwInvoiceTemp::where('user_id', $invoice->user_id)
                 ->where('status', 'init')
                 ->with(['invoice_period'])
                 ->first();
@@ -194,7 +194,7 @@ class UsersController extends Controller
                     $subzone->members_status_paid    = $this->usermeter_info_get_invoice_status_count($subzone->subzone_id, 'paid');
                 }
 
-                $result[0]->inv_period = InvoicePeriod::where('status', 'active')->get(['id', 'inv_p_name']);
+                $result[0]->inv_period = TwInvoicePeriod::where('status', 'active')->get(['id', 'inv_p_name']);
             } else {
                 $result = User::where('username', $username)
                     ->with(
@@ -424,45 +424,15 @@ class UsersController extends Controller
 
     public function users_subzone_count($subzone_id = null)
     {
-        return UserMerterInfo::where('status', 'active')
+        return TwUsersInfo::where('status', 'active')
             ->where('undertake_subzone_id', $subzone_id)->count();
     }
 
     public function usermeter_info_get_invoice_status_count($subzone_id, $status)
     {
-
-    //    $users = User::where('zone_id', 19)->where('status', 1)
-    //     ->with([
-    //         'usermeterinfos' => function($q){
-    //             return $q->select('meter_id', 'user_id', 'status', 'undertake_zone_id')
-    //             ->whereIn('status', ['active']);
-    //         },
-    //         'usermeterinfos.invoice' => function($q){
-    //             return $q->select('meter_id_fk', 'inv_period_id_fk', 'status')
-    //             ->where('inv_period_id_fk',  51);
-    //         }
-    //     ])
-    //     ->where('role_id', 3)
-    //     ->get(['id', 'firstname', 'lastname','zone_id']);
-
-    //     $usermeterinfoNotEmpty = collect($users)->filter(function($v){
-    //         return collect($v->usermeterinfos)->isNotEmpty();
-    //     });
-    //     foreach($usermeterinfoNotEmpty as $user){
-    //         UserMerterInfo::where('user_id', $user->id)->update([
-    //             'undertake_zone_id' => $user->zone_id,
-    //             'undertake_subzone_id' => $user->zone_id,
-    //         ]);
-    //     }
-    //     return 'ss';    
-        // return  collect($users)->filter(function($v){
-        //     return $v->zone_id != $v->usermeterinfos[0]->undertake_zone_id;
-        // });
-
-
-        $curr_inv_period = InvoicePeriod::where('status', 'active')->get('id')->first();
+        $curr_inv_period = TwInvoicePeriod::where('status', 'active')->get('id')->first();
         $curr_inv_period_id = $curr_inv_period->id;
-        $res = UserMerterInfo::where('undertake_subzone_id', $subzone_id)
+        $res = TwUsersInfo::where('undertake_subzone_id', $subzone_id)
             ->with(['invoice' => function ($query) use ($status,$curr_inv_period_id) {
                 return $query->select('meter_id_fk')->where('status', $status)->where('inv_period_id_fk', $curr_inv_period_id);
             }])

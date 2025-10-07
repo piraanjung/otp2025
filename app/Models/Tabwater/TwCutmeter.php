@@ -9,7 +9,7 @@ class TwCutmeter extends Model
 {
     use HasFactory;
     protected $table = 'tw_cutmeter';
-    protected $fillable = [ 'meter_id_fk', 'id', 'progress', 'status', 'owe_count'];
+    protected $fillable = [ 'meter_id_fk', 'id', 'progress', 'status', 'owe_count', 'warning_print'];
 
 
     public function usermeterinfo(){

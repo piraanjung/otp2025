@@ -11,9 +11,9 @@
 @endsection
 @section('content')
 
-    @if (collect($usergroups)->isEmpty())
+    {{-- @if (collect($usergroups)->isEmpty())
         <h4 class="text-center mt-3">ยังไม่มีข้อมูลประเภทผู้ใช้งาน</h4>
-    @else
+    @else --}}
         <div class="card card-outline card-danger">
             <div class="card-header">
                 <h3 class="card-title"></h3>
@@ -100,7 +100,7 @@
                 </div>
             </div>
         </div>
-    @endif
+    {{-- @endif --}}
 
 @endsection
 

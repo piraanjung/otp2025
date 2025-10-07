@@ -6,355 +6,268 @@ $fnc = new FunctionsController();
 $exp = explode(' ', $invoicesPaidForPrint[0]->acc_transactions->updated_at);
 $receipt_th_date = $fnc->engDateToThaiDateFormat($exp[0]);
 ?>
-
-
-<table border="" width="95%" style="margin-top:0px !important;" class="t2">
-    <tr>
-        <td colspan="7" class="text-center head pt-2 pb-2 header-bg">
-            ต้นขั้วใบเสร็จรับเงิน/ใบกำกับภาษี
+<div class="row  pr-2">
+    <div class="col-9" style="border: 1px solid black">
+        <div class="text-center head pt-2 pb-2 header-bg">
+         ต้นขั้วใบเสร็จรับเงิน/ใบกำกับภาษี
             {{-- &nbsp; --}}
             <div class="tax_number header-bg">
-                {{-- เลขที่ผู้เสียภาษี 0994000352620 --}}
+                เลขที่ผู้เสียภาษี 0994000352620
                 {{-- &nbsp; --}}
             </div>
-        </td>
-        {{-- <td colspan="1" class="text-center header-bg head2 pt-2 pb-2 border-right-none inv_number_text">เลขที่</td> --}}
-        <td colspan="3" class="text-center head2 pt-2 pb-2">
+        </div>
+    </div>
+    <div class="col-3" style="border: 1px solid black">
+        <div colspan="2" class="text-center head2 pt-2 pb-2">
             <div class="tax_number header-bg pt-1">
-                {{-- เลขที่ --}
-                &nbsp;
+                 เลขที่ 
+                {{-- &nbsp; --}}
             </div>
             <div class="text-danger" style="font-size: 1.4rem; font-weight:bolder">
-                &nbsp;
-                {{-- 00000001 --}}
+                {{-- &nbsp; --}}
+                00000001
             </div>
-        </td>
-    </tr>
-    <tr class="ref">
-        <td width="10%"></td>
-        <td width="10%"></td>
-        <td width="10%"></td>
-        <td width="10%"></td>
-        <td width="10%"></td>
-        <td width="10%"></td>
-        <td width="10%"></td>
-        <td width="10%"></td>
-        <td width="10%"></td>
-        <td width="10%"></td>
-
-    </tr>
-    <tr>
-        <td colspan="7" class="text-left text-primary row2">
+        </div>
+    </div>
+</div>
+<div  class="row pr-2">
+        <div class="col-9 test text-left text-primary row2">
             เทศบาลตำบลขามป้อม
             {{-- &nbsp; --}}
             <div class="address2">
                 222 หมู่ 17 ตำบลขามป้อม อำเภอพระยืน จังหวัดขอนแก่น 40003
                 {{-- &nbsp; --}}
             </div>
-        </td>
-        <td colspan="3" class="text-center pt-0 pb-0 row2">
+        </div>
+        <div class="col-3 test text-center pt-0 pb-0 row2">
             <div>{{ $receipt_th_date }}</div>
             @if ($receipt_th_date < $fnc->engDateToThaiDateFormat(date('Y-m-d')))
                 <div style="font-size: 0.8rem;"> ( ปริ้น: {{ $fnc->engDateToThaiDateFormat(date('Y-m-d')) }} ) </div>
             @endif
-        </td>
-    </tr>
-    <tr>
-        <td colspan="2" class="waterUsedHisHead  header-bg">
+        </div>
+</div>
+ <div class="row pr-2">
+    <div class="col-9">
+        <div class="row">
+            <div class="col-3 waterUsedHisHead  test header-bg">
             ชื่อผู้ใช้น้ำ
             {{-- &nbsp; --}}
-        </td>
-        <td colspan="5">
-            {{ $invoicesPaidForPrint[0]->usermeterinfos->user->prefix . '' . $invoicesPaidForPrint[0]->usermeterinfos->user->firstname . ' ' . $invoicesPaidForPrint[0]->usermeterinfos->user->lastname }}
-        </td>
-
-        <td colspan="3" rowspan="2" class="text-center border-right-none border-bottom-none">
-            {{-- &nbsp; --}}
-            <img src="{{ asset('/logo/khampom.png') }}" width="100">
-        </td>
-    </tr>
-
-    <tr>
-        <td colspan="2" class="waterUsedHisHead  header-bg">
+            </div>
+            <div class="col-9 test">
+                {{ $invoicesPaidForPrint[0]->usermeterinfos->user->prefix . '' . $invoicesPaidForPrint[0]->usermeterinfos->user->firstname . ' ' . $invoicesPaidForPrint[0]->usermeterinfos->user->lastname }}
+            </div>
+         <div class="col-3 waterUsedHisHead  test header-bg">
             ที่อยู่
             &nbsp;
-        </td>
-        <td colspan="5" class="address pt-1" style="height: 3rem !important">
+         </div>
+            <div class="col-9 test">
             {{ $invoicesPaidForPrint[0]->usermeterinfos->meter_address }}
             {{ $invoicesPaidForPrint[0]->usermeterinfos->undertake_subzone->subzone_name }}
             ต.{{ $invoicesPaidForPrint[0]->usermeterinfos->user->user_tambon->tambon_name }}
             อ.{{ $invoicesPaidForPrint[0]->usermeterinfos->user->user_district->district_name }}
             จ.{{ $invoicesPaidForPrint[0]->usermeterinfos->user->user_province->province_name }}
             {{ $invoicesPaidForPrint[0]->usermeterinfos->user->user_tambon->zipcode }}
-        </td>
+            </div>
 
-    </tr>
+        </div>
+    </div>
+       
 
-</table>
-<table border="0" width="95%" class="t2" style="margin-top:5px !important">
-    <tr>
+        <div  class=" col-3 text-center test border-right-none border-bottom-none">
+            {{-- &nbsp; --}} 
+            <img src="{{ asset('/logo/khampom.png') }}" width="100">
+        </div>
+    </div>
+ <div class="row pr-2">
 
-        <td width="20%" class="waterUsedHisHead pl-2 header-bg">
+        <div  class="col-2 waterUsedHisHead test pl-2 header-bg">
             เลขผู้ใช้มิเตอร์
             &nbsp;
-        </td>
+        </div>
         
         <?php $sunmeter_name  = $invoicesPaidForPrint[0]->usermeterinfos->submeter_name == "" ? "" : " (".$invoicesPaidForPrint[0]->usermeterinfos->submeter_name.")"; ?>
-        <td width="30%" class="text-center pl-1"> {{ $invoicesPaidForPrint[0]->usermeterinfos->user_id."".$sunmeter_name }}</td>
-        <td width="20%" class="waterUsedHisHead pl-2 header-bg">
+        <div  class="col-4 text-center test pl-1"> {{ $invoicesPaidForPrint[0]->usermeterinfos->user_id."".$sunmeter_name }}</div>
+        <div  class="col-2 waterUsedHisHead test pl-2 header-bg">
             เลขมิเตอร์
             &nbsp;
-        </td>
-        <td width="30%" class="text-center">
+        </div>
+        <div  class="col-4 test text-center">
             {{ $fnc->createInvoiceNumberString($invoicesPaidForPrint[0]->usermeterinfos->meter_id) }} /
             <span
-                style="font-size: 0.8rem">{{ $fnc->createNumberString($invoicesPaidForPrint[0]->inv_id, 'B') }}</span>
-        </td>
-    </tr>
-</table>
-<table border="" width="95%" id="tabwater_info" class="t2" style="margin-top:10px !important;">
-
-    <tr>
-        <td class="waterUsedHisHead2 header-bg text-center" width="10%">
-            <div>
-                ประจำ
-                {{-- &nbsp; --}}
-            </div>
-            <div>
-                เดือน
-                {{-- &nbsp; --}}
-            </div>
-        </td>
-        <td class="waterUsedHisHead2 header-bg text-center" width="10%">
-            <div>
-                วันที่
-                {{-- &nbsp; --}}
-            </div>
-            <div>
-                {{-- &nbsp; --}}
-                จดมาตร
-            </div>
-        </td>
-        <td class="waterUsedHisHead2 header-bg text-center" width="9%">
-            <div>
-                มิเตอร์
-                {{-- &nbsp; --}}
-            </div>
-            <div>
-                {{-- &nbsp; --}}
-                ปัจจุบัน
-            </div>
+                style="font-size: 0.8rem">{{ $fnc->createNumberString($invoicesPaidForPrint[0]->id, 'B') }}</span>
+        </div>
+</div><!--row-->
+ <div class="d-flex align-content-center ">
+        <div style="padding: 0.15rem;width:10%" class="test waterUsedHisHead2 header-bg text-center">
+                ประจำเดือน
+        </div>
+        <div style="padding: 0.15rem;width:15%" class="test waterUsedHisHead2 header-bg text-center">
+                วันที่จดมาตร
+        </div>
+        <div style="padding: 0.15rem;width:10%" class="test waterUsedHisHead2 header-bg text-center">
+           
+                มิเตอร์ปัจจุบัน
+           <div> <sup>
+                    {{-- &nbsp;  --}}
+                    (หน่วย)
+                </sup>
+           </div>
+        </div>
+        <div style="padding: 0.15rem;width:10%" class="test waterUsedHisHead2 header-bg text-center">
+           
+                <div> มิเตอร์</div>
+                <div>ครั้งก่อน</div>
             <div><sup>
                     {{-- &nbsp;  --}}
                     (หน่วย)
                 </sup></div>
-        </td>
-        <td class="waterUsedHisHead2 header-bg text-center" width="10%">
-            <div>
-                {{-- &nbsp; --}}
-                 มิเตอร์
-            </div>
-            <div>
-                {{-- &nbsp;  --}}
-                ครั้งก่อน
-            </div>
+        </div>
+        <div style="padding: 0.15rem;width:9%" class="test waterUsedHisHead2 header-bg text-center">
+           
+            <div>จำนวน</div>
+            <div>น้ำที่ใช้</div>
             <div><sup>
                     {{-- &nbsp;  --}}
                     (หน่วย)
                 </sup></div>
-        </td>
-        <td class="waterUsedHisHead2 header-bg text-center" width="8%">
-            <div>
-                {{-- &nbsp; --}}
-                จำนวน
-            </div>
-            <div>
+        </div>
+        <div style="padding: 0.15rem;width:10%" class="test waterUsedHisHead2 header-bg text-center">
                 {{-- &nbsp;  --}}
-                น้ำที่ใช้
-            </div>
-            <div><sup>
-                    {{-- &nbsp;  --}}
-                    (หน่วย)
-                </sup></div>
-        </td>
-        <td class="waterUsedHisHead2 header-bg text-center" width="10%">
-            <div>
-                {{-- &nbsp;  --}}
-                ค่าน้ำ
-            </div>
-            <div>
-                {{-- &nbsp;  --}}
-                ประปา
-            </div>
+                ค่าน้ำประปา
             <div><sup>
                     {{-- &nbsp;  --}}
                     (บาท)
                 </sup></div>
-        </td>
-        <td class="waterUsedHisHead2 header-bg text-center" width="10%">
-            <div>
+        </div>
+        <div style="padding: 0.15rem;width:10%" class="test waterUsedHisHead2 header-bg text-center">
                 {{-- &nbsp;  --}}
-                ค่ารักษา
-            </div>
-            <div>
-                {{-- &nbsp;  --}}
-                มิเตอร์
-            </div>
+                ค่ารักษามิเตอร์
             <div><sup>
                     {{-- &nbsp;  --}}
                     (บาท)
                 </sup></div>
-        </td>
-        <td class="waterUsedHisHead2 header-bg text-center" width="7%">
-            <div>
+        </div>
+        <div style="padding: 0.15rem;width:9%" class="test waterUsedHisHead2 header-bg text-center">
+           
                 {{-- &nbsp;  --}}
-                Vat 7%
-            </div>
-            <div><sup>
+                <div>
+                Vat&nbsp;7%
+                </div>
+                <div>
+                <sup>
                     {{-- &nbsp;  --}}
                     (บาท)
                 </sup></div>
-        </td>
-        <td class="waterUsedHisHead2 header-bg text-center" width="15%">
-            <div>
-                {{-- &nbsp;  --}}
+        </div>
+        <div style="padding: 0.15rem;width:17%" class="test waterUsedHisHead2 header-bg text-center">
+            
                 จำนวนเงิน
-            </div>
             <div><sup>
                     {{-- &nbsp;  --}}
                     (บาท)
                 </sup></div>
-        </td>
-    </tr>
-    <?php $total = 0;
-    $reserveMeter = 0;
-    $totalVat7 = 0;
-    ?>
-
-    @if (strlen($invoicesPaidForPrint[0]['currentmeter']) >= 4)
-        <style>
-            .inv_p {
-                font-size: 12px !important
-            }
-
-            .inf {
-                font-size: 12px !important
-            }
-        </style>
-    @endif
-
-    @foreach ($invoicesPaidForPrint as $key => $item)
-        <tr id="{{ collect($invoicesPaidForPrint)->count() > 6 ? 'info_over6' : 'info' }}">
-            <td class="text-center inv_p" style="padding-left: 5px !important">
-                <?php
-                $exp = explode('-', $item->invoice_period->inv_p_name);
-                $year = date('y') + 43;
-                echo str_replace($exp[1],$year, $item->invoice_period->inv_p_name);
-                ?>
-            </td>
-            <td class="text-center inf">
-                <?php
-                $date = Str::substr($item->created_at, 0, 10);
-                echo str_replace($exp[1],$year, $fnc->engDateToThaiDateFormat($date));
-
-                // echo $fnc->engDateToThaiDateFormat($date);
-                ?>
-            </td>
-
-            <td class="text-right inf"><?php echo number_format($item['currentmeter']); ?></td>
-            <td class="text-right inf"><?php echo number_format($item['lastmeter']); ?></td>
-            <td class="text-right number inf">
-                <?php
-                $waterUsedNet = intval($item['currentmeter']) - intval($item['lastmeter']);
-                $reserveMeter = 10;// $waterUsedNet == 0 ? 10 : 0;
-                $used_price = $waterUsedNet * 6;
-                $paid = $used_price + $reserveMeter;
-                $vat7 = 0;//$paid * 0.07;
-                $total += $paid;
-                $totalVat7 += $vat7;
-                ?>
-                <span id="unit_used">{{ number_format($waterUsedNet) }}</span>
-            </td>
-            <td class="text-right number inf">{{ number_format($used_price, 2) }}</td>
-            <td class="text-right number inf"><?php echo number_format($reserveMeter, 2); ?></td>
-            <td class="text-right number inf">{{ $vat7 }}</td>
-            <td class="text-right number t2-pr-3 inf">{{ number_format($paid + $vat7, 2) }}</td>
-        </tr>
-    @endforeach
-    {{-- @endfor --}}
-
-    {{-- @for ($i = collect($invoicesPaidForPrint)->count(); $i < 6; $i++) --}}
-    @for ($i = collect($invoicesPaidForPrint)->count(); $i < 6; $i++)
-        <tr id="{{ $i == 5 ? '' : 'info' }}">
-            @for ($j = 0; $j < 8; $j++)
-                <td class="">&nbsp;</td>
-            @endfor
-        </tr>
+        </div>
+    </div>
+    @for ($i = 0; $i < 6; $i++)
+    <div class="d-flex align-content-center ">
+        <div style="padding: 0.25rem 0.15rem 0.25rem 0.15rem;width:10%" class="test waterUsedHisHead2 header-bg text-center">
+                07/68
+        </div>
+        <div style="padding: 0.25rem 0.15rem 0.25rem 0.15rem;width:15%" class="test waterUsedHisHead2 header-bg text-center">
+                17/07/67
+        </div>
+        <div style="padding: 0.25rem 0.15rem 0.25rem 0.15rem;width:10%" class="test waterUsedHisHead2 header-bg text-right">
+           7,777
+        </div>
+        <div style="padding: 0.25rem 0.15rem 0.25rem 0.15rem;width:10%" class="test waterUsedHisHead2 header-bg text-right">
+           
+            7,778
+        </div>
+        <div style="padding: 0.25rem 0.15rem 0.25rem 0.15rem;width:9%" class="test waterUsedHisHead2 header-bg text-right">
+           7,777
+        </div>
+        <div style="padding: 0.25rem 0.15rem 0.25rem 0.15rem;width:10%" class="test waterUsedHisHead2 header-bg text-right">
+             7,777.00
+        </div>
+        <div style="padding: 0.25rem 0.15rem 0.25rem 0.15rem;width:10%" class="test waterUsedHisHead2 header-bg text-right">
+          7,777.00
+        </div>
+        <div style="padding: 0.25rem 0.15rem 0.25rem 0.15rem;width:9%" class="test waterUsedHisHead2 header-bg text-right">
+           777.77
+        </div>
+        <div style="padding: 0.25rem 0.15rem 0.25rem 0.15rem;width:17%" class="test waterUsedHisHead2 header-bg text-right">
+            77,777.77
+        </div>
+    </div>
     @endfor
-    <tr>
-        <td colspan="4" class="text-center border-left-none border-bottom-none" rowspan="3">
-            &nbsp; {{-- งานกิจการประปา --}}
-            {{-- <div >โทร. 08-810-0543-5</div> --}}
-            {{-- <div style="padding-left: .9rem"> 045-777116</div> --}}
 
-        </td>
-        <td class="pl-2 summary_text" colspan="4">
-            {{-- &nbsp;  --}}
-            รวมเป็นเงิน <span class="baht"> (บาท)</span>
-        </td>
-        <td class="text-right t2-pr-3 number">
-            {{ number_format($total, 2) }}
-        </td>
-    </tr>
-    <tr>
-        <td class="pl-2 summary_text" colspan="4">
-            {{-- &nbsp;  --}}
-            ภาษีมูลค่าเพิ่ม 7% <span class="baht"> (บาท)</span>
-        </td>
-        <td class="text-right t2-pr-3 number">
-            {{ number_format($totalVat7, 2) }}
-        </td>
-    </tr>
-    <tr>
-        <td class="pl-2 pt-0 summary_text" colspan="5">
-            <div class="row">
-                <div class="col-8 pt-1">
-                    <span style="font-size: 0.95rem">
-                        {{-- &nbsp;  --}}
-                        รวมที่ต้องชำระทั้งสิ้น</span>
-                     <span class="baht"> (บาท)</span>
+     <div class="d-flex">
+        <div style="width: 50%" class="test text-center border-left-none border-bottom-none" rowspan="3">
+            &nbsp; งานกิจการประปา
+            <div >โทร. 08-810-0543-5</div>
+            <div style="padding-left: .9rem"> 045-777116</div>
+
+        </div>
+        <div style="width: 50%">
+            <div class="d-flex">
+                <div  style="width:66%"  class="test summary_text">
+                    {{-- &nbsp;  --}}
+                    รวมเป็นเงิน <span class="baht"> (บาท)</span>
                 </div>
-                <div class="col-4 text-right t2-pr-3 header-bg">
-                    <h5>{{ number_format($total + $totalVat7, 2) }}</h5>
+                <div  style="width: 34%"  class="test text-right t2-pr-3 number">
+                    77,777.77
                 </div>
             </div>
-            <div class="text-right" style="font-size: 0.85rem; padding-right: 3px;">
-                ({{ App\Http\Controllers\Api\FunctionsController::convertAmountToLetter(number_format($total + $totalVat7, 2)) }})
+            <div class="d-flex">
+                <div  style="width:66%"  class="test summary_text">
+                    {{-- &nbsp;  --}}
+                    ภาษีมูลค่าเพิ่ม 7%  <span class="baht"> (บาท)</span>
+                </div>
+                <div  style="width: 34%"  class="test text-right t2-pr-3 number">
+                    77,777.77
+                </div>
             </div>
+            <div class="d-flex">
+                <div style="width:66%" class=" summary_text">
+                    {{-- &nbsp;  --}}
+                    รวมที่ต้องชำระทั้งสิ้น <span class="baht"> (บาท)</span>
+                </div>
+                <div style="width:34%"  class="h5 text-right t2-pr-3 number">
+                    77,777.77
 
-        </td>
-    </tr>
-</table>
-<table border="" width="95%" class="t" >
-    <tr>
-        <td colspan="7" class="text-center border-left-none border-right-none pt-1">
+                </div>
+                
+            </div>
+            <div class="text-right" style="font-size: 0.85rem;">
+                ({{ App\Http\Controllers\Api\FunctionsController::convertAmountToLetter(77777.77) }})
+
+            </div>
+        </div>
+    </div>
+{{--    
+     <div class="text-right" style="font-size: 0.85rem;>
+                ({{ App\Http\Controllers\Api\FunctionsController::convertAmountToLetter(77777.77) }})
+            </div> --}}
+
+ <div class="d-flex test">
+        {{-- <div class="test text-center border-left-none border-right-none pt-1"> --}}
             {{-- (ลงชื่อ)  --}}
             {{-- ddf --}}
-            <div class="d-flex justify-content-center row_sign">
-                <div class="" >
+            {{-- <div class="d-flex justify-content-center row_sign"> --}}
+                <div style="width:50%" >
                     <div  style="font-size: 0.90rem">
                         <img src="{{ asset('/sign/sign2.png') }}" width="130" height="20" class="imgtes1t">
                         &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
                         {{-- {{ $invoicesPaidForPrint[0]->acc_transactions->cashier_info->prefix . '' . $invoicesPaidForPrint[0]->acc_transactions->cashier_info->firstname . ' ' . $invoicesPaidForPrint[0]->acc_transactions->cashier_info->lastname }} --}}
-                        <div>(นางสาวสมจริง ไทยทองหลาง)</div>
+                        <div>(นางสาวสมจริง ไทยทองหลาง)
                         {{-- &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; --}}
-                        </span>ผู้รับเงิน
+                        </div>ผู้รับเงิน
                         <br>&nbsp;
                     </div>
                 </div>
-                <div> &nbsp;&nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp;&nbsp;
-                        &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</div>
-                <div class="">
+                {{-- <div class="width:50%" > &nbsp;&nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp;&nbsp;
+                        &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</div> --}}
+                <div style="width:50%" >
                     <div  style="font-size: 0.88rem" class="text-left">
                         &nbsp;&nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp;&nbsp;
                         &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
@@ -369,8 +282,7 @@ $receipt_th_date = $fnc->engDateToThaiDateFormat($exp[0]);
                         <br>&nbsp;
                     </div>
                 </div>
-            </div>
+            {{-- </div> --}}
 
-        </td>
-    </tr>
-</table>
+        {{-- </div> --}}
+    </div>

@@ -6,6 +6,7 @@ use App\Models\Admin\BudgetYear;
 use App\Http\Controllers\Api\FunctionsController;
 use App\Http\Controllers\Controller;
 use App\Models\Tabwater\TwAccTransactions;
+use App\Models\Tabwater\TwInvoice;
 use App\Models\Tabwater\TwInvoiceTemp;
 use App\Models\Tabwater\TwInvoiceHistoty;
 use App\Models\Tabwater\TwInvoicePeriod;
@@ -152,7 +153,7 @@ class InvoiceController extends Controller
 
     public function get_invoice_and_invoice_history($meter_id, $status = "")
     {
-        $invoice = TwInvoiceTemp::where('meter_id_fk', $meter_id)
+        $invoice = TwInvoice::where('meter_id_fk', $meter_id)
             ->with([
                 'usermeterinfos' => function ($query) {
                     $query->select('meter_id', 'user_id', 'meternumber', 'undertake_zone_id', 'undertake_subzone_id', 'metertype_id', 'submeter_name');
@@ -184,9 +185,15 @@ class InvoiceController extends Controller
                 'usermeterinfos.user.user_zone' => function ($query) {
                     return $query->select('id', 'zone_name as user_zone_name');
                 },
-                'usermeterinfos.meter_type' => function ($query) {
-                    return $query->select('id', 'price_per_unit');
-                },
+                 'usermeterinfos.meter_type' => function ($query) {
+                        $query->select('id');
+                    },
+                    'usermeterinfos.meter_type.rateConfigs' => function ($query) {
+                        $query->select('*');
+                    },
+                    'usermeterinfos.meter_type.rateConfigs.Ratetiers' => function ($query) {
+                        $query->select('*');
+                    }
             ]);
         if ($status != '') {
 
@@ -227,9 +234,15 @@ class InvoiceController extends Controller
                 'usermeterinfos.user.user_zone' => function ($query) {
                     return $query->select('id', 'zone_name as user_zone_name');
                 },
-                'usermeterinfos.meter_type' => function ($query) {
-                    return $query->select('id', 'price_per_unit');
-                },
+                 'usermeterinfos.meter_type' => function ($query) {
+                        $query->select('id');
+                    },
+                    'usermeterinfos.meter_type.rateConfigs' => function ($query) {
+                        $query->select('*');
+                    },
+                    'usermeterinfos.meter_type.rateConfigs.Ratetiers' => function ($query) {
+                        $query->select('*');
+                    }
             ]);
         if ($status != '') {
 

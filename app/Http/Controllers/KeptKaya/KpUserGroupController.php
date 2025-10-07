@@ -3,7 +3,7 @@
 namespace App\Http\Controllers\KeptKaya;
 
 use App\Http\Controllers\Controller;
-use App\Models\BudgetYear;
+use App\Models\Admin\BudgetYear;
 use App\Models\Keptkaya\WasteBin;
 use App\Models\Keptkaya\KpUserGroup;
 use App\Models\Keptkaya\KpUserKeptkayaInfos;
@@ -18,12 +18,12 @@ class KpUserGroupController extends Controller
             'deleted' => '0'
         ])->get();
 
-        return view("keptkaya.kp_usergroup.index", compact("usergroups"));
+        return view("keptkayas.kp_usergroup.index", compact("usergroups"));
     }
     public function create()
     {
-        $budgetyear = BudgetYear::where('status', 'active')->get(['id', 'budgetyearname']);
-        return view("keptkaya.kp_usergroup.create", compact('budgetyear'));
+        $budgetyear = BudgetYear::where('status', 'active')->get(['id', 'budgetyear_name']);
+        return view("keptkayas.kp_usergroup.create", compact('budgetyear'));
     }
 
 
@@ -44,13 +44,13 @@ class KpUserGroupController extends Controller
             'created_at'  => date('Y-m-d H:i:s'),
             'updated_at' => date('Y-m-d H:i:s')
         ]);
-        return redirect()->route("keptkaya.kp_usergroup.index")->with(["message" => "บันทึกข้อมูลเรียบร้อยแล้ว", 'color' => 'success']);
+        return redirect()->route("keptkayas.kp_usergroup.index")->with(["message" => "บันทึกข้อมูลเรียบร้อยแล้ว", 'color' => 'success']);
     }
 
 
     public function edit(KpUserGroup $kp_usergroup)
     {
-        return view("keptkaya.kp_usergroup.edit", compact("kp_usergroup"));
+        return view("keptkayas.kp_usergroup.edit", compact("kp_usergroup"));
     }
 
     public function update(Request $request, KpUserGroup $kp_usergroup)
@@ -70,18 +70,18 @@ class KpUserGroupController extends Controller
             'updated_at' => date('Y-m-d H:i:s')
         ]);
 
-        return redirect()->route("keptkaya.kp_usergroup.index")->with(["message" => "บันทึกการแก้ไขแล้ว", 'color' => 'success']);
+        return redirect()->route("keptkayas.kp_usergroup.index")->with(["message" => "บันทึกการแก้ไขแล้ว", 'color' => 'success']);
     }
     public function destroy(KpUserGroup $kp_usergroup)
     {
         //check ว่ามีการใช้งานออยู่ไหม ถ้ามีห้ามรบ
         // $checkUsing = KpUserKeptkayaInfos::where('kp_usergroup_idfk', $kp_usergroup->id)->count();
         // if($checkUsing > 0){
-        //     return redirect()->route("keptkaya.kp_usergroup.index")->with(["message" => "มีการใข้งานอยู่ ไม่สามารถทำการลบข้อมูลได้", 'color' => 'warning']);
+        //     return redirect()->route("keptkayas.kp_usergroup.index")->with(["message" => "มีการใข้งานอยู่ ไม่สามารถทำการลบข้อมูลได้", 'color' => 'warning']);
         // }
         // $usergroup = KpUserGroup::find($kp_usergroup->id);
         // $usergroup->delete();
-        // return redirect()->route("keptkaya.kp_usergroup.index")->with(["message" => "ทำการลบข้อมูลเรียบร้อย", 'color' => 'success']);
+        // return redirect()->route("keptkayas.kp_usergroup.index")->with(["message" => "ทำการลบข้อมูลเรียบร้อย", 'color' => 'success']);
     }
     public function infos($id)
     {

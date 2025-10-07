@@ -146,9 +146,18 @@
                             <span class="sidenav-normal"> กลุ่มผู้ใข้งาน </span>
                         </a>
                     </li>
+                    <li class="nav-item @yield('nav-staff')">
+                        <a class="nav-link " href="{{route('keptkayas.users.waste_bin_users')}}">
+                            <div
+                                class="icon icon-shape icon-sm shadow border-radius-md bg-white text-center me-2 d-flex align-items-center justify-content-center">
+                                <i class="fa fa-users text-danger text-gradient text-lg"></i>
+                            </div>
+                            <span class="sidenav-normal">สมาชิกเก็บขยะรายปี </span>
+                        </a>
+                    </li>
 
                     <li class="nav-item  ">
-                        <a class="nav-link @yield('nav-cart')" href="{{ route('keptkayas.payrate_per_months.index') }}">
+                        <a class="nav-link @yield('nav-cart')" href="{{ route('keptkayas.wbin_payrate_per_months.index') }}">
                             <div
                                 class="icon icon-shape icon-sm shadow border-radius-md bg-white text-center me-2 d-flex align-items-center justify-content-center">
                                 <i class="fa fa-users text-danger text-gradient text-lg"></i>

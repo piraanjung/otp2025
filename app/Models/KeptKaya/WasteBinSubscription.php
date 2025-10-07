@@ -15,7 +15,7 @@ class WasteBinSubscription extends Model
     protected $fillable = [
         'waste_bin_id',
         'fiscal_year',
-        'payrate_permonth_id',
+        'payrate_permonth_id_fk',
         'annual_fee',
         'month_fee',
         'total_paid_amt',
@@ -30,6 +30,10 @@ class WasteBinSubscription extends Model
     public function wasteBin()
     {
         return $this->belongsTo(WasteBin::class);
+    }
+
+    public function payrate_permonth(){
+        return $this->belongsTo(WasteBinPayratePerMonth::class, 'payrate_permonth_id_fk', 'id');
     }
 
     /**

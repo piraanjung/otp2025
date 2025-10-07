@@ -109,7 +109,10 @@
                                                                 $isChecked = false; // By default, no month is checked
                                                             @endphp
                                                             <div class="col-6 col-md-4 col-lg-4 mb-2">
+                                                                                                                            
                                                                 <div class="form-check form-check-inline">
+                                                                     @if ($monthData['active'] == 1)
+
                                                                     <input class="form-check-input month-checkbox" type="checkbox"
                                                                         id="{{ $checkboxId }}"
                                                                         name="selected_months[]"
@@ -117,6 +120,7 @@
                                                                         data-due-amount="{{ $monthData['due_amount'] }}"
                                                                         {{ $isDisabled ? 'disabled checked' : '' }}
                                                                         {{ $isChecked ? 'checked' : '' }}>
+                                                                    @endif
                                                                     <label class="form-check-label {{ $isDisabled ? 'text-success' : '' }}" for="{{ $checkboxId }}">
                                                                         {{ $monthData['month_name'] }} {{ $monthData['year'] }}
                                                                         @if($isDisabled)
@@ -130,7 +134,7 @@
                                                 </div>
                                             </div>
                                             <div class="row">
-                                                <div class="col-md-6">
+                                                <div class="col-md-12">
                                                     <div class="input-group input-group-static mb-3">
                                                         <label for="amount_paid">จำนวนเงินที่ชำระ (฿)</label>
                                                         <input type="number" step="0.01" class="form-control" id="amount_paid" name="amount_paid" value="0.00" required readonly>
@@ -138,7 +142,7 @@
                                                     </div>
                                                     <input type="hidden" name="amount_paid_from_js_calc" id="amount_paid_from_js_calc" value="0.00">
                                                 </div>
-                                                <div class="col-md-6">
+                                                <div class="col-md-12">
                                                     <div class="input-group input-group-static mb-3">
                                                         <label for="payment_date">วันที่ชำระ</label>
                                                         <input type="date" class="form-control" id="payment_date" name="payment_date" value="{{ date('Y-m-d') }}" required>

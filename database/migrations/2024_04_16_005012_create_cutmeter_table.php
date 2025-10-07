@@ -16,7 +16,8 @@ return new class extends Migration
         Schema::create('cutmeter', function (Blueprint $table) {
             $table->bigIncrements('id');
             $table->integer('meter_id_fk');
-            $table->integer('owe_count');
+            $table->integer('owe_count')->default(0);
+            $table->integer('warning_print')->default(0);
             $table->string('progress')->comment('เก็บเป็น json มี status, datetime, twman_id');
             $table->enum('status', ['init', 'cutmeter', 'install', 'complete', 'cancel']);
             $table->string('comment')->nullable();

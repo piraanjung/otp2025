@@ -267,7 +267,7 @@
                             @foreach ($owes as $owe)
                             {{-- {{dd($owe['owe_infos'][0]->usermeterinfos->user->address)}} --}}
                                 <tr>
-                                    <td>{{ ++$index_row }}/ </td>
+                                    <td>{{ ++$index_row }}</td>
                                     <td>
                                         <input type="checkbox" class="invoice_id" style="opacity:0"
                                             name="meter_id[{{ $owe['meter_id_fk'] }}]">

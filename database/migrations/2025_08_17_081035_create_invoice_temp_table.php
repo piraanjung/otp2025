@@ -25,6 +25,7 @@ return new class extends Migration
                 $table->float('totalpaid', 8,2)->commet('paid+vat');
                 $table->enum('status', ['init','invoice', 'paid']);
                 $table->string('comment')->nullable();
+                $table->integer('printed_time')->default(0);
                 $table->unsignedBigInteger('recorder_id');
                 $table->timestamps();
                 $table->foreign('meter_id_fk')->references('meter_id')->on('user_meter_infos')->onDelete('cascade');

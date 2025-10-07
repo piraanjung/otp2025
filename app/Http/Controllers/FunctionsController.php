@@ -4,6 +4,8 @@ namespace App\Http\Controllers;
 
 
 use App\Models\Admin\District;
+use App\Models\Admin\Organization;
+use App\Models\Admin\OrgSettings;
 use App\Models\KeptKaya\KpPurchaseShop;
 use App\Models\KeptKaya\WasteBin;
 use App\Models\Admin\Tambon;
@@ -68,10 +70,18 @@ class FunctionsController extends Controller
     }
 
     public function wastBinCode(){
-      
+        $org = Organization::getOrgInfos(Auth::user()->org_id_fk);
         $wasteBin = WasteBin::get('bin_code')->last();
-        $int = (int)explode('KP-B',$wasteBin->bin_code)[1]+1;
-        return "KP-B" .$this->createNumberString($int);
+        $bin_code = collect($wasteBin)->isEmpty() ? 0 : $wasteBin->bin_code;
+
+        if($bin_code != 0){
+            $bCode = explode('-', $bin_code)[1];
+            $bin_code = (int)explode('B', $bCode)[1]+1;
+        }else{
+            $bin_code = 1;
+        }
+    
+        return $org['org_code']."-B" .$this->createNumberString($bin_code);
     }
 
      public static function fullThaiMonth($m)

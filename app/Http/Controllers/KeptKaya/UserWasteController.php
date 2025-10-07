@@ -114,6 +114,99 @@ class UserWasteController extends Controller
         }
     }
 
+   
+
+     public function waste_bin_users(Request $request)
+    {
+        // Get the 'per_page' value from the request, default to 10
+        $perPage = $request->input('per_page', 10);
+
+        // Define allowed per page options
+        $allowedPerPage = [10, 20, 50, 100];
+        if (!in_array($perPage, $allowedPerPage) && $perPage !== 'all') {
+            $perPage = 10; // Fallback to default if invalid value is provided
+        }
+
+        // Get search parameters from the request
+        $searchName = $request->input('search_name');
+        $searchEmail = $request->input('search_email');
+        $searchStatus = $request->input('search_status');
+        $searchIsAnnualCollection = $request->input('search_is_annual_collection'); // 'true', 'false', 'any'
+        $searchIsWasteBank = $request->input('search_is_waste_bank'); // 'true', 'false', 'any'
+
+
+        $query = User::with(['wastePreference', 'wasteBins']);
+
+        // Apply search filters
+        $query->when($searchName, function ($q, $name) {
+            $q->where(function ($subQ) use ($name) {
+                $subQ->where('firstname', 'like', '%' . $name . '%')
+                    ->orWhere('lastname', 'like', '%' . $name . '%')
+                    ->orWhere('username', 'like', '%' . $name . '%');
+            });
+        });
+
+        $query->when($searchEmail, function ($q, $email) {
+            $q->where('email', 'like', '%' . $email . '%');
+        });
+
+        $query->when($searchStatus && $searchStatus !== 'any', function ($q, $status) {
+            $q->where('status', $status);
+        });
+
+        // Filter by is_annual_collection status
+        $query->when($searchIsAnnualCollection && $searchIsAnnualCollection !== 'any', function ($q) use ($searchIsAnnualCollection) {
+            if ($searchIsAnnualCollection === 'true') {
+                $q->whereHas('wastePreference', function ($wp) {
+                    $wp->where('is_annual_collection', true);
+                });
+            } elseif ($searchIsAnnualCollection === 'false') {
+                // Users who have preference and is_annual_collection is false
+                // OR users who do NOT have a wastePreference record (meaning it's implicitly false)
+                $q->where(function ($subQ) {
+                    $subQ->whereHas('wastePreference', function ($wp) {
+                        $wp->where('is_annual_collection', false);
+                    })->orWhereDoesntHave('wastePreference');
+                });
+            }
+        });
+
+        // Filter by is_waste_bank status
+        $query->when($searchIsWasteBank && $searchIsWasteBank !== 'any', function ($q) use ($searchIsWasteBank) {
+            if ($searchIsWasteBank === 'true') {
+                $q->whereHas('wastePreference', function ($wp) {
+                    $wp->where('is_waste_bank', true);
+                });
+            } elseif ($searchIsWasteBank === 'false') {
+                // Users who have preference and is_waste_bank is false
+                // OR users who do NOT have a wastePreference record (implicitly false)
+                $q->where(function ($subQ) {
+                    $subQ->whereHas('wastePreference', function ($wp) {
+                        $wp->where('is_waste_bank', false);
+                    })->orWhereDoesntHave('wastePreference');
+                });
+            }
+        });
+
+        // Check if it's an AJAX request for live search
+        if ($request->ajax()) {
+            // For AJAX, just get the filtered data (no pagination for simplicity in AJAX update)
+            $users = $query->get();
+            return view('keptkayas.w.users._table_body', compact('users'))->render();
+        } else {
+            // For full page load, apply pagination
+            if ($perPage === 'all') {
+                $users = $query->get();
+            } else {
+                $users = $query->paginate($perPage)->appends($request->query()); // Append search queries to pagination links
+            }
+
+
+            // Pass all search parameters back to the view to pre-fill search fields
+            return view('keptkayas.w.users.waste_bin_users', compact('users', 'perPage', 'searchName', 'searchEmail', 'searchStatus', 'searchIsAnnualCollection', 'searchIsWasteBank'));
+        }
+    }
+
     /**
      * Show the form for creating a new resource.
      */

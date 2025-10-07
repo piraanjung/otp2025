@@ -7,7 +7,7 @@
     จัดการอัตราค่าบริการ
 @endsection
 @section('nav-main')
-    <a href="{{ route('keptkayas.payrate_per_months.index') }}">อัตราค่าบริการรายปี</a>
+    <a href="{{ route('keptkayas.wbin_payrate_per_months.index') }}">อัตราค่าบริการรายปี</a>
 @endsection
 @section('nav-current')
     เพิ่มอัตราค่าบริการใหม่
@@ -42,7 +42,7 @@
                         </div>
                     @endif
 
-                    <form action="{{ route('keptkayas.payrate_per_months.store') }}" method="POST">
+                    <form action="{{ route('keptkayas.wbin_payrate_per_months.store') }}" method="POST">
                         @csrf
                         <div class="mb-3">
                             <label for="kp_usergroup_idfk" class="form-label">กลุ่มผู้ใช้ <span
@@ -72,23 +72,31 @@
                         </div>
                         <div class="mb-3">
                             <div class="row">
-                                <div class="col-12 col-md-6">
+                                <div class="col-12 col-md-4">
                                     <label for="payrate_peryear" class="form-label">อัตราค่าบริการต่อเดือน <span
                                             class="text-danger">*</span></label>
                                     <input type="number" step="0.01" class="form-control" id="payrate_permonth"
                                         name="payrate_permonth" value="{{ old('payrate_permont') }}" required
-                                        placeholder="เช่น 1200.00">
+                                        placeholder="เช่น 20.50">
                                     @error('payrate_peryear')
                                         <div class="text-danger text-sm mt-1">{{ $message }}</div>
                                     @enderror
                                 </div>
-                                <div class="col-12 col-md-6">
+                                <div class="col-12 col-md-4">
                                     <label for="payrate_peryear" class="form-label">อัตราค่าบริการรายปี <span
                                             class="text-danger">*</span></label>
                                     <input type="number" readonly class="form-control" id="payrate_peryear"
-                                        name="payrate_peryear" value="{{ old('payrate_peryear') }}" required
-                                        placeholder="เช่น 1200.00">
+                                        name="payrate_peryear" value="{{ old('payrate_peryear') }}" required>
                                     @error('payrate_peryear')
+                                        <div class="text-danger text-sm mt-1">{{ $message }}</div>
+                                    @enderror
+                                </div>
+                                <div class="col-12 col-md-4">
+                                    <label for="vat" class="form-label">Vat <span
+                                            class="text-danger">*</span></label>
+                                    <input type="input" class="form-control" id="vat"
+                                        name="vat" value="0.00" required>
+                                    @error('vat')
                                         <div class="text-danger text-sm mt-1">{{ $message }}</div>
                                     @enderror
                                 </div>
@@ -107,7 +115,7 @@
                         </div>
                         <div class="d-flex justify-content-end">
                             <button type="submit" class="btn btn-primary me-2">บันทึก</button>
-                            <a href="{{ route('keptkayas.payrate_per_months.index') }}" class="btn btn-secondary">ยกเลิก</a>
+                            <a href="{{ route('keptkayas.wbin_payrate_per_months.index') }}" class="btn btn-secondary">ยกเลิก</a>
                         </div>
                     </form>
                 </div>

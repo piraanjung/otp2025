@@ -26,7 +26,8 @@ class TwInvoiceTemp extends Model
                 'totalpaid',
                 'status',
                 'recorder_id',
-                'acc_trans_id_fk'
+                'acc_trans_id_fk',
+                'printed_time'
     ];
 
      public function invoice_period()
