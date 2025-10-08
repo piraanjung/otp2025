@@ -301,5 +301,6 @@ Route::middleware(['auth'])->group(function () {
 });
 
 require __DIR__ . '/auth.php';
+require __DIR__ . '/foodwaste_route.php';
 require __DIR__ . '/keptkaya_route.php';
 // require __DIR__ . '/tabwater.php';

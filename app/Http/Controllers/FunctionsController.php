@@ -9,6 +9,7 @@ use App\Models\Admin\OrgSettings;
 use App\Models\KeptKaya\KpPurchaseShop;
 use App\Models\KeptKaya\WasteBin;
 use App\Models\Admin\Tambon;
+use App\Models\FoodWaste\FoodWasteBin;
 use App\Models\KeptKaya\KpTbankItems;
 use App\Models\KeptKaya\KpTbankItemsGroups;
 use App\Models\KeptKaya\KpTbankItemsPriceAndPoint;
@@ -82,6 +83,21 @@ class FunctionsController extends Controller
         }
     
         return $org['org_code']."-B" .$this->createNumberString($bin_code);
+    }
+
+    public function foodwastBinCode(){
+        $org = Organization::getOrgInfos(Auth::user()->org_id_fk);
+        $wasteBin = FoodWasteBin::get('bin_code')->last();
+        $bin_code = collect($wasteBin)->isEmpty() ? 0 : $wasteBin->bin_code;
+
+        if($bin_code != 0){
+            $bCode = explode('-', $bin_code)[1];
+            $bin_code = (int)explode('FW', $bCode)[1]+1;
+        }else{
+            $bin_code = 1;
+        }
+    
+        return $org['org_code']."-FW" .$this->createNumberString($bin_code);
     }
 
      public static function fullThaiMonth($m)

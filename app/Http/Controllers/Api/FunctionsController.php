@@ -8,6 +8,7 @@ use App\Models\User;
 use App\Models\Tabwater\UserMerterInfo;
 use App\Models\UserProfile;
 use App\Models\Tabwater\Setting;
+use App\Models\Tabwater\TwInvoiceTemp;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
@@ -129,7 +130,7 @@ class FunctionsController extends Controller
 
     public static function invoice_last_record()
     {
-        return Invoice::get()->last();
+        return TwInvoiceTemp::get()->last();
     }
 
     public function forget_session(REQUEST $request)

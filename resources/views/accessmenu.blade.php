@@ -310,8 +310,8 @@
             </a>
 
         </div>
-        <div class="bubble-container centralized  blue-dark {{auth()->user()->can('access garbage modules') | auth()->user()->hasRole('Super Admin') ? '': 'a-disbled'}}">
-            <a href="{{auth()->user()->can('access garbage modules') | auth()->user()->hasRole('Super Admin') ? route('keptkayas.dashboard', 'annual') : 'javascript:void(0)'}}">
+        <div class="bubble-container centralized  blue-dark {{auth()->user()->can('access foodwaste modules') | auth()->user()->hasRole('Super Admin') ? '': 'a-disbled'}}">
+            <a href="{{auth()->user()->can('access foodwaste modules') | auth()->user()->hasRole('Super Admin') ? route('foodwaste.dashboard') : 'javascript:void(0)'}}">
                 <div class="bubble centralized">
                     <div class="inner centralized">
                         ถังขยะเปียกจากครัวเรือน
