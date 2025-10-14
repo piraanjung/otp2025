@@ -30,8 +30,6 @@ class AuthenticatedSessionController extends Controller
     public function store(LoginRequest $request)
     {
         $request->authenticate();
-
-        $user = User::find(Auth::id());
         $userAgent = $_SERVER['HTTP_USER_AGENT'] ?? '';
         $ismobile = preg_match(
             "/(android|avantgo|blackberry|bolt|boost|cello|hiptop|irengin|mobi|mini|mo(bil|si)|ntellect|palm|pda|phone|plucker|pocket|psp|series(4|6)0|symbian|treo|up\.(browser|link)|wap|windows ce|xda|xiino)/i",
@@ -40,6 +38,9 @@ class AuthenticatedSessionController extends Controller
         $request->session()->regenerate();
 
         if ($ismobile) {
+            if(isset($request->kp_mobile_login)){
+                return redirect()->intended(route('kp_mobile.create', absolute: false));
+            }
             return redirect()->intended(route('staff_accessmenu', absolute: false));
         }
 
@@ -64,4 +65,5 @@ class AuthenticatedSessionController extends Controller
 
         return redirect('/');
     }
+    
 }

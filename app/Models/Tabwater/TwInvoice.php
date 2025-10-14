@@ -3,16 +3,15 @@
 namespace App\Models\Tabwater;
 
 use App\Http\Controllers\FunctionsController;
-use App\Models\Admin\UserProfile;
 use App\Models\User;
 use Exception;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Facades\DB;
-
+use App\Models\Admin\ManagesTenantConnection;
 class TwInvoice extends Model
 {
-    use HasFactory;
+    use HasFactory,ManagesTenantConnection;
      public $timestamps = false;
     protected $fillable = [
         'id',

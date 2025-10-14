@@ -12,6 +12,7 @@ use App\Models\User;
 use Illuminate\Http\Request;
 use App\Http\Controllers\Controller;
 use App\Http\Controllers\FunctionsController;
+use App\Models\Admin\Organization;
 use Exception;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Hash;
@@ -23,8 +24,11 @@ class ExcelController extends Controller
 {
     public function index()
     {
-        $users = User::all();
-        return view("admin.excel.index", compact("users"));
+        $conn = 'envsogo_'.strtolower(session('org_code'));
+        $users = (new User())->setConnection($conn)->all();
+                $orgInfos = (new Organization())->setConnection($conn)->getOrgName(Auth::user()->org_id_fk);
+
+        return view("admin.excel.index", compact("users",'orgInfos'));
     }
     public function create()
     {
@@ -37,7 +41,7 @@ class ExcelController extends Controller
         ]);
 
         // Get the uploaded file
-        return   $file = $request->file('file');
+           $file = $request->file('file');
 
         // Process the Excel file
         Excel::import(new UsersImport, $file);
@@ -69,9 +73,9 @@ class ExcelController extends Controller
                     $worksheet =   $spreadsheet->getSheet($i);
                     $worksheet_arr =  $worksheet->toArray();
                     // Remove header row
-                    for ($j = 0; $j < 4; $j++) {
-                        unset($worksheet_arr[$j]);
-                    }
+                    // for ($j = 0; $j < 4; $j++) {
+                        unset($worksheet_arr[0]);
+                    // }
 
                     // Get the uploaded file
 

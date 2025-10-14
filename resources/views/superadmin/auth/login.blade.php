@@ -6,6 +6,13 @@
 
     <form method="POST" action="{{ route('superadmin.login.post') }}">
         @csrf
+        <label for="username">องค์กร:</label>
+        <select name="org_id" id="" class="form-control">
+            <option value="">เลือก</option>
+            @foreach ($orgs as $org)
+                <option value="{{$org->id}}">{{$org->org_name}} | {{$org->org_code}}</option>
+            @endforeach
+        </select>
         <div>
             <label for="username">Username:</label>
             <input type="text" id="username" name="username" class="form-control" value="superadmin1" required

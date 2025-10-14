@@ -1,26 +1,27 @@
 <?php
 
-use App\Http\Controllers\Keptkaya\Admin\ExcelController;
-use App\Http\Controllers\Keptkaya\Admin\IndexController;
-use App\Http\Controllers\Keptkaya\Admin\KpUserController;
-use App\Http\Controllers\keptkaya\DashboardController;
+use App\Http\Controllers\KeptKaya\Admin\ExcelController;
+use App\Http\Controllers\KeptKaya\Admin\IndexController;
+use App\Http\Controllers\KeptKaya\Admin\KpUserController;
+use App\Http\Controllers\KeptKaya\BarcodeController;
+use App\Http\Controllers\KeptKaya\DashboardController;
 use App\Http\Controllers\KeptKaya\KpPurchaseShopController;
 use App\Http\Controllers\KeptKaya\KpTbankPriceController;
-use App\Http\Controllers\Keptkaya\KpUserGroupController;
-use App\Http\Controllers\Keptkaya\CartController;
-use App\Http\Controllers\Keptkaya\InvoicePeriodController;
+use App\Http\Controllers\KeptKaya\KpUserGroupController;
+use App\Http\Controllers\KeptKaya\CartController;
+use App\Http\Controllers\KeptKeptKayakaya\InvoicePeriodController;
 use App\Http\Controllers\KeptKaya\KeptKayaPurchaseController;
-use App\Http\Controllers\Keptkaya\KpBudgetYearController;
-use App\Http\Controllers\Keptkaya\KpPaymentController;
+use App\Http\Controllers\KeptKaya\KpBudgetYearController;
+use App\Http\Controllers\KeptKaya\KpPaymentController;
 use App\Http\Controllers\KeptKaya\KpSellController;
-use App\Http\Controllers\Keptkaya\KpUsergroupPayratePerMonthController;
-use App\Http\Controllers\Keptkaya\KpUserMonthlyStatusController;
+use App\Http\Controllers\KeptKaya\KpUsergroupPayratePerMonthController;
+use App\Http\Controllers\KeptKaya\KpUserMonthlyStatusController;
 use App\Http\Controllers\KeptKaya\RecycleWasteStaffCotroller;
-use App\Http\Controllers\Keptkaya\SettingsController;
-use App\Http\Controllers\Keptkaya\KpSubzoneController;
-use App\Http\Controllers\Keptkaya\KpTbankItemsController;
-use App\Http\Controllers\Keptkaya\KpTbankItemsGroupsController;
-use App\Http\Controllers\Keptkaya\KpTbankUnitsController;
+use App\Http\Controllers\KeptKaya\SettingsController;
+use App\Http\Controllers\KeptKaya\KpSubzoneController;
+use App\Http\Controllers\KeptKaya\KpTbankItemsController;
+use App\Http\Controllers\KeptKaya\KpTbankItemsGroupsController;
+use App\Http\Controllers\KeptKaya\KpTbankUnitsController;
 use App\Http\Controllers\KeptKaya\UserWasteController;
 use App\Http\Controllers\KeptKaya\WasteBinController;
 use App\Http\Controllers\KeptKaya\WasteBinPayratePerMonthController;
@@ -37,8 +38,14 @@ use Firebase\JWT\Key;
 use Spatie\Permission\Models\Permission;
 use Spatie\Permission\Models\Role;
 
-Route::middleware(['auth', 'role:Super Admin|Admin|Recycle Bank Staff|Tabwater Staff|User'])->prefix('keptkayas')->name('keptkayas.')->group(function () {
+Route::middleware(['auth', 'role:Super Admin|Admin|Recycle Bank Staff|Tabwater Staff|User|Annual Staff'])->prefix('keptkayas')->name('keptkayas.')->group(function () {
 
+    Route::get('scanner', function () {
+        return view('keptkayas.barcode.scanner');
+    });
+
+    Route::post('barcode/search', [BarcodeController::class, 'search'])
+     ->name('barcode.search');
     Route::resource('shop-products', KpShopProductController::class);
 
     Route::prefix('shop')->name('shop.')->group(function () {
@@ -78,6 +85,7 @@ Route::middleware(['auth', 'role:Super Admin|Admin|Recycle Bank Staff|Tabwater S
         Route::delete('remove-from-cart/{index}', [KeptKayaPurchaseController::class, 'removeFromCart'])->name('remove_from_cart');
         Route::get('cart', [KeptKayaPurchaseController::class, 'showCart'])->name('cart');
         Route::post('save-transaction', [KeptKayaPurchaseController::class, 'saveTransaction'])->name('save_transaction');
+        Route::post('save-transaction-machine', [KeptKayaPurchaseController::class, 'saveTransactionForMachine'])->name('save_transaction_machine');
         Route::get('show-receipt/{transaction}', [KeptKayaPurchaseController::class, 'showReceipt'])->name('show_receipt');
         Route::get('history/{user}', [KeptKayaPurchaseController::class, 'showPurchaseHistory'])->name('history');
         Route::get('receipt/{transaction}', [KeptKayaPurchaseController::class, 'showReceipt'])->name('receipt');

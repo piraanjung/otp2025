@@ -424,7 +424,7 @@ class UsersController extends Controller
 
     public function users_subzone_count($subzone_id = null)
     {
-        return TwUsersInfo::where('status', 'active')
+        return (new TwUsersInfo())->setConnection(session('db_conn'))->where('status', 'active')
             ->where('undertake_subzone_id', $subzone_id)->count();
     }
 

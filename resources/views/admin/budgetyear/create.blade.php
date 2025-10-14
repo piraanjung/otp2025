@@ -6,8 +6,12 @@
 @section('budgetyear-show')
     show
 @endsection
-@section('nav-budgetyear-header')
-    active
+@section('nav-header')
+    <a href="{{url('/admin/budgetyear')}}">ปีงบประมาณ</a>
+    
+@endsection
+@section('nav-current')
+    สร้างปีงบประมาณ
 @endsection
 @section('nav-budgetyear')
     active

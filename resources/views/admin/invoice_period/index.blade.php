@@ -7,10 +7,10 @@
 @endsection
 
 @section('nav-header')
-    ปีงบประมาณ/รอบบิล
+    <a href="{{ route('admin.invoice_period.index') }}"> รอบบิล</a>
 @endsection
 @section('nav-main')
-    <a href="{{ route('admin.invoice_period.create') }}"> สร้างรอบบิล</a>
+    สร้างรอบบิล
 @endsection
 
 @section('nav-topic')

@@ -14,6 +14,7 @@ class FoodWasteUserPreference extends Model
     protected $table = 'foodwaste_user_preferences';
 
     protected $fillable = [
+        'id',
         'user_id',
         'is_foodwaste_bank'
     ];
@@ -27,9 +28,9 @@ class FoodWasteUserPreference extends Model
         return $this->belongsTo(User::class);
     }
 
-    public function foodwasteBins()
+    public function foodwaste_bins()
     {
-        return $this->hasMany(FoodWasteBin::class,'user_id', 'user_id');
+        return $this->hasMany(FoodWasteBin::class,'u_pref_id_fk');
     }
 
     public function purchaseTransactions(): HasMany

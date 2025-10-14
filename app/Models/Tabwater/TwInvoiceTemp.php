@@ -42,7 +42,7 @@ class TwInvoiceTemp extends Model
 
     public function usermeterinfos()
     {
-        return $this->belongsTo(TwUsersInfo::class, 'meter_id_fk', 'meter_id');
+        return $this->belongsTo(TwUsersInfo::class, 'meter_id_fk', 'id');
     }
 
     public function acc_transactions()

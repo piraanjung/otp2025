@@ -12,7 +12,7 @@ class TwUsersInfo extends Model
 {
     use HasFactory;
     protected $fillable = [
-        "meter_id","meter_address",'submeter_name',
+        "id","meter_address",'submeter_name',
         "user_id", "meternumber", "metertype_id", "undertake_zone_id",  "undertake_subzone_id", "acceptance_date",
         "status",  "payment_id", "discounttype", "recorder_id", 'cutmeter', 'factory_no', 'inv_no_index', 'last_meter_recording'
     ];
@@ -20,7 +20,7 @@ class TwUsersInfo extends Model
 
     public function user()
     {
-        return $this->belongsTo(User::class, 'user_id');
+        return $this->belongsTo(User::class, 'user_id', 'id');
     }
     public function meter_type()
     {
@@ -39,41 +39,41 @@ class TwUsersInfo extends Model
 
     public function cutmeter()
     {
-        return $this->hasMany(TwCutmeter::class, 'meter_id_fk', 'meter_id');
+        return $this->hasMany(TwCutmeter::class, 'meter_id_fk', 'id');
     }
 
     public function invoice()
     {
-        return $this->hasMany(TwInvoice::class, 'meter_id_fk', 'meter_id');
+        return $this->hasMany(TwInvoice::class, 'meter_id_fk', 'id');
     }
 
      public function invoice_temp()
     {
-        return $this->hasMany(TwInvoiceTemp::class, 'meter_id_fk', 'meter_id');
+        return $this->hasMany(TwInvoiceTemp::class, 'meter_id_fk', 'id');
     }
 
     public function invoice_currrent_inv_period()
     {
-        return $this->hasMany(TwInvoice::class, 'meter_id_fk', 'meter_id');
+        return $this->hasMany(TwInvoice::class, 'meter_id_fk', 'id');
     }
 
     public function invoice_history()
     {
-        return $this->hasMany(TwInvoiceHistoty::class, 'meter_id_fk', 'meter_id');
+        return $this->hasMany(TwInvoiceHistoty::class, 'meter_id_fk', 'id');
     }
 
     public function invoice_not_paid()
     {
-        return $this->hasMany(TwInvoice::class, 'meter_id_fk', 'meter_id');
+        return $this->hasMany(TwInvoice::class, 'meter_id_fk', 'id');
     }
 
     public function invoice_last_inctive_inv_period()
     {
-        return $this->hasMany(TwInvoice::class, 'meter_id_fk', 'meter_id');
+        return $this->hasMany(TwInvoice::class, 'meter_id_fk', 'id');
     }
     public function invoice_by_user_id()
     {
-        return $this->hasMany(TwInvoice::class, 'meter_id_fk', 'meter_id');
+        return $this->hasMany(TwInvoice::class, 'meter_id_fk', 'id');
     }
 
 }

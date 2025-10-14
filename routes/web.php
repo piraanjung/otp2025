@@ -7,10 +7,8 @@ use App\Http\Controllers\Admin\MetertypeController;
 use App\Http\Controllers\Admin\PermissionController;
 use App\Http\Controllers\Admin\RoleController;
 use App\Http\Controllers\Admin\SuperAdminAuthController;
-use App\Http\Controllers\Admin\SuperAdminSettingsController;
 use App\Http\Controllers\Admin\UserController;
 use App\Http\Controllers\Admin\ZoneController;
-use App\Http\Controllers\IoTCompost\CP_DashboardController;
 use App\Http\Controllers\Tabwater\CutmeterController;
 use App\Http\Controllers\Tabwater\BudgetYearController;
 use App\Http\Controllers\Tabwater\InvoiceController;
@@ -28,21 +26,11 @@ use App\Http\Controllers\TestController;
 use App\Http\Controllers\Tabwater\TransferOldDataToNewDBController;
 use Illuminate\Support\Facades\Route;
 use Illuminate\Support\Facades\Auth;
-use Illuminate\Http\Request;
-use App\Http\Controllers\Api\UsersController as apiUserCtrl;
-use App\Http\Controllers\KeptKaya\KeptKayaPurchaseController;
 use App\Http\Controllers\SqlToJsonController;
 use App\Http\Controllers\StaffController;
 use App\Http\Controllers\Tabwater\TwManMobileController;
 use App\Http\Controllers\Tabwater\TwPricingTypeController;
 use App\Http\Controllers\Tabwater\UndertakerSubzoneController;
-use App\Models\Admin\BudgetYear;
-use App\Models\Admin\Organization;
-use App\Models\Admin\OrgSettings;
-use App\Models\Admin\Subzone;
-use App\Models\Tabwater\Invoice;
-use App\Models\User;
-use PhpParser\Node\Stmt\Else_;
 
 Route::get('/', function () {
     return view('welcome');
@@ -303,4 +291,5 @@ Route::middleware(['auth'])->group(function () {
 require __DIR__ . '/auth.php';
 require __DIR__ . '/foodwaste_route.php';
 require __DIR__ . '/keptkaya_route.php';
+require __DIR__ . '/keptkaya_mobile_route.php';
 // require __DIR__ . '/tabwater.php';

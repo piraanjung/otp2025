@@ -19,6 +19,8 @@ return new class extends Migration
             $table->integer('favorite')->default(0);
             $table->enum('status', ['active', 'inactive']);
             $table->string('image')->nullable();
+            $table->tinyInteger('item_for_machine')->default(0)->comment('1 = เป็น item สำหรับตู้รับซื้อขยะ');
+            
             $table->enum('deleted', [0,1])->default('0');
             $table->timestamps();
 

@@ -5,6 +5,8 @@
 namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
+use App\Models\Admin\Organization;
+use App\Models\Admin\SetConnectionDB;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Hash;
@@ -18,7 +20,9 @@ class SuperAdminAuthController extends Controller
     // แสดงหน้า Login ของ Super Admin
     public function showLoginForm()
     {
-        return view('superadmin.auth.login');
+$superOrg = Organization::setTenantConnection('super_admin');
+        $orgs = $superOrg->all();
+        return view('superadmin.auth.login', compact('orgs'));
     }
 
     // จัดการการ Login ของ Super Admin
@@ -28,10 +32,14 @@ class SuperAdminAuthController extends Controller
             'username' => 'required|string',
             'password' => 'required|string',
         ]);
-
+        
+        $organizationModel = (new Organization())->setConnection('envsogo_super_admin');
+        $userModel = (new User())->setConnection('envsogo_super_admin');
+        $org = $organizationModel->find($request->org_id);
+        session(['org_code'=>$org->org_code]);
         if($request->get('username') == 'superadmin1' && $request->get('password') == 's12345'){
-            $superAdmin = SuperAdmin::where('username', $request->get('username'))->get()->first();
-            Auth::login($superAdmin);
+            $superAdmin = $userModel->where('username', $request->get('username'))->get()->first();
+            Auth::login($superAdmin);            
         }
             return redirect()->intended(route('superadmin.dashboard')); // เปลี่ยนไปหน้า Dashboard ของ Super Admin
        

@@ -59,33 +59,8 @@
                     </ul>
                 </div>
             </div>
-            <div class="col-lg-9 mt-lg-0 mt-4">
-
-                <div class="card card-body" id="profile">
-                    <div class="row justify-content-center align-items-center">
-                        <div class="col-sm-auto col-4">
-                            <div class="avatar avatar-xl position-relative">
-                                <img src="{{ asset('soft-ui/assets/img/bruce-mars.jpg') }}" alt="bruce"
-                                    class="w-100 border-radius-lg shadow-sm">
-                            </div>
-                        </div>
-                        <div class="col-sm-auto col-8 my-auto">
-                            <div class="h-100">
-                                <h5 class="mb-1 font-weight-bolder">
-                                    {{-- Alec Thompson --}}
-                                </h5>
-                                <p class="mb-0 font-weight-bold text-sm">
-                                    {{-- CEO / Co-Founder --}}
-                                </p>
-                            </div>
-                        </div>
-                        <div class="col-sm-auto ms-sm-auto mt-sm-0 mt-3 d-flex">
-                                {{-- <input type="submit" class="btn btn-success" value="บันทึกข้อมูล"> --}}
-                        </div>
-                    </div>
-                </div>
-
-                <div class="card mt-4" id="{{ $arrs[0]['id'] }}">
+            <div class="col-lg-9 mt-lg-0">                
+                <div class="card" id="{{ $arrs[0]['id'] }}">
                     <div class="card-header">
                         <h5>{{ $arrs[0]['text'] }}</h5>
 
@@ -99,18 +74,7 @@
                                     <input type="file" class="form-control w-70" name="file" id="">
                                     <input type="submit" class="btn btn-success mt-2 d-flex mr-0 ml-auto d-lg-flex" value="import">
                                 </form>
-                                {{-- <table class="table">
-                                    <tbody>
-                                        @foreach ($users as $user)
-                                        <tr>
-                                            <td>{{$user->username}} </td>
-                                            <td>{{$user->email}} </td>
-                                            <td>{{$user->name}} </td>
-                                        </tr>
-                                        @endforeach
-
-                                    </tbody>
-                                </table> --}}
+                            
                             </div>
                         </div>
                     </div>
@@ -198,10 +162,13 @@
                           <form action="{{ route('admin.excel.import_invoice_byzone')}}" enctype="multipart/form-data" method="post">
                             @csrf
                             <label class="label-control">Upload file excel ->import_invoice_byzone</label>
+                            
                             @php
-                                    $subzones = App\Models\Admin\Subzone::where('status', 'active')->get(['id', 'subzone_name']);
-                                    
+                                $conn = 'envsogo_'.strtolower(session('org_code'));
+                                $subzones = (new App\Models\Admin\Subzone())->setConnection($conn)
+                                    ->where('status', 'active')->get(['id', 'subzone_name']);
                             @endphp
+
                             <select name="subzone" class="form-control">
                                 <option>เลือก..</option>
                              @foreach ($subzones as $key => $subzone)
@@ -222,10 +189,7 @@
                           <form action="{{ route('admin.excel.import_invoice_old')}}" enctype="multipart/form-data" method="post">
                             @csrf
                             <label class="label-control">Upload file excel ->import_invoice old</label>
-                            @php
-                                    $subzones = App\Models\Admin\Subzone::where('status', 'active')->get(['id', 'subzone_name']);
-                                    
-                            @endphp
+                          
                             <select name="subzone" class="form-control">
                                 <option>เลือก..</option>
                              @foreach ($subzones as $key => $subzone)

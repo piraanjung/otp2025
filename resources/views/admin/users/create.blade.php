@@ -34,6 +34,40 @@
     </style>
 @endsection
 @section('content')
+   <form action="{{ route('admin.users.store') }}" method="POST">
+    @csrf
+
+    {{-- Checkbox 'Select All' และ Textarea อยู่ด้านนอก loop --}}
+    <div style="margin-bottom: 15px;">
+        <input type="checkbox" id="select_all">
+        <label for="select_all">เลือกทั้งหมด (Select All)</label>
+    </div>
+
+    <div style="margin-bottom: 15px;">
+        <label for="user_id_lists">User IDs ที่ถูกเลือก (ส่งค่านี้ไป)</label>
+        <textarea name="user_id_lists" id="user_id_lists" rows="5" style="width: 100%;" readonly></textarea>
+        {{-- เพิ่ม readonly เพื่อไม่ให้ผู้ใช้แก้ไขเอง --}}
+    </div>
+    
+    <hr>
+    
+    {{-- รายการ Checkbox ของผู้ใช้แต่ละคน --}}
+    @foreach ($as_tw_members as $user)
+        <div class="d-flex" style="margin-bottom: 5px;"> 
+            <div>
+                {{-- สำคัญ: ต้องใส่ class='user_checkbox' และ value เป็น ID ของผู้ใช้ --}}
+                <input type="checkbox" class="user_checkbox" name="user_ids[]" value="{{ $user->id }}" id="user_{{ $user->id }}">
+            </div>
+            <div style="margin-left: 10px;">
+                <label for="user_{{ $user->id }}">{{ $user->id }} - {{ $user->name ?? 'No Name' }}</label>
+            </div>
+        </div>
+    @endforeach
+
+    <hr>
+
+    <button type="submit" class="btn btn-primary">บันทึก</button>
+</form>
     <div class="row">
         <div class="col-12">
             <div class="card">
@@ -604,4 +638,45 @@
 
         }
     </script>
+
+    <script>
+$(document).ready(function() {
+    // ฟังก์ชันสำหรับดึงค่า User ID ที่ถูกเลือกทั้งหมด
+    function updateTextarea() {
+        var selectedIDs = [];
+        
+        // วนลูปหา checkbox ที่มี class 'user_checkbox' ที่ถูกเลือก
+        $('.user_checkbox:checked').each(function() {
+            selectedIDs.push($(this).val());
+        });
+        
+        // นำค่า ID ที่ได้มาต่อกันด้วย comma (,) แล้วใส่ใน textarea
+        $('#user_id_lists').val(selectedIDs.join(', '));
+    }
+
+    // 1. จัดการเมื่อกด Checkbox 'Select All'
+    $('#select_all').on('click', function() {
+        // กำหนดสถานะของ checkbox ผู้ใช้ทั้งหมดให้เหมือนกับ checkbox 'Select All'
+        $('.user_checkbox').prop('checked', this.checked);
+        updateTextarea(); // อัพเดตค่าใน Textarea ทันที
+    });
+
+    // 2. จัดการเมื่อมีการกด Checkbox ของผู้ใช้แต่ละคน
+    $('.user_checkbox').on('click', function() {
+        // ตรวจสอบว่ามี checkbox ของผู้ใช้ที่ไม่ถูกเลือกหรือไม่
+        if ($('.user_checkbox:checked').length == $('.user_checkbox').length) {
+            // ถ้าถูกเลือกทั้งหมด ให้อัพเดต Checkbox 'Select All'
+            $('#select_all').prop('checked', true);
+        } else {
+            // ถ้าไม่ถูกเลือกทั้งหมด ให้ยกเลิกการเลือก Checkbox 'Select All'
+            $('#select_all').prop('checked', false);
+        }
+        
+        updateTextarea(); // อัพเดตค่าใน Textarea ทันที
+    });
+    
+    // อัพเดตค่า Textarea เมื่อโหลดหน้าครั้งแรก (เผื่อกรณีมีการโหลดค่าเก่ามา)
+    updateTextarea();
+});
+</script>
 @endsection

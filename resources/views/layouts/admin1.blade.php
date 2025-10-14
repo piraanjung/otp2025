@@ -6,9 +6,9 @@
 
     <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
     <link rel="apple-touch-icon" sizes="76x76" href="{{ asset('soft-ui/assets/img/apple-icon.png') }}">
-    <link rel="icon" type="image/png" href="{{ asset('soft-ui/assets/img/favicon.png') }}">
+    <link rel="icon" type="image/png" href="{{ asset('logo/ko_envsogo.png') }}">
     <title>
-        Tabwater
+        EnvSoGo::Tabwater
     </title>
 
 
@@ -189,8 +189,8 @@
                 aria-hidden="true" id="iconSidenav"></i>
             <a class="navbar-brand m-0" href=" https://demos.creative-tim.com/soft-ui-dashboard/pages/dashboard.html "
                 target="_blank">
-                <img src="{{ asset('logo/khampom.png') }}" class="navbar-brand-img h-100" alt="main_logo">
-                <span class="ms-1 font-weight-bold">งานประปา อบต.ขามป้อม</span>
+                <img src="{{ asset('logo/'.$orgInfos['org_logo_img']) }}" class="navbar-brand-img h-100" alt="main_logo">
+                <span class="ms-1 font-weight-bold">งานประปา {{$orgInfos['org_short_type_name'].$orgInfos['org_name']}}</span>
             </a>
         </div>
         <hr class="horizontal dark mt-0">
@@ -251,7 +251,7 @@
                                 <div class="dropdown-item border-radius-md" href="javascript:;">
                                     <div class="d-flex py-1">
                                         <div class="my-auto">
-                                            <img src="{{ asset('adminlte/dist/img/avatar2.png') }}"
+                                            <img src="{{ asset('Applight/images/user1.jpg') }}"
                                                 class="avatar avatar-sm me-3" alt="user image">
                                         </div>
                                         <div class="d-flex flex-column justify-content-center">
@@ -306,7 +306,7 @@
                 <div class="row gx-4">
                     <div class="col-auto">
                         <div class="avatar avatar-xl position-relative">
-                            <img src="{{ asset('soft-ui/assets/img/bruce-mars.jpg') }}" alt="profile_image"
+                            <img src="{{ asset('logo/'.$orgInfos['org_logo_img'] )}}" alt="profile_image"
                                 class="w-100 border-radius-lg shadow-sm">
                         </div>
                     </div>

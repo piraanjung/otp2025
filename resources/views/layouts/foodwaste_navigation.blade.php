@@ -230,7 +230,7 @@
         </div>
     </li>
 
-    {{-- <li class="nav-item">
+    <li class="nav-item">
         <a data-bs-toggle="collapse" href="#pagesExamples" class="nav-link active" aria-controls="pagesExamples"
             role="button" aria-expanded="true">
             <div
@@ -242,81 +242,29 @@
         <div class="collapse show" id="pagesExamples" style="">
             <ul class="nav ms-4 ps-3">
                 <li class="nav-item ">
-                    <a class="nav-link " href="{{route('keptkayas.tbank.items_group.index')}}">
+                    <a class="nav-link " href="{{route('foodwaste.iotboxes.index')}}">
                         <div
                             class="icon icon-shape icon-sm shadow border-radius-md bg-white text-center me-2 d-flex align-items-center justify-content-center">
                             <i class="fa fa-object-group text-danger text-gradient text-lg"></i>
                         </div>
-                        <span class="sidenav-normal">ประเภทขยะรีไซเคิล</span>
-                        @if ($infos_count['items_group_count'] > 0)
-                            <span
-                                class="badge badge-sm badge-circle badge-floating badge-danger border-white">{{ $infos_count['items_group_count'] }}</span>
-                        @endif
-
+                        <span class="sidenav-normal">กล่อง IoT</span>
+                         
                     </a>
                 </li>
-                <li class="nav-item ">
-                    <a class="nav-link " href="{{route('keptkayas.tbank.units.index')}}">
+                 <li class="nav-item ">
+                    <a class="nav-link " href="{{route('foodwaste.bins.index')}}">
                         <div
                             class="icon icon-shape icon-sm shadow border-radius-md bg-white text-center me-2 d-flex align-items-center justify-content-center">
-                            <i class="fa fa-tablets text-danger text-gradient text-lg"></i>
+                            <i class="fa fa-object-group text-danger text-gradient text-lg"></i>
                         </div>
-                        <span class="sidenav-normal">หน่วยนับ</span>
-                        @if ($infos_count['units_count'] > 0)
-                            <span
-                                class="badge badge-sm badge-circle badge-floating badge-danger border-white">{{ $infos_count['units_count'] }}</span>
-                        @endif
-
+                        <span class="sidenav-normal">ถังขยะเปียก</span>
+                         
                     </a>
                 </li>
-                <li class="nav-item ">
-                    <a class="nav-link " href="{{route('keptkayas.tbank.items.index')}}">
-                        <div
-                            class="icon icon-shape icon-sm shadow border-radius-md bg-white text-center me-2 d-flex align-items-center justify-content-center">
-                            <i class="fa fa-wine-bottle text-danger text-gradient text-lg"></i>
-                        </div>
-                        <span class="sidenav-normal">รายการขยะรีไซเคิล </span>
-                        @if ($infos_count['items_count'] > 0)
-                            <span
-                                class="badge badge-sm badge-circle badge-floating badge-danger border-white">{{ $infos_count['items_count'] }}</span>
-                        @endif
-
-
-                    </a>
-                </li>
-                <li class="nav-item  ">
-                    <a class="nav-link @yield('nav-cart')" href="{{ route('keptkayas.tbank.prices.index') }}">
-                        <div
-                            class="icon icon-shape icon-sm shadow border-radius-md bg-white text-center me-2 d-flex align-items-center justify-content-center">
-                            <i class="fa fa-money-bill-wave text-danger text-gradient text-lg"></i>
-                        </div>
-                        <span class="sidenav-normal"> ราคาขยะรีไซเคิล</span>
-                        @if ($infos_count['items_prices_count'] > 0)
-                            <span
-                                class="badge badge-sm badge-circle badge-floating badge-danger border-white">{{ $infos_count['items_prices_count'] }}</span>
-                        @endif
-
-
-                    </a>
-                </li>
-                <li class="nav-item  ">
-                    <a class="nav-link @yield('nav-cart')" href="{{ route('keptkayas.purchase-shops.index') }}">
-                        <div
-                            class="icon icon-shape icon-sm shadow border-radius-md bg-white text-center me-2 d-flex align-items-center justify-content-center">
-                            <i class="fa fa-home text-danger text-gradient text-lg"></i>
-                        </div>
-                        <span class="sidenav-normal">ร้านรับซื้อขยะ </span>
-                        @if ($infos_count['shop_count'] > 0)
-                            <span
-                                class="badge badge-sm badge-circle badge-floating badge-danger border-white">{{ $infos_count['shop_count'] }}</span>
-                        @endif
-
-
-                    </a>
-                </li>
+            </ul>
 
         </div>
-    </li> --}}
+    </li>
     {{-- @endif --}}
     {{--@endcan --}}
     {{-- @can('manage staff') --}}

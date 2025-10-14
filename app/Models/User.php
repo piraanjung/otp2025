@@ -16,12 +16,11 @@ use App\Models\Tabwater\UndertakerSubzone;
 use Laravel\Sanctum\HasApiTokens;
 use Spatie\Permission\Traits\HasRoles;
 use Illuminate\Notifications\Notifiable;
-use Illuminate\Contracts\Auth\MustVerifyEmail;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
-use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use App\Models\FoodWaste\FoodWasteUserPreference;
 use App\Models\FoodWaste\FoodWasteBin;
+
 class User extends Authenticatable
 {
     use HasApiTokens, HasFactory, Notifiable, HasRoles;
@@ -32,6 +31,8 @@ class User extends Authenticatable
      *
      * @var array<int, string>
      */
+
+    protected $connection = 'envsogo_super_admin';
     protected $primaryKey = 'id';
     protected $fillable = [
         'id',
@@ -153,7 +154,7 @@ class User extends Authenticatable
 
     public function foodwasteBins()
     {
-        return $this->hasMany(FoodWasteBin::class,'user_id');
+        return $this->hasMany(FoodWasteBin::class,'u_pref_id_fk');
     }
     
 }

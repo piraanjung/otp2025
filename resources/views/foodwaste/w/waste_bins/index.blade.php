@@ -33,10 +33,11 @@
                             <thead>
                                 <tr>
                                     <th class="text-uppercase text-secondary text-xxs font-weight-bolder opacity-7">รหัสถัง</th>
+                                    <th class="text-uppercase text-secondary text-xxs font-weight-bolder opacity-7">กล่อง IoT</th>
                                     <th class="text-uppercase text-secondary text-xxs font-weight-bolder opacity-7 ps-2">ประเภทถัง</th>
                                     <th class="text-uppercase text-secondary text-xxs font-weight-bolder opacity-7">ตำแหน่ง</th>
                                     <th class="text-center text-uppercase text-secondary text-xxs font-weight-bolder opacity-7">สถานะถัง</th>
-                                    <th class="text-center text-uppercase text-secondary text-xxs font-weight-bolder opacity-7">ใช้งานสำหรับรายปี?</th>
+                                    {{-- <th class="text-center text-uppercase text-secondary text-xxs font-weight-bolder opacity-7">ใช้งานสำหรับรายปี?</th> --}}
                                     <th class="text-secondary opacity-7">การจัดการ</th>
                                 </tr>
                             </thead>
@@ -46,7 +47,16 @@
                                     <td>
                                         <div class="d-flex px-2 py-1">
                                             <div class="d-flex flex-column justify-content-center">
-                                                <h6 class="mb-0 text-sm">{{ $bin->bin_code ?? 'N/A' }}</h6>
+                                                <h6 class="mb-0 text-sm">{{ $bin->bin_stock->bin_code ?? 'N/A' }}</h6>
+                                            </div>
+                                        </div>
+                                    </td>
+                                    <td>
+                                        <div class="d-flex px-2 py-1">
+                                            <div class="d-flex flex-column justify-content-center">
+                                                <h6 class="mb-0 text-sm">
+                                                    {{ $bin->iotbox->iotbox_code ?? 'N/A' }}
+                                                </h6>
                                             </div>
                                         </div>
                                     </td>
@@ -59,7 +69,7 @@
                                     <td class="align-middle text-center text-sm">
                                         <span class="badge badge-sm bg-gradient-{{ $bin->status == 'active' ? 'success' : 'secondary' }}">{{ ucfirst($bin->status) }}</span>
                                     </td>
-                                    <td class="align-middle text-center">
+                                    {{-- <td class="align-middle text-center">
                                         <form action="{{ route('foodwaste.waste_bins.update', $bin->id) }}" method="POST">
                                             @csrf
                                             @method('PUT')
@@ -77,7 +87,7 @@
                                             <input type="hidden" name="latitude" value="{{ $bin->latitude }}">
                                             <input type="hidden" name="longitude" value="{{ $bin->longitude }}">
                                         </form>
-                                    </td>
+                                    </td> --}}
                                     <td class="align-middle">
                                         <a href="{{ route('foodwaste.waste_bins.edit', $bin->id) }}" class="btn btn-link text-secondary font-weight-bold text-xs px-0 mb-0 me-2" data-toggle="tooltip" data-original-title="Edit bin">
                                             <i class="fas fa-edit me-1"></i> แก้ไข

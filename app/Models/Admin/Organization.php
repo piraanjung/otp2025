@@ -2,12 +2,13 @@
 
 namespace App\Models\Admin;
 
-use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
-use Illuminate\Support\Facades\DB;
+use App\Models\Admin\ManagesTenantConnection;
+use Illuminate\Database\Eloquent\Factories\HasFactory;
 
 class Organization extends Model
 {
+    use HasFactory, ManagesTenantConnection; // 👈 เพิ่ม Trait นี้เข้ามา
     protected $table  = 'organizations';
     protected $fillable = [
         'id',
@@ -64,8 +65,8 @@ class Organization extends Model
 
     public static function getOrgInfos($org_id_fk)
     {
-        $connection = (new Organization)->on('mysql')->where('id', $org_id_fk)
-            ->with(['provinces', 'tambons', 'districts', 'zones'])
+        $organization = Organization::setTenantConnection(session('org_id'));
+        $connection = $organization::with(['provinces', 'tambons', 'districts', 'zones'])
             ->get()->first();
         return [
             'id'  => $org_id_fk,
@@ -92,8 +93,8 @@ class Organization extends Model
 
     public static function getOrgName($org_id_fk)
     {
-        $connection = (new Organization)->on('mysql')->where('id', $org_id_fk)
-            ->with(['provinces', 'tambons', 'districts', 'zones'])
+        $organization = (new Organization())->setConnection('envsogo_super_admin')->where('id', $org_id_fk);
+        $connection = $organization->with(['provinces', 'tambons', 'districts', 'zones'])
             ->get()->first();
         return [
             'id'  => $org_id_fk,
@@ -107,7 +108,7 @@ class Organization extends Model
             'org_logo_img' => $connection->org_logo_img,
             'org_type_name' => $connection->org_type_name,
             'org_name' => $connection->org_name,
-            'org_short_type_name' => $connection->org_short_name,
+            'org_short_type_name' => $connection->org_short_type_name,
             'org_dept_name' => $connection->org_dept_name,
         ];
     }

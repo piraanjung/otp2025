@@ -6,6 +6,7 @@ use App\Models\KeptKaya\KpPurchaseTransaction;
 use App\Models\KeptKaya\KpTbankItems;
 use App\Models\KeptKaya\KpTbankItemsPriceAndPoint;
 use App\Models\Admin\Staff;
+use App\Models\User;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
@@ -60,7 +61,7 @@ class KpPurchaseDetail extends Model
 
     public function recorder(): BelongsTo
     {
-        return $this->belongsTo(Staff::class, 'recorder_id', 'id');
+        return $this->belongsTo(User::class, 'recorder_id', 'id');
     }
     
     public function details()

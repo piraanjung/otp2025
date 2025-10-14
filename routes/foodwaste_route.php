@@ -1,6 +1,9 @@
 <?php
+
+use App\Http\Controllers\FoodWaste\BinsController;
 use App\Http\Controllers\FoodWaste\DashboardController;
 use App\Http\Controllers\FoodWaste\FoodWasteBinController;
+use App\Http\Controllers\FoodWaste\FoodwastIotboxController;
 use App\Http\Controllers\FoodWaste\UserFoodWasteController;
 
 
@@ -28,6 +31,7 @@ use App\Http\Controllers\KeptKaya\WasteBinPayratePerMonthController;
 use App\Http\Controllers\KeptKaya\WasteBinSubscriptionController;
 use App\Http\Controllers\KpMemberShopController;
 use App\Http\Controllers\KpShopProductController;
+use App\Http\Controllers\UserBinIotboxMatchingController;
 use App\Models\Admin\BudgetYear;
 use App\Models\User;
 use Illuminate\Support\Facades\Route;
@@ -57,6 +61,10 @@ Route::middleware(['auth', 'role:Super Admin|Admin|FoodWaste Staff'])->prefix('f
     });
     Route::put('waste-bins/{waste_bin}', [FoodWasteBinController::class, 'update'])->name('waste_bins.update');
     Route::get('waste-bins/map', [FoodWasteBinController::class, 'map'])->name('waste_bins.map'); // NEW ROUTE
+// 
+    Route::resource('iotboxes', FoodwastIotboxController::class);
+    Route::resource('bins', BinsController::class);
+    Route::resource('matchings', UserBinIotboxMatchingController::class);
 
 
 

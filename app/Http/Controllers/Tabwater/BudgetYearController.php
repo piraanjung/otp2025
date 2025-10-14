@@ -5,8 +5,11 @@ namespace App\Http\Controllers\Tabwater;
 use App\Http\Controllers\Controller;
 use App\Http\Controllers\Api\FunctionsController;
 use App\Models\Admin\BudgetYear;
+use App\Models\Admin\Organization;
 use App\Models\Tabwater\InvoicePeriod;
+use App\Models\Tabwater\TwInvoicePeriod;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
 
 class BudgetYearController extends Controller
 {
@@ -14,24 +17,27 @@ class BudgetYearController extends Controller
     {
         $funcCtrl = new FunctionsController();
 
-        $budgetyears = BudgetYear::orderBy('budgetyear_name', 'desc')->get();
+        $budgetyears = (new BudgetYear())->setConnection(session('db_conn'))->orderBy('budgetyear_name', 'desc')->get();
         foreach ($budgetyears as $budgetyear) {
             $budgetyear->startdate = $funcCtrl->engDateToThaiDateFormat($budgetyear->startdate);
             $budgetyear->enddate = $funcCtrl->engDateToThaiDateFormat($budgetyear->enddate);
-            $budgetyear->have_inv_peroid = InvoicePeriod::where('budgetyear_id', $budgetyear->id)->count();
+            $budgetyear->have_inv_peroid = (new TwInvoicePeriod())->setConnection(session('db_conn'))->where('budgetyear_id', $budgetyear->id)->count();
         }
-        return view('admin.budgetyear.index', \compact('budgetyears'));
+            $orgInfos = Organization::getOrgName(Auth::user()->org_id_fk);
+
+        return view('admin.budgetyear.index', \compact('budgetyears', 'orgInfos'));
     }
 
     public function create()
     {
-        return view('admin.budgetyear.create');
+        $orgInfos = Organization::getOrgName(Auth::user()->org_id_fk);
+        return view('admin.budgetyear.create', compact('orgInfos'));
     }
 
     public function store(Request $request, BudgetYear $budgetYear)
     {
         $request->validate([
-            'budgetyear' => 'required|integer|in:2567,2568,2569,2570,2571,2572',
+            'budgetyear' => 'required|integer|in:2568,2569,2570,2571,2572,2573',
             'start'  => 'required',
             'end'  => 'required',
         ],[
@@ -43,13 +49,13 @@ class BudgetYearController extends Controller
         date_default_timezone_set('Asia/Bangkok');
 
         //inactive last budgetyear
-        BudgetYear::where('status', 'active')->update([
+        (new BudgetYear())->setConnection(session('db_conn'))->where('status', 'active')->update([
             'status'=> 'inactive'
         ]);
         //รอสร้าง update invoice period table status active ของ  last budgetyear ให้เป็น  invactive
         // create new budgetyear
         $funcCtrl = new FunctionsController();
-        BudgetYear::create([
+        (new BudgetYear())->setConnection(session('db_conn'))->create([
                 "budgetyear_name" => $request->get('budgetyear'),
                 "startdate" => $funcCtrl->thaiDateToEngDateFormat($request->get('start')),
                 "enddate" => $funcCtrl->thaiDateToEngDateFormat($request->get('end')),
@@ -62,7 +68,7 @@ class BudgetYearController extends Controller
 
     public function edit($id)
     {
-        $budgetyear = BudgetYear::find($id);
+        $budgetyear = (new BudgetYear())->setConnection(session('db_conn'))->find($id);
         $funcCtrl = new FunctionsController();
 
         $budgetyear->startdate = $funcCtrl->engDateToThaiDateFormat($budgetyear->startdate);
@@ -73,7 +79,7 @@ class BudgetYearController extends Controller
 
     public function delete($id)
     {
-        $budgetyear = BudgetYear::find($id);
+        $budgetyear = (new BudgetYear())->setConnection(session('db_conn'))->find($id);
 
         $budgetyear->delete();
         // FunctionsController::reset_auto_increment_when_deleted('invoice_period');
@@ -84,7 +90,7 @@ class BudgetYearController extends Controller
     public function update(Request $request, $id)
     {
         $funcCtrl = new FunctionsController();
-        $budgetyear = BudgetYear::find($id);
+        $budgetyear = (new BudgetYear())->setConnection(session('db_conn'))->find($id);
         $budgetyear->startdate = $funcCtrl->thaiDateToEngDateFormat($request->get('startdate'));
         $budgetyear->enddate = $funcCtrl->thaiDateToEngDateFormat($request->get('enddate'));
         $budgetyear->save();
@@ -93,6 +99,6 @@ class BudgetYearController extends Controller
     }
 
     public function invoice_period_list($budgetyear_id){
-        return InvoicePeriod::where('budgetyear_id', $budgetyear_id)->orderBy('id', 'desc')->get(['id', 'inv_p_name']);
+        return (new TwInvoicePeriod())->setConnection(session('db_conn'))->where('budgetyear_id', $budgetyear_id)->orderBy('id', 'desc')->get(['id', 'inv_p_name']);
     }
 }

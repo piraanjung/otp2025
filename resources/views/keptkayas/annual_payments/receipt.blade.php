@@ -7,10 +7,10 @@
     <title>ใบเสร็จรับเงิน</title>
     <style>
         @page {
-            size: A5 landscape;
+            /* size: A5 portrait; */
             /* Changed to A5 landscape */
-            margin: 0;
-            padding: 0;
+            /* margin: 0;
+            padding: 0; */
         }
 
         body {
@@ -177,27 +177,41 @@
     <div class="container2">
         <!-- Left Column: ต้นขั้ว (Stub) -->
         <div class="receipt-column">
-            <div class="receipt-type">ต้นขั้ว</div>
-            <div class="header">
-                <h1>ใบเสร็จรับเงิน</h1>
-                <p>โครงการรับซื้อขยะ</p>
-                <p>เลขที่: {{ $data['receiptCode'] }}</p>
+            <div class="header d-flex">
+                <div class="p-0">
+                    <div style="font-size: 0.9rem; font-weight: bold;">ใบเสร็จรับเงิน </div>
+                    <div style="font-size: 0.6rem"> (ต้นขั้ว)</div>
+                    <div style="font-size: 0.6rem">เลขที่: {{ $data['receiptCode'] }}</div>
+
+                </div>
+                <div class="ms-auto pl-2">
+
+                    <div style="font-size: 0.9rem; font-weight: bold;">องค์การบริหารส่วนตำบลห้องแซง</div>
+                    <div style="font-size: 0.6rem">22 หมู่ 12 ต.ห้องแซง</div>
+                    <div style="font-size: 0.6rem">อ.เลิงนกทา จ.ยโสธร 35120</div>
+                </div>   
+         
             </div>
-            <table class="info-table">
-                <tr>
-                    <td class="label">ผู้ชำระ:</td>
-                    <td>{{ $data['subscription']->wasteBin->user->firstname ?? 'N/A' }}
-                        {{ $data['subscription']->wasteBin->user->lastname ?? '' }}</td>
-                </tr>
-                <tr>
-                    <td class="label">รหัสถัง:</td>
-                    <td>{{ $data['subscription']->wasteBin->bin_code ?? 'N/A' }}</td>
-                </tr>
-                <tr>
-                    <td class="label">วันที่ชำระ:</td>
-                    <td>{{ \Carbon\Carbon::parse($data['paymentDate'])->locale('th')->isoFormat('Do MMMM YYYY') }}</td>
-                </tr>
-            </table>
+            <div class="d-flex flex-row">
+                <table class="info-table">
+                    <tr>
+                        <td class="label">ผู้ชำระ:</td>
+                        <td>{{ $data['subscription']->wasteBin->user->firstname ?? 'N/A' }}
+                            {{ $data['subscription']->wasteBin->user->lastname ?? '' }}</td>
+                    </tr>
+                    <tr>
+                        <td class="label">รหัสถัง:</td>
+                        <td>{{ $data['subscription']->wasteBin->bin_code ?? 'N/A' }}</td>
+                    </tr>
+                    <tr>
+                        <td class="label">วันที่ชำระ:</td>
+                        <td>{{ \Carbon\Carbon::parse($data['paymentDate'])->locale('th')->isoFormat('Do MMMM YYYY') }}</td>
+                    </tr>
+                </table>
+                <img src="{{asset('logo/hs_logo.jpg')}}" style="width: 65px; height:65px;margin-left:0.2rem; border:1px solid black"/>
+            </div>
+            
+
             @php
             $arr =[
                 ['ค่าเก็บและขนขยะมูลฝอย', 240], ['ภาษีมูลค่าเพิ่ม  7%', '0.00']
@@ -240,7 +254,9 @@
                                 </td>
                             </tr>
                             <tr>
-                                <td colspan="2" style="text-align: right; font-size: 10px;">ประวัติการชำระค่าธรรมเนียมประจำปีงบประมาณ</td>
+                                <td colspan="2" style="text-align: right; font-size: 10px;">
+                                    ({{ App\Http\Controllers\Api\FunctionsController::convertAmountToLetter(number_format(240, 2))}})
+                                </td>
                             </tr>
                             
                         </tbody>
@@ -334,27 +350,41 @@
 
         <!-- Right Column: ส่วน Copy -->
          <div class="receipt-column">
-            <div class="receipt-type">ต้นขั้ว</div>
-            <div class="header">
-                <h1>ใบเสร็จรับเงิน</h1>
-                <p>โครงการรับซื้อขยะ</p>
-                <p>เลขที่: {{ $data['receiptCode'] }}</p>
+            <div class="header d-flex">
+                <div class="p-0">
+                    <div style="font-size: 0.9rem; font-weight: bold;">ใบเสร็จรับเงิน </div>
+                    <div style="font-size: 0.6rem"> (สำเนา)</div>
+                    <div style="font-size: 0.6rem">เลขที่: {{ $data['receiptCode'] }}</div>
+
+                </div>
+                <div class="ms-auto pl-2">
+
+                    <div style="font-size: 0.9rem; font-weight: bold;">องค์การบริหารส่วนตำบลห้องแซง</div>
+                    <div style="font-size: 0.6rem">22 หมู่ 12 ต.ห้องแซง</div>
+                    <div style="font-size: 0.6rem">อ.เลิงนกทา จ.ยโสธร 35120</div>
+                </div>   
+         
             </div>
-            <table class="info-table">
-                <tr>
-                    <td class="label">ผู้ชำระ:</td>
-                    <td>{{ $data['subscription']->wasteBin->user->firstname ?? 'N/A' }}
-                        {{ $data['subscription']->wasteBin->user->lastname ?? '' }}</td>
-                </tr>
-                <tr>
-                    <td class="label">รหัสถัง:</td>
-                    <td>{{ $data['subscription']->wasteBin->bin_code ?? 'N/A' }}</td>
-                </tr>
-                <tr>
-                    <td class="label">วันที่ชำระ:</td>
-                    <td>{{ \Carbon\Carbon::parse($data['paymentDate'])->locale('th')->isoFormat('Do MMMM YYYY') }}</td>
-                </tr>
-            </table>
+            <div class="d-flex flex-row">
+                <table class="info-table">
+                    <tr>
+                        <td class="label">ผู้ชำระ:</td>
+                        <td>{{ $data['subscription']->wasteBin->user->firstname ?? 'N/A' }}
+                            {{ $data['subscription']->wasteBin->user->lastname ?? '' }}</td>
+                    </tr>
+                    <tr>
+                        <td class="label">รหัสถัง:</td>
+                        <td>{{ $data['subscription']->wasteBin->bin_code ?? 'N/A' }}</td>
+                    </tr>
+                    <tr>
+                        <td class="label">วันที่ชำระ:</td>
+                        <td>{{ \Carbon\Carbon::parse($data['paymentDate'])->locale('th')->isoFormat('Do MMMM YYYY') }}</td>
+                    </tr>
+                </table>
+                <img src="{{asset('logo/hs_logo.jpg')}}" style="width: 65px; height:65px;margin-left:0.2rem; border:1px solid black"/>
+            </div>
+            
+
             @php
             $arr =[
                 ['ค่าเก็บและขนขยะมูลฝอย', 240], ['ภาษีมูลค่าเพิ่ม  7%', '0.00']
@@ -397,7 +427,9 @@
                                 </td>
                             </tr>
                             <tr>
-                                <td colspan="2" style="text-align: right; font-size: 10px;">ประวัติการชำระค่าธรรมเนียมประจำปีงบประมาณ</td>
+                                <td colspan="2" style="text-align: right; font-size: 10px;">
+                                    ({{ App\Http\Controllers\Api\FunctionsController::convertAmountToLetter(number_format(240, 2))}})
+                                </td>
                             </tr>
                             
                         </tbody>
@@ -409,29 +441,69 @@
                      @for($i=0; $i<3; $i++)
                         <div class="col-4 te">
                             <div class="row">
-                                <div class="col-4" style="border-right: 1px solid red">
+                                <div class="col-4 text-center text-bolder" style="border-right: 1px solid black">
                                     เดือน
                                 </div>
-                                <div class="col-8">
+                                <div class="col-8 text-center text-bolder">
                                     จำนวนเงิน(บาท)
                                 </div>
                             </div>
                             
                         </div>
                     @endfor
-                    @foreach ($data['payments'] as $payment)
-                        <div class="col-4 te">
+                    @php
+                    $arr= [10,11,12,1,2,3,4,5,6,7,8,9];
+                    $i=0;
+                    // dd($data['payments']);
+                    @endphp
+                    @foreach ($arr as $ar)
+                         <div class="col-4 te">
                             <div class="row">
-                                <div class="col-4" style="border-right: 1px solid red">
-                                        {{(new \App\Http\Controllers\Api\FunctionsController())->shortThaiMonth($payment->pay_mon)}}
+                                 <div class="col-4 text-center" style="border-right: 1px solid black">
+                                        {{(new \App\Http\Controllers\Api\FunctionsController())->shortThaiMonth($ar)}}
                                 </div>
-                                <div class="col-8">
-                                    {{ number_format($payment->amount_paid, 2) }}
+                               
+
+                               
+                                <div class="col-8 text-center">
+                                     @if (in_array($ar,collect($paidMonthArr)->toArray()))
+                                        {{ number_format($data['payments'][$i++]['amount_paid'], 2) }}  
+                                      @else
+                                        -
+                                    @endif
                                 </div>
+                               
+                               
                             </div>
                             
                         </div>
                     @endforeach
+                    {{-- @foreach ($data['payments'] as $payment)
+                        <div class="col-4 te">
+                            <div class="row">
+                                @if (in_array($arr[$i],collect($paidMonthArr)->toArray()))
+
+                                <div class="col-4" style="border-right: 1px solid red">
+                                        {{(new \App\Http\Controllers\Api\FunctionsController())->shortThaiMonth($payment->pay_mon)}}
+                                </div>
+                                <div class="col-8">
+                                        {{ number_format($payment->amount_paid, 2) }}  
+                                </div>
+                                  @else
+                                    <div class="col-4" style="border-right: 1px solid red">
+                                        {{(new \App\Http\Controllers\Api\FunctionsController())->shortThaiMonth($arr[$i])}}
+                                </div>
+                                <div class="col-8">
+                                        xx 
+                                </div>
+                                @endif
+                            </div>
+                            
+                        </div>
+                        @php
+                        $i++;
+                        @endphp
+                    @endforeach --}}
                 </div>
               
             </div>
@@ -449,6 +521,58 @@
             </div>
         </div>
     </div>
+
+
+     <script>
+        $(document).ready(function () {
+            // console.log($('#qrcode_text').val())
+            // $('#qrcode').qrcode($('#qrcode_text').val());
+
+
+            var os = navigator.platform;
+
+            console.log('os', os)
+
+            // $('.btnprint').click(function(){
+            $('.btnprint').hide();
+            var css = '@page {  }',
+                head = document.head || document.getElementsByTagName('head')[0],
+                style = document.createElement('style');
+            style.type = 'text/css';
+            style.media = 'print';
+            if (style.styleSheet) {
+                style.styleSheet.cssText = css;
+            } else {
+                style.appendChild(document.createTextNode(css));
+            }
+            head.appendChild(style);
+
+            style.type = 'text/css';
+            style.media = 'print';
+
+            if (style.styleSheet) {
+                style.styleSheet.cssText = css;
+            } else {
+                style.appendChild(document.createTextNode(css));
+            }
+
+            head.appendChild(style);
+
+            // window.print();
+            // if ($('#type').val() == 'paid_receipt') {
+            //     setTimeout(function () {
+            //         window.location.href = '/payment';
+            //     }, 200);
+            // } else {
+            //     //type == history_recipt
+            //     setTimeout(function () {
+            //         $("input[type='submit']").click();
+
+            //     }, 200);
+
+            // }
+        });
+    </script>
 </body>
 
 </html>

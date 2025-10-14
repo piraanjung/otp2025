@@ -18,7 +18,10 @@ class AccessMenusController extends Controller
     {
         $apiUserCtrl = new  UsersController();
         $reportCtrl = new ReportsController();
-        $subzones  = Subzone::where('status', 'active')->get(['id', 'subzone_name', 'zone_id'])->sortBy('zone_id');
+
+        $subzones  = (new Subzone())->setConnection(session('db_conn'))
+            ->where('status', 'active')->get(['id', 'subzone_name', 'zone_id'])
+            ->sortBy('zone_id');
         $user_in_subzone = [];
         $user_in_subzone_label = collect($subzones)->pluck('subzone_name');
         $user_count = [];
@@ -31,14 +34,19 @@ class AccessMenusController extends Controller
         ];
         $data = $reportCtrl->water_used($request, 'dashboard');
         $water_used_total = collect($data['data'])->sum();
-        $invoice_paid = TwInvoice::where('status', 'paid')->get(['vat', 'totalpaid']);
+
+        $invoice_paid = (new TwInvoice())->setConnection(session('db_conn'))->where('status', 'paid')->get(['vat', 'totalpaid']);
+        
         $paid_total = collect($invoice_paid)->sum('totalpaid');
         $vat =  collect($invoice_paid)->sum('vat');;
         $user_count_sum = collect($user_count)->sum();
         $subzone_count = collect($subzones)->count();
-        $current_budgetyear = BudgetYear::where('status', 'active')->get('budgetyear_name')[0];
         
-        $orgInfos = Organization::getOrgName(Auth::user()->org_id_fk);
+        $current_budgetyear = (new BudgetYear())->setConnection(session('db_conn'))
+            ->where('status', 'active')->get('budgetyear_name')[0];
+        
+        
+        $orgInfos = (new Organization())->setConnection(session('db_conn'))->getOrgName(Auth::user()->org_id_fk);
 
         return view('dashboard', compact(
             'data',
@@ -66,7 +74,9 @@ class AccessMenusController extends Controller
         if ($ismobile) {
             return redirect()->route('staff_accessmenu');
         }
-        $orgInfos = Organization::getOrgName(Auth::user()->org_id_fk);
+        $org = (new Organization())->setConnection('envsogo_super_admin')->find($user->org_id_fk);
+        session(['db_conn' => strtolower($org->org_database)]);
+        $orgInfos = Organization::getOrgName($user->org_id_fk);
         return view('accessmenu', compact('orgInfos', 'user'));
     }
 

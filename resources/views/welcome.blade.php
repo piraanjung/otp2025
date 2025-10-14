@@ -9,6 +9,7 @@
   <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.1.1/css/bootstrap.min.css"
     integrity="sha384-WskhaSGFgHYWDcbwN70/dfYBj47jz9qbsMId/iRN3ewGhXQFZCSftd1LZCfmhktB" crossorigin="anonymous">
   <link rel="stylesheet" type="text/css" href="{{ asset('Applight/style.css')}}" />
+    <link rel="icon" type="image/png" href="{{ asset('logo/ko_envsogo.png') }}">
 
 <link href="https://fonts.googleapis.com/css2?family=Bruno+Ace+SC&family=Sarabun:ital,wght@0,500;0,700;1,400;1,500&display=swap" rel="stylesheet">
 
@@ -21,6 +22,7 @@
   .disabled-section{
     display: none
   }
+  
 </style>
 </head>
 
@@ -71,8 +73,9 @@
         <div class="main-container centralized ">
          
           <div class="main-circle">
-            <div class="inner centralized">
-              ระบบบริหารจัดการ
+            <div class="inner centralized" style="background-image: url('{{asset('logo/ko_envsogo.png')}}'); background-repeat: no-repeat;
+  background-position: center;">
+              {{-- ระบบบริหารจัดการ --}}
             </div>
           </div>
           <div class="bubble-container centralized blue-dark">
@@ -88,7 +91,7 @@
 
             <div class="bubble centralized">
               <div class="inner centralized">
-                ค่าจัดการ<br>ถังขยะรายปี
+                ตู้รับซื้อ<br>ขยะรีไซเคิล
               </div>
             </div>
           </div>

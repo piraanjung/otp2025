@@ -5,6 +5,8 @@ namespace App\Http\Controllers\FoodWaste;
 use App\Http\Controllers\Controller;
 use App\Http\Controllers\FunctionsController;
 use App\Models\FoodWaste\FoodWasteBin;
+use App\Models\FoodWaste\FoodwasteBinStocks;
+use App\Models\FoodWaste\FoodwastIotbox;
 use App\Models\Keptkaya\KpUserGroup;
 use App\Models\Keptkaya\KpUsergroupPayratePerMonth;
 use App\Models\KeptKaya\WasteBinPayratePerMonth;
@@ -47,33 +49,47 @@ class FoodWasteBinController extends Controller
     {
         $user_groups = KpUserGroup::all();
         $func = new FunctionsController();
-        $bin_code = $func->foodwastBinCode();
-        return view('foodwaste.w.waste_bins.create', compact('w_user', 'user_groups', 'bin_code'));
+        $bins_pending = FoodwasteBinStocks::where('status', 'pending')->get();
+        $iotboxes = FoodwastIotbox::where('status', 'pending')->get();
+        return view('foodwaste.w.waste_bins.create', compact('w_user', 'user_groups', 'bins_pending', 'iotboxes'));
     }
 
     public function store(Request $request, User $w_user)
     {
 
         $request->validate([
-            'bin_code' => 'nullable|string|unique:waste_bins,bin_code|max:255',
+            'bin_code' => 'required',
             'bin_type' => 'required|string|max:255',
             'user_group' => 'required',
+            'iotboxes_id' => 'required',
             'location_description' => 'nullable|string|max:255',
             'latitude' => 'nullable|numeric|between:-90,90',
             'longitude' => 'nullable|numeric|between:-180,180',
             'status' => ['required', Rule::in(['active', 'inactive', 'damaged', 'removed'])],
         ]);
 
-            $wasteBin = $w_user->foodwasteBins()->create([
-                'bin_code' => $request->bin_code,
-                'bin_type' => $request->bin_type,
-                'location_description' => $request->location_description,
-                'latitude' => $request->latitude,
-                'longitude' => $request->longitude,
-                'status' => $request->status,
-            ]);
+        $w_user->foodwasteBins()->create([
+            'bin_code_fk' => $request->bin_code,
+            'user_id' => $w_user->id,
+            'bin_type' => $request->bin_type,
+            'iotbox_id_fk' => $request->iotboxes_id != 0 ? $request->iotboxes_id : 0,
+            'location_description' => $request->location_description,
+            'latitude' => $request->latitude,
+            'longitude' => $request->longitude,
+            'status' => $request->status,
+        ]);
 
-     
+        FoodwasteBinStocks::where('id', $request->bin_code)->update([
+            'status' => 'active',
+            'updated_at' => date('Y-m-d H:i:s')
+        ]);
+
+        if ($request->iotboxes_id != 0) {
+            $iotbox = FoodwastIotbox::find($request->iotboxes_id);
+            $iotbox->status = 'active';
+            $iotbox->updated_at = date('Y-m-d H:i:s');
+            $iotbox->save();
+        }
 
         return redirect()->route('foodwaste.waste_bins.index', $w_user->id)
             ->with('success', 'เพิ่มถังขยะเรียบร้อยแล้ว!');
@@ -135,10 +151,10 @@ class FoodWasteBinController extends Controller
         // Or handle this logic in a separate process. For now, we only create on activation.
 
         // Call service to update overall user waste status (waste_preference)
-        $this->wasteStatusService->updateWasteBinAndUserStatus($wasteBin, $data);
+        $this->wasteStatusService->updateWasteBinAndUserStatus($foodwasteBin, $data);
         // });
 
-        return redirect()->route('foodwaste.waste_bins.index', $wasteBin->user->id)
+        return redirect()->route('foodwaste.waste_bins.index', $foodwasteBin->user->id)
             ->with('success', 'อัปเดตถังขยะเรียบร้อยแล้ว!');
     }
 

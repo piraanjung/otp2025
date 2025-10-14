@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Api\FunctionsController;
 use App\Http\Controllers\Controller;
+use App\Models\Admin\ManagesTenantConnection;
 use App\Models\Admin\Organization;
 use App\Models\Tabwater\TwInvoiceTemp;
 use App\Models\Tabwater\TwInvoiceHistoty;
@@ -17,32 +18,50 @@ use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Hash;
 use Spatie\Permission\Models\Permission;
 use Spatie\Permission\Models\Role;
+use Illuminate\Support\Facades\Config; // อย่าลืม use
 
 class UserController extends Controller
 {
     public function index()
     {
-        $users = TwUsersInfo::with([
-            'invoice' => function($q){
-                return $q->select('meter_id_fk','status');
-            },
-            'user' => function($q){
-                return $q->select('id','prefix','firstname', 'lastname', 'status');
-            },
-            ])->get();
-        $user_deleted =  collect($users)->filter(function($v){
-            return $v->deleted == '1';
-        })->groupBy('user_id');
-        $user_active =  collect($users)->filter(function($v){
-            return $v->status == 'active';
-        })->groupBy('user_id');
 
-       
-        
-        $usertype = "user";
-        $zones = Zone::all();
-        return view('admin.users.index', compact( 'users', 'usertype', 'zones', 'user_deleted', 'user_active'));
-    }
+       $connectionName = session('db_conn'); // เช่น 'envsogo_hs1'
+
+        ManagesTenantConnection::configConnection($connectionName);
+    
+    
+    // *** ขั้นตอนที่ 2: รัน Query ***
+    // ใช้ TwUsersInfo::with() โดยไม่ต้องเรียก setConnection() บนโมเดลหลัก
+    $users = TwUsersInfo::with([
+        'invoice' => function($q){
+            // Eager Loading จะใช้ Connection หลักที่ถูกเปลี่ยนไปแล้วโดยอัตโนมัติ
+            return $q->select('meter_id_fk','status');
+        },
+        'user' => function($q){
+            // Eager Loading จะใช้ Connection หลักที่ถูกเปลี่ยนไปแล้วโดยอัตโนมัติ
+            return $q->select('id','prefix','firstname', 'lastname', 'status');
+        },
+    ])->get();
+
+    // Query สำหรับ Zone Model ก็จะใช้ Default Connection ที่ถูกเปลี่ยนเช่นกัน
+    $zones =  (new Zone())->setConnection($connectionName)->get();
+    
+    $orgInfos = Organization::getOrgName(Auth::user()->org_id_fk);
+    // *** ขั้นตอนที่ 3: (ไม่บังคับ) คืนค่า Default Connection เดิมกลับไป ***
+    // ถ้าคุณต้องการให้ Connection หลักกลับมาเป็นค่าเดิมหลังจากฟังก์ชันนี้ทำงานเสร็จ
+    // Config::set('database.default', $originalConnection); 
+    
+    // ... โค้ดส่วนอื่น ๆ
+    $user_deleted =  collect($users)->filter(function($v){
+        return $v->deleted == '1';
+    })->groupBy('user_id');
+    $user_active =  collect($users)->filter(function($v){
+        return $v->status == 'active';
+    })->groupBy('user_id');
+
+    $usertype = "user";
+    return view('admin.users.index', compact( 'orgInfos', 'users', 'usertype', 'zones', 'user_deleted', 'user_active'));
+}
 
     public function users_search(Request $request)
     {
@@ -64,7 +83,8 @@ class UserController extends Controller
     }
     public function create()
     {
-        $meter_sq_number    = SequenceNumber::get();
+        ManagesTenantConnection::configConnection(session('db_conn'));
+        $meter_sq_number    =  SequenceNumber::get();
         $zones              = Zone::all();
         $meter_types        = TwMeterType::all();
         $usergroups         = Role::get(['id', 'name']);
@@ -73,12 +93,38 @@ class UserController extends Controller
         $meternumber        = FunctionsController::createInvoiceNumberString($meter_sq_number[0]->tabmeter);
         $password           = "user" . substr($usernumber, 3);
         $factory_no         = "";
+    $orgInfos = Organization::getOrgName(Auth::user()->org_id_fk);
 
-        return view('admin.users.create', compact('usernumber', 'meternumber', 'factory_no', 'zones', 'usergroups', 'meter_types', 'username', 'password'));
+     $as_tw_members = (new User())->setConnection('envsogo_super_admin')->where('as_tw_member', 0)
+        ->where('role_id', 3)
+        ->get();
+
+        return view('admin.users.create', compact('as_tw_members', 'orgInfos', 'usernumber', 'meternumber', 'factory_no', 'zones', 'usergroups', 'meter_types', 'username', 'password'));
     }
     public function store(Request $request)
     {
+
         date_default_timezone_set('Asia/Bangkok');
+
+         // รับค่า string จาก textarea
+        $userIdsString = $request->input('user_id_lists');
+        
+        // แปลง string ที่คั่นด้วย comma ให้เป็น array ของ User ID (ที่เป็น string)
+        $selectedUserIds = array_map('trim', explode(',', $userIdsString));
+
+        // ถ้าต้องการให้แน่ใจว่าเป็นตัวเลข
+        $selectedUserIds = array_filter($selectedUserIds, 'is_numeric');
+
+        if (!empty($selectedUserIds)) {
+            // ตอนนี้ $selectedUserIds เป็น Array ที่มี User ID ที่ถูกเลือก เช่น ['1', '5', '10']
+            // คุณสามารถนำไปประมวลผลต่อได้ เช่น
+            // User::whereIn('id', $selectedUserIds)->update(['status' => 'processed']);
+            $this->addUserAsTWmember($selectedUserIds);
+            return redirect()->route('admin.users.index')->with(['message' => 'บันทึกแล้ว', 'color' => 'success']);
+
+        }
+
+
         $request->validate(
             [
                 "prefix_select"     => 'required',
@@ -169,7 +215,25 @@ class UserController extends Controller
         return redirect()->route('admin.users.index')->with(['message' => 'บันทึกแล้ว', 'color' => 'success']);
     }
 
-    
+    private function addUserAsTWmember($ids){
+        foreach($ids as $id){
+            (new TwUsersInfo())->setConnection(session('db_conn'))->create([
+            "user_id"               =>$id,
+            "meternumber"           => FunctionsController::createMeterNumberString($id),
+            "undertake_zone_id"     => rand(1,2),
+            "undertake_subzone_id"  => rand(1,2),
+            "metertype_id"          => 1,
+            "meter_address"         => 1,
+            "acceptance_date"       => date('Y-m-d'),
+            "payment_id"            => 1,
+            "owe_count"             => 0,
+            "status"                => "active",
+            "recorder_id"           => Auth::id(),
+            "created_at"            => date("Y-m-d H:i:s"),
+            "updated_at"            => date("Y-m-d H:i:s"),
+        ]);
+        }
+    }
 
     public function edit($user_id, $addmeter = "")
     {

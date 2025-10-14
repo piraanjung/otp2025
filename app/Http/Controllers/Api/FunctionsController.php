@@ -3,6 +3,8 @@
 namespace App\Http\Controllers\Api;
 
 use App\Http\Controllers\Controller;
+use App\Models\Admin\ManagesTenantConnection;
+use App\Models\Admin\Organization;
 use App\Models\Tabwater\Invoice;
 use App\Models\User;
 use App\Models\Tabwater\UserMerterInfo;
@@ -52,7 +54,8 @@ class FunctionsController extends Controller
 
     public static function createInvoiceNumberString($id)
     {
-        $meternumber_code = Setting::where('name', 'meternumber_code')->get('values')->first();
+      ManagesTenantConnection::configConnection('envsogo_super_admin');
+        $meternumber_code = Organization::where('id', Auth::user()->org_id_fk)->get('org_code')->first();
 
         $invString = '';
         if ($id < 10) {
@@ -72,7 +75,8 @@ class FunctionsController extends Controller
 
     public static function createMeterNumberString($id)
     {
-        $meternumber_code = Setting::where('name', 'meternumber_code')->get('values')->first();
+        ManagesTenantConnection::configConnection('envsogo_super_admin');
+        $meternumber_code = Organization::where('id', Auth::user()->org_id_fk)->get('org_code')->first();
 
         $invString = '';
         if ($id < 10) {

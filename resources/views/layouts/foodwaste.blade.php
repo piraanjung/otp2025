@@ -6,7 +6,7 @@
     <meta name="csrf-token" content="{{ csrf_token() }}"> <!-- เพิ่มบรรทัดนี้ -->
     <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
     <link rel="apple-touch-icon" sizes="76x76" href="{{ asset('soft-ui/assets/img/apple-icon.png') }}">
-    <link rel="icon" type="image/png" href="{{ asset('soft-ui/assets/img/favicon.png') }}">
+    <link rel="icon" type="image/png" href="{{ asset('logo/ko_envsogo.png') }}">
     <title>
         EnvSoGo::Foodwaste
     </title>
@@ -121,9 +121,9 @@
                 aria-hidden="true" id="iconSidenav"></i>
             <a class="navbar-brand m-0" href=" https://demos.creative-tim.com/soft-ui-dashboard/pages/dashboard.html "
                 target="_blank">
-                <img src="{{ asset('soft-ui/assets/img/logo-ct-dark.png') }}" class="navbar-brand-img h-100"
+                <img src="{{ asset('logo/ko_envsogo.png') }}" class="navbar-brand-img h-100"
                     alt="main_logo">
-                <span class="ms-1 font-weight-bold">EnvSoGo</span>
+                <span class="ms-1 font-weight-bold">EnvSoGo::Foodwaste</span>
             </a>
         </div>
         <hr class="horizontal dark mt-0">

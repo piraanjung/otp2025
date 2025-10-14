@@ -101,7 +101,9 @@ class KeptKayaPurchaseController extends Controller
         $userId = Session::get('purchase_user_id');
 
         if (empty($cart) || !$userId) {
-            return redirect()->route('keptkayas.purchase.select_user')->with('error', 'ไม่พบรายการในรถเข็นหรือผู้ใช้งาน กรุณาเริ่มทำธุรกรรมใหม่');
+         
+                return redirect()->route('keptkayas.purchase.select_user')->with('error', 'ไม่พบรายการในรถเข็นหรือผู้ใช้งาน กรุณาเริ่มทำธุรกรรมใหม่');
+            
         }
 
         $user = User::find($userId);
@@ -154,6 +156,112 @@ class KeptKayaPurchaseController extends Controller
         } catch (\Exception $e) {
             DB::rollBack();
             return back()->with('error', 'เกิดข้อผิดพลาดในการบันทึกธุรกรรม: ' . $e->getMessage());
+        }
+    }
+
+    /**
+     * [ใหม่] บันทึกธุรกรรมการซื้อขยะโดยรับ Data จากตู้รับซื้อ (Machine/API)
+     * Data จะถูกส่งมาในรูปแบบ JSON Array ของ acceptedBottles
+     *
+     * @param  \Illuminate\Http\Request  $request
+     * @return \Illuminate\Http\JsonResponse
+     */
+    public function saveTransactionForMachine(Request $request)
+    {
+        // 1. Validation (ตรวจสอบความถูกต้องของข้อมูลพื้นฐาน)
+        $request->validate([
+            'acceptedBottles' => 'required|array|min:1',
+            'acceptedBottles.*.user_id' => 'required|numeric|exists:users,id',
+            'acceptedBottles.*.kp_tbank_item_id' => 'required|numeric',
+            'acceptedBottles.*.kp_tbank_items_pricepoint_id' => 'required|numeric',
+            'acceptedBottles.*.amount_in_units' => 'required|numeric|min:0',
+            'acceptedBottles.*.price_per_unit' => 'required|numeric|min:0',
+            'acceptedBottles.*.amount' => 'required|numeric|min:0',
+            'acceptedBottles.*.points' => 'required|numeric|min:0',
+            'acceptedBottles.*.unit_name' => 'required|string',
+        ]);
+        
+        $acceptedBottles = $request->input('acceptedBottles');
+
+        // 2. Initial Checks and Aggregation
+        // ดึง user_id จากขวดใบแรก (สมมติว่าการทำธุรกรรมมาจากลูกค้าคนเดียว)
+        $userId = $acceptedBottles[0]['user_id'];
+        $recorderId = Auth::id(); // ผู้บันทึกคือ System/Machine user ที่ Authenticate API Call
+
+        $user = User::find($userId);
+        if (!$user) {
+            // หากไม่พบ User อาจเกิดจาก user_id ที่ส่งมาผิดพลาด
+            return response()->json(['error' => 'Customer User ID not found.'], 404);
+        }
+        
+        $userWastePref = UserWastePreference::where('user_id', $userId)->first();
+        if (!$userWastePref) {
+             return response()->json(['error' => 'User Waste Preference not configured for this user.'], 404);
+        }
+        
+        // คำนวณยอดรวมทั้งหมด
+        $totalWeight = 0;
+        $totalAmount = 0;
+        $totalPoints = 0;
+
+        foreach ($acceptedBottles as $bottle) {
+            // ใช้ floatval เพื่อแปลงค่าจาก string (toFixed(2) จาก JS) ให้เป็นตัวเลข
+            $totalWeight += floatval($bottle['amount_in_units']); 
+            $totalAmount += floatval($bottle['amount']);
+            $totalPoints += floatval($bottle['points']);
+        }
+        
+        DB::beginTransaction();
+        try {
+            // 3. Create the main purchase transaction
+            $transaction = KpPurchaseTransaction::create([
+                'kp_u_trans_no' => 'M-' . Carbon::now()->format('YmdHis') . Str::random(4), // 'M' for Machine
+                'kp_user_w_pref_id_fk' => $userWastePref->id,
+                'transaction_date' => Carbon::now()->toDateString(),
+                'total_weight' => $totalWeight,
+                'total_amount' => $totalAmount,
+                'total_points' => $totalPoints,
+                'recorder_id' => $recorderId, // ID ของ Machine User / System User
+                'recycle_machine' => 1,      // เพิ่ม Field เพื่อระบุว่ามาจากตู้
+            ]);
+            
+            // อัปเดตยอดเงิน/คะแนนคงเหลือของลูกค้า
+            (new KPAccounts())->updateBalanceAndPoint($userWastePref->id, $totalAmount, $totalPoints);
+
+            // 4. Create the purchase details for each item
+            foreach ($acceptedBottles as $item) {
+                KpPurchaseDetail::create([
+                    'kp_purchase_trans_id' => $transaction->id,
+                    'kp_recycle_item_id' => $item['kp_tbank_item_id'],
+                    'kp_tbank_items_pricepoint_id' => $item['kp_tbank_items_pricepoint_id'],
+                    'amount_in_units' => $item['amount_in_units'],
+                    'price_per_unit' => $item['price_per_unit'],
+                    'amount' => $item['amount'],
+                    'points' => $item['points'],
+                    'unit_type' => $item['unit_name'], 
+                    'recorder_id' => $recorderId
+                ]);
+            }
+
+            DB::commit();
+
+            // 5. Return success JSON response
+            return response()->json([
+                'message' => 'Transaction recorded successfully.',
+                'transaction_id' => $transaction->id,
+                'total_amount' => $totalAmount,
+                'redirect_url' => route('keptkayas.purchase.receipt', $transaction->id),
+            ], 201);
+
+        } catch (\Exception $e) {
+            DB::rollBack();
+            // Log error
+           // \Log::error('Machine Transaction Failed: ' . $e->getMessage() . ' - Data: ' . json_encode($acceptedBottles));
+
+            return response()->json([
+                'error' => 'Failed to record transaction due to internal error.',
+                'details' => $e->getMessage(),
+            ], 500);
         }
     }
 

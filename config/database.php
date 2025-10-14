@@ -15,7 +15,7 @@ return [
     |
     */
 
-    'default' => env('DB_CONNECTION', 'mysql'),
+    'default' => env('DB_CONNECTION', 'envsogo_kp1'),
 
     /*
     |--------------------------------------------------------------------------
@@ -43,7 +43,7 @@ return [
             'foreign_key_constraints' => env('DB_FOREIGN_KEYS', true),
         ],
 
-        'mysql' => [
+        'envsogo_kp1' => [
             'driver' => 'mysql',
             'url' => env('DATABASE_URL'),
             'host' => env('DB_HOST', '127.0.0.1'),
@@ -63,15 +63,33 @@ return [
             ]) : [],
         ],
 
-        'kp_new' => [
+        'envsogo_hs1' => [
             'driver' => 'mysql',
-            'url' => env('DATABASE_URL'),
-            'host' => env('DB_KPNEW_HOST', '127.0.0.1'),
-            'port' => env('DB_KPNEW_PORT', '3306'),
-            'database' => env('DB_KPNEW_DATABASE', 'forge'),
-            'username' => env('DB_KPNEW_USERNAME', 'forge'),
-            'password' => env('DB_KPNEW_PASSWORD', ''),
-            'unix_socket' => env('DB_KPNEW_SOCKET', ''),
+            'host' => env('DB_HOST_HS1', '127.0.0.1'),
+            'port' => env('DB_PORT_HS1', '3306'),
+            'database' => env('DB_DATABASE_HS1', 'envsogo_hongzaeng1'),
+            'username' => env('DB_USERNAME_HS1', 'forge'),
+            'password' => env('DB_PASSWORD_HS1', ''),
+            'unix_socket' => env('DB_SOCKET', ''),
+            'charset' => 'utf8mb4',
+            'collation' => 'utf8mb4_unicode_ci',
+            'prefix' => '',
+            'prefix_indexes' => true,
+            'strict' => true,
+            'engine' => null,
+            'options' => extension_loaded('pdo_mysql') ? array_filter([
+                PDO::MYSQL_ATTR_SSL_CA => env('MYSQL_ATTR_SSL_CA'),
+            ]) : [],
+        ],
+
+        'envsogo_super_admin' => [
+            'driver' => 'mysql',
+            'host' => env('DB_HOST_S_ADMIN', '127.0.0.1'),
+            'port' => env('DB_PORT_S_ADMIN', '3306'),
+            'database' => env('DB_DATABASE_S_ADMIN', 'envsogo_super_admin'),
+            'username' => env('DB_USERNAME_S_ADMIN', 'forge'),
+            'password' => env('DB_PASSWORD_S_ADMIN', ''),
+            'unix_socket' => env('DB_SOCKET', ''),
             'charset' => 'utf8mb4',
             'collation' => 'utf8mb4_unicode_ci',
             'prefix' => '',

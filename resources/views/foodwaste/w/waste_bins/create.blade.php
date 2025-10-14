@@ -15,9 +15,25 @@
                             @csrf
                             <div class="mb-3">
                                 <label for="bin_code" class="form-label">รหัสถังขยะ </label>
-                                <input type="text" class="form-control @error('bin_code') is-invalid @enderror"
-                                    id="bin_code" readonly name="bin_code" value="{{ $bin_code }}">
+                                <select name="bin_code" class="form-control" required>
+                                    <option value="">เลือก..</option>
+                                    @foreach ($bins_pending as $bin)
+                                        <option value="{{$bin->id}}">{{ $bin->bin_code }}</option>
+                                    @endforeach
+                                </select>
+                                
                                 @error('bin_code')<div class="invalid-feedback">{{ $message }}</div>@enderror
+                            </div>
+
+                             <div class="mb-3">
+                                <label for="iotboxes" class="form-label">กล่อง IoT </label>
+                                <select name="iotboxes_id" class="form-control" required>
+                                    <option value="0" selected>ไม่มี</option>
+                                    @foreach ($iotboxes as $iotbox)
+                                        <option value="{{$iotbox->id}}">{{ $iotbox->iotbox_code }}</option>
+                                    @endforeach
+                                </select>
+                                @error('iotboxes_id')<div class="invalid-feedback">{{ $message }}</div>@enderror
                             </div>
 
                             <div class="mb-3">
