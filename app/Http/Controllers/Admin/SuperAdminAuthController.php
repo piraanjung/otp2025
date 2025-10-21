@@ -20,8 +20,7 @@ class SuperAdminAuthController extends Controller
     // แสดงหน้า Login ของ Super Admin
     public function showLoginForm()
     {
-$superOrg = Organization::setTenantConnection('super_admin');
-        $orgs = $superOrg->all();
+        $orgs = Organization::all();
         return view('superadmin.auth.login', compact('orgs'));
     }
 

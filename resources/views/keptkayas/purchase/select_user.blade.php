@@ -5,7 +5,7 @@
 
 @elsecan('access tabwater2')
     @php
-        $layout = 'layouts.keptkaya_mobile';
+        $layout = 'layouts.keptkaya';
      @endphp
 @endcan
 
@@ -53,6 +53,7 @@
                     <thead class="table-light">
                         <tr>
                             <th>#</th>
+                            <th>user id</th>
                             <th>ชื่อ-สกุล</th>
                             <th>Username</th>
                             <th>ที่อยู่</th>
@@ -64,6 +65,7 @@
                         @forelse ($keptKayaMembers as $member)
                             <tr>
                                 <td>{{ $member->wastePreference->id }}</td>
+                                <td>{{ $member->id }}</td>
                                 <td>{{ $member->firstname }} {{ $member->lastname }}</td>
                                 <td>{{ $member->username }}</td>
                                 <td>{{ Str::limit($member->address ?? 'N/A', 50) }}</td>
@@ -274,7 +276,8 @@
                         });
 
                         // Set the username and submit the form
-                        usernameSearchInput.value = decodedText;
+                        decodedTextSplit = decodedText.split("-")
+                        usernameSearchInput.value = decodedTextSplit[0];
                         userSearchForm.submit();
                     },
                     (errorMessage) => {

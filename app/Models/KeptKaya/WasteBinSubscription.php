@@ -10,7 +10,7 @@ class WasteBinSubscription extends Model
 {
     use HasFactory;
 
-    protected $table = 'waste_bin_subscriptions';
+    protected $table = 'kp_waste_bin_subscriptions';
 
     protected $fillable = [
         'waste_bin_id',

@@ -3,6 +3,8 @@
 namespace App\Http\Controllers\KeptKaya;
 
 use App\Http\Controllers\Controller;
+use App\Models\Admin\ManagesTenantConnection;
+use App\Models\Admin\Organization;
 use App\Models\KeptKaya\KPAccounts;
 use App\Models\KeptKaya\KpPurchaseDetail;
 use App\Models\KeptKaya\KpPurchaseTransaction;
@@ -43,10 +45,10 @@ class KeptKayaPurchaseController extends Controller
 
         if ($request->filled('username_search')) {
             $usernameSearch = $request->input('username_search');
-            $query->with('wastePreference')
-                ->whereHas('wastePreference', function($q) use ($usernameSearch){
-                     $q->select('*')->where('id' ,$usernameSearch);
-                });
+            $query->with('wastePreference')->where('id', $request->input('username_search'));
+                // ->whereHas('wastePreference', function($q) use ($usernameSearch){
+                //      $q->select('*')->where('id' ,$usernameSearch);
+                // });
         }
 
         $keptKayaMembers = $query->orderBy('firstname')
@@ -61,17 +63,14 @@ class KeptKayaPurchaseController extends Controller
 
         return view('keptkayas.purchase.select_user', compact('keptKayaMembers'));
     }
-    /**
-     * Redirect to the purchase form for the selected user.
-     * เปลี่ยนเส้นทางไปยังหน้าฟอร์มรับซื้อสำหรับผู้ใช้ที่เลือก
-     * @param \App\Models\User $user
-     * @return \Illuminate\Http\RedirectResponse
-     */
-    public function startPurchase(UserWastePreference $user)
-    {
+   
+    
+    public function startPurchase($user_waste_pref_id)
+    { 
+       $userWastePref = UserWastePreference::on(session('db_conn'))->find($user_waste_pref_id);
         // This is just a redirect to the next step.
         // In a real application, you might pass user data or a transaction ID.
-        return redirect()->route('keptkayas.purchase.form', $user->id);
+        return redirect()->route('keptkayas.purchase.form', $userWastePref->user_id);
     }
     public function showCart()
     {
@@ -106,7 +105,7 @@ class KeptKayaPurchaseController extends Controller
             
         }
 
-        $user = User::find($userId);
+        $user = (new User())->setConnection(session('db_conn'))->find($userId);
         if (!$user) {
             return redirect()->route('keptkayas.purchase.select_user')->with('error', 'ผู้ใช้งานไม่ถูกต้อง กรุณาเริ่มทำธุรกรรมใหม่');
         }
@@ -119,7 +118,7 @@ class KeptKayaPurchaseController extends Controller
         DB::beginTransaction();
         try {
             // 1. Create the main purchase transaction
-            $userWastePref = UserWastePreference::where('user_id', $userId)->get()->first();
+            $userWastePref = (new UserWastePreference)->setConnection(session('db_conn'))->where('user_id', $userId)->get()->first();
             $transaction = KpPurchaseTransaction::create([
                 'kp_u_trans_no' => 'T-' . Carbon::now()->format('YmdHis') . Str::random(4), // Example transaction number
                 'kp_user_w_pref_id_fk' => $userWastePref->id,
@@ -159,6 +158,18 @@ class KeptKayaPurchaseController extends Controller
         }
     }
 
+    public function showReceipt($transaction_id)
+    {
+
+        $transaction = (new KpPurchaseTransaction())->setConnection(session('db_conn'))->where('id', $transaction_id)
+        ->with('user_waste_pref.user', 'details.item', 'details.pricePoint.kp_units_info')
+        ->get()->first();
+        // Load relationships needed for the receipt
+        // $transaction->load(['user_waste_pref.user', 'details.item', 'details.pricePoint.kp_units_info']);
+
+        return view('keptkayas.purchase.receipt', compact('transaction'));
+    }
+
     /**
      * [ใหม่] บันทึกธุรกรรมการซื้อขยะโดยรับ Data จากตู้รับซื้อ (Machine/API)
      * Data จะถูกส่งมาในรูปแบบ JSON Array ของ acceptedBottles
@@ -193,8 +204,12 @@ class KeptKayaPurchaseController extends Controller
             // หากไม่พบ User อาจเกิดจาก user_id ที่ส่งมาผิดพลาด
             return response()->json(['error' => 'Customer User ID not found.'], 404);
         }
-        
-        $userWastePref = UserWastePreference::where('user_id', $userId)->first();
+        if(!session()->has('db_conn')){
+            $conn = Organization::find($user->org_id_fk);
+            session(['db_conn' => $conn->org_database]);
+        }
+
+        $userWastePref = (new UserWastePreference())->setConnection(session('db_conn'))->where('user_id', $userId)->first();
         if (!$userWastePref) {
              return response()->json(['error' => 'User Waste Preference not configured for this user.'], 404);
         }
@@ -214,7 +229,7 @@ class KeptKayaPurchaseController extends Controller
         DB::beginTransaction();
         try {
             // 3. Create the main purchase transaction
-            $transaction = KpPurchaseTransaction::create([
+            $transaction = (new KpPurchaseTransaction())->setConnection(session('db_conn'))->create([
                 'kp_u_trans_no' => 'M-' . Carbon::now()->format('YmdHis') . Str::random(4), // 'M' for Machine
                 'kp_user_w_pref_id_fk' => $userWastePref->id,
                 'transaction_date' => Carbon::now()->toDateString(),
@@ -226,11 +241,11 @@ class KeptKayaPurchaseController extends Controller
             ]);
             
             // อัปเดตยอดเงิน/คะแนนคงเหลือของลูกค้า
-            (new KPAccounts())->updateBalanceAndPoint($userWastePref->id, $totalAmount, $totalPoints);
+            (new KPAccounts())->setConnection(session('db_conn'))->updateBalanceAndPoint($userWastePref->id, $totalAmount, $totalPoints);
 
             // 4. Create the purchase details for each item
             foreach ($acceptedBottles as $item) {
-                KpPurchaseDetail::create([
+                (new KpPurchaseDetail())->setConnection(session('db_conn'))->create([
                     'kp_purchase_trans_id' => $transaction->id,
                     'kp_recycle_item_id' => $item['kp_tbank_item_id'],
                     'kp_tbank_items_pricepoint_id' => $item['kp_tbank_items_pricepoint_id'],
@@ -255,9 +270,6 @@ class KeptKayaPurchaseController extends Controller
 
         } catch (\Exception $e) {
             DB::rollBack();
-            // Log error
-           // \Log::error('Machine Transaction Failed: ' . $e->getMessage() . ' - Data: ' . json_encode($acceptedBottles));
-
             return response()->json([
                 'error' => 'Failed to record transaction due to internal error.',
                 'details' => $e->getMessage(),
@@ -265,17 +277,10 @@ class KeptKayaPurchaseController extends Controller
         }
     }
 
-    public function showReceipt(KpPurchaseTransaction $transaction)
+    public function showPurchaseForm(Request $request, $user_id)
     {
-        // Load relationships needed for the receipt
-        $transaction->load(['user_waste_pref.user', 'details.item', 'details.pricePoint.kp_units_info']);
 
-        return view('keptkayas.purchase.receipt', compact('transaction'));
-    }
-
-    public function showPurchaseForm(Request $request, UserWastePreference $user)
-    {
-        $user = User::find($user->user_id);
+        $user = (new User())->setConnection(session('db_conn'))->find($user_id);
         $request->session()->put('purchase_user_id', $user->id);
         // ตรวจสอบว่าผู้ใช้งานที่เลือกเป็นสมาชิกธนาคารขยะหรือไม่
         if (!$user->wastePreference || !$user->wastePreference->is_waste_bank) {
@@ -283,25 +288,18 @@ class KeptKayaPurchaseController extends Controller
         }
 
         // ดึงรายการขยะทั้งหมด และโหลดราคาที่ Active
-        $recycleItems = KpTbankItems::with(['activePrices.kp_units_info'])
+        $recycleItems = (new KpTbankItems())->setConnection(session('db_conn'))->with(['activePrices.kp_units_info'])
             ->whereHas('activePrices.kp_units_info')
             ->get();
 
         // ดึงข้อมูลหน่วยนับทั้งหมด (ถ้าต้องการใช้ใน dropdown)
-        $allUnits = KpTbankUnits::all();
+        $allUnits = (new KpTbankUnits())->setConnection(session('db_conn'))->get();
 
         return view('keptkayas.purchase.purchase_form', compact('user', 'recycleItems', 'allUnits'));
     }
 
 
 
-    /**
-     * Remove an item from the purchase cart.
-     * ลบรายการออกจากรถเข็น
-     * @param Request $request
-     * @param int $index
-     * @return \Illuminate\Http\RedirectResponse
-     */
     public function removeFromCart(Request $request, $index)
     {
         $cart = Session::get('purchase_cart', []);
@@ -329,6 +327,8 @@ class KeptKayaPurchaseController extends Controller
     public function addToCart(Request $request)
     {
         // Session::forget('purchase_cart');
+
+
         $validated = $request->validate([
             'user_id' => 'required|exists:users,id',
             'kp_tbank_item_id' => 'required|exists:kp_tbank_items,id',
@@ -338,11 +338,11 @@ class KeptKayaPurchaseController extends Controller
 
 
         // Find the item and price to add to cart
-        $item = KpTbankItems::find($validated['kp_tbank_item_id']);
-        $unit = KpTbankUnits::find($validated['kp_units_idfk']);
+        $item = (new KpTbankItems())->setConnection(session('db_conn'))->find($validated['kp_tbank_item_id']);
+        $unit = (new KpTbankUnits())->setConnection(session('db_conn'))->find($validated['kp_units_idfk']);
 
         // Find the active price for this item and unit
-        $priceConfig = KpTbankItemsPriceAndPoint::where('kp_items_idfk', $item->id)
+        $priceConfig = (new KpTbankItemsPriceAndPoint())->setConnection(session('db_conn'))->where('kp_items_idfk', $item->id)
             ->where('kp_units_idfk', $unit->id)
             ->where('status', 'active')
             ->where('deleted', '0')

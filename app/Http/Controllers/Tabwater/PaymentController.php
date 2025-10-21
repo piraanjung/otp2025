@@ -5,8 +5,9 @@ namespace App\Http\Controllers\Tabwater;
 use App\Http\Controllers\Controller;
 
 use App\Http\Controllers\FunctionsController;
-use App\Http\Controllers\Api\InvoiceController;
+use App\Http\Controllers\Tabwater\InvoiceController;
 use App\Models\Admin\BudgetYear;
+use App\Models\Admin\ManagesTenantConnection;
 use App\Models\Tabwater\Account;
 use App\Models\Tabwater\TwInvoice;
 use App\Models\Tabwater\TwInvoicePeriod;
@@ -22,8 +23,6 @@ use App\Models\Tabwater\TwAccTransactions;
 use App\Models\Tabwater\TwCutmeter;
 use App\Models\Tabwater\TwInvoiceHistoty;
 use App\Models\Tabwater\TwInvoiceTemp;
-use PDO;
-use PhpParser\Node\Expr\FuncCall;
 
 class PaymentController extends Controller
 {
@@ -39,7 +38,7 @@ class PaymentController extends Controller
                 $subzone_selected = json_decode($request->session()->get('payment_subzone_selected'));
             }
         } else {
-            $subzone_id = collect(Subzone::where('status', 'active')->get(['id']))->pluck('id')->toArray();
+            $subzone_id = collect((new Subzone())->setConnection(session('db_conn'))->where('status', 'active')->get(['id']))->pluck('id')->toArray();
             $subzone_selected = $subzone_id;
             $request->session()->put('payment_subzone_selected', collect($subzone_selected)->toJson());
         }
@@ -49,14 +48,13 @@ class PaymentController extends Controller
             $inv_period_id = $request->get('inv_period_id');
         }
 
+        ManagesTenantConnection::configConnection(session('db_conn'));
+
         $usermeterinfosQuery = TwUsersInfo::whereIn('status', ['active', 'inactive', 'deleted'])
             ->with([
                 'invoice_temp' => function ($query) use ($inv_period_id) {
                     $query->select('id', 'meter_id_fk', 'inv_period_id_fk', 'status', 'water_used', 'totalpaid', 'inv_no', 'acc_trans_id_fk')
                         ->whereIn('status', ['owe', 'invoice']);
-                    // if($inv_period_id > 0){
-                    //     $query->where('inv_period_id_fk', $inv_period_id);
-                    // }
                     return  $query;
                 },
                 'meter_type' => function ($query) {
@@ -74,7 +72,7 @@ class PaymentController extends Controller
         }
 
         $usermeterinfos = $usermeterinfosQuery->get([
-            'meter_id',
+            'id',
             'undertake_subzone_id',
             'meter_address',
             'undertake_zone_id',
@@ -114,7 +112,7 @@ class PaymentController extends Controller
         }
 
 
-        $subzones = collect(Subzone::all())->sortBy('zone_id');
+        $subzones = collect((new Subzone())->setConnection(session('db_conn'))->get())->sortBy('zone_id');
         $page = 'index';
         $selected_subzone_name_array = [];
         if ($request->has('check-input-select-all')) {
@@ -122,7 +120,7 @@ class PaymentController extends Controller
         } else {
             $i = 0;
             foreach ($subzone_selected as $subzone_id) {
-                $subzone_name = Subzone::where('id', $subzone_id)->get('subzone_name');
+                $subzone_name = (new Subzone())->setConnection(session('db_conn'))->where('id', $subzone_id)->get('subzone_name');
                 array_push($selected_subzone_name_array, $i == 0 ? "   " . $subzone_name[0]->subzone_name : ", " . $subzone_name[0]->subzone_name);
                 $i++;
             }
@@ -131,14 +129,16 @@ class PaymentController extends Controller
         $total_water_used = collect($invoices)->sum(function ($v) {
             return $v->invoice_temp[0]->water_used;
         });
-        $current_budgetyear = BudgetYear::where('status', 'active')->with([
+        $current_budgetyear = (new BudgetYear())->setConnection(session('db_conn'))->where('status', 'active')->with([
             'invoicePeriod' => function ($q) {
                 return $q->select('id', 'budgetyear_id', 'inv_p_name')->where('deleted', '0');
             }
         ])->get(['id', 'budgetyear_name']);
 
         $select_all = collect($subzones)->count() == collect($subzone_selected)->count() ? true : false;
+        $orgInfos = Organization::getOrgName(Auth::user()->org_id_fk);
         return view('payment.index', compact(
+            'orgInfos',
             'invoices',
             'subzones',
             'page',
@@ -169,7 +169,7 @@ class PaymentController extends Controller
                     $query->select('id', 'price_per_unit');
                 }
             ])->whereIn('undertake_subzone_id', $subzone_search_lists)
-            ->get(['meter_id', 'undertake_subzone_id', 'undertake_subzone_id', 'undertake_zone_id', 'user_id', 'metertype_id', 'meternumber', 'owe_count']);
+            ->get(['id', 'undertake_subzone_id', 'undertake_subzone_id', 'undertake_zone_id', 'user_id', 'metertype_id', 'meternumber', 'owe_count']);
 
         $invoices = collect($usermeterinfos)->filter(function ($v) {
             return collect($v->invoice)->isNotEmpty();
@@ -203,16 +203,15 @@ class PaymentController extends Controller
         ]);
 
         date_default_timezone_set('Asia/Bangkok');
-
-
         $payments = collect($request->get('payments'))->filter(function ($v) {
             return isset($v['on']);
         });
 
+        ManagesTenantConnection::configConnection(session('db_conn'));
 
         //ทำการ update user_meter_infos table โดยการลบ owe_count
-        $checkCutmeterInfos = TwCutmeter::where('meter_id_fk', $request->get('meter_id'))->whereIn('status', ['init', 'cutmeter'])->get();
-        $userMeterInfosQuery = TwUsersInfo::where('meter_id', $request->get('meter_id'));
+        $checkCutmeterInfos = TwCutmeter::where('meter_id_fk', $request->get('id'))->whereIn('status', ['init', 'cutmeter'])->get();
+        $userMeterInfosQuery = TwUsersInfo::where('id', $request->get('meter_id'));
         $user_meter_owe_count = $userMeterInfosQuery->get(['owe_count', 'cutmeter'])->first();
         $remain_owe_count  = 0;
         if ($user_meter_owe_count->owe_count >  0) {
@@ -257,35 +256,35 @@ class PaymentController extends Controller
         }
 
 
-        $twUserInfoQuery = TwUsersInfo::where('meter_id', $request->meter_id);
+        $twUserInfoQuery = TwUsersInfo::where('id', $request->meter_id);
         $twUserInfo = $twUserInfoQuery->get()->first();
 
         $nextLastmeter = $twUserInfo->last_meter_recording;
 
-        $accT = TwAccTransactions::create([
-            'meter_id_fk'    => $request->get('meter_id'),
-            'paidsum'       => $request->get('paidsum'),
-            'vatsum'        => $request->get('vat7'),
-            'totalpaidsum'  => $request->get('mustpaid'), //จ่ายทั้งหมด
-            'net'           =>  $request->get('mustpaid'), //จำนวนจ่ายจริงแล้ว
-            'status'        => '1',
-            'cashier'       => Auth::id(),
-            "created_at"    => date("Y-m-d H:i:s"),
-            "updated_at"    => date("Y-m-d H:i:s"),
-
-        ]);
-
+        $inv_id_list = TwInvoiceTemp::where('acc_trans_id_fk', $request->acc_trans_id)->get('id')->pluck('id')->toArray();
         foreach ($payments as $payment) {
+            $inList = in_array($payment['iv_id'], $inv_id_list) ? 1 : 0;
             $twInvTemp = TwInvoiceTemp::find($payment['iv_id']);
-            $twInvTemp->status = 'paid';
+            $twInvTemp->status = $inList == 1 ? 'paid' : 'owe';
             $twInvTemp->updated_at = date("Y-m-d H:i:s");
-            $twInvTemp->acc_trans_id_fk = $accT->id;
+            $twInvTemp->acc_trans_id_fk = $inList == 1 ? $request->acc_trans_id : 0;
             $twInvTemp->save();
             if ($nextLastmeter <= $twInvTemp->currentmeter) {
                 $nextLastmeter = $twInvTemp->currentmeter;
             }
         }
 
+
+        $accTrans = TwAccTransactions::find($request->acc_trans_id);
+        $accTrans->meter_id_fk      = $request->meter_id;
+        $accTrans->vatsum           = $request->vat7;
+        $accTrans->reserve_meter_sum = $request->reserve_meter_sum;
+        $accTrans->paidsum          = $request->paidsum;
+        $accTrans->totalpaidsum     = $request->mustpaid;
+        $accTrans->status           = '1';
+        $accTrans->cashier          = Auth::id();
+        $accTrans->updated_at       = Now();
+        $accTrans->save();
 
         $next_inv_no_index = $twUserInfo->inv_no_index + 1;
         $remain_owe_count = $twUserInfo->owe_count - collect($payments)->count();
@@ -324,9 +323,7 @@ class PaymentController extends Controller
             ]);
         }
 
-
-        return $this->receipt_print($request, $accT->id, 'payment.index');
-        // return redirect()->route('payment.receipt_print')->with(['account_id_fk' => $accT->id]);
+        return $this->receipt_print($request, $request->acc_trans_id, 'payment.index');
     }
 
     public function store_by_inv_no(Request $request)
@@ -380,11 +377,11 @@ class PaymentController extends Controller
             //update usermeter_info 
             // $invStatusOwesCount = TwInvoiceTemp::where('meter_id_fk', $req_meter_id)->whereIn('status', ['owe', 'invoice'])->count();
 
-            $usermeter_infos = TwUsersInfo::where('meter_id', $req_meter_id)
+            $usermeter_infos = TwUsersInfo::where('id', $req_meter_id)
                 ->get(['owe_count', 'inv_no_index']);
 
             // $res = $usermeter_infos[0]->owe_count - $invStatusOwesCount < 0 ? 0 : $usermeter_infos[0]->owe_count - $invStatusOwesCount;
-            TwUsersInfo::where('meter_id', $req_meter_id)
+            TwUsersInfo::where('id', $req_meter_id)
                 ->update([
                     'owe_count' => $usermeter_infos[0]->owe_count - collect($inv_infos)->count(),
                     'inv_no_index' =>  $usermeter_infos[0]->inv_no_index + 1
@@ -398,7 +395,7 @@ class PaymentController extends Controller
                         return $query->select('id', 'inv_p_name');
                     },
                     'usermeterinfos' => function ($query) {
-                        return $query->select('meter_id', 'user_id', 'meternumber', 'undertake_zone_id', 'undertake_subzone_id', 'meter_address');
+                        return $query->select('id', 'user_id', 'meternumber', 'undertake_zone_id', 'undertake_subzone_id', 'meter_address');
                     },
                     'acc_transactions' => function ($query) {
                         return $query->select('id', 'reserve_meter_sum', 'user_id_fk', 'paidsum', 'vatsum', 'totalpaidsum', 'cashier', 'updated_at')
@@ -421,7 +418,6 @@ class PaymentController extends Controller
     }
 
 
-
     public function receipt_print_multi(REQUEST $request, $account_id_fk = 0, $from_blade = 'payment.index')
     {
 
@@ -440,7 +436,7 @@ class PaymentController extends Controller
                     return $query->select('id', 'inv_p_name');
                 },
                 'usermeterinfos' => function ($query) {
-                    return $query->select('meter_id', 'user_id', 'meternumber', 'undertake_subzone_id');
+                    return $query->select('id', 'user_id', 'meternumber', 'undertake_subzone_id');
                 },
                 'acc_transactions' => function ($query) {
                     return $query->select('id', 'user_id_fk', 'paidsum', 'vatsum', 'totalpaidsum', 'cashier', 'updated_at')
@@ -459,38 +455,9 @@ class PaymentController extends Controller
         return view('payment.receipt_print', compact('invoicesPaidForPrint', 'type', 'from_blade'));
     }
 
-    public function receipt_print_old_backup(REQUEST $request, $account_id_fk = 0, $from_blade = 'payment.index')
-    {
-        $receipt_id = $account_id_fk;
-        if ($request->session()->has('account_id_fk')) {
-            $receipt_id = $request->session()->get('account_id_fk');
-        }
-        $invoicesPaidForPrint = TwInvoiceTemp::where('acc_trans_id_fk', $receipt_id)
-            ->with([
-                'invoice_period' => function ($query) {
-                    return $query->select('id', 'inv_p_name');
-                },
-                'usermeterinfos' => function ($query) {
-                    return $query->select('meter_id', 'user_id', 'meternumber', 'undertake_subzone_id');
-                },
-                'acc_transactions' => function ($query) {
-                    return $query->select('id', 'user_id_fk', 'paidsum', 'vatsum', 'totalpaidsum', 'cashier', 'updated_at')
-                        ->where('status', 1);
-                },
-                'acc_transactions.cashier_info' => function ($query) {
-                    return $query->select('id', 'prefix', 'firstname', 'lastname')
-                        ->where('status', 1);
-                }
-            ])
-            ->get(['inv_id', 'inv_period_id_fk', 'meter_id_fk', 'lastmeter', 'currentmeter', 'status', 'acc_trans_id_fk', 'recorder_id', 'updated_at', 'created_at']);
-
-        $newId = (new FunctionsController())->createInvoiceNumberString($receipt_id);
-        $type = 'paid_receipt';
-        return view('payment.receipt_print', compact('invoicesPaidForPrint', 'newId', 'type', 'from_blade'));
-    }
-
     private function receipt_print(REQUEST $request, $acc_trans_id, $from_blade)
     {
+        ManagesTenantConnection::configConnection(session('db_conn'));
         $receipt_id = $acc_trans_id;
         if ($request->session()->has('account_id_fk')) {
             $receipt_id = $request->session()->get('account_id_fk');
@@ -503,15 +470,14 @@ class PaymentController extends Controller
                     return $query->select('id', 'inv_p_name');
                 },
                 'usermeterinfos' => function ($query) {
-                    return $query->select('meter_id', 'user_id', 'meternumber', 'undertake_subzone_id');
+                    return $query->select('id', 'user_id', 'meternumber', 'undertake_subzone_id');
                 },
                 'acc_transactions' => function ($query) {
                     return $query->select('id', 'meter_id_fk', 'paidsum',  'vatsum', 'totalpaidsum', 'cashier', 'updated_at')
                         ->where('status', '1');
                 },
                 'acc_transactions.cashier_info' => function ($query) {
-                    return $query->select('id', 'prefix', 'firstname', 'lastname')
-                        ->where('status', '1');
+                    return $query->select('id', 'prefix', 'firstname', 'lastname');
                 }
             ])
             ->get(['id', 'inv_period_id_fk', 'meter_id_fk', 'inv_no', 'lastmeter', 'currentmeter', 'status', 'acc_trans_id_fk', 'recorder_id', 'updated_at', 'created_at']);
@@ -531,7 +497,7 @@ class PaymentController extends Controller
                     return $query->select('id', 'inv_p_name');
                 },
                 'usermeterinfos' => function ($query) {
-                    return $query->select('meter_id', 'user_id', 'meternumber', 'undertake_subzone_id', 'submeter_name');
+                    return $query->select('id', 'user_id', 'meternumber', 'undertake_subzone_id', 'submeter_name');
                 },
                 'acc_transactions' => function ($query) {
                     return $query->select('id', 'user_id_fk', 'paidsum', 'vatsum', 'totalpaidsum', 'cashier', 'updated_at')
@@ -550,7 +516,7 @@ class PaymentController extends Controller
                     return $query->select('id', 'inv_p_name');
                 },
                 'usermeterinfos' => function ($query) {
-                    return $query->select('meter_id', 'user_id', 'meternumber', 'undertake_subzone_id');
+                    return $query->select('id', 'user_id', 'meternumber', 'undertake_subzone_id');
                 },
             ])
             ->get(['inv_period_id_fk', 'meter_id_fk', 'inv_no', 'lastmeter', 'currentmeter', 'status', 'acc_trans_id_fk', 'recorder_id', 'updated_at', 'created_at']);
@@ -563,24 +529,29 @@ class PaymentController extends Controller
     }
     public function search(Request $request)
     {
-        $orgInfos = Organization::getOrgInfos(Auth::user()->org_id_fk);
+        $orgInfos = Organization::getOrgName(Auth::user()->org_id_fk);
 
         $inv_by_budgetyear = [];
         if ($request->has('user_info')) {
-            $invoiceApi = new InvoiceController();
+            $invoiceCtrl = new InvoiceController();
 
-            $invoice_infos = json_decode($invoiceApi->get_invoice_and_invoice_history($request->get('user_info'), 'paid', $orgInfos['org_database'])->content(), true);
+            $invoice_infos = json_decode($invoiceCtrl->get_invoice_and_invoice_history($request->get('user_info'), 'paid', session('db_conn'))->content(), true);
 
             $inv_by_budgetyear = collect($invoice_infos)->groupBy(function ($invoice_info) {
                 return $invoice_info['invoice_period']['budgetyear_id'];
             })->values();
         }
-        $usersQuery = (new User())->on($orgInfos['org_database'])->with('usermeterinfos')->where('role_id', 3)->get(['prefix', 'firstname', 'lastname', 'address', 'id', 'zone_id']);
-        $users = collect($usersQuery)->filter(function ($v) {
-            return collect($v->usermeterinfos)->isNotEmpty();
-        })->values();
-        $zones = (new Zone())->on($orgInfos['org_database'])->where('status', 'active')->get();
-        $invoice_period = (new TwInvoicePeriod())->on($orgInfos['org_database'])->where('status', 'active')->get()->first();
+
+        ManagesTenantConnection::configConnection(session('db_conn'));
+        $users = User::with('usermeterinfos')->role('User')
+                ->whereHas('usermeterinfos', function($q){
+                    return $q->select('user_id');
+                })
+                ->get(['prefix', 'firstname', 'lastname', 'address', 'id', 'zone_id']);
+        
+      
+        $zones = (new Zone())->setConnection(session('db_conn'))->where('status', 'active')->get();
+        $invoice_period = (new TwInvoicePeriod())->setConnection(session('db_conn'))->where('status', 'active')->get()->first();
 
         return view('payment.search', compact('zones', 'invoice_period', 'users', 'inv_by_budgetyear', 'orgInfos'));
     }
@@ -617,7 +588,7 @@ class PaymentController extends Controller
     {
         $invoices = TwInvoiceTemp::where('inv_period_id_fk', $inv_period)
             ->with(['usermeterinfos' => function ($query) {
-                return $query->select('meter_id', 'undertake_subzone_id', 'meter_address', 'meternumber', 'metertype_id', 'user_id');
+                return $query->select('id', 'undertake_subzone_id', 'meter_address', 'meternumber', 'metertype_id', 'user_id');
             }])
             ->where('status', 'paid')->get();
 
@@ -652,8 +623,8 @@ class PaymentController extends Controller
 
         $invCount   = TwInvoiceTemp::where('acc_trans_id_fk', $acc_trans_id_fk)->count();
         $invGet     = TwInvoiceTemp::where('acc_trans_id_fk', $acc_trans_id_fk)->get(['meter_id_fk'])->first();
-        $uMeterInfo = TwUsersInfo::where('meter_id', $invGet->meter_id_fk)->get(['owe_count']);
-        TwUsersInfo::where('meter_id', $invGet->meter_id_fk)->update([
+        $uMeterInfo = TwUsersInfo::where('id', $invGet->meter_id_fk)->get(['owe_count']);
+        TwUsersInfo::where('id', $invGet->meter_id_fk)->update([
             'owe_count' => $uMeterInfo[0]->owe_count - $invCount,
             'updated_at'    => date('Y-m-d H:i:s'),
         ]);

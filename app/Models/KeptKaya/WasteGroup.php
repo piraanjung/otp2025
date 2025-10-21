@@ -9,6 +9,7 @@ class WasteGroup extends Model
 {
     use HasFactory;
 
+    protected $table = 'kp_waste_groups';
     protected $fillable = [
         'name',
         'description',

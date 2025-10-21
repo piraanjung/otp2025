@@ -40,7 +40,7 @@
     </li>
 
     {{-- @can('access annual collection') --}}
-    @if (Auth()->user()->can('access annaul modules'))
+     @can('access annaul modules')
         <li class="nav-item">
             <a data-bs-toggle="collapse" href="#receipt" class="nav-link active" aria-controls="receipt" role="button"
                 aria-expanded="true">
@@ -169,12 +169,11 @@
                 </ul>
             </div>
         </li>
-    @endif
-    {{-- @endcan --}}
+   
+    @endcan
 
-    {{-- @can('access waste bank') --}}
     {{-- @if (Session::get('keptkaya_type') == 'recycle') --}}
-    @if (Auth()->user()->can('access recycle bank modules'))
+    @can('access recycle bank modules')
     <li class="nav-item">
         <a data-bs-toggle="collapse" href="#cart" class="nav-link active" aria-controls="cart" role="button"
             aria-expanded="true">
@@ -324,8 +323,7 @@
 
         </div>
     </li>
-    @endif
-    {{--@endcan --}}
+    @endcan
     {{-- @can('manage staff') --}}
     <li class="nav-item">
         <a data-bs-toggle="collapse" href="#pagesExamples" class="nav-link active" aria-controls="pagesExamples"

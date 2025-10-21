@@ -11,7 +11,7 @@ class WasteBinPayratePerMonth extends Model
 {
     use HasFactory;
 
-    protected $table = 'waste_bin_payrate_permonth';
+    protected $table = 'kp_waste_bin_payrate_permonth';
 
     protected $fillable = [
         'id',

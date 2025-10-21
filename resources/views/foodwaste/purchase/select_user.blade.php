@@ -5,7 +5,7 @@
 
 @elsecan('access tabwater2')
     @php
-        $layout = 'layouts.keptkaya_mobile';
+        $layout = 'layouts.keptkaya';
      @endphp
 @endcan
 
@@ -264,7 +264,8 @@
                     (decodedText, decodedResult) => {
                         // on success
                         console.log(`QR Code scanned: ${decodedText}`);
-
+                       
+                        //userId-username-phone
                         // Stop the scanner and close the modal
                         html5QrCode.stop().then(() => {
                             const modal = bootstrap.Modal.getInstance(qrScannerModal);
@@ -274,7 +275,8 @@
                         });
 
                         // Set the username and submit the form
-                        usernameSearchInput.value = decodedText;
+                        let  decodedTextSsplit = decodedText.split("-");
+                        usernameSearchInput.value = decodedTextSsplit[0];
                         userSearchForm.submit();
                     },
                     (errorMessage) => {

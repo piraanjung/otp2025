@@ -11,7 +11,7 @@ class UserWastePreference extends Model
 {
     use HasFactory;
 
-    protected $table = 'user_waste_preferences';
+    protected $table = 'kp_user_waste_preferences';
 
     protected $fillable = [
         'user_id',

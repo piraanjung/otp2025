@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\Admin\ManagesTenantConnection;
 use App\Models\KeptKaya\KPAccounts;
 use App\Models\KeptKaya\KpShopCategory;
 use App\Models\KeptKaya\KpShopProduct;
@@ -22,9 +23,12 @@ class KpMemberShopController extends Controller
      */
     public function index(Request $request)
     {
-        $user= User::find(Auth::id());
-        $request->session()->put('user_from_line', 1);
+                ManagesTenantConnection::configConnection(session('db_conn'));
 
+        $user= User::find(Auth::id());
+        
+        $request->session()->put('user_from_line', 1);
+        // ManagesTenantConnection::configConnection(session('db_conn'));
         $member = KPAccounts::with('userWastePreference', 'userWastePreference.user')
             ->where('u_wpref_id_fk', $user->wastePreference->id)->get()->first();
         $products = KpShopProduct::where('status', 'active')->paginate(12);

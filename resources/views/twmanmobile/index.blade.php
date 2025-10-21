@@ -13,11 +13,7 @@
   <meta name="viewport"
     content="user-scalable=no, initial-scale=1, maximum-scale=1, minimum-scale=1, width=device-width, height=device-height" />
 
-  {{-- <link rel="stylesheet" href="admin-lte/css/adminlte.css" />
-  <link rel="stylesheet" href="admin-lte/plugin/fontawesome-free/css/all.css" /> --}}
-
-  {{-- <script src="js/jquery-3.6.0.min.js"></script> --}}
-  <title>BTPrinter Plugin Demo</title>
+  <title>Envsogo::Tabwater</title>
   <style>
     body {
       background-color: #f45b69;

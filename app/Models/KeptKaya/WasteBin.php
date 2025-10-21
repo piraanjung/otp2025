@@ -11,6 +11,7 @@ class WasteBin extends Model
 {
     use HasFactory;
 
+    protected $table = 'kp_waste_bins';
     protected $fillable = [
         'user_id',
         'bin_code',

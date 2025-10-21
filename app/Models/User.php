@@ -3,6 +3,7 @@
 namespace App\Models;
 
 use App\Models\Admin\District;
+use App\Models\Admin\Organization;
 use App\Models\Admin\Province;
 use App\Models\Admin\Staff;
 use App\Models\Admin\Subzone;
@@ -24,7 +25,6 @@ use App\Models\FoodWaste\FoodWasteBin;
 class User extends Authenticatable
 {
     use HasApiTokens, HasFactory, Notifiable, HasRoles;
-    use HasRoles;
 
     /**
      * The attributes that are mass assignable.
@@ -32,8 +32,6 @@ class User extends Authenticatable
      * @var array<int, string>
      */
 
-    protected $connection = 'envsogo_super_admin';
-    protected $primaryKey = 'id';
     protected $fillable = [
         'id',
         'org_id_fk',
@@ -79,6 +77,10 @@ class User extends Authenticatable
     ];
     protected $table = 'users';
 
+
+    public function org(){
+        return $this->belongsTo(Organization::class, 'org_id_fk', 'id');
+    }
 
     public function user_zone()
     {

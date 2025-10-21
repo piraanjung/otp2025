@@ -276,11 +276,11 @@
 
         <div class="main-circle">
             <div class="inner centralized">
-                <img src="{{asset('logo/'.$orgInfos['org_logo_img'])}}" width="90%">
+                <img src="{{asset('logo/'.$orgInfos['org_logo_img'])}}" width="95%" height="95%">
                 {{-- ระบบบริหารจัดการ --}}
             </div>
         </div>
-        <div class="bubble-container centralized  red {{auth()->user()->can('access tabwater modules') | auth()->user()->hasRole('Super Admin') ? '' : 'a-disbled'}}">
+        <div class="bubble-container centralized  red {{auth()->user()->can('access tabwater modules') | auth()->user()->hasRole('Super Admin|User') ? '' : 'a-disbled'}}">
             <a href="{{auth()->user()->can('access tabwater modules') | auth()->user()->hasRole('Super Admin') ? route('dashboard') : '#'}}">
                 <div class="bubble centralized">
                     <div class="inner centralized">
@@ -290,7 +290,7 @@
             </a>
         </div>
 
-        <div class="bubble-container centralized green {{auth()->user()->can('access recycle bank modules') | auth()->user()->hasRole('Super Admin') ? '': 'a-disbled'}}">
+        <div class="bubble-container centralized green {{auth()->user()->can('access recycle bank modules') | auth()->user()->hasRole('Super Admin|Recycle Bank Staff') ? '': 'a-disbled'}}">
             <a href="{{route('keptkayas.dashboard', 'recycle')}}">
                 <div class="bubble centralized">
                     <div class="inner centralized">

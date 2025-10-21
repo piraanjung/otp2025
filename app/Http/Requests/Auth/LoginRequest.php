@@ -6,7 +6,6 @@ use Illuminate\Auth\Events\Lockout;
 use Illuminate\Foundation\Http\FormRequest;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\RateLimiter;
-use Illuminate\Support\Facades\Request;
 use Illuminate\Support\Str;
 use Illuminate\Validation\ValidationException;
 
@@ -32,7 +31,6 @@ class LoginRequest extends FormRequest
         return [
             'username' => ['required', 'string'],
             'password' => ['required', 'string'],
-            'phone' => ['string'],
         ];
     }
 
@@ -45,7 +43,6 @@ class LoginRequest extends FormRequest
      */
     public function authenticate()
     {
-       
         $this->ensureIsNotRateLimited();
         if (! Auth::attempt($this->only('username', 'password'), $this->boolean('remember'))) {
             RateLimiter::hit($this->throttleKey());
@@ -54,7 +51,6 @@ class LoginRequest extends FormRequest
                 'username' => trans('auth.failed'),
             ]);
         }
-
 
         RateLimiter::clear($this->throttleKey());
     }

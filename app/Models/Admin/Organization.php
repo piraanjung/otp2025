@@ -65,7 +65,7 @@ class Organization extends Model
 
     public static function getOrgInfos($org_id_fk)
     {
-        $organization = Organization::setTenantConnection(session('org_id'));
+        $organization = Organization::setTenantConnection(session('db_conn'));
         $connection = $organization::with(['provinces', 'tambons', 'districts', 'zones'])
             ->get()->first();
         return [
@@ -90,10 +90,11 @@ class Organization extends Model
             'vat' => $connection->vat
         ];
     }
+    
 
     public static function getOrgName($org_id_fk)
     {
-        $organization = (new Organization())->setConnection('envsogo_super_admin')->where('id', $org_id_fk);
+        $organization = (new Organization())->setConnection('envsogo_main')->where('id', $org_id_fk);
         $connection = $organization->with(['provinces', 'tambons', 'districts', 'zones'])
             ->get()->first();
         return [
@@ -111,5 +112,11 @@ class Organization extends Model
             'org_short_type_name' => $connection->org_short_type_name,
             'org_dept_name' => $connection->org_dept_name,
         ];
+    }
+
+    public static function getOrgDatabase($org_id_code)
+    {
+        $organization = (new Organization())->setConnection('envsogo_main')->where('org_code', $org_id_code)
+        ->get(['id', 'org_dabase'])->first();
     }
 }

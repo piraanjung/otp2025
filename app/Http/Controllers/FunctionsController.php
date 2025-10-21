@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 
 use App\Models\Admin\District;
+use App\Models\Admin\ManagesTenantConnection;
 use App\Models\Admin\Organization;
 use App\Models\Admin\OrgSettings;
 use App\Models\KeptKaya\KpPurchaseShop;
@@ -30,6 +31,13 @@ class FunctionsController extends Controller
         return Tambon::where('district_id', $district_id)->get(['id', 'tambon_name']);
     }
 
+    public function getOrgName($tambon_id){
+        return (new Organization())->setConnection('envsogo_super_admin')
+                ->where('org_tambon_id_fk', $tambon_id)->get(['id','org_type_name', 'org_name']);
+    }
+
+    
+
     public function getOrgInfos()
     {
         return  DB::connection('mysql')->table('organizations as st')
@@ -41,7 +49,7 @@ class FunctionsController extends Controller
     }
     public  function createInvoiceNumberString($id)
     {
-        $meternumber_code = DB::connection('mysql')->table('organizations')
+        $meternumber_code = DB::connection(session('db_conn'))->table('organizations')
             ->where('id', Auth::user()->org_id_fk)->get('org_code');
 
         return $meternumber_code[0]->org_code. $this->createNumberString($id);

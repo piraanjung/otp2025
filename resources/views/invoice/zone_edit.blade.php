@@ -64,7 +64,13 @@
 
                         <tbody id="app">
                             <?php $i = 1; ?>
+                            <input type="text" readonly id="price_per_unit_ref" value="{{ $inv_in_seleted_subzone[0]->meter_type['rateConfigs'][0]['fixed_rate_per_unit'] }}">
+                            <input type="text" readonly id="vat_ref" value="{{ $inv_in_seleted_subzone[0]->meter_type['rateConfigs'][0]['vat'] }}">
+                            <input type="text" readonly id="reserve_meter_ref" value="{{ $inv_in_seleted_subzone[0]->meter_type['rateConfigs'][0]['min_usage_charge'] }}">
+
                             @foreach ($inv_in_seleted_subzone as $u_meter_info)
+                                                                    
+
                                 <tr data-id="{{ $i }}" class="data">
                                    
                                     <td class="border-0 text-center">
@@ -116,7 +122,7 @@
                                         <input type="text" value="{{ $u_meter_info->invoice_temp[0]->lastmeter }}"
                                             name="data[{{ $i }}][lastmeter]" data-id="{{ $i }}"
                                             id="lastmeter{{ $i }}"
-                                            data-price_per_unit="{{ $u_meter_info->meter_type->price_per_unit }}"
+                                             data-val_ref="{{ $u_meter_info->invoice_temp[0]->lastmeter }}"
                                             class="form-control text-right lastmeter">
                                            <span class="hidden"> {{$u_meter_info->invoice_temp[0]->lastmeter}}</span>
 
@@ -125,7 +131,7 @@
                                         <input type="text" value="{{ $u_meter_info->invoice_temp[0]->currentmeter }}"
                                             name="data[{{ $i }}][currentmeter]" data-id="{{ $i }}"
                                             id="currentmeter{{ $i }}"
-                                            data-price_per_unit="{{ $u_meter_info->meter_type->price_per_unit }}"
+                                            data-val_ref="{{ $u_meter_info->invoice_temp[0]->currentmeter }}"
                                             class="form-control text-right currentmeter border-success">
                                            <span class="hidden"> {{$u_meter_info->invoice_temp[0]->currentmeter}}</span>
 
@@ -151,10 +157,10 @@
                                     <td class="border-0 text-right">
                                         <!-- ค่ารักษามาตร -->
                                         <input type="text" readonly class="form-control text-right meter_reserve_price"
-                                            id="meter_reserve_price{{ $i }}" value="10">
-                                            <span class="hidden"> 10</span>
+                                            name="data[{{ $i }}][reserve_meter]"
+                                            id="meter_reserve_price{{ $i }}" value="{{ $u_meter_info->invoice_temp[0]->reserve_meter }}">
+                                            <span class="hidden"> {{ $u_meter_info->invoice_temp[0]->reserve_meter }}</span>
 
-                                        {{-- value="{{ $u_meter_info->invoice_temp[0]->inv_type == 'r' ? $u_meter_info->invoice_temp[0]->reserve : 0 }}"> --}}
                                     </td>
                                     <td class="border-0 text-right">
                                         <input type="text" readonly class="form-control text-right vat"
@@ -203,19 +209,18 @@
 
 
 @section('script')
-<script src="https://code.jquery.com/jquery-3.7.1.js"></script>
 
-<script src="https://cdn.datatables.net/2.2.0/js/dataTables.js"></script>
-<script src="https://cdn.datatables.net/buttons/3.2.0/js/buttons.dataTables.js"></script>
+    {{-- <script src="https://cdn.datatables.net/2.2.0/js/dataTables.js"></script>
+    <script src="https://cdn.datatables.net/buttons/3.2.0/js/buttons.dataTables.js"></script>
     <script src="https://cdn.datatables.net/select/1.3.3/js/dataTables.select.min.js"></script>
-    <script src="https://cdn.datatables.net/buttons/3.2.0/js/dataTables.buttons.js"></script>
+    <script src="https://cdn.datatables.net/buttons/3.2.0/js/dataTables.buttons.js"></script> --}}
 
-<script src="https://cdnjs.cloudflare.com/ajax/libs/pdfmake/0.2.7/vfs_fonts.js"></script>
+{{-- <script src="https://cdnjs.cloudflare.com/ajax/libs/pdfmake/0.2.7/vfs_fonts.js"></script>
 <script src="https://cdn.datatables.net/buttons/3.2.0/js/buttons.html5.min.js"></script>
-<script src="https://cdn.datatables.net/buttons/3.2.0/js/buttons.print.min.js"></script>
+<script src="https://cdn.datatables.net/buttons/3.2.0/js/buttons.print.min.js"></script> --}}
 
-<script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"></script>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/pdfmake/0.2.7/pdfmake.min.js"></script>
+{{-- <script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/pdfmake/0.2.7/pdfmake.min.js"></script> --}}
     <script>
         let screenW = window.screen.availWidth
         console.log('screenW', screenW)
@@ -256,22 +261,6 @@
                 },
                 select: false,
               
-            // buttons: [
-              
-            //     {
-            //         extend: 'collection',
-            //         text: 'Export',
-            //         buttons: ['copy', 
-            //          {
-            //             extend: 'excelHtml5',
-            //             title: 'ตุลาคม 2567 - <?=$inv_in_seleted_subzone[0]->undertake_subzone->subzone_name;?>'
-            //         }, 
-            //         'pdf', 'print']
-            //     }
-            // ]
-        
-    
-
             }) //table
             // ทำการ clone thead แล้วสร้าง input text
             if (cloneThead2) {
@@ -329,42 +318,59 @@
 
         })
 
+        function cal(water_used){
+            let reserve_meter_ref   = parseFloat($('#reserve_meter_ref').val())
+            let price_per_unit_ref  = parseFloat($('#price_per_unit_ref').val())
+            let vat_ref             = parseFloat($(`#vat_ref`).val())
+
+            let paid                = parseFloat(water_used) * price_per_unit_ref
+            let vat                 = paid *vat_ref
+            let total               = paid + vat + reserve_meter_ref
+            return [parseFloat(paid).toFixed(2), parseFloat(vat).toFixed(2), parseFloat(total).toFixed(2)]
+        }
 
         //คำนวนเงินค่าใช้น้ำ
         $(document).on('keyup', '.currentmeter', function() {
             let id = $(this).data('id')
-            let res = check_meter_reserve_price(id)
-            let price_per_unit = 6 //$(this).data('price_per_unit')
             let currentmeter = $(this).val()
             let lastmeter = $(`#lastmeter${id}`).val()
-            let net = currentmeter - lastmeter
-            let paid = net * price_per_unit
-            let vat = 0 // net === 0 ? 0.7 : paid * 0.07
+            let water_used = parseFloat(currentmeter) - parseFloat(lastmeter)
+            if(parseFloat(water_used) < 0){
+                alert('จำนวนการใช้น้ำติดลบไม่ได้')
+                currentmeter = $(this).data('val_ref')
+                $(this).val(currentmeter)
+                water_used = parseFloat(currentmeter) - parseFloat(lastmeter)
+            }
+            const [paid,vat, total] = cal(water_used)
 
-            let total = paid + vat + res;
-            $('#water_used_net' + id).val(net)
+            $('#water_used_net' + id).val(water_used)
             $('#paid' + id).val(paid)
-            $('#vat' + id).val(vat.toFixed(2))
+            $('#vat' + id).val(vat)
             $('#total' + id).val(total);
             $('#changevalue' + id).val(1)
+        
 
         });
 
         $(document).on('keyup', '.lastmeter', function() {
-            let id = $(this).data('id')
-            let price_per_unit = 6 //$(this).data('price_per_unit')
-            let currentmeter = $(this).val()
-            let lastmeter = $(`#lastmeter${id}`).val()
-            let net = currentmeter - lastmeter
-            let paid = net * price_per_unit
-            let vat = 0 //net === 0 ? 0.7 : paid * 0.07
-            let total = paid + vat + 10 //$(`#meter_reserve_price${id}`).val();
-            $('#water_used_net' + id).val(net)
+           let id = $(this).data('id')
+            let lastmeter = $(this).val()
+            let currentmeter = $(`#currentmeter${id}`).val()
+            let water_used = parseFloat(currentmeter) - parseFloat(lastmeter)
+                if(parseFloat(water_used) < 0){
+                alert('จำนวนการใช้น้ำติดลบไม่ได้')
+                lastmeter = $(this).data('val_ref')
+                $(this).val(lastmeter)
+                water_used = parseFloat(currentmeter) - parseFloat(lastmeter)
+            }
+            const [paid,vat, total] = cal(water_used)
+            $('#water_used_net' + id).val(water_used)
             $('#paid' + id).val(paid)
-            $('#vat' + id).val(vat.toFixed(2))
+            $('#vat' + id).val(vat)
             $('#total' + id).val(total);
             $('#changevalue' + id).val(1)
-            check_meter_reserve_price(id)
+            
+           
 
         });
 

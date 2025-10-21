@@ -706,13 +706,14 @@
                 </linearGradient>
             </defs>
         </svg>
-        <header class="header">
+        <header class="header" style="justify-content: normal !important;">
             <button class="header__profile-btn" type="button">
                 <img class="header__profile-icon" id="header__profile_img" alt="Profile (Mr. Trololo)"
                     src="https://profile.line-scdn.net/{{$userWastePref->user->image}}" width="78" height="78">
             </button>
-            <button class="header__notes-btn" type="button" title="Notifications">
-                <span style="font-size: 4em">{{$userWastePref->user->firstname}}</span>
+            <button class="header__notes-btn"    style="flex-direction:column !important;width: 70%; text-align:right;" type="button" title="Notifications">
+                <div style="font-size: 1.9em">{{$userWastePref->user->firstname}}</div>
+                <div style="font-size: 1.6em">{{$userWastePref->user->lastname}}</div>
             </button>
         </header>
         <main>
@@ -726,8 +727,8 @@
                     <span class="sr-only"></span> --}}
                 </button>
                 <div class="main__date">
-                    <img src="{{asset('logo/ko_envsogo.png')}}" alt="" style="width: 35%; margin-top: -3.6rem; position: absolute;">
-                    <strong><span style="">&nbsp;</span><div style="font-size:1.5rem;margin-top: 2rem;
+                    <img src="{{asset('logo/ko_envsogo.png')}}" alt="" style="width: 35%; margin-top: -2.8rem; position: absolute;">
+                    <strong><span style="">&nbsp;</span><div style="font-size:1.5rem;margin-top: 2.8rem;
     border-top: 2px solid white;">Envsogo</div></strong>
                 </div>
                 <button class="main__date-edit-btn" type="button"></button>

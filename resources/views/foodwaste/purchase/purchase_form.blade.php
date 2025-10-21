@@ -66,9 +66,9 @@
                 @csrf
                 <input type="hidden" name="user_id" value="{{ $user->id }}">
                 <div class="row g-3">
-                    <div class="col-md-3 col-10">
+                    <div class="col-md-3 col-9">
                         <label for="kp_units_idfk" class="form-label">ชื่อขยะ:</label>
-                        <select id="kp_itemscode" name="kp_itemscode" class="form-select recyclename" required>
+                        <select id="kp_itemscode" name="kp_itemscode" class="form-select recyclename" required >
                             <option value="">ชื่อขยะ</option>
                             @foreach ($recycleItems as $item)
                                 <option value="{{ $item->kp_itemscode }}" data-id="{{ $item->id }}">{{ $item->kp_itemsname }} | {{ $item->kp_itemscode }}</option>
@@ -77,8 +77,8 @@
 
                         <input type="hidden" name="kp_tbank_item_id" id="kp_tbank_item_id">
                     </div>
-                    <div class="col-md-1 col-2">
-                        <label for="kp_itemscode" class="form-label"> QRCode</label>
+                    <div class="col-md-1 col-3">
+                        <label for="kp_itemscode" class="form-label">QRCode</label>
 
                           <button type="button" class="btn btn-outline-secondary form-control pl-2" data-bs-toggle="modal" data-bs-target="#qrScannerModal">
                                 <i class="fa fa-qrcode"></i>
@@ -91,7 +91,7 @@
                     </div>
                     <div class="col-md-3 col-6">
                         <label for="kp_units_idfk" class="form-label">หน่วยนับ:</label>
-                        <select id="kp_units_idfk" name="kp_units_idfk" class="form-select recyclename" required>
+                        <select id="kp_units_idfk" name="kp_units_idfk" style="width: 30%" class="form-select recyclename" required>
                             <option value="">เลือกหน่วยนับ</option>
                             @foreach ($allUnits as $unit)
                                 <option value="{{ $unit->id }}" {{ $unit->id == 1 ? 'selected' : '' }}>{{ $unit->unitname }}</option>

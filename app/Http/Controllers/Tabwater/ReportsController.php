@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Tabwater;
 use App\Http\Controllers\Controller;
 use App\Exports\ReportOweUserExport;
 use App\Http\Controllers\Api\FunctionsController;
+use App\Models\Admin\ManagesTenantConnection;
 use App\Models\Tabwater\TwInvoiceTemp;
 use App\Models\Tabwater\TwInvoicePeriod;
 use App\Models\Admin\Subzone;
@@ -16,11 +17,9 @@ use App\Models\Admin\BudgetYear;
 use App\Models\Tabwater\TwUsersInfo;
 use App\Exports\DailyReportExport;
 use App\Exports\meterRecordHistoryExport;
-use App\Exports\ReportOweUser;
-use Exception;
-use Maatwebsite\Excel\Exporter;
+use App\Models\Admin\Organization;
+use Illuminate\Support\Facades\Auth;
 use Maatwebsite\Excel\Facades\Excel;
-use PhpParser\Node\Expr\FuncCall;
 
 class ReportsController extends Controller
 {
@@ -44,7 +43,7 @@ class ReportsController extends Controller
         ])->groupBy(['meter_id_fk'])->values();
 
 
-        $budgetyears = (new BudgetYear())->setConnection('envsogo_'.strtolower(session('org_code')))->with([
+        $budgetyears = (new BudgetYear())->setConnection(session('db_conn'))->with([
             'invoicePeriod' => function ($q) {
                 return $q->select('id', 'inv_p_name', 'budgetyear_id', 'status');
             }
@@ -203,7 +202,7 @@ class ReportsController extends Controller
         $zones = Zone::where('status', 'active')->get(['id', 'zone_name']);
         $subzones = Subzone::where('status', 'active')->get(['id', 'subzone_name']);
         $owe_zones =  [];
-        $budgetyears = (new BudgetYear())->setConnection('envsogo_'.strtolower(session('org_code')))->get(['id', 'budgetyear_name', 'status']);
+        $budgetyears = (new BudgetYear())->setConnection(session('db_conn'))->get(['id', 'budgetyear_name', 'status']);
         $inv_periods = TwInvoicePeriod::whereIn('budgetyear_id', $budgetyears_selected)->get(['id', 'inv_p_name']);
 
         $selected_inv_periods = TwInvoicePeriod::whereIn('id', $request->get('inv_period'))->get();
@@ -269,7 +268,7 @@ class ReportsController extends Controller
     }
     public function dailypayment(Request $request)
     {
-        // return $this->aa();
+        ManagesTenantConnection::configConnection(session('db_conn'));
         if (collect($request)->has('excel')) {
             return $this->export($request);
         }
@@ -320,7 +319,7 @@ class ReportsController extends Controller
         $cashier_id         = $request->get('cashier_id');
         $zones          = Zone::all();
         $subzones       = $zone_id != 'all' && $subzone_id != 'all' ? Subzone::all() : 'all';
-        $budgetyears    = (new BudgetYear())->setConnection('envsogo_'.strtolower(session('org_code')))->all();
+        $budgetyears    = (new BudgetYear())->setConnection(session('db_conn'))->all();
         $inv_periods    = TwInvoicePeriod::where('budgetyear_id', $request->get('budgetyear_id'))->orderBy('id', 'desc')->get(['id', 'inv_p_name']);
         $receiptions    = User::whereIn('role_id', [1, 2])->get(['id', 'lastname', 'firstname']);
         if ($request->get('cashier_selected') != "all") {
@@ -328,7 +327,7 @@ class ReportsController extends Controller
         }
         // return $inv_period_id;
         $request_selected = [
-            'budgeryear' => collect((new BudgetYear())->setConnection('envsogo_'.strtolower(session('org_code')))->where('id', $request->get('budgetyear_id'))->get(['budgetyear_name']))->pluck('budgetyear_name'),
+            'budgeryear' => collect((new BudgetYear())->setConnection(session('db_conn'))->where('id', $request->get('budgetyear_id'))->get(['budgetyear_name']))->pluck('budgetyear_name'),
             'inv_period' => $request->get('inv_period_id') == 'all' ? ['ทั้งหมด'] : collect(TwInvoicePeriod::where('id', $request->get('inv_period_id'))->get(['inv_p_name']))->pluck('inv_p_name'),
             'zone' => $request->get('zone_id') == 'all' ? ['ทั้งหมด'] : collect(Zone::where('id', $request->get('zone_id'))->get(['zone_name']))->pluck('zone_name'),
             'subzone' => $request->get('subzone_id') == 'all' ? ['ทั้งหมด'] : collect(Subzone::where('id', $request->get('subzone_id'))->get(['subzone_name']))->pluck('subzone_name'),
@@ -342,6 +341,7 @@ class ReportsController extends Controller
                 }
             })->values();
         }
+        $orgInfos = Organization::getOrgName(Auth::user()->org_id_fk);
         return view('reports.dailypayment', compact(
         'zones',
         'subzones',
@@ -357,7 +357,8 @@ class ReportsController extends Controller
         'inv_periods',
         'todate',
         'fromdate',
-        'inv_period_id'
+        'inv_period_id',
+        'orgInfos',
     ));
         
     }
@@ -405,7 +406,7 @@ class ReportsController extends Controller
         
         $umfs = $umfs->where('status', 'active');
         
-       return $umfs = $umfs->get(['meter_id', 'user_id', 'meter_address', 'submeter_name', 'undertake_zone_id', 'status', 'updated_at']);
+       return $umfs = $umfs->get(['id', 'user_id', 'meter_address', 'submeter_name', 'undertake_zone_id', 'status', 'updated_at']);
         
       
     }
@@ -419,11 +420,11 @@ class ReportsController extends Controller
             $budgetyear_selected_array = $request->get('budgetyear');
             $zone_id_array = $request->get('zone');
         } else {
-            $budgetyear_selected_array = (new BudgetYear())->setConnection('envsogo_'.strtolower(session('org_code')))->where('status', 'active')
+            $budgetyear_selected_array = (new BudgetYear())->setConnection(session('db_conn'))->where('status', 'active')
                 ->get('id')->pluck('id');
         }
         $zones = Zone::all();
-        $budgetyears = (new BudgetYear())->setConnection('envsogo_'.strtolower(session('org_code')))->get(['id', 'budgetyear_name', 'status']);;
+        $budgetyears = (new BudgetYear())->setConnection(session('db_conn'))->get(['id', 'budgetyear_name', 'status']);;
 
         //หารอบบิลที่เปิดใช้งานของ ปีงบประมาณปัจจุบัน
         $active_inv_periods = TwInvoicePeriod::whereIn('budgetyear_id', $budgetyear_selected_array)
@@ -554,7 +555,7 @@ class ReportsController extends Controller
 
         $budgetyears = (new BudgetYear())->setConnection($conn)->where('status', '<>', 'deleted')->get(['id', 'budgetyear_name']);
         $waterUsedInvoiceTable = Db::connection($conn)->table('tw_users_infos as umf')
-            ->join('tw_invoice_temp as inv', 'inv.meter_id_fk', '=', 'umf.meter_id')
+            ->join('tw_invoice_temp as inv', 'inv.meter_id_fk', '=', 'umf.id')
             ->join('tw_invoice_period as ivp', 'ivp.id', '=', 'inv.inv_period_id_fk')
             ->join('budget_year as bgy', 'bgy.id', '=', 'ivp.budgetyear_id')
             ->join('zones as z', 'z.id', '=', 'umf.undertake_zone_id')
@@ -562,7 +563,7 @@ class ReportsController extends Controller
             ->whereIn('inv.inv_period_id_fk', $invPeriod_selected_buggetYear_array);
 
         $waterUsedInvoiceHistoryTable = Db::connection($conn)->table('tw_users_infos as umf')
-            ->join('tw_invoice_history as invh', 'invh.meter_id_fk', '=', 'umf.meter_id')
+            ->join('tw_invoice_history as invh', 'invh.meter_id_fk', '=', 'umf.id')
             ->join('tw_invoice_period as ivp', 'ivp.id', '=', 'invh.inv_period_id_fk')
             ->join('budget_year as bgy', 'bgy.id', '=', 'ivp.budgetyear_id')
             ->join('zones as z', 'z.id', '=', 'umf.undertake_zone_id')

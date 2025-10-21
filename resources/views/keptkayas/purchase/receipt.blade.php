@@ -221,7 +221,7 @@
     </div>
     <br>
     {{-- <img src="{{ asset('/logo/hs_logo.jpg') }}" id="zh_logo" style="opacity: 1"> --}}
-    <canvas id="canvas" width="100" height="100" style="opacity: 1"></canvas>
+    <canvas id="canvas" width="100" height="100" style="opacity: 0"></canvas>
 
     <script>
 
@@ -287,6 +287,7 @@
         const LINE_HEIGHT = FONT_SIZE * 1.5; // Line height for text on canvas
         const MARGIN_X = 10; // Horizontal margin for text on canvas
 
+        const LAST_USED_DEVICE_ID_KEY = 'lastUsedBluetoothDeviceId';
         /**
          * Function to update the status message on the screen.
          * @param {string} message The message to display.
@@ -305,50 +306,124 @@
         /**
          * Function to connect to the Bluetooth printer.
          */
+
         async function connectToPrinter() {
-            updateStatus('กำลังค้นหาเครื่องพิมพ์...');
-            try {
-                // Check if Web Bluetooth API is available
-                if (!navigator.bluetooth) {
-                    updateStatus('เบราว์เซอร์ของคุณไม่รองรับ Web Bluetooth API โปรดใช้ Chrome หรือ Edge.', 'error');
-                    return;
-                }
+    updateStatus('กำลังค้นหาเครื่องพิมพ์...');
 
-                // Request the user to select a Bluetooth device
-                bluetoothDevice = await navigator.bluetooth.requestDevice({
-                    filters: [{ services: [PRINTER_SERVICE_UUID] }], // Filter devices with the specified Service UUID
-                    optionalServices: [] // No optional services needed for now
-                });
+    // 1. ตรวจสอบว่า Web Bluetooth API พร้อมใช้งาน
+    if (!navigator.bluetooth) {
+        updateStatus('เบราว์เซอร์ของคุณไม่รองรับ Web Bluetooth API โปรดใช้ Chrome หรือ Edge.', 'error');
+        return;
+    }
 
-                updateStatus(`กำลังเชื่อมต่อกับ ${bluetoothDevice.name || 'อุปกรณ์ที่ไม่รู้จัก'}...`);
+    try {
+        let selectedDevice = null;
+        const lastDeviceId = localStorage.getItem(LAST_USED_DEVICE_ID_KEY);
 
-                // Connect to the device's GATT Server
-                const server = await bluetoothDevice.gatt.connect();
-
-                // Get the primary service related to printing
-                const service = await server.getPrimaryService(PRINTER_SERVICE_UUID);
-
-                // Get the characteristic used for writing data (printing)
-                printCharacteristic = await service.getCharacteristic(PRINTER_CHARACTERISTIC_UUID);
-
-                updateStatus(`เชื่อมต่อสำเร็จกับ ${bluetoothDevice.name || 'อุปกรณ์ที่ไม่รู้จัก'}!`, 'success');
-                // printTextButton.disabled = false; // Enable direct text print button
-                // printTextButton.classList.remove('btn-disabled');
-                printImageButton.disabled = false; // Enable image print button
-                printImageButton.classList.remove('btn-disabled');
-
-                // Add Event Listener for disconnection
-                bluetoothDevice.addEventListener('gattserverdisconnected', onDisconnected);
-
-            } catch (error) {
-                updateStatus(`การเชื่อมต่อล้มเหลว: ${error.message}`, 'error');
-                console.error('Connection error:', error);
-                // printTextButton.disabled = true; // Disable buttons
-                // printTextButton.classList.add('btn-disabled');
-                printImageButton.disabled = true;
-                printImageButton.classList.add('btn-disabled');
-            }
+        // 2. พยายามดึงอุปกรณ์ที่เคยเชื่อมต่อล่าสุด
+        if (lastDeviceId) {
+            updateStatus('กำลังตรวจสอบอุปกรณ์ที่เคยเชื่อมต่อล่าสุด...');
+            
+            // ใช้ getDevices() เพื่อดึงรายการอุปกรณ์ที่แอปพลิเคชันเคยมีสิทธิ์เข้าถึง
+            const previouslyConnectedDevices = await navigator.bluetooth.getDevices();
+            
+            // ค้นหาอุปกรณ์ที่มี ID ตรงกับที่บันทึกไว้
+            selectedDevice = previouslyConnectedDevices.find(device => device.id === lastDeviceId);
         }
+
+        // 3. ถ้าไม่พบอุปกรณ์ที่เคยเชื่อมต่อ หรือไม่เคยเชื่อมต่อมาก่อน ให้ร้องขออุปกรณ์ใหม่
+        if (!selectedDevice) {
+            updateStatus('ไม่พบอุปกรณ์ที่บันทึกไว้ หรือการเชื่อมต่อครั้งแรก กำลังร้องขอให้เลือกอุปกรณ์...');
+            
+            // Request the user to select a Bluetooth device
+            selectedDevice = await navigator.bluetooth.requestDevice({
+                filters: [{ services: [PRINTER_SERVICE_UUID] }],
+                optionalServices: []
+            });
+
+            // 💡 4. เก็บ ID ของอุปกรณ์ที่เลือก/เชื่อมต่อสำเร็จลงใน Local Storage
+            localStorage.setItem(LAST_USED_DEVICE_ID_KEY, selectedDevice.id);
+        } else {
+            updateStatus(`กำลังเชื่อมต่ออัตโนมัติกับอุปกรณ์ ${selectedDevice.name || 'ที่ไม่รู้จัก'}...`);
+        }
+        
+        // กำหนดให้อุปกรณ์ที่เลือก/พบ เป็น bluetoothDevice สำหรับฟังก์ชันอื่นๆ
+        bluetoothDevice = selectedDevice;
+
+        // 5. ดำเนินการเชื่อมต่อ GATT Server
+        const server = await bluetoothDevice.gatt.connect();
+
+        // Get the primary service related to printing
+        const service = await server.getPrimaryService(PRINTER_SERVICE_UUID);
+
+        // Get the characteristic used for writing data (printing)
+        printCharacteristic = await service.getCharacteristic(PRINTER_CHARACTERISTIC_UUID);
+
+        updateStatus(`เชื่อมต่อสำเร็จกับ ${bluetoothDevice.name || 'อุปกรณ์ที่ไม่รู้จัก'}!`, 'success');
+        printImageButton.disabled = false;
+        printImageButton.classList.remove('btn-disabled');
+
+        // Add Event Listener for disconnection
+        bluetoothDevice.addEventListener('gattserverdisconnected', onDisconnected);
+
+    } catch (error) {
+        updateStatus(`การเชื่อมต่อล้มเหลว: ${error.message}`, 'error');
+        console.error('Connection error:', error);
+        
+        // ถ้าเกิด Error ในระหว่างเชื่อมต่ออัตโนมัติ ให้ลบ ID ออก
+        if (lastDeviceId && bluetoothDevice && bluetoothDevice.id === lastDeviceId) {
+             localStorage.removeItem(LAST_USED_DEVICE_ID_KEY);
+             updateStatus('ลบอุปกรณ์ที่บันทึกไว้ออกจากหน่วยความจำแล้ว', 'info');
+        }
+
+        printImageButton.disabled = true;
+        printImageButton.classList.add('btn-disabled');
+    }
+}
+        // async function connectToPrinter() {
+        //     updateStatus('กำลังค้นหาเครื่องพิมพ์...');
+        //     try {
+        //         // Check if Web Bluetooth API is available
+        //         if (!navigator.bluetooth) {
+        //             updateStatus('เบราว์เซอร์ของคุณไม่รองรับ Web Bluetooth API โปรดใช้ Chrome หรือ Edge.', 'error');
+        //             return;
+        //         }
+
+        //         // Request the user to select a Bluetooth device
+        //         bluetoothDevice = await navigator.bluetooth.requestDevice({
+        //             filters: [{ services: [PRINTER_SERVICE_UUID] }], // Filter devices with the specified Service UUID
+        //             optionalServices: [] // No optional services needed for now
+        //         });
+
+        //         updateStatus(`กำลังเชื่อมต่อกับ ${bluetoothDevice.name || 'อุปกรณ์ที่ไม่รู้จัก'}...`);
+
+        //         // Connect to the device's GATT Server
+        //         const server = await bluetoothDevice.gatt.connect();
+
+        //         // Get the primary service related to printing
+        //         const service = await server.getPrimaryService(PRINTER_SERVICE_UUID);
+
+        //         // Get the characteristic used for writing data (printing)
+        //         printCharacteristic = await service.getCharacteristic(PRINTER_CHARACTERISTIC_UUID);
+
+        //         updateStatus(`เชื่อมต่อสำเร็จกับ ${bluetoothDevice.name || 'อุปกรณ์ที่ไม่รู้จัก'}!`, 'success');
+        //         // printTextButton.disabled = false; // Enable direct text print button
+        //         // printTextButton.classList.remove('btn-disabled');
+        //         printImageButton.disabled = false; // Enable image print button
+        //         printImageButton.classList.remove('btn-disabled');
+
+        //         // Add Event Listener for disconnection
+        //         bluetoothDevice.addEventListener('gattserverdisconnected', onDisconnected);
+
+        //     } catch (error) {
+        //         updateStatus(`การเชื่อมต่อล้มเหลว: ${error.message}`, 'error');
+        //         console.error('Connection error:', error);
+        //         // printTextButton.disabled = true; // Disable buttons
+        //         // printTextButton.classList.add('btn-disabled');
+        //         printImageButton.disabled = true;
+        //         printImageButton.classList.add('btn-disabled');
+        //     }
+        // }
 
         /**
          * Function to be called when the printer disconnects.

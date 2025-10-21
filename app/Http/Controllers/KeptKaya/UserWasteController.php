@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\KeptKaya;
 
 use App\Http\Controllers\Controller;
+use App\Models\Admin\ManagesTenantConnection;
 use App\Models\Keptkaya\KpUserGroup;
 use App\Models\KeptKaya\UserWastePreference;
 use App\Models\User;
@@ -25,6 +26,8 @@ class UserWasteController extends Controller
      */
     public function index(Request $request)
     {
+        ManagesTenantConnection::configConnection(session('db_conn'));
+
         // Get the 'per_page' value from the request, default to 10
         $perPage = $request->input('per_page', 10);
 
@@ -42,7 +45,8 @@ class UserWasteController extends Controller
         $searchIsWasteBank = $request->input('search_is_waste_bank'); // 'true', 'false', 'any'
 
 
-        $query = User::with(['wastePreference', 'wasteBins']);
+        $query = User::with(['wastePreference', 'wasteBins'])
+        ->role('User');
 
         // Apply search filters
         $query->when($searchName, function ($q, $name) {
@@ -260,6 +264,7 @@ class UserWasteController extends Controller
      */
     public function edit(User $user)
     {
+        
         return view('users.edit', compact('user'));
     }
 

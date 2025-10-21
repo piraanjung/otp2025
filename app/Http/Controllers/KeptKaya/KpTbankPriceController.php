@@ -21,10 +21,12 @@ class KpTbankPriceController extends Controller
      */
     public function index()
     {
-        $prices = KpTbankItemsPriceAndPoint::with(['item', 'kp_units_info'])
+        return session('db_conn');
+        $prices = (new KpTbankItemsPriceAndPoint())->setConnection(session('db_conn'))
+            ->with(['item', 'kp_units_info'])
             ->orderByDesc('effective_date')
             ->paginate(20);
-        return view('keptkaya.tbank.prices.index', compact('prices'));
+        return view('keptkayas.tbank.prices.index', compact('prices'));
     }
 
     /**
@@ -37,7 +39,7 @@ class KpTbankPriceController extends Controller
         $units = KpTbankUnits::all();
         $recorders = Staff::all();
 
-        return view('keptkaya.tbank.prices.create', compact('price', 'items', 'units', 'recorders'));
+        return view('keptkayas.tbank.prices.create', compact('price', 'items', 'units', 'recorders'));
     }
 
     /**
@@ -95,7 +97,7 @@ class KpTbankPriceController extends Controller
 
 
 
-        return redirect()->route('keptkaya.tbank.prices.index')
+        return redirect()->route('keptkayas.tbank.prices.index')
             ->with('success', 'ราคารับซื้อถูกสร้างเรียบร้อยแล้ว');
         // } catch (\Exception $e) {
         //     return back()->with('error', 'เกิดข้อผิดพลาดในการบันทึกราคา: ' . $e->getMessage())->withInput();
@@ -110,7 +112,7 @@ class KpTbankPriceController extends Controller
         $items = KpTbankItems::all();
         $units = KpTbankUnits::all();
         $recorders = User::all();
-        return view('keptkaya.tbank.prices.edit', compact('price', 'items', 'units', 'recorders'));
+        return view('keptkayas.tbank.prices.edit', compact('price', 'items', 'units', 'recorders'));
     }
 
     /**
@@ -141,7 +143,7 @@ class KpTbankPriceController extends Controller
             ]));
 
             DB::commit();
-            return redirect()->route('keptkaya.tbank.prices.index')
+            return redirect()->route('keptkayas.tbank.prices.index')
                 ->with('success', 'ราคารับซื้อถูกอัปเดตเรียบร้อยแล้ว');
         } catch (\Exception $e) {
             DB::rollBack();
@@ -158,7 +160,7 @@ class KpTbankPriceController extends Controller
         // ...
 
         $price->delete();
-        return redirect()->route('keptkaya.tbank.prices.index')
+        return redirect()->route('keptkayas.tbank.prices.index')
             ->with('success', 'ราคารับซื้อถูกลบเรียบร้อยแล้ว');
     }
 }

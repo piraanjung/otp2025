@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Tabwater;
 
 use App\Http\Controllers\Controller;
 use App\Http\Controllers\FunctionsController;
+use App\Models\Admin\ManagesTenantConnection;
 use App\Models\Admin\Organization;
 use App\Models\Tabwater\Invoice;
 use App\Models\Tabwater\InvoicePeriod;
@@ -22,6 +23,7 @@ class StaffMobileController extends Controller
 {
     public function index()
     {
+        ManagesTenantConnection::configConnection(session('db_conn'));
         $staff = User::where('id', Auth::id())
             ->with([
                 'undertaker_subzone',

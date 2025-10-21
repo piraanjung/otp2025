@@ -13,9 +13,9 @@
   <meta name="viewport"
     content="user-scalable=no, initial-scale=1, maximum-scale=1, minimum-scale=1, width=device-width, height=device-height" />
 
-  <link rel="stylesheet" href="{{asset('/adminlte/dist/css/adminlte.min.css')}}" />
+  <link rel="stylesheet" href="{{asset('adminlte/dist/css/adminlte.min.css')}}" />
   
-  <title>BTPrinter Plugin Demo</title>
+  <title>Envsogo::Tabwater Mobile</title>
   <style>
     .hidden {
       display: none;
@@ -27,7 +27,7 @@
   <div id="wrapper">
 
     <div id="nav">
-      @include('twmanmobile.nav')
+      {{-- @include('twmanmobile.nav') --}}
     </div>
     <!-- Page Content -->
     <div id="page-content-wrapper" class="wrapper">
@@ -35,7 +35,7 @@
 
         <div class="card card-widget widget-user">
 
-          <div class="widget-user-header text-white" style="background: url('{{asset('/adminlte/dist/img/photo1.png')}}') center center;">
+          <div class="widget-user-header text-white" style="background: url('{{asset('Applight/images/user1.jpg')}}') center center;">
             <h3 class="widget-user-username text-right">งานประปา</h3>
             <h5 class="widget-user-desc text-right">หน้าหลัก</h5>
           </div>
@@ -53,7 +53,7 @@
           <div class="card">
             <div class="card-body">
               <div class="user-block">
-                <img class="img-circle img-bordered-sm" src="{{asset('/adminlte/dist/img/user1-128x128.jpg')}}" alt="user image">
+                <img class="img-circle img-bordered-sm" src="{{asset('Applight/images/user1.jpg')}}" alt="user image">
                 <span class="username">
                   <a href="#" class="twman_name"></a>
                 </span>
@@ -95,26 +95,27 @@
         // $("#nav").load("nav.blade.php");
 
 
-        twman = JSON.parse(window.localStorage.getItem('twman'));
+        // twman = JSON.parse(window.localStorage.getItem('twman'));
         //inv_period = '08-69'// JSON.parse(window.localStorage.getItem("inv_period"))
       
 
        // let logo = window.localStorage.getItem("logo")
       //  $('.orglogo').prop('src','img/'+logo)
-        $('.twman_name').html(`${twman.prefix}${twman.firstname} ${twman.lastname}`)
+        // $('.twman_name').html(`${twman.prefix}${twman.firstname} ${twman.lastname}`)
        window.localStorage.removeItem('membersLocalStorage')
-        // let params = {
-        //   username: twman.username,
-        //   passwords: '123456',
-        //   user_cate_id: 5,
-        // };
-        // await $.post(`${API_URL}/api/users/authen`, params, function (response) {
-        //   let res = JSON.parse(JSON.stringify(response));
-        //   console.log("res2", res);
-        //   twman = res.data;
-        //   window.localStorage.removeItem('twman')
-        //   window.localStorage.setItem("twman", JSON.stringify(twman));
-        // });
+        let params = {
+          username:'twman4',
+          passwords: 'tw1234',
+          user_cate_id: 5,
+        };
+        let API_URL = "http://localhost:8000";
+        await $.post(`${API_URL}/api/users/authen`, params, function (response) {
+          // let res = JSON.parse(JSON.stringify(response));
+          // console.log("res2", res);
+          twman = response.data;
+          window.localStorage.removeItem('twman')
+          window.localStorage.setItem("twman", JSON.stringify(twman));
+        });
 
         // if (membersInitStatus !== null) {
         // } else {

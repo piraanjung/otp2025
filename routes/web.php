@@ -31,6 +31,7 @@ use App\Http\Controllers\StaffController;
 use App\Http\Controllers\Tabwater\TwManMobileController;
 use App\Http\Controllers\Tabwater\TwPricingTypeController;
 use App\Http\Controllers\Tabwater\UndertakerSubzoneController;
+use App\Models\User;
 
 Route::get('/', function () {
     return view('welcome');
@@ -77,13 +78,13 @@ Route::get('/accessmenu', [AccessMenusController::class, 'accessmenu'])->middlew
 Route::get('/dashboard', [AccessMenusController::class, 'dashboard'])->middleware(['auth'])->name('dashboard');
 
 Route::get('/lineliff', [LineLiffController::class, 'index'])->name('lineliff.index');
-Route::get('/line/dashboard/{user_waste_pref_id}/{reg?}', [LineLiffController::class , 'dashboard']);
+Route::get('/line/dashboard/{user_waste_pref_id}/{org_id}/{regis?}', [LineLiffController::class , 'dashboard']);
 Route::post('/line/fine_line_id', [LineLiffController::class , 'fine_line_id']);
 Route::post('/line/update_user_by_phone', [LineLiffController::class , 'update_user_by_phone']);
 Route::post('/line/login', [LineLiffController::class , 'handleLineLogin']);
 
 
-Route::get('/staff_accessmenu', [AccessMenusController::class, 'staff_accessmenu'])->middleware(['auth', 'permission:access waste bank mobile'])->name('staff_accessmenu');
+Route::get('/staff_accessmenu', [AccessMenusController::class, 'staff_accessmenu'])->middleware(['auth'])->name('staff_accessmenu');
 
 Route::prefix('staffs')->name('keptkayas.staffs.')->group(function () {
     Route::get('/', [StaffController::class, 'index'])->name('index');
@@ -123,23 +124,26 @@ Route::middleware(['auth', 'role:Admin|Super Admin'])->name('admin.')->prefix('a
     Route::delete('/permissions/{permission}/roles/{role}', [PermissionController::class, 'removeRole'])->name('permissions.roles.remove');
     Route::resource('/permissions', PermissionController::class);
 
-    Route::get('/users', [UserController::class, 'index'])->name('users.index');
-    Route::get('/users/staff', [UserController::class, 'staff'])->name('users.staff');
-    Route::get('/users/create', [UserController::class, 'create'])->name('users.create');
-    Route::get('/users/{user_id}/edit/{addmeter?}', [UserController::class, 'edit'])->name('users.edit');
-    Route::post('/users/store', [UserController::class, 'store'])->name('users.store');
-    Route::post('/users/users_search', [UserController::class, 'users_search'])->name('users.users_search');
-    Route::put('/users/{user_id}/update', [UserController::class, 'update'])->name('users.update');
-    Route::get('/users/{user}', [UserController::class, 'show'])->name('users.show');
-    Route::get('/users/{user_id}/cancel', [UserController::class, 'cancel'])->name('users.cancel');
-    // Route::delete('/users/{user}', [UserController::class, 'destroy'])->name('users.destroy');
-    Route::delete('/users/{meter_id}/destroy', [UserController::class, 'destroy'])->name('users.destroy');
-    Route::get('/users/{user}/history', [UserController::class, 'history'])->name('users.history');
-    Route::post('/users/{user}/roles', [UserController::class, 'assignRole'])->name('users.roles');
-    Route::delete('/users/{user}/roles/{role}', [UserController::class, 'removeRole'])->name('users.roles.remove');
-    Route::post('/users/{user}/permissions', [UserController::class, 'givePermission'])->name('users.permissions');
-    Route::delete('/users/{user}/permissions/{permission}', [UserController::class, 'revokePermission'])->name('users.permissions.revoke');
+    Route::prefix('users/')->name('users.')->group(function(){
+        Route::get('', [UserController::class, 'index'])->name('index');
+        Route::get('staff', [UserController::class, 'staff'])->name('staff');
+        Route::get('create', [UserController::class, 'create'])->name('create');
+        Route::get('{user_id}/edit/{addmeter?}', [UserController::class, 'edit'])->name('edit');
+        Route::post('store', [UserController::class, 'store'])->name('store');
+        Route::post('users_search', [UserController::class, 'users_search'])->name('users_search');
+        Route::put('{user_id}/update', [UserController::class, 'update'])->name('update');
+        Route::get('{user}', [UserController::class, 'show'])->name('show');
+        Route::get('{user_id}/cancel', [UserController::class, 'cancel'])->name('cancel');
+        // Route::delete('{user}', [UserController::class, 'destroy'])->name('destroy');
+        Route::delete('{meter_id}/destroy', [UserController::class, 'destroy'])->name('destroy');
+        Route::get('{user}/history', [UserController::class, 'history'])->name('history');
+        Route::post('{user}/roles', [UserController::class, 'assignRole'])->name('roles');
+        Route::delete('{user}/roles/{role}', [UserController::class, 'removeRole'])->name('roles.remove');
+        Route::get('{user_id}/permissions', [UserController::class, 'givePermission'])->name('permissions');
+        Route::delete('{user}/permissions/{permission}', [UserController::class, 'revokePermission'])->name('permissions.revoke');
 
+    });
+    
     Route::resource('/invoice_period', InvoicePeriodController::class);
     Route::get('/metertype/{metertype_id}/infos', [MetertypeController::class, 'infos'])->name('metertype.infos');
 
@@ -170,7 +174,7 @@ Route::middleware(['auth', 'role:Admin|Super Admin'])->name('admin.')->prefix('a
     Route::resource('meter_rates', MeterRateConfigController::class);
     Route::resource('pricing_types', TwPricingTypeController::class);
 
-    // Route::prefix('settings')->name('settings.')->group(function () {
+     Route::prefix('settings')->name('settings.')->group(function () {
     //     Route::get('/', [SuperAdminSettingsController::class, 'showSettingsForm'])->name('settings_form');
 
     //     Route::post('/import-provinces', [SuperAdminSettingsController::class, 'importProvinces'])->name('import.provinces');
@@ -201,7 +205,7 @@ Route::middleware(['auth', 'role:Admin|Super Admin'])->name('admin.')->prefix('a
     //     // Routes สำหรับ Import/Export TwMeters
     //     Route::post('/import-twmeters', [SuperAdminSettingsController::class, 'importTwMeters'])->name('import.tw_meters');
     //     Route::get('/export-twmeters', [SuperAdminSettingsController::class, 'exportTwMeters'])->name('export.tw_meters');
-    // });
+     });
 
 
     Route::get('undertaker_subzone', [UndertakerSubzoneController::class, 'index'])->name('undertaker_subzone');
@@ -214,37 +218,44 @@ Route::middleware(['auth', 'role:Admin|Super Admin'])->name('admin.')->prefix('a
 
 
 Route::middleware(['auth', 'role:Admin|finance|Super Admin'])->group(function () {
-    Route::get('/payment/paymenthistory/{inv_period}/{subzone_id}', [PaymentController::class, 'paymenthistory'])->name('payment.paymenthistory');
-    Route::match(['get', 'post'], '/payment/search', [PaymentController::class, 'search'])->name('payment.search');
-    Route::delete('/payment/acc_trans_id_fk/destroy', [PaymentController::class, 'destroy'])->name('payment.destroy');
-    Route::post('/payment/index_search_by_suzone', [PaymentController::class, 'index_search_by_suzone'])->name('payment.index_search_by_suzone');
-    Route::get('/payment/receipt_print/{account_id_fk?}/{payments?}', [PaymentController::class, 'receipt_print'])->name('payment.receipt_print');
-    Route::get('/payment/receipt_print_history/{account_id_fk?}', [PaymentController::class, 'receipt_print_history'])->name('payment.receipt_print_history');
-    Route::post('/payment/store_by_inv_no', [PaymentController::class, 'store_by_inv_no'])->name('payment.store_by_inv_no');
+    Route::prefix('payment/')->name('payment.')->group(function(){
+        Route::get('paymenthistory/{inv_period}/{subzone_id}', [PaymentController::class, 'paymenthistory'])->name('paymenthistory');
+        Route::match(['get', 'post'], 'search', [PaymentController::class, 'search'])->name('search');
+        Route::delete('acc_trans_id_fk/destroy', [PaymentController::class, 'destroy'])->name('destroy');
+        Route::post('index_search_by_suzone', [PaymentController::class, 'index_search_by_suzone'])->name('index_search_by_suzone');
+        Route::get('receipt_print/{account_id_fk?}/{payments?}', [PaymentController::class, 'receipt_print'])->name('receipt_print');
+        Route::get('receipt_print_history/{account_id_fk?}', [PaymentController::class, 'receipt_print_history'])->name('receipt_print_history');
+        Route::post('store_by_inv_no', [PaymentController::class, 'store_by_inv_no'])->name('store_by_inv_no');
 
-    Route::resource('/payment', PaymentController::class);
-    Route::resource('/invoice', InvoiceController::class);
+        Route::resource('', PaymentController::class);
+    });
+    
 
-    Route::get('/invoice/{subzone_id}/zone_edit/{curr_inv_prd}', [InvoiceController::class, 'zone_edit'])->name('invoice.zone_edit');
-    Route::get('/invoice/{subzone_id}/zone_update', [InvoiceController::class, 'zone_update'])->name('invoice.zone_update');
-    Route::post('/invoice/zone_update', [InvoiceController::class, 'zone_update'])->name('invoice.zone_update');
-    Route::get('/invoice/{subzone_id}/invoiced_lists', [InvoiceController::class, 'invoiced_lists'])->name('invoice.invoiced_lists');
-    Route::get('/invoice/reset_invioce_bill/{inv_id}', [InvoiceController::class, 'reset_invioce_bill'])->name('invoice.reset_invioce_bill');
-    Route::post('invoice/print_multi_invoice', [InvoiceController::class, 'print_multi_invoice'])->name('invoice.print_multi_invoice');
-    Route::post('invoice/delete_duplicate_inv', [InvoiceController::class, 'delete_duplicate_inv'])->name('invoice.delete_duplicate_inv');
-    Route::get('invoice/print_invoice/{zone_id}/{curr_inv_prd}', [InvoiceController::class, 'print_invoice'])->name('invoice.print_invoice');
-    Route::post('invoice/invoice_bill_print', [InvoiceController::class, 'invoice_bill_print'])->name('invoice.invoice_bill_print');
+    Route::prefix('invoice/')->name('invoice.')->group(function(){
+        Route::resource('', InvoiceController::class);
+        Route::get('get_user_invoice/{user_id}/{status?}', [InvoiceController::class, 'get_user_invoice'])->name('get_user_invoice');
+        Route::get('{subzone_id}/zone_edit/{curr_inv_prd}', [InvoiceController::class, 'zone_edit'])->name('zone_edit');
+        Route::get('{subzone_id}/zone_update', [InvoiceController::class, 'zone_update'])->name('zone_update');
+        Route::post('zone_update', [InvoiceController::class, 'zone_update'])->name('zone_update');
+        Route::get('{subzone_id}/invoiced_lists', [InvoiceController::class, 'invoiced_lists'])->name('invoiced_lists');
+        Route::get('reset_invioce_bill/{inv_id}', [InvoiceController::class, 'reset_invioce_bill'])->name('reset_invioce_bill');
+        Route::post('print_multi_invoice', [InvoiceController::class, 'print_multi_invoice'])->name('print_multi_invoice');
+        Route::post('delete_duplicate_inv', [InvoiceController::class, 'delete_duplicate_inv'])->name('delete_duplicate_inv');
+        Route::get('print_invoice/{zone_id}/{curr_inv_prd}', [InvoiceController::class, 'print_invoice'])->name('print_invoice');
+        Route::post('invoice_bill_print', [InvoiceController::class, 'invoice_bill_print'])->name('invoice_bill_print');
+        Route::get('get_invoice_and_invoice_history/{meter_id}/{status?}', [InvoiceController::class,'get_invoice_and_invoice_history' ])->name('get_invoice_and_invoice_history');
+    });
 
-
-    Route::post('reports/export', [ReportsController::class, 'export'])->name('reports.export');
-
-    Route::get('reports/owe', [ReportsController::class, 'owe'])->name('reports.owe');
-    Route::get('reports/ledger', [ReportsController::class, 'ledger'])->name('reports.ledger');
-    Route::get('reports/water_used/{from?}', [ReportsController::class, 'water_used'])->name('reports.water_used');
-    Route::post('reports/dailypayment', [ReportsController::class, 'dailypayment'])->name('reports.dailypayment');
-    Route::get('reports/dailypayment2', [ReportsController::class, 'dailypayment2'])->name('reports.dailypayment2');
-    Route::post('reports/owe_search', [ReportsController::class, 'owe_search'])->name('reports.owe_search');
-    Route::get('/meter_record_history/{budgetyear?}/{zone_id?}', [ReportsController::class, 'meter_record_history'])->name('reports.meter_record_history');
+    Route::prefix('reports/')->name('reports.')->group(function(){
+        Route::post('export', [ReportsController::class, 'export'])->name('export');
+        Route::get('owe', [ReportsController::class, 'owe'])->name('owe');
+        Route::get('ledger', [ReportsController::class, 'ledger'])->name('ledger');
+        Route::get('water_used/{from?}', [ReportsController::class, 'water_used'])->name('water_used');
+        Route::post('dailypayment', [ReportsController::class, 'dailypayment'])->name('dailypayment');
+        Route::get('dailypayment2', [ReportsController::class, 'dailypayment2'])->name('dailypayment2');
+        Route::post('owe_search', [ReportsController::class, 'owe_search'])->name('owe_search');
+        Route::get('meter_record_history/{budgetyear?}/{zone_id?}', [ReportsController::class, 'meter_record_history'])->name('meter_record_history');
+    });
 });
 
 Route::group(['middleware' => ['role:Admin|tabwater|Super Admin']], function () {

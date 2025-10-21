@@ -13,7 +13,6 @@
 
 
 
-    {{-- <link href="https://fonts.googleapis.com/css?family=Open+Sans:300,400,600,700" rel="stylesheet" /> --}}
     <link href="https://fonts.googleapis.com/css2?family=Sarabun:ital,wght@0,500;0,700;1,400;1,500&display=swap"
         rel="stylesheet">
     <link href="{{ asset('soft-ui/assets/css/nucleo-icons.css') }}" rel="stylesheet" />
@@ -24,7 +23,7 @@
     <link id="pagestyle" href="{{ asset('soft-ui/assets/css/soft-ui-dashboard.min.css') }}" rel="stylesheet" />
     <link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.15.4/css/all.css"
         integrity="sha384-DyZ88mC6Up2uqS4h/KRgHuoeGwBcD4Ng9SiP4dIRy0EXTlnuz47vAwmeGwVChigm" crossorigin="anonymous" />
-    <script src="{{ asset('adminlte/plugins/jquery/jquery.js') }}"></script>
+
     <style>
         body{
              font-family: "Sarabun", sans-serif;
@@ -333,21 +332,11 @@
                 <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
             </div>
         @endif
-            {{-- @if (Session::has('message'))
-                <div class="alert alert-{{ Session::get('color') }} alert-block" id="alert_message">
-                    <strong>{{ Session::get('message') }}</strong>
-                </div>
-            @endif --}}
             @yield('content')
         </div>
     </main>
 
-    <script src="{{ asset('soft-ui/assets/js/core/popper.min.js') }}"></script>
-    <script src="{{ asset('soft-ui/assets/js/core/bootstrap.min.js') }}"></script>
-    <script src="{{ asset('soft-ui/assets/js/plugins/perfect-scrollbar.min.js') }}"></script>
-    <script src="{{ asset('soft-ui/assets/js/plugins/smooth-scrollbar.min.js') }}"></script>
-    <script src="{{ asset('soft-ui/assets/js/soft-ui-dashboard.min.js') }}"></script>
-
+   
 
     @yield('script')
 
@@ -359,6 +348,11 @@
             $('.alert').hide()
         })
     </script>
+    <script src="{{ asset('soft-ui/assets/js/core/popper.min.js') }}"></script>
+    <script src="{{ asset('soft-ui/assets/js/core/bootstrap.min.js') }}"></script>
+    <script src="{{ asset('soft-ui/assets/js/plugins/perfect-scrollbar.min.js') }}"></script>
+    <script src="{{ asset('soft-ui/assets/js/plugins/smooth-scrollbar.min.js') }}"></script>
+    <script src="{{ asset('soft-ui/assets/js/soft-ui-dashboard.min.js') }}"></script>
 
 </body>
 

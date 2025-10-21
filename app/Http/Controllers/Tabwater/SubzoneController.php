@@ -3,14 +3,16 @@
 namespace App\Http\Controllers\Tabwater;
 
 use App\Http\Controllers\Controller;
-use App\Models\Subzone;
-use App\Models\Zone;
+use App\Models\Admin\ManagesTenantConnection;
+use App\Models\Admin\Subzone;
+use App\Models\Admin\Zone;
 use Illuminate\Http\Request;
 
 class SubzoneController extends Controller
 {
     public function edit(Subzone $subzone)
     {
+        ManagesTenantConnection::configConnection(session('db_conn'));
         $zone = Zone::where('id', $subzone->id)->with([
             'subzone' => function ($query) {
                 return $query->where('status', 'active');

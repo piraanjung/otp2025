@@ -5,7 +5,7 @@
 
 @elsecan('access tabwater2')
     @php
-        $layout = 'layouts.keptkaya_mobile';
+        $layout = 'layouts.keptkaya';
      @endphp
 @endcan
 @extends($layout)

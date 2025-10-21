@@ -12,22 +12,24 @@ use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\Api\IoTBoxDataController;
 
 use App\Http\Controllers\Api\OcrController;
+use App\Http\Controllers\FunctionsController;
+use App\Http\Controllers\Api\FunctionsController as apiFunctionsController;
 use App\Http\Controllers\ImageController;
 use App\Http\Controllers\KeptKaya\MachineController;
 
 // Endpoint สำหรับ Frontend (Browser) เพื่อส่งคำสั่ง "Start" ไปยัง ESP8266
-Route::post('/device/start-sale', [DeviceController::class, 'startSale']); 
-Route::get('/device/check-bottle-status', [DeviceController::class, 'checkBottleStatus']); 
-Route::post('/bottle/upload-photo', [ImageController::class, 'uploadPhoto']); 
+Route::post('/device/start-sale', [DeviceController::class, 'startSale']);
+Route::get('/device/check-bottle-status', [DeviceController::class, 'checkBottleStatus']);
+Route::post('/bottle/upload-photo', [ImageController::class, 'uploadPhoto']);
 // 1. Endpoint ที่ Web ใช้ Polling (GET) - อ่านค่า status จาก Server
 Route::get('/device/check-object-status', [DeviceController::class, 'getSensorStatus']);
 Route::get('/device/config-price-points', [DeviceController::class, 'configPricePoints']);
- Route::get('/device/status', [MachineController::class, 'getMachineStatus']); 
+Route::get('/device/status', [MachineController::class, 'getMachineStatus']);
 // 2. Endpoint ที่ Web ใช้ส่งคำสั่ง (POST) - ส่งค่า reject/accept ไปยัง Server
 // Route::post('/device/control', [DeviceController::class, 'receiveControlSignal']);
-    Route::get('/device/get_command', [MachineController::class, 'getEspCommand']); 
-    Route::post('/device/notify', [MachineController::class, 'handleEspWakeup']);
-    Route::post('/device/command', [MachineController::class, 'saveAiCommand']);
+Route::get('/device/get_command', [MachineController::class, 'getEspCommand']);
+Route::post('/device/notify', [MachineController::class, 'handleEspWakeup']);
+Route::post('/device/command', [MachineController::class, 'saveAiCommand']);
 Route::post('/machine/update-status', [MachineController::class, 'updateMachineStatus'])->name('api.machine.update.status');
 Route::post('/device/control', [MachineController::class, 'controlDevice'])->name('api.device.control');
 Route::get('/device/get-control/{machine_id}', [MachineController::class, 'getControlCommand']);
@@ -40,10 +42,10 @@ Route::post('/device/update-status', [DeviceController::class, 'updateStatus']);
 
 Route::post('/ocr', [OcrController::class, 'readMeter']);
 Route::get('/line', [LineController::class, 'index'])->name('lineliff.index');
-Route::post('/line/fine_line_id', [LineController::class , 'fine_line_id']);
-Route::get('/line/user_qrcode', [LineController::class , 'user_qrcode']);
-Route::post('/line/update_user_by_phone', [LineController::class , 'update_user_by_phone']);
-Route::get('/line/dashboard/{user_waste_pref_id}', [LineController::class , 'dashboard']);
+Route::post('/line/fine_line_id', [LineController::class, 'fine_line_id']);
+Route::get('/line/user_qrcode', [LineController::class, 'user_qrcode']);
+Route::post('/line/update_user_by_phone', [LineController::class, 'update_user_by_phone']);
+Route::get('/line/dashboard/{user_waste_pref_id}/{db_conn}', [LineController::class, 'dashboard']);
 
 Route::get('/sensor_data', [IoTBoxDataController::class, 'store']);
 
@@ -59,15 +61,15 @@ Route::middleware(['throttle:api'])->name('api.')->group(function () {
     });
 
     Route::prefix('zone')->group(function () {
-        Route::get('/', [ZoneController::class,'index']);
-        Route::delete('/delete/{id}', [ZoneController::class,'delete'])->name('zone.delete');
-        Route::get('/getzone_and_subzone', [ZoneController::class,'getZoneAndSubzone']);
-        Route::get('/users_by_zone/{zone_id}', [ZoneController::class,'users_by_zone']);
-        Route::get('/undertakenZoneAndSubzone/{id}', [ZoneController::class,'undertakenZoneAndSubzone']);
+        Route::get('/', [ZoneController::class, 'index']);
+        Route::delete('/delete/{id}', [ZoneController::class, 'delete'])->name('zone.delete');
+        Route::get('/getzone_and_subzone', [ZoneController::class, 'getZoneAndSubzone']);
+        Route::get('/users_by_zone/{zone_id}', [ZoneController::class, 'users_by_zone']);
+        Route::get('/undertakenZoneAndSubzone/{id}', [ZoneController::class, 'undertakenZoneAndSubzone']);
     });
 
     Route::prefix('users')->group(function () {
-        Route::get('/', [UsersController::class,'index']);
+        Route::get('/', [UsersController::class, 'index']);
         Route::get('/users', [UsersController::class, 'users']);
         Route::get('/user/{user_id}', [UsersController::class, 'user']);
         Route::get('/check_line_id/{id}', [UsersController::class, 'check_line_id']);
@@ -86,7 +88,6 @@ Route::middleware(['throttle:api'])->name('api.')->group(function () {
 
 
         Route::post('/authen', [UsersController::class, 'authen']);
-
     });
 
     Route::prefix('invoice')->group(function () {
@@ -107,8 +108,8 @@ Route::middleware(['throttle:api'])->name('api.')->group(function () {
         Route::get('/checkInvoice/{inv_id}', [InvoiceController::class, 'checkInvoice']);
         Route::get('/zone_edit/{zone}', [InvoiceController::class, 'zone_edit']);
         Route::get('/invoiced_lists/{subzone_id}', [InvoiceController::class, 'invoiced_lists']);
-        Route::get('/get_invoice_and_invoice_history/{meter_id}/{status?}', [InvoiceController::class,'get_invoice_and_invoice_history' ])->name('invoice.get_invoice_and_invoice_history');
-        Route::get('/paid_by_bank_slip/{inv_id}/{paid}/{meter_id}',[InvoiceController::class,'paid_by_bank_slip' ]);
+        Route::get('/get_invoice_and_invoice_history/{meter_id}/{status?}', [InvoiceController::class, 'get_invoice_and_invoice_history'])->name('invoice.get_invoice_and_invoice_history');
+        Route::get('/paid_by_bank_slip/{inv_id}/{paid}/{meter_id}', [InvoiceController::class, 'paid_by_bank_slip']);
         // Route::post('/paid_by_bank_slip',[InvoiceController::class,'paid_by_bank_slip' ]);
     });
 
@@ -119,10 +120,14 @@ Route::middleware(['throttle:api'])->name('api.')->group(function () {
         Route::get('/get_members_subzone_infos/{zone_id}', [SubzoneController::class, 'get_members_subzone_infos']);
         Route::get('/get_members_last_inactive_invperiod/{zone_id}', [SubzoneController::class, 'get_members_last_inactive_invperiod']);
     });
- Route::prefix('owepaper')->group(function () {
-            Route::get('/testIndex', [OwepaperController::class, 'testIndex']);
+    Route::prefix('owepaper')->group(function () {
+        Route::get('/testIndex', [OwepaperController::class, 'testIndex']);
+    });
+    
+    Route::get('/get_districts/{province_id}', [apiFunctionsController::class,'getDistricts']);
+    Route::get('/get_tambons/{district_id}', [FunctionsController::class,'getTambons']);
+    Route::get('/get_org/{tambon_id}', [FunctionsController::class,'getOrgName']);
 
- });
     // Route::prefix('cutmeter')->group(function () {
     //     Route::get('/index/{zone_id?}/{subzone_id?}', [CutmeterController::class,'index']);
     //     Route::get('/owe', 'Api\CutmeterController@owe');
@@ -137,4 +142,3 @@ Route::middleware(['throttle:api'])->name('api.')->group(function () {
     // });
 
 });
-

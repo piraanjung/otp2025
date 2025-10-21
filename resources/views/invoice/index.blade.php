@@ -145,7 +145,7 @@
                                         </div>
                                     </div>
                                     <hr class="horizontal dark">
-                                    @can('access tabwater modules')
+                                    {{-- @can('access tabwater modules') --}}
                                         <div class="row">
                                             <p class="my-auto text-bold col-12 col-md-6">ชำระเงินแล้ว</p>
                                             <p class="text-secondary h5 my-auto col-12 col-md-3  text-xl-end">
@@ -162,7 +162,7 @@
                                         <hr class="horizontal dark">
 
                                         <div class="row">
-                                            <p class="my-auto text-bold col-12 col-md-6">เพิ่มผู้ใช้น้ำระหว่างรอบบิล</p>
+                                            <p class="my-auto text-bold col-12 col-md-6">ยังไม่มีข้อมูลมิเตอร์</p>
                                             <p class="text-secondary h5 my-auto col-12 col-md-3  text-xl-end">
                                                 {{ $zone['user_notyet_inv_info'] }} <sup> คน</sup>
                                             </p>
@@ -200,7 +200,7 @@
                                             </div>
                                         </div>
                                         
-                                    @endcan
+                                    {{-- @endcan --}}
                                 </div>
                                 <div class="col-5">
                                     <div class="card shadow h-80">

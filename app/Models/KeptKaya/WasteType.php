@@ -9,6 +9,7 @@ class WasteType extends Model
 {
     use HasFactory;
 
+    protected $table = 'kp_waste_types';
     protected $fillable = [
         'name',
         'waste_group_id', // เพิ่มฟิลด์นี้ถ้าคุณสร้างตาราง waste_groups

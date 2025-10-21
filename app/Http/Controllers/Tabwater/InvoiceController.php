@@ -17,6 +17,7 @@ use App\Models\User;
 use App\Models\Tabwater\TwUsersInfo;
 use App\Models\Admin\Zone;
 use App\Models\Tabwater\TwAccTransactions;
+use App\Models\Tabwater\TwInvoiceHistoty;
 use App\Models\Tabwater\TwInvoiceTemp;
 use Carbon\Carbon;
 use Illuminate\Http\Request;
@@ -26,11 +27,7 @@ use Maatwebsite\Excel\Facades\Excel;
 
 class InvoiceController extends Controller
 {
-    private $apiInvoiceCtrl;
-    public function __construct(ApiInvoiceCtrl $apiInvoiceCtrl)
-    {
-        $this->apiInvoiceCtrl = $apiInvoiceCtrl;
-    }
+    
     public function index($_budgetyearId = '', $_invPeriod = '')
     {
 
@@ -146,11 +143,12 @@ class InvoiceController extends Controller
 
     public function paid($id)
     {
-        $inv = $this->apiInvoiceCtrl->get_user_invoice($id);
+        $inv = $this->get_user_invoice($id);
         $invoice = json_decode($inv->getContent());
 
         return view('invoice.paid', compact('invoice'));
     }
+
 
     public function zone_create(Request $request, $subzone_id, $curr_inv_prd, $new_user = 0)
     {
@@ -211,7 +209,7 @@ class InvoiceController extends Controller
             })->values();
         }
         // $invoices = $invoicesChunk[0];
-        $subzone = Subzone::find($subzone_id);
+        $subzone = (new Subzone())->setConnection(session('db_conn'))->find($subzone_id);
         $invoice_remain = collect($invoices)->count();
         $orgInfos = Organization::getOrgName(Auth::user()->org_id_fk);
         return view('invoice.zone_create', compact('orgInfos','invoices', 'invoice_remain', 'subzone', 'member_not_yet_recorded_present_inv_period'));
@@ -225,21 +223,22 @@ class InvoiceController extends Controller
             return $val['currentmeter'] > 0 || $val['inv_id'] == 'new_inv';
         });
         //เพิ่มข้อมูลลง invoice
-        $inv_period_table   = TwInvoicePeriod::where('status', 'active')->get(['id'])->first();
+        $inv_period_table   = (new TwInvoicePeriod())->setConnection(session('db_conn'))->where('status', 'active')->get(['id'])->first();
         foreach ($filters as $inv) {
-            $invoiceTemp = TwInvoiceTemp::find($inv['inv_id']);
+
+            $invoiceTemp = (new TwInvoiceTemp())->setConnection(session('db_conn'))->find($inv['inv_id']);
             $twAccTransId = $invoiceTemp->acc_trans_id_fk;
             if($twAccTransId == 0){
                 //สร้าง Acctrans
-                $newAccTrans = TwAccTransactions::create([
-                    'inv_id_fk' => $invoiceTemp->id,
+                $newAccTrans = (new TwAccTransactions())->setConnection(session('db_conn'))->create([
+                    'meter_id_fk' =>  $inv['meter_id'],
                     'cashier' =>Auth::id()
                 ]);
                 $invoiceTemp->acc_trans_id_fk = $newAccTrans->id;
             }
             
                 $invoiceTemp->inv_period_id_fk = $inv_period_table->id;
-                $invoiceTemp->meter_id_fk = $inv['id'];
+                $invoiceTemp->meter_id_fk = $inv['meter_id'];
                 $invoiceTemp->lastmeter   = $inv['lastmeter'];
                 $invoiceTemp->currentmeter = $inv['currentmeter'];
                 $invoiceTemp->water_used  = $inv['currentmeter']-$inv['lastmeter'];
@@ -253,23 +252,6 @@ class InvoiceController extends Controller
                 $invoiceTemp->created_at  = date('Y-m-d H:i:s');
                 $invoiceTemp->updated_at  = date('Y-m-d H:i:s');
                 $invoiceTemp->save();
-            // if ($inv['inv_id'] == 'new_inv') {
-            //     TwInvoiceTemp::insert($dataArray);
-            // } else {
-                // TwInvoice::where('inv_id', $inv['inv_id'])
-                //     ->update([
-                //         'lastmeter'   => $inv['lastmeter'],
-                //         'currentmeter' => $inv['currentmeter'],
-                //         'water_used'  => $water_used,
-                //         'inv_type'    => $inv_type,
-                //         'paid'        => $paid,
-                //         'vat'         => $vat,
-                //         'totalpaid'   => $totalPaid,
-                //         'status'      => 'invoice',
-                //         'recorder_id' => Auth::id(),
-                //         'updated_at'  => date('Y-m-d H:i:s'),
-                //     ]);
-            // }
         }
 
         $subzone_id = $request->get('subzone_id');
@@ -284,7 +266,7 @@ class InvoiceController extends Controller
     }
     public function edit($invoice_id)
     {
-        $inv = $this->apiInvoiceCtrl->get_user_invoice($invoice_id);
+        $inv = $this->get_user_invoice($invoice_id);
         $invoice = json_decode($inv->getContent());
         return view('invoice.edit', compact('invoice'));
     }
@@ -495,7 +477,7 @@ class InvoiceController extends Controller
 
     public function zone_edit($subzone_id, $curr_inv_prd)
     { 
-        
+        ManagesTenantConnection::configConnection(session('db_conn'));
         $userMeterInfos = TwUsersInfo::where('undertake_subzone_id', $subzone_id)
             ->with([
                 'invoice_temp' => function ($query) {
@@ -507,6 +489,7 @@ class InvoiceController extends Controller
                         'currentmeter',
                         'water_used',
                         'paid',
+                        'reserve_meter',
                         'vat',
                         'inv_type',
                         'totalpaid',
@@ -534,12 +517,9 @@ class InvoiceController extends Controller
         $inv_in_seleted_subzone = collect($userMeterInfos)->filter(function ($value, $key) {
             return collect($value->invoice_temp)->isNotEmpty();
         })->values();
+        $orgInfos = Organization::getOrgName(Auth::user()->org_id_fk);
 
-        // $inv_in_seleted_subzone = collect($inv_status_invoice)->filter(function ($value, $key) use ($subzone_id) {
-        //     if (collect($value->usermeterinfos)->isNotEmpty())
-        //         return $value->usermeterinfos->undertake_subzone_id == $subzone_id;
-        // })->values();
-        return view('invoice.zone_edit', compact('inv_in_seleted_subzone', 'subzone_id'));
+        return view('invoice.zone_edit', compact('orgInfos', 'inv_in_seleted_subzone', 'subzone_id'));
     }
 
     public function reset_invioce_bill($inv_id)
@@ -560,75 +540,33 @@ class InvoiceController extends Controller
         $filters_changeValue = collect($request->get('data'))->filter(function ($val) {
             return $val['changevalue'] == 1;
         });
-        // $filters_changeValue = collect($filters_all)->filter(function ($val) {
-        //     return $val['changevalue'] == 1;
-        // });
-        // $filters_delete_status = collect($filters_all)->filter(function ($val) {
-        //     return $val['status'] == 'delete';
-        // });
-        // $filters_init_status = collect($filters_all)->filter(function ($val) {
-        //     return $val['status'] == 'init';
-        // });
+
         if (collect($filters_changeValue)->count() > 0) {
             foreach ($filters_changeValue  as $vals) {
-                $invoice = Twinvoice::where('inv_id', $vals['inv_id'])->update([
-                    "currentmeter"  => $vals['currentmeter'],
-                    "lastmeter"     => $vals['lastmeter'],
-                    'paid'          => $vals['paid'],
-                    'inv_type'      => $vals['water_used'] == 0 ? 'r' : 'u',
-                    'water_used'    => $vals['water_used'],
-                    'vat'           => $vals['vat'],
-                    'totalpaid'     => $vals['totalpaid'],
-                    "recorder_id"   => Auth::id(),
-                    "comment"       => '',
-                    "updated_at"    => date('Y-m-d H:i:s'),
-                ]);
+                $invoice = (new TwInvoiceTemp())->setConnection(session('db_conn'))->find($vals['inv_id']);
+                
+                $invoice->currentmeter = $vals['currentmeter'];
+                $invoice->lastmeter    = $vals['lastmeter'];
+                $invoice->paid        = $vals['paid'];
+                $invoice->inv_type    = $vals['water_used'] == 0 ? 'r' : 'u';
+                $invoice->water_used  = $vals['water_used'];
+                $invoice->reserve_meter = $vals['reserve_meter'];
+                $invoice->vat         = $vals['vat'];
+                $invoice->totalpaid   = $vals['totalpaid'];
+                $invoice->recorder_id  = Auth::id();
+                $invoice->comment      = '';
+                $invoice->updated_at   = date('Y-m-d H:i:s');
+                $invoice->save();
+
             }
         }
-        // if (collect($filters_delete_status)->count() > 0) {
-        //     foreach ($filters_delete_status as $key => $vals) {
-        //         $invoice = Twinvoice::where('id', $key)->update([
-        //             "status" => 'deleted',
-        //             "deleted" => 1,
-        //             "recorder_id" => Auth::id(),
-        //             "comment" => $vals['comment'],
-        //             "updated_at" => date('Y-m-d H:i:s'),
-        //         ]);
-        //     }
-        // }
-
-        // if (collect($filters_init_status)->count() > 0) {
-        //     foreach ($filters_init_status as $key => $vals) {
-        //         $invoice = Twinvoice::where('id', $key)->update([
-        //             "currentmeter" => 0,
-        //             "status" => 'init',
-        //             "recorder_id" => Auth::id(),
-        //             "comment" => $vals['comment'],
-        //             "updated_at" => date('Y-m-d H:i:s'),
-        //         ]);
-        //     }
-        // }
+        
         return \redirect('invoice')->with([
             'message' => 'ทำการบันทึกการแก้ไขข้อมูลเรียบร้อยแล้ว',
             'color' => 'success',
         ]);
     }
 
-    private function setInvoiceVals($lastmeter, $currentmeter)
-    {
-        $water_used     = $currentmeter - $lastmeter;
-        $paid           = $water_used == 0 ? 10 : $water_used * 8;
-        $vat            = ($paid * 0.07) / 100;
-        $totalPaid      = $paid + $vat;
-        $inv_type       =  $water_used == 0 ? "r" : "u";
-        return [
-            "water_used"    => $water_used,
-            "paid"          => $paid,
-            "inv_type"      => $inv_type,
-            "totalPaid"     => $totalPaid,
-            "vat"           => $vat,
-        ];
-    }
 
     public function zone_update2(REQUEST $request) //route get
     {
@@ -855,16 +793,183 @@ class InvoiceController extends Controller
         return $arr;
     }
 
-    public function changeVatValues()
+
+     public function get_user_invoice($meter_id, $status = '')
     {
-        $invoices = TwInvoice::all();
-        foreach ($invoices as $inv) {
-            $vat = $inv->paid == 10 ? 0.07 : number_format($inv->paid * 0.07, 2);
-            TwInvoice::where('inv_id', $inv->inv_id)->update([
-                'inv_id'    => $inv->inv_id,
-                'vat'       => $vat,
-                'totalpaid' => $inv->paid + $vat
-            ]);
+        ManagesTenantConnection::configConnection(session('db_conn'));
+        $invoices = TwInvoiceTemp::where('meter_id_fk', $meter_id)
+            ->with([
+                'usermeterinfos' => function ($query) {
+                    $query->select('id', 'user_id', 'meternumber', 'undertake_zone_id', 'undertake_subzone_id', 'metertype_id');
+                },
+                'usermeterinfos.user' => function ($query) {
+                    return $query->select('id', 'prefix', 'firstname', 'lastname', 'address', 'zone_id', 'phone', 'subzone_id', 'tambon_code', 'district_code', 'province_code');
+                },
+                'usermeterinfos.user.user_tambon' => function ($query) {
+                    return $query->select('id', 'tambon_name');
+                },
+                'usermeterinfos.user.user_district' => function ($query) {
+                    return $query->select('id', 'district_name');
+                },
+                'usermeterinfos.user.user_province' => function ($query) {
+                    return $query->select('id', 'province_name');
+                },
+                'invoice_period' => function ($query) {
+                    return $query->select('id', 'inv_p_name', 'budgetyear_id');
+                },
+                'invoice_period.budgetyear' => function ($query) {
+                    return $query->select('id', 'budgetyear_name', 'status');
+                },
+                'usermeterinfos.undertake_zone' => function ($query) {
+                    return $query->select('id', 'zone_name as undertake_zone_name');
+                },
+                'usermeterinfos.undertake_subzone' => function ($query) {
+                    return $query->select('id', 'subzone_name as undertake_subzone_name');
+                },
+                'usermeterinfos.user.user_zone' => function ($query) {
+                    return $query->select('id', 'zone_name as user_zone_name');
+                },
+                'usermeterinfos.meter_type' => function ($query) {
+                        $query->select('id');
+                    },
+                    'usermeterinfos.meter_type.rateConfigs' => function ($query) {
+                        $query->select('*');
+                    },
+                    'usermeterinfos.meter_type.rateConfigs.Ratetiers' => function ($query) {
+                        $query->select('*');
+                    }
+            ])
+            ->orderBy('inv_period_id_fk', 'desc');
+        if ($status != '') {
+            if ($status == 'inv_and_owe') {
+                $invoices = $invoices->whereIn('status', ['invoice', 'owe']);
+            }
         }
+
+        $invoices = $invoices->get([
+            'id',
+            'meter_id_fk',
+            'inv_period_id_fk',
+            'reserve_meter',
+            'inv_no',
+            'lastmeter',
+            'currentmeter',
+            'water_used',
+            'inv_type',
+            'paid',
+            'vat',
+            'totalpaid',
+            'acc_trans_id_fk',
+            'updated_at',
+            'status'
+        ]);
+
+        return response()->json(collect($invoices)->flatten());
+    }
+
+    public function get_invoice_and_invoice_history($meter_id, $status = "")
+    {
+        ManagesTenantConnection::configConnection(session('db_conn'));
+        $invoice = TwInvoice::where('meter_id_fk', $meter_id)
+            ->with([
+                'usermeterinfos' => function ($query) {
+                    $query->select('id', 'user_id', 'meternumber', 'undertake_zone_id', 'undertake_subzone_id', 'metertype_id', 'submeter_name');
+                },
+                'usermeterinfos.user' => function ($query) {
+                    return $query->select('id', 'prefix', 'firstname', 'lastname', 'address', 'zone_id', 'phone', 'subzone_id', 'tambon_code', 'district_code', 'province_code');
+                },
+                'usermeterinfos.user.user_tambon' => function ($query) {
+                    return $query->select('id', 'tambon_name');
+                },
+                'usermeterinfos.user.user_district' => function ($query) {
+                    return $query->select('id', 'district_name');
+                },
+                'usermeterinfos.user.user_province' => function ($query) {
+                    return $query->select('id', 'province_name');
+                },
+                'invoice_period' => function ($query) {
+                    return $query->select('id', 'inv_p_name', 'budgetyear_id');
+                },
+                'invoice_period.budgetyear' => function ($query) {
+                    return $query->select('id', 'budgetyear_name', 'status');
+                },
+                'usermeterinfos.undertake_zone' => function ($query) {
+                    return $query->select('id', 'zone_name as undertake_zone_name');
+                },
+                'usermeterinfos.undertake_subzone' => function ($query) {
+                    return $query->select('id', 'subzone_name as undertake_subzone_name');
+                },
+                'usermeterinfos.user.user_zone' => function ($query) {
+                    return $query->select('id', 'zone_name as user_zone_name');
+                },
+                 'usermeterinfos.meter_type' => function ($query) {
+                        $query->select('id');
+                    },
+                    'usermeterinfos.meter_type.rateConfigs' => function ($query) {
+                        $query->select('*');
+                    },
+                    'usermeterinfos.meter_type.rateConfigs.Ratetiers' => function ($query) {
+                        $query->select('*');
+                    }
+            ]);
+        if ($status != '') {
+
+            $invoice_history =  $status == 'inv_and_owe' ? $invoice->whereIn('status', ['owe', 'invioce']) : $invoice->where('status', $status);
+        }
+
+        $invoice = $invoice->orderBy('inv_period_id_fk', 'desc')->get();
+
+        $invoice_history = TwInvoiceHistoty::where('meter_id_fk', $meter_id)
+            ->with([
+                'usermeterinfos' => function ($query) {
+                    $query->select('id', 'user_id', 'meternumber', 'undertake_zone_id', 'undertake_subzone_id', 'metertype_id');
+                },
+                'usermeterinfos.user' => function ($query) {
+                    return $query->select('id', 'prefix', 'firstname', 'lastname', 'address', 'zone_id', 'phone', 'subzone_id', 'tambon_code', 'district_code', 'province_code');
+                },
+                'usermeterinfos.user.user_tambon' => function ($query) {
+                    return $query->select('id', 'tambon_name');
+                },
+                'usermeterinfos.user.user_district' => function ($query) {
+                    return $query->select('id', 'district_name');
+                },
+                'usermeterinfos.user.user_province' => function ($query) {
+                    return $query->select('id', 'province_name');
+                },
+                'invoice_period' => function ($query) {
+                    return $query->select('id', 'inv_p_name', 'budgetyear_id');
+                },
+                'invoice_period.budgetyear' => function ($query) {
+                    return $query->select('id', 'budgetyear_name', 'status');
+                },
+                'usermeterinfos.undertake_zone' => function ($query) {
+                    return $query->select('id', 'zone_name as undertake_zone_name');
+                },
+                'usermeterinfos.undertake_subzone' => function ($query) {
+                    return $query->select('id', 'subzone_name as undertake_subzone_name');
+                },
+                'usermeterinfos.user.user_zone' => function ($query) {
+                    return $query->select('id', 'zone_name as user_zone_name');
+                },
+                 'usermeterinfos.meter_type' => function ($query) {
+                        $query->select('id');
+                    },
+                    'usermeterinfos.meter_type.rateConfigs' => function ($query) {
+                        $query->select('*');
+                    },
+                    'usermeterinfos.meter_type.rateConfigs.Ratetiers' => function ($query) {
+                        $query->select('*');
+                    }
+            ]);
+        if ($status != '') {
+
+            $invoice_history =  $status == 'inv_and_owe' ? $invoice_history->whereIn('status', ['owe', 'invioce']) : $invoice_history->where('status', $status);
+        }
+
+        $invoice_history =  $invoice_history->orderBy('inv_period_id_fk', 'desc')->get();
+
+
+        $invoiceMerge = collect($invoice)->merge($invoice_history);
+        return  response()->json(collect($invoiceMerge)->flatten());
     }
 }

@@ -10,6 +10,7 @@ class WasteBinPayment extends Model
 {
     use HasFactory;
 
+    protected $table = 'kp_waste_bin_payments';
     protected $fillable = [
         'wbs_id',
         'pay_mon',

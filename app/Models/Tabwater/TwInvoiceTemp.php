@@ -10,7 +10,7 @@ class TwInvoiceTemp extends Model
 {
     use HasFactory;
     protected $table = 'tw_invoice_temp';
-
+    public $timestamps = false;
     protected $fillable = [
                 'id',
                 'meter_id_fk',

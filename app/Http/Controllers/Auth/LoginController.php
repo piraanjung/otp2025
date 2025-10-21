@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Auth;
 
 use App\Http\Controllers\Controller;
+use App\Models\Admin\ManagesTenantConnection;
 use App\Models\KeptKaya\Machine;
 use App\Models\User;
 use Illuminate\Http\Request;

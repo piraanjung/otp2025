@@ -7,6 +7,7 @@ use App\Models\KeptKaya\Machine;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 
+// ระบบตู้รับซื้อขยะ
 class KpMobileController extends Controller
 {
     public function create(Request $request ){

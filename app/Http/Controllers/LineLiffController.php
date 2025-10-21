@@ -2,7 +2,9 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\Admin\ManagesTenantConnection;
 use App\Models\Admin\Organization;
+use App\Models\Admin\Province;
 use App\Models\KeptKaya\KPAccounts;
 use App\Models\KeptKaya\UserWastePreference;
 use App\Models\Tabwater\SequenceNumber;
@@ -14,20 +16,29 @@ use SimpleSoftwareIO\QrCode\Facades\QrCode;
 
 class LineLiffController extends Controller
 {
-    public function index(Request $request){
+    public function index(){
        
-        return view('lineliff.index');
+        $provinces = Province::all();
+        return view('lineliff.index', compact('provinces'));
         
     }
 
-    public function dashboard($user_waste_pref_id, $reg =0){
+    public function dashboard($user_waste_pref_id,$org_id ='envsogo_hs1', $regis =1){
+        $org= Organization::find($org_id);
+        session(['db_conn' => $org->org_database]);
+        ManagesTenantConnection::configConnection(session('db_conn'));
         $uWastePref = UserWastePreference::find($user_waste_pref_id);
         $user = User::find($uWastePref->user_id);
-        Auth::login($user);
-        if($reg == 1){
+
+        if($regis == 1){
             $user->assignRole('User');
             $user->givePermissionTo('access waste bank mobile');
+            $user->save(); 
+    
+            // 💡 สำคัญ: บังคับโหลด Role/Permission ใหม่ทันที (ถ้าใช้ Spatie)
+            $user = $user->fresh(); 
         }
+        Auth::login($user);
 
         $userWastePref = UserWastePreference::with('user', 'purchaseTransactions')->where('id', $user_waste_pref_id)->get()->first();
         $qrcode = QrCode::size(300)->generate($user_waste_pref_id);

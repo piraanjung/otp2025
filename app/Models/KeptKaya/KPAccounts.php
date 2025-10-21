@@ -18,11 +18,12 @@ class KPAccounts extends Model
         return $this->belongsTo( UserWastePreference::class, 'u_wpref_id_fk', 'id' );
     }
 
-    public function registerAccount($u_w_pref_id){
+    public function registerAccount($u_w_pref_id, $db_con){
         $res = 0;
-        $check = KPAccounts::where('u_wpref_id_fk', $u_w_pref_id)->count();
+        $kPAccounts = (new KPAccounts())->setConnection($db_con);
+        $check = $kPAccounts->where('u_wpref_id_fk', $u_w_pref_id)->count();
         if($check == 0){
-            KPAccounts::create([
+            $kPAccounts->create([
                 'u_wpref_id_fk' => $u_w_pref_id,
                 'created_at' => date('Y-m-d H:i:s'),
                 'updated_at' => date('Y-m-d H:i:s'),

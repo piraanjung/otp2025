@@ -256,52 +256,61 @@
                     return false
                 }
             }
-            //คำนวนเงินค่าใช้น้ำ
-            $('.currentmeter').keyup(function() {
-                let inv_id = $(this).data('id')
-                let price_per_unit = $(this).data('price_per_unit')
+           function cal(water_used){
+            let reserve_meter_ref   = parseFloat($('#reserve_meter_ref').val())
+            let price_per_unit_ref  = parseFloat($('#price_per_unit_ref').val())
+            let vat_ref             = parseFloat($(`#vat_ref`).val())
 
-                let currentmeter = $(this).val()
-                let lastmeter = $(`#lastmeter${inv_id}`).val()
-                let net = currentmeter == '' ? 0 : currentmeter - lastmeter;
-                let paid = net == 0 ? 0 : net * price_per_unit;
-                let meter_reserve_price = $('#meter_reserve_price'+inv_id).val()
-                let vat = $('#vat' + inv_id).val() * paid;
+            let paid                = parseFloat(water_used) * price_per_unit_ref
+            let vat                 = paid *vat_ref
+            let total               = paid + vat + reserve_meter_ref
+            return [parseFloat(paid).toFixed(2), parseFloat(vat).toFixed(2), parseFloat(total).toFixed(2)]
+        }
 
-                let total = (net * price_per_unit) + +vat;
-                $('#vat' + inv_id).val(vat.toFixed(2))
-                $('#water_used_net' + inv_id).val(net)
-                $('#paid'+inv_id).val(paid)
-                $('#total' + inv_id).val(total.toFixed(2));
-            });
-            $('.lastmeter').keyup(function() {
-                let inv_id = $(this).data('id')
-                let price_per_unit = $(this).data('price_per_unit')
-                let lastmeter = $(this).val()
-
-                let currentmeter = $(`#currentmeter${inv_id}`).val()
-                let net = currentmeter == '' ? 0 : currentmeter - lastmeter;
-                let paid = net == 0 ? 0 : net * price_per_unit;
-                let meter_reserve_price = net == 0 ? 10 : 0;
-                let vat = net == 0 ? 0.7 : net * price_per_unit*0.07;
-                let total = (net * price_per_unit) + check_meter_reserve_price(inv_id)+vat;
-                $('#vat' + inv_id).val(vat.toFixed(2))
-                $('#water_used_net' + inv_id).val(net)
-                $('#paid'+inv_id).val(paid)
-                $('meter_reserve_price'+inv_id).val(meter_reserve_price.toFixed(2))
-                $('#total' + inv_id).val(total.toFixed(2));
-            });
-
-            function check_meter_reserve_price(inv_id) {
-                let lastmeter = $(`#lastmeter${inv_id}`).val()
-                let currentmeter = $(`#currentmeter${inv_id}`).val();
-
-                let diff = currentmeter - lastmeter;
-
-                let res = 10//diff == 0 ? 10 : 0;
-                $('#meter_reserve_price' + inv_id).val(res)
-                return res;
+        //คำนวนเงินค่าใช้น้ำ
+        $(document).on('keyup', '.currentmeter', function() {
+            let id = $(this).data('id')
+            let currentmeter = $(this).val()
+            let lastmeter = $(`#lastmeter${id}`).val()
+            let water_used = parseFloat(currentmeter) - parseFloat(lastmeter)
+            if(parseFloat(water_used) < 0){
+                alert('จำนวนการใช้น้ำติดลบไม่ได้')
+                currentmeter = $(this).data('val_ref')
+                $(this).val(currentmeter)
+                water_used = parseFloat(currentmeter) - parseFloat(lastmeter)
             }
+            const [paid,vat, total] = cal(water_used)
+
+            $('#water_used_net' + id).val(water_used)
+            $('#paid' + id).val(paid)
+            $('#vat' + id).val(vat)
+            $('#total' + id).val(total);
+            $('#changevalue' + id).val(1)
+        
+
+        });
+
+        $(document).on('keyup', '.lastmeter', function() {
+           let id = $(this).data('id')
+            let lastmeter = $(this).val()
+            let currentmeter = $(`#currentmeter${id}`).val()
+            let water_used = parseFloat(currentmeter) - parseFloat(lastmeter)
+                if(parseFloat(water_used) < 0){
+                alert('จำนวนการใช้น้ำติดลบไม่ได้')
+                lastmeter = $(this).data('val_ref')
+                $(this).val(lastmeter)
+                water_used = parseFloat(currentmeter) - parseFloat(lastmeter)
+            }
+            const [paid,vat, total] = cal(water_used)
+            $('#water_used_net' + id).val(water_used)
+            $('#paid' + id).val(paid)
+            $('#vat' + id).val(vat)
+            $('#total' + id).val(total);
+            $('#changevalue' + id).val(1)
+            
+           
+
+        });
 
             var table = $('.datatable').DataTable({
                 "pagingType": "listbox",

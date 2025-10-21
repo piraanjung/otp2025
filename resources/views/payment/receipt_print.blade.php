@@ -17,7 +17,7 @@ $c2 = 1;
 // $invoiceNumber = FunctionsController::invoice_last_record()->id + 1;
 ?>
 @section('style')
-    <link rel="stylesheet" href="{{ asset('adminlte/dist/css/adminlte.min.css') }}">
+    <link rel="stylesheet" href="{{ asset('/templatemo/css/bootstrap.min.css') }}">
     <script src="{{ asset('/js/jquery-1.11.3.min.js') }}"></script>
     <script src="{{ asset('/js/ajax/libs/popper.js/1.14.3/umd/popper.min.js') }}"></script>
     <script src="{{ asset('/js/bootstrap/4.5.2/js/bootstrap.min.js') }}"></script>

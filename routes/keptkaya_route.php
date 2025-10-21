@@ -75,10 +75,10 @@ Route::middleware(['auth', 'role:Super Admin|Admin|Recycle Bank Staff|Tabwater S
     Route::prefix('purchase/')->name('purchase.')->group(function () {
         // Step 1: User Selection
         Route::get('select_user', [KeptKayaPurchaseController::class, 'select_user'])->name('select_user');
-        Route::get('start_purchase/{user}', [KeptKayaPurchaseController::class, 'startPurchase'])->name('start_purchase');
+        Route::get('start_purchase/{user_waste_pref_id}', [KeptKayaPurchaseController::class, 'startPurchase'])->name('start_purchase');
 
         // Step 2: Purchase Form (To be created next)`
-        Route::get('form/{user}', [KeptKayaPurchaseController::class, 'showPurchaseForm'])->name('form');
+        Route::get('form/{user_id}', [KeptKayaPurchaseController::class, 'showPurchaseForm'])->name('form');
         Route::post('add_to_cart', [KeptKayaPurchaseController::class, 'addToCart'])->name('add_to_cart');
 
         // Step 3: Cart List (To be created next)
@@ -88,7 +88,7 @@ Route::middleware(['auth', 'role:Super Admin|Admin|Recycle Bank Staff|Tabwater S
         Route::post('save-transaction-machine', [KeptKayaPurchaseController::class, 'saveTransactionForMachine'])->name('save_transaction_machine');
         Route::get('show-receipt/{transaction}', [KeptKayaPurchaseController::class, 'showReceipt'])->name('show_receipt');
         Route::get('history/{user}', [KeptKayaPurchaseController::class, 'showPurchaseHistory'])->name('history');
-        Route::get('receipt/{transaction}', [KeptKayaPurchaseController::class, 'showReceipt'])->name('receipt');
+        Route::get('receipt/{transaction_id}', [KeptKayaPurchaseController::class, 'showReceipt'])->name('receipt');
     });
 
     Route::prefix('sell/')->name('sell.')->group(function () {

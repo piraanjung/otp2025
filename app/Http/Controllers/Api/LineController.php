@@ -3,8 +3,12 @@
 namespace App\Http\Controllers\Api;
 
 use App\Http\Controllers\Controller;
+use App\Models\Admin\ManagesTenantConnection;
+use App\Models\Admin\Organization;
+use App\Models\Admin\Province;
 use App\Models\KeptKaya\KPAccounts;
 use App\Models\KeptKaya\UserWastePreference;
+use App\Models\SuperUser;
 use App\Models\Tabwater\SequenceNumber;
 use App\Models\User;
 use Illuminate\Http\Request;
@@ -16,20 +20,29 @@ class LineController extends Controller
 
     public function index(Request $request)
     {
-
-        return view('lineliff.index');
+        $provinces = (new Province())->setConnection('envsogo_super_admin')->get(['id', 'province_name']);
+        return view('lineliff.index', compact('provinces'));
     }
     public function fine_line_id(Request $request)
     {
         $wastePreferenceID = 0;
-        $user_id = 0;
-        $user = User::with('wastePreference')->where('line_id', $request->userId)
-            ->whereHas('wastePreference')
-            ->get()->first();
-        if (collect($user)->isNotEmpty()) {
-            $wastePreferenceID = $user->wastePreference->id;
+        $res = 0;
+        $user = SuperUser::where('line_id', $request->userId)->first();
+        if(collect($user)->isEmpty()){
+            $user_id = 0;
+        }else{
+            $wastePreferenceID = $user->as_recycle_member == 1 ? 1 : 0;
+            $res = 1;
         }
-        $res =  collect($user)->isEmpty() ? 0 : 1;
+        
+        // $user_id = 0;
+        // $user = User::with('wastePreference')->where('line_id', $request->userId)
+        //     ->whereHas('wastePreference')
+        //     ->get()->first();
+        // if (collect($user)->isNotEmpty()) {
+        //     $wastePreferenceID = $user->wastePreference->id;
+        // }
+        // $res =  collect($user)->isEmpty() ? 0 : 1;
         return response()->json([
             'res' => $res,
             'waste_pref_id' => $wastePreferenceID
@@ -39,6 +52,7 @@ class LineController extends Controller
 
     public function user_line_register(Request $request)
     {
+        
         $seqNumber = SequenceNumber::where('id', 1)->get('user')->first();
         User::create([
             'id' => $seqNumber->user,
@@ -57,7 +71,7 @@ class LineController extends Controller
             'updated_at' => date('Y-m-d H:i:s'),
         ]);
 
-        (new KPAccounts())->registerAccount($userWastPref->id);
+        (new KPAccounts())->registerAccount($userWastPref->id) ;
 
         SequenceNumber::where('id', 1)->update([
             'user' => $seqNumber->user + 1
@@ -74,9 +88,10 @@ class LineController extends Controller
         return  view('lineliff.user_qrcode');
     }
 
-    public function dashboard($user_waste_pref_id)
+    public function dashboard($user_waste_pref_id, $db_conn = "envsogo_hs1")
     {
-        $userWastePref = UserWastePreference::with('user', 'purchaseTransactions')->where('id', $user_waste_pref_id)->get()->first();
+        ManagesTenantConnection::configConnection($db_conn);  
+        $userWastePref = (new UserWastePreference())->setConnection($db_conn)->with('user', 'purchaseTransactions')->where('id', $user_waste_pref_id)->get()->first();
         $qrcode = QrCode::size(300)->generate($user_waste_pref_id);
         return view('lineliff.dashboard', compact('userWastePref', 'qrcode'));
     }
@@ -84,18 +99,32 @@ class LineController extends Controller
 
     public function update_user_by_phone(Request $request)
     {
-        $_user = User::with('wastePreference')->where('phone', $request->phoneNum)->get()->first();
+       $_user = SuperUser::where('phone', $request->phoneNum)->get()->first();
         $res = 0;
         $user_id = 0;
         $waste_pref_id = 0;
+
+            $user_org = Organization::find($request->org_id);
+            $local_user = (new User())->setConnection($user_org->org_database)
+            ->where('phone', $request->phoneNum)
+            ->where('line_id', $request->line_user_id)->get()->first();
         if ($_user) {
-            $userUpdate = User::find($_user->id);
-            $userUpdate->line_id = $request->line_user_id;
-            $userUpdate->image = $request->line_user_image;
+            $userUpdate = SuperUser::find($_user->id);
+            $userUpdate->province_code  = $request->province_id;
+            $userUpdate->district_code  = $request->district_id;
+            $userUpdate->tambon_code    =  $request->tambon_id;
+            $userUpdate->org_id_fk      = $request->org_id;
+            $userUpdate->line_id        = $request->line_user_id;
+            $userUpdate->image          = $request->line_user_image;
             $userUpdate->save();
 
-            if (collect($_user->wastePreference)->isEmpty()) {
-                $newUWastePref = UserWastePreference::create([
+            $user_org = Organization::find($request->org_id);
+            $local_user = (new User())->setConnection($user_org->org_database)->where('phone', $request->phoneNum)
+            ->where('line_id', $request->line_user_id)->get()->first();
+            
+            $local_user_wastePreference = (new UserWastePreference())->setConnection($user_org->org_database)->where('user_id', $local_user->id)->get();
+            if (collect($local_user_wastePreference)->isEmpty()) {
+                $newUWastePref = (new UserWastePreference())->setConnection($user_org->org_database)->create([
                     'user_id' => $_user->id,
                     'is_annual_collection' => 0,
                     'is_waste_bank' => 1,
@@ -109,21 +138,28 @@ class LineController extends Controller
             $res = 1;
         } else {
             //ถ้ายังไม่มีข้อมูลให้ ทำการ create
-            $seqNumber = SequenceNumber::where('id', 1)->get('user')->first();
+            $seqNumber = (new SequenceNumber())->setConnection($user_org->org_database)->where('id', 1)->get('user')->first();
 
-            $user =  new User();
-            $user->id = $seqNumber->user;
+            $user =  new SuperUser();
             $user->firstname = $request->displayName;
             $user->line_id = $request->line_user_id;
             $user->phone = $request->phoneNum;
             $user->image = $request->line_user_image;
+            $user->as_recycle_member = 1;
             $user->created_at = date("Y-m-d H:i:s");
             $user->updated_at = date("Y-m-d H:i:s");
             $user->save();
            
-            
-            $newUWastePref = UserWastePreference::create([
-                'user_id' => $seqNumber->user,
+            $local_user =  (new User())->setConnection($user_org->org_database);
+            $local_user->firstname = $request->displayName;
+            $local_user->line_id = $request->line_user_id;
+            $local_user->phone = $request->phoneNum;
+            $local_user->image = $request->line_user_image;
+            $local_user->created_at = date("Y-m-d H:i:s");
+            $local_user->updated_at = date("Y-m-d H:i:s");
+            $local_user->save();
+            $newUWastePref = (new UserWastePreference())->setConnection($user_org->org_database)->create([
+                'user_id' => $local_user->id,
                 'is_annual_collection' => 0,
                 'is_waste_bank' => 1,
                 'created_at' => date('Y-m-d H:i:s'),
@@ -131,9 +167,9 @@ class LineController extends Controller
             ]);
 
 
-            (new KPAccounts())->registerAccount($newUWastePref->id);
+        (new KPAccounts())->setConnection($user_org->org_database)->registerAccount($newUWastePref->id, $user_org->org_database);
 
-            SequenceNumber::where('id', 1)->update([
+            (new SequenceNumber())->setConnection($user_org->org_database)->where('id', 1)->update([
                 'user' => $seqNumber->user + 1
             ]);
             $user_id = $user->id;

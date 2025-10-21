@@ -261,6 +261,7 @@
                         <div class="table-responsive">
                             <table class="table" id="invoiceTable">
                                 <thead>
+                                    <tr>
                                     <th>
                                         <input type="checkbox" class="form-check-input" id="check_all">
                                     </th>
@@ -278,7 +279,7 @@
                                     <th>ค้างชำระ<div>(รอบบิล)</div></th>
                                     <th>สถานะ</th>
                                     
-
+                                    </tr>
                                     {{-- <th>หมายเหตุ</th> --}}
                                 </thead>
                                 <tfoot>
@@ -330,7 +331,7 @@
                                                 {{ $invoice->user->prefix . '' . $invoice->user->firstname . ' ' . $invoice->user->lastname }}
                                             </td>
                                             <td class="popup meternumber text-center"
-                                                data-meter_id={{ $invoice->meter_id }}>
+                                                data-meter_id={{ $invoice->id }}>
                                                 {{ $invoice->meternumber }}
                                             </td>
                                             <td class="popup text-center">{{ $invoice->meter_address }}</td>
@@ -407,6 +408,7 @@
                                     <input type="hidden" name="inv_no" id="inv_no">
                                     <input type="hidden" name="user_id" id="user_id" value="">
                                     <input type="hidden" name="meter_id" id="meter_id" value="">
+                                    <input type="text" name="reserve_meter_sum" id="reserve_meter_sum" value="">
                                     <input type="hidden" class="form-control text-bold text-center  paidform" readonly
                                         name="paidsum" id="paidsum">
                                     <input type="hidden" class="form-control text-bold text-center  paidform" readonly
@@ -696,21 +698,21 @@
             $('#vat7').val(0)
             $('#mustpaid').val(0)
             $('#user_id').val(meter_id);
+            $('#meter_id').val(meter_id);
 
 
 
 
 
-            $.get(`/api/invoice/get_user_invoice/${meter_id}/inv_and_owe`).done(function(invoices) {
-                invoice_local = invoices
+            $.get(`/invoice/get_user_invoice/${meter_id}/inv_and_owe`).done(function(invoices) {
                 let i = 0;
                 if (Object.keys(invoices).length > 0) {
-
                     console.log(invoices)
                     txt += `<div class="card card-success border border-success rounded">
                                 <div class="card-header p-1">
                                     <h6 class="card-title bg-gray-100">รายการค้างชำระ [ ${Object.keys(invoices).length} <sup class="sup">รอบบิล</sup> ]  </h6>
-                                </div>
+                                acc_trans_id<input type="text" name="acc_trans_id" id="acc_trans_id" value=${invoices[0].acc_trans_id_fk}>
+                                    </div>
                                 <div class="card-body p-0 " style="display: block;height:250px; overflow-y: scroll;">
                                     <table class="table">
                                         <thead>
@@ -740,9 +742,8 @@
                         vatsum += parseFloat(element.vat);
                         paidsum += parseFloat(element.paid)
                         reserve_metersum  +=parseFloat(element.reserve_meter)
-                        let _vat = parseFloat(element.paid) == 0 ? parseFloat(vat) : parseFloat(vat) *
-                            parseFloat(element.paid)
-                        // let _vat = element.vat
+                        let _vat = parseFloat(element.vat) 
+
                         let totalpaid = parseFloat(_vat) + parseFloat(element.paid)
 
                         let status = element.status == 'owe' ? 'ค้างชำระ' : 'ออกใบแจ้งหนี้';
@@ -765,7 +766,7 @@
                                     <input type="hidden" name="payments[${i}][iv_id]" value="${ element.id }">
                                     <input type="hidden" name="payments[${i}][status]" value="${ element.status }">
                                 </td>
-                                <td class="text-end">${ element.inv_type === 'r' ? 10 : 10}</td>
+                                <td class="text-end" id="reserve_meter${element.id}">${ element.reserve_meter}</td>
                                 <td class="text-end" id="vat${element.id}" data-vat="${element.id}">${element.vat}</td>
                                 <td class="total text-end" id="total${element.id}" data-total="${element.id}">${element.totalpaid}</td>
                                 <td class="text-center">${status}</td>
@@ -801,16 +802,16 @@
                     $('.paidsum').html(parseFloat(paidsum).toFixed(2))
                     $('#vat7').val(parseFloat(vatsum).toFixed(2))
                     $('.vat7').html(parseFloat(vatsum).toFixed(2))
-                    $('#reserve_meter').val(parseFloat(reserve_metersum).toFixed(2))
+                    $('#reserve_meter_sum').val(parseFloat(reserve_metersum).toFixed(2))
                     $('.reserve_meter').html(parseFloat(reserve_metersum).toFixed(2))
                     $('#mustpaid').val(parseFloat(totalpaidsum).toFixed(2))
                     $('.mustpaid').html(parseFloat(totalpaidsum).toFixed(2))
-                    $('#meter_id').val(invoices[0].usermeterinfos.meter_id);
+                    $('#meter_id').val(invoices[0].usermeterinfos.id);
                     $('#inv_no').val(invoices[0].inv_no)
 
                     createQrCode({
-                        meter_id: invoices[0].usermeterinfos.meter_id,
-                        totalpaidsum: totalpaidsum + invoices.length * 10,
+                        meter_id: invoices[0].usermeterinfos.id,
+                        totalpaidsum: totalpaidsum ,
                         prefix: invoices[0].usermeterinfos.user.prefix,
                         firstname: invoices[0].usermeterinfos.user.firstname,
                         lastname: invoices[0].usermeterinfos.user.lastname,
@@ -826,6 +827,7 @@
         } //text
 
         function createQrCode(data) {
+            console.log('dataq',data)
             let init = "000000000000000000"
             let meter_id_length = data.meter_id.toString().length
             let meter_id_str = init.substring(meter_id_length) + "" + data.meter_id
@@ -874,6 +876,7 @@
             let totalsum = 0;
             let vatsum = 0;
             let paidsum = 0;
+            let reserve_metersum = 0;
             let checkboxSelectCount = 0;
             $('.invoice_id').each(function(index, element) {
                 if ($(this).is(":checked")) {
@@ -881,12 +884,13 @@
                     totalsum = parseFloat(totalsum) + parseFloat($(`#total${id}`).text())
                     paidsum = parseFloat(paidsum) + parseFloat($(`#paid${id}`).text())
                     vatsum = parseFloat(vatsum) + parseFloat($(`#vat${id}`).text())
+                    reserve_metersum = parseFloat(reserve_metersum) +parseFloat($('#reserve_meter'+id).text())
                     checkboxSelectCount++;
                 } else {
                     $('#check-input-select-all').prop('checked', false)
                 }
             });
-            console.log('totalsum', totalsum)
+
             if (totalsum == 0) {
                 $('.cash_form_user').attr('readonly')
                 $('.submitbtn').addClass('hidden')
@@ -911,7 +915,9 @@
             $('#paidsum').val(paidsum)
             $('#mustpaid').val(totalsum)
             $('.mustpaid').text(totalsum)
-            $('.reserve_meter').html((checkboxSelectCount * 10).toFixed(2))
+            $('.reserve_meter').html(parseFloat(reserve_metersum).toFixed(2))
+            $('#reserve_meter_sum').val(parseFloat(reserve_metersum).toFixed(2))
+            
             createQrCode({
                 meter_id: invoice_local[0].usermeterinfos.meter_id,
                 totalpaidsum: totalsum,
@@ -990,10 +996,6 @@
             }
         });
         $('#check_all').on('click', function() {
-            // $('.main_checkbox').each(function(){
-            //     $(this).attr('checked', true)
-            // })
-
             if ($(this).is(':checked')) {
                 $('.main_checkbox').prop('checked', true)
                 $('#submitbtn').removeClass('hidden')

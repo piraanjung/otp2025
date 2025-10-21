@@ -11,6 +11,7 @@ use App\Models\Tabwater\TwUsersInfo;
 use App\Models\Tabwater\UndertakerSubzone;
 use App\Models\User;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Config;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Str;
@@ -20,6 +21,8 @@ class UsersController extends Controller
 {
     public function __construct()
     {
+                Config::set('database.default', 'envsogo_hs1');
+
     }
     public function index()
     {
@@ -176,7 +179,8 @@ class UsersController extends Controller
         } else {
             if ($user_cate_id == 5) {
                 //เจ้าหน้าที่บันทึกมิเตอร์
-                $result = User::where('username', $username)->where('role_id', $user_cate_id)
+
+                $result = User::where('username', $username)
                     ->with([
                         'undertaker_subzone.subzone' => function ($q) {
                             return $q->select('id', 'subzone_name', 'zone_id');
@@ -436,7 +440,7 @@ class UsersController extends Controller
             ->with(['invoice' => function ($query) use ($status,$curr_inv_period_id) {
                 return $query->select('meter_id_fk')->where('status', $status)->where('inv_period_id_fk', $curr_inv_period_id);
             }])
-            ->where('status', 'active')->get(['meter_id', 'status']);
+            ->where('status', 'active')->get(['id', 'status']);
         return collect($res)->filter(function ($item) {
             return collect($item->invoice)->isNotEmpty();
         })->count();

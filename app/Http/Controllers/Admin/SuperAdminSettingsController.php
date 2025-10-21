@@ -25,17 +25,27 @@ use App\Models\AsMembers;
 use Illuminate\Http\Request;
 use Maatwebsite\Excel\Facades\Excel; // อย่าลืม import Facade
 use App\Imports\YourDataImport; // สร้าง Importer ในขั้นตอนถัดไป
+use App\Models\Admin\Organization;
 use App\Models\SequenceNumber;
 use App\Models\Tabwater\TwMerterInfos;
 use App\Models\Tabwater\TwMeters;
 use App\Models\User;
+use Illuminate\Support\Facades\Auth;
 
 class SuperAdminSettingsController extends Controller
 {
     // แสดงหน้า Settings พร้อมฟอร์ม Import Excel
     public function showSettingsForm()
     {
+        
         return view('superadmin.settings');
+    }
+
+    public function users(){
+        $users = User::all();
+                        $orgInfos = Organization::getOrgName(Auth::user()->org_id_fk);
+
+        return view('superadmin.settings', compact('users', 'orgInfos'));
     }
 
     public function userToTabwater(){

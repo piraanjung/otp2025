@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Auth;
 
 use App\Http\Controllers\Controller;
 use App\Http\Requests\Auth\LoginRequest;
+use App\Models\Admin\Organization;
 use App\Models\User;
 use App\Providers\RouteServiceProvider;
 use Illuminate\Http\Request;
@@ -36,9 +37,11 @@ class AuthenticatedSessionController extends Controller
             $userAgent
         );
         $request->session()->regenerate();
-
+        $org = Organization::getOrgName(Auth::user()->org_id_fk);
+        session(['db_conn' => $org['org_database']]);
         if ($ismobile) {
             if(isset($request->kp_mobile_login)){
+                //ตู้รับซื้อขวด
                 return redirect()->intended(route('kp_mobile.create', absolute: false));
             }
             return redirect()->intended(route('staff_accessmenu', absolute: false));
@@ -46,7 +49,6 @@ class AuthenticatedSessionController extends Controller
 
         return redirect()->intended(route('accessmenu', absolute: false));
 
-        // return redirect()->intended(RouteServiceProvider::HOME);
     }
 
     /**

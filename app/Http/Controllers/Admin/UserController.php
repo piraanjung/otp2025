@@ -24,11 +24,6 @@ class UserController extends Controller
 {
     public function index()
     {
-
-       $connectionName = session('db_conn'); // เช่น 'envsogo_hs1'
-
-        ManagesTenantConnection::configConnection($connectionName);
-    
     
     // *** ขั้นตอนที่ 2: รัน Query ***
     // ใช้ TwUsersInfo::with() โดยไม่ต้องเรียก setConnection() บนโมเดลหลัก
@@ -44,7 +39,7 @@ class UserController extends Controller
     ])->get();
 
     // Query สำหรับ Zone Model ก็จะใช้ Default Connection ที่ถูกเปลี่ยนเช่นกัน
-    $zones =  (new Zone())->setConnection($connectionName)->get();
+    $zones =  (new Zone())->setConnection(session('db_conn'))->get();
     
     $orgInfos = Organization::getOrgName(Auth::user()->org_id_fk);
     // *** ขั้นตอนที่ 3: (ไม่บังคับ) คืนค่า Default Connection เดิมกลับไป ***
@@ -392,6 +387,7 @@ class UserController extends Controller
     }
     public function givePermission(Request $request, User $user)
     {
+        return $user;
         if ($user->hasPermissionTo($request->permission)) {
             return back()->with('message', 'Permission exists.');
         }

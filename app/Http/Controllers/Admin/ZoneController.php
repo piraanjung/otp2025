@@ -4,17 +4,24 @@ namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Api\FunctionsController;
 use App\Http\Controllers\SettingsController;
+use App\Models\Admin\ManagesTenantConnection;
 use App\Models\Subzone;
-use App\Models\Zone;
+use App\Models\Admin\Zone;
 use Illuminate\Http\Request;
 use App\Http\Controllers\Controller;
+use App\Models\Admin\Organization;
+use Illuminate\Support\Facades\Auth;
 
 class ZoneController extends Controller
 {
     public function index()
     {
+        ManagesTenantConnection::configConnection(session('db_conn'));
+
         $zones = Zone::all();
-        return view('admin.zone.index', compact('zones'));
+        $orgInfos = Organization::getOrgName(Auth::user()->org_id_fk);
+
+        return view('admin.zone.index', compact('zones','orgInfos'));
     }
 
     public function create()

@@ -10,7 +10,7 @@
     <div class="app-content"> <!--begin::Container-->
        <div class="container-fluid py-4">
       <div class="row">
-        <h2 class="mb-0">General Dashboard</h2>
+        <h2 class="mb-0">จัดการถังขยรายปี Dashboard</h2>
         <p class="mb-4 ms-1">This is a simple dashboard with some statistics and charts.</p>
         <div class="col-lg-7">
           <div class="row">

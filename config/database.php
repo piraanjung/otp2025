@@ -15,7 +15,7 @@ return [
     |
     */
 
-    'default' => env('DB_CONNECTION', 'envsogo_kp1'),
+    'default' => env('DB_CONNECTION', 'envsogo_main'),
 
     /*
     |--------------------------------------------------------------------------
@@ -82,11 +82,11 @@ return [
             ]) : [],
         ],
 
-        'envsogo_super_admin' => [
+        'envsogo_main' => [
             'driver' => 'mysql',
             'host' => env('DB_HOST_S_ADMIN', '127.0.0.1'),
             'port' => env('DB_PORT_S_ADMIN', '3306'),
-            'database' => env('DB_DATABASE_S_ADMIN', 'envsogo_super_admin'),
+            'database' => env('DB_DATABASE_S_ADMIN', 'envsogo_main'),
             'username' => env('DB_USERNAME_S_ADMIN', 'forge'),
             'password' => env('DB_PASSWORD_S_ADMIN', ''),
             'unix_socket' => env('DB_SOCKET', ''),

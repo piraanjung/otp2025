@@ -1,5 +1,5 @@
 @php
-    $infos_count = App\Http\Controllers\FunctionsController::keptkaya_nav_infos();
+    $infos_count = 1;//App\Http\Controllers\FunctionsController::keptkaya_nav_infos();
 @endphp
 <ul class="navbar-nav">
     <li class="nav-item1">

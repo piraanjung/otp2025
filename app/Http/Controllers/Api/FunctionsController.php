@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Api;
 
 use App\Http\Controllers\Controller;
+use App\Models\Admin\District;
 use App\Models\Admin\ManagesTenantConnection;
 use App\Models\Admin\Organization;
 use App\Models\Tabwater\Invoice;
@@ -114,10 +115,12 @@ class FunctionsController extends Controller
     }
 
     
-
-    // public static function reset_auto_increment_when_deleted($subzone){
-
-    // }
+public function getDistricts($province_id)
+    {
+        $districs = (new District())->setConnection('envsogo_super_admin')
+        ->where('province_id', $province_id)->get(['id', 'district_name', 'province_id']);
+      return response()->json($districs);
+    }
 
     public function statusThai($status)
     {
