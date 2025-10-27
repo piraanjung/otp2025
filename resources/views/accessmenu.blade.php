@@ -272,6 +272,7 @@
         <hr style="margin-bottom: 3px;margin-top: 3px;">
         <div id="org_addr2">ตำบล{{$orgInfos['org_tambons']}} อำเภอ{{$orgInfos['org_districts']}} จังหวัด{{$orgInfos['org_provinces']}}</div>
     </div>
+
     <div class="main-container centralized ">
 
         <div class="main-circle">
@@ -280,8 +281,8 @@
                 {{-- ระบบบริหารจัดการ --}}
             </div>
         </div>
-        <div class="bubble-container centralized  red {{auth()->user()->can('access tabwater modules') | auth()->user()->hasRole('Super Admin|User') ? '' : 'a-disbled'}}">
-            <a href="{{auth()->user()->can('access tabwater modules') | auth()->user()->hasRole('Super Admin') ? route('dashboard') : '#'}}">
+        <div class="bubble-container centralized  red {{auth()->user()->can('access tabwater modules') | auth()->user()->hasRole('Super Admin|Admin') ? '' : 'a-disbled'}}">
+            <a href="{{auth()->user()->can('access tabwater modules') | auth()->user()->hasRole('Super Admin|Admin') ? route('dashboard') : '#'}}">
                 <div class="bubble centralized">
                     <div class="inner centralized">
                         งานประปา
@@ -290,7 +291,7 @@
             </a>
         </div>
 
-        <div class="bubble-container centralized green {{auth()->user()->can('access recycle bank modules') | auth()->user()->hasRole('Super Admin|Recycle Bank Staff') ? '': 'a-disbled'}}">
+        <div class="bubble-container centralized green {{auth()->user()->can('access recycle bank modules') | auth()->user()->hasRole('Super Admin|Admin|Recycle Bank Staff') ? '': 'a-disbled'}}">
             <a href="{{route('keptkayas.dashboard', 'recycle')}}">
                 <div class="bubble centralized">
                     <div class="inner centralized">
@@ -299,8 +300,8 @@
                 </div>
             </a>
         </div>
-        <div class="bubble-container centralized orange {{auth()->user()->can('access annaul modules') | auth()->user()->hasRole('Super Admin') ? '': 'a-disbled'}}">
-            <a href="{{auth()->user()->can('access annaul modules') | auth()->user()->hasRole('Super Admin') ? route('keptkayas.dashboard', 'annual') : 'javascript:void(0)'}}">
+        <div class="bubble-container centralized orange {{auth()->user()->can('access annaul modules') | auth()->user()->hasRole('Super Admin|Admin') ? '': 'a-disbled'}}">
+            <a href="{{auth()->user()->can('access annaul modules') | auth()->user()->hasRole('Super Admin|Admin') ? route('keptkayas.dashboard', 'annual') : 'javascript:void(0)'}}">
 
                 <div class="bubble centralized">
                     <div class="inner centralized">
@@ -310,8 +311,8 @@
             </a>
 
         </div>
-        <div class="bubble-container centralized  blue-dark {{auth()->user()->can('access foodwaste modules') | auth()->user()->hasRole('Super Admin') ? '': 'a-disbled'}}">
-            <a href="{{auth()->user()->can('access foodwaste modules') | auth()->user()->hasRole('Super Admin') ? route('foodwaste.dashboard') : 'javascript:void(0)'}}">
+        <div class="bubble-container centralized  blue-dark {{auth()->user()->can('access foodwaste modules') | auth()->user()->hasRole('Super Admin|Admin') ? '': 'a-disbled'}}">
+            <a href="{{auth()->user()->can('access foodwaste modules') | auth()->user()->hasRole('Super Admin|Admin') ? route('foodwaste.dashboard') : 'javascript:void(0)'}}">
                 <div class="bubble centralized">
                     <div class="inner centralized">
                         ถังขยะเปียกจากครัวเรือน
@@ -319,7 +320,7 @@
                 </div>
             </a>
         </div>
-        <div class="bubble-container centralized black {{auth()->user()->can('access local saving bank modules') | auth()->user()->hasRole('Super Admin') ? '': 'a-disbled'}}">
+        <div class="bubble-container centralized black {{auth()->user()->can('access local saving bank modules') | auth()->user()->hasRole('Super Admin|Admin') ? '': 'a-disbled'}}">
             <a href="#">
                 <div class="bubble centralized">
                     <div class="inner centralized">
@@ -328,8 +329,8 @@
                 </div>
             </a>
         </div>
-        <div class="bubble-container centralized blue-light {{auth()->user()->can('access admin modules') | auth()->user()->hasRole('Super Admin') ? '': 'a-disbled'}}">
-            <a href="{{auth()->user()->can('access garbage modules') | auth()->user()->hasRole('Super Admin') ? route('superadmin.dashboard') : 'javascript:void(0)'}}">
+        <div class="bubble-container centralized blue-light {{auth()->user()->can('access admin modules') | auth()->user()->hasRole('Super Admin|Admin') ? '': 'a-disbled'}}">
+            <a href="{{auth()->user()->can('access garbage modules') | auth()->user()->hasRole('Super Admin|Admin') ? route('superadmin.dashboard') : 'javascript:void(0)'}}">
                 <div class="bubble centralized">
                     <div class="inner centralized">
                         ผู้ดูแลระบบ

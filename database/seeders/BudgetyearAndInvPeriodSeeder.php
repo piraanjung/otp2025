@@ -3,7 +3,7 @@
 namespace Database\Seeders;
 
 use App\Models\Admin\BudgetYear;
-use App\Models\Tabwater\InvoicePeriod;
+use App\Models\Tabwater\TwInvoicePeriod;
 use Illuminate\Database\Console\Seeds\WithoutModelEvents;
 use Illuminate\Database\Seeder;
 
@@ -83,7 +83,7 @@ class BudgetyearAndInvPeriodSeeder extends Seeder
         ];
 
         foreach($invPs as $inv){
-            InvoicePeriod::create([
+            TwInvoicePeriod::create([
                 "inv_p_name" =>$inv['inv_p_name'],
                 "budgetyear_id" =>$inv['budgetyear_id'],
                 "startdate" => $inv['start_date'],

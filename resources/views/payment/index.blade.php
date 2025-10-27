@@ -62,10 +62,6 @@
             margin-top: 0.15rem
         }
 
-        .cashback {
-            color: white
-        }
-
         .input-search-by-title {
             border-radius: 10px 10px;
             height: 1.65rem;
@@ -151,13 +147,13 @@
                                         @if (isset($subzone_selected))
                                             <div class="form-check">
                                                 <input class="form-check-input subzone_checkbox " type="checkbox"
-                                                    name="subzone_id_lists[]" value="{{ $subzone->id }}"
-                                                    {{ in_array($subzone->id, $subzone_selected) == true ? 'checked' : '' }}>
+                                                    name="subzone_id_lists[]" value="{{ $subzone['id'] }}"
+                                                    {{ in_array($subzone['id'], $subzone_selected) == true ? 'checked' : '' }}>
                                             </div>
                                         @else
                                             <div class="form-check">
                                                 <input class="form-check-input subzone_checkbox" type="checkbox"
-                                                    name="subzone_id_lists[]" value="{{ $subzone->id }}">
+                                                    name="subzone_id_lists[]" value="{{ $subzone['id'] }}">
                                             </div>
                                         @endif
                                     </div>
@@ -175,7 +171,7 @@
                             <label>รอบบิล ปีงบประมาณ {{ $current_budgetyear[0]->budgetyear_name}}</label>
                             <select name="inv_period_id" id="" class="form-control">
                                     <option value="0" >เลือก..</option>
-                                @foreach ($current_budgetyear[0]->invoicePeriod as $inv_period)
+                                @foreach ($current_budgetyear[0]->invoice_period as $inv_period)
                                     <option value="{{ $inv_period->id }}">{{ $inv_period->inv_p_name }}</option>
                                 @endforeach
                             </select>
@@ -331,7 +327,7 @@
                                                 {{ $invoice->user->prefix . '' . $invoice->user->firstname . ' ' . $invoice->user->lastname }}
                                             </td>
                                             <td class="popup meternumber text-center"
-                                                data-meter_id={{ $invoice->id }}>
+                                                data-meter_id={{ $invoice->invoice_temp[0]->meter_id_fk}}>
                                                 {{ $invoice->meternumber }}
                                             </td>
                                             <td class="popup text-center">{{ $invoice->meter_address }}</td>
@@ -407,8 +403,8 @@
                                     <input type="hidden" name="mode" id="mode" value="payment">
                                     <input type="hidden" name="inv_no" id="inv_no">
                                     <input type="hidden" name="user_id" id="user_id" value="">
-                                    <input type="hidden" name="meter_id" id="meter_id" value="">
-                                    <input type="text" name="reserve_meter_sum" id="reserve_meter_sum" value="">
+                                    <input type="hidden" name="meter_id" id="meter_id" value="x">
+                                    <input type="hidden" name="reserve_meter_sum" id="reserve_meter_sum" value="">
                                     <input type="hidden" class="form-control text-bold text-center  paidform" readonly
                                         name="paidsum" id="paidsum">
                                     <input type="hidden" class="form-control text-bold text-center  paidform" readonly
@@ -520,11 +516,10 @@
                                                 </div>
                                             </div>
                                             <span>&nbsp;&nbsp;&nbsp;&nbsp;</span>
-                                            <button type="submit" style="height:120px; width:150px"
-                                                class="btn btn-success  btn-block submitbtn reciept_money_btn hidden mt-4  m-2">
-                                                <h6><i class="fa fa-solid fa-money text-secondary mb-1 text-white"
-                                                        aria-hidden="true"></i></h6>
-                                                <h5 class="text-white"> ชำระเงิน</h5>
+                                            <button type="submit"
+                                                class="btn btn-success  btn-block submitbtn reciept_money_btn hidden   m-2">
+                                                
+                                                <h5 class="text-white"> ชำระเงินa</h5>
                                             </button>
                                         </div><!--d-flex-->
                                     </div>
@@ -756,7 +751,7 @@
                                 </td>
                                 <td class="text-center">IV01${"0000".substring(element.id.toString().length)}${element.id}</td>
                                 <td class="text-center">${element.meter_id_fk}</td>
-                                <td class="text-center">${element.usermeterinfos.meternumber}</td>
+                                <td class="text-center">${element.tw_meter_infos.meternumber}</td>
                                 <td class="text-center">${element.invoice_period.inv_p_name}</td>
                                 <td class="text-end">   ${element.lastmeter}</td>
                                 <td class="text-end">   ${element.currentmeter}</td>
@@ -782,18 +777,18 @@
                             </div>`;
 
 
-                    let address = `${invoices[0].usermeterinfos.user.address}
-                                 ${invoices[0].usermeterinfos.user.user_zone.user_zone_name} \n
-                                ตำบล ${invoices[0].usermeterinfos.user.user_tambon.tambon_name}\n
-                                อำเภอ ${invoices[0].usermeterinfos.user.user_district.district_name}\n
-                                จังหวัด ${invoices[0].usermeterinfos.user.user_province.province_name}`;
+                    let address = `${invoices[0].tw_meter_infos.user.address}
+                                 ${invoices[0].tw_meter_infos.user.user_zone.user_zone_name} \n
+                                ตำบล ${invoices[0].tw_meter_infos.user.user_tambon.tambon_name}\n
+                                อำเภอ ${invoices[0].tw_meter_infos.user.user_district.district_name}\n
+                                จังหวัด ${invoices[0].tw_meter_infos.user.user_province.province_name}`;
 
-                    $('#feFirstName').html(invoices[0].usermeterinfos.user.prefix + "" + invoices[0].usermeterinfos
+                    $('#feFirstName').html(invoices[0].tw_meter_infos.user.prefix + "" + invoices[0].tw_meter_infos
                         .user.firstname + " " + invoices[0]
-                        .usermeterinfos.user.lastname);
-                    $('#meternumber2').html(invoices[0].usermeterinfos.meternumber);
+                        .tw_meter_infos.user.lastname);
+                    $('#meternumber2').html(invoices[0].tw_meter_infos.meternumber);
                     $('#feInputAddress').html(address);
-                    $('#phone').html(invoices[0].usermeterinfos.user.phone);
+                    $('#phone').html(invoices[0].tw_meter_infos.user.phone);
 
                     $('#payment_res').html(txt);
                     $('.modal').modal('show')
@@ -806,15 +801,14 @@
                     $('.reserve_meter').html(parseFloat(reserve_metersum).toFixed(2))
                     $('#mustpaid').val(parseFloat(totalpaidsum).toFixed(2))
                     $('.mustpaid').html(parseFloat(totalpaidsum).toFixed(2))
-                    $('#meter_id').val(invoices[0].usermeterinfos.id);
-                    $('#inv_no').val(invoices[0].inv_no)
+                    $('#meter_id').val(invoices[0].tw_meter_infos.meter_id);
 
                     createQrCode({
-                        meter_id: invoices[0].usermeterinfos.id,
+                        meter_id: invoices[0].tw_meter_infos.meter_id,
                         totalpaidsum: totalpaidsum ,
-                        prefix: invoices[0].usermeterinfos.user.prefix,
-                        firstname: invoices[0].usermeterinfos.user.firstname,
-                        lastname: invoices[0].usermeterinfos.user.lastname,
+                        prefix: invoices[0].tw_meter_infos.user.prefix,
+                        firstname: invoices[0].tw_meter_infos.user.firstname,
+                        lastname: invoices[0].tw_meter_infos.user.lastname,
                         invoices_length: invoices.length
                     })
 
@@ -919,11 +913,11 @@
             $('#reserve_meter_sum').val(parseFloat(reserve_metersum).toFixed(2))
             
             createQrCode({
-                meter_id: invoice_local[0].usermeterinfos.meter_id,
+                meter_id: invoice_local[0].tw_meter_infos.meter_id,
                 totalpaidsum: totalsum,
-                prefix: invoice_local[0].usermeterinfos.user.prefix,
-                firstname: invoice_local[0].usermeterinfos.user.firstname,
-                lastname: invoice_local[0].usermeterinfos.user.lastname,
+                prefix: invoice_local[0].tw_meter_infos.user.prefix,
+                firstname: invoice_local[0].tw_meter_infos.user.firstname,
+                lastname: invoice_local[0].tw_meter_infos.user.lastname,
                 invoices_length: invoice_local.length
             })
         }

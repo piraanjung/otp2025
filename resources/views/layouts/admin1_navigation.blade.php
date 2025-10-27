@@ -82,8 +82,7 @@
                 <li class="nav-item  hidden">
                     <a href="{{ url('cutmeter') }}" class="nav-link @yield('nav-cutmeter')">
                         ตัดมิเตอร์
-                        {{-- <span id="owe_over3_period" class="badge badge-danger right mr-4"> {{
-                            App\Http\Controllers\CutmeterController::cutmeterUserCount() }} มิเตอร์</span> --}}
+        
                     </a>
 
                 </li>
@@ -215,7 +214,7 @@
 
     @endrole
 
-    @role('Super Admin')
+    @role('Super Admin|Admin')
 
 
     <li class="nav-item">

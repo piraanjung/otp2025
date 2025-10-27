@@ -9,10 +9,10 @@ use App\Models\Admin\Staff;
 use App\Models\Admin\Subzone;
 use App\Models\Admin\Tambon;
 use App\Models\Admin\Zone;
-use App\Models\KeptKaya\UserWastePreference;
+use App\Models\KeptKaya\KpUserWastePreference;
 use App\Models\KeptKaya\WasteBin;
 use App\Models\KeptKaya\AnnualCollectionPayment;
-use App\Models\Tabwater\TwUsersInfo;
+use App\Models\Tabwater\TwMeterInfos;
 use App\Models\Tabwater\UndertakerSubzone;
 use Laravel\Sanctum\HasApiTokens;
 use Spatie\Permission\Traits\HasRoles;
@@ -21,6 +21,7 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use App\Models\FoodWaste\FoodWasteUserPreference;
 use App\Models\FoodWaste\FoodWasteBin;
+use Illuminate\Support\Facades\Auth;
 
 class User extends Authenticatable
 {
@@ -99,7 +100,7 @@ class User extends Authenticatable
 
     public function usermeterinfos()
     {
-        return $this->hasMany(TwUsersInfo::class, 'user_id', 'id');
+        return $this->hasMany(TwMeterInfos::class, 'user_id', 'id');
     }
     public function user_province()
     {
@@ -119,7 +120,7 @@ class User extends Authenticatable
 
     public function wastePreference()
     {
-        return $this->hasOne(UserWastePreference::class);
+        return $this->hasOne(KpUserWastePreference::class);
     }
 
     public function wasteBins()
@@ -158,5 +159,16 @@ class User extends Authenticatable
     {
         return $this->hasMany(FoodWasteBin::class,'u_pref_id_fk');
     }
+
+    public static function setLocalUser(){
+        return(new User())->setConnection(session('db_conn'))->find(Auth::guard(session('guard'))->user()->id);
+
+    }
+
+   public static function getUserIDFromMainDbByPhone($phone){
+        $user = SuperUser::where('phone', $phone)->get('id')->first();
+        return $user->id;
+    }
+
     
 }

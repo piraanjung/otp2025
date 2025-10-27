@@ -13,13 +13,13 @@ return new class extends Migration
      */
     public function up()
     {
-        Schema::create('cutmeter', function (Blueprint $table) {
-            $table->bigIncrements('id');
-            $table->integer('meter_id_fk');
+        Schema::create('tw_cutmeter', function (Blueprint $table) {
+            $table->id();
+            $table->foreignId('meter_id_fk')->constrained('tw_meter_infos')->onDelete('cascade');
             $table->integer('owe_count')->default(0);
             $table->integer('warning_print')->default(0);
-            $table->string('progress')->comment('เก็บเป็น json มี status, datetime, twman_id');
-            $table->enum('status', ['init', 'cutmeter', 'install', 'complete', 'cancel']);
+            $table->enum('status', ['pending', 'cutmeter', 'install', 'complete', 'cancel']);
+            $table->string('operate_by')->comment('รหัส staffs ถ้า >1 ใช้ | แยก');
             $table->string('comment')->nullable();
             $table->timestamps();
         });
@@ -32,6 +32,6 @@ return new class extends Migration
      */
     public function down()
     {
-        Schema::dropIfExists('cutmeter');
+        Schema::dropIfExists('tw_cutmeter');
     }
 };

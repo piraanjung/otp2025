@@ -1,4 +1,7 @@
 @php
+    use Carbon\Carbon;
+    use Illuminate\Support\Facades\Auth;
+
     // Prepare initial data for the form.
     // This is for handling old input and existing data in edit mode.
     $formTiers = old('units_data', $price->unitsData ?? [
@@ -11,7 +14,10 @@
     ]);
     
     // Calculate end date as 1 year from now
-    $oneYearFromNow = \Carbon\Carbon::now()->addYear()->format('Y-m-d');
+    $oneYearFromNow = Carbon::now()->addYear()->format('Y-m-d');
+
+    // Check if the price is set to run forever (end_date is null)
+    $isForeverActive = old('is_forever_active', ($price->end_date ?? null) === null);
 @endphp
 
 <div class="row">
@@ -42,14 +48,35 @@
 <div class="row">
     <div class="col-md-6 mb-3">
         <label for="end_date" class="form-label">วันที่สิ้นสุด:</label>
-        <input type="date" id="end_date" name="end_date" class="form-control @error('end_date') is-invalid @enderror" value="{{ old('end_date', $price->end_date ? $price->end_date->format('Y-m-d') : $oneYearFromNow) }}">
+        <div class="input-group">
+            <input 
+                type="date" 
+                id="end_date" 
+                name="end_date" 
+                class="form-control @error('end_date') is-invalid @enderror" 
+                value="{{ old('end_date', $price->end_date ? $price->end_date->format('Y-m-d') : $oneYearFromNow) }}"
+                {{ $isForeverActive ? 'disabled' : '' }}
+            >
+            <div class="input-group-text p-0">
+                <div class="form-check form-check-inline m-2">
+                    <input 
+                        type="checkbox" 
+                        id="is_forever_active" 
+                        name="is_forever_active" 
+                        class="form-check-input" 
+                        value="1" 
+                        {{ $isForeverActive ? 'checked' : '' }}
+                    >
+                    <label class="form-check-label" for="is_forever_active">ตลอดไป</label>
+                </div>
+            </div>
+        </div>
         @error('end_date')
             <div class="invalid-feedback">{{ $message }}</div>
         @enderror
     </div>
 
     <div class="col-md-6 mb-3">
-        {{-- @dd($recorders) --}}
         <label for="recorder_id" class="form-label">ผู้บันทึก:</label>
         <select id="recorder_id" name="recorder_id" class="form-select @error('recorder_id') is-invalid @enderror">
             <option value="">เลือกผู้บันทึก</option>
@@ -57,9 +84,6 @@
                 <option value="{{ $recorder->user_id }}" {{ old('recorder_id', $price->recorder_id ?? Auth::id()) == $recorder->user_id ? 'selected' : '' }}>
                     {{ $recorder->user->firstname }} {{ $recorder->user->lastname }}
                 </option>
-                {{-- <option value="{{ $recorder->user_id }}" {{ old('recorder_id', $price->recorder_id ?? '') == $recorder->user_id ? 'selected' : '' }}>
-                    {{ $recorder->user->firstname }} {{ $recorder->user->lastname }}
-                </option> --}}
             @endforeach
         </select>
         @error('recorder_id')
@@ -71,6 +95,7 @@
 <hr>
 <h5 class="mb-3">กำหนดราคาและคะแนน</h5>
 <div id="units-container">
+    {{-- Dynamic Unit Items Loop (Handles existing data and old input) --}}
     @forelse(old('units_data', $formTiers) as $index => $unitData)
         <div class="row g-3 align-items-end unit-item mb-3">
             <div class="col-md-3">
@@ -101,11 +126,11 @@
                 @error('units_data.'.$index.'.point')<div class="invalid-feedback">{{ $message }}</div>@enderror
             </div>
             <div class="col-md-1">
-
                 <button type="button" class="btn btn-danger btn-sm remove-unit-btn"><i class="fa fa-trash"></i></button>
             </div>
         </div>
     @empty
+        {{-- Default Item if no data exists --}}
         <div class="row g-3 align-items-end unit-item mb-3">
             <div class="col-md-3">
                 <label class="form-label">หน่วยนับ:</label>
@@ -129,7 +154,8 @@
                 <input type="number" name="units_data[0][point]" class="form-control" value="0" min="0">
             </div>
             <div class="col-md-1 d-flex align-items-end">
-                <button type="button" class="btn btn-danger btn-sm remove-unit-btn" disabled><i class="fa fa-trash"></i></button>
+                {{-- Only disable if there is definitely only one row (for visual appearance) --}}
+                <button type="button" class="btn btn-danger btn-sm remove-unit-btn"><i class="fa fa-trash"></i></button>
             </div>
         </div>
     @endforelse
@@ -149,17 +175,58 @@
     <label for="is_active" class="form-check-label">ใช้งานอยู่</label>
 </div>
 
-{{-- JavaScript for dynamic form fields --}}
+{{-- JavaScript for dynamic form fields and End Date logic --}}
 <script>
     document.addEventListener('DOMContentLoaded', function() {
         const addUnitBtn = document.getElementById('add-unit-btn');
         const unitsContainer = document.getElementById('units-container');
         let unitIndex = unitsContainer.querySelectorAll('.unit-item').length;
 
+        const endDateInput = document.getElementById('end_date');
+        const isForeverActiveCheckbox = document.getElementById('is_forever_active');
+        const form = endDateInput.closest('form');
+
+        // --- 1. Logic for "Forever Active" Checkbox ---
+        function toggleEndDate() {
+            if (isForeverActiveCheckbox.checked) {
+                // If checked, disable the date input and clear its value
+                endDateInput.disabled = true;
+                endDateInput.removeAttribute('required'); // Should be handled by nullable validation in PHP, but good practice
+            } else {
+                // If unchecked, enable the date input
+                endDateInput.disabled = false;
+                endDateInput.setAttribute('required', 'required'); // Ensure date is required if not forever
+            }
+        }
+        
+        // Initial setup
+        toggleEndDate();
+
+        // Event Listener for the checkbox
+        isForeverActiveCheckbox.addEventListener('change', toggleEndDate);
+
+        // --- Important: Re-enable the disabled field before form submission ---
+        // This ensures the field is included in the $_POST data even if disabled by JS
+        if (form) {
+            form.addEventListener('submit', function() {
+                if (endDateInput.disabled) {
+                     // Only re-enable if it was disabled (i.e., 'ตลอดไป' was checked)
+                    endDateInput.disabled = false;
+                    // If 'ตลอดไป' is checked, we must clear the value so PHP receives null
+                    endDateInput.value = ''; 
+                }
+            });
+        }
+
+
+        // --- 2. Logic for Dynamic Unit Items ---
         function addUnitRow() {
             const newRow = document.createElement('div');
             newRow.classList.add('row', 'g-3', 'align-items-end', 'unit-item', 'mb-3');
-            newRow.innerHTML = `
+            
+            // Create a temporary element to hold the options and get the inner HTML
+            const tempDiv = document.createElement('div');
+            tempDiv.innerHTML = `
                 <div class="col-md-3">
                     <label class="form-label">หน่วยนับ:</label>
                     <select name="units_data[${unitIndex}][kp_units_idfk]" class="form-select" required>
@@ -185,6 +252,12 @@
                     <button type="button" class="btn btn-danger btn-sm remove-unit-btn"><i class="fa fa-trash"></i></button>
                 </div>
             `;
+            
+            // Append the contents (children) of the tempDiv to the newRow
+            Array.from(tempDiv.children).forEach(child => {
+                newRow.appendChild(child.cloneNode(true));
+            });
+
             unitsContainer.appendChild(newRow);
             unitIndex++;
         }
@@ -195,6 +268,16 @@
                     const rowToRemove = e.target.closest('.unit-item');
                     if (unitsContainer.querySelectorAll('.unit-item').length > 1) {
                         rowToRemove.remove();
+                        // Re-index all remaining unit items (optional but makes logic cleaner)
+                        unitsContainer.querySelectorAll('.unit-item').forEach((row, index) => {
+                             row.querySelectorAll('input, select').forEach(field => {
+                                 const oldName = field.name;
+                                 if (oldName) {
+                                     field.name = oldName.replace(/\[\d+\]/, '[' + index + ']');
+                                 }
+                             });
+                         });
+                        unitIndex = unitsContainer.querySelectorAll('.unit-item').length; // Reset index counter
                     } else {
                         alert('ต้องมีหน่วยนับอย่างน้อยหนึ่งรายการ');
                     }
@@ -204,15 +287,6 @@
 
         addUnitBtn.addEventListener('click', addUnitRow);
         handleRemoveBtn();
-
-        // Update the form fields when kp_items_idfk changes
-        // This is a placeholder for a more complex feature.
-        const kpItemsIdfkSelect = document.getElementById('kp_items_idfk');
-        kpItemsIdfkSelect.addEventListener('change', function() {
-            // Here you would fetch existing prices and units for the selected item
-            // and populate the form.
-            // This is a complex feature that would require an AJAX endpoint.
-        });
 
     });
 </script>

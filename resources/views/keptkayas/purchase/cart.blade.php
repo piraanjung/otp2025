@@ -1,15 +1,15 @@
-@can('access waste bank mobile')
+@if($user->can('access waste bank mobile'))
     @php
         $layout = 'layouts.keptkaya_mobile';
     @endphp
 
-@elsecan('access tabwater2')
+@else
     @php
-        $layout = 'layouts.keptkaya_mobile';
+        $layout = 'layouts.keptkaya';
      @endphp
-@endcan
+@endif
 
-@extends($layout)
+@extends('$layout')
 @section('content')
     <div class="container-fluid">
         <div class="d-flex justify-content-between align-items-center mb-4">

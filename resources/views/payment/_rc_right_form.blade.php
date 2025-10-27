@@ -65,7 +65,7 @@ $receipt_th_date = $fnc->engDateToThaiDateFormat($exp[0]);
             {{-- &nbsp; --}}
         </td>
         <td colspan="5">
-            {{ $invoicesPaidForPrint[0]->usermeterinfos->user->prefix . '' . $invoicesPaidForPrint[0]->usermeterinfos->user->firstname . ' ' . $invoicesPaidForPrint[0]->usermeterinfos->user->lastname }}
+            {{ $invoicesPaidForPrint[0]->tw_meter_infos->user->prefix . '' . $invoicesPaidForPrint[0]->tw_meter_infos->user->firstname . ' ' . $invoicesPaidForPrint[0]->tw_meter_infos->user->lastname }}
         </td>
 
         <td colspan="3" rowspan="2" class="text-center border-right-none border-bottom-none">
@@ -80,12 +80,12 @@ $receipt_th_date = $fnc->engDateToThaiDateFormat($exp[0]);
             {{-- &nbsp; --}}
         </td>
         <td colspan="5" class="address pt-1" style="height: 3rem !important">
-            {{ $invoicesPaidForPrint[0]->usermeterinfos->meter_address }}
-            {{ $invoicesPaidForPrint[0]->usermeterinfos->undertake_subzone->subzone_name }}
-            ต.{{ $invoicesPaidForPrint[0]->usermeterinfos->user->user_tambon->tambon_name }}
-            อ.{{ $invoicesPaidForPrint[0]->usermeterinfos->user->user_district->district_name }}
-            จ.{{ $invoicesPaidForPrint[0]->usermeterinfos->user->user_province->province_name }}
-            {{ $invoicesPaidForPrint[0]->usermeterinfos->user->user_tambon->zipcode }}
+            {{ $invoicesPaidForPrint[0]->tw_meter_infos->meter_address }}
+            {{ $invoicesPaidForPrint[0]->tw_meter_infos->undertake_subzone->subzone_name }}
+            ต.{{ $invoicesPaidForPrint[0]->tw_meter_infos->user->user_tambon->tambon_name }}
+            อ.{{ $invoicesPaidForPrint[0]->tw_meter_infos->user->user_district->district_name }}
+            จ.{{ $invoicesPaidForPrint[0]->tw_meter_infos->user->user_province->province_name }}
+            {{ $invoicesPaidForPrint[0]->tw_meter_infos->user->user_tambon->zipcode }}
         </td>
 
     </tr>
@@ -98,14 +98,14 @@ $receipt_th_date = $fnc->engDateToThaiDateFormat($exp[0]);
             {{-- &nbsp; --}}
         </td>
 
-        <?php $sunmeter_name  = $invoicesPaidForPrint[0]->usermeterinfos->submeter_name == "" ? "" : " (".$invoicesPaidForPrint[0]->usermeterinfos->submeter_name.")"; ?>
-        <td width="30%" class="text-center pl-1"> {{ $invoicesPaidForPrint[0]->usermeterinfos->user_id."".$sunmeter_name }}</td>
+        <?php $sunmeter_name  = $invoicesPaidForPrint[0]->tw_meter_infos->submeter_name == "" ? "" : " (".$invoicesPaidForPrint[0]->tw_meter_infos->submeter_name.")"; ?>
+        <td width="30%" class="text-center pl-1"> {{ $invoicesPaidForPrint[0]->tw_meter_infos->user_id."".$sunmeter_name }}</td>
         <td width="20%" class="waterUsedHisHead pl-2 header-bg">
             เลขมิเตอร์
             {{-- &nbsp; --}}
         </td>
         <td width="30%" class="text-center">
-            {{ $fnc->createInvoiceNumberString($invoicesPaidForPrint[0]->usermeterinfos->meter_id) }} /
+            {{ $fnc->createInvoiceNumberString($invoicesPaidForPrint[0]->tw_meter_infos->meter_id) }} /
             <span
                 style="font-size: 0.8rem">{{ $fnc->createNumberString($invoicesPaidForPrint[0]->inv_id) }}</span>
         </td>

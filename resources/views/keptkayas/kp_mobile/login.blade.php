@@ -98,6 +98,8 @@
 @section('script')
 {{-- ต้องมีไลบรารี html5-qrcode --}}
 <script src="https://cdnjs.cloudflare.com/ajax/libs/html5-qrcode/2.3.8/html5-qrcode.min.js"></script>
+
+
 <script>
     const machineScanner = new Html5Qrcode("scanner-reader");
     const scannerStatus = document.getElementById('scanner-status');

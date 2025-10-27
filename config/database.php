@@ -15,7 +15,7 @@ return [
     |
     */
 
-    'default' => env('DB_CONNECTION', 'envsogo_main'),
+    'default' => env('DB_CONNECTION', 'envsogo_hs1'),
 
     /*
     |--------------------------------------------------------------------------

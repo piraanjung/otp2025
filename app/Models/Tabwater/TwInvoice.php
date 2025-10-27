@@ -8,15 +8,13 @@ use Exception;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Facades\DB;
-use App\Models\Admin\ManagesTenantConnection;
 class TwInvoice extends Model
 {
-    use HasFactory,ManagesTenantConnection;
+    use HasFactory;
      public $timestamps = false;
     protected $fillable = [
         'id',
         'inv_temp_id_fk',
-        'inv_no',
         'inv_period_id_fk',
         'meter_id_fk',
         'lastmeter',
@@ -32,7 +30,7 @@ class TwInvoice extends Model
         'status',
         'created_at',
         'updated_at',
-        // 'printed_time'
+        'inv_no'
     ];
     protected $table = 'tw_invoice';
 
@@ -48,7 +46,7 @@ class TwInvoice extends Model
 
     public function usermeterinfos()
     {
-        return $this->belongsTo(TwUsersInfo::class, 'meter_id_fk', 'meter_id');
+        return $this->belongsTo(TwMeterInfos::class, 'meter_id_fk', 'meter_id');
     }
 
     public function acc_transactions()
@@ -88,8 +86,5 @@ class TwInvoice extends Model
         return $budgetyear_id_str . "" . $inv_no . "" . $funcCtrl->createNumberString($meter_id);
     }
 
-    public function aaa(){
-        return 'aa';
-    }
-}
 
+}

@@ -37,17 +37,17 @@ class KpPurchaseDetail extends Model
     ];
 
     // Relationships
-    public function transaction(): BelongsTo
+    public function transaction()
     {
         return $this->belongsTo(KpPurchaseTransaction::class, 'kp_purchase_trans_id');
     }
 
-    public function item(): BelongsTo
+    public function item()
     {
         return $this->belongsTo(KpTbankItems::class, 'kp_recycle_item_id');
     }
     
-    public function pricePoint(): BelongsTo
+    public function pricePoint()
     {
         return $this->belongsTo(KpTbankItemsPriceAndPoint::class, 'kp_tbank_items_pricepoint_id');
     }
@@ -56,7 +56,7 @@ class KpPurchaseDetail extends Model
 
     public function user(): BelongsTo
     {
-        return $this->belongsTo(UserWastePreference::class, 'kp_user_id_fk', 'id');
+        return $this->belongsTo(KpUserWastePreference::class, 'kp_user_id_fk', 'id');
     }
 
     public function recorder(): BelongsTo

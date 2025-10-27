@@ -7,7 +7,7 @@ use App\Http\Controllers\Api\ZoneController;
 use App\Http\Controllers\Controller;
 use App\Models\Tabwater\TwInvoiceTemp;
 use App\Models\Tabwater\TwInvoicePeriod;
-use App\Models\Tabwater\TwUsersInfo;
+use App\Models\Tabwater\TwMeterInfos;
 use App\Models\Tabwater\UndertakerSubzone;
 use App\Models\User;
 use Illuminate\Http\Request;
@@ -428,7 +428,7 @@ class UsersController extends Controller
 
     public function users_subzone_count($subzone_id = null)
     {
-        return (new TwUsersInfo())->setConnection(session('db_conn'))->where('status', 'active')
+        return TwMeterInfos::where('status', 'active')
             ->where('undertake_subzone_id', $subzone_id)->count();
     }
 
@@ -436,7 +436,7 @@ class UsersController extends Controller
     {
         $curr_inv_period = TwInvoicePeriod::where('status', 'active')->get('id')->first();
         $curr_inv_period_id = $curr_inv_period->id;
-        $res = TwUsersInfo::where('undertake_subzone_id', $subzone_id)
+        $res = TwMeterInfos::where('undertake_subzone_id', $subzone_id)
             ->with(['invoice' => function ($query) use ($status,$curr_inv_period_id) {
                 return $query->select('meter_id_fk')->where('status', $status)->where('inv_period_id_fk', $curr_inv_period_id);
             }])

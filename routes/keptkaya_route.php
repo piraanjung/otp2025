@@ -9,8 +9,9 @@ use App\Http\Controllers\KeptKaya\KpPurchaseShopController;
 use App\Http\Controllers\KeptKaya\KpTbankPriceController;
 use App\Http\Controllers\KeptKaya\KpUserGroupController;
 use App\Http\Controllers\KeptKaya\CartController;
+use App\Http\Controllers\Keptkayas\KpRecycleClassifyController;
 use App\Http\Controllers\KeptKeptKayakaya\InvoicePeriodController;
-use App\Http\Controllers\KeptKaya\KeptKayaPurchaseController;
+use App\Http\Controllers\KeptKaya\KpPurchaseController;
 use App\Http\Controllers\KeptKaya\KpBudgetYearController;
 use App\Http\Controllers\KeptKaya\KpPaymentController;
 use App\Http\Controllers\KeptKaya\KpSellController;
@@ -38,11 +39,19 @@ use Firebase\JWT\Key;
 use Spatie\Permission\Models\Permission;
 use Spatie\Permission\Models\Role;
 
-Route::middleware(['auth', 'role:Super Admin|Admin|Recycle Bank Staff|Tabwater Staff|User|Annual Staff'])->prefix('keptkayas')->name('keptkayas.')->group(function () {
+
+Route::get('keptkayas/dashboard/{keptkayatype?}', [DashboardController::class, 'index'])->middleware(['auth'])->name('keptkayas.dashboard');
+
+
+Route::middleware(['auth'])->prefix('keptkayas')->name('keptkayas.')->group(function () {
+    Route::get('recycle_classify/index',[KpRecycleClassifyController::class, 'index'])->name('recycle_classify');
 
     Route::get('scanner', function () {
         return view('keptkayas.barcode.scanner');
     });
+
+    Route::resource('/purchase-shops', KpPurchaseShopController::class)->middleware(['auth']);
+
 
     Route::post('barcode/search', [BarcodeController::class, 'search'])
      ->name('barcode.search');
@@ -74,21 +83,21 @@ Route::middleware(['auth', 'role:Super Admin|Admin|Recycle Bank Staff|Tabwater S
 
     Route::prefix('purchase/')->name('purchase.')->group(function () {
         // Step 1: User Selection
-        Route::get('select_user', [KeptKayaPurchaseController::class, 'select_user'])->name('select_user');
-        Route::get('start_purchase/{user_waste_pref_id}', [KeptKayaPurchaseController::class, 'startPurchase'])->name('start_purchase');
+        Route::get('select_user', [KpPurchaseController::class, 'select_user'])->name('select_user');
+        Route::get('start_purchase/{user_waste_pref_id}', [KpPurchaseController::class, 'startPurchase'])->name('start_purchase');
 
         // Step 2: Purchase Form (To be created next)`
-        Route::get('form/{user_id}', [KeptKayaPurchaseController::class, 'showPurchaseForm'])->name('form');
-        Route::post('add_to_cart', [KeptKayaPurchaseController::class, 'addToCart'])->name('add_to_cart');
+        Route::get('form/{user_id}', [KpPurchaseController::class, 'showPurchaseForm'])->name('form');
+        Route::post('add_to_cart', [KpPurchaseController::class, 'addToCart'])->name('add_to_cart');
 
         // Step 3: Cart List (To be created next)
-        Route::delete('remove-from-cart/{index}', [KeptKayaPurchaseController::class, 'removeFromCart'])->name('remove_from_cart');
-        Route::get('cart', [KeptKayaPurchaseController::class, 'showCart'])->name('cart');
-        Route::post('save-transaction', [KeptKayaPurchaseController::class, 'saveTransaction'])->name('save_transaction');
-        Route::post('save-transaction-machine', [KeptKayaPurchaseController::class, 'saveTransactionForMachine'])->name('save_transaction_machine');
-        Route::get('show-receipt/{transaction}', [KeptKayaPurchaseController::class, 'showReceipt'])->name('show_receipt');
-        Route::get('history/{user}', [KeptKayaPurchaseController::class, 'showPurchaseHistory'])->name('history');
-        Route::get('receipt/{transaction_id}', [KeptKayaPurchaseController::class, 'showReceipt'])->name('receipt');
+        Route::delete('remove-from-cart/{index}', [KpPurchaseController::class, 'removeFromCart'])->name('remove_from_cart');
+        Route::get('cart', [KpPurchaseController::class, 'showCart'])->name('cart');
+        Route::post('save-transaction', [KpPurchaseController::class, 'saveTransaction'])->name('save_transaction');
+        Route::post('save_transaction_machine', [KpPurchaseController::class, 'saveTransactionForMachine'])->name('save_transaction_machine');
+        Route::get('show-receipt/{transaction}', [KpPurchaseController::class, 'showReceipt'])->name('show_receipt');
+        Route::get('history/{kp_waste_pref_id}', [KpPurchaseController::class, 'showPurchaseHistory'])->name('history');
+        Route::get('receipt/{transaction_id}', [KpPurchaseController::class, 'showReceipt'])->name('receipt');
     });
 
     Route::prefix('sell/')->name('sell.')->group(function () {
@@ -101,9 +110,7 @@ Route::middleware(['auth', 'role:Super Admin|Admin|Recycle Bank Staff|Tabwater S
         Route::get('receipt/{transaction}', [KpSellController::class, 'showReceipt'])->name('receipt');
         Route::delete('/users/{transaction}', [KpSellController::class, 'destroy'])->name('destroy');
     });
-    Route::resource('purchase-shops', KpPurchaseShopController::class);
-
-    Route::get('/dashboard/{keptkayatype?}', [DashboardController::class, 'index'])->name('dashboard');
+    
 
     Route::prefix('/{w_user}/waste-bins')->name('waste_bins.')->group(function () {
         Route::get('/', [WasteBinController::class, 'index'])->name('index');

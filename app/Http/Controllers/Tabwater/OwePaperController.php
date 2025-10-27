@@ -12,7 +12,7 @@ use App\Http\Controllers\Api\OwepaperController as ApiOwepaperController;
 use App\Models\Tabwater\TwCutmeter;
 use App\Models\Tabwater\TwInvoiceTemp;
 use App\Models\Tabwater\TwInvoicePeriod;
-use App\Models\Tabwater\TwUsersInfo;
+use App\Models\Tabwater\TwMeterInfos;
 use Illuminate\Support\Facades\Auth;
 
 class OwePaperController extends Controller
@@ -46,8 +46,8 @@ class OwePaperController extends Controller
         foreach ($request->get('meter_id') as $key => $on) {
             if ($on == 'on') {
                 //checkว่ามีข้อมูลใน cutmeter table หรือยัง
-                $checkInitData = TwCutmeter::where('meter_id_fk', $key)->whereIn('status', ['init', 'cutmeter'])->get();
-                $usermeter_info_owe_count = TwUsersInfo::where('meter_id', $key)->get(['owe_count']);
+                $checkInitData = TwCutmeter::where('meter_id_fk', $key)->whereIn('status', ['pending', 'cutmeter'])->get();
+                $usermeter_info_owe_count = TwMeterInfos::where('meter_id', $key)->get(['owe_count']);
                 $progressDecode = [];
                 if (collect($checkInitData)->isEmpty()) {
                     array_push($progressDecode, ['topic' => 'warning_print', 'undertaker' => [Auth::user()->id], 'created_at' => strtotime(date('Y-m-d H:i:s'))]);
@@ -56,25 +56,34 @@ class OwePaperController extends Controller
                         'meter_id_fk' => $key,
                         'owe_count' => $usermeter_info_owe_count[0]->owe_count,
                         'warning_print' => 1,
-                        'progress' => json_encode($progressDecode),
-                        'status' => 'init',
+                        'operate_by' => Auth::id(),
+                        'status' => 'pending',
                         'created_at' => date('Y-m-d H:i:s'),
                         'updated_at' => date('Y-m-d H:i:s'),
                     ]);
                 } else {
                     //update cutmeter table
-                    $progressDecode = json_decode($checkInitData[0]->progress, true);
-                    array_push($progressDecode, ['topic' => 'warning_print', 'undertaker' => [Auth::user()->id], 'created_at' => strtotime(date('Y-m-d H:i:s'))]);
-                    TwCutmeter::where('meter_id_fk', $key)->whereIn('status', ['init', 'cutmeter'])->update([
+                    TwCutmeter::where('meter_id_fk', $key)->whereIn('status', ['pending', 'cutmeter'])->update([
                         'warning_print' => $checkInitData[0]->warning_print + 1,
-                        'progress' => json_encode($progressDecode),
+                        'status'        =>   'passed',
+                        'updated_at'    => date('Y-m-d H:i:s'),
+                    ]);
+                    TwCutmeter::insert([
+                        'meter_id_fk' => $key,
+                        'owe_count' => $usermeter_info_owe_count[0]->owe_count,
+                        'warning_print' => 1,
+                        'operate_by' => Auth::id(),
+                        'status' => $checkInitData[0]->status,
+                        'created_at' => date('Y-m-d H:i:s'),
                         'updated_at' => date('Y-m-d H:i:s'),
                     ]);
+                    // array_push($progressDecode, ['topic' => 'warning_print', 'undertaker' => [Auth::user()->id], 'created_at' => strtotime(date('Y-m-d H:i:s'))]);
+                    
                 }
                 //หาการใช้น้ำ 5 เดือนล่าสุด
                 $oweByInvoicePeriod = TwInvoiceTemp::where('meter_id_fk', $key)
                     ->whereIn('status', ['owe', 'invoice'])
-                    ->with('invoice_period', 'usermeterinfos')
+                    ->with('invoice_period', 'tw_meter_infos')
                     ->orderBy('inv_period_id_fk', 'desc')
                     ->get();
                 foreach($oweByInvoicePeriod as $invoice){

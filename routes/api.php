@@ -128,7 +128,7 @@ Route::middleware(['throttle:api'])->name('api.')->group(function () {
     Route::get('/get_tambons/{district_id}', [FunctionsController::class,'getTambons']);
     Route::get('/get_org/{tambon_id}', [FunctionsController::class,'getOrgName']);
 
-    // Route::prefix('cutmeter')->group(function () {
+    // Route::prefix('cutmeter')->group(function () {      
     //     Route::get('/index/{zone_id?}/{subzone_id?}', [CutmeterController::class,'index']);
     //     Route::get('/owe', 'Api\CutmeterController@owe');
     //     Route::get('/get_reciepting', 'Api\CutmeterController@get_reciepting');

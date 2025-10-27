@@ -9,10 +9,11 @@ class TwCutmeter extends Model
 {
     use HasFactory;
     protected $table = 'tw_cutmeter';
+    public $timestamps = false;
     protected $fillable = [ 'meter_id_fk', 'id', 'progress', 'status', 'owe_count', 'warning_print'];
 
 
     public function usermeterinfo(){
-        return $this->belongsTo(TwUsersInfo::class, 'meter_id_fk', 'meter_id');
+        return $this->belongsTo(TwMeterInfos::class, 'meter_id_fk', 'meter_id');
     }
 }

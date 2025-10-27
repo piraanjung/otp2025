@@ -16,7 +16,7 @@ return new class extends Migration
         Schema::create('kp_accounts', function (Blueprint $table) {
             $table->id();
             $table->unsignedBigInteger('u_wpref_id_fk');
-            $table->foreign('u_wpref_id_fk')->references('id')->on('user_waste_preferences')->onDelete('cascade');
+            $table->foreign('u_wpref_id_fk')->references('id')->on('kp_user_waste_preferences')->onDelete('cascade');
             $table->float('balance',8,2)->default(0);
             $table->float('points',8,2)->default(0);
             $table->enum('status', ['active', 'inactive', 'deleted'])->default('active');

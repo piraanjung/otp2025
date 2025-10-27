@@ -1,8 +1,9 @@
 @extends('layouts.keptkaya')
-
+@section('nav-header', 'ตั้งราคารับซื้อขยะรีไซเคิล')
+@section('nav-current', 'ตารางราคารับซื้อขยะรีไซเคิล')
+@section('page-topic', 'ตารางราคารับซื้อขยะรีไซเคิล')
 @section('content')
     <div class="d-flex justify-content-between align-items-center mb-4">
-        <h1 class="mb-0">ราคารับซื้อขยะรีไซเคิล</h1>
         <a href="{{ route('keptkayas.tbank.prices.create') }}" class="btn btn-primary">
             <i class="fa fa-plus-circle me-1"></i> เพิ่มราคาใหม่
         </a>

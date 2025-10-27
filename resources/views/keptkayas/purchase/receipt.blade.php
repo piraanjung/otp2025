@@ -9,13 +9,13 @@
     <script src="https://cdn.tailwindcss.com"></script>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
     <script src="https://html2canvas.hertzen.com/dist/html2canvas.min.js"></script>
-
+<link href="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-EVSTQN3/azprG1Anm3QDgpJLIm9Nao0Yz1ztcQTwFspd3yD65VohhpuuCOmLASjC" crossorigin="anonymous">
     <style>
         body {
             font-family: 'Inter', sans-serif;
             background-color: #f0f4f8;
             /* display: flex; */
-            justify-content: center;
+            /* justify-content: center; */
             align-items: center;
             min-height: 100vh;
             padding: 1rem;
@@ -29,7 +29,7 @@
             max-width: 600px;
             /* Increased max-width for better layout */
             width: 100%;
-            text-align: center;
+            /* text-align: center; */
         }
 
         .btn {
@@ -100,10 +100,14 @@
 
 <body>
     <div class="container">
-        <h1 class="text-3xl font-bold text-gray-800 mb-6">เครื่องพิมพ์ความร้อน Web Bluetooth</h1>
+         <a href="{{ route('keptkayas.purchase.select_user') }}" class="btn btn-secondary">
+                    {{-- <i class="fas fa-arrow-left me-1"></i>  --}}
+                    << กลับหน้าเลือกผู้ใช้งาน
+                </a>
+        {{-- <h1 class="text-3xl font-bold text-gray-800 mb-6">เครื่องพิมพ์ความร้อน Web Bluetooth</h1>
         <p class="text-gray-600 mb-6">
             เชื่อมต่อกับเครื่องพิมพ์ความร้อน Bluetooth ของคุณและส่งข้อความเพื่อทดสอบ
-        </p>
+        </p> --}}
 
          <div class="flex flex-col sm:flex-row justify-center gap-4 mb-6">
             <button id="connectButton" class="btn btn-primary">
@@ -114,37 +118,46 @@
                 </svg>
                 เชื่อมต่อเครื่องพิมพ์
             </button>
-            <button id="printImageButton" class="btn btn-primary btn-disabled" disabled>
+            {{-- <button id="printImageButton" class="btn btn-primary btn-disabled" disabled>
                 <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
                     <path fill-rule="evenodd"
                         d="M4 3a2 2 0 00-2 2v10a2 2 0 002 2h12a2 2 0 002-2V5a2 2 0 00-2-2H4zm12 12H4l4-4 3 3 5-5V5h-2v4.586l-3 3L9 9.414l-4 4V5h11v10z"
                         clip-rule="evenodd" />
                 </svg>
                 พิมพ์ข้อความ (เป็นรูปภาพ)
-            </button>
+            </button> --}}
 
         </div>
-       <div id="status" class="status-message">
+       <div id="status" class="status-message mb-4">
             สถานะ: ยังไม่ได้เชื่อมต่อ
         </div>
 
-        <div class="card shadow-lg" style="width: 250px; font-size:0.8rem !important">
-            <div class="card-header bg-success text-white text-center">
-                <img src="{{asset('logo/hs_logo.jpg')}}" alt="">
-                <h3 class="mb-0">ใบเสร็จรับเงิน</h3>
-                <p class="mb-0">ธนาคารขยะ</p>
+        <div class="card shadow-lg" style="width: 250px; font-size:1rem !important">
+            <div class="card-header">
+                <div class="d-flex justify-content-between">
+               
+                    <img src="{{asset('logo/hs_logo.png')}}" style="width:70px">
+                <div class="text-end">
+                    เทศบาลตำบล
+                    <br>
+                    ห้องแซง
+                </div>
+                </div>
             </div>
+             
             <div class="card-body">
-                <div class="row mb-3">
-                    <div class="col-md-6">
+                 <h3 class="mb-0 text-center">ใบเสร็จรับเงิน ธนาคารขยะ</h3>
+                 <hr>
+                <div class="row mb-2">
+                    <div class="col-md-6 text-center" style="font-size: 0.75rem">
                         <strong>เลขที่ธุรกรรม:</strong> {{ $transaction->kp_u_trans_no }}
                     </div>
-                    <div class="col-md-6 text-md-end">
+                    <div class="col-md-6 text-md-end" style="font-size: 0.8rem;text-align:center">
                         <strong>วันที่ทำรายการ:</strong> {{ $transaction->transaction_date->format('Y-m-d') }}
                     </div>
                 </div>
 
-                <div class="row mb-4">
+                <div class="row mb-2">
                     <div class="col-md-6">
                         <strong>ผู้ขาย:</strong> {{ $transaction->user_waste_pref->user->firstname }}
                         {{ $transaction->user_waste_pref->user->lastname }}
@@ -155,67 +168,77 @@
                     </div>
                 </div>
 
-                <div class="table-responsive mb-4">
-                    <table class="table table-bordered table-striped">
+                <div class="table-responsive">
+                    <table class="table table-bordered table-striped" style="font-size: 0.85rem">
                         <thead class="table-light">
                             <tr>
                                 <th>รายการขยะ</th>
-                                <th>ปริมาณ</th>
-                                <th>ราคา/หน่วย</th>
-                                <th>จำนวนเงิน</th>
-                                <th>คะแนน</th>
                             </tr>
                         </thead>
                         <tbody>
                             @foreach ($transaction->details as $detail)
                                 <tr>
-                                    <td>{{ $detail->item->kp_itemsname ?? 'N/A' }}</td>
-                                    <td>{{ number_format($detail->amount_in_units, 2) }}
-                                        {{ $detail->pricePoint->kp_units_info->unitname ?? 'N/A' }}
+                                    <td>
+                                        {{ $detail->item->kp_itemsname ?? 'N/A' }}
+                                        <div class="d-flex justify-content-between">
+                                            <div>
+                                                {{ number_format($detail->amount_in_units,2) }}
+                                                {{ $detail->pricePoint->kp_units_info->unitname ?? 'N/A' }}
+                                                x
+                                                {{ number_format($detail->price_per_unit, 2) }} บาท
+                                                = 
+                                            
+                                            </div>
+                                            <div>
+                                                {{ number_format($detail->amount, 2) }} บาท
+                                                <div>{{ number_format($detail->points) }} คะแนน</div>
+                                            </div>
+                                        </div>
+                                      
                                     </td>
-                                    <td>{{ number_format($detail->price_per_unit, 2) }} บาท</td>
-                                    <td>{{ number_format($detail->amount, 2) }} บาท</td>
-                                    <td>{{ number_format($detail->points) }} คะแนน</td>
+                                   
                                 </tr>
+                                
                             @endforeach
                         </tbody>
                     </table>
                 </div>
 
                 <div class="row">
-                    <div class="col-md-6 offset-md-6">
-                        <div class="card p-3">
-                            <div class="d-flex justify-content-between">
-                                <strong>น้ำหนัก/ปริมาณรวม:</strong>
-                                <span>{{ number_format($transaction->total_weight, 2) }} kg</span>
+                    <div class="col-md-12">
+                        <div class="card p-1">
+                            {{-- <div class="d-flex justify-content-between">
+                                <strong style="font-size: 0.9rem">น้ำหนัก/ปริมาณรวม:</strong>
+                                <span>{{ number_format($detail->amount_in_units,2) }}
+                                                {{ $detail->pricePoint->kp_units_info->unitname ?? 'N/A' }}</span>
                             </div>
                             <div class="d-flex justify-content-between">
-                                <strong>คะแนนรวม:</strong>
+                                <strong style="font-size: 0.9rem">คะแนนรวม:</strong>
                                 <span>{{ number_format($transaction->total_points) }} คะแนน</span>
-                            </div>
-                            <hr class="my-2">
-                            <div class="d-flex justify-content-between fs-4 text-success">
+                            </div> --}}
+                            {{-- <hr class="my-2"> --}}
+                            <div class="d-flex justify-content-between text-success">
                                 <strong>ยอดรวมทั้งหมด:</strong>
-                                <span>{{ number_format($transaction->total_amount, 2) }} บาท</span>
+                                <span>{{ number_format($transaction->total_amount, 2) }} บาท
+                                    <div>{{ number_format($transaction->total_points) }} คะแนน</div>
+                                </span>
                             </div>
                         </div>
                     </div>
                 </div>
             </div>
             <div class="card-footer text-end">
-                <button class="btn btn-primary" onclick="window.print()">
+                {{-- <button class="btn btn-primary" onclick="window.print()">
+                    <i class="bi bi-printer-fill me-1"></i> พิมพ์ใบเสร็จ
+                </button> --}}
+                <button class="btn btn-success" onclick="aaa()">
                     <i class="bi bi-printer-fill me-1"></i> พิมพ์ใบเสร็จ
                 </button>
-                <button class="btn btn-primary" onclick="aaa()">
-                    <i class="bi bi-printer-fill me-1"></i> aaa
-                </button>
-                <button class="btn btn-success" id="downloadReceipt">
+                {{-- <button class="btn btn-success" id="downloadReceipt">
                     <i class="bi bi-download me-1"></i> บันทึกเป็นรูปภาพ
-                </button>
+                </button> --}}
 
-                <a href="{{ route('keptkayas.purchase.select_user') }}" class="btn btn-secondary">
-                    <i class="bi bi-arrow-left me-1"></i> กลับหน้าเลือกผู้ใช้งาน
-                </a>
+               
             </div>
         </div>
     </div>
@@ -319,7 +342,6 @@
     try {
         let selectedDevice = null;
         const lastDeviceId = localStorage.getItem(LAST_USED_DEVICE_ID_KEY);
-
         // 2. พยายามดึงอุปกรณ์ที่เคยเชื่อมต่อล่าสุด
         if (lastDeviceId) {
             updateStatus('กำลังตรวจสอบอุปกรณ์ที่เคยเชื่อมต่อล่าสุด...');
@@ -647,7 +669,7 @@
         // Add Event Listeners to buttons
         connectButton.addEventListener('click', connectToPrinter);
         // printTextButton.addEventListener('click', printRawText);
-        printImageButton.addEventListener('click', printTextAsImage);
+        // printImageButton.addEventListener('click', printTextAsImage);
 
         // Check Web Bluetooth status on page load
         if (!navigator.bluetooth) {

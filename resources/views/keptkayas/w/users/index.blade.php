@@ -1,6 +1,8 @@
 @extends('layouts.keptkaya')
 
-@section('title_page', 'ผู้ใช้งาน')
+@section('nav-header', 'สมาชิก ธนาคารขยะ, จัดการถังขยะรายปี')
+@section('nav-current', 'ตารางสมาชิก ธนาคารขยะ, จัดการถังขยะรายปี')
+@section('page-topic', 'ตารางสมาชิก ธนาคารขยะ, จัดการถังขยะรายปี')
 
 @section('content')
     <div class="row">
@@ -38,7 +40,7 @@
                             </button>
                         </div>
                     @endif
-                    <div class="table-responsive p-0">
+                    <div class="table-responsive p-2">
                         <table class="table align-items-center mb-0">
                             <thead>
                                 <tr>

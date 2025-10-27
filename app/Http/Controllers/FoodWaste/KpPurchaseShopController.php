@@ -4,6 +4,7 @@ namespace App\Http\Controllers\KeptKaya;
 
 use App\Http\Controllers\Controller;
 use App\Models\KeptKaya\KpPurchaseShop;
+use App\Models\User;
 use Illuminate\Http\Request;
 use Illuminate\Validation\Rule;
 
@@ -14,8 +15,10 @@ class KpPurchaseShopController extends Controller
      */
     public function index()
     {
-        $shops = KpPurchaseShop::orderBy('shop_name')->paginate(20);
-        return view('keptkaya.purchase_shops.index', compact('shops'));
+     return   $user = User::setLocalUser();
+
+        $shops = (new KpPurchaseShop())->setConnection('db_conn')->orderBy('shop_name')->paginate(20);
+        return view('keptkayas.purchase_shops.index', compact('shops', 'user'));
     }
 
     /**
@@ -23,8 +26,8 @@ class KpPurchaseShopController extends Controller
      */
     public function create()
     {
-        $shop = new KpPurchaseShop();
-        return view('keptkaya.purchase_shops.create', compact('shop'));
+        $shop = (new KpPurchaseShop())->setConnection('db_conn');
+        return view('keptkayas.purchase_shops.create', compact('shop'));
     }
 
     /**
@@ -41,9 +44,9 @@ class KpPurchaseShopController extends Controller
             'comment' => 'nullable|string',
         ]);
 
-        KpPurchaseShop::create($validated);
+        (new KpPurchaseShop())->setConnection('db_conn')->create($validated);
 
-        return redirect()->route('keptkaya.purchase-shops.index')
+        return redirect()->route('keptkayas.purchase-shops.index')
             ->with('success', 'ร้านรับซื้อถูกเพิ่มเรียบร้อยแล้ว');
     }
 
@@ -52,7 +55,7 @@ class KpPurchaseShopController extends Controller
      */
     public function edit(KpPurchaseShop $shop)
     {
-        return view('keptkaya.purchase_shops.edit', compact('shop'));
+        return view('keptkayas.purchase_shops.edit', compact('shop'));
     }
 
     /**
@@ -71,7 +74,7 @@ class KpPurchaseShopController extends Controller
 
         $shop->update($validated);
 
-        return redirect()->route('keptkaya.purchase_shops.index')
+        return redirect()->route('keptkayas.purchase_shops.index')
             ->with('success', 'ร้านรับซื้อถูกอัปเดตเรียบร้อยแล้ว');
     }
 
@@ -81,7 +84,7 @@ class KpPurchaseShopController extends Controller
     public function destroy(KpPurchaseShop $shop)
     {
         $shop->delete();
-        return redirect()->route('keptkaya.purchase_shops.index')
+        return redirect()->route('keptkayas.purchase_shops.index')
             ->with('success', 'ร้านรับซื้อถูกลบเรียบร้อยแล้ว');
     }
 }

@@ -3,7 +3,7 @@
     Edit Pricing Type
 @endsection
 @section('nav-main-url')
-    {{route('superadmin.meter_types.index')}}
+    {{route('admin.pricing_types.index')}}
 @endsection
 @section('nav-current')
     Edit Pricing Type
@@ -18,7 +18,7 @@
             <h1 class="card-title mb-0">Edit Pricing Type</h1>
         </div>
         <div class="card-body">
-            <form action="{{ route('superadmin.pricing_types.update', $pricingType->id) }}" method="POST">
+            <form action="{{ route('admin.pricing_types.update', $pricingType->id) }}" method="POST">
                 @csrf
                 @method('PUT')
                 {{-- สำคัญ: ต้องส่ง PricingType instance ตัวเดียวเข้าไป --}}

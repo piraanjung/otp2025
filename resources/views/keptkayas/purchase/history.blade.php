@@ -11,15 +11,15 @@
 
         <div class="card mb-4 shadow-sm">
             <div class="card-header bg-primary text-white">
-                <h5 class="mb-0">สรุปสำหรับ: {{ $user->firstname }} {{ $user->lastname }}</h5>
+                <h5 class="mb-0">สรุปสำหรับ: {{ $userHistory->firstname }} {{ $userHistory->lastname }}</h5>
             </div>
             <div class="card-body">
-                @if ($user->purchaseTransactions->isEmpty())
+                @if (collect($userHistory->wastePreference->purchaseTransactions)->isEmpty())
                     <div class="alert alert-info text-center">
                         ไม่พบประวัติการรับซื้อขยะสำหรับผู้ใช้งานนี้
                     </div>
                 @else
-                    @foreach ($user->purchaseTransactions as $transaction)
+                    @foreach ($userHistory->wastePreference->purchaseTransactions as $transaction)
                         <div class="card mb-3 border-secondary">
                             <div class="card-header bg-secondary text-white d-flex justify-content-between">
                                 <strong>เลขที่ธุรกรรม: {{ $transaction->kp_u_trans_no }}</strong>

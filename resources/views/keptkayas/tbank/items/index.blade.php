@@ -1,5 +1,7 @@
 @extends('layouts.keptkaya')
-
+@section('nav-header', 'ขยะรีไซเคิล')
+@section('nav-current', ' ข้อมูลขยะรีไซเคิล')
+@section('page-topic', ' ข้อมูลขยะรีไซเคิล')
 @section('content')
 
     <div class="card">
@@ -26,7 +28,7 @@
                         {{-- @dd($kp_tbank_item->image_path) --}}
 
                         <tr>
-                            <td> <img src="{{ asset('storage/' . $kp_tbank_item->image_path) }}" alt=""> </td>
+                            <td> <img src="{{ asset('keptkaya/items/' . $kp_tbank_item->image) }}" style="width: 40%" alt=""> </td>
                             <td>{{ $kp_tbank_item->kp_itemscode }}</td>
                             <td>{{ $kp_tbank_item->kp_itemsname }}</td>
                             <td>{{ $kp_tbank_item->status }}</td>

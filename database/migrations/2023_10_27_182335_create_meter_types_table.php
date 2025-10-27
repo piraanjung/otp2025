@@ -14,9 +14,9 @@ return new class extends Migration
     public function up()
     {
         Schema::create('tw_meter_types', function (Blueprint $table) {
-            $table->bigIncrements('id');
+            $table->id();
             $table->string('meter_type_name');
-            $table->string('description');
+            $table->string('description')->nullable();
             $table->integer('metersize')->default(0);
             $table->timestamps();
         });

@@ -670,7 +670,7 @@
           phone_div.classList.remove('hidden')
         }
         if (data.res == 1) {
-          window.location.href = '/line/dashboard/' + data.waste_pref_id / 1;
+          // window.location.href = '/line/dashboard/' + data.waste_pref_id / 1;
         }
       })
       // ถ้าไม่เป็นให้แสดง text กรอก phone
@@ -722,11 +722,11 @@
       window.location.href = '/line'
     }
 
-    $('#phone_search_btn').on('click', async function () {
+    $('#phone_search_btn').on('click',  function () {//async
       let phone = phone_text.value;
       let line_user_image = (profile.pictureUrl).replace("https://profile.line-scdn.net/", "");
-
-      await $.post(`/api/line/update_user_by_phone`,
+      console.log('ss');
+      $.post(`/api/line/update_user_by_phone`,
         {
           phoneNum    : phone,
           province_id :  province_id_text.value,
@@ -737,14 +737,36 @@
           displayName : profile.displayName,
           line_user_image: line_user_image,
         }, function (data) {
+          console.log('data',data)
           if (data.res == 1) {
             //มีข้อมูล user อยู่แล้วและทำการ update user_line_id แล้ว
             //ให้ไปหา dashboard ของ line  user
+
             window.location.href = '/line/dashboard/' + data.waste_pref_id +'/'+org_id_text.value+ '/1';
+            //  data.waste_pref_id +'/'+org_id_text.value+ '/register==1
           } else {
             // ไม่มีข้อมูล user เป็น new  user ให้ทำการ register
           }
         })
+      // await $.post(`/api/line/update_user_by_phone`,
+      //   {
+      //     phoneNum    : phone,
+      //     province_id :  province_id_text.value,
+      //     district_id : district_id_text.value,
+      //     tambon_id   : tambon_id_text.value,
+      //     org_id      : org_id_text.value,
+      //     line_user_id: profile.userId,
+      //     displayName : profile.displayName,
+      //     line_user_image: line_user_image,
+      //   }, function (data) {
+      //     if (data.res == 1) {
+      //       //มีข้อมูล user อยู่แล้วและทำการ update user_line_id แล้ว
+      //       //ให้ไปหา dashboard ของ line  user
+      //       window.location.href = '/line/dashboard/' + data.waste_pref_id +'/'+org_id_text.value+ '/1';
+      //     } else {
+      //       // ไม่มีข้อมูล user เป็น new  user ให้ทำการ register
+      //     }
+      //   })
     })
 
     $('#province_id').change(function () {

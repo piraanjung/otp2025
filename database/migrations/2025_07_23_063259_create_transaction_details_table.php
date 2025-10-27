@@ -15,8 +15,8 @@ class CreateTransactionDetailsTable extends Migration
     {
         Schema::create('transaction_details', function (Blueprint $table) {
             $table->id();
-            $table->foreignId('waste_bank_transaction_id')->constrained('waste_bank_transactions')->onDelete('cascade');
-            $table->foreignId('waste_type_id')->constrained('waste_types')->onDelete('cascade');
+            $table->foreignId('waste_bank_transaction_id')->constrained('kp_waste_bank_transactions')->onDelete('cascade');
+            $table->foreignId('waste_type_id')->constrained('kp_waste_types')->onDelete('cascade');
 
             $table->decimal('quantity', 10, 2); // จำนวน (น้ำหนัก หรือ ชิ้น)
             $table->string('unit_used'); // หน่วยที่ใช้จริง ('kg' หรือ 'piece')

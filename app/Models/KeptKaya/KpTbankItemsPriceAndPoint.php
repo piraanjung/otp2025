@@ -15,6 +15,7 @@ class KpTbankItemsPriceAndPoint extends Model
     protected $fillable = [
         'id',
         'kp_items_idfk',
+        'org_id_fk',
         'price_from_dealer',
         'price_for_member',
         'effective_date',

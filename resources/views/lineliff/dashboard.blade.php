@@ -5,6 +5,8 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Document</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css"
+        integrity="sha512-..." crossorigin="anonymous" referrerpolicy="no-referrer" />
     <style>
         .hidden {
             display: none
@@ -84,8 +86,8 @@
             border-radius: 3em;
             flex-direction: column;
             padding: 2.25em;
-            width: 24.375em;
-            height: 52.75em;
+            /* width: 24.375em;
+            height: 52.75em; */
         }
 
         .app__gradients {
@@ -183,7 +185,7 @@
         .header {
             display: flex;
             justify-content: space-between;
-            margin-bottom: 1.5em;
+            /* margin-bottom: 1.5em; */
         }
 
         .header__profile-btn,
@@ -223,7 +225,7 @@
 
         /* Main */
         .main__date-nav {
-            margin-bottom: 1.5em;
+            /* margin-bottom: 1em; */
         }
 
         .main__date-arrow-btn,
@@ -242,6 +244,8 @@
 
         .main__date {
             text-transform: uppercase;
+            display: flex;
+            flex-direction: row
         }
 
         .main__date-edit-btn {
@@ -259,7 +263,8 @@
             grid-gap: 1.5em;
             margin-bottom: 1.5em;
         }
-         .main__stat-block:active {
+
+        .main__stat-block:active {
             box-shadow: 0.75em 0.75em 1.5em hsl(var(--hue), 5%, 65%),
                 -0.75em -0.75em 1.5em hsl(0, 0%, 100%);
             transform: scale(1.1);
@@ -369,11 +374,16 @@
         /* Footer */
         .footer {
             /* margin-top: auto; */
-            position: fixed; /* กำหนดให้องค์ประกอบมีตำแหน่งคงที่ */
-            bottom: 0;      /* ให้อยู่ที่ขอบด้านล่างสุด */
-            left: 0;        /* ให้อยู่ที่ขอบด้านซ้ายสุด */
-            width: 100%;    /* ให้มีความกว้างเต็มหน้าจอ */
-            z-index: 1000;  /* (optional) กำหนดลำดับการแสดงผลให้อยู่ด้านบนองค์ประกอบอื่น */
+            position: fixed;
+            /* กำหนดให้องค์ประกอบมีตำแหน่งคงที่ */
+            bottom: 0;
+            /* ให้อยู่ที่ขอบด้านล่างสุด */
+            left: 0;
+            /* ให้อยู่ที่ขอบด้านซ้ายสุด */
+            width: 100%;
+            /* ให้มีความกว้างเต็มหน้าจอ */
+            z-index: 1000;
+            /* (optional) กำหนดลำดับการแสดงผลให้อยู่ด้านบนองค์ประกอบอื่น */
             /* คุณอาจต้องเพิ่ม background-color เพื่อให้ footer ไม่โปร่งใสทับเนื้อหาด้านล่าง */
             /* background-color: #ffffff; */
             /* หรือสีพื้นหลังตามดีไซน์เดิมของคุณ */
@@ -685,9 +695,157 @@
         .modal-footer>* {
             margin: 0.25rem;
         }
-        a{
+
+        a {
             text-decoration: none;
-             color: var(--fg);
+            color: var(--fg);
+        }
+
+
+
+        :root {
+            /* COLORS */
+            --tab-color: #191919;
+            --white-color: #fff;
+            --home-icon-color: #00f7ff;
+            --heart-icon-color: #ff0000;
+            --plus-icon-color: #adff2f;
+            --user-icon-color: #ee82ee;
+            --bell-icon-color: #ffff00;
+        }
+
+        /* ------------ BASE ------------ */
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            list-style: none;
+        }
+
+        li {
+            display: inline-block;
+        }
+
+        /* ------------ MENU ------------ */
+        .nav {
+
+            background-color: var(--tab-color);
+            width: 100%;
+            height: 4em;
+            border-radius: 2em;
+            padding: 0 2em;
+            box-shadow: 0 1em 1em rgba(0, 0, 0, 0.2);
+
+            display: flex;
+            align-items: center;
+            bottom: 0;
+            position: fixed;
+            overflow: hidden;
+            z-index: 1020;
+        }
+
+        .nav__links {
+            width: 100%;
+            display: flex;
+            justify-content: space-between;
+            text-align: center
+        }
+
+        .nav__link a {
+            color: var(--white-color);
+            font-size: 1.5rem;
+            opacity: 0.5;
+        }
+
+        .nav__link .text {
+            color: #ffffff;
+
+        }
+
+        .nav__light {
+            position: absolute;
+            top: 0;
+            left: 2em;
+            background-color: var(--white-color);
+            width: 5em;
+            height: 0.4em;
+            border-radius: 2px;
+
+            display: flex;
+            justify-content: center;
+
+            transition: 0.3s ease;
+        }
+
+        .nav__light::before {
+            content: "";
+            width: 5em;
+            height: 7em;
+            position: absolute;
+            top: 0.4em;
+            background: linear-gradient(to bottom,
+                    rgba(255, 255, 255, 0.3) -50%,
+                    rgba(255, 255, 255, 0) 90%);
+            clip-path: polygon(30% 0, 70% 0, 100% 100%, 0% 100%);
+        }
+
+        .nav__link.active a {
+            opacity: 1;
+
+        }
+
+        .nav__link.active a .fa-home-alt-2 {
+            color: var(--home-icon-color);
+            text-shadow: 0 0 15px var(--home-icon-color), 0 0 30px var(--home-icon-color),
+                0 0 45px var(--home-icon-color), 0 0 60px var(--home-icon-color);
+        }
+
+        .nav__link:nth-child(1).active~.nav__light {
+            background-color: var(--home-icon-color);
+        }
+
+        .nav__link.active a .fa-heart {
+            color: var(--heart-icon-color);
+            text-shadow: 0 0 15px var(--heart-icon-color),
+                0 0 30px var(--heart-icon-color), 0 0 45px var(--heart-icon-color),
+                0 0 60px var(--heart-icon-color);
+        }
+
+        .nav__link:nth-child(2).active~.nav__light {
+            background-color: var(--heart-icon-color);
+        }
+
+        .nav__link.active a .fa-plus-circle {
+            color: var(--plus-icon-color);
+            text-shadow: 0 0 15px var(--plus-icon-color), 0 0 30px var(--plus-icon-color),
+                0 0 45px var(--plus-icon-color), 0 0 60px var(--plus-icon-color);
+        }
+
+        .nav__link:nth-child(3).active~.nav__light {
+            background-color: var(--plus-icon-color);
+        }
+
+        .nav__link.active a .fa-user {
+            color: var(--user-icon-color);
+            text-shadow: 0 0 15px var(--user-icon-color), 0 0 30px var(--user-icon-color),
+                0 0 45px var(--user-icon-color), 0 0 60px var(--user-icon-color);
+        }
+
+        .nav__link:nth-child(4).active~.nav__light {
+            background-color: var(--user-icon-color);
+        }
+
+        .nav__link.active a .fa-bell {
+            color: var(--bell-icon-color);
+            text-shadow: 0 0 15px var(--bell-icon-color), 0 0 30px var(--bell-icon-color),
+                0 0 45px var(--bell-icon-color), 0 0 60px var(--bell-icon-color);
+        }
+
+        .nav__link:nth-child(5).active~.nav__light {
+            background-color: var(--bell-icon-color);
+        }
+        .hidden{
+            display: none
         }
     </style>
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/js/bootstrap.bundle.min.js"
@@ -709,298 +867,277 @@
         <header class="header" style="justify-content: normal !important;">
             <button class="header__profile-btn" type="button">
                 <img class="header__profile-icon" id="header__profile_img" alt="Profile (Mr. Trololo)"
-                    src="https://profile.line-scdn.net/{{$userWastePref->user->image}}" width="78" height="78">
+                    src="https://profile.line-scdn.net/{{$userWastePref->image}}" width="78" height="78">
             </button>
-            <button class="header__notes-btn"    style="flex-direction:column !important;width: 70%; text-align:right;" type="button" title="Notifications">
-                <div style="font-size: 1.9em">{{$userWastePref->user->firstname}}</div>
-                <div style="font-size: 1.6em">{{$userWastePref->user->lastname}}</div>
+            <button class="header__notes-btn" style="flex-direction:column !important;width: 70%; text-align:right;"
+                type="button" title="Notifications">
+                <div style="font-size: 1.9em">{{$userWastePref->firstname}}</div>
+                <div style="font-size: 1.6em">{{$userWastePref->lastname}}</div>
             </button>
         </header>
         <main>
             <div class="main__date-nav">
-                <button class="main__date-arrow-btn" type="button">
-                    {{-- <svg class="icon" viewBox="0 0 24 24" height="24" width="24"
-                        xmlns="http://www.w3.org/2000/svg">
-                        <path
-                            d="M14.7071 5.29289C15.0976 5.68342 15.0976 6.31658 14.7071 6.70711L9.41421 12L14.7071 17.2929C15.0976 17.6834 15.0976 18.3166 14.7071 18.7071C14.3166 19.0976 13.6834 19.0976 13.2929 18.7071L7.29289 12.7071C6.90237 12.3166 6.90237 11.6834 7.29289 11.2929L13.2929 5.29289C13.6834 4.90237 14.3166 4.90237 14.7071 5.29289Z" />
-                    </svg>
-                    <span class="sr-only"></span> --}}
-                </button>
-                <div class="main__date">
-                    <img src="{{asset('logo/ko_envsogo.png')}}" alt="" style="width: 35%; margin-top: -2.8rem; position: absolute;">
-                    <strong><span style="">&nbsp;</span><div style="font-size:1.5rem;margin-top: 2.8rem;
-    border-top: 2px solid white;">Envsogo</div></strong>
+               
+                <div class="main__date d-flex flex-row">
+                    <img src="{{asset('logo/ko_envsogo.png')}}" alt="" style="width:35%">
+                    <strong style="margin-top: 11%;">
+                        <span style="font-size:1.5rem; text-align: center; ">Envsogo</span>
+                    </strong>
                 </div>
-                <button class="main__date-edit-btn" type="button"></button>
             </div>
-            <div class="main__stat-blocks">
-                <!--
-                    To get the stroke-dashoffset for the rings:
-
-                    2πr * (1 - value/max)
-                    -->
-                <div class="main__stat-block main__stat-block--lg">
-                    <div class="main__stat-graph main__stat-graph--filled">
-                        <svg class="ring" viewBox="0 0 180 180" height="180" width="180"
-                            xmlns="http://www.w3.org/2000/svg">
-                            <circle class="ring-track" cx="90" cy="90" r="82" fill="none" stroke="#7f7f7f"
-                                stroke-width="16" />
-                            <circle class="ring-stroke ring-stroke--steps" cx="90" cy="90" r="82" fill="none"
-                                stroke="#000" stroke-linecap="round" stroke-width="16" stroke-dasharray="515.22 515.22"
-                                stroke-dashoffset="0" transform="rotate(-90,90,90)" />
-                            <circle class="ring-fill" cx="90" cy="90" r="0" fill="none" transform="rotate(-90,90,90)" />
-                        </svg>
-                        <div class="main__stat-detail">
-                            {{-- <svg role="img" aria-label="Footprints" class="icon" viewBox="0 0 36 36" height="36"
-                                width="36" xmlns="http://www.w3.org/2000/svg">
-                                <path class="no-fill" fill="none" stroke="#000" stroke-width="2"
-                                    d="M 14.831 17.296 C 13.365 17.803 12 18.046 10.142 18.623 C 10.87 27.73 19.472 24.186 14.831 17.296 Z M 14.236 15.036 C 14.26 13.771 14.191 12.55 14.74 11.349 C 15.362 10.06 15.461 8.925 15.115 7.054 C 14.493 3.647 13.171 1.521 11.389 1.055 C 7.586 0.499 7.113 4.24 7.022 6.974 C 6.812 8.503 8.106 15.054 9.669 16.162 C 11.205 15.77 12.713 15.386 14.236 15.036 Z" />
-                                <path class="no-fill" fill="none" stroke="#000" stroke-width="2"
-                                    d="M 21.184 28.252 C 21.184 28.252 24.001 28.918 25.859 29.496 C 25.128 38.603 16.542 35.143 21.184 28.252 Z M 21.764 26.007 C 21.741 24.741 21.807 23.525 21.261 22.32 C 20.64 21.031 20.541 19.9 20.885 18.026 C 21.508 14.618 22.828 12.495 24.61 12.029 C 28.417 11.471 28.888 15.211 28.977 17.945 C 29.187 19.475 27.897 26.027 26.332 27.135 C 24.799 26.743 23.288 26.357 21.764 26.007 Z" />
-                            </svg> --}}
-                            <strong class="main__stat-value">{{ $userWastePref->user->purchase_transactions[0]->total_amounts ?? '0.00' }}</strong>
-                            <span class="main__stat-unit">ยอดเงินคงเหลือ</span>
-                            <strong class="main__stat-value">{{ $userWastePref->user->purchase_transactions[0]->total_points ?? '0.00' }}</strong>
-                            <span class="main__stat-unit">แต้มสะสม</span>
+            <div class="kp div_recycle">
+                <div class="main__stat-blocks">
+                    <div class="main__stat-block main__stat-block--lg">
+                        <div class="main__stat-graph main__stat-graph--filled">
+                            <svg class="ring" viewBox="0 0 180 180" height="180" width="180"
+                                xmlns="http://www.w3.org/2000/svg">
+                                <circle class="ring-track" cx="90" cy="90" r="82" fill="none" stroke="#7f7f7f"
+                                    stroke-width="16" />
+                                <circle class="ring-stroke ring-stroke--steps" cx="90" cy="90" r="82" fill="none"
+                                    stroke="#000" stroke-linecap="round" stroke-width="16" stroke-dasharray="515.22 515.22"
+                                    stroke-dashoffset="0" transform="rotate(-90,90,90)" />
+                                <circle class="ring-fill" cx="90" cy="90" r="0" fill="none" transform="rotate(-90,90,90)" />
+                            </svg>
+                            <div class="main__stat-detail">
+                                {{-- <svg role="img" aria-label="Footprints" class="icon" viewBox="0 0 36 36" height="36"
+                                    width="36" xmlns="http://www.w3.org/2000/svg">
+                                    <path class="no-fill" fill="none" stroke="#000" stroke-width="2"
+                                        d="M 14.831 17.296 C 13.365 17.803 12 18.046 10.142 18.623 C 10.87 27.73 19.472 24.186 14.831 17.296 Z M 14.236 15.036 C 14.26 13.771 14.191 12.55 14.74 11.349 C 15.362 10.06 15.461 8.925 15.115 7.054 C 14.493 3.647 13.171 1.521 11.389 1.055 C 7.586 0.499 7.113 4.24 7.022 6.974 C 6.812 8.503 8.106 15.054 9.669 16.162 C 11.205 15.77 12.713 15.386 14.236 15.036 Z" />
+                                    <path class="no-fill" fill="none" stroke="#000" stroke-width="2"
+                                        d="M 21.184 28.252 C 21.184 28.252 24.001 28.918 25.859 29.496 C 25.128 38.603 16.542 35.143 21.184 28.252 Z M 21.764 26.007 C 21.741 24.741 21.807 23.525 21.261 22.32 C 20.64 21.031 20.541 19.9 20.885 18.026 C 21.508 14.618 22.828 12.495 24.61 12.029 C 28.417 11.471 28.888 15.211 28.977 17.945 C 29.187 19.475 27.897 26.027 26.332 27.135 C 24.799 26.743 23.288 26.357 21.764 26.007 Z" />
+                                </svg> --}}
+                                <strong
+                                    class="main__stat-value">{{ $userWastePref->purchase_transactions[0]->total_amounts ?? '0.00' }}</strong>
+                                <span class="main__stat-unit">ยอดเงินคงเหลือ</span>
+                                <strong
+                                    class="main__stat-value">{{ $userWastePref->purchase_transactions[0]->total_points ?? '0.00' }}</strong>
+                                <span class="main__stat-unit">แต้มสะสม</span>
+                            </div>
                         </div>
                     </div>
                 </div>
-                {{-- <div class="main__stat-block" style="margin-left: 1rem" id="qrcosde" data-bs-toggle="modal"
-                    data-bs-target="#exampleModal">
-                    <div class="main__stat-graph">
-                        <svg class="ring" viewBox="0 0 60 60" height="60" width="60" xmlns="http://www.w3.org/2000/svg">
-                            <circle class="ring-track" cx="30" cy="30" r="26" fill="none" stroke="#7f7f7f"
-                                stroke-width="8" />
-                            <circle class="ring-stroke ring-stroke--cals" cx="30" cy="30" r="26" fill="none"
-                                stroke="#000" stroke-linecap="round" stroke-width="8" stroke-dasharray="163.36 163.36"
-                                stroke-dashoffset="12.25" transform="rotate(-90,30,30)" />
-                        </svg>
-                        <svg role="img" aria-label="Flame" class="icon" viewBox="0 0 24 24" height="24" width="24"
-                            xmlns="http://www.w3.org/2000/svg">
-                            <path class="no-fill" fill="none" stroke="#000" stroke-width="2"
-                                d="M 14.505 1 C 11.546 1.356 10.354 12.419 10.272 12.478 C 10.189 12.538 6.773 6.184 6.773 6.184 C 6.773 6.184 3.855 8.381 4 14 C 4.2 18 5.868 23.067 12.177 22.999 C 18.488 22.932 20.1 18 20 14 C 19.9 10 17.533 10.05 15.964 6.738 C 14.638 3.939 14.505 1 14.505 1 Z" />
-                        </svg>
-                    </div>
-                    <div class="main__stat-detail" style="margin-left: 0.5rem">
-                        <strong class="main__stat-value"> QR Code ขายขยะ</strong>
-                        {{-- <span class="main__stat-unit">Cals</span> --}
-                    </div>
-                </div>
-                <div class="main__stat-block">
-                    <div class="main__stat-graph">
-                        <svg class="ring" viewBox="0 0 60 60" height="60" width="60" xmlns="http://www.w3.org/2000/svg">
-                            <circle class="ring-track" cx="30" cy="30" r="26" fill="none" stroke="#7f7f7f"
-                                stroke-width="8" />
-                            <circle class="ring-stroke ring-stroke--miles" cx="30" cy="30" r="26" fill="none"
-                                stroke="#000" stroke-linecap="round" stroke-width="8" stroke-dasharray="163.36 163.36"
-                                stroke-dashoffset="35.39" transform="rotate(-90,30,30)" />
-                        </svg>
-                        <svg role="img" aria-label="Location marker" class="icon" viewBox="0 0 24 24" height="24"
-                            width="24" xmlns="http://www.w3.org/2000/svg">
-                            <path
-                                d="M12 2C7.6 2 4 5.6 4 10C4 15.4 11 21.5 11.3 21.8C11.5 21.9 11.8 22 12 22C12.2 22 12.5 21.9 12.7 21.8C13 21.5 20 15.4 20 10C20 5.6 16.4 2 12 2ZM12 19.7C9.9 17.7 6 13.4 6 10C6 6.7 8.7 4 12 4C15.3 4 18 6.7 18 10C18 13.3 14.1 17.7 12 19.7ZM12 6C9.8 6 8 7.8 8 10C8 12.2 9.8 14 12 14C14.2 14 16 12.2 16 10C16 7.8 14.2 6 12 6ZM12 12C10.9 12 10 11.1 10 10C10 8.9 10.9 8 12 8C13.1 8 14 8.9 14 10C14 11.1 13.1 12 12 12Z" />
-                        </svg>
-                    </div>
-                    <div class="main__stat-detail">
-                        <strong class="main__stat-value">ประวัติการขายขยะ</strong>
-                        {{-- <span class="main__stat-unit">Miles</span> --}
-                    </div>
-                </div> --}
-                {{-- <div class="main__stat-block">
-                    <div class="main__stat-graph">
-                        <svg class="ring" viewBox="0 0 60 60" height="60" width="60" xmlns="http://www.w3.org/2000/svg">
-                            <circle class="ring-track" cx="30" cy="30" r="26" fill="none" stroke="#7f7f7f"
-                                stroke-width="8" />
-                            <circle class="ring-stroke ring-stroke--mins" cx="30" cy="30" r="26" fill="none"
-                                stroke="#000" stroke-linecap="round" stroke-width="8" stroke-dasharray="163.36 163.36"
-                                stroke-dashoffset="65.34" transform="rotate(-90,30,30)" />
-                        </svg>
-                        <svg role="img" aria-label="Lightning bolt" class="icon" viewBox="0 0 24 24" height="24"
-                            width="24" xmlns="http://www.w3.org/2000/svg">
-                            <polygon points="14,1 13,9 22,9 11,23 12,15 2,15" fill="none" stroke="#000"
-                                stroke-linejoin="round" stroke-width="2" />
-                        </svg>
-                    </div>
-                    <div class="main__stat-detail">
-                        <strong class="main__stat-value">72</strong>
-                        <span class="main__stat-unit">Mins</span>
-                    </div>
-                </div> --}}
-            </div>
 
-             <div class="main__stat-blocks">
-                
-                <div class="main__stat-block"  data-bs-toggle="modal"
-                    data-bs-target="#exampleModal">
-                    <div class="main__stat-graph">
-                        <svg class="ring" viewBox="0 0 60 60" height="60" width="60" xmlns="http://www.w3.org/2000/svg">
-                            <circle class="ring-track" cx="30" cy="30" r="26" fill="none" stroke="#7f7f7f"
-                                stroke-width="8" />
-                            <circle class="ring-stroke ring-stroke--cals" cx="30" cy="30" r="26" fill="none"
-                                stroke="#000" stroke-linecap="round" stroke-width="8" stroke-dasharray="163.36 163.36"
-                                stroke-dashoffset="12.25" transform="rotate(-90,30,30)" />
-                        </svg>
-                        <svg role="img" aria-label="Flame" class="icon" viewBox="0 0 24 24" height="24" width="24"
-                            xmlns="http://www.w3.org/2000/svg">
-                            <path class="no-fill" fill="none" stroke="#000" stroke-width="2"
-                                d="M 14.505 1 C 11.546 1.356 10.354 12.419 10.272 12.478 C 10.189 12.538 6.773 6.184 6.773 6.184 C 6.773 6.184 3.855 8.381 4 14 C 4.2 18 5.868 23.067 12.177 22.999 C 18.488 22.932 20.1 18 20 14 C 19.9 10 17.533 10.05 15.964 6.738 C 14.638 3.939 14.505 1 14.505 1 Z" />
-                        </svg>
+                <div class="main__stat-blocks">
+
+                    <div class="main__stat-block" data-bs-toggle="modal" data-bs-target="#exampleModal">
+                        <div class="main__stat-graph">
+                            <svg class="ring" viewBox="0 0 60 60" height="60" width="60" xmlns="http://www.w3.org/2000/svg">
+                                <circle class="ring-track" cx="30" cy="30" r="26" fill="none" stroke="#7f7f7f"
+                                    stroke-width="8" />
+                                <circle class="ring-stroke ring-stroke--cals" cx="30" cy="30" r="26" fill="none"
+                                    stroke="#000" stroke-linecap="round" stroke-width="8" stroke-dasharray="163.36 163.36"
+                                    stroke-dashoffset="12.25" transform="rotate(-90,30,30)" />
+                            </svg>
+                            <svg role="img" aria-label="Flame" class="icon" viewBox="0 0 24 24" height="24" width="24"
+                                xmlns="http://www.w3.org/2000/svg">
+                                <path class="no-fill" fill="none" stroke="#000" stroke-width="2"
+                                    d="M 14.505 1 C 11.546 1.356 10.354 12.419 10.272 12.478 C 10.189 12.538 6.773 6.184 6.773 6.184 C 6.773 6.184 3.855 8.381 4 14 C 4.2 18 5.868 23.067 12.177 22.999 C 18.488 22.932 20.1 18 20 14 C 19.9 10 17.533 10.05 15.964 6.738 C 14.638 3.939 14.505 1 14.505 1 Z" />
+                            </svg>
+                        </div>
+                        <div class="main__stat-detail" style="margin-left: 0.5rem">
+                            <strong class="main__stat-value"> QR Code ขายขยะ</strong>
+                        </div>
                     </div>
-                    <div class="main__stat-detail" style="margin-left: 0.5rem">
-                        <strong class="main__stat-value"> QR Code ขายขยะ</strong>
+                    <div class="main__stat-block">
+                        <a href="{{route('keptkayas.shop.index')}}">
+                            <div class="main__stat-graph">
+                                <svg class="ring" viewBox="0 0 60 60" height="60" width="60"
+                                    xmlns="http://www.w3.org/2000/svg">
+                                    <circle class="ring-track" cx="30" cy="30" r="26" fill="none" stroke="#7f7f7f"
+                                        stroke-width="8" />
+                                    <circle class="ring-stroke ring-stroke--miles" cx="30" cy="30" r="26" fill="none"
+                                        stroke="#000" stroke-linecap="round" stroke-width="8"
+                                        stroke-dasharray="163.36 163.36" stroke-dashoffset="35.39"
+                                        transform="rotate(-90,30,30)" />
+                                </svg>
+                                <svg role="img" aria-label="Location marker" class="icon" viewBox="0 0 24 24" height="24"
+                                    width="24" xmlns="http://www.w3.org/2000/svg">
+                                    <path
+                                        d="M12 2C7.6 2 4 5.6 4 10C4 15.4 11 21.5 11.3 21.8C11.5 21.9 11.8 22 12 22C12.2 22 12.5 21.9 12.7 21.8C13 21.5 20 15.4 20 10C20 5.6 16.4 2 12 2ZM12 19.7C9.9 17.7 6 13.4 6 10C6 6.7 8.7 4 12 4C15.3 4 18 6.7 18 10C18 13.3 14.1 17.7 12 19.7ZM12 6C9.8 6 8 7.8 8 10C8 12.2 9.8 14 12 14C14.2 14 16 12.2 16 10C16 7.8 14.2 6 12 6ZM12 12C10.9 12 10 11.1 10 10C10 8.9 10.9 8 12 8C13.1 8 14 8.9 14 10C14 11.1 13.1 12 12 12Z" />
+                                </svg>
+                            </div>
+                            <div class="main__stat-detail">
+                                <strong class="main__stat-value">Shopping Cart</strong>
+                            </div>
+                        </a>
                     </div>
+
                 </div>
-                <div class="main__stat-block">
-                    <a href="{{route('keptkayas.shop.index')}}">
-                    <div class="main__stat-graph">
-                        <svg class="ring" viewBox="0 0 60 60" height="60" width="60" xmlns="http://www.w3.org/2000/svg">
-                            <circle class="ring-track" cx="30" cy="30" r="26" fill="none" stroke="#7f7f7f"
-                                stroke-width="8" />
-                            <circle class="ring-stroke ring-stroke--miles" cx="30" cy="30" r="26" fill="none"
-                                stroke="#000" stroke-linecap="round" stroke-width="8" stroke-dasharray="163.36 163.36"
-                                stroke-dashoffset="35.39" transform="rotate(-90,30,30)" />
-                        </svg>
-                        <svg role="img" aria-label="Location marker" class="icon" viewBox="0 0 24 24" height="24"
-                            width="24" xmlns="http://www.w3.org/2000/svg">
-                            <path
-                                d="M12 2C7.6 2 4 5.6 4 10C4 15.4 11 21.5 11.3 21.8C11.5 21.9 11.8 22 12 22C12.2 22 12.5 21.9 12.7 21.8C13 21.5 20 15.4 20 10C20 5.6 16.4 2 12 2ZM12 19.7C9.9 17.7 6 13.4 6 10C6 6.7 8.7 4 12 4C15.3 4 18 6.7 18 10C18 13.3 14.1 17.7 12 19.7ZM12 6C9.8 6 8 7.8 8 10C8 12.2 9.8 14 12 14C14.2 14 16 12.2 16 10C16 7.8 14.2 6 12 6ZM12 12C10.9 12 10 11.1 10 10C10 8.9 10.9 8 12 8C13.1 8 14 8.9 14 10C14 11.1 13.1 12 12 12Z" />
-                        </svg>
+                <div class="main__stat-blocks">
+
+                    <div class="main__stat-block" id="qrcosde">
+                        <div class="main__stat-graph">
+                            <svg class="ring" viewBox="0 0 60 60" height="60" width="60" xmlns="http://www.w3.org/2000/svg">
+                                <circle class="ring-track" cx="30" cy="30" r="26" fill="none" stroke="#7f7f7f"
+                                    stroke-width="8" />
+                                <circle class="ring-stroke ring-stroke--cals" cx="30" cy="30" r="26" fill="none"
+                                    stroke="#000" stroke-linecap="round" stroke-width="8" stroke-dasharray="163.36 163.36"
+                                    stroke-dashoffset="12.25" transform="rotate(-90,30,30)" />
+                            </svg>
+                            <svg role="img" aria-label="Flame" class="icon" viewBox="0 0 24 24" height="24" width="24"
+                                xmlns="http://www.w3.org/2000/svg">
+                                <path class="no-fill" fill="none" stroke="#000" stroke-width="2"
+                                    d="M 14.505 1 C 11.546 1.356 10.354 12.419 10.272 12.478 C 10.189 12.538 6.773 6.184 6.773 6.184 C 6.773 6.184 3.855 8.381 4 14 C 4.2 18 5.868 23.067 12.177 22.999 C 18.488 22.932 20.1 18 20 14 C 19.9 10 17.533 10.05 15.964 6.738 C 14.638 3.939 14.505 1 14.505 1 Z" />
+                            </svg>
+                        </div>
+                        <a href="{{ route('keptkayas.recycle_classify') }}">
+                            <div class="main__stat-detail" style="">
+                                <strong class="main__stat-value">ราคา/วิธีคัดแยกขยะ</strong>
+                                {{-- <span class="main__stat-unit">Cals</span> --}}
+                            </div>
+                        </a>
                     </div>
-                    <div class="main__stat-detail">
-                        <strong class="main__stat-value">Shopping Cart</strong>
+                    <div class="main__stat-block">
+                        <div class="main__stat-graph">
+                            <svg class="ring" viewBox="0 0 60 60" height="60" width="60" xmlns="http://www.w3.org/2000/svg">
+                                <circle class="ring-track" cx="30" cy="30" r="26" fill="none" stroke="#7f7f7f"
+                                    stroke-width="8" />
+                                <circle class="ring-stroke ring-stroke--miles" cx="30" cy="30" r="26" fill="none"
+                                    stroke="#000" stroke-linecap="round" stroke-width="8" stroke-dasharray="163.36 163.36"
+                                    stroke-dashoffset="35.39" transform="rotate(-90,30,30)" />
+                            </svg>
+                            <svg role="img" aria-label="Location marker" class="icon" viewBox="0 0 24 24" height="24"
+                                width="24" xmlns="http://www.w3.org/2000/svg">
+                                <path
+                                    d="M12 2C7.6 2 4 5.6 4 10C4 15.4 11 21.5 11.3 21.8C11.5 21.9 11.8 22 12 22C12.2 22 12.5 21.9 12.7 21.8C13 21.5 20 15.4 20 10C20 5.6 16.4 2 12 2ZM12 19.7C9.9 17.7 6 13.4 6 10C6 6.7 8.7 4 12 4C15.3 4 18 6.7 18 10C18 13.3 14.1 17.7 12 19.7ZM12 6C9.8 6 8 7.8 8 10C8 12.2 9.8 14 12 14C14.2 14 16 12.2 16 10C16 7.8 14.2 6 12 6ZM12 12C10.9 12 10 11.1 10 10C10 8.9 10.9 8 12 8C13.1 8 14 8.9 14 10C14 11.1 13.1 12 12 12Z" />
+                            </svg>
+                        </div>
+                        <div class="main__stat-detail">
+                            <strong class="main__stat-value">ประวัติการขายขยะ</strong>
+                            {{-- <span class="main__stat-unit">Miles</span> --}}
+                        </div>
                     </div>
-                    </a>
+
                 </div>
-              
             </div>
-            <div class="main__stat-blocks">
-                
-                <div class="main__stat-block" id="qrcosde">
-                    <div class="main__stat-graph">
-                        <svg class="ring" viewBox="0 0 60 60" height="60" width="60" xmlns="http://www.w3.org/2000/svg">
-                            <circle class="ring-track" cx="30" cy="30" r="26" fill="none" stroke="#7f7f7f"
-                                stroke-width="8" />
-                            <circle class="ring-stroke ring-stroke--cals" cx="30" cy="30" r="26" fill="none"
-                                stroke="#000" stroke-linecap="round" stroke-width="8" stroke-dasharray="163.36 163.36"
-                                stroke-dashoffset="12.25" transform="rotate(-90,30,30)" />
-                        </svg>
-                        <svg role="img" aria-label="Flame" class="icon" viewBox="0 0 24 24" height="24" width="24"
-                            xmlns="http://www.w3.org/2000/svg">
-                            <path class="no-fill" fill="none" stroke="#000" stroke-width="2"
-                                d="M 14.505 1 C 11.546 1.356 10.354 12.419 10.272 12.478 C 10.189 12.538 6.773 6.184 6.773 6.184 C 6.773 6.184 3.855 8.381 4 14 C 4.2 18 5.868 23.067 12.177 22.999 C 18.488 22.932 20.1 18 20 14 C 19.9 10 17.533 10.05 15.964 6.738 C 14.638 3.939 14.505 1 14.505 1 Z" />
-                        </svg>
-                    </div>
-                    <div class="main__stat-detail" style="">
-                        <strong class="main__stat-value">ราคา/วิธีคัดแยกขยะ</strong>
-                        {{-- <span class="main__stat-unit">Cals</span> --}}
-                    </div>
-                </div>
-                <div class="main__stat-block">
-                    <div class="main__stat-graph">
-                        <svg class="ring" viewBox="0 0 60 60" height="60" width="60" xmlns="http://www.w3.org/2000/svg">
-                            <circle class="ring-track" cx="30" cy="30" r="26" fill="none" stroke="#7f7f7f"
-                                stroke-width="8" />
-                            <circle class="ring-stroke ring-stroke--miles" cx="30" cy="30" r="26" fill="none"
-                                stroke="#000" stroke-linecap="round" stroke-width="8" stroke-dasharray="163.36 163.36"
-                                stroke-dashoffset="35.39" transform="rotate(-90,30,30)" />
-                        </svg>
-                        <svg role="img" aria-label="Location marker" class="icon" viewBox="0 0 24 24" height="24"
-                            width="24" xmlns="http://www.w3.org/2000/svg">
-                            <path
-                                d="M12 2C7.6 2 4 5.6 4 10C4 15.4 11 21.5 11.3 21.8C11.5 21.9 11.8 22 12 22C12.2 22 12.5 21.9 12.7 21.8C13 21.5 20 15.4 20 10C20 5.6 16.4 2 12 2ZM12 19.7C9.9 17.7 6 13.4 6 10C6 6.7 8.7 4 12 4C15.3 4 18 6.7 18 10C18 13.3 14.1 17.7 12 19.7ZM12 6C9.8 6 8 7.8 8 10C8 12.2 9.8 14 12 14C14.2 14 16 12.2 16 10C16 7.8 14.2 6 12 6ZM12 12C10.9 12 10 11.1 10 10C10 8.9 10.9 8 12 8C13.1 8 14 8.9 14 10C14 11.1 13.1 12 12 12Z" />
-                        </svg>
-                    </div>
-                    <div class="main__stat-detail">
-                        <strong class="main__stat-value">ประวัติการขายขยะ</strong>
-                        {{-- <span class="main__stat-unit">Miles</span> --}}
+            <div class="kp div_wet hidden">
+                 <div class="main__stat-blocks">
+                    <div class="main__stat-block main__stat-block--lg">
+                        <div class="main__stat-graph main__stat-graph--filled">
+                            <svg class="ring" viewBox="0 0 180 180" height="180" width="180"
+                                xmlns="http://www.w3.org/2000/svg">
+                                <circle class="ring-track" cx="90" cy="90" r="82" fill="none" stroke="#7f7f7f"
+                                    stroke-width="16" />
+                                <circle class="ring-stroke ring-stroke--steps" cx="90" cy="90" r="82" fill="none"
+                                    stroke="#000" stroke-linecap="round" stroke-width="16" stroke-dasharray="515.22 515.22"
+                                    stroke-dashoffset="0" transform="rotate(-90,90,90)" />
+                                <circle class="ring-fill" cx="90" cy="90" r="0" fill="none" transform="rotate(-90,90,90)" />
+                            </svg>
+                            <div class="main__stat-detail">
+                                {{-- <svg role="img" aria-label="Footprints" class="icon" viewBox="0 0 36 36" height="36"
+                                    width="36" xmlns="http://www.w3.org/2000/svg">
+                                    <path class="no-fill" fill="none" stroke="#000" stroke-width="2"
+                                        d="M 14.831 17.296 C 13.365 17.803 12 18.046 10.142 18.623 C 10.87 27.73 19.472 24.186 14.831 17.296 Z M 14.236 15.036 C 14.26 13.771 14.191 12.55 14.74 11.349 C 15.362 10.06 15.461 8.925 15.115 7.054 C 14.493 3.647 13.171 1.521 11.389 1.055 C 7.586 0.499 7.113 4.24 7.022 6.974 C 6.812 8.503 8.106 15.054 9.669 16.162 C 11.205 15.77 12.713 15.386 14.236 15.036 Z" />
+                                    <path class="no-fill" fill="none" stroke="#000" stroke-width="2"
+                                        d="M 21.184 28.252 C 21.184 28.252 24.001 28.918 25.859 29.496 C 25.128 38.603 16.542 35.143 21.184 28.252 Z M 21.764 26.007 C 21.741 24.741 21.807 23.525 21.261 22.32 C 20.64 21.031 20.541 19.9 20.885 18.026 C 21.508 14.618 22.828 12.495 24.61 12.029 C 28.417 11.471 28.888 15.211 28.977 17.945 C 29.187 19.475 27.897 26.027 26.332 27.135 C 24.799 26.743 23.288 26.357 21.764 26.007 Z" />
+                                </svg> --}}
+                                <strong
+                                    class="main__stat-value">{{ $userWastePref->purchase_transactions[0]->total_amounts ?? '0.00' }}</strong>
+                                <span class="main__stat-unit">น้ำหนักขยะเปียกของท่าน<div>2568</div></span>
+                                <strong
+                                    class="main__stat-value">{{ $userWastePref->purchase_transactions[0]->total_points ?? '0.00' }}</strong>
+                                <span class="main__stat-unit">แต้มสะสม</span>
+                            </div>
+                        </div>
                     </div>
                 </div>
-              
+                <div class="main__stat-blocks">
+
+                    <div class="main__stat-block" data-bs-toggle="modal" data-bs-target="#exampleModal">
+                        <div class="main__stat-graph">
+                            <svg class="ring" viewBox="0 0 60 60" height="60" width="60" xmlns="http://www.w3.org/2000/svg">
+                                <circle class="ring-track" cx="30" cy="30" r="26" fill="none" stroke="#7f7f7f"
+                                    stroke-width="8" />
+                                <circle class="ring-stroke ring-stroke--cals" cx="30" cy="30" r="26" fill="none"
+                                    stroke="#000" stroke-linecap="round" stroke-width="8" stroke-dasharray="163.36 163.36"
+                                    stroke-dashoffset="12.25" transform="rotate(-90,30,30)" />
+                            </svg>
+                            <svg role="img" aria-label="Flame" class="icon" viewBox="0 0 24 24" height="24" width="24"
+                                xmlns="http://www.w3.org/2000/svg">
+                                <path class="no-fill" fill="none" stroke="#000" stroke-width="2"
+                                    d="M 14.505 1 C 11.546 1.356 10.354 12.419 10.272 12.478 C 10.189 12.538 6.773 6.184 6.773 6.184 C 6.773 6.184 3.855 8.381 4 14 C 4.2 18 5.868 23.067 12.177 22.999 C 18.488 22.932 20.1 18 20 14 C 19.9 10 17.533 10.05 15.964 6.738 C 14.638 3.939 14.505 1 14.505 1 Z" />
+                            </svg>
+                        </div>
+                        <div class="main__stat-detail" style="margin-left: 0.5rem">
+                            <strong class="main__stat-value">แจ้งปัญหาถังหมัก</strong>
+                        </div>
+                    </div>
+                    <div class="main__stat-block">
+                        <a href="{{route('keptkayas.shop.index')}}">
+                            <div class="main__stat-graph">
+                                <svg class="ring" viewBox="0 0 60 60" height="60" width="60"
+                                    xmlns="http://www.w3.org/2000/svg">
+                                    <circle class="ring-track" cx="30" cy="30" r="26" fill="none" stroke="#7f7f7f"
+                                        stroke-width="8" />
+                                    <circle class="ring-stroke ring-stroke--miles" cx="30" cy="30" r="26" fill="none"
+                                        stroke="#000" stroke-linecap="round" stroke-width="8"
+                                        stroke-dasharray="163.36 163.36" stroke-dashoffset="35.39"
+                                        transform="rotate(-90,30,30)" />
+                                </svg>
+                                <svg role="img" aria-label="Location marker" class="icon" viewBox="0 0 24 24" height="24"
+                                    width="24" xmlns="http://www.w3.org/2000/svg">
+                                    <path
+                                        d="M12 2C7.6 2 4 5.6 4 10C4 15.4 11 21.5 11.3 21.8C11.5 21.9 11.8 22 12 22C12.2 22 12.5 21.9 12.7 21.8C13 21.5 20 15.4 20 10C20 5.6 16.4 2 12 2ZM12 19.7C9.9 17.7 6 13.4 6 10C6 6.7 8.7 4 12 4C15.3 4 18 6.7 18 10C18 13.3 14.1 17.7 12 19.7ZM12 6C9.8 6 8 7.8 8 10C8 12.2 9.8 14 12 14C14.2 14 16 12.2 16 10C16 7.8 14.2 6 12 6ZM12 12C10.9 12 10 11.1 10 10C10 8.9 10.9 8 12 8C13.1 8 14 8.9 14 10C14 11.1 13.1 12 12 12Z" />
+                                </svg>
+                            </div>
+                            <div class="main__stat-detail">
+                                <strong class="main__stat-value">วิธีจัดการเศษอาหาร</strong>
+                            </div>
+                        </a>
+                    </div>
+
+                </div>
+                <div class="main__stat-blocks">
+
+                    <div class="main__stat-block" id="qrcosde">
+                        <div class="main__stat-graph">
+                            <svg class="ring" viewBox="0 0 60 60" height="60" width="60" xmlns="http://www.w3.org/2000/svg">
+                                <circle class="ring-track" cx="30" cy="30" r="26" fill="none" stroke="#7f7f7f"
+                                    stroke-width="8" />
+                                <circle class="ring-stroke ring-stroke--cals" cx="30" cy="30" r="26" fill="none"
+                                    stroke="#000" stroke-linecap="round" stroke-width="8" stroke-dasharray="163.36 163.36"
+                                    stroke-dashoffset="12.25" transform="rotate(-90,30,30)" />
+                            </svg>
+                            <svg role="img" aria-label="Flame" class="icon" viewBox="0 0 24 24" height="24" width="24"
+                                xmlns="http://www.w3.org/2000/svg">
+                                <path class="no-fill" fill="none" stroke="#000" stroke-width="2"
+                                    d="M 14.505 1 C 11.546 1.356 10.354 12.419 10.272 12.478 C 10.189 12.538 6.773 6.184 6.773 6.184 C 6.773 6.184 3.855 8.381 4 14 C 4.2 18 5.868 23.067 12.177 22.999 C 18.488 22.932 20.1 18 20 14 C 19.9 10 17.533 10.05 15.964 6.738 C 14.638 3.939 14.505 1 14.505 1 Z" />
+                            </svg>
+                        </div>
+                        <a href="{{ route('keptkayas.recycle_classify') }}">
+                            <div class="main__stat-detail" style="">
+                                <strong class="main__stat-value">วิธีแก้ปัญหาถังหมัก</strong>
+                            </div>
+                        </a>
+                    </div>
+                    <div class="main__stat-block">
+                        <div class="main__stat-graph">
+                            <svg class="ring" viewBox="0 0 60 60" height="60" width="60" xmlns="http://www.w3.org/2000/svg">
+                                <circle class="ring-track" cx="30" cy="30" r="26" fill="none" stroke="#7f7f7f"
+                                    stroke-width="8" />
+                                <circle class="ring-stroke ring-stroke--miles" cx="30" cy="30" r="26" fill="none"
+                                    stroke="#000" stroke-linecap="round" stroke-width="8" stroke-dasharray="163.36 163.36"
+                                    stroke-dashoffset="35.39" transform="rotate(-90,30,30)" />
+                            </svg>
+                            <svg role="img" aria-label="Location marker" class="icon" viewBox="0 0 24 24" height="24"
+                                width="24" xmlns="http://www.w3.org/2000/svg">
+                                <path
+                                    d="M12 2C7.6 2 4 5.6 4 10C4 15.4 11 21.5 11.3 21.8C11.5 21.9 11.8 22 12 22C12.2 22 12.5 21.9 12.7 21.8C13 21.5 20 15.4 20 10C20 5.6 16.4 2 12 2ZM12 19.7C9.9 17.7 6 13.4 6 10C6 6.7 8.7 4 12 4C15.3 4 18 6.7 18 10C18 13.3 14.1 17.7 12 19.7ZM12 6C9.8 6 8 7.8 8 10C8 12.2 9.8 14 12 14C14.2 14 16 12.2 16 10C16 7.8 14.2 6 12 6ZM12 12C10.9 12 10 11.1 10 10C10 8.9 10.9 8 12 8C13.1 8 14 8.9 14 10C14 11.1 13.1 12 12 12Z" />
+                            </svg>
+                        </div>
+                        <div class="main__stat-detail">
+                            <strong class="main__stat-value">ประวัติ</strong>
+                            {{-- <span class="main__stat-unit">Miles</span> --}}
+                        </div>
+                    </div>
+
+                </div>
             </div>
-            {{-- <div class="main__stat-rows">
-                <div class="main__stat-row">
-                    <div class="main__stat-graph">
-                        <svg role="img" aria-label="Beating heart" class="icon icon--red icon--pulse"
-                            viewBox="0 0 24 24" height="24" width="24" xmlns="http://www.w3.org/2000/svg">
-                            <path
-                                d="M12 4.52765C9.64418 2.41689 6.02125 2.49347 3.75736 4.75736C1.41421 7.10051 1.41421 10.8995 3.75736 13.2426L10.5858 20.0711C11.3668 20.8521 12.6332 20.8521 13.4142 20.0711L20.2426 13.2426C22.5858 10.8995 22.5858 7.10051 20.2426 4.75736C17.9787 2.49347 14.3558 2.41689 12 4.52765ZM10.8284 6.17157L11.2929 6.63604C11.6834 7.02656 12.3166 7.02656 12.7071 6.63604L13.1716 6.17157C14.7337 4.60948 17.2663 4.60948 18.8284 6.17157C20.3905 7.73367 20.3905 10.2663 18.8284 11.8284L12 18.6569L5.17157 11.8284C3.60948 10.2663 3.60948 7.73367 5.17157 6.17157C6.73367 4.60948 9.26633 4.60948 10.8284 6.17157Z" />
-                        </svg>
-                    </div>
-                    <div class="main__stat-detail">
-                        <span class="main__stat-value"><strong>90</strong> <small>bpm</small></span>
-                        <span class="main__stat-subtext">76 bpm resting heart rate</span>
-                    </div>
-                </div>
-                <div class="main__stat-row">
-                    <div class="main__stat-graph">
-                        <svg class="ring" viewBox="0 0 60 60" height="60" width="60" xmlns="http://www.w3.org/2000/svg">
-                            <circle class="ring-track" cx="30" cy="30" r="21" fill="none" stroke="#7f7f7f"
-                                stroke-width="4" />
-                            <circle class="ring-stroke ring-stroke--stepHrs" cx="30" cy="30" r="21" fill="none"
-                                stroke="#000" stroke-linecap="round" stroke-width="4" stroke-dasharray="131.95 131.95"
-                                stroke-dashoffset="52.78" transform="rotate(-90,30,30)" />
-                        </svg>
-                        <svg role="img" aria-label="Person" class="icon" viewBox="0 0 24 24" height="24" width="24"
-                            xmlns="http://www.w3.org/2000/svg">
-                            <ellipse fill="none" stroke="#000" stroke-width="2" cx="12" cy="4" rx="3" ry="3" />
-                            <path class="no-fill" stroke-linejoin="round" stroke-width="2"
-                                d="M 10.216 9.108 C 10.216 9.108 3.146 3.809 1.477 6.133 C -0.46 8.829 9.295 12.25 9.295 12.25 C 9.295 12.25 6.011 22.985 8.381 23.076 C 10.953 23.175 11.855 16.128 11.873 16.128 C 11.891 16.128 12.21 23.037 14.991 22.973 C 17.772 22.909 14.555 12.188 14.555 12.188 C 14.555 12.188 22.747 13.423 22.754 10.901 C 22.762 8.142 13.734 9.126 13.734 9.126 C 13.734 9.126 10.318 9.033 10.216 9.108 Z" />
-                        </svg>
-                    </div>
-                    <div class="main__stat-detail">
-                        <span class="main__stat-value">
-                            <strong>3</strong> <small>of</small> <strong>5</strong> <small>hr</small>
-                        </span>
-                        <span class="main__stat-subtext">250+ steps per hour</span>
-                    </div>
-                </div>
-            </div> --}}
         </main>
-        <footer class="footer">
-            {{-- <button class="footer__nav-btn" type="button" title="Today">
-                <svg class="icon" viewBox="0 0 24 24" height="24" width="24" xmlns="http://www.w3.org/2000/svg">
-                    <circle cx="2" cy="12" r="1" />
-                    <circle cx="7" cy="7" r="1.25" />
-                    <circle cx="7" cy="12" r="1.25" />
-                    <circle cx="7" cy="17" r="1.25" />
-                    <circle cx="12" cy="2" r="1.5" />
-                    <circle cx="12" cy="7" r="1.5" />
-                    <circle cx="12" cy="12" r="1.5" />
-                    <circle cx="12" cy="17" r="1.5" />
-                    <circle cx="12" cy="22" r="1.5" />
-                    <circle cx="17" cy="7" r="1.75" />
-                    <circle cx="17" cy="12" r="1.75" />
-                    <circle cx="17" cy="17" r="1.75" />
-                    <circle cx="22" cy="12" r="2" />
-                </svg>
-            </button>
-            <button class="footer__nav-btn" style="text-align: center" type="button" title="Discover">
-                 <svg class="icon" viewBox="0 0 24 24" height="24" width="24" xmlns="http://www.w3.org/2000/svg">
-                    <path
-                        d="M10 4C7.79086 4 6 5.79086 6 8C6 10.2091 7.79086 12 10 12C12.2091 12 14 10.2091 14 8C14 5.79086 12.2091 4 10 4ZM4 8C4 4.68629 6.68629 2 10 2C13.3137 2 16 4.68629 16 8C16 11.3137 13.3137 14 10 14C6.68629 14 4 11.3137 4 8ZM16.8284 3.75736C17.219 3.36683 17.8521 3.36683 18.2426 3.75736C20.5858 6.10051 20.5858 9.8995 18.2426 12.2426C17.8521 12.6332 17.219 12.6332 16.8284 12.2426C16.4379 11.8521 16.4379 11.219 16.8284 10.8284C18.3905 9.26633 18.3905 6.73367 16.8284 5.17157C16.4379 4.78105 16.4379 4.14788 16.8284 3.75736ZM17.5299 16.7575C17.6638 16.2217 18.2067 15.8959 18.7425 16.0299C20.0705 16.3618 20.911 17.2109 21.3944 18.1778C21.8622 19.1133 22 20.1571 22 21C22 21.5523 21.5523 22 21 22C20.4477 22 20 21.5523 20 21C20 20.3429 19.8878 19.6367 19.6056 19.0722C19.339 18.5391 18.9295 18.1382 18.2575 17.9701C17.7217 17.8362 17.3959 17.2933 17.5299 16.7575ZM6.5 18C5.24054 18 4 19.2135 4 21C4 21.5523 3.55228 22 3 22C2.44772 22 2 21.5523 2 21C2 18.3682 3.89347 16 6.5 16H13.5C16.1065 16 18 18.3682 18 21C18 21.5523 17.5523 22 17 22C16.4477 22 16 21.5523 16 21C16 19.2135 14.7595 18 13.5 18H6.5Z" />
-                </svg>งานประปา
-            </button>
-            <button class="footer__nav-btn" type="button" title="Community">
-                <svg class="icon" viewBox="0 0 24 24" height="24" width="24" xmlns="http://www.w3.org/2000/svg">
-                    <path
-                        d="M10 4C7.79086 4 6 5.79086 6 8C6 10.2091 7.79086 12 10 12C12.2091 12 14 10.2091 14 8C14 5.79086 12.2091 4 10 4ZM4 8C4 4.68629 6.68629 2 10 2C13.3137 2 16 4.68629 16 8C16 11.3137 13.3137 14 10 14C6.68629 14 4 11.3137 4 8ZM16.8284 3.75736C17.219 3.36683 17.8521 3.36683 18.2426 3.75736C20.5858 6.10051 20.5858 9.8995 18.2426 12.2426C17.8521 12.6332 17.219 12.6332 16.8284 12.2426C16.4379 11.8521 16.4379 11.219 16.8284 10.8284C18.3905 9.26633 18.3905 6.73367 16.8284 5.17157C16.4379 4.78105 16.4379 4.14788 16.8284 3.75736ZM17.5299 16.7575C17.6638 16.2217 18.2067 15.8959 18.7425 16.0299C20.0705 16.3618 20.911 17.2109 21.3944 18.1778C21.8622 19.1133 22 20.1571 22 21C22 21.5523 21.5523 22 21 22C20.4477 22 20 21.5523 20 21C20 20.3429 19.8878 19.6367 19.6056 19.0722C19.339 18.5391 18.9295 18.1382 18.2575 17.9701C17.7217 17.8362 17.3959 17.2933 17.5299 16.7575ZM6.5 18C5.24054 18 4 19.2135 4 21C4 21.5523 3.55228 22 3 22C2.44772 22 2 21.5523 2 21C2 18.3682 3.89347 16 6.5 16H13.5C16.1065 16 18 18.3682 18 21C18 21.5523 17.5523 22 17 22C16.4477 22 16 21.5523 16 21C16 19.2135 14.7595 18 13.5 18H6.5Z" />
-                </svg>
-            </button> --}}
-            {{-- <button class="footer__nav-btn" type="button" title="Premium">
-                <svg class="icon" viewBox="0 0 24 24" height="24" width="24" xmlns="http://www.w3.org/2000/svg">
-                    <circle cx="2" cy="12" r="1" />
-                    <circle cx="7" cy="12" r="1.25" />
-                    <circle cx="12" cy="2" r="1.5" />
-                    <circle cx="12" cy="12" r="1.5" />
-                    <circle cx="12" cy="22" r="1.5" />
-                    <circle cx="17" cy="7" r="1.75" />
-                    <circle cx="17" cy="12" r="1.75" />
-                    <circle cx="17" cy="17" r="1.75" />
-                    <circle cx="22" cy="12" r="2" />
-                </svg>
-            </button> --}}
-        </footer>
+        
     </div>
+
+   
 
     <div class="modal fade" id="exampleModal" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
         <div class="modal-dialog modal-sm modal-dialog-centered">
@@ -1019,6 +1156,56 @@
             </div>
         </div>
     </div>
+
+    <nav class="nav">
+        <ul class="nav__links">
+            <li class="nav__link active main_bottom_nav" data-id="recycle">
+                <a href="#"><i class='fas fa-recycle'></i></a>
+                <div class="nav__link text">ขยะรีไซเคิล</div>
+            </li>
+            <li class="nav__link main_bottom_nav" data-id="wet">
+                <a href="#"><i class='fas fa-trash'></i></a>
+                <div class="nav__link text">ขยะเปียก</div>
+            </li>
+
+
+
+            <div class="nav__light"></div>
+        </ul>
+    </nav>
+    <script src="https://code.jquery.com/jquery-3.7.0.js"></script>
+
+    <script>
+
+        const links = document.querySelectorAll(".nav__link");
+        const light = document.querySelector(".nav__light");
+
+        function moveLight({ offsetLeft, offsetWidth }) {
+            light.style.left = `${offsetLeft - offsetWidth / 7}px`;
+        }
+
+        function activeLink(linkActive) {
+            links.forEach((link) => {
+                link.classList.remove("active");
+                linkActive.classList.add("active");
+            });
+        }
+
+        links.forEach((link) => {
+            link.addEventListener("click", (event) => {
+                moveLight(event.target);
+                activeLink(link);
+            });
+        });
+
+
+        $(document).on('click','.main_bottom_nav', function(){
+                let div_id = $(this).data('id')
+                $('.kp').addClass('hidden')
+                $('.div_'+div_id).removeClass('hidden')
+            
+        })
+    </script>
 </body>
 
 </html>

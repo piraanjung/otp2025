@@ -1,12 +1,13 @@
 @extends('layouts.keptkaya')
-
+@section('page-topic', 'หน่วยนับสินค้า')
+@section('nav-header', ' หน่วยนับสินค้า')
+@section('nav-current', 'สร้างข้อมูลหน่วยนับสินค้า')
 @section('content')
 
     <div class="card">
-        <div class="card-header"></div>
         <div class="card-body">
-            <div class="container mt-5">
-                <h1>Create New Unit</h1>
+            <div class="container">
+                <h3>สร้างหน่วยนับสินค้า</h3>
 
 
                 <form action="{{ route('keptkayas.tbank.units.store') }}" method="POST">
@@ -16,15 +17,15 @@
                     <div id="unit-fields">
                         {{-- Initial field --}}
                         <div class="mb-3 input-group-row border p-3 rounded mb-3"> {{-- เพิ่ม border, padding, rounded --}}
-                            <h5 class="mb-3">Unit Entry 1</h5>
+                            <h5 class="mb-3">หน่วยนับสินค้า 1</h5>
                             <div class="row">
                                 <div class="col-4">
-                                    <label for="unitname_0" class="form-label">Unit Name</label>
+                                    <label for="unitname_0" class="form-label">ชื่อหน่วยนับ</label>
                                     <input type="text" class="form-control" id="unitname_0" name="unitname[0][unitname]"
-                                        value="{{ old('unitname.0') }}" required>
+                                        value="{{ old('unitname_0') }}" required>
                                 </div>
                                 <div class="col-4">
-                                    <label for="unit_short_name_0" class="form-label">Unit Short Name</label>
+                                    <label for="unit_short_name_0" class="form-label">ชื่อย่อหน่วยนับ</label>
                                     <input type="text" class="form-control" id="unit_short_name_0"
                                         name="unitname[0][unit_short_name]" value="{{ old('unit_short_name.0') }}">
                                 </div>
@@ -39,21 +40,20 @@
                     </div>
 
                     <div class="mb-3">
-                        <button type="button" class="btn btn-info" id="add-field-button">Add Another Unit</button>
+                        <button type="button" class="btn btn-info" id="add-field-button">เพื่อหน่วยอื่นๆ</button>
                     </div>
 
                     {{-- Global status and deleted checkboxes --}}
                     <div class="mb-3 form-check">
                         <input type="checkbox" class="form-check-input" id="status" name="status" value="1" {{ old('status', 1) ? 'checked' : '' }}>
-                        <label class="form-check-label" for="status">Status (Active)</label>
+                        <label class="form-check-label" for="status">สถานะ (Active)</label>
                     </div>
                     <div class="mb-3 form-check">
                         <input type="checkbox" class="form-check-input" id="deleted" name="deleted" value="1" {{ old('deleted', 0) ? 'checked' : '' }}>
-                        <label class="form-check-label" for="deleted">Deleted</label>
+                        <label class="form-check-label" for="deleted">ลบ</label>
                     </div>
 
-                    <button type="submit" class="btn btn-success">Create Unit</button>
-                    <a href="{{ route('keptkayas.tbank.units.index') }}" class="btn btn-secondary">Back to List</a>
+                    <button type="submit" class="btn btn-success">บันทึกข้อมูล</button>
                 </form>
             </div>
         </div>
@@ -87,14 +87,14 @@
             addFieldButton.addEventListener('click', function () {
                 const newFieldHtml = `
                         <div class="mb-3 input-group-row border p-3 rounded mb-3">
-                            <h5 class="mb-3">Unit Entry ${fieldCount + 1}</h5>
+                            <h5 class="mb-3">หน่วยนับสินค้า ${fieldCount + 1}</h5>
                             <div class="row">
                                 <div class="col-4">
-                                    <label for="unitname_${fieldCount}" class="form-label">Unit Name</label>
+                                    <label for="unitname_${fieldCount}" class="form-label">ชื่อหน่วยนับ</label>
                                     <input type="text" class="form-control" id="unitname_${fieldCount}" name="unitname[${fieldCount}][unitname]" required>
                                 </div>
                                 <div class="col-4">
-                                    <label for="unit_short_name_${fieldCount}" class="form-label">Unit Short Name</label>
+                                    <label for="unit_short_name_${fieldCount}" class="form-label">ชื่อย่อหน่วยนับ</label>
                                     <input type="text" class="form-control" id="unit_short_name_${fieldCount}" name="unitname[${fieldCount}][unit_short_name]">
                                 </div>
                                 <div class="col-2">

@@ -6,12 +6,11 @@ use App\Models\Admin\Zone;
 use App\Models\Tabwater\UndertakerSubzone;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
-use App\Models\Admin\ManagesTenantConnection;
-use App\Models\Tabwater\TwUsersInfo;
+use App\Models\Tabwater\TwMeterInfos;
 
 class Subzone extends Model
 {
-    use HasFactory,ManagesTenantConnection;
+    use HasFactory;
 
     protected $fillable = [ "id", "zone_id","subzone_name","status"];
     protected $table = "subzones";
@@ -21,7 +20,7 @@ class Subzone extends Model
     }
 
     public function users_in_subzone(){
-        return $this->hasMany(TwUsersInfo::class,'undertake_subzone_id', 'id');
+        return $this->hasMany(TwMeterInfos::class,'undertake_subzone_id', 'id');
     }
 
     public function undertaker_subzone(){

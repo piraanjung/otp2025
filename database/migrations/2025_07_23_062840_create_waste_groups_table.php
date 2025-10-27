@@ -13,7 +13,7 @@ class CreateWasteGroupsTable extends Migration
      */
     public function up()
     {
-        Schema::create('waste_groups', function (Blueprint $table) {
+        Schema::create('kp_waste_groups', function (Blueprint $table) {
             $table->id();
             $table->string('name')->unique(); // ชื่อกลุ่ม เช่น "พลาสติก", "แก้ว", "กระดาษ"
             $table->text('description')->nullable(); // คำอธิบายกลุ่ม
@@ -28,6 +28,6 @@ class CreateWasteGroupsTable extends Migration
      */
     public function down()
     {
-        Schema::dropIfExists('waste_groups');
+        Schema::dropIfExists('kp_waste_groups');
     }
 }

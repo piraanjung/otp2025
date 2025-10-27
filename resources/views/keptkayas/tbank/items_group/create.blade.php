@@ -1,10 +1,12 @@
 @extends('layouts.keptkaya')
+@section('nav-header', 'ประเภทขยะรีไซเคิล')
+@section('nav-current', ' สร้างข้อมูลประเภทขยะรีไซเคิล')
+@section('page-topic', ' สร้างข้อมูลประเภทขยะรีไซเคิล')
 
 @section('content')
 
     <div class="card card-info">
         <div class="card-header">
-            <h3 class="card-title">Horizontal Form</h3>
         </div>
         <div class="card-body">
             <form action="{{ route('keptkayas.tbank.items_group.store') }}" class="form-horizontal" method="post">
@@ -13,33 +15,41 @@
                 {{-- Container for dynamic input fields --}}
                 <div id="item-group-fields">
                     {{-- Initial field --}}
-                    <div class="mb-3 input-group-row">
-                        <label for="kp_items_groupname_0" class="form-label">Group Name 1</label>
-                        <div class="input-group">
-                            <input type="text" class="form-control" id="kp_items_groupname_0" name="kp_items_groupname[]"
-                                value="{{ old('kp_items_groupname.0') }}" required>
-                            <button type="button" class="btn btn-outline-danger remove-field"
-                                style="display:none;">Remove</button>
+                    <div class="mb-3 input-group-row d-flex">
+                        <label for="kp_items_groupname_0" class="form-label  w-20">ประเภทขยะรีไซเคิลที่ 1</label>
+                        <div class="input-group w-20">
+                            <input type="text" class="form-control" id="kp_items_groupname_0" name="kp_items_groupname[0][name]"
+                                value="{{ old('kp_items_groupname.0') }}" 
+                                placeholder="ตัวอย่าง: ขวด PET"
+                                required>
+                           
                         </div>
+                        <label for="kp_items_groupname_0" class="form-label  w-15">รหัส(ภาษาอังกฤษ)</label>
+
+                        <div class="input-group w-20">
+                             <input type="text" class="form-control" id="kp_items_groupname_0" 
+                                placeholder="ตัวอย่าง: PET" name="kp_items_groupname[0][code]" required>
+                        </div>
+                        <button type="button" class="btn btn-outline-danger remove-field"
+                                style="display:block;">ลบ</button>
                     </div>
                 </div>
 
                 <div class="mb-3">
-                    <button type="button" class="btn btn-info" id="add-field-button">Add Another Group Name</button>
+                    <button type="button" class="btn btn-info" id="add-field-button">เพิ่มประเภทขยะรีไซเคิล</button>
                 </div>
 
                 {{-- Global status and deleted checkboxes (or you can add them per field) --}}
                 <div class="mb-3 form-check">
                     <input type="checkbox" class="form-check-input" id="status" name="status" value="1" {{ old('status', 1) ? 'checked' : '' }}>
-                    <label class="form-check-label" for="status">Status (Active)</label>
+                    <label class="form-check-label" for="status">สถานะ (Active)</label>
                 </div>
                 <div class="mb-3 form-check">
                     <input type="checkbox" class="form-check-input" id="deleted" name="deleted" value="1" {{ old('deleted', 0) ? 'checked' : '' }}>
-                    <label class="form-check-label" for="deleted">Deleted</label>
+                    <label class="form-check-label" for="deleted">ลบ</label>
                 </div>
 
-                <button type="submit" class="btn btn-success">Create Item Group</button>
-                <a href="{{ route('keptkayas.tbank.items_group.index') }}" class="btn btn-secondary">Back to List</a>
+                <button type="submit" class="btn btn-success">บันทึกข้อมูล</button>
             </form>
         </div>
     </div>
@@ -67,12 +77,19 @@
 
             addFieldButton.addEventListener('click', function () {
                 const newFieldHtml = `
-                            <div class="mb-3 input-group-row">
-                                <label for="kp_items_groupname_${fieldCount}" class="form-label">Group Name ${fieldCount + 1}</label>
-                                <div class="input-group">
-                                    <input type="text" class="form-control" id="kp_items_groupname_${fieldCount}" name="kp_items_groupname[]" required>
-                                    <button type="button" class="btn btn-outline-danger remove-field">Remove</button>
+                            <div class="mb-3 input-group-row d-flex"">
+                                <label for="kp_items_groupname_${fieldCount}" class="form-label w-20">ประเภทขยะรีไซเคิลที่ ${fieldCount + 1}</label>
+                                <div class="input-group w-20">
+                                    <input type="text" class="form-control" id="kp_items_groupname_${fieldCount}" name="kp_items_groupname[${fieldCount}][name]" required>
                                 </div>
+                                <label for="kp_items_groupname_0" class="form-label  w-15">รหัส(ภาษาอังกฤษ)</label>
+
+                                <div class="input-group w-20">
+                                    <input type="text" class="form-control" id="kp_items_groupname_${fieldCount}" 
+                                         name="kp_items_groupname[${fieldCount}][code]" required>  
+                                </div>
+                                <button type="button" class="btn btn-outline-danger remove-field">ลบ</button>
+
                             </div>
                         `;
                 itemGroupFields.insertAdjacentHTML('beforeend', newFieldHtml);
@@ -88,7 +105,7 @@
                         fieldCount--;
                         // Re-index labels (optional, but good for clarity)
                         document.querySelectorAll('#item-group-fields .input-group-row').forEach((row, index) => {
-                            row.querySelector('label').textContent = `Group Name ${index + 1}`;
+                            row.querySelector('label').textContent = `ประเภทขยะรีไซเคิลที่ ${index + 1}`;
                             row.querySelector('input').id = `kp_items_groupname_${index}`;
                         });
                         updateRemoveButtons(); // Update visibility after removal

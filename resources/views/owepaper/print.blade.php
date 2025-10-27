@@ -64,7 +64,8 @@ $fnc = new FunctionsController();
                         }
                     }
                 </style>
-                <table class="table" style="width:220mm; margin-left:5rem; opacity:1">
+                <table class="table2" style="">
+                    {{-- width:220mm; margin-left:5rem; opacity:1 --}}
                     <tr>
                         <td style="padding-left: 4rem;padding-right: 1rem;">
                             <div class="row">
@@ -79,11 +80,11 @@ $fnc = new FunctionsController();
                                 <div class="col-4 text-center"></div>
                                 <div class="col-6 text-left pt-3 ml-5">
                                     <div>เรียน &nbsp;
-                                        {{ $item['res'][0]->usermeterinfos->user->prefix . '' . $item['res'][0]->usermeterinfos->user->firstname . ' ' . $item['res'][0]->usermeterinfos->user->lastname }}
+                                        {{ $item['res'][0]->tw_meter_infos->user->prefix . '' . $item['res'][0]->tw_meter_infos->user->firstname . ' ' . $item['res'][0]->tw_meter_infos->user->lastname }}
                                     </div>
 
                                     <div class="pl-5">
-                                        {{ $item['res'][0]->usermeterinfos->user->address . ' ' . $item['res'][0]->usermeterinfos->user->user_zone->zone_name }}
+                                        {{ $item['res'][0]->tw_meter_infos->user->address . ' ' . $item['res'][0]->tw_meter_infos->user->user_zone->zone_name }}
                                         ต.ขามป้อม
                                     </div>
                                     <div class="pl-5">อ.พระยืน จ.ขอนแก่น 40320</div>
@@ -107,9 +108,9 @@ $fnc = new FunctionsController();
                                 <div class="col-5"></div>
                                 <div class="col-4 date">
                                     <?php
-            $currentYear = date('Y') + 543;
-            $monthThai = $fnc->fullThaiMonth(date('m'));
-                                            ?>
+                                            $currentYear = date('Y') + 543;
+                                            $monthThai = $fnc->fullThaiMonth(date('m'));
+                                    ?>
                                     วันที่ {{ date('d') . ' ' . $monthThai . ' ' . $currentYear }}
                                 </div>
                             </div>
@@ -119,7 +120,7 @@ $fnc = new FunctionsController();
                             <div class="row mt-2">
                                 <div class="col-12">เรียน &nbsp;
                                     <b
-                                        id="user_name">{{ $item['res'][0]->usermeterinfos->user->prefix . '' . $item['res'][0]->usermeterinfos->user->firstname . ' ' . $item['res'][0]->usermeterinfos->user->lastname }}</b>
+                                        id="user_name">{{ $item['res'][0]->tw_meter_infos->user->prefix . '' . $item['res'][0]->tw_meter_infos->user->firstname . ' ' . $item['res'][0]->tw_meter_infos->user->lastname }}</b>
                                 </div>
                             </div>
                             <div class="row mt-1">
@@ -127,12 +128,12 @@ $fnc = new FunctionsController();
                                     <div style="letter-spacing: 1.2px;">ตามที่ท่านเป็นผู้ใช้น้ำของ
                                         กิจการประปาองค์การบริหารส่วนตำบลขามป้อม
                                         เลขที่ผู้ใช้น้ำ
-                                        <b>{{ $item['res'][0]->usermeterinfos->meternumber }}</b>
+                                        <b>{{ $item['res'][0]->tw_meter_infos->meternumber }}</b>
                                         <input type="hidden" id="meter_id"
-                                            value="{{ $item['res'][0]->usermeterinfos->meter_id }}">
+                                            value="{{ $item['res'][0]->tw_meter_infos->meter_id }}">
                                         <input type="hidden" id="acc_trans_id" value="{{ $item['res'][0]->acc_trans_id_fk }}">
                                         ในนามของ
-                                        <b>{{ $item['res'][0]->usermeterinfos->user->prefix . '' . $item['res'][0]->usermeterinfos->user->firstname . ' ' . $item['res'][0]->usermeterinfos->user->lastname }}</b>
+                                        <b>{{ $item['res'][0]->tw_meter_infos->user->prefix . '' . $item['res'][0]->tw_meter_infos->user->firstname . ' ' . $item['res'][0]->tw_meter_infos->user->lastname }}</b>
                                         ซึ่งมีหนี้ค้างชำระค่าน้ำประปา ดังนี้
 
                                     </div>
@@ -160,8 +161,8 @@ $fnc = new FunctionsController();
                                                 @endforeach
                                                 <td class="text-center td_history" id="oweSum">
                                                     <?php
-            echo number_format($oweSum, 2);
-                                                            ?>
+                                                        echo number_format($oweSum, 2);
+                                                    ?>
                                                 </td>
                                             </tr>
                                         </table>
@@ -172,7 +173,7 @@ $fnc = new FunctionsController();
                                     <div class="col-12 indent" style="">
                                         ค้างชำระ <b>{{ collect($item['res'])->count() }}</b> เดือน
                                         รวมเป็นเงินที่ต้องชำระทั้งสิ้น <b
-                                            id="oweSum{{ $item['res'][0]->usermeterinfos->meter_id }}">{{ number_format($oweSum, 2) }}
+                                            id="oweSum{{ $item['res'][0]->tw_meter_infos->meter_id }}">{{ number_format($oweSum, 2) }}
                                         </b>บาท
                                     </div>
                                 </div>
@@ -197,7 +198,7 @@ $fnc = new FunctionsController();
             }
             $monthThai = $fnc->fullThaiMonth($currentMonthExp);
             $paidBeforeDate = 30;
-                                                ?>
+                                                        ?>
                                         <div style="letter-spacing: -0.35px;">
                                             ในการนี้ จึงขอให้ท่านโปรดติดต่อชำระค่าน้ำประปา ได้ที่
                                             กองคลังองค์การบริหารส่วนตำบลขามป้อม
@@ -224,13 +225,13 @@ $fnc = new FunctionsController();
                                 <div class="col-3">
                                     <div class="card" style="margin-top: -2.5rem">
                                         <div class="card-body text-center" style="color:black;">
-                                            {{-- <textarea id="qrcode_text" class="qrcode_text"
-                                                data-id="{{ $item['res'][0]->usermeterinfos->meter_id }}" style="opacity: 0"
+                                            <textarea id="qrcode_text" class="qrcode_text"
+                                                data-id="{{ $item['res'][0]->tw_meter_infos->meter_id }}" style="opacity: 0"
                                                 cols="1" rows="1">{{ $item['qrcode'] }}</textarea>
                                             <div style="font-size:0.9rem; text-align:center;">สแกน QR CODE</div>
                                             <div style="font-size:0.9rem; text-align:center; border-bottom:1px solid black">
                                                 ชำระเงินค่าน้ำประปา</div>
-                                            <div id="qrcode{{ $item['res'][0]->usermeterinfos->meter_id }}"></div> --}}
+                                            <div id="qrcode{{ $item['res'][0]->tw_meter_infos->meter_id }}"></div>
                                         </div>
                                     </div>
 

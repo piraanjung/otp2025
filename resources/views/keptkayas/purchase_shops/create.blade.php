@@ -1,11 +1,11 @@
-@can('access waste bank mobile')
+{{-- @can('access waste bank mobile')
     @extends('layouts.print')
 
-@endcan
-@can('access tabwater mobile')
+@endcan --}}
+{{-- @can('access tabwater mobile') --}}
     @extends('layouts.keptkaya')
 
-@endcan
+{{-- @endcan --}}
 
 @section('content')
     <div class="container">

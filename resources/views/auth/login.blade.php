@@ -45,7 +45,7 @@
                 <x-label for="username" :value="__('User name')" />
 
                 <x-input id="username" class="block mt-1 w-full" type="text" name="username" 
-                    value="twman4"
+                    value="admin1"
                     required autofocus />
             </div>
 
@@ -54,7 +54,7 @@
                 <x-label for="password" :value="__('Password')" />
 
                 <x-input id="password" class="block mt-1 w-full" type="password" name="password" required 
-                    value="tw1234"
+                    value="999999999"
                     autocomplete="current-password" />
             </div>
 

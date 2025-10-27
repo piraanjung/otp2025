@@ -13,12 +13,12 @@ class CreateWasteTypesTable extends Migration
      */
     public function up()
     {
-        Schema::create('waste_types', function (Blueprint $table) {
+        Schema::create('kp_waste_types', function (Blueprint $table) {
             $table->id();
             $table->string('name')->unique(); // ชื่อประเภทขยะ เช่น "ขวดพลาสติก PET ใส"
             $table->foreignId('waste_group_id')
                   ->nullable() // กำหนดให้เป็น nullable ถ้าประเภทขยะอาจจะยังไม่มีกลุ่ม
-                  ->constrained() // สร้าง foreign key constraint ไปยังตาราง waste_groups
+                  ->constrained('kp_waste_groups') // สร้าง foreign key constraint ไปยังตาราง waste_groups
                   ->onDelete('set null');// ถ้ากลุ่มถูกลบ, waste_group_id ใน waste_types จะถูกตั้งเป็น null
             $table->string('default_unit')->default('kg'); // หน่วยเริ่มต้นที่ใช้บ่อยที่สุด (kg, piece)
 
@@ -43,6 +43,6 @@ class CreateWasteTypesTable extends Migration
      */
     public function down()
     {
-        Schema::dropIfExists('waste_types');
+        Schema::dropIfExists('kp_waste_types');
     }
 }

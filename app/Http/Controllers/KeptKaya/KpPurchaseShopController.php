@@ -4,7 +4,9 @@ namespace App\Http\Controllers\KeptKaya;
 
 use App\Http\Controllers\Controller;
 use App\Models\KeptKaya\KpPurchaseShop;
+use App\Models\User;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
 use Illuminate\Validation\Rule;
 
 class KpPurchaseShopController extends Controller
@@ -14,8 +16,10 @@ class KpPurchaseShopController extends Controller
      */
     public function index()
     {
-        $shops = KpPurchaseShop::orderBy('shop_name')->paginate(20);
-        return view('keptkayas.purchase_shops.index', compact('shops'));
+        $user = User::setLocalUser();
+
+        $shops = KpPurchaseShop::where('org_id_fk', Auth::user()->org_id_fk)->paginate(20);
+        return view('keptkayas.purchase_shops.index', compact('shops', 'user'));
     }
 
     /**
@@ -32,6 +36,8 @@ class KpPurchaseShopController extends Controller
      */
     public function store(Request $request)
     {
+        $request->merge(['org_id_fk'=> Auth::user()->org_id_fk]);
+
         $validated = $request->validate([
             'shop_name' => 'required|string|unique:kp_purchase_shops,shop_name',
             'contact_person' => 'nullable|string',
@@ -39,6 +45,7 @@ class KpPurchaseShopController extends Controller
             'address' => 'nullable|string',
             'status' => 'required|in:active,inactive',
             'comment' => 'nullable|string',
+            'org_id_fk' => 'required'
         ]);
 
         KpPurchaseShop::create($validated);

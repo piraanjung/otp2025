@@ -35,7 +35,7 @@ use App\Models\User;
 
 Route::get('/', function () {
     return view('welcome');
-    // return redirect()->route('login');
+
 });
 
 Route::get('/liff', function () {
@@ -73,6 +73,7 @@ Route::resource('/test', TestController::class);
 Auth::routes();
 
 Route::get('/accessmenu', [AccessMenusController::class, 'accessmenu'])->middleware(['auth'])->name('accessmenu');
+Route::get('/staff_accessmenu', [AccessMenusController::class, 'staff_accessmenu'])->middleware(['auth'])->name('staff_accessmenu');
 
 
 Route::get('/dashboard', [AccessMenusController::class, 'dashboard'])->middleware(['auth'])->name('dashboard');
@@ -83,8 +84,7 @@ Route::post('/line/fine_line_id', [LineLiffController::class , 'fine_line_id']);
 Route::post('/line/update_user_by_phone', [LineLiffController::class , 'update_user_by_phone']);
 Route::post('/line/login', [LineLiffController::class , 'handleLineLogin']);
 
-
-Route::get('/staff_accessmenu', [AccessMenusController::class, 'staff_accessmenu'])->middleware(['auth'])->name('staff_accessmenu');
+// $a ='auth:web_hs1,web_kp1';
 
 Route::prefix('staffs')->name('keptkayas.staffs.')->group(function () {
     Route::get('/', [StaffController::class, 'index'])->name('index');

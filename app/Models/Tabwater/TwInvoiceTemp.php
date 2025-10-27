@@ -16,9 +16,7 @@ class TwInvoiceTemp extends Model
                 'meter_id_fk',
                 'inv_period_id_fk',
                 'lastmeter',
-                'inv_no',
                 'reserve_meter',
-                'inv_type',
                 'currentmeter',
                 'water_used',
                 'paid',
@@ -26,8 +24,10 @@ class TwInvoiceTemp extends Model
                 'totalpaid',
                 'status',
                 'recorder_id',
+                'inv_no',
                 'acc_trans_id_fk',
-                'printed_time'
+                'printed_time',
+                'comment'
     ];
 
      public function invoice_period()
@@ -40,9 +40,9 @@ class TwInvoiceTemp extends Model
         return $this->belongsTo(User::class,'recorder_id', 'id');
     }
 
-    public function usermeterinfos()
+    public function tw_meter_infos()
     {
-        return $this->belongsTo(TwUsersInfo::class, 'meter_id_fk', 'id');
+        return $this->belongsTo(TwMeterInfos::class, 'meter_id_fk', 'meter_id');
     }
 
     public function acc_transactions()

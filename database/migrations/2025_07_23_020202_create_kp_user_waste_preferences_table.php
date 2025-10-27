@@ -4,7 +4,7 @@ use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\Schema;
 
-class CreateUserWastePreferencesTable extends Migration
+class CreateKpUserWastePreferencesTable extends Migration
 {
     /**
      * Run the migrations.
@@ -13,7 +13,7 @@ class CreateUserWastePreferencesTable extends Migration
      */
     public function up()
     {
-        Schema::create('user_waste_preferences', function (Blueprint $table) {
+        Schema::create('kp_user_waste_preferences', function (Blueprint $table) {
             $table->id();
             $table->foreignId('user_id')->constrained()->onDelete('cascade'); // Foreign key ไปยังตาราง users
             $table->boolean('is_annual_collection')->default(false); // เป็นสมาชิกเก็บขยะรายปีหรือไม่
@@ -30,6 +30,6 @@ class CreateUserWastePreferencesTable extends Migration
      */
     public function down()
     {
-        Schema::dropIfExists('user_waste_preferences');
+        Schema::dropIfExists('kp_user_waste_preferences');
     }
 }

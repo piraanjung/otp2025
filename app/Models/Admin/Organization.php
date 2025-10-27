@@ -3,12 +3,11 @@
 namespace App\Models\Admin;
 
 use Illuminate\Database\Eloquent\Model;
-use App\Models\Admin\ManagesTenantConnection;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 
 class Organization extends Model
 {
-    use HasFactory, ManagesTenantConnection; // 👈 เพิ่ม Trait นี้เข้ามา
+    use HasFactory; // 👈 เพิ่ม Trait นี้เข้ามา
     protected $table  = 'organizations';
     protected $fillable = [
         'id',
@@ -61,40 +60,11 @@ class Organization extends Model
     public function zones()
     {
         return $this->belongsTo(Zone::class, 'org_zone_id_fk', 'id');
-    }
-
-    public static function getOrgInfos($org_id_fk)
-    {
-        $organization = Organization::setTenantConnection(session('db_conn'));
-        $connection = $organization::with(['provinces', 'tambons', 'districts', 'zones'])
-            ->get()->first();
-        return [
-            'id'  => $org_id_fk,
-            'org_database' => $connection->org_database,
-            'org_zipcode' => $connection->org_zipcode,
-            'org_address' => $connection->org_address,
-            'org_phone' => $connection->org_phone,
-            'org_head_name' =>  $connection->org_head_name,
-            'org_code' => $connection->org_code,
-            'org_guard' => $connection->org_guard,
-            'org_provinces' => $connection->provinces->province_name,
-            'org_districts' => $connection->districts->district_name,
-            'org_tambons' => $connection->tambons->tambon_name,
-            'org_zone' => $connection->zones->zone_name,
-            'org_logo_img' => $connection->org_logo_img,
-            'org_type_name' => $connection->org_type_name,
-            'org_name' => $connection->org_name,
-            'org_short_type_name' => $connection->org_short_name,
-            'org_dept_name' => $connection->org_dept_name,
-            'org_dept_phone' => $connection->org_dept_phone,
-            'vat' => $connection->vat
-        ];
-    }
-    
+    }    
 
     public static function getOrgName($org_id_fk)
     {
-        $organization = (new Organization())->setConnection('envsogo_main')->where('id', $org_id_fk);
+        $organization = Organization::where('id', $org_id_fk);
         $connection = $organization->with(['provinces', 'tambons', 'districts', 'zones'])
             ->get()->first();
         return [
@@ -118,5 +88,11 @@ class Organization extends Model
     {
         $organization = (new Organization())->setConnection('envsogo_main')->where('org_code', $org_id_code)
         ->get(['id', 'org_dabase'])->first();
+    }
+
+    public static function getOrgDatabaseByOrgCode($org_code){
+        // $arr = [
+        //     'hs1' => ''
+        // ];
     }
 }

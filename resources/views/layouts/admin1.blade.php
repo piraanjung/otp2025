@@ -86,11 +86,6 @@
             font-size: 1rem;
         }
 
-        input:read-only {
-            background-color: rgb(170 175 188);
-            color: black !important
-        }
-
         .selected {
             background: lightblue
         }

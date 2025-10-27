@@ -30,7 +30,7 @@ return new class extends Migration
                 ->onDelete('cascade')->onUpdate('cascade');
             $table->foreign('kp_units_idfk')->references('id')->on('kp_tbank_items_units')
                 ->onDelete('cascade')->onUpdate('cascade');
-            $table->foreign('recorder_id')->references('user_id')->on('staffs')
+            $table->foreign('recorder_id')->references('id')->on('staffs')
                 ->onDelete('cascade')->onUpdate('cascade');
         });
     }

@@ -7,7 +7,7 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 
-class UserWastePreference extends Model
+class KpUserWastePreference extends Model
 {
     use HasFactory;
 
@@ -35,7 +35,7 @@ class UserWastePreference extends Model
         return $this->hasMany(WasteBin::class,'user_id', 'user_id');
     }
 
-    public function purchaseTransactions(): HasMany
+    public function purchaseTransactions()
     {
         // Assuming kp_user_id_fk is the foreign key in the kp_purchase_transactions table
         return $this->hasMany(KpPurchaseTransaction::class, 'kp_user_w_pref_id_fk', 'id');

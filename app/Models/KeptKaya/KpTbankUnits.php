@@ -11,6 +11,7 @@ class KpTbankUnits extends Model
 
     protected $fillable = [
         'id',
+        'org_id_fk',
         'unitname',
         'unit_short_name',
         'status',

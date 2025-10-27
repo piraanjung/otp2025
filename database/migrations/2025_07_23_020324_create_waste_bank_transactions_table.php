@@ -13,9 +13,9 @@ class CreateWasteBankTransactionsTable extends Migration
      */
     public function up()
     {
-        Schema::create('waste_bank_transactions', function (Blueprint $table) {
+        Schema::create('kp_waste_bank_transactions', function (Blueprint $table) {
             $table->id();
-            $table->foreignId('user_id')->constrained()->onDelete('cascade'); // สมาชิกที่นำขยะมาขาย
+            $table->foreignId('user_id')->constrained('users')->onDelete('cascade'); // สมาชิกที่นำขยะมาขาย
             $table->foreignId('staff_id')->nullable()->constrained('users')->onDelete('set null'); // เจ้าหน้าที่ที่ทำรายการ (FK to users.id)
 
             $table->decimal('total_member_payout_amount', 10, 2)->default(0.00); // ยอดรวมที่จ่ายให้สมาชิก
@@ -36,6 +36,6 @@ class CreateWasteBankTransactionsTable extends Migration
      */
     public function down()
     {
-        Schema::dropIfExists('waste_bank_transactions');
+        Schema::dropIfExists('kp_waste_bank_transactions');
     }
 }

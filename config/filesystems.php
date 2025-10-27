@@ -41,6 +41,13 @@ return [
             'url' => env('APP_URL').'/storage',
             'visibility' => 'public',
         ],
+        'keptkaya_public' => [
+            'driver' => 'local',
+            // 'root' ชี้ตรงไปที่ public/keptkaya/items
+            'root' => public_path('keptkaya/items'),
+            'url' => env('APP_URL').'/keptkaya/items',
+            'visibility' => 'public',
+        ],
 
         's3' => [
             'driver' => 's3',

@@ -13,7 +13,7 @@ return new class extends Migration
     {
         Schema::create('tw_meter_type_rate_configs', function (Blueprint $table) {
             $table->id();
-            $table->foreignId('meter_type_id')->constrained('meter_types')->onDelete('cascade');
+            $table->foreignId('meter_type_id')->constrained('tw_meter_types')->onDelete('cascade');
             $table->foreignId('pricing_type_id')->constrained('tw_pricing_types')->onDelete('restrict'); // Fixed or Progressive
             
             $table->float('min_usage_charge', 8, 2)->nullable(); // ค่ารักษามิเตอร์/ค่าธรรมเนียมขั้นต่ำ (สำหรับ Fixed Rate)

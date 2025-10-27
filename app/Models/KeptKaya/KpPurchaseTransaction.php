@@ -17,6 +17,7 @@ class KpPurchaseTransaction extends Model
     protected $fillable = [
         'kp_u_trans_no',
         'kp_user_w_pref_id_fk',
+        'machine_id_fk',
         'transaction_date',
         'total_weight',
         'total_amount',
@@ -33,18 +34,18 @@ class KpPurchaseTransaction extends Model
     ];
 
     // Relationships
-    public function user_waste_pref(): BelongsTo
+    public function user_waste_pref()
     {
         // assuming kp_user_keptkaya_infos is a model for your members
-        return $this->belongsTo(UserWastePreference::class, 'kp_user_w_pref_id_fk', 'id');
+        return $this->belongsTo(KpUserWastePreference::class, 'kp_user_w_pref_id_fk', 'id');
     }
 
-    public function recorder(): BelongsTo
+    public function recorder()
     {
         return $this->belongsTo(User::class, 'recorder_id', 'id');
     }
     
-    public function details(): HasMany
+    public function details()
     {
         return $this->hasMany(KpPurchaseDetail::class, 'kp_purchase_trans_id');
     }

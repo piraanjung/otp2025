@@ -12,8 +12,9 @@ class KpTbankItemsGroups extends Model
     protected $primaryKey = 'id';
 
     protected $fillable = [
+        'org_id_fk',
         'kp_items_groupname',
-        'item_group_code',
+        'kp_items_group_code',
         'sequence_num',
         'status',
         'deleted'	

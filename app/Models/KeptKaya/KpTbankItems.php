@@ -14,8 +14,9 @@ class KpTbankItems extends Model
         'kp_itemsname',
         'kp_items_group_idfk',
         'status',
-        'image_path',
-        'deleted'
+        'image',
+        'deleted',
+        'org_id_fk'
     ];
 
     protected $table = 'kp_tbank_items';

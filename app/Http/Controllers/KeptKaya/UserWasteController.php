@@ -3,12 +3,12 @@
 namespace App\Http\Controllers\KeptKaya;
 
 use App\Http\Controllers\Controller;
-use App\Models\Admin\ManagesTenantConnection;
 use App\Models\Keptkaya\KpUserGroup;
-use App\Models\KeptKaya\UserWastePreference;
+use App\Models\KeptKaya\KpUserWastePreference;
 use App\Models\User;
 use App\Services\UserWasteStatusService;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
 
@@ -26,7 +26,6 @@ class UserWasteController extends Controller
      */
     public function index(Request $request)
     {
-        ManagesTenantConnection::configConnection(session('db_conn'));
 
         // Get the 'per_page' value from the request, default to 10
         $perPage = $request->input('per_page', 10);
@@ -46,7 +45,8 @@ class UserWasteController extends Controller
 
 
         $query = User::with(['wastePreference', 'wasteBins'])
-        ->role('User');
+            ->where('org_id_fk', Auth::user()->org_id_fk)
+            ->role('User');
 
         // Apply search filters
         $query->when($searchName, function ($q, $name) {
@@ -99,6 +99,7 @@ class UserWasteController extends Controller
             }
         });
 
+
         // Check if it's an AJAX request for live search
         if ($request->ajax()) {
             // For AJAX, just get the filtered data (no pagination for simplicity in AJAX update)
@@ -118,9 +119,9 @@ class UserWasteController extends Controller
         }
     }
 
-   
 
-     public function waste_bin_users(Request $request)
+
+    public function waste_bin_users(Request $request)
     {
         // Get the 'per_page' value from the request, default to 10
         $perPage = $request->input('per_page', 10);
@@ -217,7 +218,12 @@ class UserWasteController extends Controller
     public function create()
     {
         $user_groups = KpUserGroup::all();
-        return view('users.create');
+        $nonMemberUsers = User::role('User')
+            ->where('org_id_fk', Auth::user()->org_id_fk)
+            // ตรวจสอบว่าไม่เป็นสมาชิกธนาคารขยะ (สมมติตาราง/ฟิลด์)
+            ->whereDoesntHave('wastePreference')
+            ->get();
+        return view('keptkayas.w.users.create', compact('nonMemberUsers', 'user_groups'));
     }
 
     /**
@@ -225,28 +231,49 @@ class UserWasteController extends Controller
      */
     public function store(Request $request)
     {
-        $validatedData = $request->validate([
-            'name' => 'required|string|max:255',
-            'email' => 'required|string|email|max:255|unique:users',
-            'password' => 'required|string|min:8|confirmed',
-        ]);
-
-        DB::transaction(function () use ($validatedData) {
-            $user = User::create([
-                'name' => $validatedData['name'],
-                'email' => $validatedData['email'],
-                'password' => bcrypt($validatedData['password']),
+        if ($request->mode == 'batch_select') {
+            $validatedData = $request->validate([
+                'selected_user_ids.*' => 'required|',
             ]);
-
-            // สร้าง UserWastePreference เริ่มต้นสำหรับผู้ใช้ใหม่
-            $user->wastePreference()->create([
-                'is_annual_collection' => false,
-                'is_waste_bank' => false,
+        } else {
+            $validatedData = $request->validate([
+                'name' => 'required|string|max:255',
+                'email' => 'required|string|email|max:255|unique:users',
+                'password' => 'required|string|min:8|confirmed',
             ]);
-        });
+        }
+
+        if ($request->mode == 'batch_select') {
+            foreach ($validatedData['selected_user_ids'] as $selected_user_id) {
+                KpUserWastePreference::create([
+                    'user_id'               => $selected_user_id,
+                    'is_annual_collection'  => false,
+                    'is_waste_bank'         => false,
+                    'created_at'            => Now(),
+                    'updated_at'            => Now(),
+                ]);
+            }
+        } else {
+            DB::transaction(function () use ($validatedData) {
+
+                $user = User::create([
+                    'name' => $validatedData['name'],
+                    'email' => $validatedData['email'],
+                    'password' => bcrypt($validatedData['password']),
+                ]);
+
+                // สร้าง UserWastePreference เริ่มต้นสำหรับผู้ใช้ใหม่
+                $user->wastePreference()->create([
+                    'is_annual_collection' => false,
+                    'is_waste_bank' => false,
+                ]);
+            });
+        }
 
 
-        return redirect()->route('users.index')->with('success', 'User created successfully.');
+
+
+        return redirect()->route('keptkayas.users.index')->with('success', 'User created successfully.');
     }
 
     /**
@@ -264,8 +291,8 @@ class UserWasteController extends Controller
      */
     public function edit(User $user)
     {
-        
-        return view('users.edit', compact('user'));
+
+        return view('keptkayas.users.edit', compact('user'));
     }
 
     /**
@@ -288,7 +315,7 @@ class UserWasteController extends Controller
             ]);
         });
 
-        return redirect()->route('users.index')->with('success', 'User updated successfully.');
+        return redirect()->route('keptkayas.users.index')->with('success', 'User updated successfully.');
     }
 
     /**
@@ -297,10 +324,10 @@ class UserWasteController extends Controller
     public function destroy(User $user)
     {
         DB::transaction(function () use ($user) {
-            $user->delete(); // จะลบ wastePreference และ wasteBins ด้วย cascade ถ้าตั้งค่าไว้ใน migration
+            // $user->delete(); // จะลบ wastePreference และ wasteBins ด้วย cascade ถ้าตั้งค่าไว้ใน migration
         });
 
-        return redirect()->route('users.index')->with('success', 'User deleted successfully.');
+        return redirect()->route('keptkayas.users.index')->with('success', 'User deleted successfully.');
     }
 
     /**
@@ -357,7 +384,6 @@ class UserWasteController extends Controller
 
     public function aa(Request $request)
     {
-        return $request;
         $request->validate([
             'users' => 'required|array',
             'users.*.is_annual_collection' => 'boolean',
@@ -439,7 +465,7 @@ class UserWasteController extends Controller
             return response()->json([]);
         }
 
-        $users = UserWastePreference::where('id', $query)
+        $users = KpUserWastePreference::where('id', $query)
             ->with('user')
             ->where('is_waste_bank', true)
             ->get();

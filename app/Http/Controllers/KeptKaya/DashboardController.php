@@ -14,8 +14,7 @@ use Spatie\Permission\Models\Role;
 class DashboardController extends Controller
 {
     public function index(Request $request, $recycle_type){
-        //  User::where('id',Auth::user()->id)->with('roles.permissions')->get();
-        // return Auth::user()->getRoleNames(); // ควรคืนค่าเป็น true
+       
         $request->session()->put('keptkaya_type', $recycle_type);
         if (collect(BudgetYear::where('status', 'active')->first())->isEmpty()) {
             session(['hiddenMenu' => true]);

@@ -13,7 +13,7 @@ class CreateAnnualCollectionPaymentsTable extends Migration
      */
     public function up()
     {
-        Schema::create('annual_collection_payments', function (Blueprint $table) {
+        Schema::create('kp_annual_collection_payments', function (Blueprint $table) {
             $table->id();
             $table->foreignId('user_id')->constrained()->onDelete('cascade');
             $table->integer('number_of_bins')->default(0); // จำนวนถังที่มี
@@ -34,6 +34,6 @@ class CreateAnnualCollectionPaymentsTable extends Migration
      */
     public function down()
     {
-        Schema::dropIfExists('annual_collection_payments');
+        Schema::dropIfExists('kp_annual_collection_payments');
     }
 }

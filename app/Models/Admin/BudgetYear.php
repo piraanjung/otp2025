@@ -18,7 +18,7 @@ class BudgetYear extends Model
     ];
     protected $table = "budget_year";
 
-    public function invoicePeriod()
+    public function invoice_period()
     {
         return $this->hasMany(TwInvoicePeriod::class, 'budgetyear_id', 'id');
     }

@@ -1,16 +1,19 @@
-@can('access waste bank mobile')
+@if($user->can('access waste bank mobile'))
     @php
         $layout = 'layouts.keptkaya_mobile';
     @endphp
 
-@elsecan('access tabwater2')
+@else
     @php
         $layout = 'layouts.keptkaya';
      @endphp
-@endcan
+@endif
 
 @extends($layout)
 
+@section('nav-header', 'รับซื้อขยะรีไซเคิล')
+@section('nav-current', 'เลือกผู้ใช้งานสำหรับทำธุรกรรม')
+@section('page-topic', 'เลือกผู้ใช้งานสำหรับทำธุรกรรม')
 @section('content')
     <div class="card shadow-sm">
         <div class="card-header bg-light d-flex justify-content-between">
@@ -42,10 +45,8 @@
             </form>
         </div>
     </div>
-    <div class="card d-none d-md-block">
-        <div class="card-header bg-success text-white d-grid gap-2">
-            <h5 class="card-title mb-0">เลือกผู้ใช้งานสำหรับทำธุรกรรม</h5>
-        </div>
+    <div class="card d-none d-md-block mt-3">
+      
         <div class="card-body">
 
             <div class="table-responsive "> {{-- Hide table on small screens --}}

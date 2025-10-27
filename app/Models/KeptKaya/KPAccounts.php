@@ -15,7 +15,7 @@ class KPAccounts extends Model
     ];
 
     public function userWastePreference(){
-        return $this->belongsTo( UserWastePreference::class, 'u_wpref_id_fk', 'id' );
+        return $this->belongsTo( KpUserWastePreference::class, 'u_wpref_id_fk', 'id' );
     }
 
     public function registerAccount($u_w_pref_id, $db_con){

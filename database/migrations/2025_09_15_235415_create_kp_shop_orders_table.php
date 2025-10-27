@@ -14,14 +14,14 @@ return new class extends Migration
         Schema::create('kp_shop_orders', function (Blueprint $table) {
             $table->id();
             $table->string('order_no');
-            $table->foreignId('user_wpref_id')->constrained('user_waste_preferences')->onDelete('cascade');
+            $table->foreignId('user_wpref_id')->constrained('kp_user_waste_preferences')->onDelete('cascade');
             $table->enum('order_type', ['points', 'cash']);
             $table->decimal('points_per_unit', 10, 2)->default(0); // คะแนนรวม
             $table->decimal('cash_per_unit', 10, 2)->default(0); // คะแนนรวม
             $table->decimal('total_points', 10, 2)->default(0); // คะแนนรวม
             $table->decimal('total_cash', 10, 2)->default(0); // เงินสดรวม
             $table->enum('order_status', ['pending', 'processing', 'completed', 'cancelled'])->default('pending'); // สถานะคำสั่งซื้อ (pending, processing, completed, cancelled)
-            $table->foreignId('recorder_id')->nullable()->constrained('users')->onDelete('set null');
+            $table->foreignId('recorder_id')->nullable()->constrained('staffs')->onDelete('set null');
             $table->timestamps();
         });
     }

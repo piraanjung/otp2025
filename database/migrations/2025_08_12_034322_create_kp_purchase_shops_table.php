@@ -14,6 +14,7 @@
             Schema::create('kp_purchase_shops', function (Blueprint $table) {
                 $table->id();
                 $table->string('shop_name')->unique(); // ชื่อร้านรับซื้อ
+                $table->foreignId('org_id_fk')->constrained('organizations')->onDelete('cascade');
                 $table->string('contact_person')->nullable(); // ชื่อผู้ติดต่อ
                 $table->string('phone')->nullable(); // เบอร์โทรศัพท์
                 $table->text('address')->nullable(); // ที่อยู่

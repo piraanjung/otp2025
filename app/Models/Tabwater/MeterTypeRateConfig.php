@@ -2,6 +2,7 @@
 
 namespace App\Models\Tabwater;
 
+use App\Models\Admin\Organization;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 
@@ -32,6 +33,11 @@ class MeterTypeRateConfig extends Model
     public function meterType()
     {
         return $this->belongsTo(TwMeterType::class);
+    }
+
+    public function organization()
+    {
+        return $this->belongsTo(Organization::class, 'org_id_fk');
     }
 
     public function pricingType()

@@ -16,8 +16,7 @@ return new class extends Migration
         Schema::create('waste_bin_payrate_permonth', function (Blueprint $table) {
             $table->id();
             $table->foreignId('kp_usergroup_idfk')->constrained('kp_usergroups')->onDelete('restrict');
-            $table->foreignId('budgetyear_idfk')->constrained('budget_
-            year')->onDelete('restrict');
+            $table->foreignId('budgetyear_idfk')->constrained('budget_year')->onDelete('restrict');
             $table->float('payrate_permonth', 8,2);
             $table->float('vat', 4,2);
             $table->enum('status',['active', 'inactive'])->default('active');

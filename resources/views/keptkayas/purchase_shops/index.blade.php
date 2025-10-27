@@ -1,6 +1,7 @@
 @extends('layouts.keptkaya')
 @section('nav-header', ' ร้านรับซื้อขยะ')
-@section('page-topic', ' ร้านรับซื้อขยะ')
+@section('nav-current', ' รายการร้านรับซื้อขยะ')
+@section('page-topic', ' รายการร้านรับซื้อขยะ')
 
 @section('content')
 
@@ -19,7 +20,7 @@
 
     <div class="card mb-4 shadow-sm">
         <div class="card-header bg-light d-flex justify-content-between align-items-center">
-            <h5 class="mb-0">รายการร้านรับซื้อ</h5>
+            <h5 class="mb-0">รายการร้านรับซื้อขยะ</h5>
             <a href="{{ route('keptkayas.purchase-shops.create') }}" class="btn btn-primary">
                 <i class="fa fa-plus-circle me-1"></i> เพิ่มร้านรับซื้อใหม่
             </a>

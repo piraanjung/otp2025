@@ -11,7 +11,7 @@ class Machine extends Model
 
     protected $table = 'machines';
     protected $fillable =[
-	'id','machine_id','current_user_active_id','has_new_object',
+	'id','machine_id', 'org_id_fk','current_user_active_id','has_new_object',
     'pending_command','status','machine_ready',
     'last_heartbeat_at'
     ];

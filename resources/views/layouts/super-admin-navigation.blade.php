@@ -3,8 +3,8 @@
     aria-hidden="true" id="iconSidenav"></i>
   <a class="navbar-brand m-0" href=" https://demos.creative-tim.com/soft-ui-dashboard/pages/dashboard.html "
     target="_blank">
-    <img src="{{ asset('soft-ui/assets/img/logo-ct-dark.png')}}" class="navbar-brand-img h-100" alt="main_logo">
-    <span class="ms-1 font-weight-bold">ENVSOGO</span>
+    <img src="{{ asset('logo/ko_envsogo.png')}}" class="navbar-brand-img h-100" alt="main_logo">
+    <span class="ms-1 font-weight-bold">Envsogo::Admin</span>
   </a>
 </div>
 <hr class="horizontal dark mt-0">
@@ -38,20 +38,20 @@
           class="icon icon-sm shadow-sm border-radius-md bg-white text-center d-flex align-items-center justify-content-center  me-2">
           <i class="fa-solid fa-traffic-light" aria-hidden="true"></i>
         </div>
-        <span class="nav-link-text ms-1">Meter Types</span>
+        <span class="nav-link-text ms-1">ประเภทมิเตอร์</span>
       </a>
       <div class="collapse show" id="meterTypes" style="">
         <ul class="nav ms-4 ps-3">
           <li class="nav-item ">
             <a class="nav-link " href="{{ route('admin.metertype.index') }}">
               <span class="sidenav-mini-icon"> MT </span>
-              <span class="sidenav-normal"> Manage Meter Types </span>
+              <span class="sidenav-normal"> จัดการข้อมูลประเภทมิเตอร์ </span>
             </a>
           </li>
           <li class="nav-item ">
             <a class="nav-link " href="{{ route('admin.meter_rates.index') }}">
               <span class="sidenav-mini-icon"> MR </span>
-              <span class="sidenav-normal"> Manage Meter Rates </span>
+              <span class="sidenav-normal"> อัตราชำระตามประเภทมิเตอร์ </span>
             </a>
           </li>
         </ul>
@@ -64,7 +64,7 @@
           class="icon icon-shape icon-sm shadow border-radius-md bg-white text-center me-2 d-flex align-items-center justify-content-center">
           <i class="ni ni-circle-08 text-dark text-gradient text-lg opacity-10"></i></i>
         </div>
-        <span class="nav-link-text ms-1">Manage Pricing Types </span>
+        <span class="nav-link-text ms-1">ประเภทการชำระเงิน</span>
       </a>
     </li>
 

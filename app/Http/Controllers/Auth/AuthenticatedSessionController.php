@@ -6,6 +6,8 @@ use App\Http\Controllers\Controller;
 use App\Http\Requests\Auth\LoginRequest;
 use App\Models\Admin\Organization;
 use App\Models\User;
+use App\Models\UserHs1;
+use App\Models\UserKp1;
 use App\Providers\RouteServiceProvider;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
@@ -30,6 +32,7 @@ class AuthenticatedSessionController extends Controller
      */
     public function store(LoginRequest $request)
     {
+       
         $request->authenticate();
         $userAgent = $_SERVER['HTTP_USER_AGENT'] ?? '';
         $ismobile = preg_match(
@@ -37,8 +40,7 @@ class AuthenticatedSessionController extends Controller
             $userAgent
         );
         $request->session()->regenerate();
-        $org = Organization::getOrgName(Auth::user()->org_id_fk);
-        session(['db_conn' => $org['org_database']]);
+
         if ($ismobile) {
             if(isset($request->kp_mobile_login)){
                 //ตู้รับซื้อขวด
@@ -49,6 +51,15 @@ class AuthenticatedSessionController extends Controller
 
         return redirect()->intended(route('accessmenu', absolute: false));
 
+    }
+
+    public function getOrgUser($orgGuard, $orgDatabase){
+         if($orgDatabase == 'envsogo_hs1'){
+            return UserHs1::find(Auth::guard($orgGuard)->user()->id);
+        }else if($orgDatabase == 'envsogo_kp1'){
+            return UserKp1::find(Auth::guard($orgGuard)->user()->id);
+        }
+ 
     }
 
     /**

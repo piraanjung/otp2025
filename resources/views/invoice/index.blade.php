@@ -38,7 +38,7 @@
                             <h5>เส้นทางจดมิเตอร์</h5>
                         </li>
                         @foreach ($zones as $key => $zone)
-                            <li class="nav-item  col-12 col-lg-12" style="height: 30px">
+                            <li class="nav-item  col-12 col-lg-12 d-flex justify-content-between" style="height: 30px">
                                 <a class="nav-link text-body"  data-scroll="" href="#b{{ $i++ }}">
                                     <div class="icon me-2">
                                         <svg class="text-dark mb-1" width="16px" height="16px" viewBox="0 0 40 44"
@@ -65,14 +65,16 @@
                                     <span class="text-sm">
 
                                         {{ $zone['zone_info']['undertake_subzone']['subzone_name'] }}
-                                        @if ($zone['user_notyet_inv_info'] > 0)
-                                            <span class="badge badge-md badge-circle float-right badge-floating badge-danger border-white">
-                                                <i class="fa fa-user"></i>
-                                                {{$zone['user_notyet_inv_info']}}
-                                            </span>
-                                        @endif
-                                    </span>
+                                       
+                                    
                                 </a>
+                                </span>
+                                     @if ($zone['user_notyet_inv_info'] > 0)
+                                        <span class="badge badge-md badge-circle  badge-danger border-white mt-2">
+                                                {{-- <i class="fa fa-user"></i> --}}
+                                                <div>{{$zone['user_notyet_inv_info']}}</div>
+                                        </span>
+                                    @endif
                             </li>
                         @endforeach
                     </ul>
@@ -181,7 +183,7 @@
 
                                         <div class="row">
                                           
-                                            <div class="col-6 col-md-3">
+                                            <div class="col-6 col-md-4">
 
                                                 <a href="{{ route('invoice.export_excel', [
                                                     'zone_id' => $zone['zone_info']['undertake_subzone_id'],
@@ -190,7 +192,7 @@
                                                     class="foatright btn btn-sm w-100  mb-0 bg-gradient-info">Export Excel
                                                 </a>
                                             </div>
-                                            <div class="col-6 col-md-3">
+                                            <div class="col-6 col-md-4">
                                                 <a href="{{ route('invoice.print_invoice', [
                                                     'zone_id' => $zone['zone_info']['undertake_subzone_id'],
                                                     'curr_inv_prd' => $current_inv_period->id,

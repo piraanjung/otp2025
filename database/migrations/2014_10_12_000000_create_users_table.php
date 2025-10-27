@@ -14,11 +14,10 @@ return new class extends Migration
     public function up()
     {
         Schema::create('users', function (Blueprint $table) {
-            $table->unsignedBigInteger('id');
+            $table->id();
             $table->string('username')->nullable();
             $table->string('password')->nullable();
             $table->string('prefix')->nullable();
-            $table->integer('role_id')->nullable();
             $table->string('firstname')->nullable();
             $table->string('lastname')->nullable();
             $table->string('email')->unique()->nullable();
@@ -28,16 +27,10 @@ return new class extends Migration
             $table->text('image')->nullable();
             $table->enum('gender',['m', 'w'])->nullable();
             $table->string('address')->nullable();
-            $table->integer('zone_id')->comment('หมู่หรือชุมชน แล้วแต่พื้นที่จะแยก')->nullable();
-            $table->integer('subzone_id')->default(0)->nullable();
-            $table->string('tambon_code')->nullable();
-            $table->string('district_code')->nullable();
-            $table->string('province_code')->nullable();
             $table->timestamp('email_verified_at')->nullable()->nullable();
             $table->rememberToken()->nullable();
             $table->enum('status', ['active', 'inactive', 'deleted'])->default('active')->nullable();
             $table->timestamps();
-            $table->primary('id');
         });
     }
 

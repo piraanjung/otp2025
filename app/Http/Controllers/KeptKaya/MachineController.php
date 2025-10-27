@@ -26,6 +26,7 @@ class MachineController extends Controller
             ['machine_id' => $request->machine_id,  'has_new_object' => 0],
             [
                 'has_new_object' => $request->status == 'wakeup' ? 0 : 1,
+                'machine_ready' => $request->status == 'wakeup' ? 1 : 0,
                 'current_user_active_id' => $request->current_user_active_id,
                 'pending_command' => null
             ]
@@ -115,14 +116,6 @@ class MachineController extends Controller
 
         $machineId = $request->machine_id;
 
-        // 1. ค้นหา/สร้างแถวของเครื่อง
-        // $machine = Machine::firstOrCreate(
-        //     ['machine_id' => $machineId],
-        //     [
-        //         'status' => 'ready', // ค่าเริ่มต้นถ้าสร้างใหม่
-        //         'has_new_object' => 0,
-        //     ]
-        // );
         $machine = Machine::where('machine_id', $machineId)->get();
         if (collect($machine)->isEmpty()) {
             return response()->json([
@@ -131,18 +124,18 @@ class MachineController extends Controller
             ], 204);
         }
 
-        // 2. อัปเดตสถานะเป็น PENDING และบันทึก ID ไว้ใน Session (สำคัญ!)
+        // อัปเดตสถานะเป็น PENDING และบันทึก ID ไว้ใน Session (สำคัญ!)
         // esp บังคับว่าต้องมีข้อมูลอยู่แล้วเท่านั้นไม่มีการ create ใหม่
         Machine::where('machine_id', $machineId)->update([
             'status' => 'pending_login', // ค่าเริ่มต้นถ้าสร้างใหม่
             'has_new_object' => 0,
             'current_user_active_id' => null,
-            //     ]
+           
         ]);
 
 
 
-        // 3. ส่ง Machine ID กลับไปให้ Client Redirect
+        //  ส่ง Machine ID กลับไปให้ Client Redirect
         return response()->json([
             'message' => 'Machine ID bound to pending session.',
             'machine_id' => $machineId
@@ -193,7 +186,7 @@ class MachineController extends Controller
             $value = $request->start_buy;
             $machineId = $request->esp_id;
             // อัปเดตตารางที่ ESP8266 ใช้ดึงค่า (เช่น machines table)
-            Machine::where('machine_id',$machineId )->update([
+            Machine::where('machine_id', $machineId)->update([
                 'start_buy' => $value,
                 'updated_at' => now()
             ]);
@@ -213,22 +206,22 @@ class MachineController extends Controller
     }
 
     public function getControlCommand($machine_id)
-{
-    $machine = Machine::where('machine_id', $machine_id)
-                      ->select('start_buy', 'machine_ready', 'pending_command','buycomplete') // ดึงเฉพาะคอลัมน์ที่จำเป็น
-                      ->first();
+    {
+        $machine = Machine::where('machine_id', $machine_id)
+            ->select('start_buy', 'machine_ready', 'pending_command', 'buycomplete') // ดึงเฉพาะคอลัมน์ที่จำเป็น
+            ->first();
 
-    if ($machine) {
-        // ส่งเฉพาะค่าควบคุมที่ ESP ต้องการ
-        return response()->json([
-            'machine_id' => $machine_id,
-            'start_buy' => (int) $machine->start_buy,
-            'pending_command' => (int) $machine->pending_command,
-            'machine_ready' => (int) $machine->machine_ready,
-            'buycomplete' => (int)$machine->buycomplete
-        ]);
+        if ($machine) {
+            // ส่งเฉพาะค่าควบคุมที่ ESP ต้องการ
+            return response()->json([
+                'machine_id' => $machine_id,
+                'start_buy' => (int) $machine->start_buy,
+                'pending_command' => (int) $machine->pending_command,
+                'machine_ready' => (int) $machine->machine_ready,
+                'buycomplete' => (int)$machine->buycomplete
+            ]);
+        }
+
+        return response()->json(['status' => 'error', 'message' => 'Machine not found'], 404);
     }
-
-    return response()->json(['status' => 'error', 'message' => 'Machine not found'], 404);
-}
 }

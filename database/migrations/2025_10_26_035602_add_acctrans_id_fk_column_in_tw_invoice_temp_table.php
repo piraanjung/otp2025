@@ -13,12 +13,8 @@ return new class extends Migration
      */
     public function up()
     {
-        Schema::create('staffs', function (Blueprint $table) {
-            $table->foreignId('user_id')->constrained('users')->onDelete('cascade')
-                ->primary()->unique();
-            $table->enum('status', ['active', 'inactive']);
-            $table->enum('deleted', ['0','1']);
-            $table->timestamps();
+        Schema::table('tw_invoice_temp', function (Blueprint $table) {
+            $table->foreignId('acc_trans_id_fk')->constrained('tw_acc_transactions')->onDelete('cascade');
         });
     }
 
@@ -29,6 +25,9 @@ return new class extends Migration
      */
     public function down()
     {
-        Schema::dropIfExists('staff');
+        Schema::table('tw_invoice_temp', function (Blueprint $table) {
+            $table->dropForeign('acc_trans_id_fk');
+            $table->dropColumn('acc_trans_id_fk');
+        });
     }
 };

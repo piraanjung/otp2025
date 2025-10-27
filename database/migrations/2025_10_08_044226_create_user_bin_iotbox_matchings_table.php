@@ -15,7 +15,7 @@ return new class extends Migration
             $table->id();
 
             // 1. fw_user_id_fk: เชื่อมโยงกับ table foodwaste_user_preferences
-            $table->foreignId('fw_user_id_fk')->constrained('foodwaste_user_preferences')->onDelete('cascade');
+            $table->foreignId('fw_user_id_fk')->constrained('kp_user_waste_preferences')->onDelete('cascade');
 
             // 2. bin_id_fk: เชื่อมโยงกับ table foodwaste_bins
             $table->foreignId('bin_id_fk')->constrained('foodwaste_bins')->onDelete('cascade');

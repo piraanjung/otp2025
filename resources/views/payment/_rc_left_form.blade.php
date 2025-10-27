@@ -54,19 +54,19 @@ $receipt_th_date = $fnc->engDateToThaiDateFormat($exp[0]);
             {{-- &nbsp; --}}
             </div>
             <div class="col-9 test">
-                {{ $invoicesPaidForPrint[0]->usermeterinfos->user->prefix . '' . $invoicesPaidForPrint[0]->usermeterinfos->user->firstname . ' ' . $invoicesPaidForPrint[0]->usermeterinfos->user->lastname }}
+                {{ $invoicesPaidForPrint[0]->tw_meter_infos->user->prefix . '' . $invoicesPaidForPrint[0]->tw_meter_infos->user->firstname . ' ' . $invoicesPaidForPrint[0]->tw_meter_infos->user->lastname }}
             </div>
          <div class="col-3 waterUsedHisHead  test header-bg">
             ที่อยู่
             &nbsp;
          </div>
             <div class="col-9 test">
-            {{ $invoicesPaidForPrint[0]->usermeterinfos->meter_address }}
-            {{ $invoicesPaidForPrint[0]->usermeterinfos->undertake_subzone->subzone_name }}
-            ต.{{ $invoicesPaidForPrint[0]->usermeterinfos->user->user_tambon->tambon_name }}
-            อ.{{ $invoicesPaidForPrint[0]->usermeterinfos->user->user_district->district_name }}
-            จ.{{ $invoicesPaidForPrint[0]->usermeterinfos->user->user_province->province_name }}
-            {{ $invoicesPaidForPrint[0]->usermeterinfos->user->user_tambon->zipcode }}
+            {{ $invoicesPaidForPrint[0]->tw_meter_infos->meter_address }}
+            {{ $invoicesPaidForPrint[0]->tw_meter_infos->undertake_subzone->subzone_name }}
+            ต.{{ $invoicesPaidForPrint[0]->tw_meter_infos->user->user_tambon->tambon_name }}
+            อ.{{ $invoicesPaidForPrint[0]->tw_meter_infos->user->user_district->district_name }}
+            จ.{{ $invoicesPaidForPrint[0]->tw_meter_infos->user->user_province->province_name }}
+            {{ $invoicesPaidForPrint[0]->tw_meter_infos->user->user_tambon->zipcode }}
             </div>
 
         </div>
@@ -85,14 +85,14 @@ $receipt_th_date = $fnc->engDateToThaiDateFormat($exp[0]);
             &nbsp;
         </div>
         
-        <?php $sunmeter_name  = $invoicesPaidForPrint[0]->usermeterinfos->submeter_name == "" ? "" : " (".$invoicesPaidForPrint[0]->usermeterinfos->submeter_name.")"; ?>
-        <div  class="col-4 text-center test pl-1"> {{ $invoicesPaidForPrint[0]->usermeterinfos->user_id."".$sunmeter_name }}</div>
+        <?php $sunmeter_name  = $invoicesPaidForPrint[0]->tw_meter_infos->submeter_name == "" ? "" : " (".$invoicesPaidForPrint[0]->tw_meter_infos->submeter_name.")"; ?>
+        <div  class="col-4 text-center test pl-1"> {{ $invoicesPaidForPrint[0]->tw_meter_infos->user_id."".$sunmeter_name }}</div>
         <div  class="col-2 waterUsedHisHead test pl-2 header-bg">
             เลขมิเตอร์
             &nbsp;
         </div>
         <div  class="col-4 test text-center">
-            {{ $fnc->createInvoiceNumberString($invoicesPaidForPrint[0]->usermeterinfos->meter_id) }} /
+            {{ $fnc->createInvoiceNumberString($invoicesPaidForPrint[0]->tw_meter_infos->meter_id) }} /
             <span
                 style="font-size: 0.8rem">{{ $fnc->createNumberString($invoicesPaidForPrint[0]->id, 'B') }}</span>
         </div>

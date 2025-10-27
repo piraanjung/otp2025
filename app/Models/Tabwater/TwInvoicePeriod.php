@@ -11,7 +11,7 @@ class TwInvoicePeriod extends Model
     use HasFactory;
 
     protected $fillable = [ 'id', "inv_p_name","budgetyear_id","startdate","enddate","status"];
-    protected $table = "tw_invoice_period";
+    protected $table = "invoice_period";
 
     public function budgetyear()
     {

@@ -7,7 +7,7 @@ use App\Models\Admin\ManagesTenantConnection;
 use App\Models\Admin\Organization;
 use App\Models\Admin\Province;
 use App\Models\KeptKaya\KPAccounts;
-use App\Models\KeptKaya\UserWastePreference;
+use App\Models\KeptKaya\KpUserWastePreference;
 use App\Models\SuperUser;
 use App\Models\Tabwater\SequenceNumber;
 use App\Models\User;
@@ -25,34 +25,26 @@ class LineController extends Controller
     }
     public function fine_line_id(Request $request)
     {
-        $wastePreferenceID = 0;
         $res = 0;
+        //check
         $user = SuperUser::where('line_id', $request->userId)->first();
         if(collect($user)->isEmpty()){
-            $user_id = 0;
+            $org_id = 0; 
         }else{
-            $wastePreferenceID = $user->as_recycle_member == 1 ? 1 : 0;
+            $org_id = $user->org_id_fk;
             $res = 1;
         }
         
-        // $user_id = 0;
-        // $user = User::with('wastePreference')->where('line_id', $request->userId)
-        //     ->whereHas('wastePreference')
-        //     ->get()->first();
-        // if (collect($user)->isNotEmpty()) {
-        //     $wastePreferenceID = $user->wastePreference->id;
-        // }
-        // $res =  collect($user)->isEmpty() ? 0 : 1;
+       
         return response()->json([
             'res' => $res,
-            'waste_pref_id' => $wastePreferenceID
+            'org_id' => $org_id
 
         ]);
     }
 
     public function user_line_register(Request $request)
     {
-        
         $seqNumber = SequenceNumber::where('id', 1)->get('user')->first();
         User::create([
             'id' => $seqNumber->user,
@@ -63,7 +55,7 @@ class LineController extends Controller
             'updated_at' => date('Y-m-d H:i:s'),
         ]);
 
-        $userWastPref = UserWastePreference::create([
+        $userWastPref = KpUserWastePreference::create([
             'user_id' => $seqNumber->user,
             'is_annual_collection' => 0,
             'is_waste_bank' => 1,
@@ -71,7 +63,7 @@ class LineController extends Controller
             'updated_at' => date('Y-m-d H:i:s'),
         ]);
 
-        (new KPAccounts())->registerAccount($userWastPref->id) ;
+        (new KPAccounts())->registerAccount($userWastPref->id, session('db_conn')) ;
 
         SequenceNumber::where('id', 1)->update([
             'user' => $seqNumber->user + 1
@@ -90,8 +82,7 @@ class LineController extends Controller
 
     public function dashboard($user_waste_pref_id, $db_conn = "envsogo_hs1")
     {
-        ManagesTenantConnection::configConnection($db_conn);  
-        $userWastePref = (new UserWastePreference())->setConnection($db_conn)->with('user', 'purchaseTransactions')->where('id', $user_waste_pref_id)->get()->first();
+        $userWastePref = (new KpUserWastePreference())->setConnection($db_conn)->with('user', 'purchaseTransactions')->where('id', $user_waste_pref_id)->get()->first();
         $qrcode = QrCode::size(300)->generate($user_waste_pref_id);
         return view('lineliff.dashboard', compact('userWastePref', 'qrcode'));
     }
@@ -99,15 +90,22 @@ class LineController extends Controller
 
     public function update_user_by_phone(Request $request)
     {
-       $_user = SuperUser::where('phone', $request->phoneNum)->get()->first();
-        $res = 0;
-        $user_id = 0;
-        $waste_pref_id = 0;
+        
+        // return $request;
+        $user_org = (new Organization())->setConnection('envsogo_main')::find($request->org_id);
 
-            $user_org = Organization::find($request->org_id);
-            $local_user = (new User())->setConnection($user_org->org_database)
+       
+        $_user = (new User())->setConnection($user_org->org_database)->where('phone', $request->phoneNum)->get()->first();
+        $res            = 0;
+        $user_id        = 0;
+        $waste_pref_id  = 0;
+
+        $user_org   = Organization::find($request->org_id);
+
+        $local_user = (new User())->setConnection($user_org->org_database)
             ->where('phone', $request->phoneNum)
             ->where('line_id', $request->line_user_id)->get()->first();
+
         if ($_user) {
             $userUpdate = SuperUser::find($_user->id);
             $userUpdate->province_code  = $request->province_id;
@@ -122,9 +120,9 @@ class LineController extends Controller
             $local_user = (new User())->setConnection($user_org->org_database)->where('phone', $request->phoneNum)
             ->where('line_id', $request->line_user_id)->get()->first();
             
-            $local_user_wastePreference = (new UserWastePreference())->setConnection($user_org->org_database)->where('user_id', $local_user->id)->get();
+            $local_user_wastePreference = (new KpUserWastePreference())->setConnection($user_org->org_database)->where('user_id', $local_user->id)->get();
             if (collect($local_user_wastePreference)->isEmpty()) {
-                $newUWastePref = (new UserWastePreference())->setConnection($user_org->org_database)->create([
+                $newUWastePref = (new KpUserWastePreference())->setConnection($user_org->org_database)->create([
                     'user_id' => $_user->id,
                     'is_annual_collection' => 0,
                     'is_waste_bank' => 1,
@@ -138,47 +136,57 @@ class LineController extends Controller
             $res = 1;
         } else {
             //ถ้ายังไม่มีข้อมูลให้ ทำการ create
-            $seqNumber = (new SequenceNumber())->setConnection($user_org->org_database)->where('id', 1)->get('user')->first();
 
-            $user =  new SuperUser();
-            $user->firstname = $request->displayName;
-            $user->line_id = $request->line_user_id;
-            $user->phone = $request->phoneNum;
-            $user->image = $request->line_user_image;
-            $user->as_recycle_member = 1;
-            $user->created_at = date("Y-m-d H:i:s");
-            $user->updated_at = date("Y-m-d H:i:s");
-            $user->save();
+            //บันทึก new user ที่ envsogo_main
+            $new_user               =  new SuperUser();
+            $new_user->firstname    = $request->displayName;
+            $new_user->line_id      = $request->line_user_id;
+            $new_user->phone        = $request->phoneNum;
+            $new_user->org_id_fk    = $request->org_id;
+            $new_user->image        = $request->line_user_image;
+            $new_user->created_at   = date("Y-m-d H:i:s");
+            $new_user->updated_at   = date("Y-m-d H:i:s");
+            $new_user->save();
            
-            $local_user =  (new User())->setConnection($user_org->org_database);
-            $local_user->firstname = $request->displayName;
-            $local_user->line_id = $request->line_user_id;
-            $local_user->phone = $request->phoneNum;
-            $local_user->image = $request->line_user_image;
-            $local_user->created_at = date("Y-m-d H:i:s");
-            $local_user->updated_at = date("Y-m-d H:i:s");
+            //บันทึก new user ที่ envsogo_ ตาม org_id ของ user
+            $userCount = (new SequenceNumber())->setConnection($user_org->org_database)->where('id', 1)->get('user')->first();
+            
+            $local_user                 = (new User())->setConnection($user_org->org_database);
+            $local_user->id             =  $userCount->user; 
+            $local_user->firstname      = $request->displayName;
+            $local_user->line_id        = $request->line_user_id;
+            $local_user->phone          = $request->phoneNum;
+            $local_user->image          = $request->line_user_image;
+            $local_user->org_id_fk      = $request->org_id;
+            $local_user->tambon_code    = $request->tambon_id;
+            $local_user->district_code  = $request->district_id;
+            $local_user->province_code  = $request->province_id;
+            $local_user->created_at     = date("Y-m-d H:i:s");
+            $local_user->updated_at     = date("Y-m-d H:i:s");
             $local_user->save();
-            $newUWastePref = (new UserWastePreference())->setConnection($user_org->org_database)->create([
-                'user_id' => $local_user->id,
-                'is_annual_collection' => 0,
-                'is_waste_bank' => 1,
-                'created_at' => date('Y-m-d H:i:s'),
-                'updated_at' => date('Y-m-d H:i:s'),
+            
+            $newUWastePref = (new KpUserWastePreference())->setConnection($user_org->org_database)->create([
+                'user_id'               => $local_user->id,
+                'is_annual_collection'  => 0,
+                'is_waste_bank'         => 1,
+                'created_at'            => date('Y-m-d H:i:s'),
+                'updated_at'            => date('Y-m-d H:i:s'),
             ]);
 
 
-        (new KPAccounts())->setConnection($user_org->org_database)->registerAccount($newUWastePref->id, $user_org->org_database);
-
+            (new KPAccounts())->setConnection($user_org->org_database)->registerAccount($newUWastePref->id, $user_org->org_database);
+           
             (new SequenceNumber())->setConnection($user_org->org_database)->where('id', 1)->update([
-                'user' => $seqNumber->user + 1
+                'user' => $userCount->user + 1
             ]);
-            $user_id = $user->id;
-            $res = 1;
+            $user_id        = $local_user->id;
+            $res            = 1;
             $waste_pref_id  = $newUWastePref->id;
         }
         return response()->json([
-            'res' => $res,
-            'user_id' => $user_id,
+            'res'           => $res,
+            'user_id'       => $user_id,
+            'org_id'        => $request->org_id,
             'waste_pref_id' => $waste_pref_id
         ]);
     }

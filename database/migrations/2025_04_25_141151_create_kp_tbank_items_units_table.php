@@ -13,6 +13,7 @@ return new class extends Migration
     {
         Schema::create('kp_tbank_items_units', function (Blueprint $table) {
             $table->id();
+            $table->foreignId('org_id_fk')->constrained('organizations')->onDelete('cascade');
             $table->string('unitname');
             $table->string('unit_short_name');
             $table->enum('status', ['active', 'inactive']);

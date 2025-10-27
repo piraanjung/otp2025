@@ -7,6 +7,7 @@ use App\Models\Tabwater\MeterTypeRateConfig;
 use App\Models\Tabwater\TwMeterType;
 use App\Models\Tabwater\TwPricingType;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
 
 class MeterRateConfigController extends Controller
@@ -16,7 +17,11 @@ class MeterRateConfigController extends Controller
      */
     public function index()
     {
-        $rateConfigs = MeterTypeRateConfig::with('meterType', 'pricingType')->get();
+        $rateConfigs = MeterTypeRateConfig::with('meterType', 'pricingType')
+            ->whereHas('meterType', function($q){
+                $q->select('*')->where('org_id_fk', Auth::user()->org_id_fk);
+            })
+            ->get();
         return view('superadmin.meter_rates.index', compact('rateConfigs'));
     }
 
@@ -25,7 +30,7 @@ class MeterRateConfigController extends Controller
      */
     public function create()
     {
-        $meterTypes = TwMeterType::all();
+        $meterTypes = TwMeterType::where('org_id_fk', Auth::user()->org_id_fk)->get();
         $pricingTypes = TwPricingType::all();
         $meterRateConfig = new MeterTypeRateConfig(); // สร้าง Object ว่างเปล่า
 
@@ -46,6 +51,7 @@ class MeterRateConfigController extends Controller
                 'min_usage_charge' => $validated['min_usage_charge'],
                 'fixed_rate_per_unit' => $validated['fixed_rate_per_unit'] ?? null,
                 'effective_date' => $validated['effective_date'],
+                'org_id_fk' => Auth::user()->org_id_fk,
                 'end_date' => $validated['end_date'] ?? null,
                 'is_active' => $request->has('is_active'),
                 'comment' => $validated['comment'] ?? null,

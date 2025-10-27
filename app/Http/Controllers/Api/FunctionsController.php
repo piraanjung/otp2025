@@ -6,11 +6,6 @@ use App\Http\Controllers\Controller;
 use App\Models\Admin\District;
 use App\Models\Admin\ManagesTenantConnection;
 use App\Models\Admin\Organization;
-use App\Models\Tabwater\Invoice;
-use App\Models\User;
-use App\Models\Tabwater\UserMerterInfo;
-use App\Models\UserProfile;
-use App\Models\Tabwater\Setting;
 use App\Models\Tabwater\TwInvoiceTemp;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
@@ -117,7 +112,7 @@ class FunctionsController extends Controller
     
 public function getDistricts($province_id)
     {
-        $districs = (new District())->setConnection('envsogo_super_admin')
+        $districs = (new District())->setConnection('envsogo_main')
         ->where('province_id', $province_id)->get(['id', 'district_name', 'province_id']);
       return response()->json($districs);
     }

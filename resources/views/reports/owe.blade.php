@@ -265,7 +265,7 @@
                            
                             ?>
                             @foreach ($owes as $owe)
-                            {{-- {{dd($owe['owe_infos'][0]->usermeterinfos->user->address)}} --}}
+                            {{-- {{dd($owe['owe_infos'][0]->tw_meter_infos->user->address)}} --}}
                                 <tr>
                                     <td>{{ ++$index_row }}</td>
                                     <td>
@@ -276,14 +276,14 @@
                                     </td>
                                     <td>{{ $owe['meter_id_fk'] }}</td>
                                     <td class="text-center">{{ $owe['printed_time'] }}</td>
-                                    <td>{{ $owe['owe_infos'][0]->usermeterinfos->user->prefix."".$owe['owe_infos'][0]->usermeterinfos->user->firstname." ".$owe['owe_infos'][0]->usermeterinfos->user->lastname }}</td>
+                                    <td>{{ $owe['owe_infos'][0]->tw_meter_infos->user->prefix."".$owe['owe_infos'][0]->tw_meter_infos->user->firstname." ".$owe['owe_infos'][0]->tw_meter_infos->user->lastname }}</td>
                                     {{-- <td></td> --}}
-                                    <td>{{$owe['owe_infos'][0]->usermeterinfos->user->address }}</td>
-                                    <td>{{ $owe['owe_infos'][0]->usermeterinfos->user->user_zone->zone_name}}</td>
-                                    <td>{{ $owe['owe_infos'][0]->usermeterinfos->user->user_subzone->subzone_name}}</td>
+                                    <td>{{$owe['owe_infos'][0]->tw_meter_infos->user->address }}</td>
+                                    <td>{{ $owe['owe_infos'][0]->tw_meter_infos->user->user_zone->zone_name}}</td>
+                                    <td>{{ $owe['owe_infos'][0]->tw_meter_infos->user->user_subzone->subzone_name}}</td>
                                     <td>{{ 
-                                        $owe['owe_infos'][0]->usermeterinfos->user->subzone_id == 13 ? 'เส้นหมู่13' : 
-                                            $owe['owe_infos'][0]->usermeterinfos->user->user_subzone->subzone_name
+                                        $owe['owe_infos'][0]->tw_meter_infos->user->subzone_id == 13 ? 'เส้นหมู่13' : 
+                                            $owe['owe_infos'][0]->tw_meter_infos->user->user_subzone->subzone_name
                                     }}</td>
                                     <td class="text-end">
                                         {{-- {{ $owe['owe_count'] }} --}}

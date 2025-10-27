@@ -1,20 +1,20 @@
-@can('access waste bank mobile')
+@if($user->can('access waste bank mobile'))
     @php
         $layout = 'layouts.keptkaya_mobile';
     @endphp
 
-@elsecan('access tabwater2')
+@else
     @php
         $layout = 'layouts.keptkaya';
      @endphp
-@endcan
+@endif
 @extends($layout)
-
+@section('nav-header', 'รับซื้อขยะรีไซเคิล')
+@section('nav-current', 'รับซื้อขยะรีไซเคิล')
+@section('page-topic', 'รับซื้อขยะรีไซเคิล')
+@section('content')
 
 @section('content')
-    <div class="d-flex justify-content-between align-items-center mb-4">
-        <h1 class="mb-0">รับซื้อขยะรีไซเคิล</h1>
-    </div>
 
     @if (session('success'))
         <div class="alert alert-success alert-dismissible fade show" role="alert">

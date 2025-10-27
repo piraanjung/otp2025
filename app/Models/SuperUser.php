@@ -8,10 +8,10 @@ use App\Models\Admin\Staff;
 use App\Models\Admin\Subzone;
 use App\Models\Admin\Tambon;
 use App\Models\Admin\Zone;
-use App\Models\KeptKaya\UserWastePreference;
+use App\Models\KeptKaya\KpUserWastePreference;
 use App\Models\KeptKaya\WasteBin;
 use App\Models\KeptKaya\AnnualCollectionPayment;
-use App\Models\Tabwater\TwUsersInfo;
+use App\Models\Tabwater\TwMeterInfos;
 use App\Models\Tabwater\UndertakerSubzone;
 use Laravel\Sanctum\HasApiTokens;
 use Spatie\Permission\Traits\HasRoles;
@@ -31,7 +31,7 @@ class SuperUser extends Authenticatable
      * @var array<int, string>
      */
 
-    protected $connection = 'envsogo_super_admin';
+    protected $connection = 'envsogo_main';
     protected $fillable = [
         'id',
         'org_id_fk',
@@ -95,7 +95,7 @@ class SuperUser extends Authenticatable
 
     public function usermeterinfos()
     {
-        return $this->hasMany(TwUsersInfo::class, 'user_id', 'id');
+        return $this->hasMany(TwMeterInfos::class, 'user_id', 'id');
     }
     public function user_province()
     {
@@ -115,7 +115,7 @@ class SuperUser extends Authenticatable
 
     public function wastePreference()
     {
-        return $this->hasOne(UserWastePreference::class);
+        return $this->hasOne(KpUserWastePreference::class);
     }
 
     public function wasteBins()
@@ -154,5 +154,7 @@ class SuperUser extends Authenticatable
     {
         return $this->hasMany(FoodWasteBin::class,'u_pref_id_fk');
     }
+
+     
     
 }

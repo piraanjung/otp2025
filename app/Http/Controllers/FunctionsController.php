@@ -8,6 +8,7 @@ use App\Models\Admin\ManagesTenantConnection;
 use App\Models\Admin\Organization;
 use App\Models\Admin\OrgSettings;
 use App\Models\KeptKaya\KpPurchaseShop;
+use App\Models\KeptKaya\KpUserWastePreference;
 use App\Models\KeptKaya\WasteBin;
 use App\Models\Admin\Tambon;
 use App\Models\FoodWaste\FoodWasteBin;
@@ -32,7 +33,7 @@ class FunctionsController extends Controller
     }
 
     public function getOrgName($tambon_id){
-        return (new Organization())->setConnection('envsogo_super_admin')
+        return (new Organization())->setConnection('envsogo_main')
                 ->where('org_tambon_id_fk', $tambon_id)->get(['id','org_type_name', 'org_name']);
     }
 
@@ -125,6 +126,10 @@ class FunctionsController extends Controller
             'items_count' => KpTbankItems::where('status', 'active')->count(),
             'items_prices_count' => KpTbankItemsPriceAndPoint::where('status', 'active')->count(),
             'shop_count' => KpPurchaseShop::where('status', 'active')->count(),
+            'kp_user_waste_preferences' => KpUserWastePreference::
+                whereHas('user', function($q){
+                    $q->where('org_id_fk', Auth::user()->org_id_fk);
+                })->count(),
         ];
     }
 }

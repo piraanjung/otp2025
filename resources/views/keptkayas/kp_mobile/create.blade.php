@@ -38,8 +38,7 @@
 </head>
 
 <body>
-                                    <span id="status-display">...กำลังโหลดโมเดล AI...</span>
-
+    <span id="status-display">...กำลังโหลดโมเดล AI...</span>
     <div class="container my-5">
         <div class="row justify-content-center">
             <div class="col-md-10">
@@ -138,7 +137,7 @@
         let acceptedBottles = [];
         let bottleCount = 0;
         let pollingIntervalId = null;
-        let PRICE_CONFIG = []; 
+        let PRICE_CONFIG = [];
 
         let isSaleActive = false; // สถานะการขาย
 
@@ -169,13 +168,13 @@
 
         // --- 1. โหลด Configuration และ Model ---
         async function loadPriceConfiguration() {
-            
+
             updateStatus('⏳ กำลังดึงข้อมูลราคา/คะแนน...', 'alert-primary');
             try {
                 const response = await $.get('/api/device/config-price-points');
                 PRICE_CONFIG = response;
                 console.log("Price Configuration Loaded:", PRICE_CONFIG);
-               await startObjectPolling()
+               // await startObjectPolling()
                 initTeachableMachine();
             } catch (error) {
                 updateStatus('❌ โหลด Config ราคา/คะแนนล้มเหลว. ตรวจสอบ Server.', 'alert-danger');
@@ -222,7 +221,7 @@
         }
 
 
-      async  function startObjectPolling() {
+        async function startObjectPolling() {
             // 🚨 เช็คสถานะการขาย
             // if (isSaleActive) return; // ไม่ Polling หากไม่ได้กดปุ่มเริ่มการขาย
 
@@ -230,10 +229,10 @@
                 clearInterval(pollingIntervalId);
                 pollingIntervalId = null;
             }
-            
+
             pollingIntervalId = setInterval(() => {
-                updateStatus('⏳ กำลังรอสัญญาณตรวจจับวัตถุ (has_new_object=1)...', 'alert-info');
-                console.log('ss')
+                updateStatus('⏳ กำลังรอสัญญาณตรวจจับวัตถุ (ยังไม่พบวัตถุ)...', 'alert-info');
+               
                 $.get('/kp_mobile/device/check-object-status2', function (data) {
                     // ❌ โค้ดที่ถูกลบออก: การควบคุม .machine-ready ถูกลบออกเพื่อให้ปุ่มไม่หายไป
                     $('.machine-ready').addClass('hidden');
@@ -245,9 +244,9 @@
                         isSaleActive = false
 
                     }
-                    
 
-                    if (data.has_new_object == 1  && isSaleActive === true) {
+
+                    if (data.has_new_object == 1 && isSaleActive === true) {
                         clearInterval(pollingIntervalId);
                         pollingIntervalId = null;
                         updateStatus('✅ ตรวจพบวัตถุใหม่แล้ว! กำลังเปิดกล้อง...', 'alert-success');
@@ -366,7 +365,7 @@
                     image: base64Image,
                     label: predictedLabel,
                     confidence: highestProbability,
-                    recycle_machine: 1,
+                    machine_id: '{{$machine->machine_id}}',
                     // ข้อมูลสำหรับ Transaction Detail
                     kp_tbank_item_id: config.kp_tbank_item_id,
                     unit_name: config.unit_name,
@@ -380,6 +379,8 @@
 
                 updateBottleList(newBottle);
                 updateFinishButton();
+
+                
             }
 
             // **จุดสำคัญ:** รีเซ็ตสถานะเซนเซอร์ให้เป็น 0 เสมอ หลังจบกระบวนการ
@@ -415,10 +416,11 @@
             });
         }
 
-        function resetObjectStatus() {
+        function resetObjectStatus() {            
             $.post('/api/device/status-simulator', {
                 _token: '{{ csrf_token() }}',
-                has_new_object: 0
+                has_new_object: 0,
+                machine_id:'{{$machine->machine_id}}'
             }).fail(function () {
                 console.error("Failed to send object status reset signal.");
             });
@@ -472,13 +474,14 @@
             isSaleActive = false;
 
             $.ajax({
-                url: '{{ route('keptkayas.purchase.save_transaction_machine') }}',
+                url: '{{route("keptkayas.purchase.save_transaction_machine")}}',
                 method: 'POST',
                 data: {
                     _token: '{{ csrf_token() }}',
                     acceptedBottles: acceptedBottles
                 },
                 success: function (response) {
+                    console.log('res',response)
                     updateStatus('✅ การขายเสร็จสมบูรณ์! ระบบได้บันทึกข้อมูลแล้ว', 'alert-success');
 
                     acceptedBottles = [];
