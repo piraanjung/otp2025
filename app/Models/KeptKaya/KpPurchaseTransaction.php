@@ -24,6 +24,7 @@ class KpPurchaseTransaction extends Model
         'total_points',
         'status',
         'recorder_id',
+        'cash_back'
     ];
 
     protected $casts = [

@@ -23,7 +23,8 @@
 
         function initMap() {
 
-            const defaultLocation = { lat: 17.3756670, lng: 103.7108740 }; // Default to Bangkok
+            const defaultLocation = { lat: 16.0591353, lng: 105.1723741 }; // Default to บ้านนาสนาม เขมราฐ
+            // const defaultLocation = { lat: 17.3756670, lng: 103.7108740 }; // Default to Bangkok
             const map = new google.maps.Map(document.getElementById("map"), {
                 zoom: 16,
                 center: defaultLocation,

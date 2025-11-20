@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\KeptKaya;
 
 use App\Http\Controllers\Controller;
+use App\Models\Admin\Organization;
 use App\Models\KeptKaya\WasteBinSubscription;
 use App\Models\KeptKaya\WasteBinPayment;
 use App\Models\KeptKaya\WasteBin; // To potentially link from WasteBin details
@@ -28,10 +29,12 @@ class WasteBinSubscriptionController extends Controller
         // NEW: Query users who have subscriptions for the fiscal year
         $users = User::whereHas('wasteBins.subscriptions', function ($q) use ($fiscalYear) {
          
-            $q->where('fiscal_year', $fiscalYear);
+            $q->where('fiscal_year', $fiscalYear)
+            ->where('status', '<>', 'complete');
         })
             ->with(['wasteBins.subscriptions' => function ($q) use ($fiscalYear) {
-                $q->where('fiscal_year', $fiscalYear);
+                $q->where('fiscal_year', $fiscalYear)
+                ->where('status', '<>', 'complete');
             }])
             ->paginate(10);
 
@@ -262,7 +265,7 @@ class WasteBinSubscriptionController extends Controller
     public function printReceipt(WasteBinSubscription $wasteBinSubscription)
     {
         $paymentDate = Carbon::parse(date('Y-m-d'));
-
+        
          $payments = $wasteBinSubscription->payments()
             ->whereDate('pay_date', $paymentDate)
             ->get();
@@ -273,7 +276,7 @@ class WasteBinSubscriptionController extends Controller
             return redirect()->back()->with('error', 'ไม่พบรายการชำระเงินสำหรับวันที่นี้.');
         }
 
-        $totalPaidAmount = $payments->sum('amt_paid');
+        $totalPaidAmount = $payments->sum('amount_paid');
         $staff = $payments->first()->staff;
         $receiptCode = 'RCPT-' . $wasteBinSubscription->id . '-' . $paymentDate->format('Ymd');
 
@@ -285,8 +288,8 @@ class WasteBinSubscriptionController extends Controller
             'staff' => $staff,
             'receiptCode' => $receiptCode,
         ];
-
-        return view('keptkayas.annual_payments.receipt', compact('data', 'paidMonthArr'));
+        $orgInfos = Organization::getOrgName(Auth::user()->org_id_fk);
+        return view('keptkayas.annual_payments.receipt', compact('data', 'paidMonthArr', 'orgInfos'));
         // This is the core logic to generate the PDF
         // $pdf = Pdf::loadView('keptkayas.annual_payments.receipt', $data);
         // return $pdf->download('receipt-' . $receiptCode . '.pdf');
@@ -304,7 +307,7 @@ class WasteBinSubscriptionController extends Controller
     {
         $request->validate([
             'invoice_ids' => 'required|array|min:1',
-            'invoice_ids.*' => 'required|exists:waste_bin_subscriptions,id',
+            'invoice_ids.*' => 'required|exists:kp_waste_bin_subscriptions,id',
         ]);
 
         $invoices = WasteBinSubscription::with('wasteBin.user')
@@ -326,5 +329,48 @@ class WasteBinSubscriptionController extends Controller
         }
 
         return view('keptkayas.annual_payments.print_invoices', compact('invoicesByUser'));
+    }
+
+    public function history(Request $request){
+
+        $users =  WasteBinSubscription::where('status', 'complete');
+         $users = $users->with(['wasteBin.user' => function($q){
+                return $q->select('id', 'firstname', 'lastname', 'address', 'zone_id');
+            }]);
+        if($request->nav == 'nav'){
+           
+        }else{
+            if($request->has('bin_code')){
+                $bin_code = $request->bin_code;
+                $users = $users->whereHas('wasteBin', function($q)use ($bin_code){
+                    $q->where('bin_code', $bin_code);
+                });
+                 $users = $users->with('payments');
+
+            }
+      
+        }
+   $users = $users->get();
+
+
+    $usersArray = [];
+    foreach($users as $user){
+        $usersArray[] = [
+            'user_id'       => $user->wasteBin->user_id,
+            'firstname'     => $user->wasteBin->user->firstname,
+            'lastname'      => $user->wasteBin->user->lastname,
+            'address'       => $user->wasteBin->user->address,
+            'zone_name'     => $user->wasteBin->user->user_zone->zone_name,
+            'fiscal_year'   => $user->fiscal_year,
+            'bin_code'      => $user->wasteBin->bin_code,
+            'datas'         => $request->has('nav') ? [] : $users,
+            'paidMonthArr'  => collect($user->payments)->pluck('pay_mon')
+        ];
+    
+    }  
+    
+        $orgInfos = Organization::getOrgName(Auth::user()->org_id_fk);
+        return view('keptkayas.annual_payments.history', compact('usersArray', 'orgInfos'));
+ 
     }
 }

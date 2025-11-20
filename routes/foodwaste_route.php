@@ -15,7 +15,7 @@ use App\Http\Controllers\KeptKaya\KpTbankPriceController;
 use App\Http\Controllers\Keptkaya\KpUserGroupController;
 use App\Http\Controllers\Keptkaya\CartController;
 use App\Http\Controllers\Keptkaya\InvoicePeriodController;
-use App\Http\Controllers\KeptKaya\KeptKayaPurchaseController;
+use App\Http\Controllers\KeptKaya\KpPurchaseController;
 use App\Http\Controllers\Keptkaya\KpBudgetYearController;
 use App\Http\Controllers\Keptkaya\KpPaymentController;
 use App\Http\Controllers\KeptKaya\KpSellController;
@@ -91,20 +91,20 @@ Route::middleware(['auth', 'role:Super Admin|Admin|FoodWaste Staff'])->prefix('f
 
     Route::prefix('purchase/')->name('purchase.')->group(function () {
         // Step 1: User Selection
-        Route::get('select_user', [KeptKayaPurchaseController::class, 'select_user'])->name('select_user');
-        Route::get('start_purchase/{user}', [KeptKayaPurchaseController::class, 'startPurchase'])->name('start_purchase');
+        Route::get('select_user', [KpPurchaseController::class, 'select_user'])->name('select_user');
+        Route::get('start_purchase/{user}', [KpPurchaseController::class, 'startPurchase'])->name('start_purchase');
 
         // Step 2: Purchase Form (To be created next)`
-        Route::get('form/{user}', [KeptKayaPurchaseController::class, 'showPurchaseForm'])->name('form');
-        Route::post('add_to_cart', [KeptKayaPurchaseController::class, 'addToCart'])->name('add_to_cart');
+        Route::get('form/{user}', [KpPurchaseController::class, 'showPurchaseForm'])->name('form');
+        Route::post('add_to_cart', [KpPurchaseController::class, 'addToCart'])->name('add_to_cart');
 
         // Step 3: Cart List (To be created next)
-        Route::delete('remove-from-cart/{index}', [KeptKayaPurchaseController::class, 'removeFromCart'])->name('remove_from_cart');
-        Route::get('cart', [KeptKayaPurchaseController::class, 'showCart'])->name('cart');
-        Route::post('save-transaction', [KeptKayaPurchaseController::class, 'saveTransaction'])->name('save_transaction');
-        Route::get('show-receipt/{transaction}', [KeptKayaPurchaseController::class, 'showReceipt'])->name('show_receipt');
-        Route::get('history/{user}', [KeptKayaPurchaseController::class, 'showPurchaseHistory'])->name('history');
-        Route::get('receipt/{transaction}', [KeptKayaPurchaseController::class, 'showReceipt'])->name('receipt');
+        Route::delete('remove-from-cart/{index}', [KpPurchaseController::class, 'removeFromCart'])->name('remove_from_cart');
+        Route::get('cart', [KpPurchaseController::class, 'showCart'])->name('cart');
+        Route::post('save-transaction', [KpPurchaseController::class, 'saveTransaction'])->name('save_transaction');
+        Route::get('show-receipt/{transaction}', [KpPurchaseController::class, 'showReceipt'])->name('show_receipt');
+        Route::get('history/{user}', [KpPurchaseController::class, 'showPurchaseHistory'])->name('history');
+        Route::get('receipt/{transaction}', [KpPurchaseController::class, 'showReceipt'])->name('receipt');
     });
 
     Route::prefix('sell/')->name('sell.')->group(function () {

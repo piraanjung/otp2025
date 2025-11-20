@@ -1,8 +1,9 @@
 @extends('layouts.keptkaya')
 
-@section('nav-header', 'สมาชิก ธนาคารขยะ, จัดการถังขยะรายปี')
-@section('nav-current', 'ตารางสมาชิก ธนาคารขยะ, จัดการถังขยะรายปี')
-@section('page-topic', 'ตารางสมาชิก ธนาคารขยะ, จัดการถังขยะรายปี')
+@section('nav-header', 'สมาชิก ธนาคารขยะรีไซเคิล, จัดการถังขยะรายปี')
+@section('nav-current', 'ตารางสมาชิก ธนาคารขยะรีไซเคิล, จัดการถังขยะรายปี')
+@section('page-topic', 'ตารางสมาชิก จัดการถังขยะรายปี')
+@section('nav-keptkayas.users', 'active')
 
 @section('content')
     <div class="row">
@@ -79,12 +80,12 @@
                                             </select>
                                             <div class="form-check form-check-inline mb-1">
                                                 <input class="form-check-input" type="checkbox" id="selectAllWasteBank">
-                                                <label class="form-check-label" for="selectAllWasteBank">ธนาคารขยะ (ทั้งหมด)</label>
+                                                <label class="form-check-label" for="selectAllWasteBank">ธนาคารขยะรีไซเคิล (ทั้งหมด)</label>
                                             </div>
                                             <select name="search_is_waste_bank" id="search_is_waste_bank" class="form-select form-select-sm">
-                                                <option value="any" {{ request('search_is_waste_bank') == 'any' ? 'selected' : '' }}>ธนาคารขยะ: ทั้งหมด</option>
-                                                <option value="true" {{ request('search_is_waste_bank') == 'true' ? 'selected' : '' }}>ธนาคารขยะ: ใช่</option>
-                                                <option value="false" {{ request('search_is_waste_bank') == 'false' ? 'selected' : '' }}>ธนาคารขยะ: ไม่</option>
+                                                <option value="any" {{ request('search_is_waste_bank') == 'any' ? 'selected' : '' }}>ธนาคารขยะรีไซเคิล: ทั้งหมด</option>
+                                                <option value="true" {{ request('search_is_waste_bank') == 'true' ? 'selected' : '' }}>ธนาคารขยะรีไซเคิล: ใช่</option>
+                                                <option value="false" {{ request('search_is_waste_bank') == 'false' ? 'selected' : '' }}>ธนาคารขยะรีไซเคิล: ไม่</option>
                                             </select>
                                         </div>
                                     </th>
@@ -97,7 +98,7 @@
                                 @php
                                     $i=0;
                                 @endphp
-                                 <form action="{{ route('keptkayas.users.updateWasteServicePreferences') }}" method="POST">
+                                 <form action="{{ route('keptkayas.updateWasteServicePreferences') }}" method="POST">
                                             @csrf
 
                                     <input type="submit" class="btn btn-primary" value="บันทึกข้อมูล">
@@ -134,7 +135,7 @@
                                                     {{ optional($user->wastePreference)->is_waste_bank ? 'checked' : '' }}
                                                     {{-- onchange="this.form.submit()"--}}
                                                     
-                                                <label class="form-check-label" for="waste_bank_{{ $user->id }}">ธนาคารขยะ</label>
+                                                <label class="form-check-label" for="waste_bank_{{ $user->id }}">ธนาคารขยะรีไซเคิล</label>
                                             </div>
                                     </td>
                                     <td class="align-middle">

@@ -25,15 +25,12 @@ class LineLiffController extends Controller
     }
 
     public function dashboard($user_waste_pref_id,$org_id, $regis =1){
-        $org= Organization::find($org_id);
-        session(['db_conn' => $org->org_database]);
-
-        $uWastePref = (new KpUserWastePreference())->setConnection(session('db_conn'))->find($user_waste_pref_id);
-        $user = (new User())->setConnection(session('db_conn'))->find($uWastePref->user_id);
+        $uWastePref = KpUserWastePreference::find($user_waste_pref_id);
+        $user = User::find($uWastePref->user_id);
 
         if($regis == 1 && $user){
             $user->assignRole('User');
-            $user->givePermissionTo('access recycle bank modules');
+            // $user->givePermissionTo('access recycle bank');
             $user->save(); 
     
             // 💡 สำคัญ: บังคับโหลด Role/Permission ใหม่ทันที (ถ้าใช้ Spatie)
@@ -42,20 +39,11 @@ class LineLiffController extends Controller
             return $user;
         }
         
-        $orgCode = 'web_'.strtolower(($org->org_code));
-        Auth::guard($orgCode)->login($user);
+        Auth::login($user);
 
-
-        $userWastePref = DB::connection(session('db_conn'))->table('kp_user_waste_preferences as uwp')
-        ->join('users as u' , function($join){
-            $join->on('uwp.user_id', '=', 'u.id');
-        })
-        ->join('kp_purchase_transactions as pt' , function($join){
-            $join->on('uwp.user_id', '=', 'u.id');
-        })
-        ->where('uwp.id', $user_waste_pref_id)->get()->first();
-        // $userWastePref = KpUserWastePreference::with('user', 'purchaseTransactions')->where('id', $user_waste_pref_id)->get()->first();
-        $qrcode = QrCode::size(300)->generate($user_waste_pref_id);
+        $userWastePref = KpUserWastePreference::with('user', 'purchaseTransactions')
+                ->where('id', $user_waste_pref_id)->get()->first();
+        $qrcode = QrCode::size(300)->generate($user_waste_pref_id."-".$userWastePref->user_id);
         return view('lineliff.dashboard', compact('userWastePref', 'qrcode'));
     }
 
@@ -112,7 +100,7 @@ class LineLiffController extends Controller
             $userUpdate->save();
 
             if (collect($_user->wastePreference)->isEmpty()) {
-                $newUWastePref = UserWastePreference::create([
+                $newUWastePref = KpUserWastePreference::create([
                     'user_id' => $_user->id,
                     'is_annual_collection' => 0,
                     'is_waste_bank' => 1,
@@ -137,7 +125,7 @@ class LineLiffController extends Controller
             $user->updated_at = date("Y-m-d H:i:s");
             $user->save();
             
-            $newUWastePref = UserWastePreference::create([
+            $newUWastePref = KpUserWastePreference::create([
                 'user_id' => $seqNumber->user,
                 'is_annual_collection' => 0,
                 'is_waste_bank' => 1,

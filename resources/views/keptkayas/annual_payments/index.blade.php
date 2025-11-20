@@ -3,11 +3,14 @@
 @section('title_page', 'รับชำระค่าจัดเก็บถังขยะรายปี')
 
 @section('page-topic', 'รายละเอียดค่าถังขยะรายปี')
-@section('nav-header', 'รับชำระค่าจัดเก็บถังขยะรายปี')
+@section('nav-current', 'รับชำระค่าจัดเก็บถังขยะรายปี')
+@section('nav-keptkayas.annual_payments.index', 'active')
 @section('route-header')
  {{ route('keptkayas.annual_payments.index') }}
 @endsection
 @section('nav-main', 'รับชำระค่าจัดเก็บถังขยะรายปี')
+
+
 @section('content')
     <div class="row">
         <div class="col-12">
@@ -48,13 +51,14 @@
                         <table class="table align-items-center mb-0">
                             <thead>
                                 <tr>
-                                    <th class="text-uppercase text-secondary text-xxs font-weight-bolder opacity-7">ผู้ใช้งาน</th>
-                                    <th class="text-uppercase text-secondary text-xxs font-weight-bolder opacity-7 ps-2">รหัสถัง</th>
-                                    <th class="text-uppercase text-secondary text-xxs font-weight-bolder opacity-7 text-center">ค่าธรรมเนียมรายปี (฿)</th>
-                                    <th class="text-uppercase text-secondary text-xxs font-weight-bolder opacity-7 text-center">ชำระแล้ว (฿)</th>
-                                    <th class="text-uppercase text-secondary text-xxs font-weight-bolder opacity-7 text-center">ค้างชำระ (฿)</th>
-                                    <th class="text-uppercase text-secondary text-xxs font-weight-bolder opacity-7 text-center">สถานะ</th>
-                                    <th class="text-secondary opacity-7">การจัดการ</th>
+                                   
+                                    <th class="text-uppercase font-weight-bolder">ผู้ใช้งาน</th>
+                                    <th class="text-uppercase font-weight-bolder ps-2">รหัสถัง</th>
+                                    <th class="text-uppercase font-weight-bolder text-center">ค่าธรรมเนียมรายปี (฿)</th>
+                                    <th class="text-uppercase font-weight-bolder text-center">ชำระแล้ว (฿)</th>
+                                    <th class="text-uppercase font-weight-bolder text-center">ค้างชำระ (฿)</th>
+                                    <th class="text-uppercase font-weight-bolder text-center">สถานะ</th>
+                                    <th class="text-secondary">การจัดการ</th>
                                 </tr>
                             </thead>
                             <tbody>
@@ -69,6 +73,7 @@
                                         @foreach($userSubscriptions as $sub)
                                             <tr class="{{ $loop->first ? 'table-primary' : '' }}">
                                                 @if($loop->first)
+                                                    
                                                     <td rowspan="{{ $userSubscriptions->count() }}">
                                                         <p class="text-xs font-weight-bold mb-0">{{ $user->firstname ?? 'N/A' }} {{ $user->lastname ?? '' }}</p>
                                                         <p class="text-xs text-muted mb-0">{{ $user->email }}</p>

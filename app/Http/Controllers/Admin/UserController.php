@@ -12,7 +12,9 @@ use App\Models\Tabwater\TwMeterType;
 use App\Models\Tabwater\SequenceNumber;
 use App\Models\User;
 use App\Models\Admin\Zone;
-use App\Models\Tabwater\TwUsersInfo;
+use App\Models\Tabwater\TwMeterInfos;
+use App\Models\Tabwater\TwUsersInfos;
+use App\Models\Tabwater\TwUsersInfoss;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Hash;
@@ -26,8 +28,8 @@ class UserController extends Controller
     {
     
     // *** ขั้นตอนที่ 2: รัน Query ***
-    // ใช้ TwUsersInfo::with() โดยไม่ต้องเรียก setConnection() บนโมเดลหลัก
-    $users = TwUsersInfo::with([
+    // ใช้ TwUsersInfos::with() โดยไม่ต้องเรียก setConnection() บนโมเดลหลัก
+    $users = TwMeterInfos::with([
         'invoice' => function($q){
             // Eager Loading จะใช้ Connection หลักที่ถูกเปลี่ยนไปแล้วโดยอัตโนมัติ
             return $q->select('meter_id_fk','status');
@@ -36,7 +38,11 @@ class UserController extends Controller
             // Eager Loading จะใช้ Connection หลักที่ถูกเปลี่ยนไปแล้วโดยอัตโนมัติ
             return $q->select('id','prefix','firstname', 'lastname', 'status');
         },
-    ])->get();
+    ])
+    ->whereHas('user', function($q){
+        return $q->where('org_id_fk', Auth::user()->org_id_fk);
+    })
+    ->get();
 
     // Query สำหรับ Zone Model ก็จะใช้ Default Connection ที่ถูกเปลี่ยนเช่นกัน
     $zones =  (new Zone())->setConnection(session('db_conn'))->get();
@@ -78,8 +84,7 @@ class UserController extends Controller
     }
     public function create()
     {
-        ManagesTenantConnection::configConnection(session('db_conn'));
-        $meter_sq_number    =  SequenceNumber::get();
+        $meter_sq_number    = SequenceNumber::get();
         $zones              = Zone::all();
         $meter_types        = TwMeterType::all();
         $usergroups         = Role::get(['id', 'name']);
@@ -179,7 +184,7 @@ class UserController extends Controller
 
         //usermeterinfo table
         try {       
-        TwUsersInfo::create([
+        TwUsersInfos::create([
             "meter_id"              => $number_sequence[0]->tabmeter,
             "user_id"               => $number_sequence[0]->user,
             "submeter_name" => $request->get('submeter_name'),
@@ -212,7 +217,7 @@ class UserController extends Controller
 
     private function addUserAsTWmember($ids){
         foreach($ids as $id){
-            (new TwUsersInfo())->setConnection(session('db_conn'))->create([
+            (new TwUsersInfos())->setConnection(session('db_conn'))->create([
             "user_id"               =>$id,
             "meternumber"           => FunctionsController::createMeterNumberString($id),
             "undertake_zone_id"     => rand(1,2),
@@ -233,7 +238,7 @@ class UserController extends Controller
     public function edit($user_id, $addmeter = "")
     {
         $meter_id = $user_id;
-        $user = TwUsersInfo::where('meter_id', $meter_id)
+        $user = TwUsersInfos::where('meter_id', $meter_id)
         ->with('user', 'undertake_subzone')
         ->get();
         $zones = Zone::all();
@@ -244,7 +249,7 @@ class UserController extends Controller
     public function update(Request $request,  $meter_id)
     {
          
-        $checkDuplicateFactNo = TwUsersInfo::where('factory_no', $request->get('factory_no'))->count();
+        $checkDuplicateFactNo = TwUsersInfos::where('factory_no', $request->get('factory_no'))->count();
         if($checkDuplicateFactNo > 1){
             return redirect()->route('admin.users.index')->with(['message'=> 'ไม่สามารถบันทึกข้อมูลได้ \nกรุณาตรวจสอบ รหัสมิเตอร์จากโรงงานเป็นค่าว่าง หรือ ถูกใช้งานแล้ว', 'color' => 'warning']);
         }
@@ -300,7 +305,7 @@ class UserController extends Controller
         if(collect($request->get('addmeter'))->isNotEmpty()){
             $number_sequence = SequenceNumber::where('id', 1)->get();
             
-            TwUsersInfo::create([
+            TwUsersInfos::create([
                 "meter_id"              => $number_sequence[0]->tabmeter,
                 "user_id"               => $request->get('user_id'),
                 "meternumber"           => FunctionsController::createMeterNumberString($number_sequence[0]->tabmeter),
@@ -324,7 +329,7 @@ class UserController extends Controller
         
         
         }else{
-            TwUsersInfo::where('meter_id', $meter_id)->update([
+            TwUsersInfos::where('meter_id', $meter_id)->update([
                 "metertype_id"          => $request->get('metertype_id'),
                 "submeter_name"         => $request->get('submeter_name'),
                 "undertake_zone_id"     => $request->get('undertake_zone_id'),
@@ -405,7 +410,7 @@ class UserController extends Controller
     }
     public function destroy( $meter_id)
     {
-        $usermeterinfos = TwUsersInfo::where('meter_id', $meter_id)->get(['user_id', 'meter_id'])->first();
+        $usermeterinfos = TwUsersInfos::where('meter_id', $meter_id)->get(['user_id', 'meter_id'])->first();
 
         $user = User::find($usermeterinfos->user_id);
         if ($user->hasRole('admin')) {
@@ -438,7 +443,7 @@ class UserController extends Controller
         $checkInvoiceHistoryHasHistoryInfos = collect($invoicesHistory)->filter(function($v){
             return $v->status == 'paid';
         })->count();
-        TwUsersInfo::where('meter_id', $meter_id)->update([
+        TwUsersInfos::where('meter_id', $meter_id)->update([
             'status'        => $checkInvoiceHasHistoryInfos >0 && $checkInvoiceHistoryHasHistoryInfos > 0  ? 'deleted' : 'inactive',
             'deleted'       => '1',
             'comment'       => $checkInvoiceHasHistoryInfos >0 && $checkInvoiceHistoryHasHistoryInfos > 0 ? 'ยกเลิกการใช้งาน' :  'ยกเลิกการใช้งานแต่มีข้อมูลเก่า',

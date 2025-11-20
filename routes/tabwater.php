@@ -16,18 +16,18 @@ use Illuminate\Support\Facades\Route;
 
 Route::middleware(['auth', 'role:super admin|admin'])->prefix('tw')->name('tw.')->group(function () {
     
-    Route::resource('tw_dashboard', TwDashboardController::class);
-    Route::resource('tw_meters', TwMetersController::class);
+    // Route::resource('tw_dashboard', TwDashboardController::class);
+    // Route::resource('tw_meters', TwMetersController::class);
 
-    Route::get('tw_user/get-user-data/{userId}', [TwUserController::class, 'getUserData'])->name('get_user_data');
-    Route::resource('tw_user', TwUserController::class);
+    // Route::get('tw_user/get-user-data/{userId}', [TwUserController::class, 'getUserData'])->name('get_user_data');
+    // Route::resource('tw_user', TwUserController::class);
 
-    Route::name('admin.')->prefix('admin')->group(function(){
-        Route::get('/get-districts-by-province-code/{province_id}', [DistrictsController::class, 'getDistrictsByProvinceCode'])->name('get_districts_by_province_code');
-        Route::get('/get-district/{district_code}', [DistrictsController::class, 'getDistrict'])->name('get_district');
-        Route::get('/get-tambons-by-district-code/{province_id}', [TambonsController::class, 'getTambonsByDistrictCode'])->name('get_tambons_by_district_code');
-        Route::get('/get-tambon/{tambon_code}', [TambonsController::class, 'gettambon'])->name('get_tambon');
-    });
+    // Route::name('admin.')->prefix('admin')->group(function(){
+    //     Route::get('/get-districts-by-province-code/{province_id}', [DistrictsController::class, 'getDistrictsByProvinceCode'])->name('get_districts_by_province_code');
+    //     Route::get('/get-district/{district_code}', [DistrictsController::class, 'getDistrict'])->name('get_district');
+    //     Route::get('/get-tambons-by-district-code/{province_id}', [TambonsController::class, 'getTambonsByDistrictCode'])->name('get_tambons_by_district_code');
+    //     Route::get('/get-tambon/{tambon_code}', [TambonsController::class, 'gettambon'])->name('get_tambon');
+    // });
     
 
     

@@ -1,4 +1,12 @@
 @extends('layouts.keptkaya')
+@section('page-topic', 'พิมพ์ใบแจ้งหนี้')
+@section('nav-current', 'พิมพ์ใบแจ้งหนี้')
+@section('nav-keptkayas.annual_payments.invoice', 'active')
+@section('route-header')
+ {{ route('keptkayas.annual_payments.invoice') }}
+@endsection
+@section('nav-main', 'ออกใบแจ้งหนี้')
+
 
 @section('content')
     <div class="container my-5">
@@ -22,7 +30,7 @@
                             <strong>เลขที่ใบแจ้งหนี้:</strong> {{ $invoice[0]->invoice_number }}
                         </div>
                         <div class="col-md-6 text-md-end">
-                            <strong>วันที่ออกใบแจ้งหนี้:</strong> {{ $invoice[0]->created_at->format('Y-m-d') }}
+                            <strong>วันที่ออกใบแจ้งหนี้:</strong> {{ $invoice[0]->created_at }}
                         </div>
                     </div>
 
@@ -32,7 +40,7 @@
                             {{ $invoice[0]->wasteBin->user->lastname }}
                         </div>
                         <div class="col-md-6 text-md-end">
-                            <strong>วันครบกำหนดชำระ:</strong> {{ $invoice[0]->created_at->format('Y-m-d') }}
+                            <strong>วันครบกำหนดชำระ:</strong> {{ $invoice[0]->created_at }}
                         </div>
                     </div>
 

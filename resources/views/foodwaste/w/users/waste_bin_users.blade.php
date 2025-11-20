@@ -7,9 +7,9 @@
         <div class="col-12">
             <div class="card mb-4">
                 <div class="card-header pb-0 d-flex justify-content-between align-items-center">
-                    <h6>ข้อมูลผู้ใช้และประเภทบริการx</h6>
+                    <h6>ข้อมูลผู้ใช้และประเภทบริการ</h6>
                     <div class="d-flex align-items-center">
-                        <form id="perPageForm" action="{{ route('keptkayas.users.index') }}" method="GET" class="d-flex align-items-center me-3">
+                        <form id="perPageForm" action="{{ route('foodwaste.users.index') }}" method="GET" class="d-flex align-items-center me-3">
                             <label for="per_page" class="form-label mb-0 me-2">แสดง:</label>
                             <select name="per_page" id="per_page" class="form-select form-select-sm" onchange="this.form.submit()">
                                 @foreach([10, 20, 50, 100] as $option)
@@ -18,7 +18,7 @@
                                 <option value="all" {{ $perPage == 'all' ? 'selected' : '' }}>ทั้งหมด</option>
                             </select>
                         </form>
-                        <a href="{{ route('keptkayas.users.create') }}" class="btn bg-gradient-primary btn-sm mb-0">เพิ่มผู้ใช้งานใหม่</a>
+                        <a href="{{ route('foodwaste.users.create') }}" class="btn bg-gradient-primary btn-sm mb-0">เพิ่มผู้ใช้งานใหม่</a>
                     </div>
                 </div>
                 <div class="card-body px-0 pt-0 pb-2">
@@ -58,7 +58,7 @@
                                     </th>
                                     <th class="p-1">
                                         <select name="search_status" id="search_status" class="form-select form-select-sm">
-                                            <option value="any" {{ request('search_status') == 'any' ? 'selected' : '' }}>ทั้งหมด</option>
+                                            {{-- <option value="any" {{ request('search_status') == 'any' ? 'selected' : '' }}>ทั้งหมด</option> --}}
                                             <option value="active" {{ request('search_status') == 'active' ? 'selected' : '' }}>Active</option>
                                             <option value="inactive" {{ request('search_status') == 'inactive' ? 'selected' : '' }}>Inactive</option>
                                             <option value="banned" {{ request('search_status') == 'banned' ? 'selected' : '' }}>Banned</option>
@@ -77,12 +77,12 @@
                                             </select> --}}
                                             <div class="form-check form-check-inline mb-1">
                                                 <input class="form-check-input" type="checkbox" id="selectAllWasteBank">
-                                                <label class="form-check-label" for="selectAllWasteBank">ธนาคารขยะ (ทั้งหมด)</label>
+                                                <label class="form-check-label" for="selectAllWasteBank">ธนาคารขยะเปียก (ทั้งหมด)</label>
                                             </div>
                                             <select name="search_is_waste_bank" id="search_is_waste_bank" class="form-select form-select-sm">
-                                                <option value="any" {{ request('search_is_waste_bank') == 'any' ? 'selected' : '' }}>ธนาคารขยะ: ทั้งหมด</option>
-                                                <option value="true" {{ request('search_is_waste_bank') == 'true' ? 'selected' : '' }}>ธนาคารขยะ: ใช่</option>
-                                                <option value="false" {{ request('search_is_waste_bank') == 'false' ? 'selected' : '' }}>ธนาคารขยะ: ไม่</option>
+                                                <option value="any" {{ request('search_is_waste_bank') == 'any' ? 'selected' : '' }}>ธนาคารขยะเปียก: ทั้งหมด</option>
+                                                <option value="true" {{ request('search_is_waste_bank') == 'true' ? 'selected' : '' }}>ธนาคารขยะเปียก: ใช่</option>
+                                                <option value="false" {{ request('search_is_waste_bank') == 'false' ? 'selected' : '' }}>ธนาคารขยะเปียก: ไม่</option>
                                             </select>
                                         </div>
                                     </th>
@@ -123,7 +123,7 @@
                                                 <input class="form-check-input waste-bank-checkbox" type="checkbox" id="waste_bank_{{ $user->id }}" name="waste[{{$user->id}}][is_foodwaste_bank]" value="1"
                                                     {{ collect($user->foodwastePreference)->isNotEmpty() ? 'checked' : '' }}
                                                     
-                                                <label class="form-check-label" for="waste_bank_{{ $user->id }}">ธนาคารขยะ</label>
+                                                <label class="form-check-label" for="waste_bank_{{ $user->id }}">ธนาคารขยะเปียก</label>
                                             </div>
                                     </td>
                                     <td class="align-middle">
@@ -177,11 +177,11 @@
             { id: 'search_name', varName: 'searchNameInput' },
             { id: 'search_email', varName: 'searchEmailInput' },
             { id: 'search_status', varName: 'searchStatusSelect' },
-            { id: 'search_is_annual_collection', varName: 'searchAnnualCollectionSelect' },
+            // { id: 'search_is_annual_collection', varName: 'searchAnnualCollectionSelect' },
             { id: 'search_is_waste_bank', varName: 'searchWasteBankSelect' },
             { id: 'applySearchBtn', varName: 'applySearchBtn' },
             { id: 'userTableBody', varName: 'userTableBody' },
-            { id: 'selectAllAnnualCollection', varName: 'selectAllAnnualCollectionCheckbox' }, // NEW
+            // { id: 'selectAllAnnualCollection', varName: 'selectAllAnnualCollectionCheckbox' }, // NEW
             { id: 'selectAllWasteBank', varName: 'selectAllWasteBankCheckbox' },             // NEW
             { id: 'per_page', varName: 'perPageSelect' }                                     // NEW: Added per_page select
         ];
@@ -209,31 +209,33 @@
         const searchNameInput = foundElements.searchNameInput;
         const searchEmailInput = foundElements.searchEmailInput;
         const searchStatusSelect = foundElements.searchStatusSelect;
-        const searchAnnualCollectionSelect = foundElements.searchAnnualCollectionSelect;
+        // const searchAnnualCollectionSelect = foundElements.searchAnnualCollectionSelect;
         const searchWasteBankSelect = foundElements.searchWasteBankSelect;
         const applySearchBtn = foundElements.applySearchBtn;
         const userTableBody = foundElements.userTableBody;
-        const selectAllAnnualCollectionCheckbox = foundElements.selectAllAnnualCollectionCheckbox; // NEW
+        // const selectAllAnnualCollectionCheckbox = foundElements.selectAllAnnualCollectionCheckbox; // NEW
         const selectAllWasteBankCheckbox = foundElements.selectAllWasteBankCheckbox;             // NEW
         const perPageSelect = foundElements.perPageSelect;                                       // NEW: Added per_page select
 
         let searchTimeout;
         const debounceDelay = 300; // milliseconds
-
+        
         function applyLiveSearch() {
+            console.log('searchStatusSelect.value',searchStatusSelect.value)
             clearTimeout(searchTimeout);
             searchTimeout = setTimeout(() => {
                 const queryParams = new URLSearchParams();
                 queryParams.append('search_name', searchNameInput.value);
                 queryParams.append('search_email', searchEmailInput.value);
                 queryParams.append('search_status', searchStatusSelect.value);
-                queryParams.append('search_is_annual_collection', searchAnnualCollectionSelect.value);
+                // queryParams.append('search_is_annual_collection', searchAnnualCollectionSelect.value);
                 queryParams.append('search_is_waste_bank', searchWasteBankSelect.value);
                 queryParams.append('per_page', perPageSelect.value); // Use perPageSelect.value
 
                 queryParams.append('ajax', '1'); // Flag for AJAX request
+            console.log('queryParams',searchStatusSelect.value)
 
-                fetch(`{{ route('keptkayas.users.index') }}?${queryParams.toString()}`, {
+                fetch(`{{ route('foodwaste.users.index') }}?${queryParams.toString()}`, {
                     headers: {
                         'X-Requested-With': 'XMLHttpRequest'
                     }
@@ -251,11 +253,15 @@
             }, debounceDelay);
         }
 
+        searchStatusSelect.addEventListener('change', function() {
+            console.log('Status change event fired. Value:', this.value); // Use 'this.value'
+            applyLiveSearch();
+        });
         // Attach event listeners for live search
         searchNameInput.addEventListener('keyup', applyLiveSearch);
         searchEmailInput.addEventListener('keyup', applyLiveSearch);
         searchStatusSelect.addEventListener('change', applyLiveSearch);
-        searchAnnualCollectionSelect.addEventListener('change', applyLiveSearch);
+        // searchAnnualCollectionSelect.addEventListener('change', applyLiveSearch);
         searchWasteBankSelect.addEventListener('change', applyLiveSearch);
         perPageSelect.addEventListener('change', applyLiveSearch); // Attach listener to per_page select
         
@@ -263,16 +269,16 @@
         applySearchBtn.addEventListener('click', applyLiveSearch);
 
         // NEW: Select All Checkboxes Logic
-        selectAllAnnualCollectionCheckbox.addEventListener('change', function() {
-            document.querySelectorAll('.annual-coll-checkbox').forEach(checkbox => {
-                checkbox.checked = this.checked;
-                // Trigger form submission for each checkbox if it's not already handled by onchange
-                // This will cause multiple submissions, as noted in the explanation above.
-                // if (checkbox.checked !== checkbox.defaultChecked) { // Only submit if state actually changed
-                //     checkbox.form.submit();
-                // }
-            });
-        });
+        // selectAllAnnualCollectionCheckbox.addEventListener('change', function() {
+        //     document.querySelectorAll('.annual-coll-checkbox').forEach(checkbox => {
+        //         checkbox.checked = this.checked;
+        //         // Trigger form submission for each checkbox if it's not already handled by onchange
+        //         // This will cause multiple submissions, as noted in the explanation above.
+        //         // if (checkbox.checked !== checkbox.defaultChecked) { // Only submit if state actually changed
+        //         //     checkbox.form.submit();
+        //         // }
+        //     });
+        // });
 
         selectAllWasteBankCheckbox.addEventListener('change', function() {
             document.querySelectorAll('.waste-bank-checkbox').forEach(checkbox => {

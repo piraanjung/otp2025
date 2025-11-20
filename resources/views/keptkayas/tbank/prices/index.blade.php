@@ -32,6 +32,7 @@
                     <thead class="table-light">
                         <tr>
                             <th>#</th>
+                            <th>id</th>
                             <th>รายการขยะ</th>
                             <th>หน่วยนับ</th>
                             <th>ราคาจ่ายให้สมาชิก</th>
@@ -46,6 +47,7 @@
                     <tbody>
                         @forelse ($prices as $price)
                             <tr>
+                                <td>{{ $price->item->id }}</td>
                                 <td>{{ $prices->firstItem() + $loop->index }}</td>
                                 <td>{{ $price->item->kp_itemsname ?? 'N/A' }}</td>
                                 <td>{{ $price->kp_units_info->unitname ?? 'N/A' }}</td>

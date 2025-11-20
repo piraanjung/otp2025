@@ -13,44 +13,48 @@
                     <div class="card-body">
                         <form action="{{ route('foodwaste.waste_bins.store', $w_user->id) }}" method="POST">
                             @csrf
-                            <div class="mb-3">
-                                <label for="bin_code" class="form-label">รหัสถังขยะ </label>
-                                <select name="bin_code" class="form-control" required>
-                                    <option value="">เลือก..</option>
-                                    @foreach ($bins_pending as $bin)
-                                        <option value="{{$bin->id}}">{{ $bin->bin_code }}</option>
-                                    @endforeach
-                                </select>
-                                
-                                @error('bin_code')<div class="invalid-feedback">{{ $message }}</div>@enderror
+                            <div class="row">
+                            
+                                <div class="col-4">
+                                    <label for="bin_code" class="form-label">รหัสถังขยะ </label>
+                                    <select name="bin_code" class="form-control" required>
+                                        <option value="">เลือก..</option>
+                                        @foreach ($bins_pending as $bin)
+                                            <option value="{{$bin->id}}">{{ $bin->bin_code }}</option>
+                                        @endforeach
+                                    </select>
+                                    
+                                    @error('bin_code')<div class="invalid-feedback">{{ $message }}</div>@enderror
+                                </div>
+
+                                <div class="col-4">
+                                    <label for="iotboxes" class="form-label">กล่อง IoT </label>
+                                    <select name="iotboxes_id" class="form-control" required>
+                                        <option value="0" selected>ไม่มี</option>
+                                        @foreach ($iotboxes as $iotbox)
+                                            <option value="{{$iotbox->id}}">{{ $iotbox->iotbox_code }}</option>
+                                        @endforeach
+                                    </select>
+                                    @error('iotboxes_id')<div class="invalid-feedback">{{ $message }}</div>@enderror
+                                </div>
+
+                                <div class="col-4">
+                                    <label for="user_group" class="form-label">ประเภทถังขยะ</label>
+                                    <select name="user_group" id="user_group" class="form-control">
+                                        <option>เลือก...</option>
+                                        @foreach ($foodwaste_bins as $foodwaste_bin)
+                                            <option value="{{ $foodwaste_bin->id }}" data-usergroupname="{{$foodwaste_bin->bin_type}}">
+                                                {{ $foodwaste_bin->bin_type }}</option>
+                                        @endforeach
+                                    </select>
+                                    {{-- <input type="text" class="form-control @error('bin_type') is-invalid @enderror"
+                                        id="bin_type" name="bin_type" value="{{ old('bin_type') }}" required> --}}
+                                    @error('bin_type')<div class="invalid-feedback">{{ $message }}</div>@enderror
+                                </div>
+
                             </div>
 
-                             <div class="mb-3">
-                                <label for="iotboxes" class="form-label">กล่อง IoT </label>
-                                <select name="iotboxes_id" class="form-control" required>
-                                    <option value="0" selected>ไม่มี</option>
-                                    @foreach ($iotboxes as $iotbox)
-                                        <option value="{{$iotbox->id}}">{{ $iotbox->iotbox_code }}</option>
-                                    @endforeach
-                                </select>
-                                @error('iotboxes_id')<div class="invalid-feedback">{{ $message }}</div>@enderror
-                            </div>
-
-                            <div class="mb-3">
-                                <label for="user_group" class="form-label">ประเภทถังขยะ</label>
-                                <select name="user_group" id="user_group" class="form-control">
-                                    <option>เลือก...</option>
-                                    @foreach ($user_groups as $group)
-                                        <option value="{{ $group->id }}" data-usergroupname="{{$group->usergroup_name}}">
-                                            {{ $group->usergroup_name }}</option>
-                                    @endforeach
-                                </select>
-                                {{-- <input type="text" class="form-control @error('bin_type') is-invalid @enderror"
-                                    id="bin_type" name="bin_type" value="{{ old('bin_type') }}" required> --}}
-                                @error('bin_type')<div class="invalid-feedback">{{ $message }}</div>@enderror
-                            </div>
-
-                            <div class="mb-3">
+                            <div class="mb-3 hidden">
                                 <label for="bin_type" class="form-label">&nbsp;</label>
                                 <input type="text" class="form-control @error('bin_type') is-invalid @enderror"
                                     id="bin_type" name="bin_type" value="{{ old('bin_type') }}" readonly required>
@@ -61,7 +65,7 @@
                                 <label for="location_description" class="form-label">รายละเอียดตำแหน่งที่ตั้ง</label>
                                 <textarea class="form-control @error('location_description') is-invalid @enderror"
                                     id="location_description" name="location_description"
-                                    rows="3">{{ $w_user->address }}</textarea>
+                                    rows="2">{{ $w_user->address }}</textarea>
                                 @error('location_description')<div class="invalid-feedback">{{ $message }}</div>@enderror
                             </div>
                             <div class="row">

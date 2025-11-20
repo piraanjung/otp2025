@@ -20,25 +20,33 @@ class LineController extends Controller
 
     public function index(Request $request)
     {
-        $provinces = (new Province())->setConnection('envsogo_super_admin')->get(['id', 'province_name']);
+       return $provinces = Province::get(['id', 'province_name']);
         return view('lineliff.index', compact('provinces'));
     }
     public function fine_line_id(Request $request)
     {
         $res = 0;
+        $waste_pref_id = 0;
         //check
-        $user = SuperUser::where('line_id', $request->userId)->first();
-        if(collect($user)->isEmpty()){
-            $org_id = 0; 
+        $user = User::where('line_id', $request->userId)
+                ->with('wastePreference')
+                ->first();
+        if(collect($user)->isEmpty() || collect($user->wastePreference)->isEmpty()){
+            $org_id     = 0; 
+            $user_id    = 0;
         }else{
-            $org_id = $user->org_id_fk;
-            $res = 1;
+            $org_id         = $user->org_id_fk;
+            $res            = 1;
+            $user_id        = $user->id;
+            $waste_pref_id  = $user->wastePreference->id;
         }
         
        
         return response()->json([
-            'res' => $res,
-            'org_id' => $org_id
+            'res'           => $res,
+            'user_id'       => $user_id,
+            'org_id'        => $org_id,
+            'waste_pref_id' => $waste_pref_id
 
         ]);
     }
@@ -46,28 +54,32 @@ class LineController extends Controller
     public function user_line_register(Request $request)
     {
         $seqNumber = SequenceNumber::where('id', 1)->get('user')->first();
-        User::create([
-            'id' => $seqNumber->user,
+        $user =User::create([
             'firstname' => $request->displayName,
-            'line_id' => $request->userId,
-            'image' => $request->imagUrl,
+            'line_id' => $request->line_user_id,
+            'image' => $request->line_user_image,
+            'phone' => $request->phoneNum,
+            'tambon_code' => $request->tambon_id,
+            'district_code' => $request->district_id,
+            'province_code' => $request->province_id,
+            'org_id_fk' => $request->org_id,
             'created_at' => date('Y-m-d H:i:s'),
             'updated_at' => date('Y-m-d H:i:s'),
         ]);
 
         $userWastPref = KpUserWastePreference::create([
-            'user_id' => $seqNumber->user,
+            'user_id' => $user->id,
             'is_annual_collection' => 0,
             'is_waste_bank' => 1,
             'created_at' => date('Y-m-d H:i:s'),
             'updated_at' => date('Y-m-d H:i:s'),
         ]);
 
-        (new KPAccounts())->registerAccount($userWastPref->id, session('db_conn')) ;
+        (new KPAccounts())->registerAccount($userWastPref->id) ;
 
-        SequenceNumber::where('id', 1)->update([
-            'user' => $seqNumber->user + 1
-        ]);
+        // SequenceNumber::where('id', 1)->update([
+        //     'user' => $seqNumber->user + 1
+        // ]);
         return response()->json([
             'res' => 1,
             'waste_pref_id' => $userWastPref->id
@@ -80,9 +92,9 @@ class LineController extends Controller
         return  view('lineliff.user_qrcode');
     }
 
-    public function dashboard($user_waste_pref_id, $db_conn = "envsogo_hs1")
+    public function dashboard($user_waste_pref_id, $db_conn = "envsogo_main")
     {
-        $userWastePref = (new KpUserWastePreference())->setConnection($db_conn)->with('user', 'purchaseTransactions')->where('id', $user_waste_pref_id)->get()->first();
+        $userWastePref = KpUserWastePreference::with('user', 'purchaseTransactions')->where('id', $user_waste_pref_id)->get()->first();
         $qrcode = QrCode::size(300)->generate($user_waste_pref_id);
         return view('lineliff.dashboard', compact('userWastePref', 'qrcode'));
     }

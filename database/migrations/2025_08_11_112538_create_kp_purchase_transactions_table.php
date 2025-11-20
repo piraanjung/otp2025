@@ -20,6 +20,7 @@ return new class extends Migration
             $table->decimal('total_weight', 10, 2)->default(0.00); // น้ำหนักรวม
             $table->decimal('total_amount', 10, 2)->default(0.00); // ยอดรวมเป็นเงิน
             $table->integer('total_points')->default(0); // คะแนนรวม
+            $table->tinyInteger('cash_back')->default(0);//1=รับเงินสด/ 0=ฝากเข้าบัญชี
             $table->string('status')->default('completed'); // สถานะธุรกรรม (e.g., completed, cancelled)
             $table->foreignId('recorder_id')->nullable()->constrained('staffs')->onDelete('set null'); // ผู้บันทึก (พนักงาน/ผู้ดูแล)
             $table->timestamps();

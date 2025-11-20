@@ -78,15 +78,16 @@ class StaffController extends Controller
         // ดึงผู้ใช้งานที่ไม่มี role ที่เกี่ยวข้องกับ staff/super_admin
         $usersToAssign = User::doesntHave('roles')
             ->orWhereHas('roles', function ($query) {
-                $query->whereNotIn('name', ['Tabwater Staff', 'Tabwater Header', 'finance staff', 'finance header', 'super_admin']);
+                $query->whereNotIn('name', ['Tabwater Staff', 'Tabwater Header', 'Admin', 'finance header', 'Super Admin']);
             })
+            ->where('org_id_fk', Auth::user()->org_id_fk)
             ->get();
 
         // ดึง roles ที่สามารถ assign ได้
         $assignableRoles = Role::whereIn('name', ['Tabwater Staff', 'Tabwater Header', 'tabwater header', 'finance staff', 'finance header'])->get();
         
         $permissions = Permission::all();
-        $staffRoles = ['Tabwater Staff', 'Tabwater Header', 'finance staff', 'finance header'];
+        $staffRoles = ['Tabwater Staff', 'Tabwater Header', 'Admin', 'finance staff', 'finance header'];
         $roles = Role::whereIn('name', $staffRoles)->get();
         return view('keptkayas.staffs.create', compact('usersToAssign', 'assignableRoles', 'permissions', 'roles'));
     }

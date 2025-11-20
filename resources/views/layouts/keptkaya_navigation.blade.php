@@ -40,7 +40,7 @@
     </li>
 
     {{-- @can('access annual collection') --}}
-    @if(auth()->user()->can('access annaul modules') || auth()->user()->hasRole('Super Admin'))
+    @if(auth()->user()->can('access annaul modules') || auth()->user()->hasRole('Super Admin|Admin|Annual Trash Staff'))
         <li class="nav-item">
             <a data-bs-toggle="collapse" href="#receipt" class="nav-link active" aria-controls="receipt" role="button"
                 aria-expanded="true">
@@ -70,7 +70,7 @@
             <div class="collapse show" id="receipt" style="">
                 <ul class="nav ms-4 ps-3">
                     <li class="nav-item">
-                        <a class="nav-link" href="{{ route('keptkayas.waste_bins.viewmap') }}">
+                        <a class="nav-link @yield('nav-waste_bins-viewmap')" href="{{ route('keptkayas.waste_bins.viewmap') }}">
                             <div
                                 class="icon icon-shape icon-sm shadow border-radius-md bg-white text-center me-2 d-flex align-items-center justify-content-center">
                                 <i class="fa fa-map-marked-alt text-danger text-gradient text-lg"></i>
@@ -80,7 +80,7 @@
                     </li>
 
                     <li class="nav-item  ">
-                        <a class="nav-link @yield('nav-payment')" href="{{route('keptkayas.annual_payments.index')}}">
+                        <a class="nav-link @yield('nav-keptkayas.annual_payments.index')" href="{{route('keptkayas.annual_payments.index')}}">
                             <div
                                 class="icon icon-shape icon-sm shadow border-radius-md bg-white text-center me-2 d-flex align-items-center justify-content-center">
                                 <i class="fa fa-trash text-danger text-gradient text-lg"></i>
@@ -91,7 +91,7 @@
                 </ul>
                 <ul class="nav ms-4 ps-3">
                     <li class="nav-item ">
-                        <form action="" name="myForm2" id="myForm2" method="post" class="mb-0">
+                        <form action="{{ route('keptkayas.annual_payments.history') }}" name="myForm2" id="myForm2" method="post" class="mb-0">
                             {{-- {{ route('user_payment_per_month.history') }} --}}
                             @csrf
                             <button type="submit" class="nav-link @yield('nav-user_payment_per_month-history') border-0">
@@ -128,7 +128,7 @@
                     </li>
 
                     <li class="nav-item ">
-                        <a class="nav-link @yield('nav-invoice')" href="">
+                        <a class="nav-link @yield('nav-keptkayas.annual_payments.invoice')" href="{{ route('keptkayas.annual_payments.invoice') }}">
                             {{-- {{ route('user_payment_per_month.invoice') }} --}}
                             <div
                                 class="icon icon-shape icon-sm shadow border-radius-md bg-white text-center me-2 d-flex align-items-center justify-content-center">
@@ -138,7 +138,7 @@
                         </a>
                     </li>
                     <li class="nav-item @yield('nav-staff')">
-                        <a class="nav-link " href="{{route('keptkayas.kp_usergroup.index')}}">
+                        <a class="nav-link @yield('nav-keptkayas.kp_usergroup')" href="{{route('keptkayas.kp_usergroup.index')}}">
                             <div
                                 class="icon icon-shape icon-sm shadow border-radius-md bg-white text-center me-2 d-flex align-items-center justify-content-center">
                                 <i class="fa fa-users text-danger text-gradient text-lg"></i>
@@ -146,8 +146,8 @@
                             <span class="sidenav-normal"> กลุ่มผู้ใข้งาน </span>
                         </a>
                     </li>
-                    <li class="nav-item @yield('nav-staff')">
-                        <a class="nav-link " href="{{route('keptkayas.users.waste_bin_users')}}">
+                    <li class="nav-item">
+                        <a class="nav-link  @yield('nav-keptkayas.users')" href="{{route('keptkayas.users.index')}}">
                             <div
                                 class="icon icon-shape icon-sm shadow border-radius-md bg-white text-center me-2 d-flex align-items-center justify-content-center">
                                 <i class="fa fa-users text-danger text-gradient text-lg"></i>
@@ -337,57 +337,59 @@
         </li>
     @endif
     {{-- @can('manage staff') --}}
-    <li class="nav-item">
-        <a data-bs-toggle="collapse" href="#pagesExamples" class="nav-link active" aria-controls="pagesExamples"
-            role="button" aria-expanded="true">
-            <div
-                class="icon icon-shape icon-sm shadow border-radius-md bg-white text-center d-flex align-items-center justify-content-center  me-2">
-                <i class="fa fa-user"></i>
-            </div>
-            <span class="nav-link-text ms-1">ผู้ใช้งานระบบ</span>
-        </a>
-        <div class="collapse show" id="pagesExamples" style="">
-            <ul class="nav ms-4 ps-3">
-                <li class="nav-item @yield('nav-user')">
-                    <a class="nav-link nav-user" href="{{ route('keptkayas.users.index') }}">
-                            <div
-                                class="icon icon-shape icon-sm shadow border-radius-md bg-white text-center me-2 d-flex align-items-center justify-content-center">
-                                <i class="fa fa-users text-danger text-gradient text-lg"></i>
-                            </div>
-                            <div class="d-flex justify-content-between" style="width: 100%">
+    @if(auth()->user()->hasRole('Super Admin|Admin'))
 
-                                <span class="sidenav-normal">สมาชิก</span>
-                                @if ($infos_count['kp_user_waste_preferences'] > 0)
-                                    <span
-                                        class="badge badge-sm badge-circle badge-floating badge-danger border-white">{{ $infos_count['kp_user_waste_preferences'] }}</span>
-                                @endif
-                            </div>
+        <li class="nav-item">
+            <a data-bs-toggle="collapse" href="#pagesExamples" class="nav-link active" aria-controls="pagesExamples"
+                role="button" aria-expanded="true">
+                <div
+                    class="icon icon-shape icon-sm shadow border-radius-md bg-white text-center d-flex align-items-center justify-content-center  me-2">
+                    <i class="fa fa-user"></i>
+                </div>
+                <span class="nav-link-text ms-1">ผู้ใช้งานระบบ</span>
+            </a>
+            <div class="collapse show" id="pagesExamples" style="">
+                <ul class="nav ms-4 ps-3">
+                    <li class="nav-item @yield('nav-user')">
+                        <a class="nav-link nav-user" href="{{ route('keptkayas.users.index') }}">
+                                <div
+                                    class="icon icon-shape icon-sm shadow border-radius-md bg-white text-center me-2 d-flex align-items-center justify-content-center">
+                                    <i class="fa fa-users text-danger text-gradient text-lg"></i>
+                                </div>
+                                <div class="d-flex justify-content-between" style="width: 100%">
 
+                                    <span class="sidenav-normal">สมาชิก</span>
+                                    @if ($infos_count['kp_user_waste_preferences'] > 0)
+                                        <span
+                                            class="badge badge-sm badge-circle badge-floating badge-danger border-white">{{ $infos_count['kp_user_waste_preferences'] }}</span>
+                                    @endif
+                                </div>
+
+                            </a>
+                        
+                        
+                    </li>
+                    <li class="nav-item @yield('nav-staff')">
+                        <a class="nav-link " href="{{route('keptkayas.staffs.index')}}">
+                        <div
+                                    class="icon icon-shape icon-sm shadow border-radius-md bg-white text-center me-2 d-flex align-items-center justify-content-center">
+                                    <i class="fab fa-ubuntu text-danger text-gradient text-lg"></i>
+                                </div>
+                                <div class="d-flex justify-content-between" style="width: 100%">
+
+                                    <span class="sidenav-normal">เจ้าหน้าที่</span>
+                                    @if ($infos_count['kp_user_waste_preferences'] > 0)
+                                        <span
+                                            class="badge badge-sm badge-circle badge-floating badge-danger border-white">{{ $infos_count['kp_user_waste_preferences'] }}</span>
+                                    @endif
+                                </div>
                         </a>
-                    
-                      
-                </li>
-                <li class="nav-item @yield('nav-staff')">
-                    <a class="nav-link " href="{{route('keptkayas.staffs.index')}}">
-                       <div
-                                class="icon icon-shape icon-sm shadow border-radius-md bg-white text-center me-2 d-flex align-items-center justify-content-center">
-                                <i class="fab fa-ubuntu text-danger text-gradient text-lg"></i>
-                            </div>
-                             <div class="d-flex justify-content-between" style="width: 100%">
-
-                                <span class="sidenav-normal">เจ้าหน้าที่</span>
-                                @if ($infos_count['kp_user_waste_preferences'] > 0)
-                                    <span
-                                        class="badge badge-sm badge-circle badge-floating badge-danger border-white">{{ $infos_count['kp_user_waste_preferences'] }}</span>
-                                @endif
-                            </div>
-                    </a>
-                </li>
+                    </li>
 
 
-        </div>
-    </li>
-
+            </div>
+        </li>
+    @endif
     <li class="nav-item">
         <a href="{{ route('logout') }}" class="nav-link active mt-4" style="border: 1px solid red">
             <div

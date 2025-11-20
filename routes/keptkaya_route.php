@@ -76,12 +76,13 @@ Route::middleware(['auth'])->prefix('keptkayas')->name('keptkayas.')->group(func
     });
     Route::resource('users', UserWasteController::class);
     
-    Route::get('/users/waste_bin_users', [UserWasteController::class, 'waste_bin_users'])->name('users.waste_bin_users');
+    Route::get('/waste_bin_users', [UserWasteController::class, 'waste_bin_users'])->name('waste_bin_users');
     Route::get('/users/search/{query}', [UserWasteController::class, 'search'])->name('users.search');
-    Route::post('users/waste-service-preferences', [UserWasteController::class, 'updateWasteServicePreferences'])->name('users.updateWasteServicePreferences');
+    Route::post('/waste-service-preferences', [UserWasteController::class, 'updateWasteServicePreferences'])->name('updateWasteServicePreferences');
     Route::post('users/batch-update-service-preferences', [UserWasteController::class, 'batchUpdateWasteServicePreferences'])->name('users.batchUpdateWasteServicePreferences');
 
     Route::prefix('purchase/')->name('purchase.')->group(function () {
+        Route::get('get-units/{itemId}', [KpPurchaseController::class, 'getUnitsForItem'])->name('get_units');
         // Step 1: User Selection
         Route::get('select_user', [KpPurchaseController::class, 'select_user'])->name('select_user');
         Route::get('start_purchase/{user_waste_pref_id}', [KpPurchaseController::class, 'startPurchase'])->name('start_purchase');
@@ -131,6 +132,8 @@ Route::middleware(['auth'])->prefix('keptkayas')->name('keptkayas.')->group(func
         Route::post('/{wasteBinSubscription}/payments', [WasteBinSubscriptionController::class, 'storePayment'])->name('store_payment');
         Route::post('print-selected-invoices', [WasteBinSubscriptionController::class, 'printSelectedInvoices'])->name('print_selected_invoices');
         Route::post('/create-subscription', [WasteBinSubscriptionController::class, 'createSubscription'])->name('create_subscription');
+        Route::post('/history', [WasteBinSubscriptionController::class, 'history'])->name('history');
+
     });
 
     Route::resource('/kp_budgetyear', KpBudgetYearController::class);

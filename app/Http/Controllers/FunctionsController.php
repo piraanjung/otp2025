@@ -80,7 +80,8 @@ class FunctionsController extends Controller
     }
 
     public function wastBinCode(){
-        $org = Organization::getOrgInfos(Auth::user()->org_id_fk);
+        $org  = Organization::getOrgName(Auth::user()->org_id_fk);
+
         $wasteBin = WasteBin::get('bin_code')->last();
         $bin_code = collect($wasteBin)->isEmpty() ? 0 : $wasteBin->bin_code;
 
@@ -111,25 +112,31 @@ class FunctionsController extends Controller
 
      public static function fullThaiMonth($m)
     {
-        $month = ['มกราคม' => '01', 'กุมภาพันธ์' => '02', 'มีนาคม' => '03',
-            'เมษายน' => '04', 'พฤษภาคม' => '05', 'มิถุนายน' => '06',
-            'กรกฎาคม' => '07', 'สิงหาคม' => '08', 'กันยายน' => '09',
-            'ตุลาคม' => '10', 'พฤศจิกายน' => '11', 'ธันวาคม' => '12',
+        $month = [
+            'มกราคม'  => '01', 'กุมภาพันธ์'  => '02', 'มีนาคม'   => '03',
+            'เมษายน'  => '04', 'พฤษภาคม'  => '05', 'มิถุนายน'  => '06',
+            'กรกฎาคม' => '07', 'สิงหาคม'   => '08', 'กันยายน'  => '09',
+            'ตุลาคม'   => '10', 'พฤศจิกายน' => '11', 'ธันวาคม'  => '12',
         ];
         return array_search($m, $month);
     }
 
     public static function keptkaya_nav_infos(){
+        $orgId = Auth::user()->org_id_fk;
         return  [
-            'items_group_count' => KpTbankItemsGroups::where('status', 'active')->count(),
-            'units_count' => KpTbankUnits::where('status', 'active')->count(),
-            'items_count' => KpTbankItems::where('status', 'active')->count(),
-            'items_prices_count' => KpTbankItemsPriceAndPoint::where('status', 'active')->count(),
-            'shop_count' => KpPurchaseShop::where('status', 'active')->count(),
-            'kp_user_waste_preferences' => KpUserWastePreference::
-                whereHas('user', function($q){
-                    $q->where('org_id_fk', Auth::user()->org_id_fk);
-                })->count(),
+            'items_group_count'         => KpTbankItemsGroups::where('status', 'active')
+                                            ->where('org_id_fk', $orgId)->count(),
+            'units_count'               => KpTbankUnits::where('status', 'active')
+                                            ->where('org_id_fk', $orgId)->count(),
+            'items_count'               => KpTbankItems::where('status', 'active')
+                                            ->where('org_id_fk', $orgId)->count(),
+            'items_prices_count'        => KpTbankItemsPriceAndPoint::where('status', 'active')
+                                            ->where('org_id_fk', $orgId)->count(),
+            'shop_count'                => KpPurchaseShop::where('status', 'active')
+                                            ->where('org_id_fk', $orgId)->count(),
+            'kp_user_waste_preferences' => KpUserWastePreference::whereHas('user', function($q)use ($orgId){
+                                                $q->where('org_id_fk', $orgId);
+                                            })->count(),
         ];
     }
 }

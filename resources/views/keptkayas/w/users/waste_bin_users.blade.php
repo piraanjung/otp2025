@@ -95,7 +95,7 @@
                                 @php
                                     $i=0;
                                 @endphp
-                                 <form action="{{ route('keptkayas.users.updateWasteServicePreferences') }}" method="POST">
+                                 <form action="{{ route('keptkayas.updateWasteServicePreferences') }}" method="POST">
                                             @csrf
 
                                     <input type="submit" class="btn btn-primary" value="บันทึกข้อมูล">

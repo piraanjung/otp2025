@@ -44,24 +44,21 @@ class LoginController extends Controller
         ]);
 
 
-        $localUser = User::where('phone', $request->phone)->first();
-        $org = (new Organization())->setConnection(session('db_conn'))
-            ->where('id', $localUser->org_id_fk)->get(['org_code', 'org_database'])->first();
+        $localUser = User::where('phone', $request->phone)->get()->first();
+        if(!$localUser){
+            return redirect()->back();
+        }
 
-        $guard = 'web_' . strtolower($org->org_code);
-        session(['guard' => $guard, 'db_conn' => $org->org_database]);
-              
-
-        Auth::guard(session('guard'))->login($localUser);
+        Auth::login($localUser);
 
 
         // ตัวอย่างการ Login สำเร็จ:
-        if (Auth::guard(session('guard'))->check()) {
+        if (Auth::check()) {
             // 2. 🎯 จัดการเมื่อ Login สำเร็จ: ผูก User ID เข้ากับ Machine ID
-            if ($machineId && Auth::guard(session('guard'))->check()) {
+            if ($machineId && Auth::check()) {
                 $machine = Machine::where('machine_id', $machineId)->first();
                 if ($machine) {
-                    $machine->current_user_active_id = Auth::guard(session('guard'))->id();
+                    $machine->current_user_active_id = Auth::id();
                     $machine->status = 'active_session'; // เปลี่ยนสถานะเป็นใช้งานจริง
 
                     $machine->save();

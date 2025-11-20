@@ -5,10 +5,133 @@ namespace App\Http\Controllers\KeptKaya;
 use App\Http\Controllers\Controller;
 use App\Models\KeptKaya\Machine;
 use Illuminate\Http\Request;
+use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\Auth;
 
 class MachineController extends Controller
 {
+
+   public function index()
+    {
+        $machines = Machine::orderBy('last_heartbeat_at', 'desc')->get();
+        return view('superadmin.machines.index', compact('machines'));
+    }
+
+    /**
+     * 2. Show the form for creating a new resource (Create).
+     */
+    public function create()
+    {
+        // อาจจะต้องส่งข้อมูลอื่นๆ ที่จำเป็นไปให้ฟอร์ม เช่น รายชื่อองค์กร (Organization)
+        return view('superadmin.machines.create');
+    }
+
+    /**
+     * 3. Store a newly created resource in storage (Store).
+     */
+    public function store(Request $request)
+    {
+        // กำหนดกฎการตรวจสอบข้อมูล
+        $validatedData = $request->validate([
+            'machine_id'    => 'required|string|max:100|unique:machines',
+            'org_id_fk'     => 'required|integer|exists:organizations,id', // ตรวจสอบว่ามี org นี้จริงในตาราง organizations
+            'status'        => 'required',
+            'machine_ready' => 'boolean',
+            'pending_command' => 'nullable|string|max:255',
+            // current_user_active_id, has_new_object, last_heartbeat_at มักจะถูกกำหนดโดยระบบ/เครื่องจักรเอง
+        ]);
+
+        // กำหนดค่าเริ่มต้นสำหรับ Boolean fields ที่อาจไม่ได้ส่งมาในฟอร์ม
+        $validatedData['machine_ready'] = $request->has('machine_ready');
+        $validatedData['has_new_object'] = $request->has('has_new_object');
+        
+        // สร้าง Machine ใหม่
+        $machine = Machine::create($validatedData);
+
+        return redirect()->route('superadmin.machines.index')
+                         ->with('success', 'Machine ' . $machine->machine_id . ' created successfully.');
+    }
+
+    /**
+     * 4. Display the specified resource (Show).
+     */
+    public function show(Machine $machine)
+    {
+        return view('superadmin.machines.show', compact('machine'));
+    }
+
+    /**
+     * 5. Show the form for editing the specified resource (Edit).
+     */
+    public function edit(Machine $machine)
+    {
+        return view('superadmin.machines.edit', compact('machine'));
+    }
+
+    /**
+     * 6. Update the specified resource in storage (Update).
+     */
+    public function update(Request $request, Machine $machine)
+    {
+        // กำหนดกฎการตรวจสอบข้อมูล
+        $validatedData = $request->validate([
+            // unique:machines,machine_id,'.$machine->id หมายถึงตรวจสอบความไม่ซ้ำกัน ยกเว้นตัวมันเอง
+            'machine_id' => 'required|string|max:100|unique:machines,machine_id,' . $machine->id,
+            'org_id_fk' => 'required|integer|exists:organizations,id',
+            'status' => 'required',
+            'machine_ready' => 'integer',
+            'has_new_object' => 'integer',
+            'pending_command' => 'nullable|string|max:255',
+        ]);
+
+        // กำหนดค่าสำหรับ Boolean fields ที่อาจไม่ได้ส่งมาในฟอร์ม (ถ้าไม่ส่งมาแปลว่า unchecked)
+        $validatedData['machine_ready'] = $request->has('machine_ready');
+        $validatedData['has_new_object'] = $request->has('has_new_object');
+
+        // อัปเดต Machine
+        $machine->update($validatedData);
+
+        return redirect()->route('superadmin.machines.show', $machine)
+                         ->with('success', 'Machine ' . $machine->machine_id . ' updated successfully.');
+    }
+
+    /**
+     * 7. Remove the specified resource from storage (Destroy).
+     */
+    public function destroy(Machine $machine)
+    {
+        $machine_id = $machine->machine_id;
+        $machine->delete();
+
+        return redirect()->route('superadmin.machines.index')
+                         ->with('success', 'Machine ' . $machine_id . ' deleted successfully.');
+    }
+    
+    // -----------------------------------------------------------------------------------
+    // ฟังก์ชันเพิ่มเติมสำหรับการใช้งาน API (เช่น Heartbeat)
+    // -----------------------------------------------------------------------------------
+    
+    /**
+     * ฟังก์ชันรับ Heartbeat จากเครื่องจักร
+     */
+    public function heartbeat(Request $request, $machine_id)
+    {
+        $machine = Machine::where('machine_id', $machine_id)->first();
+
+        if (!$machine) {
+            return response()->json(['message' => 'Machine not found'], 404);
+        }
+
+        // อัปเดตสถานะและเวลา Heartbeat
+        $machine->update([
+            'last_heartbeat_at' => Carbon::now(),
+            'status' => 'online', // หรือตรรกะอื่น ๆ ตามข้อมูลที่ส่งมา
+            'machine_ready' => $request->get('is_ready', true), // สมมติว่าเครื่องส่งสถานะความพร้อมมาด้วย
+            // อัปเดต fields อื่น ๆ ตามข้อมูล Heartbeat
+        ]);
+
+        return response()->json(['message' => 'Heartbeat received', 'status' => $machine->status]);
+    }
     /**
      * [Route 1: POST /api/device/notify]
      * รับการแจ้งเตือนจาก ESP8266 เมื่อตื่นจากการกดปุ่ม (Deep Sleep Wakeup)
@@ -144,28 +267,39 @@ class MachineController extends Controller
 
     public function updateMachineStatus(Request $request)
     {
-        // 1. ตรวจสอบข้อมูลที่รับเข้ามา
-        $validated = $request->validate([
-            'machine_id' => 'required|string|exists:machines,machine_id', // ตรวจสอบว่ามี ID นี้ในตาราง
-            'machine_ready' => 'required|in:1', // ต้องเป็น 1 เท่านั้น
+        //1.esp กด set แล้วส่ง message มาเพื่อ update ว่า machine ready
+        Machine::where('machine_id', $request->machine_id)->update([
+            'machine_ready' => $request->machine_ready
         ]);
+        return response()->json(['status' => 1]);
 
-        // 2. ค้นหาเครื่อง
-        $machine = Machine::where('machine_id', $validated['machine_id'])->first();
+        // $data = $request->json()->all();
+        // // 1. ตรวจสอบข้อมูลที่รับเข้ามา
+        // if(!isset($data['machine_id']) || !isset($data['machine_ready'])){
+        //     return response()->json([
+        //             'status' => 'empty_data',
+        //             'start_buy' => 0,
+        //             'received_data' => $data 
+        //         ], 404);
+        // }
 
-        if ($machine) {
-            // 3. อัปเดตคอลัมน์ machine_ready
-            $machine->machine_ready = (int) $validated['machine_ready'];
-            // อาจจะอัปเดต timestamp ล่าสุดด้วย
-            $machine->last_heartbeat_at = now();
-            $machine->save();
+        // // 2. ค้นหาเครื่อง
+        // $machine = Machine::where('machine_id', $data['machine_id'])->first();
 
-            return response()->json([
-                'status' => 'success',
-                'message' => 'Machine status updated successfully',
-                'machine_id' => $machine->machine_id
-            ], 200);
-        }
+        // if ($machine) {
+        //     // 3. อัปเดตคอลัมน์ machine_ready
+        //     $machine->machine_ready = (int) $data['machine_ready'];
+        //     // อาจจะอัปเดต timestamp ล่าสุดด้วย
+        //     $machine->last_heartbeat_at = now();
+        //     $machine->status = 'ready';
+        //     $machine->save();
+
+        //     return response()->json([
+        //             'status' => 'ready',
+        //             'start_buy' =>  1,
+        //             'received_data' => $data 
+        //     ], 200);
+        // }
 
         // กรณีที่ไม่ควรเกิดขึ้นหาก validate ผ่าน
         return response()->json(['status' => 'error', 'message' => 'Machine not found'], 404);
@@ -222,6 +356,6 @@ class MachineController extends Controller
             ]);
         }
 
-        return response()->json(['status' => 'error', 'message' => 'Machine not found'], 404);
+        return response()->json(['status' => 'error', 'message' => 'Machine not found'], 4014);
     }
 }

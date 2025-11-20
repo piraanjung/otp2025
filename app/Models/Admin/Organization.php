@@ -68,19 +68,22 @@ class Organization extends Model
         $connection = $organization->with(['provinces', 'tambons', 'districts', 'zones'])
             ->get()->first();
         return [
-            'id'  => $org_id_fk,
-            'org_database' => $connection->org_database,
-            'org_code' => $connection->org_code,
-            'org_zipcode' => $connection->org_zipcode,
-            'org_provinces' => $connection->provinces->province_name,
-            'org_districts' => $connection->districts->district_name,
-            'org_tambons' => $connection->tambons->tambon_name,
-            'org_zone' => $connection->zones->zone_name,
-            'org_logo_img' => $connection->org_logo_img,
-            'org_type_name' => $connection->org_type_name,
-            'org_name' => $connection->org_name,
-            'org_short_type_name' => $connection->org_short_type_name,
-            'org_dept_name' => $connection->org_dept_name,
+            'id'                    => $org_id_fk,
+            'org_database'          => $connection->org_database,
+            'org_code'              => $connection->org_code,
+            'org_address'           => $connection->org_address,
+            'org_zipcode'           => $connection->org_zipcode,
+            'org_province'          => $connection->provinces->province_name,
+            'org_district'          => $connection->districts->district_name,
+            'org_tambon'            => $connection->tambons->tambon_name,
+            'org_zone'              => $connection->zones->zone_name,
+            'org_logo_img'          => $connection->org_logo_img,
+            'org_type_name'         => $connection->org_type_name,
+            'org_name'              => $connection->org_name,
+            'org_short_type_name'   => $connection->org_short_type_name,
+            'org_dept_name'         => $connection->org_dept_name,
+            'lat'                   => $connection->lat,
+            'long'                  => $connection->long
         ];
     }
 
@@ -90,9 +93,4 @@ class Organization extends Model
         ->get(['id', 'org_dabase'])->first();
     }
 
-    public static function getOrgDatabaseByOrgCode($org_code){
-        // $arr = [
-        //     'hs1' => ''
-        // ];
-    }
 }

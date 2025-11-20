@@ -12,6 +12,7 @@ class WasteBinSubscription extends Model
 
     protected $table = 'kp_waste_bin_subscriptions';
 
+    public $timestamps = false;
     protected $fillable = [
         'waste_bin_id',
         'fiscal_year',

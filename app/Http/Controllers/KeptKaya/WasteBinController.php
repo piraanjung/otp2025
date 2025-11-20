@@ -4,6 +4,7 @@ namespace App\Http\Controllers\KeptKaya;
 
 use App\Http\Controllers\Controller;
 use App\Http\Controllers\FunctionsController;
+use App\Models\Admin\Organization;
 use App\Models\Keptkaya\KpUserGroup;
 use App\Models\Keptkaya\KpUsergroupPayratePerMonth;
 use App\Models\KeptKaya\WasteBinPayratePerMonth;
@@ -12,6 +13,7 @@ use App\Models\KeptKaya\WasteBinSubscription; // Import WasteBinSubscription mod
 use App\Models\KeptKaya\WasteBin;
 use App\Services\UserWasteStatusService;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Validation\Rule;
 
@@ -47,6 +49,8 @@ class WasteBinController extends Controller
         $user_groups = KpUserGroup::all();
         $func = new FunctionsController();
         $bin_code = $func->wastBinCode();
+        $orgInfos = Organization::getOrgName($w_user->org_id_fk);
+
         return view('keptkayas.w.waste_bins.create', compact('w_user', 'user_groups', 'bin_code'));
     }
 
@@ -55,7 +59,7 @@ class WasteBinController extends Controller
         // return $request;
 
         $request->validate([
-            'bin_code' => 'nullable|string|unique:waste_bins,bin_code|max:255',
+            'bin_code' => 'nullable|string|unique:kp_waste_bins,bin_code|max:255',
             'bin_type' => 'required|string|max:255',
             'user_group' => 'required',
             'location_description' => 'nullable|string|max:255',
@@ -188,7 +192,8 @@ class WasteBinController extends Controller
 
     public function viewmap()
     {
-        return view('keptkayas.dashboard_map');
+        $orgInfos = Organization::getOrgName(Auth::user()->org_id_fk);
+        return view('keptkayas.dashboard_map', compact('orgInfos'));
     }
 
     public function map()

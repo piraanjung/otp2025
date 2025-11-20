@@ -137,7 +137,8 @@
             <div class="card-body">
                 <div class="row mb-3">
                     <div class="col-md-6">
-                        <strong>เลขที่ธุรกรรม:</strong> {{ $transaction->kp_u_trans_no }}
+                        <strong>เลขที่ธุรกรรม:</strong>
+                         <div style="font-size:0.8rem">{{ $transaction->kp_u_trans_no }}</div>
                     </div>
                     <div class="col-md-6 text-md-end">
                         <strong>วันที่ทำรายการ:</strong> {{ $transaction->transaction_date->format('Y-m-d') }}

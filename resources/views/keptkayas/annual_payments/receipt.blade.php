@@ -186,9 +186,19 @@
                 </div>
                 <div class="ms-auto pl-2">
 
-                    <div style="font-size: 0.9rem; font-weight: bold;">องค์การบริหารส่วนตำบลห้องแซง</div>
-                    <div style="font-size: 0.6rem">22 หมู่ 12 ต.ห้องแซง</div>
-                    <div style="font-size: 0.6rem">อ.เลิงนกทา จ.ยโสธร 35120</div>
+                    <div style="font-size: 0.9rem; font-weight: bold;">
+                        {{ $orgInfos['org_type_name'] }}
+                        {{ $orgInfos['org_name'] }}
+                    </div>
+                    <div style="font-size: 0.6rem">
+                        {{ $orgInfos['org_address'] }} 
+                        หมู่ {{ $orgInfos['org_zone'] }}  
+                        ต.{{ $orgInfos['org_tambon'] }}
+                    </div>
+                    <div style="font-size: 0.6rem">
+                        อ.{{ $orgInfos['org_district'] }}
+                         จ.{{ $orgInfos['org_province'] }}
+                          {{ $orgInfos['org_zipcode'] }}</div>
                 </div>   
          
             </div>
@@ -208,13 +218,13 @@
                         <td>{{ \Carbon\Carbon::parse($data['paymentDate'])->locale('th')->isoFormat('Do MMMM YYYY') }}</td>
                     </tr>
                 </table>
-                <img src="{{asset('logo/hs_logo.jpg')}}" style="width: 65px; height:65px;margin-left:0.2rem; border:1px solid black"/>
+                <img src="{{asset('logo/'.$orgInfos['org_logo_img'] )}}" style="width: 65px; height:65px;margin-left:0.2rem; border:1px solid black"/>
             </div>
             
 
             @php
             $arr =[
-                ['ค่าเก็บและขนขยะมูลฝอย', 240], ['ภาษีมูลค่าเพิ่ม  7%', '0.00']
+                ['ค่าเก็บและขนขยะมูลฝอย', $data['totalPaidAmount']], ['ภาษีมูลค่าเพิ่ม  7%', '0.00']
             ]
             @endphp
             <div style="display: flex; flex-direction: column">
@@ -250,12 +260,12 @@
                                 
                                 </td>
                                 <td style="text-align: right;">
-                                   240.00
+                                   {{number_format($data['totalPaidAmount'], 2)}}
                                 </td>
                             </tr>
                             <tr>
                                 <td colspan="2" style="text-align: right; font-size: 10px;">
-                                    ({{ App\Http\Controllers\Api\FunctionsController::convertAmountToLetter(number_format(240, 2))}})
+                                    ({{ App\Http\Controllers\Api\FunctionsController::convertAmountToLetter(number_format($data['totalPaidAmount'], 2))}})
                                 </td>
                             </tr>
                             
@@ -338,7 +348,7 @@
 
             <div class="total-section">
                 <strong>ยอดรวม:</strong> 
-                {{-- {{ number_format($total_paid, 2) }} --}}
+                {{ number_format($data['totalPaidAmount'], 2) }}
                  บาท
             </div>
 
@@ -349,7 +359,7 @@
         </div>
 
         <!-- Right Column: ส่วน Copy -->
-         <div class="receipt-column">
+       <div class="receipt-column">
             <div class="header d-flex">
                 <div class="p-0">
                     <div style="font-size: 0.9rem; font-weight: bold;">ใบเสร็จรับเงิน </div>
@@ -359,9 +369,19 @@
                 </div>
                 <div class="ms-auto pl-2">
 
-                    <div style="font-size: 0.9rem; font-weight: bold;">องค์การบริหารส่วนตำบลห้องแซง</div>
-                    <div style="font-size: 0.6rem">22 หมู่ 12 ต.ห้องแซง</div>
-                    <div style="font-size: 0.6rem">อ.เลิงนกทา จ.ยโสธร 35120</div>
+                    <div style="font-size: 0.9rem; font-weight: bold;">
+                        {{ $orgInfos['org_type_name'] }}
+                        {{ $orgInfos['org_name'] }}
+                    </div>
+                    <div style="font-size: 0.6rem">
+                        {{ $orgInfos['org_address'] }} 
+                        หมู่ {{ $orgInfos['org_zone'] }}  
+                        ต.{{ $orgInfos['org_tambon'] }}
+                    </div>
+                    <div style="font-size: 0.6rem">
+                        อ.{{ $orgInfos['org_district'] }}
+                         จ.{{ $orgInfos['org_province'] }}
+                          {{ $orgInfos['org_zipcode'] }}</div>
                 </div>   
          
             </div>
@@ -381,13 +401,13 @@
                         <td>{{ \Carbon\Carbon::parse($data['paymentDate'])->locale('th')->isoFormat('Do MMMM YYYY') }}</td>
                     </tr>
                 </table>
-                <img src="{{asset('logo/hs_logo.jpg')}}" style="width: 65px; height:65px;margin-left:0.2rem; border:1px solid black"/>
+                <img src="{{asset('logo/'.$orgInfos['org_logo_img'] )}}" style="width: 65px; height:65px;margin-left:0.2rem; border:1px solid black"/>
             </div>
             
 
             @php
             $arr =[
-                ['ค่าเก็บและขนขยะมูลฝอย', 240], ['ภาษีมูลค่าเพิ่ม  7%', '0.00']
+                ['ค่าเก็บและขนขยะมูลฝอย', $data['totalPaidAmount']], ['ภาษีมูลค่าเพิ่ม  7%', '0.00']
             ]
             @endphp
             <div style="display: flex; flex-direction: column">
@@ -423,12 +443,12 @@
                                 
                                 </td>
                                 <td style="text-align: right;">
-                                   240.00
+                                   {{number_format($data['totalPaidAmount'], 2)}}
                                 </td>
                             </tr>
                             <tr>
                                 <td colspan="2" style="text-align: right; font-size: 10px;">
-                                    ({{ App\Http\Controllers\Api\FunctionsController::convertAmountToLetter(number_format(240, 2))}})
+                                    ({{ App\Http\Controllers\Api\FunctionsController::convertAmountToLetter(number_format($data['totalPaidAmount'], 2))}})
                                 </td>
                             </tr>
                             
@@ -511,7 +531,7 @@
 
             <div class="total-section">
                 <strong>ยอดรวม:</strong> 
-                {{-- {{ number_format($total_paid, 2) }} --}}
+                {{ number_format($data['totalPaidAmount'], 2) }}
                  บาท
             </div>
 

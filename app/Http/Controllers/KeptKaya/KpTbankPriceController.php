@@ -35,10 +35,12 @@ class KpTbankPriceController extends Controller
      */
     public function create()
     {
-        $price = new KpTbankItemsPriceAndPoint();
-        $items = KpTbankItems::all();
-        $units = KpTbankUnits::all();
-        $recorders = Staff::all();
+        $price      = new KpTbankItemsPriceAndPoint();
+        $items      = KpTbankItems::where('org_id_fk', Auth::user()->org_id_fk)->get();
+        $units      = KpTbankUnits::where('org_id_fk', Auth::user()->org_id_fk)->get();
+        $recorders  = Staff::whereHas('user', function($q){
+                            $q->where('org_id_fk', Auth::user()->org_id_fk);
+                        })->get();
 
         return view('keptkayas.tbank.prices.create', compact('price', 'items', 'units', 'recorders'));
     }
@@ -85,8 +87,9 @@ class KpTbankPriceController extends Controller
             }
 
 
-            $kp_units_idfkArr = KpTbankItemsPriceAndPoint::where('kp_items_idfk', $itemData['kp_items_idfk'])
-                ->where('status', 'active')
+            $kp_units_idfkArr = KpTbankItemsPriceAndPoint::where('status', 'active')
+                ->where('org_id_fk', Auth::user()->org_id_fk)
+                ->where('kp_items_idfk', $itemData['kp_items_idfk'])
                 ->get()->pluck('kp_units_idfk');
 
 
@@ -119,68 +122,11 @@ class KpTbankPriceController extends Controller
             }
             
         }
-
+// return 'ss';
         return redirect()->route('keptkayas.tbank.prices.index')
             ->with('success', 'บันทึกรายการกำหนดราคาหลายรายการเรียบร้อยแล้ว');
     }
-    // public function store(Request $request)
-    // {
-    //     // return $request;
-    //     $validated = $request->validate([
-    //         'kp_items_idfk' => 'required|exists:kp_tbank_items,id',
-    //         // 'price_from_dealer' => 'required|numeric|min:0',
-    //         // 'price_for_member' => 'required|numeric|min:0',
-    //         // 'point' => 'nullable|integer|min:0',
-    //         // 'type' => 'required|string|in:fixed,kg,unit', // e.g.,
-    //         // 'kp_units_idfk' => 'required|exists:tbank_item_units,id',
-    //         'effective_date' => 'required|date',
-    //         // 'is_active' => 'boolean',
-    //         // 'status' => 'required|in:active,inactive',
-    //         'recorder_id' => 'nullable|exists:staffs,user_id',
-    //     ]);
-
-
-    //     // DB::beginTransaction();
-    //     // try {
-    //     // If new price is set to active, deactivate old active price for the same item
-    //     // if ($request->has('is_active') && $request->boolean('is_active')) {
-
-    //     //     KpTbankItemsPriceAndPoint::where('kp_items_idfk', $validated['kp_items_idfk'])
-    //     //                              ->where('is_active', true)
-    //     //                              ->update([
-    //     //                                  'is_active' => false,
-    //     //                                  'end_date' => Carbon::parse($validated['effective_date'])->subDay()
-    //     //                              ]);
-    //     // }
-    //     foreach ($request->get('units_data') as $unit) {
-
-    //         KpTbankItemsPriceAndPoint::create([
-    //             'kp_items_idfk' =>  $validated['kp_items_idfk'],
-    //             'price_from_dealer' => $unit['price_from_dealer'],
-    //             'price_for_member' => $unit['price_for_member'],
-    //             'point' => $unit['point'],
-    //             'type' => 'tbank',
-    //             'kp_units_idfk' => $unit['kp_units_idfk'],
-    //             'status' => 'active',
-    //             'deleted' => '0',
-    //             'recorder_id' => $validated['recorder_id'] ?? Auth::id(),
-    //             'effective_date' => $request->get('effective_date'),
-    //             'end_date' => $request->get('end_date'),
-    //             'created_at' => date('Y-m-d H:i:s'),
-    //             'updated_at' => date('Y-m-d H:i:s'),
-    //         ]);
-    //     }
-
-
-
-
-
-    //     return redirect()->route('keptkayas.tbank.prices.index')
-    //         ->with('success', 'ราคารับซื้อถูกสร้างเรียบร้อยแล้ว');
-    //     // } catch (\Exception $e) {
-    //     //     return back()->with('error', 'เกิดข้อผิดพลาดในการบันทึกราคา: ' . $e->getMessage())->withInput();
-    //     // }
-    // }
+    
 
     /**
      * Show the form for editing the specified price.

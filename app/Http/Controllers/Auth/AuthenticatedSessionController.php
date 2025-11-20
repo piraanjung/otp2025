@@ -4,11 +4,7 @@ namespace App\Http\Controllers\Auth;
 
 use App\Http\Controllers\Controller;
 use App\Http\Requests\Auth\LoginRequest;
-use App\Models\Admin\Organization;
 use App\Models\User;
-use App\Models\UserHs1;
-use App\Models\UserKp1;
-use App\Providers\RouteServiceProvider;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 
@@ -40,27 +36,21 @@ class AuthenticatedSessionController extends Controller
             $userAgent
         );
         $request->session()->regenerate();
-
+         $user = User::find(Auth::id());
+        
         if ($ismobile) {
             if(isset($request->kp_mobile_login)){
                 //ตู้รับซื้อขวด
                 return redirect()->intended(route('kp_mobile.create', absolute: false));
+            }else if($user->hasRole('User')){
+                return redirect()->intended(route('staff_accessmenu', absolute: false));
             }
-            return redirect()->intended(route('staff_accessmenu', absolute: false));
         }
 
         return redirect()->intended(route('accessmenu', absolute: false));
 
     }
 
-    public function getOrgUser($orgGuard, $orgDatabase){
-         if($orgDatabase == 'envsogo_hs1'){
-            return UserHs1::find(Auth::guard($orgGuard)->user()->id);
-        }else if($orgDatabase == 'envsogo_kp1'){
-            return UserKp1::find(Auth::guard($orgGuard)->user()->id);
-        }
- 
-    }
 
     /**
      * Destroy an authenticated session.

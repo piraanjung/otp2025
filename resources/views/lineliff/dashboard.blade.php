@@ -847,14 +847,104 @@
         .hidden{
             display: none
         }
+
+        #button {
+    position: absolute;
+    height: 40px;
+    width: 40px;
+    border: 4px solid #B20000;
+
+    background-color: #FF0000;
+    color: #FFFFFF;
+    box-shadow: 5px 5px 5px #888;
+    text-align: center;
+    border-radius: 20px;
+    font-weight: bold;
+    /* line-height: 35px;     */
+    /* margin: 0 auto; */
+}
+
+ #button a {
+    text-decoration: none;
+    color: #FFFFFF;
+    font-size: 135%;
+    position: relative;
+}
+
+#center {
+    position: relative;
+    left: 0;
+    /* max-width: 600px; */
+}
+
+.menu {
+  height: 100%;
+  width: 70%;
+  position: fixed;
+  z-index: 1;
+  top: 0;
+  left: 0;
+  background-color: #1ce0e7;
+  display: none;
+  transition: 0.5s;
+  padding-top: 60px;
+  /* text-align: center; */
+}
+.menu a {
+  text-decoration: dotted;
+  /* padding: 8px 8px 8px 20px; */
+  font-size: 20px;
+  color: #000000;
+  display: block;
+  transition: 0.3s;
+}
+
+.menu a:hover {
+  color: #f1f1f1;
+}
+.menu .closebtn {
+  position: absolute;
+  top: 0;
+  right: 25px;
+  font-size: 36px;
+  margin-left: 50px;
+}
+.menu button {
+  border: 2px solid black;
+  background-color: white;
+  color: black;
+  padding: 9px 19px;
+  font-size: 16px;
+  cursor: pointer;
+  border-radius:8px;
+}
+
     </style>
+    <link rel="stylesheet" href="https://code.jquery.com/ui/1.13.2/themes/base/jquery-ui.css">
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/js/bootstrap.bundle.min.js"
         integrity="sha384-MrcW6ZMFYlzcLA8Nl+NtUVF0sA7MsXsP1UyJoMp4YLEuNSfAP+JcXn/tWtIaxVXM"
         crossorigin="anonymous"></script>
-
+    <script src="https://code.jquery.com/jquery-3.7.0.js"></script>
+<script src="https://code.jquery.com/ui/1.13.2/jquery-ui.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jqueryui-touch-punch/0.2.3/jquery.ui.touch-punch.min.js"></script>
 </head>
 
 <body id="body">
+    <div id="center">
+  <div id="button">
+      <a href='#'>&#9776;</a>
+  </div>
+</div>
+<div class="menu">
+  <button class="button closebtn hide">&times;</button>
+  <a href="#">Home</a>
+  <a href="#" class="main_bottom_nav" data-id="recycle">ขยะรีไซเคิล</a>
+  <a href="#" class="main_bottom_nav" data-id="wet">ขยะเปียก</a>
+  <a href="#">งานประปา</a>
+  <a href="#">ตลาดชุมชน ออนไลน์</a>
+  <a href="#">Telegram</a>
+  <a href="#">Twitter</a>
+</div>
     <div class="app">
         <svg class="app__gradients" hidden>
             <defs>
@@ -867,12 +957,12 @@
         <header class="header" style="justify-content: normal !important;">
             <button class="header__profile-btn" type="button">
                 <img class="header__profile-icon" id="header__profile_img" alt="Profile (Mr. Trololo)"
-                    src="https://profile.line-scdn.net/{{$userWastePref->image}}" width="78" height="78">
+                    src="https://profile.line-scdn.net/{{$userWastePref->user->image}}" width="78" height="78">
             </button>
             <button class="header__notes-btn" style="flex-direction:column !important;width: 70%; text-align:right;"
                 type="button" title="Notifications">
-                <div style="font-size: 1.9em">{{$userWastePref->firstname}}</div>
-                <div style="font-size: 1.6em">{{$userWastePref->lastname}}</div>
+                <div style="font-size: 1.9em">{{$userWastePref->user->firstname}}</div>
+                <div style="font-size: 1.6em">{{$userWastePref->user->lastname}}</div>
             </button>
         </header>
         <main>
@@ -1151,13 +1241,14 @@
 
                 </div>
                 <div class="modal-footer">
+                    {{ $userWastePref->id."-".$userWastePref->user_id }}
                     <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
                 </div>
             </div>
         </div>
     </div>
 
-    <nav class="nav">
+    {{-- <nav class="nav">
         <ul class="nav__links">
             <li class="nav__link active main_bottom_nav" data-id="recycle">
                 <a href="#"><i class='fas fa-recycle'></i></a>
@@ -1172,11 +1263,22 @@
 
             <div class="nav__light"></div>
         </ul>
-    </nav>
-    <script src="https://code.jquery.com/jquery-3.7.0.js"></script>
-
+    </nav> --}}
+<script>
+        $(document).ready(function() {
+            // This function should now exist and work!
+            $("#button").draggable();
+            $(".hide").click(function() {
+                $(".menu").hide();
+            });
+            $("#button").click(function() {
+                $(".menu").show();
+            });
+        });
+        
+    </script>
     <script>
-
+        
         const links = document.querySelectorAll(".nav__link");
         const light = document.querySelector(".nav__light");
 
@@ -1200,12 +1302,18 @@
 
 
         $(document).on('click','.main_bottom_nav', function(){
-                let div_id = $(this).data('id')
-                $('.kp').addClass('hidden')
-                $('.div_'+div_id).removeClass('hidden')
+                $(".menu").toggle('fade out');
+                setTimeout(() => {
+                    let div_id = $(this).data('id')
+                    $('.kp').addClass('hidden')
+                    $('.div_'+div_id).removeClass('hidden') 
+                }, 1000);
+               
             
         })
+       
     </script>
+    
 </body>
 
 </html>

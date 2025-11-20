@@ -1,8 +1,9 @@
 <?php
 
-namespace App\Http\Controllers\KeptKaya;
+namespace App\Http\Controllers\FoodWaste;
 
 use App\Http\Controllers\Controller;
+use App\Models\Admin\Organization;
 use App\Models\KeptKaya\WasteBinSubscription;
 use App\Models\KeptKaya\WasteBinPayment;
 use App\Models\KeptKaya\WasteBin; // To potentially link from WasteBin details
@@ -286,10 +287,9 @@ class WasteBinSubscriptionController extends Controller
             'receiptCode' => $receiptCode,
         ];
 
-        return view('keptkayas.annual_payments.receipt', compact('data', 'paidMonthArr'));
-        // This is the core logic to generate the PDF
-        // $pdf = Pdf::loadView('keptkayas.annual_payments.receipt', $data);
-        // return $pdf->download('receipt-' . $receiptCode . '.pdf');
+        $orgInfos = Organization::getOrgName(Auth::user()->org_id_fk);
+        return view('foodwaste.annual_payments.receipt', compact('data', 'paidMonthArr', 'orgInfos'));
+
     }
 
     public function invoice()

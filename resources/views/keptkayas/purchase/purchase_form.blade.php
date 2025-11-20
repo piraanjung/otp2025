@@ -246,13 +246,73 @@
         <script src="https://unpkg.com/html5-qrcode" type="text/javascript"></script>
         <script>
             $(document).ready(function(){
-                $('.recyclename').select2();
+            // Initialize Select2 on both dropdowns
+            $('.recyclename').select2();
 
-                $('#kp_itemscode').change(function(){
-                    let selectedOption = $(this).find(':selected');
-                    $('#kp_tbank_item_id').val(selectedOption.data('id'));
+            const kpItemCodeSelect = $('#kp_itemscode');
+            const kpUnitsSelect = $('#kp_units_idfk');
+            const kpTbankItemId = $('#kp_tbank_item_id');
+
+            // --- Function 1: โหลดหน่วยนับและราคาจาก Server ---
+            function loadUnitsForSelectedItem(itemId) {
+                if (!itemId) {
+                    kpUnitsSelect.empty().append('<option value="">เลือกหน่วยนับ</option>').trigger('change');
+                    return;
+                }
+
+                // Call the API endpoint using AJAX
+                $.ajax({
+                    url: '{{ route('keptkayas.purchase.get_units', ['itemId' => 'PLACEHOLDER']) }}'.replace('PLACEHOLDER', itemId),
+                    method: 'GET',
+                    success: function(response) {
+                    console.log('res',response)
+                        // Clear existing options
+                        kpUnitsSelect.empty().append('<option value="">เลือกหน่วยนับ</option>');
+
+                        if (response.length > 0) {
+                            response.forEach(function(unit) {
+                                // เพิ่ม option ใหม่ พร้อมเก็บข้อมูลราคาและคะแนนใน data attributes
+                                const newOption = new Option(
+                                    unit.unit_name, 
+                                    unit.unit_id, 
+                                    false, 
+                                    false
+                                );
+                                $(newOption).attr('data-price', unit.price_for_member);
+                                $(newOption).attr('data-point', unit.point);
+                                kpUnitsSelect.append(newOption);
+                            });
+                            // เลือกหน่วยนับแรกเป็นค่าเริ่มต้น (ถ้ามี)
+                            kpUnitsSelect.find('option:eq(1)').prop('selected', true); 
+                        } else {
+                            // แจ้งเตือนหากไม่พบราคาสำหรับขยะนี้
+                            alert('ไม่พบข้อมูลราคาและหน่วยนับที่ใช้งานอยู่สำหรับขยะนี้');
+                        }
+                        
+                        kpUnitsSelect.trigger('change'); // Notify Select2 to update
+                    },
+                    error: function(xhr) {
+                        console.error("Error fetching units:", xhr.responseText);
+                        alert('เกิดข้อผิดพลาดในการดึงข้อมูลหน่วยนับ');
+                    }
                 });
-            })
+            }
+
+            // --- Event Listener: เมื่อเลือกชื่อขยะเปลี่ยนไป ---
+            kpItemCodeSelect.on('change', function(){
+                let selectedOption = $(this).find(':selected');
+                let itemId = selectedOption.data('id');
+
+                kpTbankItemId.val(itemId);
+                
+                // 🚨 เรียกฟังก์ชันโหลดหน่วยนับ
+                loadUnitsForSelectedItem(itemId);
+            });
+            
+            // --- (ส่วน QR Code เดิมของคุณ) ---
+            // โค้ด QR Code จะถูกเรียก 'change' บน #kp_itemscode ซึ่งจะไปเรียก loadUnitsForSelectedItem() ต่อ
+
+        });
             document.addEventListener('DOMContentLoaded', function () {
                 const qrScannerModal = document.getElementById('qrScannerModal');
                 const kp_itemscode = document.getElementById('kp_itemscode');

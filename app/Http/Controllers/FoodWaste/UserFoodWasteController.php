@@ -55,8 +55,8 @@ class UserFoodWasteController extends Controller
             $q->where('email', 'like', '%' . $email . '%');
         });
 
-        $query->when($searchStatus && $searchStatus !== 'any', function ($q, $status) {
-            $q->where('status', $status);
+        $query->when($searchStatus && $searchStatus == 'active', function ($q, $status) {
+            $q->whereHas('foodwastePreference');
         });
 
 
@@ -73,7 +73,6 @@ class UserFoodWasteController extends Controller
             } else {
                 $users = $query->paginate($perPage)->appends($request->query()); // Append search queries to pagination links
             }
-
             // Pass all search parameters back to the view to pre-fill search fields
             return view('foodwaste.w.users.index', compact('users', 'perPage', 'searchName', 'searchEmail', 'searchStatus'));
         }
@@ -118,7 +117,6 @@ class UserFoodWasteController extends Controller
         });
 
       
-
       
 
         // Check if it's an AJAX request for live search
@@ -133,8 +131,7 @@ class UserFoodWasteController extends Controller
             } else {
                 $users = $query->paginate($perPage)->appends($request->query()); // Append search queries to pagination links
             }
-
-            // Pass all search parameters back to the view to pre-fill search fields
+                // Pass all search parameters back to the view to pre-fill search fields
             return view('foodwaste.w.users.waste_bin_users', compact('users', 'perPage', 'searchName', 'searchEmail', 'searchStatus'));
         }
     }

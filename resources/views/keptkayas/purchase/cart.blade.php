@@ -9,11 +9,13 @@
      @endphp
 @endif
 
-@extends('$layout')
+@extends($layout)
+@section('nav-header', 'รับซื้อขยะรีไซเคิล')
+@section('nav-current', 'สรุปการซื้อขยะรีไซเคิล')
+@section('page-topic', 'สรุปการซื้อขยะรีไซเคิล')
 @section('content')
     <div class="container-fluid">
         <div class="d-flex justify-content-between align-items-center mb-4">
-            <h1 class="mb-0">สรุปการซื้อขยะรีไซเคิล</h1>
             <a href="{{ route('keptkayas.purchase.select_user') }}" class="btn btn-secondary">
                 <i class="bi bi-person-fill me-1"></i> เลือกผู้ใช้งานใหม่
             </a>
@@ -41,15 +43,15 @@
             {{-- Member Details --}}
             <div class="card mb-4 shadow-sm">
                 <div class="card-header bg-info text-white">
-                    <h5 class="mb-0">ผู้ใช้งาน: {{ $user->firstname }} {{ $user->lastname }}</h5>
+                    <h5 class="mb-0">ผู้ใช้งาน: {{ $seller->firstname }} {{ $seller->lastname }}</h5>
                 </div>
                 <div class="card-body">
                     <div class="row">
                         <div class="col-md-6">
-                            <strong>Username:</strong> {{ $user->username }}
+                            <strong>Username:</strong> {{ $seller->username }}
                         </div>
                         <div class="col-md-6">
-                            <strong>ที่อยู่:</strong> {{ $user->address }}
+                            <strong>ที่อยู่:</strong> {{ $seller->address }}
                         </div>
                     </div>
                 </div>
@@ -115,15 +117,21 @@
             </div>
 
             {{-- Save Transaction Buttons --}}
-            <div class="d-flex justify-content-between mt-4">
-                <a href="{{ route('keptkayas.purchase.form', $user->id) }}" class="btn btn-secondary">
+            <div class="row mt-4">
+                <a href="{{ route('keptkayas.purchase.form', $user->id) }}" class="btn btn-secondary col-12 col-md-4">
                     <i class="bi bi-arrow-left me-1"></i> กลับไปเพิ่มรายการ
                 </a>
-                <form action="{{ route('keptkayas.purchase.save_transaction') }}" method="POST">
+                <form action="{{ route('keptkayas.purchase.save_transaction') }}" method="POST" class="col-12 col-md-8">
                     @csrf
-                    <button type="submit" class="btn btn-success btn-lg">
+                    <div class="d-flex justify-content-end mt-3">
+                    <input type="checkbox" name="cash_back" id="" style="height: 40px;width: 40px; ">
+                        <h3>รับเป็นเงินสด</h3>
+                         <button type="submit" class="btn btn-success btn-lg">
                         <i class="bi bi-save me-1"></i> บันทึกธุรกรรม
                     </button>
+                    </div>
+                  
+                   
                 </form>
             </div>
         @endif

@@ -17,6 +17,19 @@ use App\Http\Controllers\Api\FunctionsController as apiFunctionsController;
 use App\Http\Controllers\ImageController;
 use App\Http\Controllers\KeptKaya\MachineController;
 
+
+Route::get('/testget', function(){
+    return response()->json([
+        'testget' => 2222
+    ]);
+});
+Route::post('/testpost', function(Request $request){
+    $data = $request->json()->all();
+    return response()->json([
+        'sensor' => $request->sensor
+    ]);
+});
+
 // Endpoint สำหรับ Frontend (Browser) เพื่อส่งคำสั่ง "Start" ไปยัง ESP8266
 Route::post('/device/start-sale', [DeviceController::class, 'startSale']);
 Route::get('/device/check-bottle-status', [DeviceController::class, 'checkBottleStatus']);
@@ -45,6 +58,8 @@ Route::get('/line', [LineController::class, 'index'])->name('lineliff.index');
 Route::post('/line/fine_line_id', [LineController::class, 'fine_line_id']);
 Route::get('/line/user_qrcode', [LineController::class, 'user_qrcode']);
 Route::post('/line/update_user_by_phone', [LineController::class, 'update_user_by_phone']);
+Route::post('/line/user_line_register', [LineController::class, 'user_line_register']);
+
 Route::get('/line/dashboard/{user_waste_pref_id}/{db_conn}', [LineController::class, 'dashboard']);
 
 Route::get('/sensor_data', [IoTBoxDataController::class, 'store']);

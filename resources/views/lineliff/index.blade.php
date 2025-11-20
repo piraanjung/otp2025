@@ -670,7 +670,7 @@
           phone_div.classList.remove('hidden')
         }
         if (data.res == 1) {
-          // window.location.href = '/line/dashboard/' + data.waste_pref_id / 1;
+          window.location.href = '/line/dashboard/' + data.waste_pref_id+'/'+data.org_id;
         }
       })
       // ถ้าไม่เป็นให้แสดง text กรอก phone
@@ -725,8 +725,19 @@
     $('#phone_search_btn').on('click',  function () {//async
       let phone = phone_text.value;
       let line_user_image = (profile.pictureUrl).replace("https://profile.line-scdn.net/", "");
-      console.log('ss');
-      $.post(`/api/line/update_user_by_phone`,
+      console.log(
+        {
+           phoneNum    : phone,
+          province_id :  province_id_text.value,
+          district_id : district_id_text.value,
+          tambon_id   : tambon_id_text.value,
+          org_id      : org_id_text.value,
+          line_user_id: profile.userId,
+          displayName : profile.displayName,
+          line_user_image: line_user_image,
+        }
+      );
+      $.post(`/api/line/user_line_register`,
         {
           phoneNum    : phone,
           province_id :  province_id_text.value,
@@ -800,8 +811,9 @@
 
     $('#tambon_id').change(function () {
       let id = $(this).val()
+      console.log('id',id)
       $.get(`/api/get_org/${id}`).done(function (data) {
-        console.log('tab', data)
+        console.log('tabๆ', data)
         // let text = `<option value="${data[0].id}" selected>${data[0].org_name}</option>`
         // data.forEach(element => {
         //   text += `<option value="${element.id}">${element.tambon_name}</option>`

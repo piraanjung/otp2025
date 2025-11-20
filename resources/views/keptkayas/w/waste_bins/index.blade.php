@@ -1,7 +1,9 @@
 @extends('layouts.keptkaya')
 
-@section('title_page', 'ถังขยะ')
-
+@section('nav-header', 'สมาชิกเก็บขยะรายปี')
+@section('nav-current', 'เพิ่มถังขยะใหม่')
+@section('nav-keptkayas-users', 'active')
+@section('page-topic', 'เพิ่มถังขยะของ:'. $w_user->firstname." ". $w_user->lastname )
 @section('content')
 <div class="container-fluid py-4">
     <div class="row">

@@ -7,8 +7,10 @@ use App\Http\Controllers\Admin\MetertypeController;
 use App\Http\Controllers\Admin\PermissionController;
 use App\Http\Controllers\Admin\RoleController;
 use App\Http\Controllers\Admin\SuperAdminAuthController;
+use App\Http\Controllers\Admin\SuperUserController;
 use App\Http\Controllers\Admin\UserController;
 use App\Http\Controllers\Admin\ZoneController;
+use App\Http\Controllers\KeptKaya\MachineController;
 use App\Http\Controllers\Tabwater\CutmeterController;
 use App\Http\Controllers\Tabwater\BudgetYearController;
 use App\Http\Controllers\Tabwater\InvoiceController;
@@ -124,6 +126,11 @@ Route::middleware(['auth', 'role:Admin|Super Admin'])->name('admin.')->prefix('a
     Route::delete('/permissions/{permission}/roles/{role}', [PermissionController::class, 'removeRole'])->name('permissions.roles.remove');
     Route::resource('/permissions', PermissionController::class);
 
+    Route::prefix('super_users')->name('super_users.')->group(function(){
+        Route::resource('/', SuperUserController::class);
+    });
+
+    //tabwater
     Route::prefix('users/')->name('users.')->group(function(){
         Route::get('', [UserController::class, 'index'])->name('index');
         Route::get('staff', [UserController::class, 'staff'])->name('staff');
@@ -289,6 +296,7 @@ Route::prefix('superadmin')->name('superadmin.')->group(function () {
     Route::post('/login', [SuperAdminAuthController::class, 'login'])->name('login.post');
     Route::post('/logout', [SuperAdminAuthController::class, 'logout'])->name('logout');
     Route::resource('staff', StaffController::class);
+    Route::resource('/machines',MachineController::class);
 
 });
 

@@ -27,8 +27,8 @@ class KpTbankItemsGroupsController extends Controller
         foreach ($request->get('kp_items_groupname') as $item_groupname) {
             KpTbankItemsGroups::create([
                 'org_id_fk'             => Auth::user()->org_id_fk,
-                'kp_items_groupname'    => $item_groupname["'name'"],
-                'kp_items_group_code'   => $item_groupname["'code'"],
+                'kp_items_groupname'    => $item_groupname["name"],
+                'kp_items_group_code'   => $item_groupname["code"],
                 'status'                => 'active',
                 'deleted'               => '0',
                 'created_at'            => date('Y-m-d H:i:s'),

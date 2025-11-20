@@ -258,7 +258,7 @@
                                     </div>
                                 </div>
                             </a>
-                            <ul class="dropdown-menu dropdown-menu-end px-2 py-3 ms-n4"
+                            {{-- <ul class="dropdown-menu dropdown-menu-end px-2 py-3 ms-n4"
                                 aria-labelledby="dropdownMenuButton">
 
                                 <li class="">
@@ -284,7 +284,7 @@
                                     </div>
 
                                 </li>
-                            </ul>
+                            </ul> --}}
                         </li>
                     </ul>
 

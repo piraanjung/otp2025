@@ -270,7 +270,7 @@
         <div style="font-size: 3.5rem">{{$orgInfos['org_type_name']}}</div>
         <div>{{$orgInfos['org_name']}}</div>
         <hr style="margin-bottom: 3px;margin-top: 3px;">
-        <div id="org_addr2">ตำบล{{$orgInfos['org_tambons']}} อำเภอ{{$orgInfos['org_districts']}} จังหวัด{{$orgInfos['org_provinces']}}</div>
+        <div id="org_addr2">ตำบล{{$orgInfos['org_tambon']}} อำเภอ{{$orgInfos['org_district']}} จังหวัด{{$orgInfos['org_province']}}</div>
     </div>
 
     <div class="main-container centralized ">
@@ -300,8 +300,8 @@
                 </div>
             </a>
         </div>
-        <div class="bubble-container centralized orange {{auth()->user()->can('access annaul modules') | auth()->user()->hasRole('Super Admin|Admin') ? '': 'a-disbled'}}">
-            <a href="{{auth()->user()->can('access annaul modules') | auth()->user()->hasRole('Super Admin|Admin') ? route('keptkayas.dashboard', 'annual') : 'javascript:void(0)'}}">
+        <div class="bubble-container centralized orange {{auth()->user()->can('access annaul modules') | auth()->user()->hasRole('Super Admin|Admin|Annual Trash Staff') ? '': 'a-disbled'}}">
+            <a href="{{auth()->user()->can('access annaul modules') | auth()->user()->hasRole('Super Admin|Admin|Annual Trash Staff') ? route('keptkayas.dashboard', 'annual') : 'javascript:void(0)'}}">
 
                 <div class="bubble centralized">
                     <div class="inner centralized">

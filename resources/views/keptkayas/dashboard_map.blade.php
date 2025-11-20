@@ -1,6 +1,9 @@
 @extends('layouts.keptkaya')
 
-@section('title_page', 'แผนที่แสดงถังขยะ')
+@section('nav-header', 'แผนที่ถังขยะ')
+@section('nav-current', 'แผนที่แสดงถังขยะ')
+@section('page-topic', 'แผนที่แสดงตำแหน่งถังขยะมูลฝอย')
+@section('nav-waste_bins-viewmap', 'active')
 
 @section('content')
     <div class="row">
@@ -20,10 +23,11 @@
 @section('script')
     <script>
         const binIconUrl = "{{ asset('imgs/bin_empty.png') }}";
-
+        const  lat = parseFloat("{{$orgInfos['lat']}}");
+        const  long = parseFloat("{{$orgInfos['long']}}");
         function initMap() {
 
-            const defaultLocation = { lat: 17.3756670, lng: 103.7108740 }; // Default to Bangkok
+            const defaultLocation = { lat: lat , lng: long}; // Default to Bangkok
             const map = new google.maps.Map(document.getElementById("map"), {
                 zoom: 16,
                 center: defaultLocation,

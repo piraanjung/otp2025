@@ -37,8 +37,8 @@
     </li>
     @role('Super Admin|Admin|Tabwater Staff')
     <li class="nav-item">
-        <a data-bs-toggle="collapse" href="#invoices" class="nav-link active collapsed" aria-controls="invoices" role="button"
-            aria-expanded="false">
+        <a data-bs-toggle="collapse" href="#invoices" class="nav-link active collapsed" aria-controls="invoices"
+            role="button" aria-expanded="false">
             <div
                 class="icon icon-shape icon-sm shadow border-radius-md bg-white text-center d-flex align-items-center justify-content-center  me-2">
                 <svg width="12px" height="12px" viewBox="0 0 42 42" version="1.1" xmlns="http://www.w3.org/2000/svg"
@@ -82,7 +82,7 @@
                 <li class="nav-item  hidden">
                     <a href="{{ url('cutmeter') }}" class="nav-link @yield('nav-cutmeter')">
                         ตัดมิเตอร์
-        
+
                     </a>
 
                 </li>
@@ -92,8 +92,8 @@
         </div>
     </li>
     <li class="nav-item">
-        <a data-bs-toggle="collapse" href="#receipt" class="nav-link active collapsed" aria-controls="receipt" role="button"
-            aria-expanded="false">
+        <a data-bs-toggle="collapse" href="#receipt" class="nav-link active collapsed" aria-controls="receipt"
+            role="button" aria-expanded="false">
             <div
                 class="icon icon-shape icon-sm shadow border-radius-md bg-white text-center d-flex align-items-center justify-content-center  me-2">
                 <svg width="12px" height="12px" viewBox="0 0 42 42" version="1.1" xmlns="http://www.w3.org/2000/svg"
@@ -149,8 +149,8 @@
         </div>
     </li>
     <li class="nav-item">
-        <a data-bs-toggle="collapse" href="#reports" class="nav-link active collapsed" aria-controls="reports" role="button"
-            aria-expanded="false">
+        <a data-bs-toggle="collapse" href="#reports" class="nav-link active collapsed" aria-controls="reports"
+            role="button" aria-expanded="false">
             <div
                 class="icon icon-shape icon-sm shadow border-radius-md bg-white text-center d-flex align-items-center justify-content-center  me-2">
                 <svg width="12px" height="12px" viewBox="0 0 42 42" version="1.1" xmlns="http://www.w3.org/2000/svg"
@@ -344,10 +344,19 @@
                         <span class="sidenav-normal">Import excel </span>
                     </a>
                 </li>
-               
+
                 @endrole
             </ul>
         </div>
     </li>
     @endrole
+     <li class="nav-item">
+        <a href="{{ route('logout') }}" class="nav-link active mt-4" style="border: 1px solid red">
+            <div
+                class="fab fa-ubuntu icon-sm shadow border-radius-md bg-danger text-center d-flex align-items-center justify-content-center  me-2">
+            </div>
+            <span class="nav-link-text ms-1 text-danger">Log Out</span>
+        </a>
+
+    </li>
 </ul>

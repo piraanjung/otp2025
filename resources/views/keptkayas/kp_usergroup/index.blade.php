@@ -1,14 +1,12 @@
 @extends('layouts.keptkaya')
 
-@section('mainheader')
-    ตารางขนาดมิเตอร์
-@endsection
-@section('nav-header')
-    <a href="{{ url('tabwatermeter') }}"> ขนาดมิเตอร์</a>
-@endsection
-@section('nav-usergroup')
-    active
-@endsection
+
+@section('nav-header', 'กลุ่มผู้ใช้งาน')
+@section('nav-current', 'ตารางกลุ่มผู้ใช้งาน')
+@section('page-topic', 'ตารางกลุ่มผู้ใช้งาน')
+@section('nav-keptkayas.kp_usergroup', 'active')
+
+
 @section('content')
 
     {{-- @if (collect($usergroups)->isEmpty())

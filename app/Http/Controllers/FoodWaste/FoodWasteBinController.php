@@ -8,8 +8,6 @@ use App\Models\FoodWaste\FoodWasteBin;
 use App\Models\FoodWaste\FoodwasteBinStocks;
 use App\Models\FoodWaste\FoodwastIotbox;
 use App\Models\Keptkaya\KpUserGroup;
-use App\Models\Keptkaya\KpUsergroupPayratePerMonth;
-use App\Models\KeptKaya\WasteBinPayratePerMonth;
 use App\Models\User;
 use App\Models\KeptKaya\WasteBinSubscription; // Import WasteBinSubscription model
 use App\Models\KeptKaya\WasteBin;
@@ -47,11 +45,12 @@ class FoodWasteBinController extends Controller
      */
     public function create(User $w_user)
     {
-        $user_groups = KpUserGroup::all();
+        $foodwaste_bins = FoodWasteBin::all();
         $func = new FunctionsController();
         $bins_pending = FoodwasteBinStocks::where('status', 'pending')->get();
+        
         $iotboxes = FoodwastIotbox::where('status', 'pending')->get();
-        return view('foodwaste.w.waste_bins.create', compact('w_user', 'user_groups', 'bins_pending', 'iotboxes'));
+        return view('foodwaste.w.waste_bins.create', compact('w_user', 'foodwaste_bins', 'bins_pending', 'iotboxes'));
     }
 
     public function store(Request $request, User $w_user)
@@ -107,10 +106,10 @@ class FoodWasteBinController extends Controller
     }
 
 
-    public function update(Request $request, FoodWasteBin $wasteBin)
+    public function update(Request $request, FoodWasteBin $foodwasteBin)
     {
         $request->validate([
-            'bin_code' => ['nullable', 'string', 'max:255', Rule::unique('waste_bins')->ignore($wasteBin->id)],
+            'bin_code' => ['nullable', 'string', 'max:255', Rule::unique('waste_bins')->ignore($foodwasteBin->id)],
             'bin_type' => 'required|string|max:255',
             'location_description' => 'nullable|string|max:255',
             'latitude' => 'nullable|numeric|between:-90,90',
@@ -119,14 +118,14 @@ class FoodWasteBinController extends Controller
             'is_active_for_annual_collection' => 'boolean',
         ]);
 
-        // DB::transaction(function () use ($request, $wasteBin) {
-        $oldIsActiveForAnnualCollection = $wasteBin->is_active_for_annual_collection;
+        // DB::transaction(function () use ($request, $foodwasteBin) {
+        $oldIsActiveForAnnualCollection = $foodwasteBin->is_active_for_annual_collection;
         $newIsActiveForAnnualCollection = $request->has('is_active_for_annual_collection');
 
         $data = $request->all();
         $data['is_active_for_annual_collection'] = $newIsActiveForAnnualCollection;
 
-        $wasteBin->update($data); // Update waste bin data
+        $foodwasteBin->update($data); // Update waste bin data
 
         // If status changed to active for annual collection, create/ensure subscription
         if (!$oldIsActiveForAnnualCollection && $newIsActiveForAnnualCollection) {
@@ -136,7 +135,7 @@ class FoodWasteBinController extends Controller
 
             WasteBinSubscription::firstOrCreate(
                 [
-                    'waste_bin_id' => $wasteBin->id,
+                    'waste_bin_id' => $foodwasteBin->id,
                     'fiscal_year' => $fiscalYear,
                 ],
                 [

@@ -40,7 +40,7 @@ class DashboardController extends Controller
                 // วนลูปผ่านข้อมูล IoT ทั้งหมดของถังขยะ
                 foreach ($bin['iotbox_datas'] as $data) {
                     // Label จะเป็นแค่เวลา (H:i:s) เพราะเราแยกตามถังขยะแล้ว
-                    $timestamp = \Carbon\Carbon::parse($data['created_at'])->format('H:i:s');
+                    $timestamp = Carbon::parse($data['created_at'])->format('H:i:s');
                     
                     $binData['labels'][] = $timestamp;
                     $binData['temperatures'][] = (float)$data['temperature'];
@@ -57,7 +57,7 @@ class DashboardController extends Controller
                 'card_data' => [
                     'ID' => $userData['id'],
                     'Foodwaste Bank' => $userData['is_foodwaste_bank'] ? 'Yes' : 'No',
-                    'Created At' => \Carbon\Carbon::parse($userData['created_at'])->format('Y-m-d H:i'),
+                    'Created At' => Carbon::parse($userData['created_at'])->format('Y-m-d H:i'),
                     'Total Bins' => count($userData['foodwaste_bins']),
                 ],
                 'bin_charts' => $binCharts, // เปลี่ยนมาใช้โครงสร้างใหม่

@@ -4,6 +4,7 @@ namespace App\Models\KeptKaya;
 
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Support\Facades\Auth;
 
 class KpTbankItems extends Model
 {
@@ -34,7 +35,10 @@ class KpTbankItems extends Model
     // A specific relationship to only get the ACTIVE price points
     public function activePrices()
     {
-        return $this->hasMany(KpTbankItemsPriceAndPoint::class, 'kp_items_idfk', 'id')
+        return $this->hasMany(KpTbankItemsPriceAndPoint::class, 'kp_items_idfk', 'id')  
+                    // ->whereHas('kp_units_info', function($q){
+                    //     $q->where('org_id_fk', 1);
+                    // }) 
                     ->where('status', 'active');
     }
     

@@ -136,11 +136,11 @@
             <div class="card-header">
                 <div class="d-flex justify-content-between">
                
-                    <img src="{{asset('logo/hs_logo.png')}}" style="width:70px">
+                    <img src="{{asset('logo/'.$orgInfos['org_logo_img'])}}" style="width:70px">
                 <div class="text-end">
-                    เทศบาลตำบล
+                    {{$orgInfos['org_type_name']}}
                     <br>
-                    ห้องแซง
+                    {{$orgInfos['org_name']}}
                 </div>
                 </div>
             </div>
@@ -150,7 +150,8 @@
                  <hr>
                 <div class="row mb-2">
                     <div class="col-md-6 text-center" style="font-size: 0.75rem">
-                        <strong>เลขที่ธุรกรรม:</strong> {{ $transaction->kp_u_trans_no }}
+                        <strong>เลขที่ธุรกรรม:</strong> 
+                        <div style="font-size:0.7rem">{{ $transaction->kp_u_trans_no }}</div>
                     </div>
                     <div class="col-md-6 text-md-end" style="font-size: 0.8rem;text-align:center">
                         <strong>วันที่ทำรายการ:</strong> {{ $transaction->transaction_date->format('Y-m-d') }}
@@ -158,11 +159,20 @@
                 </div>
 
                 <div class="row mb-2">
-                    <div class="col-md-6">
+                    <div class="col-md-12">
                         <strong>ผู้ขาย:</strong> {{ $transaction->user_waste_pref->user->firstname }}
                         {{ $transaction->user_waste_pref->user->lastname }}
+                       <div class="text-end" style="font-size:0.85rem">
+                        เลขที่ {{ $transaction->user_waste_pref->user->address }}
+                        {{ $transaction->user_waste_pref->user->user_zone->zone_name }} 
+                        ต. {{ $transaction->user_waste_pref->user->user_tambon->tambon_name }} 
+                       <div> อ. {{ $transaction->user_waste_pref->user->user_district->district_name }} 
+                        จ. {{ $transaction->user_waste_pref->user->user_province->province_name }} 
+                        {{ $transaction->user_waste_pref->user->user_tambon->zipcode }} 
+                        </div>
+                    </div> 
                     </div>
-                    <div class="col-md-6 text-md-end">
+                    <div class="col-md-12">
                         <strong>ผู้บันทึก:</strong> {{ $transaction->recorder->firstname ?? 'N/A' }}
                         {{ $transaction->recorder->lastname ?? 'N/A' }}
                     </div>
@@ -178,20 +188,20 @@
                         <tbody>
                             @foreach ($transaction->details as $detail)
                                 <tr>
-                                    <td>
+                                    <td style="font-size: 0.8rem">
                                         {{ $detail->item->kp_itemsname ?? 'N/A' }}
-                                        <div class="d-flex justify-content-between">
-                                            <div>
+                                        <div class="d-flex justify-content-between " >
+                                            <div >
                                                 {{ number_format($detail->amount_in_units,2) }}
-                                                {{ $detail->pricePoint->kp_units_info->unitname ?? 'N/A' }}
+                                                <sup>{{ $detail->pricePoint->kp_units_info->unit_short_name ?? 'N/A' }}</sup>
                                                 x
-                                                {{ number_format($detail->price_per_unit, 2) }} บาท
+                                                {{ number_format($detail->price_per_unit, 2) }} <sup>บาท</sup>
                                                 = 
                                             
                                             </div>
                                             <div>
-                                                {{ number_format($detail->amount, 2) }} บาท
-                                                <div>{{ number_format($detail->points) }} คะแนน</div>
+                                                {{ number_format($detail->amount, 2) }} <sup>บาท</sup>
+                                                <div>{{ number_format($detail->points) }} <sup>คะแนน</sup></div>
                                             </div>
                                         </div>
                                       
@@ -212,26 +222,27 @@
                                 <span>{{ number_format($detail->amount_in_units,2) }}
                                                 {{ $detail->pricePoint->kp_units_info->unitname ?? 'N/A' }}</span>
                             </div>
-                            <div class="d-flex justify-content-between">
-                                <strong style="font-size: 0.9rem">คะแนนรวม:</strong>
-                                <span>{{ number_format($transaction->total_points) }} คะแนน</span>
-                            </div> --}}
-                            {{-- <hr class="my-2"> --}}
+                            --}}
                             <div class="d-flex justify-content-between text-success">
                                 <strong>ยอดรวมทั้งหมด:</strong>
                                 <span>{{ number_format($transaction->total_amount, 2) }} บาท
                                     <div>{{ number_format($transaction->total_points) }} คะแนน</div>
                                 </span>
                             </div>
+                            <hr class="my-2">
+                            <div class="d-flex justify-content-between">
+                                <strong style="font-size: 0.9rem">
+                                  {{ $transaction->cash_back == 1 ? 'รับเป็นเงินสด' : 'ฝากเข้าบัญชีธนาคารขยะ' }}  :
+                                </strong>
+                                <span>{{ number_format($transaction->total_amount, 2) }} บาท</span>
+                            </div> 
+                            
                         </div>
                     </div>
                 </div>
             </div>
             <div class="card-footer text-end">
-                {{-- <button class="btn btn-primary" onclick="window.print()">
-                    <i class="bi bi-printer-fill me-1"></i> พิมพ์ใบเสร็จ
-                </button> --}}
-                <button class="btn btn-success" onclick="aaa()">
+                 <button class="btn btn-success" onclick="aaa()">
                     <i class="bi bi-printer-fill me-1"></i> พิมพ์ใบเสร็จ
                 </button>
                 {{-- <button class="btn btn-success" id="downloadReceipt">

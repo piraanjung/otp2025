@@ -16,31 +16,31 @@
     </td>
     <td class="align-middle text-center">
         <input type="hidden" name="users[{{ $user->id }}][is_annual_collection]" value="0">
-        <div class="form-check form-check-inline">
+        {{-- <div class="form-check form-check-inline">
             <input class="form-check-input annual-coll-checkbox" type="checkbox" id="annual_coll_{{ $user->id }}" name="users[{{ $user->id }}][is_annual_collection]" value="1"
                 {{ optional($user->wastePreference)->is_annual_collection ? 'checked' : '' }}
                 >
             <label class="form-check-label" for="annual_coll_{{ $user->id }}">เก็บขยะรายปี</label>
-        </div>
+        </div> --}}
         <input type="hidden" name="users[{{ $user->id }}][is_waste_bank]" value="0">
         <div class="form-check form-check-inline">
             <input class="form-check-input waste-bank-checkbox" type="checkbox" id="waste_bank_{{ $user->id }}" name="users[{{ $user->id }}][is_waste_bank]" value="1"
-                {{ optional($user->wastePreference)->is_waste_bank ? 'checked' : '' }}
+                {{ $user->wastePreference[0]->is_foodwaste_bank ==1 ? 'checked' : '' }}
                 >
-            <label class="form-check-label" for="waste_bank_{{ $user->id }}">ธนาคารขยะ</label>
+            <label class="form-check-label" for="waste_bank_{{ $user->id }}">ธนาคารขยะเปียก</label>
         </div>
     </td>
     <td class="align-middle">
         
-        @if(optional($user->wastePreference)->is_annual_collection)
-            <a href="{{ route('keptkayas.waste_bins.index', $user->id) }}" class="btn btn-link text-info text-gradient px-0 mb-0 me-2">
+        @if(optional($user->wastePreference)->is_foodwaste_bank)
+            <a href="{{ route('foodwaste.waste_bins.index', $user->id) }}" class="btn btn-link text-info text-gradient px-0 mb-0 me-2">
                 <i class="fas fa-trash-alt me-1"></i> จัดการถังขยะ
             </a>
         @endif
-        <a href="{{ route('keptkayas.users.edit', $user->id) }}" class="btn btn-link text-secondary font-weight-bold text-xs px-0 mb-0 me-2">
+        <a href="{{ route('foodwaste.users.edit', $user->id) }}" class="btn btn-link text-secondary font-weight-bold text-xs px-0 mb-0 me-2">
                 <i class="fas fa-edit me-1"></i> แก้ไข
             </a>
-        <form action="{{ route('keptkayas.users.destroy', $user->id) }}" method="POST" class="d-inline">
+        <form action="{{ route('foodwaste.users.destroy', $user->id) }}" method="POST" class="d-inline">
             @csrf
             @method('DELETE')
             <button type="submit" class="btn btn-link text-danger text-gradient px-0 mb-0" onclick="return confirm('คุณแน่ใจหรือไม่ที่จะลบผู้ใช้งานนี้?')">

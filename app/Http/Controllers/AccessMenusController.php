@@ -5,21 +5,18 @@ namespace App\Http\Controllers;
 use App\Http\Controllers\Api\UsersController;
 use App\Http\Controllers\Tabwater\ReportsController;
 use App\Models\Admin\BudgetYear;
-use App\Models\Admin\ManagesTenantConnection;
 use App\Models\Admin\Organization;
-use App\Models\Admin\Subzone;
 use App\Models\Admin\Zone;
 use App\Models\Tabwater\TwInvoice;
 use App\Models\User;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
-use Illuminate\Support\Facades\Config;
-use Illuminate\Support\Facades\DB;
 
 class AccessMenusController extends Controller
 {
     public function accessmenu(Request $request)
     {
+        
         $userAgent = $_SERVER['HTTP_USER_AGENT'] ?? '';
 
         // ตรวจสอบคำที่บ่งชี้ถึงอุปกรณ์มือถือ

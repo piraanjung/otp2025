@@ -86,7 +86,6 @@
             Loading...
         </button>
     </div>
-
    
             <div class="card">
                 <div class="card-header">
@@ -132,7 +131,7 @@
                                 </td>
                                 <td>
                                     @foreach ($u_active as $item)
-                                   <div>  <a class="meternumber" href="{{route('admin.users.edit', ['user_id' => $item->id])}}">
+                                   <div>  <a class="meternumber" href="{{route('admin.users.edit', ['user_id' => $item->meter_id])}}">
                                             {{$item['meternumber']}} 
                                         </a>
                                     </div>
@@ -155,14 +154,14 @@
                                         <i class="fa fa-ellipsis-h text-secondary" aria-hidden="true"></i>
                                         </a>
                                         <ul class="dropdown-menu px-2 py-3 ms-sm-n4 ms-n5 " aria-labelledby="dropdownTable{{$u_active[0]->id}}"  data-popper-placement="left-start">
-                                            <li><a class="dropdown-item border-radius-md" href="{{route('admin.users.edit', ['user_id' => $item->id, 'addmeter' => 'addmeter'])}}">เพิ่มมิเตอร์ใหม่</a></li>
+                                            <li><a class="dropdown-item border-radius-md" href="{{route('admin.users.edit', ['user_id' => $item->meter_id, 'addmeter' => 'addmeter'])}}">เพิ่มมิเตอร์ใหม่</a></li>
                                              <li>
 
-                                            <a class="dropdown-item border-radius-md" href="{{route('usermeter_infos.edit_invoices', ['meter_id' => $item->id])}}">แก้ไขเลขมิเตอร์</a>
+                                            <a class="dropdown-item border-radius-md" href="{{route('usermeter_infos.edit_invoices', ['meter_id' => $item->meter_id])}}">แก้ไขเลขมิเตอร์</a>
                                             </li>
                                             {{-- <li>
 
-                                            <a class="dropdown-item border-radius-md destroy" href="{{route('usermeter_infos.edit_invoices', ['meter_id' => $item->id])}}">แก้ไขเลขมิเตอร์</a>
+                                            <a class="dropdown-item border-radius-md destroy" href="{{route('usermeter_infos.edit_invoices', ['meter_id' => $item->meter_id])}}">แก้ไขเลขมิเตอร์</a>
                                             </li> --}}
                                         </ul>
                                         </div>
@@ -214,6 +213,7 @@
                                 </td>
                                 <td class="text-right">
                                     @foreach ($user as $item)
+                                    {{-- @dd($item) --}}
                                     <div>{{$item['factory_no']}}</div>
                                     @endforeach
                                 </td>
@@ -221,7 +221,7 @@
                                     @foreach ($user as $item)
                                    <div>  
                                    @if($item->status == 'active')
-                                        <a class="meternumber" href="{{route('admin.users.edit', ['user_id' => $item->id])}}">
+                                        <a class="meternumber" href="{{route('admin.users.edit', ['user_id' => $item->meter_id])}}">
                                             {{$item['meternumber']}} 
                                         </a>
                                     @else
@@ -248,11 +248,11 @@
                                         <i class="fa fa-ellipsis-h text-secondary" aria-hidden="true"></i>
                                         </a>
                                         <ul class="dropdown-menu px-2 py-3 ms-sm-n4 ms-n5 " aria-labelledby="dropdownTable{{$user[0]->id}}"  data-popper-placement="left-start">
-                                            <li><a class="dropdown-item border-radius-md" href="{{route('admin.users.edit', ['user_id' => $item->id, 'addmeter' => 'addmeter'])}}">เพิ่มมิเตอร์ใหม่</a></li>
+                                            <li><a class="dropdown-item border-radius-md" href="{{route('admin.users.edit', ['user_id' => $item->meter_id, 'addmeter' => 'addmeter'])}}">เพิ่มมิเตอร์ใหม่</a></li>
                                             
                                             <li>
 
-                                            {{-- <a class="dropdown-item border-radius-md destroy" href="{{route('admin.users.destroy', ['user_id' => $item->id])}}">ยกเลิกการใช้งาน</a> --}}
+                                            {{-- <a class="dropdown-item border-radius-md destroy" href="{{route('admin.users.destroy', ['user_id' => $item->meter_id])}}">ยกเลิกการใช้งาน</a> --}}
                                             </li>
                                         </ul>
                                         </div>

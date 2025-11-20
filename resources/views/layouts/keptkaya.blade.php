@@ -92,6 +92,12 @@
         .btn-group-sm>.btn i, .btn.btn-sm i {
             font-size: 1rem
         }
+
+        .disabled{
+            cursor: not-allowed;
+            opacity: 0.1;
+        }
+        
     </style>
     <script src="https://code.jquery.com/jquery-3.7.0.js"></script>
     <script src="https://cdn.datatables.net/1.13.6/js/jquery.dataTables.min.js"></script>

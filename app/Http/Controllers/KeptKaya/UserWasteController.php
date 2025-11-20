@@ -10,6 +10,7 @@ use App\Services\UserWasteStatusService;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Log;
 
 class UserWasteController extends Controller
@@ -21,6 +22,7 @@ class UserWasteController extends Controller
         $this->wasteStatusService = $wasteStatusService;
     }
 
+  
     /**
      * Display a listing of the resource.
      */
@@ -45,8 +47,9 @@ class UserWasteController extends Controller
 
 
         $query = User::with(['wastePreference', 'wasteBins'])
-            ->where('org_id_fk', Auth::user()->org_id_fk)
-            ->role('User');
+                ->where('org_id_fk', Auth::user()->org_id_fk)
+               ->whereHas('wastePreference')
+                ->role('User');
 
         // Apply search filters
         $query->when($searchName, function ($q, $name) {
@@ -99,7 +102,7 @@ class UserWasteController extends Controller
             }
         });
 
-
+        $query = $query->whereHas('wastePreference');
         // Check if it's an AJAX request for live search
         if ($request->ajax()) {
             // For AJAX, just get the filtered data (no pagination for simplicity in AJAX update)
@@ -123,6 +126,7 @@ class UserWasteController extends Controller
 
     public function waste_bin_users(Request $request)
     {
+        // return $request;
         // Get the 'per_page' value from the request, default to 10
         $perPage = $request->input('per_page', 10);
 
@@ -237,11 +241,13 @@ class UserWasteController extends Controller
             ]);
         } else {
             $validatedData = $request->validate([
-                'name' => 'required|string|max:255',
+                'firstname' => 'required|string|max:255',
+                'lastname' => 'required|string|max:255',
                 'email' => 'required|string|email|max:255|unique:users',
                 'password' => 'required|string|min:8|confirmed',
             ]);
         }
+
 
         if ($request->mode == 'batch_select') {
             foreach ($validatedData['selected_user_ids'] as $selected_user_id) {
@@ -257,10 +263,17 @@ class UserWasteController extends Controller
             DB::transaction(function () use ($validatedData) {
 
                 $user = User::create([
-                    'name' => $validatedData['name'],
-                    'email' => $validatedData['email'],
-                    'password' => bcrypt($validatedData['password']),
+                    'firstname'     => $validatedData['firstname'],
+                    'lastname'      => $validatedData['lastname'],
+                    'email'         => $validatedData['email'],
+                    'password'      => Hash::make($validatedData['password']),
+                    'org_id_fk'     => Auth::user()->org_id_fk,
+                    'tambon_code'   => Auth::user()->tambon_code,
+                    'district_code' => Auth::user()->district_code,
+                    'province_code' => Auth::user()->province_code,
                 ]);
+
+                $user->assignRole('User');
 
                 // สร้าง UserWastePreference เริ่มต้นสำหรับผู้ใช้ใหม่
                 $user->wastePreference()->create([

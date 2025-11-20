@@ -2,7 +2,6 @@
 
 namespace App\Http\Controllers;
 
-use App\Models\Admin\ManagesTenantConnection;
 use App\Models\KeptKaya\KPAccounts;
 use App\Models\KeptKaya\KpShopCategory;
 use App\Models\KeptKaya\KpShopProduct;
@@ -13,7 +12,6 @@ use Carbon\Carbon;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Session;
-use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Str;
 
 class KpMemberShopController extends Controller
@@ -23,7 +21,6 @@ class KpMemberShopController extends Controller
      */
     public function index(Request $request)
     {
-                ManagesTenantConnection::configConnection(session('db_conn'));
 
         $user= User::find(Auth::id());
         

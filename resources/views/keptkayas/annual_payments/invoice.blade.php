@@ -1,5 +1,11 @@
 @extends('layouts.keptkaya')
-
+@section('page-topic', 'ออกใบแจ้งหนี้')
+@section('nav-current', 'ออกใบแจ้งหนี้')
+@section('nav-keptkayas.annual_payments.invoice', 'active')
+@section('route-header')
+ {{ route('keptkayas.annual_payments.index') }}
+@endsection
+@section('nav-main', 'ออกใบแจ้งหนี้')
 @section('content')
     <div class="container my-5">
         <div class="card shadow-lg">

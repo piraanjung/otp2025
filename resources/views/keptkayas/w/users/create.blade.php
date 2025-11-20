@@ -151,7 +151,9 @@
                                 <input type="hidden" name="mode" value="batch_select"> 
 
                                 <p class="text-sm text-muted">เลือกผู้ใช้งานที่มี Role เป็น User และยังไม่ได้เป็นสมาชิกธนาคารขยะ เพื่อเพิ่มเป็นสมาชิก</p>
-
+                                <button type="submit" class="btn bg-gradient-success mb-4" id="batch-add-btn" disabled>
+                                    เพิ่มสมาชิกที่เลือก
+                                </button>
                                 <div class="table-responsive">
                                     <table class="table align-items-center mb-0">
                                         <thead>
@@ -204,9 +206,7 @@
                                         </tbody>
                                     </table>
                                 </div>
-                                <button type="submit" class="btn bg-gradient-success mt-4" id="batch-add-btn" disabled>
-                                    เพิ่มสมาชิกที่เลือก
-                                </button>
+                               
                             </form>
                         </div>
                     </div>
