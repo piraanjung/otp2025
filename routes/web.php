@@ -30,6 +30,7 @@ use Illuminate\Support\Facades\Route;
 use Illuminate\Support\Facades\Auth;
 use App\Http\Controllers\SqlToJsonController;
 use App\Http\Controllers\StaffController;
+use App\Http\Controllers\Tabwater\NotifyController;
 use App\Http\Controllers\Tabwater\TwManMobileController;
 use App\Http\Controllers\Tabwater\TwPricingTypeController;
 use App\Http\Controllers\Tabwater\UndertakerSubzoneController;
@@ -98,6 +99,11 @@ Route::prefix('staffs')->name('keptkayas.staffs.')->group(function () {
     Route::delete('/{staff}', [StaffController::class, 'destroy'])->name('destroy');
 });
 
+Route::prefix('zones')->name('zones.')->group(function () {
+    Route::get('/getzones/{tambon_id}', [ZoneController::class, 'getZones'])->name('getzones');
+
+});
+
 Route::prefix('tabwater/staff/mobile/')->name('tabwater.staff.mobile.')->group(function () {
     Route::get('{subzone_id}/{status}/members',[ StaffMobileController::class, 'members'])->name('members');
     Route::get('{subzone_id}/membersJson',[ StaffMobileController::class, 'membersJson'])->name('membersJson');
@@ -106,6 +112,11 @@ Route::prefix('tabwater/staff/mobile/')->name('tabwater.staff.mobile.')->group(f
     Route::resource('/',StaffMobileController::class);
    
    
+});
+
+Route::prefix('tabwater/notify')->name('tabwater.notify.')->group(function () {
+    Route::get('/', [NotifyController::class, 'index'])->name('index');
+    Route::post('/', [NotifyController::class, 'store'])->name('store');
 });
 
 Route::get('twmanmobile', [TwManMobileController::class, 'index'])->name('twmanmobile');
@@ -148,6 +159,7 @@ Route::middleware(['auth', 'role:Admin|Super Admin'])->name('admin.')->prefix('a
         Route::delete('{user}/roles/{role}', [UserController::class, 'removeRole'])->name('roles.remove');
         Route::get('{user_id}/permissions', [UserController::class, 'givePermission'])->name('permissions');
         Route::delete('{user}/permissions/{permission}', [UserController::class, 'revokePermission'])->name('permissions.revoke');
+        
 
     });
     

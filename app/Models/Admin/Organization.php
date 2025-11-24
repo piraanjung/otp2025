@@ -4,7 +4,7 @@ namespace App\Models\Admin;
 
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
-
+use App\Models\User;
 class Organization extends Model
 {
     use HasFactory; // 👈 เพิ่ม Trait นี้เข้ามา
@@ -91,6 +91,10 @@ class Organization extends Model
     {
         $organization = (new Organization())->setConnection('envsogo_main')->where('org_code', $org_id_code)
         ->get(['id', 'org_dabase'])->first();
+    }
+
+    public  function users(){
+        return $this->hasMany(User::class, 'org_id_fk');
     }
 
 }

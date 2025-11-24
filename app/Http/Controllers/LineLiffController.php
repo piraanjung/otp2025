@@ -2,7 +2,6 @@
 
 namespace App\Http\Controllers;
 
-use App\Models\Admin\ManagesTenantConnection;
 use App\Models\Admin\Organization;
 use App\Models\Admin\Province;
 use App\Models\KeptKaya\KPAccounts;
@@ -11,7 +10,6 @@ use App\Models\Tabwater\SequenceNumber;
 use App\Models\User;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
-use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
 use SimpleSoftwareIO\QrCode\Facades\QrCode;
 
@@ -20,7 +18,10 @@ class LineLiffController extends Controller
     public function index(){
        
         $provinces = Province::all();
-        return view('lineliff.index', compact('provinces'));
+        $orgs = Organization::
+        with('provinces', 'districts', 'tambons')
+        ->get(['id', 'org_type_name', 'org_name', 'org_tambon_id_fk', 'org_district_id_fk', 'org_province_id_fk']);
+        return view('lineliff.index', compact('provinces', 'orgs'));
         
     }
 

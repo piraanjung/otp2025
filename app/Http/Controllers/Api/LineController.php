@@ -53,16 +53,20 @@ class LineController extends Controller
 
     public function user_line_register(Request $request)
     {
-        $seqNumber = SequenceNumber::where('id', 1)->get('user')->first();
+
         $user =User::create([
-            'firstname' => $request->displayName,
-            'line_id' => $request->line_user_id,
-            'image' => $request->line_user_image,
-            'phone' => $request->phoneNum,
-            'tambon_code' => $request->tambon_id,
+            'firstname'     => $request->firstname,
+            'lastname'      => $request->lastname,
+            'line_id'       => $request->line_user_id,
+            'image'         => $request->line_user_image,
+            'phone'         => $request->phoneNum,
+            'tambon_code'   => $request->tambon_id,
             'district_code' => $request->district_id,
             'province_code' => $request->province_id,
-            'org_id_fk' => $request->org_id,
+            'org_id_fk'     => $request->org_id,
+            'zone_id'       => $request->zone_id,
+            'address'       => $request->address,
+            'subzone_id' => $request->subzone_id,
             'created_at' => date('Y-m-d H:i:s'),
             'updated_at' => date('Y-m-d H:i:s'),
         ]);
@@ -77,9 +81,6 @@ class LineController extends Controller
 
         (new KPAccounts())->registerAccount($userWastPref->id) ;
 
-        // SequenceNumber::where('id', 1)->update([
-        //     'user' => $seqNumber->user + 1
-        // ]);
         return response()->json([
             'res' => 1,
             'waste_pref_id' => $userWastPref->id

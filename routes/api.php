@@ -73,6 +73,8 @@ Route::middleware(['throttle:api'])->name('api.')->group(function () {
         Route::get('/delete/{id}', [SubzoneController::class, 'delete'])->name('subzone.delete');
         Route::get('/get_members_subzone_infos/{zone_id}', 'Api\SubzoneController@get_members_subzone_infos');
         Route::get('/get_members_last_inactive_invperiod/{zone_id}', 'Api\SubzoneController@get_members_last_inactive_invperiod');
+        Route::get('/get_subzones_in_zone/{zone_id}', [SubzoneController::class, 'get_subzones_in_zone']);
+        
     });
 
     Route::prefix('zone')->group(function () {
@@ -141,7 +143,7 @@ Route::middleware(['throttle:api'])->name('api.')->group(function () {
     
     Route::get('/get_districts/{province_id}', [apiFunctionsController::class,'getDistricts']);
     Route::get('/get_tambons/{district_id}', [FunctionsController::class,'getTambons']);
-    Route::get('/get_org/{tambon_id}', [FunctionsController::class,'getOrgName']);
+    Route::get('/get_org/{tambon_id}', [FunctionsController::class,'get OrgName']);
 
     // Route::prefix('cutmeter')->group(function () {      
     //     Route::get('/index/{zone_id?}/{subzone_id?}', [CutmeterController::class,'index']);

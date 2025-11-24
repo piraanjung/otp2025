@@ -6,8 +6,8 @@ $fnc = new FunctionsController();
 $exp = explode(' ', $invoicesPaidForPrint[0]->acc_transactions->updated_at);
 $receipt_th_date = $fnc->engDateToThaiDateFormat($exp[0]);
 ?>
-<div class="row  pr-2">
-    <div class="col-9" style="border: 1px solid black">
+<div class="row">
+    <div class="col-9">
         <div class="text-center head pt-2 pb-2 header-bg">
          ต้นขั้วใบเสร็จรับเงิน/ใบกำกับภาษี
             {{-- &nbsp; --}}
@@ -17,155 +17,153 @@ $receipt_th_date = $fnc->engDateToThaiDateFormat($exp[0]);
             </div>
         </div>
     </div>
-    <div class="col-3" style="border: 1px solid black">
-        <div colspan="2" class="text-center head2 pt-2 pb-2">
-            <div class="tax_number header-bg pt-1">
+    <div class="col-3">
+        <div colspan="2" class="text-center">
+            <div class="tax_number">
                  เลขที่ 
                 {{-- &nbsp; --}}
             </div>
-            <div class="text-danger" style="font-size: 1.4rem; font-weight:bolder">
+            <div class="text-danger">
                 {{-- &nbsp; --}}
                 00000001
             </div>
         </div>
     </div>
 </div>
-<div  class="row pr-2">
-        <div class="col-9 test text-left text-primary row2">
+<div  class="row">
+        <div class="col-9 ">
             เทศบาลตำบลขามป้อม
             {{-- &nbsp; --}}
-            <div class="address2">
-                222 หมู่ 17 ตำบลขามป้อม อำเภอพระยืน จังหวัดขอนแก่น 40003
+            <div>222 หมู่ 17 ตำบลขามป้อม อำเภอพระยืน จังหวัดขอนแก่น 40003</div>
                 {{-- &nbsp; --}}
-            </div>
         </div>
-        <div class="col-3 test text-center pt-0 pb-0 row2">
+        <div class="col-3">
             <div>{{ $receipt_th_date }}</div>
-            @if ($receipt_th_date < $fnc->engDateToThaiDateFormat(date('Y-m-d')))
+            {{-- @if ($receipt_th_date < $fnc->engDateToThaiDateFormat(date('Y-m-d'))) --}}
                 <div style="font-size: 0.8rem;"> ( ปริ้น: {{ $fnc->engDateToThaiDateFormat(date('Y-m-d')) }} ) </div>
-            @endif
+            {{-- @endif --}}
         </div>
 </div>
- <div class="row pr-2">
+ <div class="row">
     <div class="col-9">
-        <div class="row">
-            <div class="col-3 waterUsedHisHead  test header-bg">
-            ชื่อผู้ใช้น้ำ
-            {{-- &nbsp; --}}
+      
+            <div>
+                ชื่อผู้ใช้น้ำ
+                {{-- &nbsp; --}}
             </div>
-            <div class="col-9 test">
+            <div>
                 {{ $invoicesPaidForPrint[0]->tw_meter_infos->user->prefix . '' . $invoicesPaidForPrint[0]->tw_meter_infos->user->firstname . ' ' . $invoicesPaidForPrint[0]->tw_meter_infos->user->lastname }}
             </div>
-         <div class="col-3 waterUsedHisHead  test header-bg">
-            ที่อยู่
-            &nbsp;
-         </div>
-            <div class="col-9 test">
-            {{ $invoicesPaidForPrint[0]->tw_meter_infos->meter_address }}
-            {{ $invoicesPaidForPrint[0]->tw_meter_infos->undertake_subzone->subzone_name }}
-            ต.{{ $invoicesPaidForPrint[0]->tw_meter_infos->user->user_tambon->tambon_name }}
-            อ.{{ $invoicesPaidForPrint[0]->tw_meter_infos->user->user_district->district_name }}
-            จ.{{ $invoicesPaidForPrint[0]->tw_meter_infos->user->user_province->province_name }}
-            {{ $invoicesPaidForPrint[0]->tw_meter_infos->user->user_tambon->zipcode }}
+
+            <div>
+                ที่อยู่
+                &nbsp;
+            </div>
+            <div>
+                {{ $invoicesPaidForPrint[0]->tw_meter_infos->meter_address }}
+                {{ $invoicesPaidForPrint[0]->tw_meter_infos->undertake_subzone->subzone_name }}
+                ต.{{ $invoicesPaidForPrint[0]->tw_meter_infos->user->user_tambon->tambon_name }}
+                อ.{{ $invoicesPaidForPrint[0]->tw_meter_infos->user->user_district->district_name }}
+                จ.{{ $invoicesPaidForPrint[0]->tw_meter_infos->user->user_province->province_name }}
+                {{ $invoicesPaidForPrint[0]->tw_meter_infos->user->user_tambon->zipcode }}
             </div>
 
-        </div>
     </div>
        
 
-        <div  class=" col-3 text-center test border-right-none border-bottom-none">
+        <div  class="col-3">
             {{-- &nbsp; --}} 
-            <img src="{{ asset('/logo/khampom.png') }}" width="100">
+            <img class="org_logo" src="{{ asset('/logo/khampom.png') }}">
         </div>
     </div>
- <div class="row pr-2">
-
-        <div  class="col-2 waterUsedHisHead test pl-2 header-bg">
+ <div class="row">
+        <div  class="col-3">
             เลขผู้ใช้มิเตอร์
             &nbsp;
         </div>
         
         <?php $sunmeter_name  = $invoicesPaidForPrint[0]->tw_meter_infos->submeter_name == "" ? "" : " (".$invoicesPaidForPrint[0]->tw_meter_infos->submeter_name.")"; ?>
-        <div  class="col-4 text-center test pl-1"> {{ $invoicesPaidForPrint[0]->tw_meter_infos->user_id."".$sunmeter_name }}</div>
-        <div  class="col-2 waterUsedHisHead test pl-2 header-bg">
+        <div  class="col-3"> {{ $invoicesPaidForPrint[0]->tw_meter_infos->user_id."".$sunmeter_name }}</div>
+        <div  class="col-3">
             เลขมิเตอร์
             &nbsp;
         </div>
-        <div  class="col-4 test text-center">
+        <div  class="col-3 test text-center">
             {{ $fnc->createInvoiceNumberString($invoicesPaidForPrint[0]->tw_meter_infos->meter_id) }} /
             <span
                 style="font-size: 0.8rem">{{ $fnc->createNumberString($invoicesPaidForPrint[0]->id, 'B') }}</span>
         </div>
 </div><!--row-->
- <div class="d-flex align-content-center ">
-        <div style="padding: 0.15rem;width:10%" class="test waterUsedHisHead2 header-bg text-center">
+
+
+ <div class="d-flex mt-4" id="table_title">
+        <div>
                 ประจำเดือน
         </div>
-        <div style="padding: 0.15rem;width:15%" class="test waterUsedHisHead2 header-bg text-center">
+        <div>
                 วันที่จดมาตร
         </div>
-        <div style="padding: 0.15rem;width:10%" class="test waterUsedHisHead2 header-bg text-center">
+        <div>
            
                 มิเตอร์ปัจจุบัน
-           <div> <sup>
+           <sup>
                     {{-- &nbsp;  --}}
                     (หน่วย)
                 </sup>
-           </div>
-        </div>
-        <div style="padding: 0.15rem;width:10%" class="test waterUsedHisHead2 header-bg text-center">
            
-                <div> มิเตอร์</div>
-                <div>ครั้งก่อน</div>
-            <div><sup>
+        </div>
+        <div>
+           
+                 มิเตอร์
+                ครั้งก่อน
+            <sup>
                     {{-- &nbsp;  --}}
                     (หน่วย)
-                </sup></div>
+                </sup>
         </div>
-        <div style="padding: 0.15rem;width:9%" class="test waterUsedHisHead2 header-bg text-center">
+        <div>
            
-            <div>จำนวน</div>
-            <div>น้ำที่ใช้</div>
-            <div><sup>
+            จำนวน
+            น้ำที่ใช้
+            <sup>
                     {{-- &nbsp;  --}}
                     (หน่วย)
-                </sup></div>
+                </sup>
         </div>
-        <div style="padding: 0.15rem;width:10%" class="test waterUsedHisHead2 header-bg text-center">
+        <div>
                 {{-- &nbsp;  --}}
                 ค่าน้ำประปา
-            <div><sup>
+            <sup>
                     {{-- &nbsp;  --}}
                     (บาท)
-                </sup></div>
+                </sup>
         </div>
-        <div style="padding: 0.15rem;width:10%" class="test waterUsedHisHead2 header-bg text-center">
+        <div>
                 {{-- &nbsp;  --}}
                 ค่ารักษามิเตอร์
-            <div><sup>
+            <sup>
                     {{-- &nbsp;  --}}
                     (บาท)
-                </sup></div>
+                </sup>
         </div>
-        <div style="padding: 0.15rem;width:9%" class="test waterUsedHisHead2 header-bg text-center">
+        <div id="vat">
            
                 {{-- &nbsp;  --}}
-                <div>
+              
                 Vat&nbsp;7%
-                </div>
-                <div>
+               
                 <sup>
                     {{-- &nbsp;  --}}
                     (บาท)
-                </sup></div>
+                </sup>
         </div>
-        <div style="padding: 0.15rem;width:17%" class="test waterUsedHisHead2 header-bg text-center">
+        <div>
             
                 จำนวนเงิน
-            <div><sup>
+            <sup>
                     {{-- &nbsp;  --}}
                     (บาท)
-                </sup></div>
+                </sup>
         </div>
     </div>
     @for ($i = 0; $i < 6; $i++)

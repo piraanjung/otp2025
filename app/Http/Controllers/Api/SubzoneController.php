@@ -8,6 +8,7 @@ use App\Models\Tabwater\Invoice;
 use App\Models\Admin\Subzone;
 use App\Models\Admin\Zone;
 use Exception;
+use Illuminate\Contracts\Support\Responsable;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 
@@ -22,9 +23,7 @@ class SubzoneController extends Controller
         if(!in_array('all',$request->get('zone_id'))){
             $subzones = $subzones->whereIn('zone_id', $request->get('zone_id'));
         }
-        //else{
-        //     $subzones = $subzones->whereIn('zone_id', '<>', 0);
-        // }
+      
         $subzones = $subzones->get()->sortBy('zone_id');
         return response()->json(collect($subzones)->flatten());
     }
@@ -166,5 +165,10 @@ class SubzoneController extends Controller
         } catch (Exception $e) {
             return 0;
         }
+    }
+    
+    public function get_subzones_in_zone($zone_id){
+        $subzones = Subzone::where('zone_id', $zone_id)->get(['id', 'subzone_name']);
+        return response()->json($subzones);
     }
 }

@@ -327,7 +327,7 @@
     }
 
     .hidden {
-      display: none
+      display: none !important
     }
 
     .select2 {
@@ -569,38 +569,82 @@
     </div>
   </div>
 
-  <div id="phone_div" class="hidden m-3">
+  <div id="phone_div" class=" m-3 hidden">
     <div class="card">
       <div class="card-body">
         <div class="h4">ท่านยังไม่ได้เป็นสมาชิก</div>
         <div class="h6">กรอกข้อมูลเพื่อทำการลงทะเบียน</div>
         <form>
+         <div class="form-group">
+            <label for="label" id="org_label">อบต./เทศบาล(ที่ท่านสังกัด)</label>
+            <select name="orgs_lists" id="orgs_lists" class="select2" required>
+              <option value="">เลือก...</option>
+              @foreach ($orgs as $key => $org)
+                <option value="{{ $key }}">{{ $org->org_type_name.$org->org_name.':'.$org->districts->district_name }}</option>
+              @endforeach
+            </select>
+             <input type="hidden" name="org_id" id="org_id">
+          </div>
           <div class="form-group d-flex flex-row">
             <label for="exampleFormControlSelect1" class="w-25">จังหวัด</label>
-            <select name="province_id" id="province_id" class="select2" required>
-              <option value="">เลือก...</option>
+            <select name="province_id" id="province_id" class="select2" disabled required>
+              {{-- <option value="">เลือก...</option>
               @foreach ($provinces as $province)
                 <option value="{{ $province->id }}">{{ $province->province_name }}</option>
-              @endforeach
+              @endforeach --}}
             </select>
           </div>
 
           <div class="form-group d-flex flex-row justify-content-between">
             <label for="" class="w-25">อำเภอ</label>
-            <select name="district_id" id="district_id" class="select2"></select>
+            <select name="district_id" id="district_id" class="select2" disabled></select>
           </div>
           <div class="form-group d-flex flex-row">
             <label for="" class="w-25">ตำบล</label>
-            <select name="tambon_id" id="tambon_id" class="select2" required></select>
+            <select name="tambon_id" id="tambon_id" class="select2" required disabled></select>
           </div>
 
-          <div class="form-group">
-            <label for="label" id="org_label">อบต./เทศบาล(ที่ท่านสังกัด)</label>
-            <div id="org_name" class="h5" style="text-align:center; border: #0170bb 1px solid; border-radius: 10px 10px;">
-              &nbsp;-
-            </div>
-            <input type="hidden" name="org_id" id="org_id">
+          <div class="form-group  d-flex flex-row">
+            <label for="label" id="zone_label" class="w-25">หมู่ที่</label>
+            <select name="zone_id" id="zone_id" class="select2" required></select>
+          </div>
+          <div class="form-group  d-flex flex-row">
+            <label for="label" id="subzone_label" class="w-25">ซอย</label>
+            <select name="subzone_id" id="subzone_id" class="select2" required></select>
+          </div>
+           <div class="form-group  d-flex flex-row">
+              <div class="text-center">
+                <input type="radio" id="new_member" class="" checked name="member_status" value="new_member">
+                <label for="new_member">สมาชิกใหม่</label>
+              </div>
+              <div class="text-center">
+                <input type="radio" id="old_member" class="" name="member_status" value="old_member">
+                <label for="old_member">เป็นสมาชิกเทศบาล/อบต.</label>
+              </div>
+          </div>
+
          
+          
+          <div class="form-group  d-flex flex-row hidden" id="old_member_div">
+            <label for="label" id="user_label" class="w-25">ชื่อ-สกุล</label>
+            <select name="user_id" id="user_id" class="select2" required></select>
+          </div>
+
+           <div class="form-group  d-flex flex-row" id="new_member_div">
+              <div class="text-center">
+                <label for="new_member">ชื่อ</label>
+                <input type="text" name="firstname" class="form-control" id="firstname">
+
+              </div>
+              <div class="text-center">
+                <label for="be_member">สกุล</label>
+                <input type="text" name="lastname" class="form-control" id="lastname">
+
+              </div>
+          </div>
+         <div class="form-group">
+            <label for="">บ้านเลขที่</label>
+            <input type="text" name="address" id="address"  class="form-control" required>
           </div>
           <div class="form-group">
             <label for="">หมายเลขโทรศัพท์</label>
@@ -608,14 +652,6 @@
           </div>
         </form>
         <input type="button" value="สมัครใช้งานระบบ" id="phone_search_btn" class="btn btn-info m-2">
-
-
-
-
-
-
-
-
       </div>
     </div>
   </div>
@@ -722,12 +758,14 @@
       window.location.href = '/line'
     }
 
+    
+
     $('#phone_search_btn').on('click',  function () {//async
       let phone = phone_text.value;
       let line_user_image = (profile.pictureUrl).replace("https://profile.line-scdn.net/", "");
       console.log(
         {
-           phoneNum    : phone,
+          phoneNum    : phone,
           province_id :  province_id_text.value,
           district_id : district_id_text.value,
           tambon_id   : tambon_id_text.value,
@@ -747,6 +785,11 @@
           line_user_id: profile.userId,
           displayName : profile.displayName,
           line_user_image: line_user_image,
+          firstname : $('#firstname').val(),
+          lastname : $('#lastname').val(),
+          address : $('#address').val(),
+          zone_id:$('#zone_id').val(),
+          subzone_id:$('#subzone_id').val(),
         }, function (data) {
           console.log('data',data)
           if (data.res == 1) {
@@ -780,50 +823,116 @@
       //   })
     })
 
-    $('#province_id').change(function () {
-      let id = $(this).val()
-      console.log('ssd', id)
-      $.get(`/api/get_districts/${id}`).done(function (data) {
-        console.log('province_id', data)
-        let text = `<option>เลือก ..</option>`
-        data.forEach(element => {
-          text += `<option value="${element.id}">${element.district_name}</option>`
+    const organizations = @json($orgs);
+    $('#orgs_lists').change(function(){
+
+      let id = $(this).val(); // Get the ID
+      let selectedOrg = organizations[id];
+      $('#org_id').val(selectedOrg.id)
+      $('#province_id').html(`<option value="${selectedOrg.provinces.id}">${selectedOrg.provinces.province_name}</option>`)
+      $('#district_id').html(`<option value="${selectedOrg.districts.id}">${selectedOrg.districts.district_name}</option>`)
+      $('#tambon_id').html(`<option value="${selectedOrg.tambons.id}">${selectedOrg.tambons.tambon_name}</option>`)
+      
+       $.get(`/zones/getzones/${selectedOrg.tambons.id}`).done(function (data) {
+        let text = `<option>เลือก...</option>`
+        data.zones.forEach(element => {
+          text += `<option value="${element.id}">${element.zone_name} ${element.location}</option>`
         });
 
-        $('#district_id').html(text)
+        $('#zone_id').html(text)
       });
+    });
 
-    })
+    $('#zone_id').change(function(){
+        //get subzone
+        let zone_id = $(this).val();
+        $.get('/api/subzone/get_subzones_in_zone/'+zone_id, function(subzones){
+          console.log('subzonedata',);
+           let text = '<option>เลือก ...</option>'
+          subzones.forEach(ele =>{
+            text += `<option value="${ele.id}">${ele.subzone_name}</option>`;
+          });
+          $('#subzone_id').html(text)
 
-    $('#district_id').change(function () {
-      let id = $(this).val()
-      $.get(`/api/get_tambons/${id}`).done(function (data) {
-        console.log('tab', data)
-        let text = `<option>เลือก ..</option>`
-        data.forEach(element => {
-          text += `<option value="${element.id}">${element.tambon_name}</option>`
         });
+        //get  user ใน subzone
+        $.get('/api/zone/users_by_zone/'+zone_id, function(data){
+          let text = '<option>เลือก ...</option>'
+          data.forEach(ele =>{
+            text += `<option value="${ele.id}">${ele.firstname} ${ele.lastname} : ${ele.phone}:${ele.address}}</option>`;
+          });
+          $('#user_id').html(text)
 
-        $('#tambon_id').html(text)
-      });
+        })
+    })
+
+    $('#user_id').change(function(){
+      const selectedOptionText = $('#user_id').find('option:selected').text();      
+      let splitTxt = selectedOptionText.split(":")
+      let name = splitTxt[0].split(" ")
+      $('#firstname').val(name[0])
+      $('#lastname').val(name[1])
+      $('#phone').val(splitTxt[1])
+      $('#address').val(splitTxt[2])
+    })
+
+    $('#old_member').click(function(){
+      $('#old_member_div').removeClass('hidden')
+      // $('#new_member_div').addClass('hidden')
+      // $('user_id').val("")
 
     })
 
-    $('#tambon_id').change(function () {
-      let id = $(this).val()
-      console.log('id',id)
-      $.get(`/api/get_org/${id}`).done(function (data) {
-        console.log('tabๆ', data)
-        // let text = `<option value="${data[0].id}" selected>${data[0].org_name}</option>`
-        // data.forEach(element => {
-        //   text += `<option value="${element.id}">${element.tambon_name}</option>`
-        // });
-        $('#org_label').html(data[0].org_type_name)
-        $('#org_name').html(data[0].org_name)
-        $('#org_id').val(data[0].id)
-      });
-
+     $('#new_member').click(function(){
+      $('#old_member_div').addClass('hidden')
+      // $('#new_member_div').removeClass('hidden')
+      $('phone').val("")
     })
+
+    // $('#province_id').change(function () {
+    //   let id = $(this).val()
+    //   console.log('ssd', id)
+    //   $.get(`/api/get_districts/${id}`).done(function (data) {
+    //     console.log('province_id', data)
+    //     let text = `<option>เลือก ..</option>`
+    //     data.forEach(element => {
+    //       text += `<option value="${element.id}">${element.district_name}</option>`
+    //     });
+
+    //     $('#district_id').html(text)
+    //   });
+
+    // })
+
+    // $('#district_id').change(function () {
+    //   let id = $(this).val()
+    //   $.get(`/api/get_tambons/${id}`).done(function (data) {
+    //     console.log('tab', data)
+    //     let text = `<option>เลือก ..</option>`
+    //     data.forEach(element => {
+    //       text += `<option value="${element.id}">${element.tambon_name}</option>`
+    //     });
+
+    //     $('#tambon_id').html(text)
+    //   });
+
+    // })
+
+    // $('#tambon_id').change(function () {
+    //   let id = $(this).val()
+    //   console.log('id',id)
+    //   $.get(`/api/get_org/${id}`).done(function (data) {
+    //     console.log('tabๆ', data)
+    //     // let text = `<option value="${data[0].id}" selected>${data[0].org_name}</option>`
+    //     // data.forEach(element => {
+    //     //   text += `<option value="${element.id}">${element.tambon_name}</option>`
+    //     // });
+    //     $('#org_label').html(data[0].org_type_name)
+    //     $('#org_name').html(data[0].org_name)
+    //     $('#org_id').val(data[0].id)
+    //   });
+
+    // })
     $(document).ready(function () {
       $('.select2').select2();
     });

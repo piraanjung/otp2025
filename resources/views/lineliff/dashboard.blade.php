@@ -892,7 +892,7 @@
 }
 .menu a {
   text-decoration: dotted;
-  /* padding: 8px 8px 8px 20px; */
+  padding: 8px 8px 8px 20px;
   font-size: 20px;
   color: #000000;
   display: block;
@@ -940,10 +940,11 @@
   <a href="#">Home</a>
   <a href="#" class="main_bottom_nav" data-id="recycle">ขยะรีไซเคิล</a>
   <a href="#" class="main_bottom_nav" data-id="wet">ขยะเปียก</a>
-  <a href="#">งานประปา</a>
+  <a href="#" class="main_bottom_nav" data-id="tabwater">งานประปา</a>
   <a href="#">ตลาดชุมชน ออนไลน์</a>
-  <a href="#">Telegram</a>
-  <a href="#">Twitter</a>
+  
+  <br><br>
+  <a href="#">ออกจากระบบ</a>
 </div>
     <div class="app">
         <svg class="app__gradients" hidden>
@@ -971,11 +972,15 @@
                 <div class="main__date d-flex flex-row">
                     <img src="{{asset('logo/ko_envsogo.png')}}" alt="" style="width:35%">
                     <strong style="margin-top: 11%;">
-                        <span style="font-size:1.5rem; text-align: center; ">Envsogo</span>
+                        <span style="font-size:1.5rem; text-align: center; ">
+                            Envsogo
+                        </span>
                     </strong>
                 </div>
             </div>
-            <div class="kp div_recycle">
+            <div class="kp div_recycle hidden">
+                <h2>: ธนาคารขยะรีไซเคิล</h2>
+                <br>
                 <div class="main__stat-blocks">
                     <div class="main__stat-block main__stat-block--lg">
                         <div class="main__stat-graph main__stat-graph--filled">
@@ -988,14 +993,8 @@
                                     stroke-dashoffset="0" transform="rotate(-90,90,90)" />
                                 <circle class="ring-fill" cx="90" cy="90" r="0" fill="none" transform="rotate(-90,90,90)" />
                             </svg>
+
                             <div class="main__stat-detail">
-                                {{-- <svg role="img" aria-label="Footprints" class="icon" viewBox="0 0 36 36" height="36"
-                                    width="36" xmlns="http://www.w3.org/2000/svg">
-                                    <path class="no-fill" fill="none" stroke="#000" stroke-width="2"
-                                        d="M 14.831 17.296 C 13.365 17.803 12 18.046 10.142 18.623 C 10.87 27.73 19.472 24.186 14.831 17.296 Z M 14.236 15.036 C 14.26 13.771 14.191 12.55 14.74 11.349 C 15.362 10.06 15.461 8.925 15.115 7.054 C 14.493 3.647 13.171 1.521 11.389 1.055 C 7.586 0.499 7.113 4.24 7.022 6.974 C 6.812 8.503 8.106 15.054 9.669 16.162 C 11.205 15.77 12.713 15.386 14.236 15.036 Z" />
-                                    <path class="no-fill" fill="none" stroke="#000" stroke-width="2"
-                                        d="M 21.184 28.252 C 21.184 28.252 24.001 28.918 25.859 29.496 C 25.128 38.603 16.542 35.143 21.184 28.252 Z M 21.764 26.007 C 21.741 24.741 21.807 23.525 21.261 22.32 C 20.64 21.031 20.541 19.9 20.885 18.026 C 21.508 14.618 22.828 12.495 24.61 12.029 C 28.417 11.471 28.888 15.211 28.977 17.945 C 29.187 19.475 27.897 26.027 26.332 27.135 C 24.799 26.743 23.288 26.357 21.764 26.007 Z" />
-                                </svg> --}}
                                 <strong
                                     class="main__stat-value">{{ $userWastePref->purchase_transactions[0]->total_amounts ?? '0.00' }}</strong>
                                 <span class="main__stat-unit">ยอดเงินคงเหลือ</span>
@@ -1101,6 +1100,8 @@
                 </div>
             </div>
             <div class="kp div_wet hidden">
+                <h2>: ธนาคารขยะเปียก</h2>
+
                  <div class="main__stat-blocks">
                     <div class="main__stat-block main__stat-block--lg">
                         <div class="main__stat-graph main__stat-graph--filled">
@@ -1222,6 +1223,10 @@
                     </div>
 
                 </div>
+            </div>
+
+            <div class="kp div_tabwater ">
+                @include('lineliff/_tabwater')
             </div>
         </main>
         

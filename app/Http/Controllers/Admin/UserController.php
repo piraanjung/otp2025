@@ -533,4 +533,10 @@ class UserController extends Controller
 
         return redirect()->route('login')->with('success', 'Registration successful! Please log in.');
     }
+
+    public function users_by_subzone($subzone_id){
+        $users = User::where('subzone_id', $subzone_id)
+        ->get(['id', 'firstname', 'lastname', 'subzone_id']);
+        return response()->json($users);
+    }
 }

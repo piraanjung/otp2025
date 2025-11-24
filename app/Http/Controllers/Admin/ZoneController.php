@@ -95,4 +95,11 @@ class ZoneController extends Controller
         }
         return redirect()->back()->with(['message'=>$message, "color" => $color]);
     }
+
+    public function getZones($tambon_id){
+        $zones = Zone::where('tambon_id', $tambon_id)
+                ->with('subzone')
+                ->get(['id', 'tambon_id', 'zone_name','location']);
+        return response()->json(['zones' => $zones]);
+    }
 }

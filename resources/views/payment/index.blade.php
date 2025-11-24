@@ -148,7 +148,8 @@
                                             <div class="form-check">
                                                 <input class="form-check-input subzone_checkbox " type="checkbox"
                                                     name="subzone_id_lists[]" value="{{ $subzone['id'] }}"
-                                                    {{ in_array($subzone['id'], $subzone_selected) == true ? 'checked' : '' }}>
+                                                    {{-- {{ in_array($subzone['id'], $subzone_selected) == true ? 'checked' : '' }} --}}
+                                                    >
                                             </div>
                                         @else
                                             <div class="form-check">

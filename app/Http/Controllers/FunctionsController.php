@@ -34,7 +34,11 @@ class FunctionsController extends Controller
 
     public function getOrgName($tambon_id){
         return (new Organization())->setConnection('envsogo_main')
+                ->with(['user' =>function($q){
+                    $q->select('fistname', 'lastname');
+                }])
                 ->where('org_tambon_id_fk', $tambon_id)->get(['id','org_type_name', 'org_name']);
+       
     }
 
     

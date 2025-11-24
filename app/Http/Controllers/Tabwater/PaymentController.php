@@ -28,10 +28,7 @@ class PaymentController extends Controller
 {
     public function index(REQUEST $request)
     {
-        
         if ($request->session()->has('payment_subzone_selected')) {
-
-           
             if (collect($request->get('subzone_id_lists'))->isNotEmpty()) {
                 $subzone_selected = $request->get('subzone_id_lists');
                 $request->session()->forget('payment_subzone_selected');
@@ -40,15 +37,14 @@ class PaymentController extends Controller
                 $subzone_selected = json_decode($request->session()->get('payment_subzone_selected'));
             }
         } else {
-            $subzone_id = Zone::getOrgSubzone('id');
-            $subzone_selected = $subzone_id;
+            $subzone_id_array = collect(Zone::getOrgSubzone('id'))->pluck('id');
+            $subzone_selected = $subzone_id_array;
             $request->session()->put('payment_subzone_selected', collect($subzone_selected)->toJson());
         }
         $inv_period_id = 0;
         if ($request->has('inv_period_id')) {
             $inv_period_id = $request->get('inv_period_id');
         }
-
         $usermeterinfosQuery = TwMeterInfos::whereIn('status', ['active', 'inactive', 'deleted'])
             ->with([
                 'invoice_temp' => function ($query) use ($inv_period_id) {
@@ -69,7 +65,7 @@ class PaymentController extends Controller
         if (collect($subzone_selected)->isNotEmpty()) {
             $usermeterinfosQuery = $usermeterinfosQuery->whereIn('undertake_subzone_id', $subzone_selected);
         }
-       
+
         $usermeterinfos = $usermeterinfosQuery->get([
             'meter_id',
             'undertake_subzone_id',
