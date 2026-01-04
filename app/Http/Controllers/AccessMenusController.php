@@ -8,6 +8,7 @@ use App\Models\Admin\BudgetYear;
 use App\Models\Admin\Organization;
 use App\Models\Admin\Zone;
 use App\Models\Tabwater\TwInvoice;
+use App\Models\Tabwater\TwNotifies;
 use App\Models\User;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
@@ -81,6 +82,8 @@ class AccessMenusController extends Controller
     public function staff_accessmenu()
     {
         $orgInfos = Organization::find(Auth::user()->org_id_fk);
-        return view('staff_accessmenu', compact('orgInfos'));
+        $notifies_pending  = TwNotifies::where('status', 'pending')->get();
+        $notifies_pending_count  = TwNotifies::where('status', 'pending')->count();
+        return view('staff_accessmenu', compact('orgInfos', 'notifies_pending', 'notifies_pending_count'));
     }
 }

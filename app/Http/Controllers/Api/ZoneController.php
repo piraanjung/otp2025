@@ -40,7 +40,7 @@ class ZoneController extends Controller
     public function users_by_zone($zone_id)
     {
         //active
-        $users = User::where('zone_id', $zone_id)->get(['id', 'firstname', 'lastname', 'phone', 'zone_id', 'address']);
+        $users = User::where('zone_id', $zone_id)->get(['id', 'firstname', 'lastname', 'phone', 'zone_id', ]);
         return response()->json($users);
 
     }

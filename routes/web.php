@@ -11,6 +11,7 @@ use App\Http\Controllers\Admin\SuperUserController;
 use App\Http\Controllers\Admin\UserController;
 use App\Http\Controllers\Admin\ZoneController;
 use App\Http\Controllers\KeptKaya\MachineController;
+use App\Http\Controllers\KioskApiController;
 use App\Http\Controllers\Tabwater\CutmeterController;
 use App\Http\Controllers\Tabwater\BudgetYearController;
 use App\Http\Controllers\Tabwater\InvoiceController;
@@ -40,6 +41,19 @@ Route::get('/', function () {
     return view('welcome');
 
 });
+Route::get('/kiosk_login', function () {
+    return view('kiosk/kiosk_login');
+});
+
+Route::post('/api/check-member', [KioskApiController::class, 'checkMember']);
+Route::post('/api/save-session', [KioskApiController::class, 'saveSession']);
+Route::get('/kiosk', [KioskApiController::class, 'index']);
+
+
+// Route สำหรับหน้า Web App หลัก (ต้องเปิดด้วยโทรศัพท์ User)
+Route::get('/kiosk-app', function () {
+    return view('kiosk/kiosk_app');
+})->name('kiosk.app');
 
 Route::get('/liff', function () {
     return view('liff');

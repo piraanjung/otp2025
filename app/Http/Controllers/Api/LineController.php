@@ -13,6 +13,8 @@ use App\Models\Tabwater\SequenceNumber;
 use App\Models\User;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Hash;
+use Illuminate\Testing\Fluent\Concerns\Has;
 use SimpleSoftwareIO\QrCode\Facades\QrCode;
 
 class LineController extends Controller
@@ -55,6 +57,8 @@ class LineController extends Controller
     {
 
         $user =User::create([
+            'username'      => $request->org_id.$request->phoneNum,
+            'password'      => Hash::make($request->phoneNum),
             'firstname'     => $request->firstname,
             'lastname'      => $request->lastname,
             'line_id'       => $request->line_user_id,

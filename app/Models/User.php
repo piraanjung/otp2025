@@ -21,8 +21,9 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use App\Models\FoodWaste\FoodWasteUserPreference;
 use App\Models\FoodWaste\FoodWasteBin;
+use App\Models\Tabwater\TwNotifies;
 use Illuminate\Support\Facades\Auth;
-
+use Illuminate\Database\Eloquent\Relations\BelongsToMany; // <--- สำคัญ: ตรวจสอบว่ามีการ use นี้หรือไม่
 class User extends Authenticatable
 {
     use HasApiTokens, HasFactory, Notifiable, HasRoles;
@@ -168,6 +169,14 @@ class User extends Authenticatable
    public static function getUserIDFromMainDbByPhone($phone){
         $user = SuperUser::where('phone', $phone)->get('id')->first();
         return $user->id;
+    }
+
+
+    public function acceptedNotifies(): BelongsToMany // <--- ตรวจสอบการประกาศ Type Hint
+    {
+        return $this->belongsToMany(TwNotifies::class, 'notify_staff', 'user_id', 'notify_id')
+                    ->withPivot('staff_status')
+                    ->withTimestamps();
     }
 
     

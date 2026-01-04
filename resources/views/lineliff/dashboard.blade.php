@@ -978,7 +978,7 @@
                     </strong>
                 </div>
             </div>
-            <div class="kp div_recycle hidden">
+            <div class="kp div_recycle">
                 <h2>: ธนาคารขยะรีไซเคิล</h2>
                 <br>
                 <div class="main__stat-blocks">
@@ -996,10 +996,10 @@
 
                             <div class="main__stat-detail">
                                 <strong
-                                    class="main__stat-value">{{ $userWastePref->purchase_transactions[0]->total_amounts ?? '0.00' }}</strong>
+                                    class="main__stat-value">{{ $userWastePref->purchaseTransactions[0]->total_amount ?? '0.00' }}</strong>
                                 <span class="main__stat-unit">ยอดเงินคงเหลือ</span>
                                 <strong
-                                    class="main__stat-value">{{ $userWastePref->purchase_transactions[0]->total_points ?? '0.00' }}</strong>
+                                    class="main__stat-value">{{ $userWastePref->purchaseTransactions[0]->total_points ?? '0.00' }}</strong>
                                 <span class="main__stat-unit">แต้มสะสม</span>
                             </div>
                         </div>
@@ -1225,7 +1225,7 @@
                 </div>
             </div>
 
-            <div class="kp div_tabwater ">
+            <div class="kp div_tabwater hidden">
                 @include('lineliff/_tabwater')
             </div>
         </main>

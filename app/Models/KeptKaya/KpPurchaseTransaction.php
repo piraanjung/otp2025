@@ -48,6 +48,6 @@ class KpPurchaseTransaction extends Model
     
     public function details()
     {
-        return $this->hasMany(KpPurchaseDetail::class, 'kp_purchase_trans_id');
+        return $this->hasMany(KpPurchaseTransactionDetail::class, 'kp_purchase_trans_id');
     }
 }

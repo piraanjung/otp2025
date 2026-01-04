@@ -5,7 +5,7 @@ namespace App\Http\Controllers\KeptKaya;
 use App\Http\Controllers\Controller;
 use App\Models\Admin\Organization;
 use App\Models\KeptKaya\KPAccounts;
-use App\Models\KeptKaya\KpPurchaseDetail;
+use App\Models\KeptKaya\KpPurchaseTransactionDetail;
 use App\Models\KeptKaya\KpPurchaseTransaction;
 use App\Models\KeptKaya\KpTbankItems;
 use App\Models\KeptKaya\KpTbankItemsPriceAndPoint;
@@ -34,7 +34,7 @@ class KpPurchaseController extends Controller
 
         $query = User::where('org_id_fk', Auth::user()->org_id_fk)
             ->whereHas('wastePreference', function ($query) {
-                $query->where('is_waste_bank', true);
+                $query->where('is_waste_bank', 1);
             });
         if ($request->filled('name_search')) {
             $nameSearch = $request->input('name_search');
@@ -148,7 +148,7 @@ class KpPurchaseController extends Controller
 
         // 2. Create the purchase details for each item in the cart
         foreach ($cart as $item) {
-            KpPurchaseDetail::create([
+            KpPurchaseTransactionDetail::create([
                 'kp_purchase_trans_id'          => $transaction->id,
                 'kp_recycle_item_id'            => $item['kp_tbank_item_id'],
                 'kp_tbank_items_pricepoint_id'  => $item['kp_tbank_items_pricepoint_id'],
@@ -257,7 +257,7 @@ class KpPurchaseController extends Controller
 
             // 4. Create the purchase details for each item
             foreach ($acceptedBottles as $item) {
-                (new KpPurchaseDetail())->setConnection('envsogo_hs1')->create([
+                (new KpPurchaseTransactionDetail())->setConnection('envsogo_hs1')->create([
                     'kp_purchase_trans_id' => $transaction->id,
                     'kp_recycle_item_id' => $item['kp_tbank_item_id'],
                     'kp_tbank_items_pricepoint_id' => $item['kp_tbank_items_pricepoint_id'],

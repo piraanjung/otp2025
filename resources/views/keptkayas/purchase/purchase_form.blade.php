@@ -2,375 +2,392 @@
     @php
         $layout = 'layouts.keptkaya_mobile';
     @endphp
-
 @else
     @php
         $layout = 'layouts.keptkaya';
      @endphp
 @endif
+
 @extends($layout)
 @section('nav-header', 'รับซื้อขยะรีไซเคิล')
 @section('nav-current', 'รับซื้อขยะรีไซเคิล')
 @section('page-topic', 'รับซื้อขยะรีไซเคิล')
-@section('content')
 
 @section('content')
+<div class="container-fluid px-0" style="max-width: 600px; margin: 0 auto;">
 
-    @if (session('success'))
-        <div class="alert alert-success alert-dismissible fade show" role="alert">
-            {{ session('success') }}
-            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
-        </div>
-    @endif
-    @if (session('error'))
-        <div class="alert alert-danger alert-dismissible fade show" role="alert">
-            {{ session('error') }}
-            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
-        </div>
-    @endif
-    @if ($errors->any())
-        <div class="alert alert-danger">
-            <h6>โปรดแก้ไขข้อผิดพลาดดังต่อไปนี้:</h6>
-            <ul>
-                @foreach ($errors->all() as $error)
-                    <li>{{ $error }}</li>
-                @endforeach
-            </ul>
-        </div>
-    @endif
-
-    {{-- Member Details Card --}}
-    <div class="card mb-4 shadow-sm">
-        <div class="card-header bg-info text-white">
-            <h5 class="mb-0">ผู้ใช้งาน: {{ $user->firstname }} {{ $user->lastname }}</h5>
-        </div>
-        <div class="card-body">
-            <div class="row">
-                <div class="col-md-6">
-                    <strong>Username:</strong> {{ $user->username }}
-                </div>
-                <div class="col-md-6">
-                    <strong>ที่อยู่:</strong> {{ $user->address }}
-                </div>
-            </div>
-        </div>
+    {{-- Header แบบ Clean --}}
+    <div class="d-flex justify-content-between align-items-center mb-3 mt-2 px-2">
+        <h4 class="fw-bold mb-0 text-dark">รับซื้อขยะ</h4>
+        <span class="badge bg-light text-secondary rounded-pill border px-3 py-2">
+            <i class="fa fa-user me-1"></i> {{ $user->firstname }}
+        </span>
     </div>
 
-    {{-- Add Item Form --}}
-    <div class="card mb-4 shadow-sm">
-        <div class="card-header bg-light">
-            <h5 class="mb-0">เพิ่มรายการขยะ</h5>
+    {{-- Alert Messages (ปรับให้ดูนุ่มขึ้น) --}}
+    @if (session('success') || session('error') || $errors->any())
+        <div class="px-2 mb-3">
+            @if (session('success'))
+                <div class="alert alert-success border-0 shadow-sm rounded-3 py-2"><i class="fa fa-check-circle me-1"></i> {{ session('success') }}</div>
+            @endif
+            @if (session('error'))
+                <div class="alert alert-danger border-0 shadow-sm rounded-3 py-2"><i class="fa fa-exclamation-circle me-1"></i> {{ session('error') }}</div>
+            @endif
+            @if ($errors->any())
+                <div class="alert alert-danger border-0 shadow-sm rounded-3 py-2">
+                    <ul class="mb-0 ps-3 small">@foreach ($errors->all() as $error) <li>{{ $error }}</li> @endforeach</ul>
+                </div>
+            @endif
         </div>
-        <div class="card-body">
+    @endif
+
+    {{-- Main Form Card --}}
+    <div class="card border-0 shadow-sm rounded-4 overflow-hidden mb-5">
+        <div class="card-body p-3">
             <form action="{{ route('keptkayas.purchase.add_to_cart') }}" method="POST">
                 @csrf
                 <input type="hidden" name="user_id" value="{{ $user->id }}">
-                <div class="row g-3">
-                    <div class="col-md-3 col-10">
-                        <label for="kp_units_idfk" class="form-label">ชื่อขยะ:</label>
-                        <select id="kp_itemscode" name="kp_itemscode" class="form-select recyclename" required>
-                            <option value="">ชื่อขยะ</option>
-                            @foreach ($recycleItems as $item)
-                                <option value="{{ $item->kp_itemscode }}" data-id="{{ $item->id }}">{{ $item->kp_itemsname }} | {{ $item->kp_itemscode }}</option>
-                            @endforeach
-                        </select>
 
-                        <input type="hidden" name="kp_tbank_item_id" id="kp_tbank_item_id">
+                {{-- 1. Filter & QR Code Zone --}}
+                <div class="d-flex justify-content-between align-items-center mb-2">
+                    <label class="fw-bold text-dark mb-0">หมวดหมู่ขยะ</label>
+                    <button type="button" class="btn btn-sm btn-light text-primary rounded-pill fw-bold" data-bs-toggle="modal" data-bs-target="#qrScannerModal">
+                        <i class="fa fa-qrcode me-1"></i> สแกน QR
+                    </button>
+                </div>
+                
+                {{-- Scrollable Filters --}}
+                <div class="d-flex overflow-auto pb-3 hide-scrollbar" style="gap: 8px;">
+                    <button type="button" class="btn btn-sm btn-outline-dark rounded-pill px-3 filter-btn" data-group="paper">กระดาษ</button>
+                    <button type="button" class="btn btn-sm btn-outline-dark rounded-pill px-3 filter-btn" data-group="glass">แก้ว/ขวด</button>
+                    <button type="button" class="btn btn-sm btn-outline-dark rounded-pill px-3 filter-btn" data-group="plastic">พลาสติก</button>
+                    <button type="button" class="btn btn-sm btn-outline-dark rounded-pill px-3 filter-btn" data-group="metal">โลหะ</button>
+                    <button type="button" class="btn btn-sm btn-outline-dark rounded-pill px-3 filter-btn" data-group="other">อื่นๆ</button>
+                </div>
+
+                {{-- 2. Item Grid Zone --}}
+                <div class="bg-light rounded-4 p-3 mb-3" style="min-height: 200px;">
+                    <div id="item-buttons-container" class="row g-2" style="max-height: 280px; overflow-y: auto;">
+                        <div class="col-12 text-center text-muted py-5">
+                            <i class="fa fa-hand-pointer-o fa-2x mb-2 opacity-50"></i><br>
+                            <small>เลือกหมวดหมู่ด้านบนเพื่อเริ่มรายการ</small>
+                        </div>
                     </div>
-                    <div class="col-md-1 col-2">
-                        <label for="kp_itemscode" class="form-label"> QRCode</label>
+                </div>
 
-                          <button type="button" class="btn btn-outline-secondary form-control pl-2" data-bs-toggle="modal" data-bs-target="#qrScannerModal">
-                                <i class="fa fa-qrcode"></i>
+                {{-- 3. Selected Item Display (แสดงเมื่อเลือก) --}}
+                <div id="selected-item-display" class="alert alert-primary border-0 rounded-3 d-flex justify-content-between align-items-center mb-3 shadow-sm" style="display: none !important;">
+                    <div>
+                        <small class="text-primary-emphasis d-block">กำลังเลือก:</small>
+                        <span id="selected-item-name" class="fw-bold fs-5 text-dark">...</span>
+                    </div>
+                    <button type="button" class="btn btn-sm btn-light text-danger rounded-circle shadow-sm" style="width: 30px; height: 30px;" onclick="resetSelection()">
+                        <i class="fa fa-times"></i>
+                    </button>
+                </div>
+
+                {{-- Hidden Inputs --}}
+                <div class="d-none">
+                    <select id="kp_itemscode" name="kp_itemscode" class="form-select recyclename" required>
+                        <option value="">ชื่อขยะ</option>
+                        @foreach ($recycleItems as $item)
+                            @php
+                                $name = $item->kp_itemsname;
+                                $group = 'other';
+                                if (strpos($name, 'กระดาษ') !== false || strpos($name, 'กล่อง') !== false || strpos($name, 'สมุด') !== false || strpos($name, 'หนังสือ') !== false) $group = 'paper';
+                                elseif (strpos($name, 'แก้ว') !== false || strpos($name, 'ขวด') !== false) $group = 'glass';
+                                elseif (strpos($name, 'พลาสติก') !== false || strpos($name, 'PET') !== false || strpos($name, 'PE') !== false || strpos($name, 'PVC') !== false) $group = 'plastic';
+                                elseif (strpos($name, 'เหล็ก') !== false || strpos($name, 'อลูมิเนียม') !== false || strpos($name, 'ทองแดง') !== false || strpos($name, 'สังกะสี') !== false || strpos($name, 'ตะกั่ว') !== false || strpos($name, 'สแตนเลส') !== false || strpos($name, 'กระป๋อง') !== false) $group = 'metal';
+                            @endphp
+                            <option value="{{ $item->kp_itemscode }}" data-id="{{ $item->id }}" data-group="{{ $group }}" data-name="{{ $item->kp_itemsname }}">
+                                {{ $item->kp_itemsname }}
+                            </option>
+                        @endforeach
+                    </select>
+                    <input type="hidden" name="kp_tbank_item_id" id="kp_tbank_item_id">
+                </div>
+
+                {{-- 4. Input & Action Zone (Grouped) --}}
+                <div class="p-3 bg-white border rounded-4">
+                    <div class="row g-2">
+                        <div class="col-7">
+                            <label class="small text-muted mb-1">จำนวน</label>
+                            <input type="number" step="0.01" name="amount_in_units" id="amount_in_units" class="form-control form-control-lg bg-light border-0 fw-bold text-center" placeholder="0.00" required min="0.01">
+                        </div>
+                        <div class="col-5">
+                            <label class="small text-muted mb-1">หน่วย</label>
+                            <select id="kp_units_idfk" name="kp_units_idfk" class="form-select form-select-lg bg-light border-0" required>
+                                <option value="">หน่วย</option>
+                                @foreach ($allUnits as $unit)
+                                    <option value="{{ $unit->id }}" {{ $unit->id == 1 ? 'selected' : '' }}>{{ $unit->unitname }}</option>
+                                @endforeach
+                            </select>
+                        </div>
+                        <div class="col-12 mt-3">
+                            <button type="submit" class="btn btn-success w-100 py-3 rounded-3 shadow fw-bold">
+                                <i class="fa fa-plus-circle me-1"></i> เพิ่มรายการ
                             </button>
-                    </div>
-                   
-                    <div class="col-lg-3 col-6">
-                        <label for="amount_in_units" class="form-label">จำนวน:</label>
-                        <input type="number" step="0.01" name="amount_in_units" id="amount_in_units" class="form-control" required min="0.01">
-                    </div>
-                    <div class="col-md-3 col-6">
-                        <label for="kp_units_idfk" class="form-label">หน่วยนับ:</label>
-                        <select id="kp_units_idfk" name="kp_units_idfk" class="form-select recyclename" required>
-                            <option value="">เลือกหน่วยนับ</option>
-                            @foreach ($allUnits as $unit)
-                                <option value="{{ $unit->id }}" {{ $unit->id == 1 ? 'selected' : '' }}>{{ $unit->unitname }}</option>
-                            @endforeach
-                        </select>
-                    </div>
-                    
-                    <div class="col-md-2 d-flex align-items-end">
-                        <button type="submit" class="btn btn-success w-100">
-                            <i class="bi bi-plus-circle-fill me-1"></i> เพิ่มลงรถเข็น
-                        </button>
+                        </div>
                     </div>
                 </div>
             </form>
-
-          
         </div>
     </div>
+</div>
 
-    {{-- Cart List (Responsive) --}}
+{{-- Floating Cart Button --}}
+{{-- Cart Modal (ฉบับแก้ไข: ปุ่มลบชัดเจน) --}}
     @if(Session::has('purchase_cart') && count(Session::get('purchase_cart')) > 0)
-    <div class="card mb-4 shadow-sm">
-        <div class="card-header bg-secondary text-white d-flex justify-content-between align-items-center">
-            <h5 class="mb-0">รายการในรถเข็น</h5>
-            <a href="{{ route('keptkayas.purchase.cart') }}" class="btn btn-warning btn-sm">
-                <i class="bi bi-cart-fill me-1"></i> ไปหน้าสรุปการซื้อ
-            </a>
-        </div>
-        <div class="card-body">
-            {{-- Desktop Table View --}}
-            <div class="table-responsive d-none d-md-block">
-                <table class="table table-striped">
-                    <thead>
-                        <tr>
-                            <th>#</th>
-                            <th>รายการขยะ</th>
-                            <th>ปริมาณ</th>
-                            <th>ราคา/หน่วย</th>
-                            <th>เป็นเงิน</th>
-                            <th>คะแนน</th>
-                            <th style="width: 100px;"></th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        @php
-                            $cart = Session::get('purchase_cart');
-                            $grandTotal = 0;
-                            $grandPoints = 0;
-                        @endphp
-                        @foreach ($cart as $index => $item)
-                            @php
-                                $grandTotal += $item['amount'];
-                                $grandPoints += $item['points'];
-                            @endphp
-                            <tr>
-                                <td>{{ $index + 1 }}</td>
-                                <td>{{ $item['item_name'] }}</td>
-                                <td>{{ number_format($item['amount_in_units'], 2) }} {{ $item['unit_name'] }}</td>
-                                <td>{{ number_format($item['price_per_unit'], 2) }}</td>
-                                <td>{{ number_format($item['amount'], 2) }}</td>
-                                <td>{{ number_format($item['points']) }}</td>
-                                <td>
-                                    <form action="{{ route('keptkayas.purchase.remove_from_cart', $index) }}" method="POST">
-                                        @csrf
-                                        @method('DELETE')
-                                        <button type="submit" class="btn btn-danger btn-sm"><i class="fa fa-trash"></i></button>
-                                    </form>
-                                </td>
-                            </tr>
-                        @endforeach
-                    </tbody>
-                    <tfoot>
-                        <tr>
-                            <th colspan="4" class="text-end">ยอดรวม:</th>
-                            <th>{{ number_format($grandTotal, 2) }} บาท</th>
-                            <th>{{ number_format($grandPoints) }} คะแนน</th>
-                            <th></th>
-                        </tr>
-                    </tfoot>
-                </table>
+        <button type="button" 
+                class="btn btn-dark position-fixed rounded-circle shadow-lg d-flex justify-content-center align-items-center"
+                style="bottom: 30px; right: 30px; width: 65px; height: 65px; z-index: 1000; border: 2px solid white;"
+                data-bs-toggle="modal" 
+                data-bs-target="#cartModal">
+            <div class="position-relative">
+                <i class="fa fa-shopping-basket fa-lg"></i>
+                <span class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger border border-light">
+                    {{ count(Session::get('purchase_cart')) }}
+                </span>
             </div>
+        </button>
 
-            {{-- Mobile Card View --}}
-            <div class="d-md-none">
-                @php
-                    $cart = Session::get('purchase_cart');
-                    $grandTotal = 0;
-                    $grandPoints = 0;
-                @endphp
-                @foreach ($cart as $index => $item)
-                    @php
-                        $grandTotal += $item['amount'];
-                        $grandPoints += $item['points'];
-                    @endphp
-                    <div class="card mb-3">
-                        <div class="card-body p-3">
-                             <div style="position: absolute; right: 10px; top: 10px; z-index: 50;">
-                                <form action="{{ route('keptkayas.purchase.remove_from_cart', $index) }}" method="POST">
-                                    @csrf
-                                    @method('DELETE')
-                                    <button type="submit" class="btn btn-danger btn-sm"><i class="fa fa-trash"></i></button>
-                                </form>
-                            </div>
-                            <h6 class="text-lg mb-0 text-capitalize font-weight-bolder text-success">{{ $item['item_name'] }}</h6>
-                            <p class="text-sm text-secondary mb-1">
-                                {{ number_format($item['amount_in_units'], 2) }} {{ $item['unit_name']  }} x {{ number_format($item['price_per_unit'], 2) }} บาท
-                            </p>
-                            <div class="d-flex justify-content-between align-items-center">
-                                <div>
-                                    <h6 class="font-weight-bold mb-0">{{ number_format($item['amount'], 2) }} บาท</h6>
-                                    <span class="text-sm">{{ number_format($item['points']) }} คะแนน</span>
+        <div class="modal fade" id="cartModal" tabindex="-1" aria-hidden="true">
+            <div class="modal-dialog modal-dialog-centered modal-lg">
+                <div class="modal-content rounded-4 border-0">
+                    <div class="modal-header border-0 pb-2">
+                        <h5 class="modal-title fw-bold">
+                            <i class="fa fa-shopping-cart text-success me-2"></i>รายการในตะกร้า
+                        </h5>
+                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                    </div>
+                    <div class="modal-body p-0">
+                        <div class="table-responsive">
+                            <table class="table align-middle mb-0">
+                                <thead class="bg-light text-secondary small">
+                                    <tr>
+                                        <th class="ps-4">สินค้า</th>
+                                        <th class="text-end">จำนวน</th>
+                                        <th class="text-end">รวม (บาท)</th>
+                                        <th class="text-center" style="width: 60px;">ลบ</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    @php $grandTotal = 0; @endphp
+                                    @foreach (Session::get('purchase_cart') as $index => $item)
+                                        @php $grandTotal += $item['amount']; @endphp
+                                        <tr class="border-bottom border-light">
+                                            <td class="ps-4">
+                                                <div class="fw-bold text-dark">{{ $item['item_name'] }}</div>
+                                                <small class="text-muted">{{ number_format($item['price_per_unit'], 2) }} บ./หน่วย</small>
+                                            </td>
+                                            <td class="text-end">
+                                                <span class="badge bg-light text-dark border">
+                                                    {{ number_format($item['amount_in_units'], 2) }} {{ $item['unit_name'] }}
+                                                </span>
+                                            </td>
+                                            <td class="text-end fw-bold text-success fs-5">
+                                                {{ number_format($item['amount'], 2) }}
+                                            </td>
+                                            <td class="text-center">
+                                                {{-- ปุ่มลบที่ทำใหม่ --}}
+                                                <form action="{{ route('keptkayas.purchase.remove_from_cart', $index) }}" method="POST">
+                                                    @csrf @method('DELETE')
+                                                    <button type="submit" class="btn btn-sm btn-outline-danger shadow-sm border-0 bg-white" style="width: 35px; height: 35px; border-radius: 50%;">
+                                                        <i class="fa fa-trash"></i>
+                                                    </button>
+                                                </form>
+                                            </td>
+                                        </tr>
+                                    @endforeach
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                    <div class="modal-footer bg-light border-0 justify-content-between p-3">
+                        <div class="d-flex align-items-center">
+                            <span class="text-muted me-2">ยอดสุทธิ:</span>
+                            <span class="fw-bold text-dark fs-4">{{ number_format($grandTotal, 2) }} บ.</span>
+                        </div>
+                        <a href="{{ route('keptkayas.purchase.cart') }}" class="btn btn-dark rounded-pill px-4 shadow">
+                            ยืนยัน <i class="fa fa-chevron-right ms-1"></i>
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    @endif
+
+{{-- QR Scanner Modal --}}
+<div class="modal fade" id="qrScannerModal" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content rounded-4 border-0">
+            <div class="modal-header border-0">
+                <h5 class="modal-title fw-bold">สแกนขยะ</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body text-center p-0 pb-3">
+                <div id="qr-reader" class="rounded-3 overflow-hidden mx-3"></div>
+                <p class="text-muted small mt-2">ส่องกล้องไปที่ QR Code ของขยะ</p>
+            </div>
+        </div>
+    </div>
+</div>
+
+<style>
+    /* CSS เพิ่มเติมเพื่อให้ดูสะอาดตา */
+    .hide-scrollbar::-webkit-scrollbar { display: none; }
+    .hide-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
+    .form-control:focus, .form-select:focus { box-shadow: none; border: 1px solid #198754; }
+    /* Item Card Styling */
+    .item-card { transition: all 0.2s; border: none !important; background: white; box-shadow: 0 2px 4px rgba(0,0,0,0.05); }
+    .item-card:active { transform: scale(0.95); }
+</style>
+@endsection
+
+@section('script')
+<script src="https://unpkg.com/html5-qrcode" type="text/javascript"></script>
+<script>
+    let allOptions = []; 
+
+    $(document).ready(function(){
+        // 1. เก็บ Data
+        $('#kp_itemscode option').each(function(){
+            if($(this).val() !== ""){
+                allOptions.push({
+                    val: $(this).val(),
+                    text: $(this).text(),
+                    id: $(this).data('id'),
+                    group: $(this).data('group'),
+                    name: $(this).data('name')
+                });
+            }
+        });
+
+        // 2. Filter Button Logic
+        $('.filter-btn').on('click', function() {
+            const group = $(this).data('group');
+            const $container = $('#item-buttons-container');
+
+            // Style ปุ่ม Filter (ทำให้ดูเหมือน App สมัยใหม่: Active = สีเข้ม, Inactive = ขอบบาง)
+            $('.filter-btn').removeClass('btn-dark active').addClass('btn-outline-dark');
+            $(this).removeClass('btn-outline-dark').addClass('btn-dark active');
+
+            $container.empty();
+
+            let found = false;
+            allOptions.forEach(opt => {
+                if (group === 'all' || opt.group === group) {
+                    found = true;
+                    // [DESIGN] แก้ HTML ปุ่มตรงนี้ให้เป็น Card ขาวสะอาด ลบ Border ออก
+                    let btnHtml = `
+                        <div class="col-6 col-md-4 col-lg-3">
+                            <div class="card h-100 item-card rounded-3" 
+                                 onclick="selectItem('${opt.val}')" 
+                                 id="card-${opt.val}"
+                                 style="cursor: pointer;">
+                                <div class="card-body p-2 text-center d-flex flex-column align-items-center justify-content-center" style="min-height: 80px;">
+                                    <span class="fw-bold text-dark item-text" style="font-size: 0.9rem;">${opt.name}</span>
                                 </div>
                             </div>
                         </div>
-                    </div>
-                @endforeach
-                <div class="card p-3 mt-3">
-                    <div class="d-flex justify-content-between font-weight-bold">
-                        <span>ยอดรวม:</span>
-                        <span>{{ number_format($grandTotal, 2) }} บาท</span>
-                    </div>
-                    <div class="d-flex justify-content-between font-weight-bold">
-                        <span>คะแนนรวม:</span>
-                        <span>{{ number_format($grandPoints) }} คะแนน</span>
-                    </div>
-                </div>
-            </div>
-        </div>
-    </div>
-    @else
-        <div class="alert alert-info text-center">ยังไม่มีรายการขยะในรถเข็น</div>
-    @endif
-
-
- {{-- QR Scanner Modal --}}
-    <div class="modal fade" id="qrScannerModal" tabindex="-1" aria-labelledby="qrScannerModalLabel" aria-hidden="true">
-        <div class="modal-dialog">
-            <div class="modal-content">
-                <div class="modal-header">
-                    <h5 class="modal-title" id="qrScannerModalLabel">สแกน QR Code เพื่อค้นหาสมาชิก</h5>
-                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-                </div>
-                <div class="modal-body text-center">
-                    <div id="qr-reader" style="width: 100%"></div>
-                </div>
-            </div>
-        </div>
-    </div>
-@endsection
-
-  @section('script')
-        <script src="https://unpkg.com/html5-qrcode" type="text/javascript"></script>
-        <script>
-            $(document).ready(function(){
-            // Initialize Select2 on both dropdowns
-            $('.recyclename').select2();
-
-            const kpItemCodeSelect = $('#kp_itemscode');
-            const kpUnitsSelect = $('#kp_units_idfk');
-            const kpTbankItemId = $('#kp_tbank_item_id');
-
-            // --- Function 1: โหลดหน่วยนับและราคาจาก Server ---
-            function loadUnitsForSelectedItem(itemId) {
-                if (!itemId) {
-                    kpUnitsSelect.empty().append('<option value="">เลือกหน่วยนับ</option>').trigger('change');
-                    return;
+                    `;
+                    $container.append(btnHtml);
                 }
+            });
 
-                // Call the API endpoint using AJAX
-                $.ajax({
-                    url: '{{ route('keptkayas.purchase.get_units', ['itemId' => 'PLACEHOLDER']) }}'.replace('PLACEHOLDER', itemId),
-                    method: 'GET',
-                    success: function(response) {
-                    console.log('res',response)
-                        // Clear existing options
-                        kpUnitsSelect.empty().append('<option value="">เลือกหน่วยนับ</option>');
-
-                        if (response.length > 0) {
-                            response.forEach(function(unit) {
-                                // เพิ่ม option ใหม่ พร้อมเก็บข้อมูลราคาและคะแนนใน data attributes
-                                const newOption = new Option(
-                                    unit.unit_name, 
-                                    unit.unit_id, 
-                                    false, 
-                                    false
-                                );
-                                $(newOption).attr('data-price', unit.price_for_member);
-                                $(newOption).attr('data-point', unit.point);
-                                kpUnitsSelect.append(newOption);
-                            });
-                            // เลือกหน่วยนับแรกเป็นค่าเริ่มต้น (ถ้ามี)
-                            kpUnitsSelect.find('option:eq(1)').prop('selected', true); 
-                        } else {
-                            // แจ้งเตือนหากไม่พบราคาสำหรับขยะนี้
-                            alert('ไม่พบข้อมูลราคาและหน่วยนับที่ใช้งานอยู่สำหรับขยะนี้');
-                        }
-                        
-                        kpUnitsSelect.trigger('change'); // Notify Select2 to update
-                    },
-                    error: function(xhr) {
-                        console.error("Error fetching units:", xhr.responseText);
-                        alert('เกิดข้อผิดพลาดในการดึงข้อมูลหน่วยนับ');
-                    }
-                });
+            if(!found) {
+                $container.html('<div class="col-12 text-center text-muted py-4"><i class="fa fa-inbox fa-2x mb-2 opacity-25"></i><br>ไม่พบรายการ</div>');
             }
-
-            // --- Event Listener: เมื่อเลือกชื่อขยะเปลี่ยนไป ---
-            kpItemCodeSelect.on('change', function(){
-                let selectedOption = $(this).find(':selected');
-                let itemId = selectedOption.data('id');
-
-                kpTbankItemId.val(itemId);
-                
-                // 🚨 เรียกฟังก์ชันโหลดหน่วยนับ
-                loadUnitsForSelectedItem(itemId);
-            });
-            
-            // --- (ส่วน QR Code เดิมของคุณ) ---
-            // โค้ด QR Code จะถูกเรียก 'change' บน #kp_itemscode ซึ่งจะไปเรียก loadUnitsForSelectedItem() ต่อ
-
         });
-            document.addEventListener('DOMContentLoaded', function () {
-                const qrScannerModal = document.getElementById('qrScannerModal');
-                const kp_itemscode = document.getElementById('kp_itemscode');
-                const kp_tbank_item_id = document.getElementById('kp_tbank_item_id');
-                const html5QrCode = new Html5Qrcode("qr-reader");
 
-                qrScannerModal.addEventListener('shown.bs.modal', () => {
-                    html5QrCode.start({
-                        facingMode: "environment"
-                    }, {
-                        fps: 10,
-                        qrbox: {
-                            width: 250,
-                            height: 250
-                        }
-                    },
-                        (decodedText, decodedResult) => {
-                            // on success
-                            console.log(`QR Code scanned: ${decodedText.toString().toUpperCase()}`);
-                            // Stop the scanner and close the modal
-                            html5QrCode.stop().then(() => {
-                                const modal = bootstrap.Modal.getInstance(qrScannerModal);
-                                modal.hide();
-                            }).catch(err => {
-                                console.error("Failed to stop the scanner.", err);
-                            });
+        $('#kp_itemscode').on('change', function(){
+            let itemId = $(this).find(':selected').data('id');
+            if(itemId) loadUnitsForSelectedItem(itemId);
+        });
+    });
 
-                            // Set the value of the Select2 dropdown
-                            $('#kp_itemscode').val(decodedText.toString().toUpperCase()).trigger('change');
-                            
-                            // Check if the item code exists and update the hidden ID
-                            const selectedOption = $('#kp_itemscode').find(':selected');
-                            if (selectedOption.length) {
-                                kp_tbank_item_id.value = selectedOption.data('id');
-                            } else {
-                                kp_tbank_item_id.value = '';
-                                alert('ไม่พบรหัสขยะที่สแกน');
-                            }
-                            
-                        },
-                        (errorMessage) => {
-                            // on failure (or no QR code found)
-                            // This function is called continuously, so we don't need to do anything here
-                        }
-                    ).catch(err => {
-                        console.error("Failed to start the scanner.", err);
-                        alert("ไม่สามารถเปิดใช้งานกล้องได้ โปรดตรวจสอบการอนุญาตใช้งานกล้อง");
+    window.selectItem = function(val) {
+        // Reset Style
+        $('.item-card').removeClass('bg-success text-white ring-2 ring-success').addClass('bg-white');
+        $('.item-card .item-text').removeClass('text-white').addClass('text-dark');
+        
+        // Active Style (สีเขียว สวยๆ)
+        $(`#card-${val}`).removeClass('bg-white').addClass('bg-success text-white shadow');
+        $(`#card-${val} .item-text`).removeClass('text-dark').addClass('text-white');
+
+        $('#kp_itemscode').val(val).trigger('change');
+
+        // Show Display Section
+        const selectedOpt = allOptions.find(o => o.val === val);
+        if(selectedOpt) {
+            $('#selected-item-name').text(selectedOpt.name);
+            $('#selected-item-display').fadeIn();
+            $('#kp_tbank_item_id').val(selectedOpt.id);
+            // Scroll ไปหาช่องกรอกจำนวนแบบนุ่มๆ
+            $('html, body').animate({
+                scrollTop: $("#amount_in_units").offset().top - 150
+            }, 500);
+            $('#amount_in_units').focus(); 
+        }
+    };
+
+    window.resetSelection = function() {
+        $('#kp_itemscode').val('').trigger('change');
+        $('#selected-item-display').hide();
+        $('.item-card').removeClass('bg-success text-white shadow').addClass('bg-white');
+        $('.item-card .item-text').addClass('text-dark');
+        $('#kp_tbank_item_id').val('');
+    }
+
+    function loadUnitsForSelectedItem(itemId) {
+        const $kpUnitsSelect = $('#kp_units_idfk');
+        $kpUnitsSelect.prop('disabled', true);
+        
+        // [UX] เปลี่ยน Text ระหว่างรอ
+        const originalText = $kpUnitsSelect.find('option:first').text();
+        $kpUnitsSelect.find('option:first').text('กำลังโหลด...');
+
+        $.ajax({
+            url: '{{ route('keptkayas.purchase.get_units', ['itemId' => 'PLACEHOLDER']) }}'.replace('PLACEHOLDER', itemId),
+            method: 'GET',
+            success: function(response) {
+                $kpUnitsSelect.empty().append('<option value="">หน่วย</option>');
+                if (response.length > 0) {
+                    response.forEach(function(unit) {
+                        const newOption = new Option(unit.unit_name, unit.unit_id, false, false);
+                        $kpUnitsSelect.append(newOption);
                     });
-                });
+                    $kpUnitsSelect.find('option:eq(1)').prop('selected', true);
+                }
+                $kpUnitsSelect.prop('disabled', false);
+            },
+            error: function() {
+                $kpUnitsSelect.find('option:first').text('โหลดไม่ได้');
+                $kpUnitsSelect.prop('disabled', false);
+            }
+        });
+    }
 
-                qrScannerModal.addEventListener('hidden.bs.modal', () => {
-                    // Ensure the scanner is stopped when the modal is closed manually
-                    if (html5QrCode.isScanning) {
-                        html5QrCode.stop().catch(err => {
-                            console.error("Failed to stop the scanner.", err);
-                        });
-                    }
-                });
-            });
-        </script>
-    @endsection
+    // QR Code Scanner (เหมือนเดิม)
+    document.addEventListener('DOMContentLoaded', function () {
+        const qrScannerModal = document.getElementById('qrScannerModal');
+        const html5QrCode = new Html5Qrcode("qr-reader");
+
+        qrScannerModal.addEventListener('shown.bs.modal', () => {
+            html5QrCode.start({ facingMode: "environment" }, 
+            { fps: 10, qrbox: { width: 250, height: 250 } },
+            (decodedText) => {
+                html5QrCode.stop().then(() => {
+                    bootstrap.Modal.getInstance(qrScannerModal).hide();
+                    selectItem(decodedText.toString().toUpperCase());
+                }).catch(err => console.error(err));
+            },
+            (errorMessage) => {}).catch(err => alert("ไม่สามารถเปิดกล้องได้"));
+        });
+
+        qrScannerModal.addEventListener('hidden.bs.modal', () => {
+            if (html5QrCode.isScanning) html5QrCode.stop();
+        });
+    });
+</script>
+@endsection

@@ -11,7 +11,7 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::create('kp_purchase_details', function (Blueprint $table) {
+        Schema::create('kp_purchase_transactions_details', function (Blueprint $table) {
             $table->id();
             $table->foreignId('kp_purchase_trans_id')->constrained('kp_purchase_transactions')->onDelete('cascade');
             $table->foreignId('kp_recycle_item_id')->constrained('kp_tbank_items')->onDelete('restrict');
@@ -31,6 +31,6 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::dropIfExists('kp_purchase_details');
+        Schema::dropIfExists('kp_purchase_transactions_details');
     }
 };

@@ -16,7 +16,8 @@ use App\Http\Controllers\FunctionsController;
 use App\Http\Controllers\Api\FunctionsController as apiFunctionsController;
 use App\Http\Controllers\ImageController;
 use App\Http\Controllers\KeptKaya\MachineController;
-
+use App\Http\Controllers\KioskApiController;
+use Illuminate\Support\Facades\Log;
 
 Route::get('/testget', function(){
     return response()->json([
@@ -144,6 +145,29 @@ Route::middleware(['throttle:api'])->name('api.')->group(function () {
     Route::get('/get_districts/{province_id}', [apiFunctionsController::class,'getDistricts']);
     Route::get('/get_tambons/{district_id}', [FunctionsController::class,'getTambons']);
     Route::get('/get_org/{tambon_id}', [FunctionsController::class,'get OrgName']);
+
+    Route::post('/line/groupid-finder', function (Request $request) {
+    $data = $request->json()->all();
+
+    // ตรวจสอบว่า Event มาจาก 'group'
+    if (isset($data['events'][0]['source']['type']) && $data['events'][0]['source']['type'] === 'group') {
+        $groupId = $data['events'][0]['source']['groupId'];
+
+        // **รหัส Group ID จะถูกบันทึกไว้ใน Log**
+        Log::alert("*********** [LINE GROUP ID FOUND] ***********");
+        Log::alert("Group ID: " . $groupId);
+        Log::alert("*********************************************");
+
+        return response()->json(['status' => 'ID logged']);
+    }
+    return response()->json(['status' => 'Not a group event']);
+});
+
+// Route สำหรับรับ Transaction Log (ใช้โดย User Smartphone)
+Route::post('/kiosk/upload-log', [KioskApiController::class, 'uploadTransactionLog'])->name('uploadTransactionLog');
+
+// Route สำหรับรับไฟล์ภาพ (ใช้โดย ESP32-CAM ช่วงกลางคืน)
+Route::post('/kiosk/upload-image', [KioskApiController::class, 'uploadImage'])->name('uploadImage');
 
     // Route::prefix('cutmeter')->group(function () {      
     //     Route::get('/index/{zone_id?}/{subzone_id?}', [CutmeterController::class,'index']);

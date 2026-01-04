@@ -39,7 +39,7 @@ class KPAccounts extends Model
     }
 
     public function updateBalanceAndPoint($u_w_pref_id, $balance, $points){
-    return    $remain = KPAccounts::where('u_wpref_id_fk', $u_w_pref_id)->get()->first();
+        $remain = KPAccounts::where('u_wpref_id_fk', $u_w_pref_id)->get()->first();
         KPAccounts::where('u_wpref_id_fk', $u_w_pref_id)->update([
             'balance' => $remain->balance + $balance,
             'points' => $remain->points + $points,

@@ -11,11 +11,11 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
-class KpPurchaseDetail extends Model
+class KpPurchaseTransactionDetail extends Model
 {
     use HasFactory;
 
-    protected $table = 'kp_purchase_details';
+    protected $table = 'kp_purchase_transactions_details';
 
     protected $fillable = [
         'kp_purchase_trans_id',
@@ -66,6 +66,6 @@ class KpPurchaseDetail extends Model
     
     public function details()
     {
-        return $this->hasMany(KpPurchaseDetail::class, 'kp_purchase_trans_id');
+        return $this->hasMany(KpPurchaseTransactionDetail::class, 'kp_purchase_trans_id');
     }
 }

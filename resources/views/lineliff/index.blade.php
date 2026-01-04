@@ -576,7 +576,7 @@
         <div class="h6">กรอกข้อมูลเพื่อทำการลงทะเบียน</div>
         <form>
          <div class="form-group">
-            <label for="label" id="org_label">อบต./เทศบาล(ที่ท่านสังกัด)</label>
+            <label for="label" id="org_label">องค์กรที่ท่านสังกัด</label>
             <select name="orgs_lists" id="orgs_lists" class="select2" required>
               <option value="">เลือก...</option>
               @foreach ($orgs as $key => $org)
@@ -633,12 +633,12 @@
            <div class="form-group  d-flex flex-row" id="new_member_div">
               <div class="text-center">
                 <label for="new_member">ชื่อ</label>
-                <input type="text" name="firstname" class="form-control" id="firstname">
+                <input type="text" name="firstname" class="form-control" id="firstname" required>
 
               </div>
               <div class="text-center">
                 <label for="be_member">สกุล</label>
-                <input type="text" name="lastname" class="form-control" id="lastname">
+                <input type="text" name="lastname" class="form-control" id="lastname" required>
 
               </div>
           </div>
@@ -761,7 +761,27 @@
     
 
     $('#phone_search_btn').on('click',  function () {//async
+      let firstname = $('#firstname').val()
+      let lastname = $('#lastname').val()
       let phone = phone_text.value;
+      let res = true
+      if(firstname ===""){
+        $('#firstname').addClass('border border-danger')
+        res = false
+      }
+      if(lastname ===""){
+        $('#lastname').addClass('border border-danger')
+        res = false
+      }
+      if(phone ===""){
+        $('#phone').addClass('border border-danger')
+        res = false
+      }
+
+      if(res === false){
+        return false
+      }
+
       let line_user_image = (profile.pictureUrl).replace("https://profile.line-scdn.net/", "");
       console.log(
         {
@@ -796,7 +816,7 @@
             //มีข้อมูล user อยู่แล้วและทำการ update user_line_id แล้ว
             //ให้ไปหา dashboard ของ line  user
 
-            window.location.href = '/line/dashboard/' + data.waste_pref_id +'/'+org_id_text.value+ '/1';
+            // window.location.href = '/line/dashboard/' + data.waste_pref_id +'/'+org_id_text.value+ '/1';
             //  data.waste_pref_id +'/'+org_id_text.value+ '/register==1
           } else {
             // ไม่มีข้อมูล user เป็น new  user ให้ทำการ register

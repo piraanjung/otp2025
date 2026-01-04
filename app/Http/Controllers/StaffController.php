@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Models\Admin\Staff;
+use App\Models\Tabwater\TwNotifies;
 use App\Models\User;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
@@ -201,5 +202,37 @@ class StaffController extends Controller
         }
 
         return redirect()->route('keptkayas.staffs.index')->with('success', 'ลบบทบาทเจ้าหน้าที่ออกจากผู้ใช้งานเรียบร้อยแล้ว');
+    }
+
+    public function acceptJob(TwNotifies $notify)
+    {
+        $staffUser = Auth::user();
+
+        // 1. ตรวจสอบสิทธิ์และสถานะงานโดยรวม (เช่น ไม่ควรรับงานที่ถูกยกเลิกแล้ว)
+        if ($notify->status === 'cancel') {
+            return back()->with('error', 'งานนี้ถูกยกเลิกแล้ว');
+        }
+
+        // 2. รับงาน: เพิ่มรายการในตาราง Pivot (notify_staff)
+        try {
+            // ใช้เมธอด attach() เพื่อสร้างความสัมพันธ์ Many-to-Many
+            $staffUser->acceptedNotifies()->attach($notify->id, [
+                'staff_status' => 'working' // ตั้งสถานะเฉพาะของ Staff คนนี้
+            ]);
+            
+            // 3. **อัปเดตสถานะหลักของงาน:** //    ถ้าสถานะหลักยังเป็น 'pending' ให้เปลี่ยนเป็น 'processing'
+            if ($notify->status === 'pending') {
+                 $notify->update(['status' => 'processing']);
+            }
+
+            return redirect()->route('staff.dashboard')->with('success', "คุณได้รับงาน #{$notify->id} เพื่อดำเนินการแล้ว");
+        
+        } catch (\Illuminate\Database\QueryException $e) {
+            // ตรวจจับ Primary Key Conflict (กรณี Staff คนนี้เคยรับงานนี้ไปแล้ว)
+            if ($e->getCode() == 23000) { 
+                return back()->with('warning', 'คุณเคยรับงานนี้ไปแล้ว!');
+            }
+            return back()->with('error', 'เกิดข้อผิดพลาดในการรับงาน');
+        }
     }
 }
