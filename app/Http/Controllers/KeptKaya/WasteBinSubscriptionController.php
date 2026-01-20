@@ -4,9 +4,11 @@ namespace App\Http\Controllers\KeptKaya;
 
 use App\Http\Controllers\Controller;
 use App\Models\Admin\Organization;
+use App\Models\KeptKaya\KpUserWastePreference;
 use App\Models\KeptKaya\WasteBinSubscription;
 use App\Models\KeptKaya\WasteBinPayment;
 use App\Models\KeptKaya\WasteBin; // To potentially link from WasteBin details
+use App\Models\KeptKaya\WasteBinPayratePerMonth;
 use App\Models\User;
 use Barryvdh\DomPDF\Facade\Pdf;
 use Illuminate\Http\Request;
@@ -17,122 +19,213 @@ use Carbon\Carbon;
 use DateTime;
 use Illuminate\Support\Facades\Log;
 
-use function PHPUnit\Framework\returnSelf;
-
 class WasteBinSubscriptionController extends Controller
 {
     public function index(Request $request)
-    {
-        $currentFiscalYear = WasteBinSubscription::calculateFiscalYear();
-        $fiscalYear = $request->input('fy', $currentFiscalYear); // Default to current fiscal year
+{
+    // 1. รับค่า Filter ต่างๆ
+    $currentFiscalYear = WasteBinSubscription::calculateFiscalYear();
+    $fiscalYear = $request->input('fy', $currentFiscalYear); // ไม่ต้อง +543 ที่นี่ ถ้าใน DB เก็บเป็น 2569 อยู่แล้ว
+    $search = $request->input('search');
+    $statusFilter = $request->input('status', 'all'); // all, paid, pending
 
-        // NEW: Query users who have subscriptions for the fiscal year
-        $users = User::whereHas('wasteBins.subscriptions', function ($q) use ($fiscalYear) {
-         
-            $q->where('fiscal_year', $fiscalYear)
-            ->where('status', '<>', 'complete');
-        })
-            ->with(['wasteBins.subscriptions' => function ($q) use ($fiscalYear) {
-                $q->where('fiscal_year', $fiscalYear)
-                ->where('status', '<>', 'complete');
-            }])
-            ->paginate(10);
+    // 2. คำนวณ Stats (Card สรุปผล) - นับจาก Subscription ทั้งหมดในปีนั้น
+    $statsQuery = WasteBinSubscription::where('fiscal_year', $fiscalYear);
+    
+    $totalBins = (clone $statsQuery)->count();
+    $paidBins = (clone $statsQuery)->where('status', 'paid')->count();
+    // นับรวมที่ยังไม่จ่ายหมด (pending + partially_paid)
+    $pendingBins = (clone $statsQuery)->whereIn('status', ['pending', 'partially_paid'])->count(); 
 
+    // 3. เริ่ม Query Main Data (รายชื่อผู้ใช้)
+    $query = KpUserWastePreference::query()
+        ->with(['user', 'wasteBins' => function($q) use ($fiscalYear) {
+            // Eager Load เฉพาะที่มี Subscription ในปีที่เลือก
+            $q->whereHas('subscriptions', function($subQ) use ($fiscalYear) {
+                $subQ->where('fiscal_year', $fiscalYear);
+            })->with(['subscriptions' => function($subQ) use ($fiscalYear) {
+                $subQ->where('fiscal_year', $fiscalYear);
+            }]);
+        }])
+        ->where('is_annual_collection', true);
 
-        // For fiscal year filter dropdown
-        $availableFiscalYears = WasteBinSubscription::select('fiscal_year')
-            ->distinct()
-            ->orderBy('fiscal_year', 'desc')
-            ->pluck('fiscal_year');
-
-        // NEW: Pass users instead of subscriptions to the view
-        return view('keptkayas.annual_payments.index', compact('users', 'fiscalYear', 'availableFiscalYears'));
+    // 3.1 Logic การค้นหา (ชื่อผู้ใช้ หรือ รหัสถัง)
+    if ($search) {
+        $query->where(function($q) use ($search) {
+            // ค้นหาจากชื่อ User
+            $q->whereHas('user', function($u) use ($search) {
+                $u->where('firstname', 'like', "%{$search}%")
+                  ->orWhere('lastname', 'like', "%{$search}%");
+            })
+            // หรือ ค้นหาจากรหัสถัง
+            ->orWhereHas('wasteBins', function($b) use ($search) {
+                $b->where('bin_code', 'like', "%{$search}%");
+            });
+        });
     }
-    public function show(WasteBinSubscription $wasteBinSubscription)
-    {
-        $wasteBinSubscription->load(['wasteBin.user', 'payments.staff']);
 
-        // Check the status of the associated WasteBin
-        $isBinActiveForAnnualCollection = $wasteBinSubscription->wasteBin->is_active_for_annual_collection ?? false;
-
-        // Generate payment schedule for the fiscal year (Oct to Sep)
-        $paymentSchedule = [];
-        $startMonth = 10; // October
-        $endMonth = 9;    // September
-
-        // Determine the actual calendar year for the start of the fiscal year
-        $startCalYear = $wasteBinSubscription->fiscal_year - 1; // Fiscal year 2024 starts in Oct 2023
-        $currMonth = (int)date('m');
-        $currentYear = date('Y');
-        for ($i = 0; $i < 12; $i++) {
-            $currentMonthDate = Carbon::createFromDate($startCalYear, $startMonth, 1)->addMonths($i);
-
-            $monthNum = $currentMonthDate->month;
-            $year = $currentMonthDate->year;
-
-            $monthName = $currentMonthDate->locale('th')->monthName; // Get Thai month name
-            $active = 1;
-            if($currentYear > $year){
-                $active = 0;
-            }else if($currentYear == $year){
-                if($currMonth > $monthNum){
-                    $active = 0;
-                }
+    // 3.2 Logic กรองสถานะ (จ่ายแล้ว / ค้างชำระ)
+    if ($statusFilter !== 'all') {
+        $query->whereHas('wasteBins.subscriptions', function($q) use ($fiscalYear, $statusFilter) {
+            $q->where('fiscal_year', $fiscalYear);
+            
+            if ($statusFilter == 'paid') {
+                $q->where('status', 'paid');
+            } else { // pending or partially_paid
+                $q->where('status', '!=', 'paid');
             }
-            $paymentSchedule[] = [
-                'month_num' => $monthNum,
-                'active' => $active,
-                'year' => $year,
-                'month_name' => $monthName,
-                'due_amount' => $wasteBinSubscription->month_fee, // Use month_fee from model
-                'paid_amount' => $wasteBinSubscription->getAmountPaidForMonth($monthNum, $year),
-                'is_paid' => $wasteBinSubscription->isMonthPaid($monthNum, $year),
-            ];
-        }
-        // Pass the payment_date from session if redirected from storePayment
-        $lastPaymentDate = session('last_payment_date');
-
-        return view('keptkayas.annual_payments.show', compact('wasteBinSubscription', 'paymentSchedule', 'lastPaymentDate', 'isBinActiveForAnnualCollection'));
+        });
     }
+    
+    // กรองเฉพาะคนที่มี Subscription ในปีนั้นจริงๆ (ป้องกัน User เก่าที่ปีนี้ไม่ได้ต่อสัญญาหลุดมา)
+    $query->whereHas('wasteBins.subscriptions', function($q) use ($fiscalYear) {
+        $q->where('fiscal_year', $fiscalYear);
+    });
 
-    public function print(WasteBinSubscription $wasteBinSubscription)
+    $preferences = $query->paginate(10);
+
+    // 4. เตรียมข้อมูลปีงบประมาณสำหรับ Dropdown (ย้อนหลัง 2 ปี + ปีหน้า 1 ปี)
+    $availableFiscalYears = collect(range($currentFiscalYear - 2, $currentFiscalYear + 1));
+
+    return view('keptkayas.annual_payments.index', compact(
+        'preferences', 
+        'fiscalYear', 
+        'availableFiscalYears',
+        'totalBins',
+        'paidBins',
+        'pendingBins',
+        'search',
+        'statusFilter'
+    ));
+}
+
+    public function show($id)
     {
-        $wasteBinSubscription->load(['wasteBin.user', 'payments.staff']);
+        // 1. ดึงข้อมูล Subscription พร้อม User และ Setting
+        $wasteBinSubscription = WasteBinSubscription::with([
+            'wasteBin.user.wastePreference',
+            // 'paymentDetails' // (Optional) ถ้ามี Relation เก็บประวัติการจ่ายรายเดือน ให้ eager load มาด้วย
+        ])->findOrFail($id);
 
-        // Check the status of the associated WasteBin
-        $isBinActiveForAnnualCollection = $wasteBinSubscription->wasteBin->is_active_for_annual_collection ?? false;
+        // 2. เช็คว่าถังขยะนี้เปิดบริการรายปีอยู่หรือไม่
+        $isBinActiveForAnnualCollection = false;
+        if (
+            $wasteBinSubscription->wasteBin &&
+            $wasteBinSubscription->wasteBin->user &&
+            $wasteBinSubscription->wasteBin->user->wastePreference
+        ) {
 
-        // Generate payment schedule for the fiscal year (Oct to Sep)
-        $paymentSchedule = [];
-        $startMonth = 10; // October
-        $endMonth = 9;    // September
-
-        // Determine the actual calendar year for the start of the fiscal year
-        $startCalYear = $wasteBinSubscription->fiscal_year - 1; // Fiscal year 2024 starts in Oct 2023
-
-        for ($i = 0; $i < 12; $i++) {
-            $currentMonthDate = Carbon::createFromDate($startCalYear, $startMonth, 1)->addMonths($i);
-
-            $monthNum = $currentMonthDate->month;
-            $year = $currentMonthDate->year;
-
-            $monthName = $currentMonthDate->locale('th')->monthName; // Get Thai month name
-
-            $paymentSchedule[] = [
-                'month_num' => $monthNum,
-                'year' => $year,
-                'month_name' => $monthName,
-                'due_amount' => $wasteBinSubscription->month_fee, // Use month_fee from model
-                'paid_amount' => $wasteBinSubscription->getAmountPaidForMonth($monthNum, $year),
-                'is_paid' => $wasteBinSubscription->isMonthPaid($monthNum, $year),
-            ];
+            $isBinActiveForAnnualCollection = $wasteBinSubscription->wasteBin->user->wastePreference->is_annual_collection;
         }
 
-        // Pass the payment_date from session if redirected from storePayment
-        $lastPaymentDate = session('last_payment_date');
+        // 3. กำหนดช่วงเวลาของปีงบประมาณ
+        // --- แก้ไขจุดที่ 1: ดึงปีงบประมาณ และแปลงเป็น ค.ศ. ถ้าจำเป็น ---
+    $fiscalYearDB = $wasteBinSubscription->fiscal_year; 
+    $fiscalYearAD = ($fiscalYearDB > 2400) ? $fiscalYearDB - 543 : $fiscalYearDB;
 
-        // return view('keptkayas.annual_payments.show', compact('wasteBinSubscription', 'paymentSchedule', 'lastPaymentDate', 'isBinActiveForAnnualCollection'));
+    // 2. ตั้งต้นวันที่ 1 ต.ค. ของปีก่อนหน้า (จุดเริ่มปีงบ)
+    $startOfFiscalYear = Carbon::create($fiscalYearAD - 1, 10, 1); 
+
+    // 3. หาวันที่สมัคร (Pro-rate)
+    if ($wasteBinSubscription->created_at) {
+        $memberSince = Carbon::parse($wasteBinSubscription->created_at)->startOfMonth();
+    } else {
+        $memberSince = $startOfFiscalYear->copy();
     }
+
+    $paymentSchedule = [];
+
+    // 4. Loop 12 เดือน
+    for ($i = 0; $i < 12; $i++) {
+        $currentDate = $startOfFiscalYear->copy()->addMonths($i);
+        $month = $currentDate->month;
+        $year = $currentDate->year;
+
+        // --- Logic: เช็คว่าเป็นเดือนก่อนสมัครหรือไม่ ---
+        // ถ้าเดือนของบิล (currentDate) < เดือนที่สมัคร (memberSince) -> Active = 0
+        $isActive = $currentDate->lt($memberSince) ? 0 : 1;
+
+        // --- Logic การจ่ายเงิน (ตัวอย่าง) ---
+        // TODO: ตรงนี้คุณต้อง Query จริงจาก DB ว่าจ่ายหรือยัง
+        $dueAmount = $wasteBinSubscription->month_fee;
+        $paidAmount = 0; 
+        $isPaid = false; 
+
+        $paymentSchedule[] = [
+            'month_num' => $month,
+            'year' => $year,
+            'month_name' => $this->getThaiMonth($month),
+            'due_amount' => $dueAmount,
+            'paid_amount' => $paidAmount,
+            'is_paid' => $isPaid,
+            'active' => $isActive, // 0 = ก่อนสมัคร, 1 = ปกติ
+        ];
+    }
+
+    return view('keptkayas.annual_payments.show', compact(
+        'wasteBinSubscription', 
+        'paymentSchedule', 
+        'isBinActiveForAnnualCollection'
+    ));
+}
+    // Helper Function แปลงชื่อเดือนไทย
+    private function getThaiMonth($monthNumber)
+    {
+        $thaiMonths = [
+            1 => 'มกราคม',
+            2 => 'กุมภาพันธ์',
+            3 => 'มีนาคม',
+            4 => 'เมษายน',
+            5 => 'พฤษภาคม',
+            6 => 'มิถุนายน',
+            7 => 'กรกฎาคม',
+            8 => 'สิงหาคม',
+            9 => 'กันยายน',
+            10 => 'ตุลาคม',
+            11 => 'พฤศจิกายน',
+            12 => 'ธันวาคม'
+        ];
+        return $thaiMonths[$monthNumber] ?? '';
+    }
+
+    // public function print(WasteBinSubscription $wasteBinSubscription)
+    // {
+    //     $wasteBinSubscription->load(['wasteBin.user', 'payments.staff']);
+
+    //     // Check the status of the associated WasteBin
+    //     $isBinActiveForAnnualCollection = $wasteBinSubscription->wasteBin->is_active_for_annual_collection ?? false;
+
+    //     // Generate payment schedule for the fiscal year (Oct to Sep)
+    //     $paymentSchedule = [];
+    //     $startMonth = 10; // October
+    //     $endMonth = 9;    // September
+
+    //     // Determine the actual calendar year for the start of the fiscal year
+    //     $startCalYear = $wasteBinSubscription->fiscal_year - 1; // Fiscal year 2024 starts in Oct 2023
+
+    //     for ($i = 0; $i < 12; $i++) {
+    //         $currentMonthDate = Carbon::createFromDate($startCalYear, $startMonth, 1)->addMonths($i);
+
+    //         $monthNum = $currentMonthDate->month;
+    //         $year = $currentMonthDate->year;
+
+    //         $monthName = $currentMonthDate->locale('th')->monthName; // Get Thai month name
+
+    //         $paymentSchedule[] = [
+    //             'month_num' => $monthNum,
+    //             'year' => $year,
+    //             'month_name' => $monthName,
+    //             'due_amount' => $wasteBinSubscription->month_fee, // Use month_fee from model
+    //             'paid_amount' => $wasteBinSubscription->getAmountPaidForMonth($monthNum, $year),
+    //             'is_paid' => $wasteBinSubscription->isMonthPaid($monthNum, $year),
+    //         ];
+    //     }
+
+    //     // Pass the payment_date from session if redirected from storePayment
+    //     $lastPaymentDate = session('last_payment_date');
+
+    //     // return view('keptkayas.annual_payments.show', compact('wasteBinSubscription', 'paymentSchedule', 'lastPaymentDate', 'isBinActiveForAnnualCollection'));
+    // }
     public function storePayment(Request $request, WasteBinSubscription $wasteBinSubscription)
     {
         $request->validate([
@@ -265,13 +358,13 @@ class WasteBinSubscriptionController extends Controller
     public function printReceipt(WasteBinSubscription $wasteBinSubscription)
     {
         $paymentDate = Carbon::parse(date('Y-m-d'));
-        
-         $payments = $wasteBinSubscription->payments()
+
+        $payments = $wasteBinSubscription->payments()
             ->whereDate('pay_date', $paymentDate)
             ->get();
         $paidMonthArr = collect($payments)->pluck('pay_mon');
 
-     
+
         if ($payments->isEmpty()) {
             return redirect()->back()->with('error', 'ไม่พบรายการชำระเงินสำหรับวันที่นี้.');
         }
@@ -290,9 +383,6 @@ class WasteBinSubscriptionController extends Controller
         ];
         $orgInfos = Organization::getOrgName(Auth::user()->org_id_fk);
         return view('keptkayas.annual_payments.receipt', compact('data', 'paidMonthArr', 'orgInfos'));
-        // This is the core logic to generate the PDF
-        // $pdf = Pdf::loadView('keptkayas.annual_payments.receipt', $data);
-        // return $pdf->download('receipt-' . $receiptCode . '.pdf');
     }
 
     public function invoice()
@@ -331,46 +421,37 @@ class WasteBinSubscriptionController extends Controller
         return view('keptkayas.annual_payments.print_invoices', compact('invoicesByUser'));
     }
 
-    public function history(Request $request){
+    public function history(Request $request)
+{
+    // 1. ดึงข้อมูลองค์กรครั้งเดียว
+    $orgInfos = Organization::getOrgName(Auth::user()->org_id_fk);
 
-        $users =  WasteBinSubscription::where('status', 'complete');
-         $users = $users->with(['wasteBin.user' => function($q){
-                return $q->select('id', 'firstname', 'lastname', 'address', 'zone_id');
-            }]);
-        if($request->nav == 'nav'){
-           
-        }else{
-            if($request->has('bin_code')){
-                $bin_code = $request->bin_code;
-                $users = $users->whereHas('wasteBin', function($q)use ($bin_code){
-                    $q->where('bin_code', $bin_code);
-                });
-                 $users = $users->with('payments');
+    // 2. เตรียม Query หลัก
+    $query = WasteBinSubscription::query()
+        ->where('status', 'paid') // หรือสถานะที่ถือว่าจ่ายเงินแล้ว
+        ->with([
+            'wasteBin.user.user_zone', // โหลด User และ Zone
+            'payments' // โหลด Payment เพื่อมาทำตารางเดือน
+        ]);
 
-            }
-      
-        }
-   $users = $users->get();
+    // 3. เตรียมข้อมูลสำหรับ Dropdown Search (List รายชื่อทั้งหมดที่มีประวัติ)
+    // ใช้ select เฉพาะที่จำเป็นเพื่อความเบา
+    $searchOptions = WasteBinSubscription::where('status', 'paid')
+        ->with('wasteBin.user:id,firstname,lastname,address,zone_id')
+        ->get()
+        ->unique('wasteBin.bin_code'); // ป้องกันถังซ้ำ (กรณีมีหลายปี)
 
+    // 4. Logic การค้นหา
+    $selectedSubscriptions = collect([]); // ค่าเริ่มต้นเป็น Collection ว่าง
 
-    $usersArray = [];
-    foreach($users as $user){
-        $usersArray[] = [
-            'user_id'       => $user->wasteBin->user_id,
-            'firstname'     => $user->wasteBin->user->firstname,
-            'lastname'      => $user->wasteBin->user->lastname,
-            'address'       => $user->wasteBin->user->address,
-            'zone_name'     => $user->wasteBin->user->user_zone->zone_name,
-            'fiscal_year'   => $user->fiscal_year,
-            'bin_code'      => $user->wasteBin->bin_code,
-            'datas'         => $request->has('nav') ? [] : $users,
-            'paidMonthArr'  => collect($user->payments)->pluck('pay_mon')
-        ];
-    
-    }  
-    
-        $orgInfos = Organization::getOrgName(Auth::user()->org_id_fk);
-        return view('keptkayas.annual_payments.history', compact('usersArray', 'orgInfos'));
- 
+    if ($request->has('bin_code') && !empty($request->bin_code)) {
+        // ถ้ามีการค้นหา ให้ Filter ตาม bin_code
+        // หมายเหตุ: ใช้ get() เผื่อ 1 ถังมีประวัติหลายปีงบประมาณ
+        $selectedSubscriptions = $query->whereHas('wasteBin', function ($q) use ($request) {
+            $q->where('bin_code', $request->bin_code);
+        })->orderBy('fiscal_year', 'desc')->get();
     }
+
+    return view('keptkayas.annual_payments.history', compact('searchOptions', 'selectedSubscriptions', 'orgInfos'));
+}
 }

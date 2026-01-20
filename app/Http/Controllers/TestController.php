@@ -9,7 +9,7 @@ use App\Models\Admin\Staff;
 use App\Models\Admin\UserProfile;
 use App\Models\SequenceNumber;
 use App\Models\Tabwater\TwAccTransactions;
-use App\Models\Tabwater\TwInvoiceTemp;
+use App\Models\Tabwater\TwInvoice;
 use App\Models\Tabwater\TwMeterInfos;
 use App\Models\User;
 use App\Models\UserMerterInfo;
@@ -44,7 +44,7 @@ class TestController extends Controller
         //     ->where('status',  'deleted')
         //     // ->where('deleted', '1')
         //     ->delete();
-    // return    $this->addNewUsers();
+        // return    $this->addNewUsers();
 
 
         $users =  DB::connection('envsogo_kp1')->table('users as u')
@@ -69,49 +69,49 @@ class TestController extends Controller
                 // 'umf.recorder_id',
                 // 'inv.acc_trans_id_fk',
                 'inv.*',
-                
+
                 // 'inv.status',
                 // 'inv.currentmeter'
             )
             // ->where('meter_id_fk', 300)
             ->get();
 
-            
-        foreach($users as $inv){
-          
-            $accTransIdOld = 0;  
-                if($inv->status == 'paid'){
-                    $acc = DB::connection('envsogo_kp1')->table('acc_transactions')
+
+        foreach ($users as $inv) {
+
+            $accTransIdOld = 0;
+            if ($inv->status == 'paid') {
+                $acc = DB::connection('envsogo_kp1')->table('acc_transactions')
                     ->where('id',  $inv->acc_trans_id_fk)->get()->first();
-                    $twAcc = TwAccTransactions::create([
-                        'vatsum' => $inv->vat, 
-                        'reserve_meter_sum'=> $inv->reserve_meter, 
-                        'paidsum' => $inv->paid, 
-                        'totalpaidsum' => $inv->totalpaid, 
-                        'cashier' => $acc->cashier,
-                        'created_at' => $acc->created_at,
-                        'updated_at' => $acc->updated_at
-                    ]);
-                    $accTransIdOld = $inv->acc_trans_id_fk;
-                    $accId = $twAcc->id;
-                }else{
-                    $twAcc = TwAccTransactions::create([
-                        'vatsum' => 0, 
-                        'reserve_meter_sum'=> 0, 
-                        'paidsum' => 0,
-                        'totalpaidsum' => 0, 
-                        'cashier' => 2859,
-                        'created_at' => date('Y-m-d H:i:s'),
-                        'updated_at' => date('Y-m-d H:i:s')
-                    ]);
-                     
-                    $accId = $twAcc->id;
-                }
+                $twAcc = TwAccTransactions::create([
+                    'vatsum' => $inv->vat,
+                    'reserve_meter_sum' => $inv->reserve_meter,
+                    'paidsum' => $inv->paid,
+                    'totalpaidsum' => $inv->totalpaid,
+                    'cashier' => $acc->cashier,
+                    'created_at' => $acc->created_at,
+                    'updated_at' => $acc->updated_at
+                ]);
+                $accTransIdOld = $inv->acc_trans_id_fk;
+                $accId = $twAcc->id;
+            } else {
+                $twAcc = TwAccTransactions::create([
+                    'vatsum' => 0,
+                    'reserve_meter_sum' => 0,
+                    'paidsum' => 0,
+                    'totalpaidsum' => 0,
+                    'cashier' => 2859,
+                    'created_at' => date('Y-m-d H:i:s'),
+                    'updated_at' => date('Y-m-d H:i:s')
+                ]);
 
-            
+                $accId = $twAcc->id;
+            }
 
-            
-            TwInvoiceTemp::create([
+
+
+
+            TwInvoice::create([
                 'meter_id_fk' => $inv->meter_id_fk,
                 'inv_period_id_fk' => $inv->inv_period_id_fk,
                 'lastmeter' => $inv->lastmeter,
@@ -130,21 +130,21 @@ class TestController extends Controller
                 'created_at' => $inv->created_at,
                 'updated_at' => $inv->updated_at
             ]);
-             
         }
-        
+
         // return $this->addNewTwMeterInfos($users);
-        
-        
+
+
     }
 
-    private function addNewUsers(){
-         $users =  DB::connection('envsogo_kp1')->table('users as u')
+    private function addNewUsers()
+    {
+        $users =  DB::connection('envsogo_kp1')->table('users as u')
             ->get();
 
         foreach ($users as $user) {
-            if($user->role_id == 3){
-                $email = "user".$user->id."@hz.lgov";
+            if ($user->role_id == 3) {
+                $email = "user" . $user->id . "@hz.lgov";
             }
             $newuser = new User();
             $newuser->id = $user->id;
@@ -173,52 +173,51 @@ class TestController extends Controller
 
             $newuser->save();
             $newuser->assignRole('User');
-            if($user->role_id ==2 || $user->role_id == 5){
+            if ($user->role_id == 2 || $user->role_id == 5) {
                 $staff = Staff::create([
                     'user_id' => $newuser->id,
                     'org_id_fk' => 1,
                     'status' => 'active',
                     'deleted' => '0',
                     'created_at' => date('Y-m-d H:i:s'),
-                    'updated_at' =>date('Y-m-d H:i:s'),
+                    'updated_at' => date('Y-m-d H:i:s'),
                 ]);
                 $staff = User::find($newuser->id);
-                if($user->role_id =2 ){
-                    
+                if ($user->role_id = 2) {
+
                     $staff->assignRole('Admin');
-                }else{
+                } else {
                     $staff->assignRole('Tabwater Staff');
                 }
-                   
-                
             }
         }
         return 'a';
     }
-    private function addNewTwMeterInfos($users){
+    private function addNewTwMeterInfos($users)
+    {
         $userG = collect($users)->groupBy('meter_id');
-        foreach($userG as $user){
+        foreach ($userG as $user) {
             // return $user;
             $last_reading_meter = collect($user)->last()->currentmeter;
             TwMeterInfos::create([
-                "meter_id"=> $user[0]->meter_id, 
+                "meter_id" => $user[0]->meter_id,
                 "org_id_fk" => 1,
-                "meter_address"=> $user[0]->meter_address,
-                'submeter_name' =>"",
-                "user_id"=>$user[0]->userId,
-                "meternumber"=>$user[0]->meternumber,
-                "metertype_id"=>$user[0]->metertype_id,
-                "undertake_zone_id"=>$user[0]->undertake_zone_id,
-                "undertake_subzone_id"=> $user[0]->undertake_subzone_id,
-                "acceptance_date"=> $user[0]->acceptance_date,
-                "status"=> $user[0]->umfStatus,
-                "payment_id"=> $user[0]->payment_id,
-                "discounttype"=> 0,
-                "recorder_id"=> $user[0]-> recorder_id,
+                "meter_address" => $user[0]->meter_address,
+                'submeter_name' => "",
+                "user_id" => $user[0]->userId,
+                "meternumber" => $user[0]->meternumber,
+                "metertype_id" => $user[0]->metertype_id,
+                "undertake_zone_id" => $user[0]->undertake_zone_id,
+                "undertake_subzone_id" => $user[0]->undertake_subzone_id,
+                "acceptance_date" => $user[0]->acceptance_date,
+                "status" => $user[0]->umfStatus,
+                "payment_id" => $user[0]->payment_id,
+                "discounttype" => 0,
+                "recorder_id" => $user[0]->recorder_id,
                 'cutmeter' => '0',
                 'factory_no' => "",
-                'inv_no_index' =>1,
-                'last_meter_recording'=>$last_reading_meter
+                'inv_no_index' => 1,
+                'last_meter_recording' => $last_reading_meter
             ]);
         }
     }

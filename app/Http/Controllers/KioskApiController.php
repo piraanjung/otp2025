@@ -79,7 +79,8 @@ class KioskApiController extends Controller
             return response()->json([
                 'status' => 'found',
                 'user_id' => $user->id,
-                'name' => $user->firstname
+                'picture' => $user->image,
+                'name' => $user->firstname." ".$user->firstname,
             ]);
         }
         return response()->json(['status' => 'not_found'], 404);

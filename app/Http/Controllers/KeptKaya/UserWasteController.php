@@ -348,29 +348,39 @@ class UserWasteController extends Controller
      */
     public function updateWasteServicePreferences(Request $request)
     {
-        $validatedData = $request->validate([
-            'is_annual_collection' => 'boolean',
-            'is_waste_bank' => 'boolean',
-        ]);
+        $wasteData = $request->input('waste', []);
 
-        // ดึงหรือสร้าง UserWastePreference
-        foreach ($request->get('waste') as $key => $waste) {
-            $user = User::find($key);
-            $preference = $user->wastePreference()->firstOrCreate(['user_id' => $user->id]);
-            // อัปเดตค่าตามที่ส่งมาจากฟอร์ม
-            $preference->is_annual_collection = isset($waste['is_annual_collection']) ? $waste['is_annual_collection'] : 0;
+    DB::transaction(function () use ($wasteData) {
+        foreach ($wasteData as $userId => $preferences) {
+            
+            // 1. เตรียมข้อมูล boolean (แปลงค่า 1/0 เป็น true/false)
+            $isAnnual = isset($preferences['is_annual_collection']) && $preferences['is_annual_collection'] == '1';
+            $isWasteBank = isset($preferences['is_waste_bank']) && $preferences['is_waste_bank'] == '1';
 
-            $preference->is_waste_bank = isset($waste['is_waste_bank']) ? $waste['is_waste_bank'] : 0;
+            // 2. ดึง User มาตรวจสอบความถูกต้อง (Optional: ป้องกัน Data Integrity)
+            $user = User::with('wasteBins')->find($userId);
+            if (!$user) continue;
 
-            $preference->save();
+            // 🔴 Security Check: ถ้ามีถังขยะอยู่ ห้ามปิด Annual Collection
+            // (เป็นการ Re-validate ฝั่ง Server เผื่อคนแอบแก้ HTML)
+            if ($user->wasteBins->count() > 0) {
+                $isAnnual = true; // บังคับเปิดเสมอถ้ามีถังขยะ
+            }
+
+            // 3. บันทึกหรืออัปเดตข้อมูลลง Model KpUserWastePreference
+            // ใช้ updateOrCreate เพื่อ: ถ้ามีแล้ว->อัปเดต, ถ้าไม่มี->สร้างใหม่
+            KpUserWastePreference::updateOrCreate(
+                ['user_id' => $userId], // เงื่อนไขการค้นหา
+                [
+                    'is_annual_collection' => $isAnnual,
+                    'is_waste_bank' => $isWasteBank,
+                ]
+            );
         }
+    });
 
-
-        // เรียก Service เพื่อรัน Logic การอัปเดตสถานะโดยรวม (เผื่อมี Logic บังคับอื่นๆ)
-        // $this->wasteStatusService->updateOverallUserWasteStatus($user);
-
-        return redirect()->back()->with('success', 'Waste service preferences updated.');
-    }
+    return redirect()->back()->with('success', 'บันทึกข้อมูลบริการเรียบร้อยแล้ว');
+}
 
     /**
      * แสดงหน้าสำหรับเลือกผู้ใช้ที่ยังไม่ได้เป็นสมาชิกบริการขยะ

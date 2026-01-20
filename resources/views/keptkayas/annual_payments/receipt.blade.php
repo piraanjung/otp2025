@@ -542,8 +542,10 @@
         </div>
     </div>
 
+    <script src="https://code.jquery.com/jquery-3.7.0.js"></script>
 
      <script>
+        
         $(document).ready(function () {
             // console.log($('#qrcode_text').val())
             // $('#qrcode').qrcode($('#qrcode_text').val());
@@ -578,19 +580,11 @@
 
             head.appendChild(style);
 
-            // window.print();
-            // if ($('#type').val() == 'paid_receipt') {
-            //     setTimeout(function () {
-            //         window.location.href = '/payment';
-            //     }, 200);
-            // } else {
-            //     //type == history_recipt
-            //     setTimeout(function () {
-            //         $("input[type='submit']").click();
-
-            //     }, 200);
-
-            // }
+            window.print();
+                setTimeout(function () {
+                    window.location.href = '/keptkayas/annual-payments';
+                }, 200);
+            
         });
     </script>
 </body>

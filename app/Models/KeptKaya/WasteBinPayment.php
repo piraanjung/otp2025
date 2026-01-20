@@ -30,7 +30,7 @@ class WasteBinPayment extends Model
      */
     public function subscription()
     {
-        return $this->belongsTo(WasteBinSubscription::class);
+        return $this->belongsTo(WasteBinSubscription::class, 'wbs_id');
     }
 
     /**

@@ -4,46 +4,70 @@ namespace App\Models\KeptKaya;
 
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Support\Facades\DB; // เพิ่มเพื่อใช้ DB Transaction
+
+namespace App\Models\KeptKaya;
+
+use Illuminate\Database\Eloquent\Factories\HasFactory;
+use Illuminate\Database\Eloquent\Model;
+use Illuminate\Support\Facades\DB;
 
 class KPAccounts extends Model
 {
     use HasFactory;
 
     protected $table = 'kp_accounts';
-    public $primaryKey = 'u_wpref_id_fk';
+    
+    // PK เป็น FK (1-to-1)
+    protected $primaryKey = 'u_wpref_id_fk';
+    
+    // ปิด incrementing เพราะ PK กำหนดเอง
+    public $incrementing = false; 
+
     protected $fillable = [
-        'u_wpref_id_fk','balance','points','status'
+        'u_wpref_id_fk', 'balance', 'points', 'status'
+    ];
+
+    protected $casts = [
+        'balance' => 'decimal:2', // ตอนดึงออกมาจะเป็น string/float ตาม PHP version
+        'points'  => 'integer'
     ];
 
     public function userWastePreference(){
-        return $this->belongsTo( KpUserWastePreference::class, 'u_wpref_id_fk', 'id' );
+        return $this->belongsTo(KpUserWastePreference::class, 'u_wpref_id_fk', 'id');
     }
 
-    public function registerAccount($u_w_pref_id){
-        $res = 0;
-        $kPAccounts = new KPAccounts();
-        $check = $kPAccounts->where('u_wpref_id_fk', $u_w_pref_id)->count();
-        if($check == 0){
-            $kPAccounts->create([
-                'u_wpref_id_fk' => $u_w_pref_id,
-                'balance'       => 0,
-                'points'        => 0,
-                'status'        => 'active',
-                'created_at'    => date('Y-m-d H:i:s'),
-                'updated_at'    => date('Y-m-d H:i:s'),
-            ]);
-            $res = 1;
-        }
-
-        return $res;
+    /**
+     * สร้างบัญชีใหม่
+     */
+    public static function registerAccount($u_w_pref_id)
+    {
+        $account = self::firstOrCreate(
+            ['u_wpref_id_fk' => $u_w_pref_id],
+            [
+                'balance'    => 0,
+                'points'     => 0,
+                'status'     => 'active',
+            ]
+        );
+        
+        return $account->wasRecentlyCreated;
     }
 
-    public function updateBalanceAndPoint($u_w_pref_id, $balance, $points){
-        $remain = KPAccounts::where('u_wpref_id_fk', $u_w_pref_id)->get()->first();
-        KPAccounts::where('u_wpref_id_fk', $u_w_pref_id)->update([
-            'balance' => $remain->balance + $balance,
-            'points' => $remain->points + $points,
-            'updated_at' => date('Y-m-d H:i:s'),
+    /**
+     * อัปเดตยอดเงินและแต้ม (Atomic Update)
+     * รองรับทั้งการเพิ่ม (+) และการลด (-)
+     */
+    public static function updateBalanceAndPoint($u_w_pref_id, $amount, $points)
+    {
+        // Cast Type เพื่อป้องกัน SQL Injection ชัวร์ๆ
+        $amount = (float) $amount;
+        $points = (int) $points;
+
+        return self::where('u_wpref_id_fk', $u_w_pref_id)->update([
+            'balance'    => DB::raw("balance + $amount"),
+            'points'     => DB::raw("points + $points"),
+            'updated_at' => now(),
         ]);
     }
 }

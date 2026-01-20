@@ -12,7 +12,7 @@ class WasteBinSubscription extends Model
 
     protected $table = 'kp_waste_bin_subscriptions';
 
-    public $timestamps = false;
+    public $timestamps = true;
     protected $fillable = [
         'waste_bin_id',
         'fiscal_year',
@@ -21,6 +21,11 @@ class WasteBinSubscription extends Model
         'month_fee',
         'total_paid_amt',
         'status',
+    ];
+
+    protected $casts = [
+        'created_at' => 'datetime',
+        'updated_at' => 'datetime',
     ];
 
 

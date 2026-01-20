@@ -1,172 +1,175 @@
 <style>
     .tier-row {
         margin-bottom: 10px;
-        padding: 10px;
-        border: 1px solid #eee;
-        background-color: #f9f9f9;
+        padding: 15px;
+        border: 1px solid #e3e6f0;
+        background-color: #f8f9fc;
+        border-radius: 5px;
+        position: relative;
     }
-
-    .tier-row button {
-        margin-left: 10px;
+    .btn-remove-tier {
+        position: absolute;
+        top: 10px;
+        right: 10px;
     }
 </style>
 
+{{-- ส่วนจัดการ Meter Type และ Pricing Type --}}
 <div class="row">
-    <div class="col-12 col-md-6">
-        <label for="meter_type_id">ประเภทมิเตอร์:</label><br>
-        <select id="meter_type_id" name="meter_type_id" class="form-control" required>
-            <option value="">เลือก..</option>
+    <div class="col-12 col-md-6 mb-3">
+        <label for="meter_type_id_fk" class="font-weight-bold">ประเภทมิเตอร์ <span class="text-danger">*</span></label>
+        <select id="meter_type_id_fk" name="meter_type_id_fk" class="form-control" required>
+            <option value="">-- เลือกประเภทมิเตอร์ --</option>
             @foreach ($meterTypes as $type)
-                <option value="{{ $type->id }}" {{ old('meter_type_id', $meterRateConfig->meter_type_id ?? '') == $type->id ? 'selected' : '' }}>
-                    {{ $type->meter_type_name }}
+                <option value="{{ $type->id }}" 
+                    {{ old('meter_type_id_fk', $meterRateConfig->meter_type_id_fk ?? '') == $type->id ? 'selected' : '' }}>
+                    {{ $type->meter_type_name }} ({{ $type->metersize }}")
                 </option>
             @endforeach
         </select>
     </div>
 
-
-    <div class="col-12 col-md-6">
-        <label for="pricing_type_id">ประเภทการชำระ:</label><br>
+    <div class="col-12 col-md-6 mb-3">
+        <label for="pricing_type_id" class="font-weight-bold">ประเภทการคำนวณราคา <span class="text-danger">*</span></label>
         <select id="pricing_type_id" name="pricing_type_id" class="form-control" required>
-            <option value="">เลือก..</option>
+            <option value="">-- เลือกประเภท --</option>
             @foreach ($pricingTypes as $type)
-                <option value="{{ $type->id }}" {{ old('pricing_type_id', $meterRateConfig->pricing_type_id ?? '') == $type->id ? 'selected' : '' }}>
-                    {{ $type->name }}
+                <option value="{{ $type->id }}" 
+                    {{ old('pricing_type_id', $meterRateConfig->pricing_type_id ?? '') == $type->id ? 'selected' : '' }}>
+                    {{ ucfirst($type->name) }}
                 </option>
             @endforeach
         </select>
     </div>
 </div>
 
-<div>
-    <label for="min_usage_charge">ค่ารักษามิเตอร์:</label><br>
-    <input type="number" step="0.01" class="form-control" id="min_usage_charge" name="min_usage_charge"
-        value="{{ old('min_usage_charge', $meterRateConfig->min_usage_charge ?? 0) }}" required>
-</div>
-<br>
-
-<div id="fixed_rate_section">
-    <label for="fixed_rate_per_unit">อัตราการชำระค่าน้ำต่อหน่วย:</label><br>
-    <input type="number" step="0.5" class="form-control" id="fixed_rate_per_unit" name="fixed_rate_per_unit"
-        value="{{ old('fixed_rate_per_unit', $meterRateConfig->fixed_rate_per_unit ?? '') }}">
-</div>
-<br>
-{{-- @dd($meterRateConfig->tiers->count()) --}}
-
-<div id="progressive_tiers_section">
-    <h3>อัตราการชำระค่าน้ำแบบก้าวหน้า</h3>
-    <div id="tiers_container">
-        {{-- ตรวจสอบว่า $meterRateConfig ถูกส่งมาและเป็น Record จาก DB และมี tiers --}}
-
-        @if (isset($meterRateConfig) && $meterRateConfig->Ratetiers->count() == 0)
-        @php
-            $index = 0;
-        @endphp
-            @foreach ($meterRateConfig->Ratetiers as $tier)
-                <div class="tier-row">
-                    <label>Tier {{ $index + 1 }}</label><br>
-                    <div class="row">
-                        <div class="col-12 col-md-2">
-                            <label>Min Units:</label>
-                            <input type="number" class="form-control" name="tiers[{{ $index }}][min_units]"
-                                value="{{ old('tiers.' . $index . '.min_units', $tier->min_units) }}" required>
-                        </div>
-                        <div class="col-12 col-md-2">
-                            <label>Max Units:</label>
-                            <input type="number" class="form-control" name="tiers[{{ $index }}][max_units]"
-                                value="{{ old('tiers.' . $index . '.max_units', $tier->max_units) }}">
-
-                        </div>
-                        <div class="col-12 col-md-2">
-                            <label>Rate/Unit:</label>
-                            <input type="number" class="form-control" step="0.5" name="tiers[{{ $index }}][rate_per_unit]"
-                                value="{{ old('tiers.' . $index . '.rate_per_unit', $tier->rate_per_unit) }}" required>
-                        </div>
-                        <div class="col-12 col-md-4">
-                            <label>Comment:</label>
-                            <input type="text" name="tiers[{{ $index }}][comment]"
-                                value="{{ old('tiers.' . $index . '.comment', $tier->comment) }}">
-
-                        </div>
-                        <div class="col-12 col-md-2">
-                            <label>&nbsp;</label>
-                            <button type="button" class="btn btn-danger" onclick="removeTier(this)"><i
-                                    class="fa fa-trash"></i></button>
-                        </div>
-                    </div>
-
-                </div>
-            @endforeach
-            {{-- ส่วนนี้สำหรับ old('tiers') เมื่อเกิด Validation Error --}}
-            {{-- @elseif (old('tiers')) --}}
-        @else
-            @foreach ($meterRateConfig->Ratetiers as $index => $tier)
-                <div class="tier-row">
-                    <label>Tier {{ $index + 1 }}</label><br>
-                    <div class="row">
-                        <div class="col-12 col-md-2">
-                            <label>Min Units:</label>
-                            <input type="number" class="form-control" name="tiers[{{ $index }}][min_units]"
-                                value="{{ $tier['min_units'] ?? '' }}" required>
-                        </div>
-                        <div class="col-12 col-md-2">
-                            <label>Max Units:</label>
-                            <input type="number" class="form-control" name="tiers[{{ $index }}][max_units]"
-                                value="{{ $tier['max_units'] ?? '' }}">
-                        </div>
-                        <div class="col-12 col-md-2">
-                            <label>Rate/Unit:</label>
-                            <input type="number" class="form-control" step="0.0001" name="tiers[{{ $index }}][rate_per_unit]"
-                                value="{{ $tier['rate_per_unit'] ?? '' }}" required>
-                        </div>
-                        <div class="col-12 col-md-4">
-                            <label>Comment:</label>
-                            <input type="text" class="form-control" name="tiers[{{ $index }}][comment]" value="{{ $tier['comment'] ?? '' }}">
-                        </div>
-                        <div class="col-12 col-md-2">
-                            <label>&nbsp;</label><br>
-                            <button type="button" class="btn btn-danger" onclick="removeTier(this)">ลบ</button>
-                        </div>
-                    </div>
-                </div>
-            @endforeach
-        @endif
-    </div>
-    <button type="button" class="btn btn-info" onclick="addTier()">Add Tier</button>
-</div>
-<br>
-
+{{-- ส่วนค่าบริการขั้นต่ำ --}}
 <div class="row">
-    <div class="col-12 col-md-6">
-        <label for="effective_date">Effective Date:</label><br>
+    <div class="col-12 col-md-6 mb-3">
+        <label for="min_usage_charge" class="font-weight-bold">ค่าบริการขั้นต่ำ / ค่ารักษามิเตอร์ (บาท) <span class="text-danger">*</span></label>
+        <input type="number" step="0.01" class="form-control" id="min_usage_charge" name="min_usage_charge"
+            value="{{ old('min_usage_charge', $meterRateConfig->min_usage_charge ?? 0) }}" required>
+    </div>
+    <div class="col-12 col-md-6 mb-3">
+        <label for="vat" class="font-weight-bold">VAT (%)</label>
+        <input type="number" step="0.01" class="form-control" id="vat" name="vat"
+            value="{{ old('vat', $meterRateConfig->vat ?? 7) }}">
+    </div>
+</div>
+
+<hr>
+
+{{-- Section: Fixed Rate --}}
+<div id="fixed_rate_section" style="display: none;">
+    <h5 class="text-primary">กำหนดราคาแบบคงที่ (Fixed Rate)</h5>
+    <div class="form-group">
+        <label for="fixed_rate_per_unit">อัตราค่าน้ำต่อหน่วย (บาท)</label>
+        <input type="number" step="0.01" class="form-control" id="fixed_rate_per_unit" name="fixed_rate_per_unit"
+            value="{{ old('fixed_rate_per_unit', $meterRateConfig->fixed_rate_per_unit ?? '') }}">
+        <small class="text-muted">คิดราคาเดียวทุกหน่วยการใช้น้ำ</small>
+    </div>
+</div>
+
+{{-- Section: Progressive Rate (Tiers) --}}
+<div id="progressive_tiers_section" style="display: none;">
+    <div class="d-flex justify-content-between align-items-center mb-3">
+        <h5 class="text-primary m-0">กำหนดราคาแบบขั้นบันได (Progressive Rate)</h5>
+        <button type="button" class="btn btn-info btn-sm" onclick="addTier()">
+            <i class="fas fa-plus"></i> เพิ่มขั้นบันได (Add Tier)
+        </button>
+    </div>
+
+    <div id="tiers_container">
+        @php
+            // รวม Logic ดึงข้อมูล: ถ้ามี Old Input (Submit ไม่ผ่าน) ให้ใช้ Old, ถ้าไม่มีให้ใช้ DB, ถ้าไม่มีเลยให้เป็น Array ว่าง
+            $tiersData = [];
+            if(old('tiers')) {
+                $tiersData = old('tiers');
+            } elseif(isset($meterRateConfig) && $meterRateConfig->Ratetiers && $meterRateConfig->Ratetiers->count() > 0) {
+                $tiersData = $meterRateConfig->Ratetiers;
+            }
+        @endphp
+
+        @foreach ($tiersData as $index => $tier)
+            {{-- แปลงข้อมูลให้เป็น Array เสมอ เพื่อให้เรียกใช้ง่าย --}}
+            @php
+                $min = is_array($tier) ? ($tier['min_units'] ?? '') : $tier->min_units;
+                $max = is_array($tier) ? ($tier['max_units'] ?? '') : $tier->max_units;
+                $rate = is_array($tier) ? ($tier['rate_per_unit'] ?? '') : $tier->rate_per_unit;
+                $comment = is_array($tier) ? ($tier['comment'] ?? '') : $tier->comment;
+            @endphp
+
+            <div class="tier-row">
+                <button type="button" class="btn btn-danger btn-sm btn-remove-tier" onclick="removeTier(this)">
+                    <i class="fas fa-times"></i>
+                </button>
+                <h6 class="text-secondary font-weight-bold">Tier <span class="tier-number">{{ $index + 1 }}</span></h6>
+                
+                <div class="row">
+                    <div class="col-12 col-md-3">
+                        <label>หน่วยเริ่มต้น (Min)</label>
+                        <input type="number" class="form-control" name="tiers[{{ $index }}][min_units]" 
+                               value="{{ $min }}" required min="0" placeholder="0">
+                    </div>
+                    <div class="col-12 col-md-3">
+                        <label>ถึงหน่วยที่ (Max)</label>
+                        <input type="number" class="form-control" name="tiers[{{ $index }}][max_units]" 
+                               value="{{ $max }}" placeholder="ว่าง = ไม่จำกัด">
+                    </div>
+                    <div class="col-12 col-md-3">
+                        <label>ราคา/หน่วย (บาท)</label>
+                        <input type="number" step="0.01" class="form-control" name="tiers[{{ $index }}][rate_per_unit]" 
+                               value="{{ $rate }}" required min="0">
+                    </div>
+                    <div class="col-12 col-md-3">
+                        <label>หมายเหตุ</label>
+                        <input type="text" class="form-control" name="tiers[{{ $index }}][comment]" 
+                               value="{{ $comment }}">
+                    </div>
+                </div>
+            </div>
+        @endforeach
+    </div>
+    
+    @if(empty($tiersData))
+        <div class="alert alert-light text-center border mt-2" id="no-tier-alert">
+            <small class="text-muted">ยังไม่มีข้อมูลขั้นบันได กรุณากดปุ่ม "เพิ่มขั้นบันได"</small>
+        </div>
+    @endif
+</div>
+
+<hr>
+
+{{-- วันที่และสถานะ --}}
+<div class="row">
+    <div class="col-12 col-md-4 mb-3">
+        <label for="effective_date">วันที่เริ่มใช้งาน (Effective Date)</label>
         <input type="date" id="effective_date" name="effective_date" class="form-control"
-            value="{{ old('effective_date', (isset($meterRateConfig) && $meterRateConfig->effective_date) ? $meterRateConfig->effective_date->format('Y-m-d') : date('Y-m-d')) }}"
+            value="{{ old('effective_date', isset($meterRateConfig->effective_date) ? \Carbon\Carbon::parse($meterRateConfig->effective_date)->format('Y-m-d') : date('Y-m-d')) }}"
             required>
     </div>
-    <div class="col-12 col-md-6">
-        <label for="end_date">End Date:</label><br>
+    <div class="col-12 col-md-4 mb-3">
+        <label for="end_date">วันที่สิ้นสุด (End Date)</label>
         <input type="date" id="end_date" name="end_date" class="form-control"
-            value="{{ old('end_date', (isset($meterRateConfig) && $meterRateConfig->end_date) ? $meterRateConfig->end_date->format('Y-m-d') : '') }}">
+            value="{{ old('end_date', isset($meterRateConfig->end_date) ? \Carbon\Carbon::parse($meterRateConfig->end_date)->format('Y-m-d') : '') }}">
+        <small class="text-muted">ปล่อยว่างหากไม่มีกำหนด</small>
     </div>
-
-</div>
-
-
-<div class="row">
-    <div class="col-12 col-md-6">
-        <label for="is_active">Is Active</label>
+    <div class="col-12 col-md-4 mb-3">
+        <label for="is_active">สถานะ (Status)</label>
         <select id="is_active" name="is_active" class="form-control">
-            <option value="1" {{ $meterRateConfig->is_active == 1 || collect($meterRateConfig->is_active)->isEmpty() ? 'selected' : '' }}>Active</option>
-            <option value="0" {{ $meterRateConfig->is_active == 0 && collect($meterRateConfig->is_active)->isNotEmpty() ? 'selected' : '' }}>Inactive</option>
+            {{-- ✅ แก้ Error จุดนี้: ใช้ isset เช็คก่อน --}}
+            <option value="1" {{ old('is_active', $meterRateConfig->is_active ?? 1) == 1 ? 'selected' : '' }}>Active (ใช้งาน)</option>
+            <option value="0" {{ old('is_active', $meterRateConfig->is_active ?? 1) == 0 ? 'selected' : '' }}>Inactive (ไม่ใช้งาน)</option>
         </select>
     </div>
-    <div class="col-12 col-md-6">
-        <label for="comment">Comment:</label><br>
-        <textarea id="comment" name="comment"
-            class="form-control">{{ old('comment', $meterRateConfig->comment ?? '') }}</textarea>
-    </div>
 </div>
 
+<div class="form-group">
+    <label for="comment">หมายเหตุเพิ่มเติม</label>
+    <textarea id="comment" name="comment" class="form-control" rows="3">{{ old('comment', $meterRateConfig->comment ?? '') }}</textarea>
+</div>
+
+{{-- Javascript --}}
 <script>
     document.addEventListener('DOMContentLoaded', function () {
         const pricingTypeSelect = document.getElementById('pricing_type_id');
@@ -174,85 +177,97 @@
         const progressiveTiersSection = document.getElementById('progressive_tiers_section');
         const fixedRateInput = document.getElementById('fixed_rate_per_unit');
         const tiersContainer = document.getElementById('tiers_container');
+        const noTierAlert = document.getElementById('no-tier-alert');
 
-        let tierCounter = tiersContainer.children.length; // สำหรับนับจำนวน Tier ที่มีอยู่แล้ว
+        // Logic check ID ตาม PricingType ใน Database (1=Fixed, 2=Progressive)
+        // ถ้า Database คุณ ID ต่างจากนี้ ให้แก้เลขตรงนี้นะครับ
+        const TYPE_FIXED = '1'; 
+        const TYPE_PROGRESSIVE = '2'; 
 
         function togglePricingFields() {
-            const selectedPricingTypeName = pricingTypeSelect.options[pricingTypeSelect.selectedIndex].text;
-            const selectedPricingTypeId = pricingTypeSelect.value
+            const selectedType = pricingTypeSelect.value;
+            
+            // Reset required attributes first
+            fixedRateInput.removeAttribute('required');
+            const tierInputs = tiersContainer.querySelectorAll('input[required]');
+            // Tier inputs required status is handled by their existence, mostly.
 
-            // if (selectedPricingTypeName === ('Fixed').toLowerCase()) {
-            if (selectedPricingTypeId == 1) {//Fixed
+            if (selectedType == TYPE_FIXED) {
                 fixedRateSection.style.display = 'block';
-                fixedRateInput.setAttribute('required', 'required'); // บังคับกรอก
                 progressiveTiersSection.style.display = 'none';
-            } else if (selectedPricingTypeId == 2) {//Progressive
-            // } else if (selectedPricingTypeName === ('Progressive').toLowerCase()) {
+                fixedRateInput.setAttribute('required', 'required');
+            } 
+            else if (selectedType == TYPE_PROGRESSIVE) {
                 fixedRateSection.style.display = 'none';
-                fixedRateInput.removeAttribute('required'); // ไม่บังคับกรอก
-                fixedRateInput.value = ''; // เคลียร์ค่า
                 progressiveTiersSection.style.display = 'block';
-                console.log('selectedPricingTypeName', selectedPricingTypeName)
-
-                // ตรวจสอบว่ามี Tier อย่างน้อย 1 อัน ถ้าเป็น Progressive
+                
+                // ถ้าไม่มี tier เลย ให้เพิ่มอัตโนมัติ 1 อัน
                 if (tiersContainer.children.length === 0) {
-                    // addTier(); // อาจจะเพิ่ม Tier แรกอัตโนมัติ
+                    addTier();
                 }
-            } else { // ไม่มีประเภทราคาที่เลือก
+            } 
+            else {
                 fixedRateSection.style.display = 'none';
-                fixedRateInput.removeAttribute('required');
-                fixedRateInput.value = '';
                 progressiveTiersSection.style.display = 'none';
             }
         }
 
-        function addTier() {
-            const newTierDiv = document.createElement('div');
-            newTierDiv.classList.add('tier-row');
-            newTierDiv.innerHTML = `
-                <label>Tier ${tierCounter + 1}</label><br>
+        // ทำให้ function เป็น Global เพื่อเรียกผ่าน onclick ได้
+        window.addTier = function() {
+            if(noTierAlert) noTierAlert.style.display = 'none';
+            
+            // ใช้ Timestamp เป็น Index ชั่วคราว เพื่อไม่ให้ Key ซ้ำเวลาลบแล้วเพิ่มใหม่
+            const index = Date.now(); 
+            const tierCount = tiersContainer.children.length + 1;
+
+            const html = `
+            <div class="tier-row" id="tier-row-${index}">
+                <button type="button" class="btn btn-danger btn-sm btn-remove-tier" onclick="removeTier(this)">
+                    <i class="fas fa-times"></i>
+                </button>
+                <h6 class="text-secondary font-weight-bold">Tier <span class="tier-number">${tierCount}</span></h6>
                 <div class="row">
-                    <div class="col-12 col-md-2">
-                        <label class=""> Min Units: </label>
-                       <input type="number" class="form-control" name="tiers[${tierCounter}][min_units]" required min="0">
+                    <div class="col-12 col-md-3">
+                        <label>หน่วยเริ่มต้น (Min)</label>
+                        <input type="number" class="form-control" name="tiers[${index}][min_units]" required min="0">
                     </div>
-                    <div class="col-12 col-md-2">
-                        <label class="">Max Units:</label>
-                         <input type="number" class="form-control" name="tiers[${tierCounter}][max_units]" min="0">
+                    <div class="col-12 col-md-3">
+                        <label>ถึงหน่วยที่ (Max)</label>
+                        <input type="number" class="form-control" name="tiers[${index}][max_units]">
                     </div>
-                    <div class="col-12 col-md-2">
-                        <label class="">Rate/Unit:</label>
-                         <input type="number" class="form-control" step="0.0001" name="tiers[${tierCounter}][rate_per_unit]" required min="0">
+                    <div class="col-12 col-md-3">
+                        <label>ราคา/หน่วย</label>
+                        <input type="number" step="0.01" class="form-control" name="tiers[${index}][rate_per_unit]" required min="0">
                     </div>
-                    <div class="col-12 col-md-4">
-                        <label class="">Comment: </label>
-                        <input type="text" class="form-control"  name="tiers[${tierCounter}][comment]">
-                    </div>
-                    <div class="col-12 col-md-1">
-                         <label class="">&nbsp;</label>
-                        <button type="button" class="btn btn-warning btn-sm" onclick="removeTier(this)">ลบ</button>
+                    <div class="col-12 col-md-3">
+                        <label>หมายเหตุ</label>
+                        <input type="text" class="form-control" name="tiers[${index}][comment]">
                     </div>
                 </div>
-                
-            `;
-            tiersContainer.appendChild(newTierDiv);
-            tierCounter++;
+            </div>`;
+            
+            tiersContainer.insertAdjacentHTML('beforeend', html);
+            updateTierNumbers();
+        };
+
+        window.removeTier = function(btn) {
+            btn.closest('.tier-row').remove();
+            updateTierNumbers();
+        };
+
+        function updateTierNumbers() {
+            const rows = tiersContainer.querySelectorAll('.tier-row');
+            rows.forEach((row, index) => {
+                row.querySelector('.tier-number').textContent = index + 1;
+            });
+            
+            if (rows.length === 0 && noTierAlert) {
+                noTierAlert.style.display = 'block';
+            }
         }
 
-        function removeTier(button) {
-            button.closest('.tier-row').remove();
-            // ปรับปรุง tierCounter หากจำเป็น (ถ้ามีการลบจากตรงกลาง)
-            // หรืออาจจะแค่ปล่อยให้ index ใน form array มีช่องว่างก็ได้
-        }
-
-        // กำหนดฟังก์ชันให้เป็น Global เพื่อให้ HTML สามารถเรียกได้
-        window.addTier = addTier;
-        window.removeTier = removeTier;
-
-        // เรียกใช้ครั้งแรกเมื่อโหลดหน้า
+        // Init
         togglePricingFields();
-
-        // เพิ่ม Event Listener เมื่อมีการเปลี่ยนแปลง Pricing Type
         pricingTypeSelect.addEventListener('change', togglePricingFields);
     });
 </script>

@@ -34,7 +34,7 @@ class LineController extends Controller
                 ->with('wastePreference')
                 ->first();
         if(collect($user)->isEmpty() || collect($user->wastePreference)->isEmpty()){
-            $org_id     = 0; 
+            $org_id     = 0;
             $user_id    = 0;
         }else{
             $org_id         = $user->org_id_fk;
@@ -42,8 +42,8 @@ class LineController extends Controller
             $user_id        = $user->id;
             $waste_pref_id  = $user->wastePreference->id;
         }
-        
-       
+
+
         return response()->json([
             'res'           => $res,
             'user_id'       => $user_id,
@@ -55,6 +55,7 @@ class LineController extends Controller
 
     public function user_line_register(Request $request)
     {
+        return $request->all();
 
         $user =User::create([
             'username'      => $request->org_id.$request->phoneNum,
@@ -107,11 +108,11 @@ class LineController extends Controller
 
     public function update_user_by_phone(Request $request)
     {
-        
+
         // return $request;
         $user_org = (new Organization())->setConnection('envsogo_main')::find($request->org_id);
 
-       
+
         $_user = (new User())->setConnection($user_org->org_database)->where('phone', $request->phoneNum)->get()->first();
         $res            = 0;
         $user_id        = 0;
@@ -136,7 +137,7 @@ class LineController extends Controller
             $user_org = Organization::find($request->org_id);
             $local_user = (new User())->setConnection($user_org->org_database)->where('phone', $request->phoneNum)
             ->where('line_id', $request->line_user_id)->get()->first();
-            
+
             $local_user_wastePreference = (new KpUserWastePreference())->setConnection($user_org->org_database)->where('user_id', $local_user->id)->get();
             if (collect($local_user_wastePreference)->isEmpty()) {
                 $newUWastePref = (new KpUserWastePreference())->setConnection($user_org->org_database)->create([
@@ -164,12 +165,12 @@ class LineController extends Controller
             $new_user->created_at   = date("Y-m-d H:i:s");
             $new_user->updated_at   = date("Y-m-d H:i:s");
             $new_user->save();
-           
+
             //บันทึก new user ที่ envsogo_ ตาม org_id ของ user
             $userCount = (new SequenceNumber())->setConnection($user_org->org_database)->where('id', 1)->get('user')->first();
-            
+
             $local_user                 = (new User())->setConnection($user_org->org_database);
-            $local_user->id             =  $userCount->user; 
+            $local_user->id             =  $userCount->user;
             $local_user->firstname      = $request->displayName;
             $local_user->line_id        = $request->line_user_id;
             $local_user->phone          = $request->phoneNum;
@@ -181,7 +182,7 @@ class LineController extends Controller
             $local_user->created_at     = date("Y-m-d H:i:s");
             $local_user->updated_at     = date("Y-m-d H:i:s");
             $local_user->save();
-            
+
             $newUWastePref = (new KpUserWastePreference())->setConnection($user_org->org_database)->create([
                 'user_id'               => $local_user->id,
                 'is_annual_collection'  => 0,
@@ -192,7 +193,7 @@ class LineController extends Controller
 
 
             (new KPAccounts())->setConnection($user_org->org_database)->registerAccount($newUWastePref->id, $user_org->org_database);
-           
+
             (new SequenceNumber())->setConnection($user_org->org_database)->where('id', 1)->update([
                 'user' => $userCount->user + 1
             ]);

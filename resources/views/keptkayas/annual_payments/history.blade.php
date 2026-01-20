@@ -1,279 +1,288 @@
 @extends('layouts.keptkaya')
-@section('nav-header', 'ค้นหาใบเสร็จรับเงิน')
+@section('nav-header', 'ประวัติใบเสร็จรับเงิน')
 @section('nav-current', 'ค้นหาใบเสร็จรับเงิน')
-{{-- @section('page-topic', 'ค้นหาใบเสร็จรับเงิน') --}}
 @section('nav-user_payment_per_month-history', 'active')
-
 
 @section('style')
     <link href="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/css/select2.min.css" rel="stylesheet" />
-    <script src="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/js/select2.min.js"></script>
-    <!-- Latest compiled and minified JavaScript -->
-
+    <link href="https://cdn.jsdelivr.net/npm/select2-bootstrap-5-theme@1.3.0/dist/select2-bootstrap-5-theme.min.css" rel="stylesheet" />
+    
     <style>
-        .select2-container .select2-selection--single {
-            box-sizing: border-box;
-            cursor: pointer;
-            display: block;
-            height: 50px;
-            user-select: none;
-            -webkit-user-select: none;
-            padding-top: 5px;
-            font-size: 1.1rem;
-            width: 700px !important
+        /* จัด Style ของ Select2 ให้ดูดีขึ้น */
+        .select2-container--bootstrap-5 .select2-selection {
+            border-color: #dee2e6;
+            padding: 0.5rem 1rem;
+            height: auto;
         }
-        .select2-container{
-            width: 700px !important
-        }
-
-        .select2-container--default .select2-selection--single .select2-selection__arrow {
-            height: 26px;
-            position: absolute;
-            top: 11px;
-            right: 1px;
-            width: 20px;
+        
+        /* สไตล์ของใบเสร็จ (Receipt Paper Look) */
+        .receipt-paper {
+            background: #fff;
+            padding: 40px;
+            margin-bottom: 30px;
+            border-radius: 4px;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.05);
+            border: 1px solid #e0e0e0;
+            position: relative;
         }
 
-        .hidden {
-            display: none
+        .receipt-header {
+            border-bottom: 2px solid #344767;
+            padding-bottom: 20px;
+            margin-bottom: 20px;
         }
 
-        .budgetyear-div {
-            cursor: pointer;
+        .receipt-title {
+            font-size: 1.5rem;
+            font-weight: bold;
+            color: #344767;
         }
 
-        .budgetyear-div:hover {
-            opacity: 0.8;
-            transform: scale(1.05);
-            transition: all 1s;
+        .org-logo {
+            width: 80px;
+            height: 80px;
+            object-fit: contain;
+            border: 1px solid #eee;
+            padding: 5px;
+            border-radius: 8px;
+        }
+
+        .info-label {
+            font-weight: 600;
+            color: #6c757d;
+            width: 120px;
+        }
+
+        .payment-grid {
+            border: 1px solid #dee2e6;
+            border-radius: 8px;
+            overflow: hidden;
+            margin-top: 20px;
+        }
+
+        .payment-grid-header {
+            background-color: #f8f9fa;
+            font-weight: bold;
+            padding: 10px;
+            text-align: center;
+            border-bottom: 1px solid #dee2e6;
+        }
+
+        .payment-grid-item {
+            border-right: 1px solid #dee2e6;
+            border-bottom: 1px solid #dee2e6;
+            padding: 10px;
+        }
+        
+        .month-name {
+            font-weight: bold;
+            color: #344767;
+            margin-bottom: 4px;
+        }
+
+        .amount-text {
+            color: #198754;
+            font-family: 'Courier New', monospace;
+            font-weight: bold;
+        }
+
+        @media print {
+            .no-print { display: none !important; }
+            .receipt-paper { box-shadow: none; border: none; }
         }
     </style>
-    <link rel="stylesheet" href="//code.jquery.com/ui/1.13.1/themes/base/jquery-ui.css">
-@endsection
-
-
-@section('page-topic')
-<div class="row">
-    <div class="col-5">
-        <div class="h-100">
-            <h5 class="mb-1">ค้นหา : ชื่อ,ที่อยู่ ,รหัสถังขยะ</h5>
-            <form action="{{ route('keptkayas.annual_payments.history') }}" method="POST" class="d-flex justify-content-between">
-                @csrf
-
-                <select class="js-example-basic-single form-control" name="bin_code">
-                    <option>เลือก...</option>
-                    @foreach ($usersArray as $user)
-
-                        <option value="{{ $user['bin_code'] }}" >
-                            {{ $user['firstname'] . ' ' . $user['lastname'].'     [บ้านเลขที่ ' . $user['address'] . ' ' . $user['zone_name'] }}]
-
-                            - [{{ $user['bin_code'] }}]
-
-                        </option>
-                    @endforeach
-                </select>
-                <button type="submit" class="btn btn-secondary ms-3"><i class="fa fa-search">ค้นหา</i></button>
-            </form>
-
-        </div>
-    </div>
-    <div class="col-5">
-        {{-- @if (collect($inv_by_budgetyear)->isNotEmpty())
-            {{ $inv_by_budgetyear[0]->user->firstname." ".$inv_by_budgetyear[0]->user->lastname }}
-        @endif --}}
-    </div>
-</div>
 @endsection
 
 @section('content')
-    @if (collect($usersArray)->isNotEmpty())
-        @foreach ($usersArray as $user)
-            @if (collect($user['datas'])->isNotEmpty())
-      
-            <div class="card mb-2">
-                <div class="card-header bg-info ">
-                    <div class="h5"> ปีงบประมาณ {{ $user['datas'][0]->fiscal_year }}</div>
-                        {{-- <a href="{{ route('user_payment_per_month.printReceiptHistory', $budgetyear->id) }}" class="btn btn-primary text-right">ปริ้น</a> --}}
-                </div>
-                <div class="card-body">
-        <div class="receipt-column">
-            <div class="header d-flex">
-                <div class="p-0">
-                    <div style="font-size: 0.9rem; font-weight: bold;">ใบเสร็จรับเงิน </div>
-                    <div style="font-size: 0.6rem"> (ต้นขั้ว)</div>
-                    <div style="font-size: 0.6rem">เลขที่: {{ $user['datas'][0]->id }}</div>
-
-                </div>
-                <div class="ms-auto pl-2">
-
-                    <div style="font-size: 0.9rem; font-weight: bold;">
-                        {{ $orgInfos['org_type_name'] }}
-                        {{ $orgInfos['org_name'] }}
-                    </div>
-                    <div style="font-size: 0.6rem">
-                        {{ $orgInfos['org_address'] }} 
-                        หมู่ {{ $orgInfos['org_zone'] }}  
-                        ต.{{ $orgInfos['org_tambon'] }}
-                    </div>
-                    <div style="font-size: 0.6rem">
-                        อ.{{ $orgInfos['org_district'] }}
-                         จ.{{ $orgInfos['org_province'] }}
-                          {{ $orgInfos['org_zipcode'] }}</div>
-                </div>   
-         
-            </div>
-            <div class="d-flex flex-row">
-                <table class="info-table">
-                    <tr>
-                        <td class="label">ผู้ชำระ:</td>
-                        <td>{{ $user['datas'][0]->wastBin->user->firstname ?? 'N/A' }}
-                            {{ $user['datas'][0]->wastBin->user->lastname ?? '' }}</td>
-                    </tr>
-                    <tr>
-                        <td class="label">รหัสถัง:</td>
-                        <td>{{ $user['datas'][0]->wastBin->bin_code ?? 'N/A' }}</td>
-                    </tr>
-                    <tr>
-                        <td class="label">วันที่ชำระ:</td>
-                        <td>{{ \Carbon\Carbon::parse($user['datas'][0]->updated_at)->locale('th')->isoFormat('Do MMMM YYYY') }}</td>
-                    </tr>
-                </table>
-                <img src="{{asset('logo/'.$orgInfos['org_logo_img'] )}}" style="width: 65px; height:65px;margin-left:0.2rem; border:1px solid black"/>
-            </div>
-            
-
-            @php
-            // dd($user['datas'][0]['payments']);
-            $arr =[
-                ['ค่าเก็บและขนขยะมูลฝอย', $user['datas'][0]->total_paid_amt], ['ภาษีมูลค่าเพิ่ม  7%', '0.00']
-            ]
-            @endphp
-            <div style="display: flex; flex-direction: column">
-                <div>
-                    <table class="table">
-                        <thead>
-                            <tr>
-                                <td style="width: 70%">รายการ</td>
-                                <td style="width: 30%">จำนวนเงิน(บาท)</td>
-                            </tr>
-                        </thead>
-                            <tbody>
-                            <tr>
-                                <td style="height: 50px; vertical-align: top;">
-                                    @php
-                                    foreach($arr as $ar){
-                                       echo "1. ". $ar[0]."<br>";
-                                    }
-                                    @endphp
-                                
-                                </td>
-                                <td style="vertical-align: top; text-align: right;">
-                                   @php
-                                    foreach($arr as $ar){
-                                       echo $ar[1]."<br>";
-                                    }
-                                    @endphp
-                                </td>
-                            </tr>
-                            <tr>
-                                <td style="text-align:right">
-                                   รวมทั้งสิ้น
-                                
-                                </td>
-                                <td style="text-align: right;">
-                                   {{-- {{number_format($data['total_paid_amt'], 2)}} --}}
-                                </td>
-                            </tr>
-                            <tr>
-                                <td colspan="2" style="text-align: right; font-size: 10px;">
-                                    {{-- ({{ App\Http\Controllers\Api\FunctionsController::convertAmountToLetter(number_format($data['totalPaidAmount'], 2))}}) --}}
-                                </td>
-                            </tr>
-                            
-                        </tbody>
-                    </table>
-                </div>
-                ประวัติการชำระค่าธรรมเนียมประจำปีงบประมาณ {{2568}}
-
-                <div class="row" style="padding: 5px 11px">
-                     @for($i=0; $i<3; $i++)
-                        <div class="col-4 te">
-                            <div class="row">
-                                <div class="col-4 text-center text-bolder" style="border-right: 1px solid black">
-                                    เดือน
-                                </div>
-                                <div class="col-8 text-center text-bolder">
-                                    จำนวนเงิน(บาท)
-                                </div>
-                            </div>
-                            
+<div class="container-fluid py-4">
+    {{-- 1. Search Section --}}
+    <div class="row justify-content-center mb-5 no-print">
+        <div class="col-md-8">
+            <div class="card shadow-sm">
+                <div class="card-body p-4">
+                    <h5 class="mb-3 text-center text-primary">
+                        <i class="fas fa-search me-2"></i>ค้นหาใบเสร็จรับเงิน
+                    </h5>
+                    <form action="{{ route('keptkayas.annual_payments.history') }}" method="post"> 
+                        @csrf
+                        {{-- ใช้ GET ดีกว่าสำหรับการค้นหา เพื่อให้กด Back ได้ --}}
+                        <div class="input-group">
+                            <select class="form-select select2-search" name="bin_code" required>
+                                <option value="">-- พิมพ์ชื่อ, ที่อยู่ หรือ รหัสถังขยะ --</option>
+                                @foreach ($searchOptions as $opt)
+                                    <option value="{{ $opt->wasteBin->bin_code }}" {{ request('bin_code') == $opt->wasteBin->bin_code ? 'selected' : '' }}>
+                                        {{ $opt->wasteBin->bin_code }} : {{ $opt->wasteBin->user->firstname }} {{ $opt->wasteBin->user->lastname }} 
+                                        (บ้านเลขที่ {{ $opt->wasteBin->user->address }})
+                                    </option>
+                                @endforeach
+                            </select>
+                            <button type="submit" class="btn bg-gradient-primary mb-0 px-5">ค้นหา</button>
                         </div>
-                    @endfor
-                    @php
-                    $arr= [10,11,12,1,2,3,4,5,6,7,8,9];
-                    $i=0;
-                    // dd($data['payments']);
-                    @endphp
-                    @foreach ($arr as $ar)
-                         <div class="col-4 te">
-                            <div class="row">
-                                 <div class="col-4 text-center" style="border-right: 1px solid black">
-                                        {{(new \App\Http\Controllers\Api\FunctionsController())->shortThaiMonth($ar)}}
-                                </div>
-                               
-
-                               {{-- @dd($user['paidMonthArr']) --}}
-                                <div class="col-8 text-center">
-                                     @if (in_array($ar,collect($user['paidMonthArr'])->toArray()))
-                                        {{ number_format($user['datas'][0]['payments'][$i++]['amount_paid'], 2) }}  
-                                      @else
-                                        -
-                                    @endif
-                                </div>
-                               
-                               
-                            </div>
-                            
-                        </div>
-                    @endforeach
-                    
+                    </form>
                 </div>
-              
-            </div>
-
-
-            <div class="total-section">
-                <strong>ยอดรวม:</strong> 
-                {{-- {{ number_format($data['totalPaidAmount'], 2) }} --}}
-                 บาท
-            </div>
-
-            <div class="footer">
-                <p>ลงชื่อเจ้าหน้าที่: _________________________</p>
-                <p>({{ $data['staff']->firstname ?? 'N/A' }} {{ $data['staff']->lastname ?? '' }})</p>
             </div>
         </div>
+    </div>
+
+    {{-- 2. Result Section (Receipts) --}}
+    @if ($selectedSubscriptions->isNotEmpty())
+        @foreach ($selectedSubscriptions as $sub)
+            <div class="row justify-content-center">
+                <div class="col-md-10 col-lg-9">
+                    <div class="receipt-paper">
+                        {{-- Header --}}
+                        <div class="receipt-header d-flex justify-content-between align-items-center">
+                            <div class="d-flex align-items-center gap-3">
+                                @if(!empty($orgInfos['org_logo_img']))
+                                    <img src="{{ asset('logo/'.$orgInfos['org_logo_img']) }}" class="org-logo">
+                                @endif
+                                <div>
+                                    <div class="text-xs text-secondary mb-1">ใบเสร็จรับเงิน (ต้นขั้ว)</div>
+                                    <h4 class="mb-0 font-weight-bolder">{{ $orgInfos['org_name'] }}</h4>
+                                    <p class="text-xs text-secondary mb-0">
+                                        {{ $orgInfos['org_address'] }} หมู่ {{ $orgInfos['org_zone'] }} 
+                                        ต.{{ $orgInfos['org_tambon'] }} อ.{{ $orgInfos['org_district'] }} 
+                                        จ.{{ $orgInfos['org_province'] }} {{ $orgInfos['org_zipcode'] }}
+                                    </p>
+                                </div>
+                            </div>
+                            <div class="text-end">
+                                <div class="badge bg-gradient-info mb-2 fs-6">ปีงบประมาณ {{ $sub->fiscal_year }}</div>
+                                <div class="text-sm"><b>เลขที่:</b> {{ str_pad($sub->id, 6, '0', STR_PAD_LEFT) }}</div>
+                                <div class="text-sm"><b>วันที่:</b> {{ $sub->updated_at->locale('th')->isoFormat('D MMMM YYYY') }}</div>
+                            </div>
+                        </div>
+
+                        {{-- Body: Customer Info --}}
+                        <div class="row mb-4">
+                            <div class="col-md-7">
+                                <table class="table table-borderless table-sm">
+                                    <tr>
+                                        <td class="info-label">ผู้ชำระเงิน:</td>
+                                        <td>{{ $sub->wasteBin->user->firstname }} {{ $sub->wasteBin->user->lastname }}</td>
+                                    </tr>
+                                    <tr>
+                                        <td class="info-label">ที่อยู่:</td>
+                                        <td>{{ $sub->wasteBin->user->address }} ({{ $sub->wasteBin->user->user_zone->zone_name ?? '-' }})</td>
+                                    </tr>
+                                </table>
+                            </div>
+                            <div class="col-md-5">
+                                <table class="table table-borderless table-sm">
+                                    <tr>
+                                        <td class="info-label">รหัสถังขยะ:</td>
+                                        <td class="font-weight-bold text-primary">{{ $sub->wasteBin->bin_code }}</td>
+                                    </tr>
+                                    <tr>
+                                        <td class="info-label">ประเภท:</td>
+                                        <td>ขยะรายปี ({{ number_format($sub->annual_fee, 2) }} บาท/ปี)</td>
+                                    </tr>
+                                </table>
+                            </div>
+                        </div>
+
+                        {{-- Payment Details Table --}}
+                        <div class="table-responsive mb-4">
+                            <table class="table align-items-center mb-0 border">
+                                <thead class="bg-gray-100">
+                                    <tr>
+                                        <th class="text-uppercase text-secondary text-xxs font-weight-bolder opacity-7 ps-4">รายการ</th>
+                                        <th class="text-uppercase text-secondary text-xxs font-weight-bolder opacity-7 text-end pe-4">จำนวนเงิน (บาท)</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <tr>
+                                        <td class="ps-4 py-3">1. ค่าธรรมเนียมเก็บและขนขยะมูลฝอย ({{ number_format($sub->annual_fee, 2) }})</td>
+                                        <td class="text-end pe-4 py-3 font-weight-bold">{{ number_format($sub->total_paid_amt, 2) }}</td>
+                                    </tr>
+                                    <tr>
+                                        <td class="ps-4 text-secondary text-xs">ภาษีมูลค่าเพิ่ม 7%</td>
+                                        <td class="text-end pe-4 text-secondary text-xs">0.00</td>
+                                    </tr>
+                                    <tr class="border-top">
+                                        <td class="ps-4 font-weight-bold text-end">รวมทั้งสิ้น</td>
+                                        <td class="text-end pe-4 font-weight-bold text-success fs-5">{{ number_format($sub->total_paid_amt, 2) }}</td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+
+                        {{-- Payment History Grid (Waterfall) --}}
+                        <h6 class="text-sm font-weight-bold mb-2 text-secondary">
+                            <i class="fas fa-history me-1"></i> รายละเอียดการชำระรายเดือน (ปีงบประมาณ {{ $sub->fiscal_year }})
+                        </h6>
+                        <div class="payment-grid">
+                            <div class="row g-0">
+                                @php
+                                    // Logic เดือนไทย และดึงยอดเงิน
+                                    $thaiMonths = [10,11,12,1,2,3,4,5,6,7,8,9];
+                                    $payments = $sub->payments; // ดึงจาก Relation ที่ Eager Load มา
+                                    
+                                    // สร้าง Map: เดือน -> จำนวนเงินที่จ่าย เพื่อให้เรียกใช้ง่าย
+                                    $paidMap = [];
+                                    foreach($payments as $p) {
+                                        $paidMap[$p->pay_mon] = $p->amount_paid;
+                                    }
+                                    
+                                    // Helper สำหรับชื่อเดือน
+                                    $fn = new \App\Http\Controllers\Api\FunctionsController();
+                                @endphp
+
+                                @foreach ($thaiMonths as $month)
+                                    <div class="col-3 payment-grid-item text-center">
+                                        <div class="month-name text-xs">{{ $fn->shortThaiMonth($month) }}</div>
+                                        @if (isset($paidMap[$month]))
+                                            <div class="amount-text text-sm">
+                                                <i class="fas fa-check-circle text-xxs me-1"></i>
+                                                {{ number_format($paidMap[$month], 2) }}
+                                            </div>
+                                        @else
+                                            <div class="text-secondary text-xxs mt-1">-</div>
+                                        @endif
+                                    </div>
+                                @endforeach
+                            </div>
+                        </div>
+
+                        {{-- Footer Signature --}}
+                        <div class="row mt-5 pt-4">
+                            <div class="col-6 offset-6 text-center">
+                                <div style="border-bottom: 1px dashed #ccc; width: 80%; margin: 0 auto 10px auto;"></div>
+                                <p class="text-sm mb-0">ลงชื่อเจ้าหน้าที่ผู้รับเงิน</p>
+                                <p class="text-xs text-secondary">({{ Auth::user()->firstname }} {{ Auth::user()->lastname }})</p>
+                            </div>
+                        </div>
+                        
+                        {{-- Print Button (Visible only on screen) --}}
+                        <div class="text-center mt-4 no-print">
+                            <a href="{{ route('keptkayas.annual_payments.printReceipt', $sub ) }}" class="btn btn-outline-secondary btn-sm">
+                                <i class="fas fa-print me-1"></i> พิมพ์ใบเสร็จ
+                            </a>
+                        </div>
+
+                    </div>
                 </div>
             </div>
-            @endif
         @endforeach
-
+    @elseif(request()->has('bin_code'))
+        <div class="alert alert-warning text-center mx-auto" style="max-width: 600px;">
+            <i class="fas fa-exclamation-triangle me-2"></i> ไม่พบข้อมูลใบเสร็จ หรือ ข้อมูลการชำระเงินยังไม่สมบูรณ์
+        </div>
     @endif
-
+</div>
 @endsection
 
-
 @section('script')
-    <script
-        src="https://www.jqueryscript.net/demo/Export-Html-Table-To-Excel-Spreadsheet-using-jQuery-table2excel/src/jquery.table2excel.js">
-    </script>
-    {{-- <script src="{{ asset('/js/my_script.js') }}"></script> --}}
-    <script src="https://code.jquery.com/ui/1.13.1/jquery-ui.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-3-typeahead/4.0.1/bootstrap3-typeahead.min.js"></script>
-
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/js/select2.min.js"></script>
     <script>
         $(document).ready(function() {
-            $('.js-example-basic-single').select2();
+            $('.select2-search').select2({
+                theme: 'bootstrap-5',
+                placeholder: "ค้นหาข้อมูล...",
+                allowClear: true,
+                width: '100%'
+            });
         });
     </script>
 @endsection

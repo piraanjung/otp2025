@@ -1,5 +1,19 @@
 @extends('layouts.admin1')
-
+@section('nav-invoice')
+    active
+@endsection
+@section('nav-header')
+    จัดการใบแจ้งหนี้
+@endsection
+@section('nav-main')
+    <a href="{{ route('invoice.index') }}"> ออกใบแจ้งหนี้</a>
+@endsection
+@section('nav-current')
+    ปริ้นใบแจ้งหนี้
+@endsection
+@section('nav-topic')
+    ปริ้นใบแจ้งหนี้
+@endsection
 @section('content')
     <div class="card">
         <div class="card-header"></div>

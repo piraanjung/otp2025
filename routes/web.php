@@ -10,11 +10,17 @@ use App\Http\Controllers\Admin\SuperAdminAuthController;
 use App\Http\Controllers\Admin\SuperUserController;
 use App\Http\Controllers\Admin\UserController;
 use App\Http\Controllers\Admin\ZoneController;
+use App\Http\Controllers\InvCategoryController;
+use App\Http\Controllers\InvDashboardController;
+use App\Http\Controllers\InvHazardLevelController;
+use App\Http\Controllers\InvItemController;
+use App\Http\Controllers\InvStockController;
+use App\Http\Controllers\InvTransactionController;
+use App\Http\Controllers\InvUnitController;
 use App\Http\Controllers\KeptKaya\MachineController;
 use App\Http\Controllers\KioskApiController;
 use App\Http\Controllers\Tabwater\CutmeterController;
 use App\Http\Controllers\Tabwater\BudgetYearController;
-use App\Http\Controllers\Tabwater\InvoiceController;
 use App\Http\Controllers\Tabwater\InvoicePeriodController;
 use App\Http\Controllers\LineLiffController;
 use App\Http\Controllers\Tabwater\MeterRateConfigController;
@@ -31,6 +37,7 @@ use Illuminate\Support\Facades\Route;
 use Illuminate\Support\Facades\Auth;
 use App\Http\Controllers\SqlToJsonController;
 use App\Http\Controllers\StaffController;
+use App\Http\Controllers\Tabwater\InvoiceController;
 use App\Http\Controllers\Tabwater\NotifyController;
 use App\Http\Controllers\Tabwater\TwManMobileController;
 use App\Http\Controllers\Tabwater\TwPricingTypeController;
@@ -45,8 +52,8 @@ Route::get('/kiosk_login', function () {
     return view('kiosk/kiosk_login');
 });
 
-Route::post('/api/check-member', [KioskApiController::class, 'checkMember']);
-Route::post('/api/save-session', [KioskApiController::class, 'saveSession']);
+Route::post('/api/check_member', [KioskApiController::class, 'checkMember']);
+Route::post('/api/save_session', [KioskApiController::class, 'saveSession']);
 Route::get('/kiosk', [KioskApiController::class, 'index']);
 
 
@@ -264,20 +271,7 @@ Route::middleware(['auth', 'role:Admin|finance|Super Admin'])->group(function ()
     });
     
 
-    Route::prefix('invoice/')->name('invoice.')->group(function(){
-        Route::resource('', InvoiceController::class);
-        Route::get('get_user_invoice/{user_id}/{status?}', [InvoiceController::class, 'get_user_invoice'])->name('get_user_invoice');
-        Route::get('{subzone_id}/zone_edit/{curr_inv_prd}', [InvoiceController::class, 'zone_edit'])->name('zone_edit');
-        Route::get('{subzone_id}/zone_update', [InvoiceController::class, 'zone_update'])->name('zone_update');
-        Route::post('zone_update', [InvoiceController::class, 'zone_update'])->name('zone_update');
-        Route::get('{subzone_id}/invoiced_lists', [InvoiceController::class, 'invoiced_lists'])->name('invoiced_lists');
-        Route::get('reset_invioce_bill/{inv_id}', [InvoiceController::class, 'reset_invioce_bill'])->name('reset_invioce_bill');
-        Route::post('print_multi_invoice', [InvoiceController::class, 'print_multi_invoice'])->name('print_multi_invoice');
-        Route::post('delete_duplicate_inv', [InvoiceController::class, 'delete_duplicate_inv'])->name('delete_duplicate_inv');
-        Route::get('print_invoice/{zone_id}/{curr_inv_prd}', [InvoiceController::class, 'print_invoice'])->name('print_invoice');
-        Route::post('invoice_bill_print', [InvoiceController::class, 'invoice_bill_print'])->name('invoice_bill_print');
-        Route::get('get_invoice_and_invoice_history/{meter_id}/{status?}', [InvoiceController::class,'get_invoice_and_invoice_history' ])->name('get_invoice_and_invoice_history');
-    });
+    
 
     Route::prefix('reports/')->name('reports.')->group(function(){
         Route::post('export', [ReportsController::class, 'export'])->name('export');
@@ -294,6 +288,8 @@ Route::middleware(['auth', 'role:Admin|finance|Super Admin'])->group(function ()
 Route::group(['middleware' => ['role:Admin|tabwater|Super Admin']], function () {
 
     Route::resource('/invoice', InvoiceController::class);
+    Route::get('/invoice/print/{zone_id}/{curr_inv_prd}', [InvoiceController::class, 'printInvoice'])
+    ->name('invoice.print_invoice');
     Route::get('/invoice/zone_create/{zone_id}/{curr_inv_prd}/{new_user?}', [InvoiceController::class, 'zone_create'])->name('invoice.zone_create');
     Route::get('/invoice/export_excel/{zone_id}/{curr_inv_prd}', [InvoiceController::class, 'export_excel'])->name('invoice.export_excel');
     Route::get('/invoice/{subzone_id}/zone_edit/{curr_inv_prd}', [InvoiceController::class, 'zone_edit'])->name('invoice.zone_edit');
@@ -331,6 +327,35 @@ Route::middleware(['auth'])->group(function () {
         return view('superadmin.dashboard'); // หน้า Dashboard หลัง Login
 
     })->name('superadmin.dashboard');
+});
+
+
+
+Route::middleware(['auth'])->prefix('inventory')->name('inventory.')->group(function () {
+    
+    // หน้า Dashboard รวม (ที่เราทำไป Phase 1)
+    Route::get('/dashboard', [InvDashboardController::class, 'index'])->name('dashboard');
+
+    // Route สำหรับจัดการพัสดุ (Items)
+    Route::get('/items', [InvItemController::class, 'index'])->name('items.index');
+    Route::get('/items/create', [InvItemController::class, 'create'])->name('items.create');
+    Route::post('/items', [InvItemController::class, 'store'])->name('items.store');
+
+    Route::get('/stock/receive/{id}', [InvStockController::class, 'receiveForm'])->name('stock.receive');
+
+    // ฟังก์ชันบันทึกการรับของ
+    Route::post('/stock/receive', [InvStockController::class, 'storeReceive'])->name('stock.store_receive');
+    Route::get('/stock/withdraw/{item_id}', [InvTransactionController::class, 'withdrawForm'])->name('withdraw.form');
+    Route::post('/stock/withdraw', [InvTransactionController::class, 'storeWithdraw'])->name('withdraw.store');
+    Route::resource('units', InvUnitController::class)->only(['index', 'store', 'destroy']);
+    Route::resource('categories', InvCategoryController::class)->only(['index', 'store', 'destroy']);
+    Route::get('/history', [InvTransactionController::class, 'history'])->name('history');
+    Route::resource('hazards', InvHazardLevelController::class)->only(['index', 'store', 'destroy']);
+    // ดูใบเบิก
+    Route::get('/withdraw/{id}/slip', [InvTransactionController::class, 'show'])->name('withdraw.show');
+
+    // ปุ่มกดอนุมัติ
+    Route::post('/withdraw/{id}/approve', [InvTransactionController::class, 'approve'])->name('withdraw.approve');
 });
 
 require __DIR__ . '/auth.php';

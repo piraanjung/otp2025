@@ -18,10 +18,11 @@ class KpPurchaseTransactionDetail extends Model
     protected $table = 'kp_purchase_transactions_details';
 
     protected $fillable = [
-        'kp_purchase_trans_id',
+        'kp_purchase_trans_id',         // เชื่อมไปหา Header (ซึ่งมี org_id_fk อยู่แล้ว)
         'kp_recycle_item_id',
+        'kp_units_idfk',                    // <--- เพิ่มตัวนี้ (สำคัญ! เพราะ Controller ส่งมา)
         'kp_tbank_items_pricepoint_id',
-        'recorder_id',
+        // 'recorder_id',               // แนะนำให้เอาออก ถ้าคนบันทึกคือคนเดียวกับ Header
         'amount_in_units',
         'price_per_unit',
         'amount',
@@ -37,11 +38,15 @@ class KpPurchaseTransactionDetail extends Model
     ];
 
     // Relationships
-    public function transaction()
+    public function items_units()
+    {
+        return $this->belongsTo(KpTbankUnits::class, 'kp_tbank_items_units');
+    }
+
+     public function transaction()
     {
         return $this->belongsTo(KpPurchaseTransaction::class, 'kp_purchase_trans_id');
     }
-
     public function item()
     {
         return $this->belongsTo(KpTbankItems::class, 'kp_recycle_item_id');

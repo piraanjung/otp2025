@@ -8,16 +8,32 @@ use App\Models\Admin\Zone;
 use App\Models\User;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
-
+use App\Traits\BelongsToOrganization;
 class TwMeterInfos extends Model
 {
     use HasFactory;
+    use BelongsToOrganization;
 
     public $primaryKey = 'meter_id';
     protected $fillable = [
-        "meter_id","org_id_fk", "meter_address",'submeter_name',
-        "user_id", "meternumber", "metertype_id", "undertake_zone_id",  "undertake_subzone_id", "acceptance_date",
-        "status",  "payment_id", "discounttype", "recorder_id", 'cutmeter', 'factory_no', 'inv_no_index', 'last_meter_recording'
+        "meter_id",
+        "org_id_fk",
+        "meter_address",
+        'submeter_name',
+        "user_id",
+        "meternumber",
+        "metertype_id",
+        "undertake_zone_id",
+        "undertake_subzone_id",
+        "acceptance_date",
+        "status",
+        "payment_id",
+        "discounttype",
+        "recorder_id",
+        'cutmeter',
+        'factory_no',
+        'inv_no_index',
+        'last_meter_recording'
     ];
     protected $table = "tw_meter_infos";
 
@@ -37,7 +53,7 @@ class TwMeterInfos extends Model
 
     public function undertake_subzone()
     {
-        return $this->belongsTo(Subzone::class, 'undertake_subzone_id','id');
+        return $this->belongsTo(Subzone::class, 'undertake_subzone_id', 'id');
     }
 
     public function cutmeter()
@@ -45,24 +61,20 @@ class TwMeterInfos extends Model
         return $this->hasMany(TwCutmeter::class, 'meter_id_fk', 'id');
     }
 
-    public function invoice()
+    public function tw_invoices()
     {
         return $this->hasMany(TwInvoice::class, 'meter_id_fk', 'meter_id');
     }
 
-     public function invoice_temp()
-    {
-        return $this->hasMany(TwInvoiceTemp::class, 'meter_id_fk', 'meter_id');
-    }
 
     public function invoice_currrent_inv_period()
     {
         return $this->hasMany(TwInvoice::class, 'meter_id_fk', 'id');
     }
 
-    public function invoice_history()
+    public function tw_invoice_history()
     {
-        return $this->hasMany(TwInvoiceHistoty::class, 'meter_id_fk', 'id');
+        return $this->hasMany(TwInvoiceHistory::class, 'meter_id_fk', 'id');
     }
 
     public function invoice_not_paid()
@@ -79,9 +91,8 @@ class TwMeterInfos extends Model
         return $this->hasMany(TwInvoice::class, 'meter_id_fk', 'id');
     }
 
-     public function organization()
+    public function organization()
     {
         return $this->hasOne(Organization::class, 'org_id_fk', 'id');
     }
-
 }

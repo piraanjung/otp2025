@@ -12,6 +12,7 @@ use App\Models\User;
 use App\Models\KeptKaya\WasteBinSubscription; // Import WasteBinSubscription model
 use App\Models\KeptKaya\WasteBin;
 use App\Services\UserWasteStatusService;
+use Carbon\Carbon;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
@@ -55,62 +56,108 @@ class WasteBinController extends Controller
     }
 
     public function store(Request $request, User $w_user)
-    {
-        // return $request;
+{
+    // 1. Validation (เหมือนเดิม)
+    $request->validate([
+        'bin_code' => 'nullable|string|unique:kp_waste_bins,bin_code|max:255',
+        'bin_type' => 'required|string|max:255',
+        'user_group' => 'required',
+        'location_description' => 'nullable|string|max:255',
+        'latitude' => 'nullable|numeric|between:-90,90',
+        'longitude' => 'nullable|numeric|between:-180,180',
+        'status' => ['required', Rule::in(['active', 'inactive', 'damaged', 'removed'])],
+        'is_active_for_annual_collection' => 'boolean',
+    ]);
 
-        $request->validate([
-            'bin_code' => 'nullable|string|unique:kp_waste_bins,bin_code|max:255',
-            'bin_type' => 'required|string|max:255',
-            'user_group' => 'required',
-            'location_description' => 'nullable|string|max:255',
-            'latitude' => 'nullable|numeric|between:-90,90',
-            'longitude' => 'nullable|numeric|between:-180,180',
-            'status' => ['required', Rule::in(['active', 'inactive', 'damaged', 'removed'])],
-            'is_active_for_annual_collection' => 'boolean',
-        ]);
+    // 2. Create WasteBin (เหมือนเดิม)
+    $wasteBin = $w_user->wasteBins()->create([
+        'bin_code' => $request->bin_code,
+        'bin_type' => $request->user_group,
+        'location_description' => $request->location_description,
+        'latitude' => $request->latitude,
+        'longitude' => $request->longitude,
+        'status' => $request->status,
+        'is_active_for_annual_collection' => $request->has('is_active_for_annual_collection'),
+        'created_at' => now(), // ใช้ now() ให้ได้เวลาปัจจุบันเป๊ะๆ
+        'updated_at' => now(),
+    ]);
 
-            $wasteBin = $w_user->wasteBins()->create([
-                'bin_code' => $request->bin_code,
-                'bin_type' => $request->bin_type,
-                'location_description' => $request->location_description,
-                'latitude' => $request->latitude,
-                'longitude' => $request->longitude,
-                'status' => $request->status,
-                'is_active_for_annual_collection' => $request->has('is_active_for_annual_collection'),
-            ]);
+    // 3. Create Subscription (จุดที่ต้องแก้ logic การคำนวณเงิน)
+    if ($wasteBin->is_active_for_annual_collection) {
+        
+        // 3.1 ดึงปีงบประมาณ (สมมติว่าเป็น พ.ศ. 2569)
+        $fiscalYear = WasteBinSubscription::calculateFiscalYear(); 
+        
+        // แปลงเป็น ค.ศ. เพื่อคำนวณวัน (เช่น 2569 -> 2026)
+        $fiscalYearAD = ($fiscalYear > 2500) ? $fiscalYear - 543 : $fiscalYear;
 
-            // If the bin is active for annual collection, create a subscription for the current fiscal year
-            // if ($wasteBin->is_active_for_annual_collection) {
-            if ($wasteBin->is_active_for_annual_collection) {
-                $fiscalYear = WasteBinSubscription::calculateFiscalYear();
+        // 3.2 ดึงเรทราคาต่อเดือน
+        $payratePerMonth = WasteBinPayratePerMonth::where('kp_usergroup_idfk', $request->get('user_group'))
+            ->where('status', 'active')
+            ->first(); // ใช้ first() ก็พอ ไม่ต้อง get()->first()
 
-                $payratePerMonth = WasteBinPayratePerMonth::where('kp_usergroup_idfk', $request->get('user_group'))
-                    ->where('status', 'active')
-                    ->get()->first();
-                $annualFee = $payratePerMonth->payrate_permonth * 12; // Default annual fee (e.g., 100 Baht/month * 12 months)
-                $monthlyFee = $payratePerMonth->payrate_permonth;
+        if ($payratePerMonth) {
+            $monthlyFee = $payratePerMonth->payrate_permonth;
 
-                WasteBinSubscription::firstOrCreate(
-                    [
-                        'waste_bin_id' => $wasteBin->id,
-                    ],
-                    [
-                        'payrate_permonth_id_fk' => $payratePerMonth->id,
-                        'fiscal_year' => $fiscalYear,
-                        'annual_fee' => $annualFee,
-                        'month_fee' => $monthlyFee,
-                        'total_paid_amt' => 0,
-                        'status' => 'pending',
-                    ]
-                );
+            // --- LOGIC คำนวณยอดเงินตามจริง (Pro-rate) ---
+            
+            // วันที่สมัคร (วันนี้)
+            $startDate = Carbon::now(); 
+            
+            // วันสิ้นสุดปีงบประมาณ (30 กันยายน ของปีงบนั้น)
+            $endDate = Carbon::create($fiscalYearAD, 9, 30)->endOfDay();
+
+            // กรณีพิเศษ: ถ้าสมัครช่วงคาบเกี่ยว (เช่น สมัคร ต.ค. แต่นับเป็นปีงบหน้า)
+            // ให้ตรวจสอบว่า วันนี้ เลยวันสิ้นปีงบไปหรือยัง ถ้าเลยแล้ว แสดงว่าเป็นรอบปีถัดไป
+            if ($startDate->gt($endDate)) {
+                 $endDate->addYear(); // บวกเพิ่มไปอีกปี
             }
 
-            // Call service to update overall user waste status (waste_preference)
-            $this->wasteStatusService->updateOverallUserWasteStatus($w_user);
+            // นับจำนวนเดือนที่เหลือ (รวมเดือนปัจจุบันด้วย)
+            // เช่น สมัคร ม.ค. ถึง ก.ย. = 9 เดือน
+            // diffInMonths จะนับจำนวนเดือนเต็ม เราใช้ floatDiff หรือคำนวณเองเพื่อให้ครอบคลุม
+            // แต่วิธีที่ง่ายที่สุดสำหรับระบบรอบบิลคือดูที่เดือน
+            
+            // วิธีนับแบบบ้านๆ แต่ชัวร์สุดสำหรับราชการ (นับนิ้ว):
+            // Loop จากเดือนปัจจุบัน ไปจนถึงเดือน 9 (กันยายน)
+            $remainingMonths = 0;
+            $checkDate = $startDate->copy()->startOfMonth();
+            $targetDate = $endDate->copy()->startOfMonth();
 
-        return redirect()->route('keptkayas.waste_bins.index', $w_user->id)
-            ->with('success', 'เพิ่มถังขยะเรียบร้อยแล้ว!');
+            while ($checkDate->lte($targetDate)) {
+                $remainingMonths++;
+                $checkDate->addMonth();
+            }
+
+            // คำนวณยอดรายปีตามจริง (เช่น 50 บาท x 9 เดือน = 450)
+            $annualFee = $monthlyFee * $remainingMonths;
+
+            // บันทึกข้อมูล
+            WasteBinSubscription::firstOrCreate(
+                [
+                    'waste_bin_id' => $wasteBin->id,
+                    'fiscal_year' => $fiscalYear, // ระบุปีด้วย เผื่อมีขยะเดิมแต่ปีใหม่
+                ],
+                [
+                    'payrate_permonth_id_fk' => $payratePerMonth->id,
+                    'fiscal_year' => $fiscalYear,
+                    'annual_fee' => $annualFee, // ยอดที่คำนวณใหม่
+                    'month_fee' => $monthlyFee,
+                    'total_paid_amt' => 0,
+                    'status' => 'pending',
+                    'created_at' => now(), // ใช้ now() ให้ได้เวลาปัจจุบันเป๊ะๆ
+                    'updated_at' => now(),
+                ]
+            );
+        }
     }
+
+    // 4. Update Status (เหมือนเดิม)
+    $this->wasteStatusService->updateOverallUserWasteStatus($w_user);
+
+    return redirect()->route('keptkayas.waste_bins.index', $w_user->id)
+        ->with('success', 'เพิ่มถังขยะเรียบร้อยแล้ว!');
+}
 
 
     public function show(WasteBin $wasteBin)

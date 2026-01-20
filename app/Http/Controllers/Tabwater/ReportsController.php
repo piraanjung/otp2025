@@ -4,651 +4,640 @@ namespace App\Http\Controllers\Tabwater;
 
 use App\Http\Controllers\Controller;
 use App\Exports\ReportOweUserExport;
+use App\Exports\DailyReportExport;
+use App\Exports\meterRecordHistoryExport;
 use App\Http\Controllers\Api\FunctionsController;
-use App\Models\Admin\ManagesTenantConnection;
-use App\Models\Tabwater\TwInvoiceTemp;
+use App\Models\Tabwater\TwInvoice;
 use App\Models\Tabwater\TwInvoicePeriod;
+use App\Models\Tabwater\TwMeterInfos;
+use App\Models\Tabwater\TwCutmeter;
 use App\Models\Admin\Subzone;
 use App\Models\User;
 use App\Models\Admin\Zone;
+use App\Models\Admin\BudgetYear;
+use App\Models\Admin\Organization;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
-use App\Models\Admin\BudgetYear;
-use App\Models\Tabwater\TwMeterInfos;
-use App\Exports\DailyReportExport;
-use App\Exports\meterRecordHistoryExport;
-use App\Models\Admin\Organization;
-use App\Models\Tabwater\TwCutmeter;
 use Illuminate\Support\Facades\Auth;
 use Maatwebsite\Excel\Facades\Excel;
 
 class ReportsController extends Controller
 {
+    // =================================================================================
+    // 1. REPORT OWE (รายงานหนี้ค้างชำระ - หน้าแรก)
+    // =================================================================================
+
     public function owe(Request $request)
-    {
+{
+    $orgId = Auth::user()->org_id_fk;
+
+    // 1. Prepare Filter Data
+    $budgetyears = BudgetYear::with(['invoice_period:id,inv_p_name,budgetyear_id,status'])
+        ->get(['id', 'budgetyear_name', 'status']);
     
-        $invoice_owe_status = TwInvoiceTemp::where("status", "owe")
-            ->where('org_id_fk', Auth::user()->org_id_fk)
-            ->get([
-                'id',
-                'meter_id_fk',
-                'currentmeter',
-                'lastmeter',
-                'water_used',
-                'inv_period_id_fk',
-                'paid',
-                'vat',
-                'totalpaid',
-                'updated_at',
-                'status'
-            ])->groupBy(['meter_id_fk'])->values();
+    $zones = Zone::where('status', 'active')->get(['id', 'zone_name']);
+    $subzones = Subzone::where('status', 'active')->get(['id', 'subzone_name']);
 
+    // 2. Query Data (Simple Default View)
+    $invoice_owe_status = TwInvoice::where("status", "owe")
+        ->where('org_id_fk', $orgId) 
+        ->with(['tw_meter_infos.user.user_zone', 'tw_meter_infos.user.user_subzone']) // Eager Load เพิ่มเพื่อลด Query ใน View
+        ->get();
 
-        $budgetyears = BudgetYear::with([
-            'invoice_period' => function ($q) {
-                return $q->select('id', 'inv_p_name', 'budgetyear_id', 'status');
-            }
-        ])->get(['id', 'budgetyear_name', 'status']);
+    // Default Variables
+    $defaultData = [
+        'budgetyears' => $budgetyears,
+        'budgetyears_selected' => [], 
+        'inv_periods' => [], 
+        'selectedInvPeriodID' => [0],
+        'zone_selected' => ['all'], 
+        'subzone_selected' => ['all'], 
+        'selected_inv_periods' => ['all'],
+        'owe_zones' => [], 
+        'zones' => $zones, 
+        'subzones' => $subzones,
+        'owe_inv_periods' => [], 
+        'orgInfos' => Organization::getOrgName($orgId)
+    ];
 
-        if (collect($invoice_owe_status)->isEmpty()) {
-            $owes = [];
-            return view("reports.owe", compact('owes'));
-        }
-
-        //ทำการ map เพื่อการ set ค่าไปแสดงในหน้า view
-
-        $owes = collect($invoice_owe_status)->map(function ($ar, $k) {
-            if (!isset($ar[0]->tw_meter_infos->user->user_subzone)) {
-                dd($ar[0]->tw_meter_infos->user);
-            }
-
-            return [
-                'meter_id_fk'   => $ar[0]->meter_id_fk,
-                'user_id'       => $ar[0]->user_id,
-                'paid'          => collect($ar)->sum('paid'),
-                'printed_time'  =>  TwCutmeter::where('meter_id_fk', $ar[0]->meter_id_fk)->where('status', '<>', 'deleted')
-                                    ->where('warning_print', 1)->count(),
-                'vat'           => number_format(collect($ar)->sum('vat'), 2),
-                'totalpaid'     => number_format(collect($ar)->sum('totalpaid'), 2),
-                'owe_count'     => collect($ar)->count(),
-                'status'        => $ar[0]->status,
-                'owe_infos'     => $ar,
-            ];
-        });
-
-        $reservemeter_sum = collect($invoice_owe_status)->sum(function ($arr) {
-            return collect($arr)->sum(function ($ar) {
-                return $ar['inv_type'] == "r" ? $ar['paid'] : 0;
-            });
-        });
-
-        $crudetotal_sum = collect($invoice_owe_status)->sum(function ($arr) {
-            return collect($arr)->sum(function ($ar) {
-                return $ar['inv_type'] == "u" ? $ar['paid'] : 0;
-            });
-        });
-        $zones = Zone::where('status', 'active')->get(['id', 'zone_name']);
-        $subzones = Subzone::where('status', 'active')->get(['id', 'subzone_name']);
-        $owe_zones =  [];
-
-        $budgetyears_selected = [];
-        if (collect($budgetyears_selected)->isEmpty()) {
-            $budgetyear = collect($budgetyears)->filter(function ($b) {
-                return $b->status == 'active';
-            })->values();
-
-            $budgetyears_selected[] = $budgetyear[0]->id;
-            $inv_periods = TwInvoicePeriod::whereIn('budgetyear_id', $budgetyears_selected)->get(['id', 'inv_p_name']);
-        }
-
-        $owe_inv_periods =  collect($invoice_owe_status)->groupBy(['inv_period_id_fk'])->map(function ($arr, $key) {
-            return  TwInvoicePeriod::where('id', $key)->first(['id', 'inv_p_name']);
-        })->sortByDesc('id');
-        $selected_inv_periods   = ['all'];
-        $selectedInvPeriodID    = [0];
-        $zone_selected          =['all'];
-        $subzone_selected       =['all'];
-       
-        $orgInfos = Organization::getOrgName(Auth::user()->org_id_fk);
-        
-        return view("reports.owe", compact('owes', 'budgetyears', 'budgetyears_selected', 'inv_periods', 
-        'selectedInvPeriodID', 'zone_selected', 'subzone_selected',
-        'selected_inv_periods', 'reservemeter_sum', 'crudetotal_sum', 'owe_zones', 'zones', 
-        'subzones', 'owe_inv_periods', 'orgInfos'));
+    if ($invoice_owe_status->isEmpty()) {
+        return view("reports.owe", array_merge($defaultData, [
+            'owes' => [],
+            'reservemeter_sum' => 0, 
+            'crudetotal_sum' => 0,
+        ]));
     }
+
+    // Map Data & Calculate
+    $owesGrouped = $invoice_owe_status->groupBy('meter_id_fk');
+    
+    // *** ต้องมั่นใจว่า function mapOweData มีอยู่จริงใน Controller นี้นะครับ ***
+    $owes = $this->mapOweData($owesGrouped); 
+    
+    $reservemeter_sum = $invoice_owe_status->where('inv_type', 'r')->sum('paid');
+    $crudetotal_sum   = $invoice_owe_status->where('inv_type', 'u')->sum('paid');
+
+    // Prepare View Variables (Get Active Year Safely)
+    $activeBudgetYear = $budgetyears->where('status', 'active')->first();
+    $budgetyears_selected = $activeBudgetYear ? [$activeBudgetYear->id] : [];
+    
+    $inv_periods = TwInvoicePeriod::whereIn('budgetyear_id', $budgetyears_selected)->get(['id', 'inv_p_name']);
+    
+    $owe_inv_periods = $invoice_owe_status->groupBy('inv_period_id_fk')->map(function ($group, $key) {
+        return TwInvoicePeriod::select('id', 'inv_p_name')->find($key);
+    })->sortByDesc('id');
+
+    return view("reports.owe", array_merge($defaultData, compact(
+        'owes', 'budgetyears_selected', 'inv_periods',
+        'reservemeter_sum', 'crudetotal_sum', 'owe_inv_periods'
+    )));
+}
+
+    // =================================================================================
+    // 1.1 REPORT OWE SEARCH (ค้นหาหนี้ค้าง - จุดแก้ Performance หลัก)
+    // =================================================================================
+
     public function owe_search(Request $request)
     {
-        $budgetyears_selected = collect($request->get('budgetyear'))->isEmpty() || in_array("all", $request->get('budgetyear')) ? []
-            : $request->get('budgetyear');
-        $subzone_selected     = collect($request->get('subzone'))->isEmpty() || in_array("all", $request->get('subzone')) ? ['all']
-            : $request->get('subzone');
-        $zone_selected        = collect($request->get('zone'))->isEmpty() || in_array("all", $request->get('zone')) ? ['all']
-            : $request->get('zone');
-        $inv_period_selected  = collect($request->get('inv_period'))->isEmpty() || in_array("all", $request->get('inv_period')) ? ['all']
-            : $request->get('inv_period');
+        $orgId = Auth::user()->org_id_fk;
 
-        $invoice_owe_status = TwInvoiceTemp::whereIn("status", ["owe", 'invoice'])
-        ->with([
-            'usermeterinfos' => function($q){
-                return $q->select('meter_id', 'user_id', 'undertake_zone_id', 'undertake_subzone_id');
-            }
-        ]);
-        if ($inv_period_selected[0] != 'all') {
-            //เลือกค้นหาโดยเลือกรอบบิล
-            $invoice_owe_status = $invoice_owe_status->whereIn("inv_period_id_fk", $inv_period_selected);
-        } else {
-            //เลือกค้นหาเฉพาะปีงบประมาณ
-            $inv_period_arr = TwInvoicePeriod::whereIn('budgetyear_id', $budgetyears_selected)->get(['id']);
-            $inv_period_selected_pluck = collect($inv_period_arr)->pluck('id');
-            $invoice_owe_status = $invoice_owe_status->whereIn("inv_period_id_fk", $inv_period_selected_pluck);
-        }
-        $invoice_owe_status = $invoice_owe_status->get([
-            'id',
-            'meter_id_fk',
-            'currentmeter',
-            'lastmeter',
-            'water_used',
-            'reserve_meter',
-            'inv_period_id_fk',
-            'paid',
-            'inv_type',
-            'vat',
-            'status',
-            'totalpaid',
-            'updated_at'
-        ])->values()->groupBy('meter_id_fk');
+        // Get Filters
+        $budget_ids  = $this->getFilterArray($request->get('budgetyear'));
+        $subzone_ids = $this->getFilterArray($request->get('subzone'));
+        $zone_ids    = $this->getFilterArray($request->get('zone'));
+        $inv_p_ids   = $this->getFilterArray($request->get('inv_period'));
 
-       
-        if ($zone_selected[0] != 'all') {
-                $invoice_owe_status = collect($invoice_owe_status)->filter(function ($c) use ($zone_selected) {
-                return in_array($c[0]->usermeterinfos->undertake_zone_id, $zone_selected);
+        // Query Builder
+        $query = TwInvoice::query()
+            ->where('org_id_fk', $orgId) // [SECURITY] Filter Org
+            ->whereIn("status", ["owe", 'tw_invoices'])
+            ->with(['usermeterinfos:meter_id,user_id,undertake_zone_id,undertake_subzone_id']);
+
+        // [PERFORMANCE] Filter Invoice Period / Budget Year ใน SQL
+        if (!empty($inv_p_ids)) {
+            $query->whereIn("inv_period_id_fk", $inv_p_ids);
+        } elseif (!empty($budget_ids)) {
+            $query->whereHas('period', function($q) use ($budget_ids) {
+                $q->whereIn('budgetyear_id', $budget_ids);
             });
         }
-        
-        if ($subzone_selected[0] != 'all') {
-            $invoice_owe_status = collect($invoice_owe_status)->filter(function ($item) use ($subzone_selected) {
-                return in_array($item[0]->usermeterinfos->undertake_subzone_id, $subzone_selected);
+
+        // [PERFORMANCE] Filter Zone/Subzone ผ่าน Relation ใน SQL (แทนการ Filter PHP)
+        if (!empty($zone_ids)) {
+            $query->whereHas('usermeterinfos', function($q) use ($zone_ids) {
+                $q->whereIn('undertake_zone_id', $zone_ids);
             });
         }
-        if ($inv_period_selected[0] != 'all') {
-            $invoice_owe_status = collect($invoice_owe_status)->filter(function ($item) use ($inv_period_selected) {
-                return in_array($item[0]->inv_period_id_fk, collect($inv_period_selected)->toArray());
+        if (!empty($subzone_ids)) {
+            $query->whereHas('usermeterinfos', function($q) use ($subzone_ids) {
+                $q->whereIn('undertake_subzone_id', $subzone_ids);
             });
         }
-      
-        $showDetails = $request->get('excelBtn')=='overview' ? false : true;
 
-      
-        $owes = collect($invoice_owe_status)->map(function ($ar, $k){
-            
-                return [
-                    'owe_infos' => $ar,
-                    'meter_id_fk' => $ar[0]->meter_id_fk,
-                    'user_id' => $ar[0]->user_id,
-                    'printed_time' => $ar[0]->printed_time,
-                    'status' => $ar[0]->status,
-                    'inv_period_id_fk' => $ar[0]->inv_period_id_fk,
-                    'paid' => collect($ar)->sum('paid'),
-                    'vat' => number_format(collect($ar)->sum('vat'), 2),
-                    'reserve_meter' => number_format(collect($ar)->sum('reserve_meter'), 2),
-                    'totalpaid' => number_format(collect($ar)->sum('totalpaid'), 2),
-                    'owe_count' => collect($ar)->count(),    
-                ];
-        });
+        // Execute Query
+        $rawInvoices = $query->get();
 
-        $reservemeter_sum = collect($invoice_owe_status)->sum(function ($arr) {
-            return collect($arr)->sum('reserve_meter');
+        // Group & Map
+        $grouped = $rawInvoices->groupBy('meter_id_fk');
+        $owes = $this->mapOweData($grouped, true);
 
-        });
+        // Sum
+        $reservemeter_sum = $rawInvoices->sum('reserve_meter');
+        $crudetotal_sum   = $rawInvoices->sum('paid');
 
-        $crudetotal_sum = collect($invoice_owe_status)->sum(function ($arr) {
-            return collect($arr)->sum('paid');
-           
-        });
-        $zones = Zone::where('status', 'active')->get(['id', 'zone_name']);
-        $subzones = Subzone::where('status', 'active')->get(['id', 'subzone_name']);
-        $owe_zones =  [];
+        // Dropdowns & View Data
+        $zones       = Zone::where('status', 'active')->get(['id', 'zone_name']);
+        $subzones    = Subzone::where('status', 'active')->get(['id', 'subzone_name']);
         $budgetyears = BudgetYear::get(['id', 'budgetyear_name', 'status']);
-        $inv_periods = TwInvoicePeriod::whereIn('budgetyear_id', $budgetyears_selected)->get(['id', 'inv_p_name']);
-
-        $selected_inv_periods = TwInvoicePeriod::whereIn('id', $request->get('inv_period'))->get();
-        $selected_inv_periods = collect($selected_inv_periods)->isEmpty() ? ['all'] : $selected_inv_periods;
-        $selectedInvPeriodID = collect($selected_inv_periods)->pluck('id');
-        $owe_inv_periods =  collect($invoice_owe_status)->groupBy(['inv_period_id_fk'])->map(function ($arr, $key) {
-            return  TwInvoicePeriod::where('id', $key)->first(['id', 'inv_p_name']);
-        })->sortByDesc('id')->reverse();
-
         
-        if ($request->has('excelBtn')) {
+        $periodQuery = TwInvoicePeriod::query();
+        if(!empty($budget_ids)) {
+            $periodQuery->whereIn('budgetyear_id', $budget_ids);
+        }
+        $inv_periods = $periodQuery->get(['id', 'inv_p_name']);
 
-            $excelname = 'รายงานการผู้ค้างชำระค่าน้ำประปา.xlsx';
-            
-            $arr = [
+        $selected_inv_periods = TwInvoicePeriod::whereIn('id', $inv_p_ids)->get();
+        if ($selected_inv_periods->isEmpty()) $selected_inv_periods = ['all'];
+
+        $owe_inv_periods = $rawInvoices->groupBy('inv_period_id_fk')
+            ->map(fn($g, $k) => TwInvoicePeriod::select('id', 'inv_p_name')->find($k))
+            ->sortByDesc('id');
+
+        // Excel Export
+        if ($request->has('excelBtn')) {
+            return Excel::download(new ReportOweUserExport([
                 'owes' => $owes,
-                // 'budgetyears' => $budgetyears,
-                'budgetyears_selected' => $budgetyears_selected,
+                'budgetyears_selected' => $budget_ids,
                 'selected_inv_periods' => $selected_inv_periods,
                 'reservemeter_sum' => $reservemeter_sum,
                 'crudetotal_sum' => $crudetotal_sum,
-                'owe_zones' => $owe_zones,
+                'owe_zones' => $zone_ids,
                 'owe_inv_periods' => $owe_inv_periods,
-                'zone_selected' => $zone_selected,
-            ];
-            $showDetails = $request->get('excelBtn') =='overview' ? false : true;
-           
-            return Excel::download(new ReportOweUserExport($arr,$showDetails), $excelname);
+                'zone_selected' => $zone_ids,
+            ], $request->get('excelBtn') != 'overview'), 'รายงานการผู้ค้างชำระค่าน้ำประปา.xlsx');
         }
-        $owe_zones = $request->get('zone') != 'all' ? $request->get('zone') : 'ทุกหมู่';
-        return view("reports.owe", compact('owes', 'budgetyears', 'budgetyears_selected', 'zone_selected',
-            'subzone_selected', 'selectedInvPeriodID', 'inv_periods',
-             'selected_inv_periods', 'reservemeter_sum', 'crudetotal_sum', 'owe_zones', 'zones', 'subzones', 'owe_inv_periods'));
+
+        return view("reports.owe", [
+            'owes' => $owes,
+            'budgetyears' => $budgetyears,
+            'budgetyears_selected' => $budget_ids ?: [],
+            'zone_selected' => $zone_ids ?: ['all'],
+            'subzone_selected' => $subzone_ids ?: ['all'],
+            'selectedInvPeriodID' => collect($selected_inv_periods)->pluck('id'),
+            'inv_periods' => $inv_periods,
+            'selected_inv_periods' => $selected_inv_periods,
+            'reservemeter_sum' => $reservemeter_sum,
+            'crudetotal_sum' => $crudetotal_sum,
+            'owe_zones' => $request->get('zone') != 'all' ? $request->get('zone') : 'ทุกหมู่',
+            'zones' => $zones,
+            'subzones' => $subzones,
+            'owe_inv_periods' => $owe_inv_periods,
+            'orgInfos' => Organization::getOrgName($orgId)
+        ]);
     }
 
-    public function show() {}
+    // Helper: Map Owe Data
+    private function mapOweData($groupedCollection, $isSearch = false)
+    {
+        return $groupedCollection->map(function ($items) use ($isSearch) {
+            $first = $items->first();
+            return [
+                'meter_id_fk'   => $first->meter_id_fk,
+                'user_id'       => $first->user_id,
+                'paid'          => $items->sum('paid'),
+                'printed_time'  => $isSearch ? ($first->printed_time ?? 0) : TwCutmeter::where('meter_id_fk', $first->meter_id_fk)->where('status', '<>', 'deleted')->where('warning_print', 1)->count(),
+                'vat'           => number_format($items->sum('vat'), 2),
+                'totalpaid'     => number_format($items->sum('totalpaid'), 2),
+                'reserve_meter' => number_format($items->sum('reserve_meter'), 2),
+                'owe_count'     => $items->count(),
+                'status'        => $first->status,
+                'owe_infos'     => $items,
+                'inv_period_id_fk' => $first->inv_period_id_fk, 
+            ];
+        });
+    }
+
+    private function getFilterArray($input)
+    {
+        if (empty($input) || in_array('all', (array)$input)) {
+            return [];
+        }
+        return (array)$input;
+    }
+
+    // =================================================================================
+    // 2. REPORT DAILY PAYMENT (รายงานรับชำระ - แก้ Connection Leak & N+1)
+    // =================================================================================
+
+    public function dailypayment(Request $request)
+    {
+        // [FIX] เอา ManagesTenantConnection ออก
+        $orgId = Auth::user()->org_id_fk;
+        
+        if ($request->has('excel')) {
+            return $this->export($request);
+        }
+
+        $fnCtrl = new FunctionsController();
+        
+        // Defaults
+        if (!$request->has('nav') || $request->get('nav') == 'nav') {
+            $activePeriod = TwInvoicePeriod::where('status', 'active')->first(['id', 'budgetyear_id']);
+            $request->merge([
+                'zone_id' => 'all', 'subzone_id' => 'all', 'acc_trans_id_fk' => 'all',
+                'cashier_selected' => 0, 'cashier_id' => 'all', 'inv_period_id' => 'all',
+                'budgetyear_id' => $activePeriod->budgetyear_id ?? null,
+                'fromdate' => date('Y-m-d'), 'todate' => date('Y-m-d')
+            ]);
+            $fromdateTh = $fnCtrl->engDateToThaiDateFormat(date('Y-m-d'));
+            $todateTh   = $fnCtrl->engDateToThaiDateFormat(date('Y-m-d'));
+        } else {
+            $fromdateTh = $request->get('fromdate');
+            $todateTh   = $request->get('todate');
+            $request->merge([
+                'fromdate' => $fnCtrl->thaiDateToEngDateFormat($request->get('fromdate')),
+                'todate'   => $fnCtrl->thaiDateToEngDateFormat($request->get('todate')),
+            ]);
+        }
+
+        // Fetch Data (Refactored)
+        $paidInfos = $this->getDailyPaymentData($request, $orgId);
+
+        // Prepare View
+        $zones       = Zone::all();
+        $subzones    = ($request->zone_id != 'all') ? Subzone::all() : 'all';
+        $budgetyears = BudgetYear::all();
+        $inv_periods = TwInvoicePeriod::where('budgetyear_id', $request->budgetyear_id)->orderByDesc('id')->get(['id', 'inv_p_name']);
+        
+        // [Security] ดึงเฉพาะ User ใน Org เดียวกัน
+$receiptions = User::where('org_id_fk', $orgId)
+    ->whereHas('roles', function ($query) {
+        // เลือกเอาว่าจะเช็คจาก ID หรือ ชื่อ (แนะนำชื่อจะอ่านรู้เรื่องกว่า)
+        
+        // กรณีเช็คจากชื่อ Role
+        $query->whereIn('name', ['Admin', 'Finance Staff']); 
+        
+        // หรือ กรณีเช็คจาก ID (ถ้าคุณมั่นใจว่า 1=Admin, 2=Finance)
+        // $query->whereIn('id', [1, 2]); 
+    })
+    ->get(['id', 'lastname', 'firstname']);        
+        $cashierName = 'ทั้งหมด';
+        if ($request->cashier_id != 'all') {
+             $c = User::find($request->cashier_id);
+             $cashierName = $c ? $c->firstname . ' ' . $c->lastname : '-';
+        }
+
+        $request_selected = [
+            'budgeryear' => BudgetYear::where('id', $request->budgetyear_id)->pluck('budgetyear_name'),
+            'inv_period' => $request->inv_period_id == 'all' ? ['ทั้งหมด'] : TwInvoicePeriod::where('id', $request->inv_period_id)->pluck('inv_p_name'),
+            'zone'       => $request->zone_id == 'all' ? ['ทั้งหมด'] : Zone::where('id', $request->zone_id)->pluck('zone_name'),
+            'subzone'    => $request->subzone_id == 'all' ? ['ทั้งหมด'] : Subzone::where('id', $request->subzone_id)->pluck('subzone_name'),
+            'cashier'    => [['id' => $request->cashier_id, 'firstname' => $cashierName, 'lastname' => '']]
+        ];
+
+        return view('reports.dailypayment', compact(
+            'zones', 'subzones', 'paidInfos', 'receiptions', 
+            'fromdateTh', 'todateTh', 'budgetyears', 'inv_periods', 
+            'request_selected'
+        ) + [
+            'subzone_id' => $request->subzone_id,
+            'zone_id'    => $request->zone_id,
+            'todate'     => date('d/m/Y', strtotime($request->todate)),
+            'fromdate'   => date('d/m/Y', strtotime($request->fromdate)),
+            'inv_period_id' => $request->inv_period_id,
+            'cashier' => null,
+            'orgInfos' => Organization::getOrgName($orgId)
+        ]);
+    }
+
+    private function getDailyPaymentData($request, $orgId)
+    {
+        // [PERFORMANCE] Query Optimization
+        // ใช้ whereHas Invoice แทนการ Loop Filter
+        // ใช้ Filter Org ผ่าน User
+
+        $query = TwMeterInfos::query()
+            ->whereHas('user', function($q) use ($orgId) {
+                $q->where('org_id_fk', $orgId); // [Security] Check Org
+            })
+            ->with([
+                'tw_invoices' => function ($q) use ($request) {
+                    $q->select('id', 'meter_id_fk', 'inv_no', 'acc_trans_id_fk', 'updated_at', 
+                               'inv_period_id_fk', 'lastmeter', 'currentmeter', 'water_used', 
+                               'paid', 'vat', 'reserve_meter', 'totalpaid', 'status')
+                      ->whereBetween("updated_at", [$request->fromdate . " 00:00:00", $request->todate . " 23:59:59"])
+                      ->where('status', 'paid');
+    
+                    if ($request->inv_period_id != 'all') {
+                        $q->where('inv_period_id_fk', $request->inv_period_id);
+                    }
+                    
+                    // Filter Cashier ที่ Invoice Level (ถ้าจำเป็นต้องเช็คที่นี่)
+                    if ($request->cashier_id != 'all') {
+                        $q->whereHas('tw_acc_transactions', function($transQ) use ($request) {
+                            $transQ->where('cashier', $request->cashier_id);
+                        });
+                    }
+                },
+                'tw_invoices.tw_acc_transactions:id,cashier',
+                'tw_invoices.tw_acc_transactions.cashier_info:id,firstname,lastname'
+            ]);
+
+        // Filter Zone/Subzone
+        $query->when($request->zone_id != 'all', fn($q) => $q->where('undertake_zone_id', $request->zone_id));
+        $query->when($request->subzone_id != 'all', fn($q) => $q->where('undertake_subzone_id', $request->subzone_id));
+        
+        $query->where('status', 'active');
+        
+        // [CRITICAL FIX] ใช้ whereHas เพื่อดึงเฉพาะ Meter ที่มีบิลจ่ายเงินในช่วงเวลานั้นจริงๆ
+        // ไม่เช่นนั้น มันจะดึง Meter ทั้งหมดออกมา แล้วค่อยมา Filter ว่างทีหลัง ซึ่งช้ามาก
+        $query->whereHas('tw_invoices', function ($q) use ($request) {
+            $q->whereBetween("updated_at", [$request->fromdate . " 00:00:00", $request->todate . " 23:59:59"])
+              ->where('status', 'paid');
+            
+            if ($request->inv_period_id != 'all') {
+                $q->where('inv_period_id_fk', $request->inv_period_id);
+            }
+            if ($request->cashier_id != 'all') {
+                $q->whereHas('tw_acc_transactions', fn($tq) => $tq->where('cashier', $request->cashier_id));
+            }
+        });
+
+        return $query->get(['meter_id', 'user_id', 'meter_address', 'submeter_name', 'undertake_zone_id', 'status', 'updated_at']);
+    }
 
     public function export(Request $request)
     {
-        $fromdate = str_replace("/", "-", $request->get('fromdate'));
-        $todate = str_replace("/", "-", $request->get('todate'));
-
-        $excelname = 'รายงานการรับชำระค่าน้ำประจำวันที่ ' . $fromdate . ' ถึง ' . $todate . '.xlsx';
-        return Excel::download(new DailyReportExport($request), $excelname);
+        $dateStr = str_replace("/", "-", $request->get('fromdate')) . ' ถึง ' . str_replace("/", "-", $request->get('todate'));
+        return Excel::download(new DailyReportExport($request), "รายงานการรับชำระค่าน้ำประจำวันที่ {$dateStr}.xlsx");
     }
 
-    private function aa(){
-      return  $umfs = TwMeterInfos::where('undertake_zone_id', 12)->where('status', 'active')
+    // =================================================================================
+    // 3. REPORT METER HISTORY
+    // =================================================================================
+    
+    public function meter_record_history(Request $request)
+{
+    // 1. Timezone ควรตั้งใน config/app.php แต่ถ้าจำเป็นจริงๆ ให้ใช้ Carbon จะดีกว่า
+    // date_default_timezone_set('Asia/Bangkok'); 
+    
+    $orgId = Auth::user()->org_id_fk;
+
+    // 2. Default Values (ใช้ when หรือ check ดีกว่าการ query ใน default parameter)
+    $activeBudgetIds = BudgetYear::where('status', 'active')->pluck('id')->toArray();
+    $budget_ids = $request->get('budgetyear', $activeBudgetIds);
+    
+    // ตรวจสอบว่าเป็น array หรือไม่ ป้องกัน error
+    if(!is_array($budget_ids)) $budget_ids = [$budget_ids];
+
+    $zone_ids = $request->get('zone', ['all']);
+    if(!is_array($zone_ids)) $zone_ids = [$zone_ids];
+
+    // Master Data
+    $zones = Zone::all();
+    $budgetyears = BudgetYear::select('id', 'budgetyear_name', 'status')->get();
+    $inv_periods = TwInvoicePeriod::whereIn('budgetyear_id', $budget_ids)
+                    ->orderBy('id', 'asc')
+                    ->get();
+
+    // 3. Main Query
+    $query = TwMeterInfos::query()
+        ->whereHas('user', function($q) use ($orgId) {
+            $q->where('users.org_id_fk', $orgId); 
+        })
+        // แก้ไข N+1: Load user_zone และ user_subzone มาด้วยเลย
         ->with([
-            'invoice' => function($q){
-                return $q->select('id', 'meter_id_fk','totalpaid', 'updated_at', 'status')->where('inv_period_id_fk', 6);
-            }
-        ])
-        ->get(['meter_id']);
-
-        foreach($umfs as $inv){
-            TwInvoiceTemp::where('id', $inv->invoice[0]->inv_id)->update([
-                'status' => 'paid',
-                'updated_at' =>date('Y-m-d H:i:s')
-            ]);
-        }
-        return 'ss';
-    }
-    public function dailypayment(Request $request)
-    {
-        ManagesTenantConnection::configConnection(session('db_conn'));
-        if (collect($request)->has('excel')) {
-            return $this->export($request);
-        }
-        $fnCtrl = new FunctionsController();
-        if (collect($request)->isEmpty() || $request->get('nav') == 'nav') {
-            $current_inv_period = TwInvoicePeriod::where('status', 'active')->get(['id', 'budgetyear_id']);
-            $iniRequest = [
-                'zone_id'           => 'all',
-                'subzone_id'        => 'all',
-                'fromdate'          => date('Y-m-d'),
-                'todate'            => date('Y-m-d'),
-                'acc_trans_id_fk'   => 'all',
-                'cashier_selected'  => 0,
-                'cashier_id'        => 'all',
-                'inv_period_id'     => 'all',
-                'budgetyear_id'     => $current_inv_period[0]->budgetyear_id
-            ];
-            $request->merge($iniRequest);
-            $fromdateTh = $fnCtrl->engDateToThaiDateFormat(date('Y-m-d'));
-            $todateTh = $fnCtrl->engDateToThaiDateFormat(date('Y-m-d'));
-        } else {
-            $fromdateTh = $request->get('fromdate');
-            $todateTh = $request->get('todate');
-            
-            //เปลี่ยนวันไทย ไปเป็นวันอังกฤษ
-            $fromdate = $fnCtrl->thaiDateToEngDateFormat($request->get('fromdate'));
-            $todate = $fnCtrl->thaiDateToEngDateFormat($request->get('todate'));
-            $request->merge([
-                'fromdate' => $fromdate,
-                'todate' => $todate,
-            ]);
-        }
-
-        $inv_period_id      = $request->get('inv_period_id');
-        $zone_id            = $request->get('zone_id');
-        $subzone_id         = $request->get('subzone_id');
-       
-        $fromdate           = date_format(date_create($request->get('fromdate')), 'd/m/Y');
-        $todate             = date_format(date_create($request->get('todate')), 'd/m/Y');
-        
-        
-        $paidInfos = $this->dailypaymentTest($request);
-       
-
-        $paidInfos = collect($paidInfos)->filter(function($v){
-          return  collect($v->invoice)->isNotEmpty();
-        })->values();
-        $cashier_id         = $request->get('cashier_id');
-        $zones          = Zone::all();
-        $subzones       = $zone_id != 'all' && $subzone_id != 'all' ? Subzone::all() : 'all';
-        $budgetyears    = BudgetYear::all();
-        $inv_periods    = TwInvoicePeriod::where('budgetyear_id', $request->get('budgetyear_id'))->orderBy('id', 'desc')->get(['id', 'inv_p_name']);
-        $receiptions    = User::whereIn('role_id', [1, 2])->get(['id', 'lastname', 'firstname']);
-        if ($request->get('cashier_selected') != "all") {
-            $cashier    = User::where('id', $request->get('cashier_selected'))->get(['id', 'firstname', 'lastname']);
-        }
-        // return $inv_period_id;
-        $request_selected = [
-            'budgeryear' => collect(BudgetYear::where('id', $request->get('budgetyear_id'))->get(['budgetyear_name']))->pluck('budgetyear_name'),
-            'inv_period' => $request->get('inv_period_id') == 'all' ? ['ทั้งหมด'] : collect(TwInvoicePeriod::where('id', $request->get('inv_period_id'))->get(['inv_p_name']))->pluck('inv_p_name'),
-            'zone' => $request->get('zone_id') == 'all' ? ['ทั้งหมด'] : collect(Zone::where('id', $request->get('zone_id'))->get(['zone_name']))->pluck('zone_name'),
-            'subzone' => $request->get('subzone_id') == 'all' ? ['ทั้งหมด'] : collect(Subzone::where('id', $request->get('subzone_id'))->get(['subzone_name']))->pluck('subzone_name'),
-            'cashier' => $request->get('cashier_id') == "all" ? [['id' => 'all', 'firstname' => 'ทั้งหมด', 'lastname' => '']] : $cashier    = User::where('id', $request->get('cashier_id'))->get(['id', 'firstname', 'lastname'])
-        ];
-        if ($cashier_id != 'all') {
-            //filter เอาผู้รับเงินที่ต้องการ
-            $paidInfos =  collect($paidInfos)->filter(function ($v) use ($cashier_id) {
-                if (collect($v->invoice[0]->acc_transactions['cashier_info'])->isNotEmpty()) {
-                    return $v->invoice[0]->acc_transactions['cashier_info']['id'] == $cashier_id;
-                }
-            })->values();
-        }
-        $orgInfos = Organization::getOrgName(Auth::user()->org_id_fk);
-        return view('reports.dailypayment', compact(
-        'zones',
-        'subzones',
-        'paidInfos',
-        'subzone_id',
-        'zone_id',
-        'receiptions',
-        'cashier',
-        'fromdateTh',
-        'request_selected',
-        'todateTh',
-        'budgetyears',
-        'inv_periods',
-        'todate',
-        'fromdate',
-        'inv_period_id',
-        'orgInfos',
-    ));
-        
-    }
-
-    private function dailypaymentTest($request){
-
-        $inv_period_id      = $request->get('inv_period_id');
-        $zone_id            = $request->get('zone_id');
-        $subzone_id         = $request->get('subzone_id');
-        $fnCtrl = new FunctionsController();
-       
-        $fromdate = $request->get('fromdate');
-        $todate = $request->get('todate');
-        $cashier_id         = $request->get('cashier_id');
-        $umfs = TwMeterInfos::with([
-            'invoice' => function($q) use ($todate, $fromdate, $inv_period_id){
-                $query = $q->select('id','meter_id_fk','inv_no', 'acc_trans_id_fk','updated_at',  'inv_period_id_fk', 
-                        'lastmeter', 'currentmeter', 'water_used', 'paid', 'vat', 'reserve_meter','totalpaid',
-                        'status')
-                        ->whereBetween("updated_at",  [$fromdate . " 00:00:00", $todate. " 23:59:59"])
-                        ->where('status', 'paid');
-                if($inv_period_id != 'all'){
-                    $query = $query ->where('inv_period_id_fk',$inv_period_id);
-                }
-               
-                return $query;
-            },
-            'invoice.acc_transactions' => function($q) {
-                return $q->select('id', 'cashier' );
-            },
-            'invoice.acc_transactions.cashier_info' => function($q){
-                return $q->select('id','firstname', 'lastname');
-            } 
-        ]);
-        if($zone_id != 'all'){
-            $umfs = $umfs->where('undertake_zone_id', $zone_id);
-        }
-        if($subzone_id != 'all'){
-            $umfs = $umfs->where('undertake_subzone_id', $subzone_id);
-        }
-
-        if($cashier_id != 'all'){
-
-        }
-        
-        $umfs = $umfs->where('status', 'active');
-        
-       return $umfs = $umfs->get(['id', 'user_id', 'meter_address', 'submeter_name', 'undertake_zone_id', 'status', 'updated_at']);
-        
-      
-    }
-    public function meter_record_history(REQUEST $request)
-    {
-        date_default_timezone_set('Asia/Bangkok');
-
-        $budgetyear_selected_array = ['now'];
-        $zone_id_array = ['all'];
-        if (collect($request)->isNotEmpty()) {
-            $budgetyear_selected_array = $request->get('budgetyear');
-            $zone_id_array = $request->get('zone');
-        } else {
-            $budgetyear_selected_array = BudgetYear::where('status', 'active')
-                ->get('id')->pluck('id');
-        }
-        $zones = Zone::all();
-        $budgetyears = BudgetYear::get(['id', 'budgetyear_name', 'status']);;
-
-        //หารอบบิลที่เปิดใช้งานของ ปีงบประมาณปัจจุบัน
-        $active_inv_periods = TwInvoicePeriod::whereIn('budgetyear_id', $budgetyear_selected_array)
-            ->orderBy('id', 'asc')->get('id');
-
-        $inv_periods_list_array = collect($active_inv_periods)->pluck('id');
-        $inv_periodsCount = collect($active_inv_periods)->count();
-
-        $usermeterinfosQuery = TwMeterInfos::with([
-            'invoice' => function ($q) use ($budgetyear_selected_array) {
-                return $q->select(
-                    'tw_invoice.lastmeter',
-                    'tw_invoice.currentmeter',
-                    'tw_invoice.water_used',
-                    'tw_invoice.inv_period_id_fk',
-                    'tw_invoice.meter_id_fk',
-                    'invoice_period.inv_p_name',
-                    'invoice_period.budgetyear_id'
-                )
-                    ->join('invoice_period', 'invoice_period.id', '=', 'tw_invoice.inv_period_id_fk')
-                    ->whereIn('invoice_period.budgetyear_id', $budgetyear_selected_array);
-            },
-            'invoice_history' => function ($q) use ($budgetyear_selected_array) {
-                return $q->select(
-                    'tw_invoice_history.lastmeter',
-                    'tw_invoice_history.currentmeter',
-                    'tw_invoice_history.water_used',
-                    'tw_invoice_history.inv_period_id_fk',
-                    'tw_invoice_history.meter_id_fk',
-                    'invoice_period.inv_p_name',
-                    'invoice_period.budgetyear_id'
-                )
-                    ->join('invoice_period', 'invoice_period.id', '=', 'tw_invoice_history.inv_period_id_fk')
-                    ->where('invoice_period.budgetyear_id', $budgetyear_selected_array);
-            },
-            'user' => function ($q) {
-                return $q->select('id', 'prefix', 'firstname', 'lastname', 'zone_id', 'subzone_id', 'address');
+            'tw_invoices' => fn($q) => $this->historySubQuery($q, $budget_ids, 'tw_invoice'),
+            'tw_invoice_history' => fn($q) => $this->historySubQuery($q, $budget_ids, 'tw_invoice_history'),
+            'user' => function($q) {
+                $q->select('id', 'prefix', 'firstname', 'lastname', 'zone_id', 'subzone_id', 'address')
+                  ->with(['user_zone:id,zone_name', 'user_subzone:id,subzone_name']); 
             }
         ]);
-        if (!in_array("all", $zone_id_array)) {
-            $usermeterinfosQuery = $usermeterinfosQuery->whereIn('undertake_zone_id', $zone_id_array);
-        }
-        $usermeterinfosQuery = $usermeterinfosQuery
-            ->where('status', '<>', 'deleted')
-            ->get(['meter_id', 'user_id', 'undertake_zone_id']);
 
-        $inv_period_list = TwInvoicePeriod::whereIn('budgetyear_id', $budgetyear_selected_array)->get(['id', 'inv_p_name']);
-        $inv_period_id_list =  collect($inv_period_list)->pluck('id');
-
-        foreach ($usermeterinfosQuery as $us) {
-            $inv_period_list_clone = [];
-
-            $mergeInvoice = collect($us->invoice)->merge($us->invoice_history)->sortBy('inv_period_id_fk')->values();
-            foreach ($inv_period_list as $clone) {
-                $id = $clone->id;
-                $res = collect($mergeInvoice)->filter(function ($v) use ($id) {
-                    return $v->inv_period_id_fk == $id;
-                })->values();
-                if (collect($res)->isEmpty()) {
-                    array_push($inv_period_list_clone, [
-                        'id' => $clone->id,
-                        'inv_p_name' => $clone->inv_p_name,
-                        'lastmeter' => 0,
-                        "currentmeter" => 0,
-                        "water_used" => 0
-                    ]);
-                } else {
-                    array_push($inv_period_list_clone, [
-                        'id' => $clone->id,
-                        'inv_p_name' => $clone->inv_p_name,
-                        'lastmeter' => $res[0]['lastmeter'],
-                        "currentmeter" => $res[0]['currentmeter'],
-                        "water_used" => $res[0]['water_used']
-                    ]);
-                }
-            }
-            $us['infos'] =  $inv_period_list_clone;
-            $us['bringForward'] = collect($inv_period_list_clone)->isEmpty() ? 0 : $inv_period_list_clone[0]['lastmeter'];
-            unset($us->invoice);
-            unset($us->invoice_history);
-        }
-
-        $usermeterinfos = collect($usermeterinfosQuery)->filter(function ($v) {
-            return collect($v->infos)->sum('currentmeter') > 0 && collect($v->user)->isNotEmpty();
-        });
-
-        if ($request->get('submitBtn') == 'export_excel') {
-            $excelname = 'รายงานสมุดจดเลขอ่านมาตรวัดน้ำ(ป.31).xlsx';
-            return Excel::download(new meterRecordHistoryExport([
-                'usermeterinfos' => $usermeterinfos,
-                'inv_period_list' => $inv_period_list,
-                'zones' => $zones,
-                'budgetyears' => $budgetyears,
-                'budgetyear_selected_array' => $budgetyear_selected_array,
-                'zone_id_array' => $zone_id_array,
-            ]), $excelname);
-        }
-        return view('reports.meter_record_history', compact('usermeterinfos', 'inv_period_list', 'zones', 'budgetyears', 'budgetyear_selected_array', 'zone_id_array'));
+    if (!in_array("all", $zone_ids)) {
+        $query->whereIn('undertake_zone_id', $zone_ids);
     }
 
-    public function water_used(Request $request, $from = "")
-    {
-        // ค่าตั้งต้น
-        if (collect($request)->isEmpty()) {
-            $selected_budgetYear = BudgetYear::where('status', 'active')
-                ->with(['invoice_period' => function ($query) {
-                    $query->select('budgetyear_id', 'id');
-                }])
-                ->get(['id', 'budgetyear_name'])
-                ->first();
-            $a = [
-                'zone_id' => 'all',
-                'subzone_id' => 'all',
+    // Load เฉพาะ Active
+    $results = $query->where('status', '<>', 'deleted')->get();
+
+    // 4. Transform Data
+    // การใช้ map จะ clean กว่า foreach และไม่กระทบ object เดิมโดยตรง
+    $usermeterinfos = $results->map(function ($meter) use ($inv_periods) {
+        $allInvoices = collect($meter->tw_invoices)->merge($meter->invoice_history);
+        $mappedPeriods = [];
+        $sumCurrentMeter = 0;
+
+        foreach ($inv_periods as $period) {
+            $match = $allInvoices->firstWhere('inv_period_id_fk', $period->id);
+            $current = $match->currentmeter ?? 0;
+            $sumCurrentMeter += $current;
+
+            $mappedPeriods[] = [
+                'id' => $period->id,
+                'inv_p_name' => $period->inv_p_name,
+                'lastmeter' => $match->lastmeter ?? 0,
+                'currentmeter' => $current,
+                'water_used' => $match->water_used ?? 0
             ];
-            $request->merge($a);
-        } else {
-            $selected_budgetYear = BudgetYear::where('id', $request->get('budgetyear_id'))
-                ->with(['invoice_period' => function ($query) {
-                    $query->select('budgetyear_id', 'id');
-                }])
-                ->get(['id', 'budgetyear_name'])->first();
         }
-        $invPeriod_selected_buggetYear_array = collect($selected_budgetYear->invoicePeriod)->pluck('id');
-        $zone_and_subzone_selected_text = 'ทั้งหมด';
 
+        // Attach ข้อมูลเพิ่มเข้าไปใน Object ชั่วคราว (หรือจะสร้าง Array ใหม่ก็ได้)
+        $meter->infos = $mappedPeriods;
+        $meter->bringForward = $mappedPeriods[0]['lastmeter'] ?? 0; // ยอดยกมา
+        $meter->sumCurrentMeter = $sumCurrentMeter;
+        
+        return $meter;
+    })->filter(function ($meter) {
+        // Filter ตรงนี้
+        return $meter->sumCurrentMeter > 0 && $meter->user;
+    });
 
-        $budgetyears = BudgetYear::where('status', '<>', 'deleted')->get(['id', 'budgetyear_name']);
-        $waterUsedInvoiceTable = DB::table('tw_meter_infos as umf')
-            ->join('tw_invoice_temp as inv', 'inv.meter_id_fk', '=', 'umf.meter_id')
+    // 5. Export Logic
+    if ($request->get('submitBtn') == 'export_excel') {
+        return Excel::download(new meterRecordHistoryExport([
+            'usermeterinfos' => $usermeterinfos,
+            'inv_period_list' => $inv_periods,
+            // ... parameters อื่นๆ
+        ]), 'รายงานสมุดจดเลขอ่านมาตรวัดน้ำ(ป.31).xlsx');
+    }
+
+    return view('reports.meter_record_history', [
+        'usermeterinfos' => $usermeterinfos,
+        'inv_period_list' => $inv_periods,
+        'zones' => $zones,
+        'budgetyears' => $budgetyears,
+        'budgetyear_selected_array' => $budget_ids,
+        'zone_id_array' => $zone_ids
+    ]);
+}
+
+    private function historySubQuery($q, $budget_ids, $table)
+    {
+        // 1. [Fix Ambiguous] ระบุชื่อตารางนำหน้า org_id_fk
+        // เพื่อไม่ให้ชนกับ org_id_fk ของตาราง users หรือ meter_infos
+        $q->where($table . '.org_id_fk', Auth::user()->org_id_fk);
+
+        // 2. [Restore Logic] กรองเฉพาะ Invoice ที่อยู่ในปีงบประมาณที่เลือก
+        // โดยการเช็คว่า inv_period_id_fk (รหัสงวด) ต้องอยู่ในลิสต์ของปีงบประมาณนั้นๆ
+        if (!empty($budget_ids)) {
+            $q->whereIn('inv_period_id_fk', function($sq) use ($budget_ids) {
+                $sq->select('id')
+                   ->from('invoice_period') // ชื่อตารางงวดเดือน
+                   ->whereIn('budgetyear_id', $budget_ids);
+            });
+        }
+        
+        // (Optional) เลือกเฉพาะฟิลด์ที่จำเป็นเพื่อความเร็ว
+        // $q->select($table.'.*'); 
+
+        return $q;
+    }
+
+    // =================================================================================
+    // 4. REPORT WATER USED
+    // =================================================================================
+
+ public function water_used(Request $request, $from = "")
+{
+    $orgId = Auth::user()->org_id_fk;
+
+    // 1. จัดการ Default Parameters ให้กระชับและปลอดภัยขึ้น
+    if (!$request->filled('budgetyear_id')) {
+        // ใช้ value() หรือ active() scope ถ้ามี
+        $activeId = BudgetYear::where('status', 'active')->value('id'); 
+        
+        // ถ้าไม่มีปีงบประมาณ Active เลย ให้หยุดทำงานหรือ Handle error
+        if (!$activeId && $from != 'dashboard') {
+             return redirect()->back()->with('error', 'ไม่พบปีงบประมาณที่เปิดใช้งาน');
+        }
+
+        $request->merge([
+            'budgetyear_id' => $activeId, 
+            'zone_id' => $request->get('zone_id', 'all'), // ใช้ค่าเดิมถ้ามี หรือ default 'all'
+            'subzone_id' => $request->get('subzone_id', 'all')
+        ]);
+    }
+    
+    // 2. Load BudgetYear
+    $selected_budgetYear = BudgetYear::with('invoice_period:budgetyear_id,id')
+        ->find($request->budgetyear_id);
+    
+    // Handle กรณีไม่เจอข้อมูล
+    if (!$selected_budgetYear) {
+         return $from == 'dashboard' 
+            ? [] 
+            : view('reports.water_used', ['data' => [], 'waterUsedDataTables' => []]);
+    }
+
+    $invPeriodIds = $selected_budgetYear->invoice_period->pluck('id')->toArray(); // แปลงเป็น Array ให้ชัวร์
+
+    // 3. Query ข้อมูล (Database Logic)
+    // หมายเหตุ: ถ้าข้อมูลเยอะ แนะนำให้ทำ Union ใน SQL แทนการ Merge Collection
+    $invData = $this->buildWaterUsedQuery('tw_invoice', $invPeriodIds, $request, $orgId)->get();
+    $histData = $this->buildWaterUsedQuery('tw_invoice_history', $invPeriodIds, $request, $orgId)->get();
+
+    // รวมข้อมูลและเรียงลำดับ
+    $waterUsed = $invData->merge($histData)->sortBy('undertake_zone_id');
+
+    // 4. Process Data (Business Logic)
+    $data = $this->processWaterUsedData($waterUsed, $request->budgetyear_id);
+
+    // 5. Response
+    if ($from == 'dashboard') {
+        return $data['chart'];
+    }
+
+    // Load list ปีงบประมาณมาแสดงใน Dropdown (เฉพาะที่ไม่ถูกลบ)
+    $budgetyears = BudgetYear::where('status', '<>', 'deleted')
+                    ->orderBy('id', 'desc') // เรียงปีล่าสุดขึ้นก่อน
+                    ->select('id', 'budgetyear_name')
+                    ->get();
+
+    return view('reports.water_used', [
+        'data' => $data['chart'],
+        'waterUsedDataTables' => $data['table'],
+        'zone_and_subzone_selected_text' => $this->getZoneText($request),
+        'selected_budgetYear' => $selected_budgetYear,
+        'budgetyears' => $budgetyears
+    ]);
+}
+
+    // Helper: Build SQL for Water Used (DB facade doesn't use Trait, so we need explicit check)
+    private function buildWaterUsedQuery($table, $periodIds, $request, $orgId)
+    {
+        $query = DB::table('tw_meter_infos as umf')
+            ->join("$table as inv", 'inv.meter_id_fk', '=', 'umf.meter_id')
             ->join('invoice_period as ivp', 'ivp.id', '=', 'inv.inv_period_id_fk')
             ->join('budget_year as bgy', 'bgy.id', '=', 'ivp.budgetyear_id')
             ->join('zones as z', 'z.id', '=', 'umf.undertake_zone_id')
             ->join('users as u', 'u.id', '=', 'umf.user_id')
-            ->select('inv.inv_period_id_fk', 'ivp.inv_p_name', 'umf.undertake_zone_id', 'inv.water_used', 
-                'z.zone_name', 'z.id as zone_id', 'bgy.id as budgetyear_id', 'u.org_id_fk')
-            ->whereIn('inv.inv_period_id_fk', $invPeriod_selected_buggetYear_array);
+            ->select(
+                'inv.inv_period_id_fk', 'ivp.inv_p_name', 'umf.undertake_zone_id',
+                'inv.water_used', 'z.zone_name', 'z.id as zone_id',
+                'bgy.id as budgetyear_id', 'u.org_id_fk'
+            )
+            ->whereIn('inv.inv_period_id_fk', $periodIds)
+            ->where('u.org_id_fk', $orgId); // [Security] Explicit Org Check
 
-        $waterUsedInvoiceHistoryTable = DB::table('tw_meter_infos as umf')
-            ->join('tw_invoice_history as invh', 'invh.meter_id_fk', '=', 'umf.meter_id')
-            ->join('invoice_period as ivp', 'ivp.id', '=', 'invh.inv_period_id_fk')
-            ->join('budget_year as bgy', 'bgy.id', '=', 'ivp.budgetyear_id')
-            ->join('zones as z', 'z.id', '=', 'umf.undertake_zone_id')
-            ->join('users as u', 'u.id', '=', 'umf.user_id')
-
-            ->select('invh.inv_period_id_fk', 'ivp.inv_p_name', 'umf.undertake_zone_id', 'invh.water_used', 
-            'z.zone_name', 'z.id as zone_id', 'bgy.id as budgetyear_id',  'u.org_id_fk')
-            ->whereIn('invh.inv_period_id_fk', $invPeriod_selected_buggetYear_array);
-
-        if ($request->get('zone_id') != 'all') {
-            $zone = Zone::where('id', $request->get('zone_id'))->get('zone_name');
-            $zone_and_subzone_selected_text .= ' ' . $zone[0]->zone_name;
-            if ($request->get('subzone_id') != 'all') {
-                $waterUsedInvoiceTable = $waterUsedInvoiceTable->where('umf.undertake_subzone_id', '=', $request->get('zone_id'));
-                $waterUsedInvoiceHistoryTable = $waterUsedInvoiceHistoryTable->where('umf.undertake_subzone_id', '=', $request->get('zone_id'));
-                
-                $subzone = Subzone::where('id', $request->get('subzone_id'))->get('subzone_name');
-                $zone_and_subzone_selected_text .= ' เส้นทางจัดเก็บ ' . $subzone[0]->subzone_name;
+        if ($request->zone_id != 'all') {
+            if ($request->subzone_id != 'all') {
+                $query->where('umf.undertake_subzone_id', $request->subzone_id);
             } else {
-                $waterUsedInvoiceTable = $waterUsedInvoiceTable->where('umf.undertake_zone_id', '=', $request->get('zone_id'));
-                $waterUsedInvoiceHistoryTable = $waterUsedInvoiceHistoryTable->where('umf.undertake_zone_id', '=', $request->get('zone_id'));
+                $query->where('umf.undertake_zone_id', $request->zone_id);
             }
         }
-        $waterUsedInvoiceHistoryTable = $waterUsedInvoiceHistoryTable->where('u.org_id_fk', Auth::user()->org_id_fk);
-        $waterUsedInvoiceTable = $waterUsedInvoiceTable->where('u.org_id_fk', Auth::user()->org_id_fk);
 
-        $waterUsedInvoiceHistoryTable = $waterUsedInvoiceHistoryTable->get();
-        $waterUsedInvoiceTable = $waterUsedInvoiceTable->get();
+        return $query;
+    }
 
+    private function processWaterUsedData($collection, $budgetYearId)
+    {
+        $grouped = $collection->groupBy('undertake_zone_id');
+        $labels = [];
+        $values = [];
+        $tables = [];
 
-        $waterUsed = collect($waterUsedInvoiceTable)->merge($waterUsedInvoiceHistoryTable)->sortBy('undertake_zone_id');
+        $allPeriodNames = TwInvoicePeriod::where('budgetyear_id', $budgetYearId)->pluck('inv_p_name');
 
-        $waterUsedGrouped = collect($waterUsed)->groupBy('undertake_zone_id');
-        $zones =  Zone::where('status', 'active')->get(['id', 'zone_name']);
-        $zone_id = $request->get('zone_id');
-        $zoneNameLabels = [];
-        $zoneWaterUsedData = [];
-        $waterUsedDataTables = [];
+        foreach ($grouped as $zoneId => $zoneData) {
+            $first = $zoneData->first();
+            $labels[] = $first->zone_name;
+            $values[] = $zoneData->sum('water_used');
 
-        foreach ($waterUsedGrouped as $key => $zone) {
-            // แบ่งzone
-            $zoneNameLabels[] = $zone[0]->zone_name;
-            $zoneWaterUsedData[] = collect($zone)->sum('water_used');
-            $waterUsedByInvPeriod = [];
-            //แต่งตามรอบบิล ในzone
-             $waterUsedByInvPeriodCollection = collect($zone)->groupBy('inv_period_id_fk')->values();
-            
-            $invpCounts = TwInvoicePeriod::where(['budgetyear_id' => $waterUsedByInvPeriodCollection[0][0]->budgetyear_id])->get(['inv_p_name'])->pluck('inv_p_name');
-            
-            for($i= 0; $i < collect($invpCounts)->count(); $i++){
-                $checkIssetInvPName = isset($waterUsedByInvPeriodCollection[$i][0]->inv_p_name) ? 1 : 0; 
-               
-                $invPName = $checkIssetInvPName == 1 ? $waterUsedByInvPeriodCollection[$i][0]->inv_p_name : $invpCounts[$i];
-                
-                $w_used = $checkIssetInvPName == 1 ? collect($waterUsedByInvPeriodCollection[$i])->sum('water_used') : 0;
-                $a = $i;
-                $waterUsedByInvPeriod[] = [
-                    'id'         => $checkIssetInvPName == 1 ? $waterUsedByInvPeriodCollection[$i][0]->inv_period_id_fk : $a+1,
-                    'inv_p_name' => $invPName,
-                    'water_used' => $w_used
+            $classified = [];
+            foreach($allPeriodNames as $index => $pName) {
+                $realData = $zoneData->filter(fn($d) => $d->inv_p_name == $pName);
+                $classified[] = [
+                    'id' => $realData->first()->inv_period_id_fk ?? ($index + 1),
+                    'inv_p_name' => $pName,
+                    'water_used' => $realData->sum('water_used')
                 ];
             }
 
-            $waterUsedDataTables[] = [
-                'zone_id'                   => $zone[0]->undertake_zone_id,
-                'zone_name'                 => $zone[0]->zone_name,
-                'water_used'                => collect($zone)->sum('water_used'),
-                'classify_by_inv_period'    => collect($waterUsedByInvPeriod)->sortBy('id')
+            $tables[] = [
+                'zone_id' => $zoneId,
+                'zone_name' => $first->zone_name,
+                'water_used' => $zoneData->sum('water_used'),
+                'classify_by_inv_period' => collect($classified)
             ];
         }
-        $data = [
-            'labels' => $zoneNameLabels,
-            'data' => $zoneWaterUsedData,
-        ];
-        if ($from == 'dashboard') {
-            return $data;
-        }
-        // return $waterUsedDataTables;
 
-        return view('reports.water_used', compact('data', 'waterUsedDataTables', 'zone_and_subzone_selected_text', 'selected_budgetYear'));
+        return ['chart' => ['labels' => $labels, 'data' => $values], 'table' => $tables];
+    }
+
+    private function getZoneText($request)
+    {
+        $text = 'ทั้งหมด';
+        if ($request->zone_id != 'all') {
+            $z = Zone::find($request->zone_id);
+            $text .= ' ' . ($z->zone_name ?? '');
+            if ($request->subzone_id != 'all') {
+                $s = Subzone::find($request->subzone_id);
+                $text .= ' เส้นทางจัดเก็บ ' . ($s->subzone_name ?? '');
+            }
+        }
+        return $text;
     }
 }

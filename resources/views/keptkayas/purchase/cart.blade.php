@@ -39,7 +39,7 @@
                 <i class="fa fa-shopping-basket fa-4x"></i>
             </div>
             <h5 class="text-muted">ยังไม่มีรายการในรถเข็น</h5>
-            <a href="{{ route('keptkayas.purchase.form', $user->id) }}" class="btn btn-primary rounded-pill px-4 mt-3 shadow-sm">
+            <a href="{{ route('keptkayas.purchase.form', $seller->id) }}" class="btn btn-primary rounded-pill px-4 mt-3 shadow-sm">
                 <i class="bi bi-plus-lg me-1"></i> เพิ่มรายการขยะ
             </a>
         </div>
@@ -150,7 +150,7 @@
                 <button type="submit" class="btn btn-success btn-lg rounded-4 shadow py-3">
                     <i class="bi bi-save-fill me-2"></i>ยืนยันบันทึกรายการ
                 </button>
-                <a href="{{ route('keptkayas.purchase.form', $user->id) }}" class="btn btn-outline-secondary btn-lg rounded-4 border-0 py-2">
+                <a href="{{ route('keptkayas.purchase.form', $seller->id) }}" class="btn btn-outline-secondary btn-lg rounded-4 border-0 py-2">
                     <i class="bi bi-arrow-left me-2"></i>กลับไปแก้ไข / เพิ่มรายการ
                 </a>
             </div>

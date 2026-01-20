@@ -10,7 +10,7 @@ use App\Http\Controllers\Api\FunctionsController;
 use App\Http\Controllers\Api\InvoiceController as ApiInvoiceCtrl;
 use App\Http\Controllers\Api\OwepaperController as ApiOwepaperController;
 use App\Models\Tabwater\TwCutmeter;
-use App\Models\Tabwater\TwInvoiceTemp;
+use App\Models\Tabwater\TwInvoice;
 use App\Models\Tabwater\TwInvoicePeriod;
 use App\Models\Tabwater\TwMeterInfos;
 use Illuminate\Support\Facades\Auth;
@@ -78,16 +78,16 @@ class OwePaperController extends Controller
                         'updated_at' => date('Y-m-d H:i:s'),
                     ]);
                     // array_push($progressDecode, ['topic' => 'warning_print', 'undertaker' => [Auth::user()->id], 'created_at' => strtotime(date('Y-m-d H:i:s'))]);
-                    
+
                 }
                 //หาการใช้น้ำ 5 เดือนล่าสุด
-                $oweByInvoicePeriod = TwInvoiceTemp::where('meter_id_fk', $key)
+                $oweByInvoicePeriod = TwInvoice::where('meter_id_fk', $key)
                     ->whereIn('status', ['owe', 'invoice'])
                     ->with('invoice_period', 'tw_meter_infos')
                     ->orderBy('inv_period_id_fk', 'desc')
                     ->get();
-                foreach($oweByInvoicePeriod as $invoice){
-                    TwInvoiceTemp::where('id', $invoice->id)->update([
+                foreach ($oweByInvoicePeriod as $invoice) {
+                    TwInvoice::where('id', $invoice->id)->update([
                         'printed_time' => $invoice->printed_time + 1
                     ]);
                 }
@@ -98,13 +98,13 @@ class OwePaperController extends Controller
                 $meter_id_length = strlen($key);
                 $meter_id_str  = substr($init, $meter_id_length) . "" . $key;
                 $acc_trans_id_fk_length = strlen($oweByInvoicePeriod[0]->acc_trans_id_fk);
-                $acc_trans_id_fk_str  = substr($init, $acc_trans_id_fk_length)."".$oweByInvoicePeriod[0]->acc_trans_id_fk;
-                $paidVal   = str_replace([".",","],"",number_format($oweSum,2));
-                $qrcodeStr = "|099400035262000\n".$meter_id_str."\n".$acc_trans_id_fk_str."\n".$paidVal;
+                $acc_trans_id_fk_str  = substr($init, $acc_trans_id_fk_length) . "" . $oweByInvoicePeriod[0]->acc_trans_id_fk;
+                $paidVal   = str_replace([".", ","], "", number_format($oweSum, 2));
+                $qrcodeStr = "|099400035262000\n" . $meter_id_str . "\n" . $acc_trans_id_fk_str . "\n" . $paidVal;
 
                 array_push($oweArray, [
                     'res' => collect($oweByInvoicePeriod)->reverse()->flatten(),
-                     'qrcode' => $qrcodeStr,
+                    'qrcode' => $qrcodeStr,
                 ]);
             }
         }

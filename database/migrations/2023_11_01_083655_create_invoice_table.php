@@ -14,7 +14,7 @@ return new class extends Migration
     public function up()
     {
         Schema::create('tw_invoice', function (Blueprint $table) {
-                $table->unsignedBigInteger('id')->comment('6701101 => 67=ปีงบประมาณ,01=รอบบิลที่,10=งานประปา, 1= meter_id');
+                $table->id();
                 $table->unsignedBigInteger('meter_id_fk');
                 $table->unsignedBigInteger('inv_period_id_fk');
                 $table->float('lastmeter', 8,2);
@@ -26,11 +26,10 @@ return new class extends Migration
                 $table->float('vat', 8,2);
                 $table->float('totalpaid', 8,2)->commet('paid+vat');
                 $table->enum('status', ['init','invoice', 'paid', 'owe', 'deleted']);
-                $table->unsignedBigInteger('acc_trans_id_fk');
+                $table->unsignedBigInteger('acc_trans_id_fk')->nullable();
                 $table->string('comment')->nullable();
                 $table->unsignedBigInteger('recorder_id');
                 $table->timestamps();
-                $table->primary('id');
                 $table->foreign('meter_id_fk')->references('meter_id')->on('tw_meter_infos')->onDelete('cascade');
                 $table->foreign('inv_period_id_fk')->references('id')->on('invoice_period')->onDelete('cascade');
                 $table->foreign('acc_trans_id_fk')->references('id')->on('tw_acc_transactions')->onDelete('cascade');

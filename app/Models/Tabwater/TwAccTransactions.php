@@ -12,13 +12,15 @@ class TwAccTransactions extends Model
     public $timestamps = false;
     protected $table = 'tw_acc_transactions';
 
-    protected $fillable = ['id' , 'meter_id_fk','vatsum', 'reserve_meter_sum', 'paidsum', 'totalpaidsum', 'cashier'];
+    protected $fillable = ['id', 'meter_id_fk', 'vatsum', 'reserve_meter_sum', 'paidsum', 'totalpaidsum', 'cashier'];
 
-    public function cashier_info(){
-        return $this->belongsTo(User::class,'cashier', 'id');
+    public function cashier_info()
+    {
+        return $this->belongsTo(User::class, 'cashier', 'id');
     }
 
-    public function invoice(){
-        return $this->hasMany(TwInvoiceTemp::class,'acc_trans_id_fk');
+    public function invoice()
+    {
+        return $this->hasMany(TwInvoice::class, 'acc_trans_id_fk');
     }
 }

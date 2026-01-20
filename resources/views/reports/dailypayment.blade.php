@@ -407,13 +407,12 @@
                     </tr>
                 </thead>
                 <tbody>
-
                     <?php $i = 1; ?>
                     @if (isset($paidInfos[0]))
-                        @if (collect($paidInfos[0]->invoice)->isNotEmpty())
+                        @if (collect($paidInfos[0]->tw_invoices)->isNotEmpty())
                       
                             @foreach ($paidInfos as $key => $infos)
-                                @foreach ($infos->invoice as $invoice)
+                                @foreach ($infos->tw_invoices as $invoice)
                             <tr>
                                 <td>#</td>
                                 <td>{{$infos->meter_id}}</td>
@@ -511,7 +510,7 @@
                                     <td class="info_blur text-center">{{ $owe->updated_at }}</td>
                                 @endif
                                 <td class="text-end">{{ $owe->inv_id }}</td>
-                                <td class="text-end">{{ $owe->invoice_period->inv_p_name }}</td>
+                                <td class="text-end">{{ $owe->tw_invoices_period->inv_p_name }}</td>
                                 <td class="text-end">{{ $owe->lastmeter }}</td>
                                 <td class="text-end">{{ $owe->currentmeter }}</td>
                                 <td class="text-end">{{ $owe->water_used }}</td>
@@ -551,7 +550,6 @@
         </div>
     </div>
 @endsection
-
 @section('script')
     <script src="https://cdn.datatables.net/buttons/2.4.2/js/dataTables.buttons.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"></script>
@@ -562,51 +560,38 @@
     <script src="https://cdn.datatables.net/select/1.7.0/js/dataTables.select.min.js"></script>
     <script src="{{ asset('js/myscript.js') }}"></script>
     <script type="text/javascript" src="{{ asset('js/bootstrap-datepicker/js/bootstrap-datepicker-thai.js') }}"></script>
-    <script type="text/javascript" src="{{ asset('js/bootstrap-datepicker/js/locales/bootstrap-datepicker.th.js') }}">
-    </script>
+    <script type="text/javascript" src="{{ asset('js/bootstrap-datepicker/js/locales/bootstrap-datepicker.th.js') }}"></script>
+
     <script>
-        $('#zone_id').select2({
+        // Select2 Setup
+        $('#zone_id, #subzone_id, #inv_period, #cashier_id').select2({
             theme: "bootstrap-5",
-            width: $(this).data('width') ? $(this).data('width') : $(this).hasClass('w-100') ? '100%' : 'style',
-            placeholder: $(this).data('placeholder'),
-            closeOnSelect: false,
-        });
-        $('#subzone_id').select2({
-            theme: "bootstrap-5",
-            width: $(this).data('width') ? $(this).data('width') : $(this).hasClass('w-100') ? '100%' : 'style',
-            placeholder: $(this).data('placeholder'),
-            closeOnSelect: false,
-        });
-        $('#inv_period').select2({
-            theme: "bootstrap-5",
-            width: $(this).data('width') ? $(this).data('width') : $(this).hasClass('w-100') ? '100%' : 'style',
-            placeholder: $(this).data('placeholder'),
-            closeOnSelect: false,
+            width: '100%',
+            closeOnSelect: true, // แนะนำให้เป็น true เพื่อให้ user ใช้งานง่ายขึ้น
         });
 
+        let table;
+        let preloaderwrapper = document.querySelector('.preloader-wrapper');
 
-        let table
-        let preloaderwrapper = document.querySelector('.preloader-wrapper')
         $(document).ready(function() {
-            console.log('fromdate')
-            console.log('<?= $fromdate ?>')
-
+            // 1. Datepicker Setup
             $('.datepicker').datepicker({
                 format: 'dd/mm/yyyy',
                 todayBtn: true,
-                language: 'th', //เปลี่ยน label ต่างของ ปฏิทิน ให้เป็น ภาษาไทย   (ต้องใช้ไฟล์ bootstrap-datepicker.th.min.js นี้ด้วย)
+                language: 'th',
                 thaiyear: true,
-
-            }).datepicker("setDate", '<?= $fromdate ?>'); //กำหนดเป็นวันปัจุบัน
+                autoclose: true
+            }).datepicker("setDate", '<?= $fromdate ?>');
 
             $('.datepicker2').datepicker({
                 format: 'dd/mm/yyyy',
                 todayBtn: true,
-                language: 'th', //เปลี่ยน label ต่างของ ปฏิทิน ให้เป็น ภาษาไทย   (ต้องใช้ไฟล์ bootstrap-datepicker.th.min.js นี้ด้วย)
+                language: 'th',
                 thaiyear: true,
+                autoclose: true
+            }).datepicker("setDate", '<?= $todate ?>');
 
-            }).datepicker("setDate", '<?= $todate ?>'); //กำหนดเป็นวันปัจุบัน
-
+            // 2. DataTable Setup
             table = $('#example').DataTable({
                 "lengthMenu": [
                     [10, 25, 50, 150, -1],
@@ -617,184 +602,138 @@
                     "search": "ค้นหา:",
                     "lengthMenu": "แสดง _MENU_ แถว",
                     "info": "แสดง _START_ ถึง _END_ จาก _TOTAL_ แถว",
-                    "infoEmpty": "แสดง 0 ถึง 0 จาก 0 แถว",
+                    "infoEmpty": "ไม่มีข้อมูล",
+                    "zeroRecords": "ไม่พบข้อมูลที่ค้นหา",
                     "paginate": {
-                        // "info": "แสดง _MENU_ แถว",
-                    },
+                        "next": "ถัดไป",
+                        "previous": "ก่อนหน้า"
+                    }
                 },
-
-                footerCallback: function(row, data, start, end, display) {
+                "footerCallback": function(row, data, start, end, display) {
                     let api = this.api();
 
-                    // Remove the formatting to get integer data for summation
+                    // Helper 1: แปลงค่าจาก String (มี ,) เป็น Number
                     let intVal = function(i) {
                         return typeof i === 'string' ?
                             i.replace(/[\$,]/g, '') * 1 :
                             typeof i === 'number' ?
-                            i :
-                            0;
+                            i : 0;
                     };
 
-                    // _water_used
-                    total_water_used = api
-                        .column(12)
-                        .data()
-                        .reduce((a, b) => intVal(a) + intVal(b), 0);
-                    pageTotal_water_used = api
-                        .column(12, {
-                            page: 'current'
-                        })
-                        .data()
-                        .reduce((a, b) => intVal(a) + intVal(b), 0);
-                    api.column(12).footer().innerHTML =
-                        '<div class="subtotal">' + pageTotal_water_used +
-                        '</div> <div class="total" id="water_used"> ' +
-                        total_water_used + ' </div>';
+                    // Helper 2: แปลง Number เป็น String มีลูกน้ำ และทศนิยม 2 ตำแหน่ง
+                    let formatMoney = function(num) {
+                        return num.toFixed(2).replace(/\d(?=(\d{3})+\.)/g, '$&,');
+                    };
+                    
+                    // Helper 3: แปลง Number เป็น String มีลูกน้ำ (ไม่มีทศนิยม สำหรับค่าน้ำ)
+                    let formatNumber = function(num) {
+                        return num.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ",");
+                    };
 
-                    // total_paid
-                    total_paid = api
-                        .column(13)
-                        .data()
-                        .reduce((a, b) => intVal(a) + intVal(b), 0);
+                    // --- คำนวณ Column 12: ใช้น้ำ (Water Used) ---
+                    let total_water_used = api.column(12).data().reduce((a, b) => intVal(a) + intVal(b), 0);
+                    let pageTotal_water_used = api.column(12, { page: 'current' }).data().reduce((a, b) => intVal(a) + intVal(b), 0);
+                    
+                    $(api.column(12).footer()).html(
+                        '<div class="subtotal">' + formatNumber(pageTotal_water_used) + '</div>' +
+                        '<div class="total">' + formatNumber(total_water_used) + '</div>'
+                    );
+                    $('#total_water_used').text(formatNumber(total_water_used)); // Update Card
 
-                    // Total_paid over this page
-                    pageTotal_paid = api
-                        .column(13, {
-                            page: 'current'
-                        })
-                        .data()
-                        .reduce((a, b) => intVal(a) + intVal(b), 0);
+                    // --- คำนวณ Column 13: เป็นเงิน (Paid) ---
+                    let total_paid = api.column(13).data().reduce((a, b) => intVal(a) + intVal(b), 0);
+                    let pageTotal_paid = api.column(13, { page: 'current' }).data().reduce((a, b) => intVal(a) + intVal(b), 0);
 
-                    // Update footer
-                    api.column(13).footer().innerHTML =
-                        '<div class="subtotal"> ' + pageTotal_paid +
-                        '</div> <div class="total" id="paid">  ' +
-                        total_paid + ' </div>';
+                    $(api.column(13).footer()).html(
+                        '<div class="subtotal">' + formatMoney(pageTotal_paid) + '</div>' +
+                        '<div class="total">' + formatMoney(total_paid) + '</div>'
+                    );
+                    $('#total_paid').text(formatMoney(total_paid)); // Update Card
 
-                    // total_reserve
-                    total_reserve = api
-                        .column(14)
-                        .data()
-                        .reduce((a, b) => parseFloat(a) + parseFloat(b), 0);
+                    // --- คำนวณ Column 14: Reserve ---
+                    let total_reserve = api.column(14).data().reduce((a, b) => intVal(a) + intVal(b), 0);
+                    let pageTotal_reserve = api.column(14, { page: 'current' }).data().reduce((a, b) => intVal(a) + intVal(b), 0);
 
-                    // Total_reserve over this page
-                    pageTotal_reserve = api
-                        .column(14, {
-                            page: 'current'
-                        })
-                        .data()
-                        .reduce((a, b) => parseFloat(a) + parseFloat(b), 0);
+                    $(api.column(14).footer()).html(
+                        '<div class="subtotal">' + formatMoney(pageTotal_reserve) + '</div>' +
+                        '<div class="total">' + formatMoney(total_reserve) + '</div>'
+                    );
+                    $('#total_reserve').text(formatMoney(total_reserve)); // Update Card
 
-                    // Update footer
-                    api.column(14).footer().innerHTML =
-                        '<div class="subtotal"> ' + pageTotal_reserve.toFixed(2) +
-                        '</div> <div class="total" id="reserve">  ' +
-                        total_reserve.toFixed(2) + ' </div>';
+                    // --- คำนวณ Column 15: VAT ---
+                    let total_vat = api.column(15).data().reduce((a, b) => intVal(a) + intVal(b), 0);
+                    let pageTotal_vat = api.column(15, { page: 'current' }).data().reduce((a, b) => intVal(a) + intVal(b), 0);
 
+                    $(api.column(15).footer()).html(
+                        '<div class="subtotal">' + formatMoney(pageTotal_vat) + '</div>' +
+                        '<div class="total">' + formatMoney(total_vat) + '</div>'
+                    );
+                    $('#total_vat').text(formatMoney(total_vat)); // Update Card
 
-                    // total_vat
-                    total_vat = api
-                        .column(15)
-                        .data()
-                        .reduce((a, b) => parseFloat(a) + parseFloat(b), 0);
+                    // --- คำนวณ Column 16: Total Paid ---
+                    let total_totalpaid = api.column(16).data().reduce((a, b) => intVal(a) + intVal(b), 0);
+                    let pageTotal_totalpaid = api.column(16, { page: 'current' }).data().reduce((a, b) => intVal(a) + intVal(b), 0);
 
-                    // Total_totalp idover this page
-                    pageTotal_vat = api
-                        .column(15, {
-                            page: 'current'
-                        })
-                        .data()
-                        .reduce((a, b) => parseFloat(a) + parseFloat(b), 0);
-
-                    // Update footer
-                    api.column(15).footer().innerHTML =
-                        '<div class="subtotal"> ' + pageTotal_vat.toFixed(2) +
-                        '</div> <div class="total" id="vat">  ' +
-                        total_vat.toFixed(2) + ' </div>';
-
-
-                    // total_totalpaid
-                    total_totalpaid = api
-                        .column(16)
-                        .data()
-                        .reduce((a, b) => parseFloat(a) + parseFloat(b), 0);
-
-                    // Total_totalp idover this page
-                    pageTotal_totalpaid = api
-                        .column(16, {
-                            page: 'current'
-                        })
-                        .data()
-                        .reduce((a, b) => parseFloat(a) + parseFloat(b), 0);
-
-                    // Update footer
-                    api.column(16).footer().innerHTML =
-                        '<div class="subtotal"> ' + pageTotal_totalpaid.toFixed(2) +
-                        '</div> <div class="total" id="totalpaid">  ' +
-                        total_totalpaid.toFixed(2) + ' </div>';
-
+                    $(api.column(16).footer()).html(
+                        '<div class="subtotal">' + formatMoney(pageTotal_totalpaid) + '</div>' +
+                        '<div class="total">' + formatMoney(total_totalpaid) + '</div>'
+                    );
+                    $('#total_totalpaid').text(formatMoney(total_totalpaid)); // Update Card
                 }
             });
 
-            $('#total_water_used').html($('#water_used').text())
-            $('#total_paid').html($('#paid').text())
-            $('#total_reserve').html($('#reserve').text())
-            $('#total_vat').html($('#vat').text())
-            $('#total_totalpaid').html($('#totalpaid').text())
-
-
-            preloaderwrapper.classList.add('fade-out-animation')
-
+            // ปิด Loading
+            if(preloaderwrapper) {
+                preloaderwrapper.classList.add('fade-out-animation');
+                setTimeout(() => { preloaderwrapper.style.display = 'none'; }, 500);
+            }
         });
 
-
+        // 3. UI Interactions
         $(document).on('click', 'tbody tr', function(e) {
-            $(this).hasClass('selected') ? $(this).removeClass('selected') : $(this).addClass('selected');
+            $(this).toggleClass('selected');
         });
+
         $(document).on('click', '#deselect-all', function(e) {
-            $("tbody tr.selected").removeClass('selected')
+            $("tbody tr.selected").removeClass('selected');
         });
+
         $(document).on('click', '.select_row_all', function(e) {
-            $("tbody tr").addClass('selected')
+            $("tbody tr").addClass('selected');
         });
 
-        $(".paginate_select").addClass('form-control-sm mb-3 float-right')
+        $(".paginate_select").addClass('form-control-sm mb-3 float-right');
 
+        // 4. AJAX Dropdowns
         $(document).on('change', "#budgetyear_id", function(e) {
             let budgetyear_id = $(this).val();
-            $.get(`../admin/budgetyear/invoice_period_list/${budgetyear_id}`).done(function(data) {
-                let text = '<option value="">เลือก</option>';
-                if (data.length > 1) {
-                    text += `<option value="all" selected>ทั้งหมด</option>`;
-                }
+            // ปรับ Path ให้ตรงกับ Route ของคุณ
+            $.get(`{{ url('admin/budgetyear/invoice_period_list') }}/${budgetyear_id}`).done(function(data) {
+                let text = '<option value="all">ทั้งหมด</option>'; // Default เป็นทั้งหมด
                 data.forEach(element => {
-                    text +=
-                        `<option value="${element.id}"> ${element.inv_p_name}</option>`
+                    text += `<option value="${element.id}">${element.inv_p_name}</option>`;
                 });
-                $('#inv_period_id').html(text)
+                $('#inv_period_id').html(text);
+            }).fail(function() {
+                console.error("Error loading invoice periods");
             });
-
         });
+
         $(document).on('change', "#zone_id", function(e) {
-            //get ค่าsubzone
-            let zone_id = $(this).val()
-            console.log('zone_id', zone_id)
-            $.post(`../api/subzone`, {
-                    zone_id: [zone_id]
-                })
-                .done(function(data) {
-                    console.log('data', data)
-                    let text = zone_id !== 'all' ? '<option value="">เลือก</option>' :
-                        '<option value="all" selected>ทั้งหมด</option>';
-                    if (data.length > 1) {
-                        text += `<option value="all" selected>ทั้งหมด</option>`;
-                    }
-                    data.forEach(element => {
-                        text +=
-                            `<option value="${element.id}"> ${element.subzone_name}</option>`
-                    });
-                    $('#subzone_id').html(text)
+            let zone_id = $(this).val();
+            // ใช้ url() helper ของ Laravel เพื่อความชัวร์ของ Path
+            $.post(`{{ url('api/subzone') }}`, {
+                zone_id: [zone_id],
+                _token: '{{ csrf_token() }}' // อย่าลืม CSRF Token สำหรับ POST
+            }).done(function(data) {
+                let text = '<option value="all" selected>ทั้งหมด</option>';
+                data.forEach(element => {
+                    text += `<option value="${element.id}">${element.subzone_name}</option>`;
                 });
+                $('#subzone_id').html(text);
+            }).fail(function() {
+                console.error("Error loading subzones");
+            });
         });
     </script>
 @endsection

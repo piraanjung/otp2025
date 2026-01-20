@@ -5,10 +5,10 @@ namespace App\Models\KeptKaya;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Facades\Auth;
-
+use App\Traits\BelongsToOrganization;
 class KpTbankItems extends Model
 {
-    use HasFactory;
+    use HasFactory; use BelongsToOrganization;
     protected $fillable =[
         'id',
         'kp_itemscode',

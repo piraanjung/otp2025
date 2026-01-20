@@ -27,7 +27,7 @@ use Illuminate\Database\Eloquent\Relations\BelongsToMany; // <--- สำคั�
 class User extends Authenticatable
 {
     use HasApiTokens, HasFactory, Notifiable, HasRoles;
-
+    // use BelongsToOrganization;
     /**
      * The attributes that are mass assignable.
      *
@@ -49,7 +49,6 @@ class User extends Authenticatable
         'image',
         'phone',
         'gender',
-        'role_id',
         'address',
         'zone_id',
         'subzone_id',

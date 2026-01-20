@@ -56,18 +56,62 @@
                     </button>
                 </div>
                 
-                {{-- Scrollable Filters --}}
-                <div class="d-flex overflow-auto pb-3 hide-scrollbar" style="gap: 8px;">
-                    <button type="button" class="btn btn-sm btn-outline-dark rounded-pill px-3 filter-btn" data-group="paper">กระดาษ</button>
-                    <button type="button" class="btn btn-sm btn-outline-dark rounded-pill px-3 filter-btn" data-group="glass">แก้ว/ขวด</button>
-                    <button type="button" class="btn btn-sm btn-outline-dark rounded-pill px-3 filter-btn" data-group="plastic">พลาสติก</button>
-                    <button type="button" class="btn btn-sm btn-outline-dark rounded-pill px-3 filter-btn" data-group="metal">โลหะ</button>
-                    <button type="button" class="btn btn-sm btn-outline-dark rounded-pill px-3 filter-btn" data-group="other">อื่นๆ</button>
-                </div>
+                {{-- Scrollable Filters (แบบ Icon วงกลม + ข้อความด้านล่าง) --}}
+<div class="d-flex overflow-auto pb-3 pt-2 hide-scrollbar ps-2" style="gap: 15px;">
+    @foreach ($itemsGroups as $item)
+     <div class="d-flex flex-column align-items-center filter-item" onclick="triggerFilter({{$item->id}}, this)">
+        <button type="button" class="btn btn-outline-dark rounded-circle p-0 d-flex align-items-center justify-content-center shadow-sm" style="width: 50px; height: 50px;">
+            <i class="fa fa-trash fs-5"></i>
+        </button>
+        <small class="mt-1 text-muted fw-bold" style="font-size: 0.75rem;">{{$item->kp_items_groupname}}</small>
+    </div>
+        
+    @endforeach
+    {{-- ปุ่มกระดาษ --}}
+    {{-- <div class="d-flex flex-column align-items-center filter-item" onclick="triggerFilter('paper', this)">
+        <button type="button" class="btn btn-outline-dark rounded-circle p-0 d-flex align-items-center justify-content-center shadow-sm" style="width: 50px; height: 50px;">
+            <i class="fa fa-newspaper-o fs-5"></i>
+        </button>
+        <small class="mt-1 text-muted fw-bold" style="font-size: 0.75rem;">กระดาษ</small>
+    </div> --}}
+
+    {{-- ปุ่มแก้ว --}}
+    {{-- <div class="d-flex flex-column align-items-center filter-item" onclick="triggerFilter('glass', this)">
+        <button type="button" class="btn btn-outline-dark rounded-circle p-0 d-flex align-items-center justify-content-center shadow-sm" style="width: 50px; height: 50px;">
+            <i class="fa fa-beer fs-5"></i>
+        </button>
+        <small class="mt-1 text-muted fw-bold" style="font-size: 0.75rem;">แก้ว/ขวด</small>
+    </div> --}}
+
+    {{-- ปุ่มพลาสติก --}
+    <div class="d-flex flex-column align-items-center filter-item" onclick="triggerFilter('plastic', this)">
+        <button type="button" class="btn btn-outline-dark rounded-circle p-0 d-flex align-items-center justify-content-center shadow-sm" style="width: 50px; height: 50px;">
+            <i class="fa fa-bottle-water fs-5"></i> {{-- หรือ fa-tint --}
+        </button>
+        <small class="mt-1 text-muted fw-bold" style="font-size: 0.75rem;">พลาสติก</small>
+    </div>
+
+    {{-- ปุ่มโลหะ --}
+    <div class="d-flex flex-column align-items-center filter-item" onclick="triggerFilter('metal', this)">
+        <button type="button" class="btn btn-outline-dark rounded-circle p-0 d-flex align-items-center justify-content-center shadow-sm" style="width: 50px; height: 50px;">
+            <i class="fa fa-cogs fs-5"></i>
+        </button>
+        <small class="mt-1 text-muted fw-bold" style="font-size: 0.75rem;">โลหะ</small>
+    </div>
+
+    {{-- ปุ่มอื่นๆ --}}
+    {{-- <div class="d-flex flex-column align-items-center filter-item" onclick="triggerFilter('other', this)">
+        <button type="button" class="btn btn-outline-dark rounded-circle p-0 d-flex align-items-center justify-content-center shadow-sm" style="width: 50px; height: 50px;">
+            <i class="fa fa-ellipsis-h fs-5"></i>
+        </button>
+        <small class="mt-1 text-muted fw-bold" style="font-size: 0.75rem;">อื่นๆ</small>
+    </div> --}}
+
+</div>
 
                 {{-- 2. Item Grid Zone --}}
-                <div class="bg-light rounded-4 p-3 mb-3" style="min-height: 200px;">
-                    <div id="item-buttons-container" class="row g-2" style="max-height: 280px; overflow-y: auto;">
+                <div class="bg-light rounded-4 p-3 mb-3" style="min-height: 100px;">
+                    <div id="item-buttons-container" class="row g-2" style="max-height: 100px; overflow-y: auto;">
                         <div class="col-12 text-center text-muted py-5">
                             <i class="fa fa-hand-pointer-o fa-2x mb-2 opacity-50"></i><br>
                             <small>เลือกหมวดหมู่ด้านบนเพื่อเริ่มรายการ</small>
@@ -76,29 +120,37 @@
                 </div>
 
                 {{-- 3. Selected Item Display (แสดงเมื่อเลือก) --}}
-                <div id="selected-item-display" class="alert alert-primary border-0 rounded-3 d-flex justify-content-between align-items-center mb-3 shadow-sm" style="display: none !important;">
+                <div id="selected-item-display" class="alert alert-warning border-0 rounded-3 d-flex justify-content-between align-items-center mb-1 shadow-sm" style="display: none !important;">
                     <div>
                         <small class="text-primary-emphasis d-block">กำลังเลือก:</small>
-                        <span id="selected-item-name" class="fw-bold fs-5 text-dark">...</span>
+                        <span id="selected-item-name" class="fw-bold fs-3 text-dark">...</span>
                     </div>
-                    <button type="button" class="btn btn-sm btn-light text-danger rounded-circle shadow-sm" style="width: 30px; height: 30px;" onclick="resetSelection()">
-                        <i class="fa fa-times"></i>
+                    <button type="button" class="btn btn-sm btn-light text-danger rounded-circle shadow-sm" style="width: 50px; height: 50px;" onclick="resetSelection()">
+                        <i class="fa fa-times" style=" font-size: 2rem; margin-left: -10px;"></i>
                     </button>
                 </div>
-
                 {{-- Hidden Inputs --}}
                 <div class="d-none">
                     <select id="kp_itemscode" name="kp_itemscode" class="form-select recyclename" required>
                         <option value="">ชื่อขยะ</option>
                         @foreach ($recycleItems as $item)
+                    
                             @php
+                                $name = $item->kp_items_group_idfk;
+                                $group = 5;
+                                if (strpos($name, 1) !== false || strpos($name, 'กล่อง') !== false || strpos($name, 'สมุด') !== false || strpos($name, 'หนังสือ') !== false) $group = 1;
+                                elseif (strpos($name, 2) !== false || strpos($name, 'ขวด') !== false) $group = 2;
+                                elseif (strpos($name, 3) !== false || strpos($name, 'PET') !== false || strpos($name, 'PE') !== false || strpos($name, 'PVC') !== false) $group = 3;
+                                elseif (strpos($name, 4) !== false || strpos($name, 'อลูมิเนียม') !== false || strpos($name, 'ทองแดง') !== false || strpos($name, 'สังกะสี') !== false || strpos($name, 'ตะกั่ว') !== false || strpos($name, 'สแตนเลส') !== false || strpos($name, 'กระป๋อง') !== false) $group = 4;
+                            @endphp
+                            {{-- @php
                                 $name = $item->kp_itemsname;
                                 $group = 'other';
                                 if (strpos($name, 'กระดาษ') !== false || strpos($name, 'กล่อง') !== false || strpos($name, 'สมุด') !== false || strpos($name, 'หนังสือ') !== false) $group = 'paper';
                                 elseif (strpos($name, 'แก้ว') !== false || strpos($name, 'ขวด') !== false) $group = 'glass';
-                                elseif (strpos($name, 'พลาสติก') !== false || strpos($name, 'PET') !== false || strpos($name, 'PE') !== false || strpos($name, 'PVC') !== false) $group = 'plastic';
+                                elseif (strpos($name, 'ขวดพลาสติก PET') !== false || strpos($name, 'PET') !== false || strpos($name, 'PE') !== false || strpos($name, 'PVC') !== false) $group = 'plastic';
                                 elseif (strpos($name, 'เหล็ก') !== false || strpos($name, 'อลูมิเนียม') !== false || strpos($name, 'ทองแดง') !== false || strpos($name, 'สังกะสี') !== false || strpos($name, 'ตะกั่ว') !== false || strpos($name, 'สแตนเลส') !== false || strpos($name, 'กระป๋อง') !== false) $group = 'metal';
-                            @endphp
+                            @endphp --}}
                             <option value="{{ $item->kp_itemscode }}" data-id="{{ $item->id }}" data-group="{{ $group }}" data-name="{{ $item->kp_itemsname }}">
                                 {{ $item->kp_itemsname }}
                             </option>
@@ -112,14 +164,15 @@
                     <div class="row g-2">
                         <div class="col-7">
                             <label class="small text-muted mb-1">จำนวน</label>
-                            <input type="number" step="0.01" name="amount_in_units" id="amount_in_units" class="form-control form-control-lg bg-light border-0 fw-bold text-center" placeholder="0.00" required min="0.01">
+                            <input type="number" step="0.01" name="amount_in_units" id="amount_in_units" class="form-control form-control-lg bg-light border-0 fw-bold text-center" placeholder="0.00" required min="0.01"
+                            style="padding: 5px !important; font-size: 2.5rem;">
                         </div>
                         <div class="col-5">
                             <label class="small text-muted mb-1">หน่วย</label>
                             <select id="kp_units_idfk" name="kp_units_idfk" class="form-select form-select-lg bg-light border-0" required>
-                                <option value="">หน่วย</option>
+                                {{-- <option value="">เลือก</option> --}}
                                 @foreach ($allUnits as $unit)
-                                    <option value="{{ $unit->id }}" {{ $unit->id == 1 ? 'selected' : '' }}>{{ $unit->unitname }}</option>
+                                    <option value="{{ $unit->id }}" {{ $unit->id == 1 ? 'selected' : '' }} selected>{{ $unit->unitname }}</option>
                                 @endforeach
                             </select>
                         </div>
@@ -285,7 +338,7 @@
                                  onclick="selectItem('${opt.val}')" 
                                  id="card-${opt.val}"
                                  style="cursor: pointer;">
-                                <div class="card-body p-2 text-center d-flex flex-column align-items-center justify-content-center" style="min-height: 80px;">
+                                <div class="card-body p-2 text-center d-flex flex-column align-items-center justify-content-center">
                                     <span class="fw-bold text-dark item-text" style="font-size: 0.9rem;">${opt.name}</span>
                                 </div>
                             </div>
@@ -335,7 +388,7 @@
         $('#kp_itemscode').val('').trigger('change');
         $('#selected-item-display').hide();
         $('.item-card').removeClass('bg-success text-white shadow').addClass('bg-white');
-        $('.item-card .item-text').addClass('text-dark');
+        $('.item-card .item-text').removeClass('text-white ').addClass('text-dark');
         $('#kp_tbank_item_id').val('');
     }
 
@@ -389,5 +442,53 @@
             if (html5QrCode.isScanning) html5QrCode.stop();
         });
     });
+
+    window.triggerFilter = function(group, element) {
+    // 1. Reset สีปุ่มทั้งหมดให้เป็นปกติ
+    $('.filter-item button').removeClass('btn-dark text-white').addClass('btn-outline-dark');
+    $('.filter-item small').removeClass('text-dark').addClass('text-muted');
+
+    // 2. ใส่สีให้ปุ่มที่ถูกกด
+    const btn = $(element).find('button');
+    const txt = $(element).find('small');
+    
+    btn.removeClass('btn-outline-dark').addClass('btn-dark text-white');
+    txt.removeClass('text-muted').addClass('text-dark');
+
+    // 3. เรียก Logic เดิมเพื่อกรองสินค้า (ใช้ Code เดิมที่คุณมี)
+    // จำลองการกดปุ่มเดิม (ถ้าคุณใช้ Logic เดิมอยู่)
+    filterItemsByGroup(group); 
+}
+
+// แยก Logic การกรองออกมา (เอามาจาก Code เดิมของคุณ)
+function filterItemsByGroup(group) {
+
+    const $container = $('#item-buttons-container');
+    $container.empty();
+
+    let found = false;
+    allOptions.forEach(opt => {
+        if (group === 'all' || opt.group === group) {
+            found = true;
+            let btnHtml = `
+                <div class="col-6 col-md-4 col-lg-3">
+                    <div class="card h-100 item-card rounded-3" 
+                            onclick="selectItem('${opt.val}')" 
+                            id="card-${opt.val}"
+                            style="cursor: pointer;">
+                        <div class="card-body p-2 text-center d-flex flex-column align-items-center justify-content-center">
+                            <span class="fw-bold text-dark item-text" style="font-size: 0.9rem;">${opt.name}</span>
+                        </div>
+                    </div>
+                </div>
+            `;
+            $container.append(btnHtml);
+        }
+    });
+
+    if(!found) {
+        $container.html('<div class="col-12 text-center text-muted py-4"><i class="fa fa-inbox fa-2x mb-2 opacity-25"></i><br>ไม่พบรายการ</div>');
+    }
+}
 </script>
 @endsection

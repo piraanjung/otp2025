@@ -20,7 +20,7 @@ class LineLiffController extends Controller
         $provinces = Province::all();
         $orgs = Organization::
         with('provinces', 'districts', 'tambons')
-        ->get(['id', 'org_type_name', 'org_name', 'org_tambon_id_fk', 'org_district_id_fk', 'org_province_id_fk']);
+        ->get(['id', 'org_type_name', 'org_short_type_name', 'org_name', 'org_tambon_id_fk', 'org_district_id_fk', 'org_province_id_fk']);
         return view('lineliff.index', compact('provinces', 'orgs'));
         
     }

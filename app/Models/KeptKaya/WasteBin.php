@@ -13,6 +13,7 @@ class WasteBin extends Model
 
     protected $table = 'kp_waste_bins';
     protected $fillable = [
+        'id',
         'user_id',
         'bin_code',
         'bin_type',
@@ -27,12 +28,20 @@ class WasteBin extends Model
         'is_active_for_annual_collection' => 'boolean',
     ];
 
+    public function kpUserGroup()
+    {
+        // belongsTo(Model ปลายทาง, ชื่อ FK ในตารางนี้, ชื่อ PK ปลายทาง)
+        return $this->belongsTo(KpUserGroup::class, 'bin_type', 'id');
+    }
+
     public function user()
     {
         return $this->belongsTo(User::class, 'user_id');
     }
-      public function subscriptions()
-    {
-        return $this->hasMany(WasteBinSubscription::class);
-    }
+
+   
+    public function subscriptions()
+{
+    return $this->hasMany(WasteBinSubscription::class, 'waste_bin_id', 'id');
+}
 }

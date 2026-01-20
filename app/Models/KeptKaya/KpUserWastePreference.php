@@ -19,10 +19,10 @@ class KpUserWastePreference extends Model
         'is_waste_bank',
     ];
 
+   // ✅ เพิ่มตรงนี้: บังคับให้เป็น boolean เพื่อความแม่นยำ
     protected $casts = [
-        'user_id',
-        'is_annual_collection',
-        'is_waste_bank',
+        'is_annual_collection' => 'boolean',
+        'is_waste_bank' => 'boolean',
     ];
 
     public function user()
@@ -44,4 +44,6 @@ class KpUserWastePreference extends Model
     public function kp_account(){
         return $this->hasOne(KPAccounts::class, 'u_wpref_id_fk');
     }
+
+   
 }

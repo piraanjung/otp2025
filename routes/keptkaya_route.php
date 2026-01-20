@@ -3,12 +3,14 @@
 use App\Http\Controllers\KeptKaya\Admin\ExcelController;
 use App\Http\Controllers\KeptKaya\Admin\IndexController;
 use App\Http\Controllers\KeptKaya\Admin\KpUserController;
+use App\Http\Controllers\KeptKaya\AnnualBatchController;
 use App\Http\Controllers\KeptKaya\BarcodeController;
 use App\Http\Controllers\KeptKaya\DashboardController;
 use App\Http\Controllers\KeptKaya\KpPurchaseShopController;
 use App\Http\Controllers\KeptKaya\KpTbankPriceController;
 use App\Http\Controllers\KeptKaya\KpUserGroupController;
 use App\Http\Controllers\KeptKaya\CartController;
+use App\Http\Controllers\KeptKaya\KorKor3Controller;
 use App\Http\Controllers\Keptkayas\KpRecycleClassifyController;
 use App\Http\Controllers\KeptKeptKayakaya\InvoicePeriodController;
 use App\Http\Controllers\KeptKaya\KpPurchaseController;
@@ -38,25 +40,33 @@ use Illuminate\Support\Facades\Session;
 use Firebase\JWT\Key;
 use Spatie\Permission\Models\Permission;
 use Spatie\Permission\Models\Role;
-
-
-Route::get('keptkayas/dashboard/{keptkayatype?}', [DashboardController::class, 'index'])->middleware(['auth'])->name('keptkayas.dashboard');
-
+use App\Http\Controllers\KeptKaya\AnnualReportController;
 
 Route::middleware(['auth'])->prefix('keptkayas')->name('keptkayas.')->group(function () {
+   Route::get('/korkor3', [KorKor3Controller::class, 'index'])->name('korkor3.index');
+    Route::get('/korkor3/export', [KorKor3Controller::class, 'exportKorKor3'])->name('korkor3.export');
+   Route::prefix('/reports')->name('reports.')->group(function () {
+    Route::get('/', [AnnualReportController::class, 'index'])->name('index');
+    Route::get('/generate', [AnnualReportController::class, 'generate'])->name('generate');
+});
+
+    // 1. Dashboard (ย้ายเข้ามาใน Group ตัดคำว่า keptkayas/ ออก เพราะมี prefix แล้ว)
+    // URL: /keptkayas/dashboard/{type} -> Name: keptkayas.dashboard
+    Route::get('dashboard/{keptkayatype?}', [DashboardController::class, 'index'])->name('dashboard');
+
+    // 2. Main Module Routes
     Route::get('recycle_classify/index',[KpRecycleClassifyController::class, 'index'])->name('recycle_classify');
 
     Route::get('scanner', function () {
         return view('keptkayas.barcode.scanner');
     });
 
-    Route::resource('/purchase-shops', KpPurchaseShopController::class)->middleware(['auth']);
+    Route::resource('/purchase-shops', KpPurchaseShopController::class); // middleware auth ซ้ำซ้อน ลบออกได้เพราะ Group มีแล้ว
 
-
-    Route::post('barcode/search', [BarcodeController::class, 'search'])
-     ->name('barcode.search');
+    Route::post('barcode/search', [BarcodeController::class, 'search'])->name('barcode.search');
     Route::resource('shop-products', KpShopProductController::class);
 
+    // 3. Shop Routes
     Route::prefix('shop')->name('shop.')->group(function () {
         Route::get('/', [KpMemberShopController::class, 'index'])->name('index');
         Route::get('cart', [KpMemberShopController::class, 'showCart'])->name('cart');
@@ -68,30 +78,29 @@ Route::middleware(['auth'])->prefix('keptkayas')->name('keptkayas.')->group(func
         Route::delete('remove-from-cart/{productId}', [KpMemberShopController::class, 'removeFromCart'])->name('remove_from_cart');
     });
 
-
+    // 4. Staff Routes
     Route::prefix('/staffs')->name('staffs.')->group(function () {
         Route::prefix('/mobile')->name('mobile.')->group(function () {
             Route::resource('/recycle', RecycleWasteStaffCotroller::class);
         });
     });
+
+    Route::resource('annual_batch', AnnualBatchController::class);
+
+    // 5. User & Waste Bin Management
     Route::resource('users', UserWasteController::class);
-    
     Route::get('/waste_bin_users', [UserWasteController::class, 'waste_bin_users'])->name('waste_bin_users');
     Route::get('/users/search/{query}', [UserWasteController::class, 'search'])->name('users.search');
     Route::post('/waste-service-preferences', [UserWasteController::class, 'updateWasteServicePreferences'])->name('updateWasteServicePreferences');
     Route::post('users/batch-update-service-preferences', [UserWasteController::class, 'batchUpdateWasteServicePreferences'])->name('users.batchUpdateWasteServicePreferences');
 
+    // 6. Purchase System
     Route::prefix('purchase/')->name('purchase.')->group(function () {
         Route::get('get-units/{itemId}', [KpPurchaseController::class, 'getUnitsForItem'])->name('get_units');
-        // Step 1: User Selection
         Route::get('select_user', [KpPurchaseController::class, 'select_user'])->name('select_user');
         Route::get('start_purchase/{user_waste_pref_id}', [KpPurchaseController::class, 'startPurchase'])->name('start_purchase');
-
-        // Step 2: Purchase Form (To be created next)`
         Route::get('form/{user_id}', [KpPurchaseController::class, 'showPurchaseForm'])->name('form');
         Route::post('add_to_cart', [KpPurchaseController::class, 'addToCart'])->name('add_to_cart');
-
-        // Step 3: Cart List (To be created next)
         Route::delete('remove-from-cart/{index}', [KpPurchaseController::class, 'removeFromCart'])->name('remove_from_cart');
         Route::get('cart', [KpPurchaseController::class, 'showCart'])->name('cart');
         Route::post('save-transaction', [KpPurchaseController::class, 'saveTransaction'])->name('save_transaction');
@@ -101,28 +110,28 @@ Route::middleware(['auth'])->prefix('keptkayas')->name('keptkayas.')->group(func
         Route::get('receipt/{transaction_id}', [KpPurchaseController::class, 'showReceipt'])->name('receipt');
     });
 
+    // 7. Sell System
     Route::prefix('sell/')->name('sell.')->group(function () {
-        // Step 1: Sell Form
         Route::get('form', [KpSellController::class, 'showSellForm'])->name('form');
         Route::post('store', [KpSellController::class, 'storeSellTransaction'])->name('store');
-
-        // Additional routes (to be created later)
         Route::get('history', [KpSellController::class, 'showSellHistory'])->name('history');
         Route::get('receipt/{transaction}', [KpSellController::class, 'showReceipt'])->name('receipt');
         Route::delete('/users/{transaction}', [KpSellController::class, 'destroy'])->name('destroy');
     });
-    
 
+    // 8. Waste Bins Specifics
     Route::prefix('/{w_user}/waste-bins')->name('waste_bins.')->group(function () {
         Route::get('/', [WasteBinController::class, 'index'])->name('index');
         Route::get('/create', [WasteBinController::class, 'create'])->name('create');
         Route::post('/', [WasteBinController::class, 'store'])->name('store');
         Route::get('/edit', [WasteBinController::class, 'edit'])->name('edit');
     });
+    // หมายเหตุ: Routes ข้างล่างนี้อยู่นอก prefix /{w_user}/waste-bins แต่อยู่ใน keptkayas group
     Route::put('waste-bins/{waste_bin}', [WasteBinController::class, 'update'])->name('waste_bins.update');
-    Route::get('waste-bins/map', [WasteBinController::class, 'map'])->name('waste_bins.map'); // NEW ROUTE
-    Route::get('waste-bins/viewmap', [WasteBinController::class, 'viewmap'])->name('waste_bins.viewmap'); // NEW ROUTE
+    Route::get('waste-bins/map', [WasteBinController::class, 'map'])->name('waste_bins.map'); 
+    Route::get('waste-bins/viewmap', [WasteBinController::class, 'viewmap'])->name('waste_bins.viewmap'); 
 
+    // 9. Annual Payments
     Route::prefix('annual-payments')->name('annual_payments.')->group(function () {
         Route::get('/', [WasteBinSubscriptionController::class, 'index'])->name('index');
         Route::get('/invoice', [WasteBinSubscriptionController::class, 'invoice'])->name('invoice');
@@ -133,12 +142,12 @@ Route::middleware(['auth'])->prefix('keptkayas')->name('keptkayas.')->group(func
         Route::post('print-selected-invoices', [WasteBinSubscriptionController::class, 'printSelectedInvoices'])->name('print_selected_invoices');
         Route::post('/create-subscription', [WasteBinSubscriptionController::class, 'createSubscription'])->name('create_subscription');
         Route::post('/history', [WasteBinSubscriptionController::class, 'history'])->name('history');
-
     });
 
     Route::resource('/kp_budgetyear', KpBudgetYearController::class);
     Route::resource('wbin_payrate_per_months', WasteBinPayratePerMonthController::class);
 
+    // 10. Tbank System
     Route::prefix('tbank/')->name('tbank.')->group(function () {
         Route::resource('/items_group', KpTbankItemsGroupsController::class);
         Route::resource('/units', KpTbankUnitsController::class);
@@ -160,108 +169,10 @@ Route::middleware(['auth'])->prefix('keptkayas')->name('keptkayas.')->group(func
         });
     });
 
-    // Route::get('/kp_payment/paymenthistory/{inv_period}/{subzone_id}', [KpPaymentController::class, 'paymenthistory'])->name('kp_payment.paymenthistory');
-    // Route::post('/kp_payment/search', [KpPaymentController::class, 'search'])->name('payment.search');
-    // Route::post('/kp_payment/index_search_by_suzone', [KpPaymentController::class, 'index_search_by_suzone'])->name('kp_payment.index_search_by_suzone');
-    // Route::get('/kp_payment/receipt_print/{acc_trans_id?}', [KpPaymentController::class, 'receipt_print'])->name('kp_payment.receipt_print');
-    // Route::get('/kp_payment/get_kp_invoice/{budgetyear_id}/{bincode}', [KpPaymentController::class, 'get_kp_invoice'])->name('kp_payment.get_kp_invoice');
-    // Route::resource('/kp_payment', KpPaymentController::class);
-
-
-    // Route::middleware(['auth', 'role:super admin|admin'])->name('admin.')->prefix('admin')->group(function () {
-
-    // Route::get('/', [IndexController::class, 'index'])->name('index');
-
-    // Route::prefix('kp_user/')->name('kp_user.')->group(function(){
-    //     Route::get('/{userId}/info', [KpUserController::class, 'getUserInfo'])->name('get_user_info');
-    //     Route::post('/store_multi_users', [KpUserController::class, 'storeMultiUsers'])->name('store_multi_users');
-
-    // });
-    // Route::resource('/kp_user',KpUserController::class);
-
+    // 11. User Groups
     Route::prefix('kp_usergroup')->name('kp_usergroup.')->group(function () {
-
         Route::get('/{usergroup_id}/infos', [KpUserGroupController::class, 'infos'])->name('usergroup.infos');
-
         Route::resource('/', KpUserGroupController::class);
     });
 
-    // Route::resource('/roles', RoleController::class);
-    // Route::post('/roles/{role}/permissions', [RoleController::class, 'givePermission'])->name('roles.permissions');
-    // Route::delete('/roles/{role}/permissions/{permission}', [RoleController::class, 'revokePermission'])->name('roles.permissions.revoke');
-    // Route::resource('/permissions', PermissionController::class);
-    // Route::post('/permissions/{permission}/roles', [PermissionController::class, 'assignRole'])->name('permissions.roles');
-    // Route::delete('/permissions/{permission}/roles/{role}', [PermissionController::class, 'removeRole'])->name('permissions.roles.remove');
-    // Route::get('/users', [KpUserController::class, 'index'])->name('users.index');
-
-    // Route::get('/users/{id}/userslist', [UserController::class, 'userslist'])->name('users.userslist');
-    // Route::get('/users/staff', [UserController::class, 'staff'])->name('users.staff');
-    // Route::get('/users/create', [UserController::class, 'create'])->name('users.create');
-    // Route::get('/users/{user}/edit', [UserController::class, 'edit'])->name('users.edit');
-    // Route::post('/users/store', [UserController::class, 'store'])->name('users.store');
-    // Route::post('/users/users_search', [UserController::class, 'users_search'])->name('users.users_search');
-    // Route::put('/users/{user}/update', [UserController::class, 'update'])->name('users.update');
-    // Route::get('/users/{user?}/updateTest', [UserController::class, 'updateTest'])->name('users.updateTest');
-    // Route::get('/users/print_refund', [UserController::class, 'print_refund'])->name('users.print_refund');
-    // Route::post('/users/update_paid_per_budgetyear', [UserController::class, 'update_paid_per_budgetyear'])->name('users.update_paid_per_budgetyear');
-
-    // Route::get('/users/{user}', [UserController::class, 'show'])->name('users.show');
-    // Route::delete('/users/{user}', [UserController::class, 'destroy'])->name('users.destroy');
-    // Route::post('/users/{user}/roles', [UserController::class, 'assignRole'])->name('users.roles');
-    // Route::delete('/users/{user}/roles/{role}', [UserController::class, 'removeRole'])->name('users.roles.remove');
-    // Route::post('/users/{user}/permissions', [UserController::class, 'givePermission'])->name('users.permissions');
-    // Route::delete('/users/{user}/permissions/{permission}', [UserController::class, 'revokePermission'])->name('users.permissions.revoke');
-
-    // Route::resource('/invoice_period', InvoicePeriodController::class);
-
-    // Route::get('/budgetyear/budgetyearTest/{budgetyear?}', [KpBudgetYearController::class, 'budgetyearTest'])->name('budgetyear.budgetyearTest');
-
-    // Route::resource('/zone', KpZoneController::class);
-    // Route::resource('/subzone', KpSubzoneController::class);
-    // Route::get('/subzone/{zone_id}/getSubzone', [KpBudgetYearController::class, 'getSubzone'])->name('subzone.getSubzone');
-    // Route::post('/settings/create_and_update', [SettingsController::class, 'create_and_update'])->name('settings.create_and_update');
-    // Route::resource('/settings', SettingsController::class);
-    // Route::resource('/excel', ExcelController::class);
-
-
-    // });
-    // Route::resource('/test', TestController::class);
-
-
-
-
-
-    // Route::post('/user_payment_per_month/history', [UserPaymentPerMonthController::class, 'history'])->name('user_payment_per_month.history');
-    // Route::get('/user_payment_per_month/history/{user_id}', [UserPaymentPerMonthController::class, 'history2'])->name('user_payment_per_month.history2');
-    // Route::get('/user_payment_per_month/printReceiptHistory/{userPaymentPerYearId}', [UserPaymentPerMonthController::class, 'printReceiptHistory'])->name('user_payment_per_month.printReceiptHistory');
-    // Route::get('/user_payment_per_month/table', [UserPaymentPerMonthController::class, 'table'])->name('user_payment_per_month.table');
-    // Route::get('/user_payment_per_month/invoice', [UserPaymentPerMonthController::class, 'invoice'])->name('user_payment_per_month.invoice');
-    // Route::post('/user_payment_per_month/print_notice_letters', [UserPaymentPerMonthController::class, 'print_notice_letters'])->name('user_payment_per_month.print_notice_letters');
-    // Route::get('/user_payment_per_month/table_search/{budgetyear_id?}', [UserPaymentPerMonthController::class, 'table_search'])->name('user_payment_per_month.table_search');
-    // Route::get('/user_payment_per_month/index2', [UserPaymentPerMonthController::class, 'index2'])->name('user_payment_per_month.index2');
-    // Route::get('/user_payment_per_month/{payperyear_id}/{bin_no}/get_not_paid', [UserPaymentPerMonthController::class, 'get_not_paid'])->name('user_payment_per_month.get_not_paid');
-    // Route::resource('user_payment_per_month', UserPaymentPerMonthController::class);
-
-
-
-    // Route::prefix('user-monthly-status/')->name('user-monthly-status.')->group(function () {
-    //     // Route สำหรับแสดงรายชื่อผู้ใช้งานเพื่อเลือกจัดการสถานะรายเดือน
-    //     Route::get('', [KpUserMonthlyStatusController::class, 'index'])->name('index');
-
-    //     // Route สำหรับแสดงหน้าจัดการสถานะรายเดือนของ User คนหนึ่ง
-    //     Route::get('/{user}/manage', [KpUserMonthlyStatusController::class, 'monthlyStatus'])->name('manage');
-
-    //     // Route สำหรับบันทึก/อัปเดตสถานะรายเดือนและ bin exemptions
-    //     Route::post('/{user}/save', [KpUserMonthlyStatusController::class, 'saveMonthlyStatus'])->name('save');
-
-    // });
-
-
-    // Route::get('/report/daily/{month?}/{budgetyear?}', [ReportsController::class, 'daily'])->name('report.daily');
-    // Route::post('/report/daily_search', [ReportsController::class, 'daily_search'])->name('report.daily_search');
-    // Route::get('/report/get_date/{budgetyear}/{month}', [ReportsController::class, 'get_date'])->name('report.get_date');
-    // Route::resource('/report', ReportsController::class);
-
-
-
-});
+}); // End Main Group

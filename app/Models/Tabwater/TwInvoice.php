@@ -2,19 +2,25 @@
 
 namespace App\Models\Tabwater;
 
-use App\Http\Controllers\FunctionsController;
 use App\Models\User;
-use Exception;
+use App\Models\Tabwater\TwInvoicePeriod;
+use App\Models\Tabwater\TwMeterInfos;
+use App\Models\Tabwater\TwAccTransactions;
+use App\Traits\BelongsToOrganization; // <--- เรียกใช้แค่ตัวนี้พอ
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Facades\DB;
+
 class TwInvoice extends Model
 {
-    use HasFactory;
-     public $timestamps = false;
+    // ใช้แค่ BelongsToOrganization ตัวเดียว (มันสลับ DB ให้แล้ว)
+    use HasFactory, BelongsToOrganization; 
+
+    protected $table = 'tw_invoice';
+    public $timestamps = false;
+    
     protected $fillable = [
         'id',
-        'inv_temp_id_fk',
         'inv_period_id_fk',
         'meter_id_fk',
         'lastmeter',
@@ -30,61 +36,62 @@ class TwInvoice extends Model
         'status',
         'created_at',
         'updated_at',
-        'inv_no'
+        'inv_no',
+        'org_id_fk' // ต้องมี column นี้ใน DB ตามที่คุยกัน
     ];
-    protected $table = 'tw_invoice';
 
+    public function tw_meter_infos()
+{
+    return $this->belongsTo(TwMeterInfos::class, 'meter_id_fk', 'meter_id');
+}
     public function invoice_period()
     {
         return $this->belongsTo(TwInvoicePeriod::class, 'inv_period_id_fk', 'id');
     }
 
-    public function recorder()
-    {
-        return $this->belongsTo(User::class,'recorder_id', 'id');
-    }
-
-    public function usermeterinfos()
-    {
-        return $this->belongsTo(TwMeterInfos::class, 'meter_id_fk', 'meter_id');
-    }
-
-    public function acc_transactions()
+    public function tw_acc_transactions()
     {
         return $this->belongsTo(TwAccTransactions::class, 'acc_trans_id_fk', 'id');
     }
-    public function invoice_inv_pd_active()
+    // ----------------------------------------------------------------------
+    // ฟังก์ชัน Generate Invoice No (ปรับปรุงใหม่)
+    // ----------------------------------------------------------------------
+    public function generateInvNo($meter_id)
     {
-        return $this->hasOne(TwInvoicePeriod::class, 'inv_period_id_fk', 'id');
-    }
+        // $this->getConnectionName() เรียกใช้ได้เลย เพราะมาจาก Trait BelongsToOrganization
+        $budgetyear = DB::connection($this->getConnectionName())
+                        ->table('budget_year')
+                        ->where('status', 'active')
+                        ->first();
 
-    public function inv_no($meter_id, $db = 'mysql')
-    {
-        // $meter_id;
-        $funcCtrl = new FunctionsController();
-        $budgetyear = DB::connection($db)->table('budget_year')->where('status', 'active')->get('id');
-        $budgetyear_id_str = $budgetyear[0]->id < 10 ? "0" . $budgetyear[0]->id : $budgetyear[0]->id;
+        $budget_id = $budgetyear ? $budgetyear->id : 0;
+        $budgetyear_id_str = str_pad($budget_id, 2, '0', STR_PAD_LEFT);
 
-        $inv_owe = DB::connection($db)->table('invoice')->whereIn('status', ['owe'])->where('meter_id_fk', $meter_id)->get()->last();
-        //`check ว่าเป็นรอบบิลเริ่มต้น
-        $inv_no = '01';
-        // $prevInvPeriod = DB::connection($db)->table('invoice_period')->where('status', 'inactive')->get();
-        // if(collect($prevInvPeriod)->isEmpty()){
-        //     return $budgetyear_id_str . "" . $inv_no . "" . $funcCtrl->createNumberString($meter_id);
-        // }
-        if (collect($inv_owe)->isNotEmpty()) {
+        // ใช้ self:: เพื่อให้ Trait ทำงาน (สลับ DB + กรอง Org)
+        $last_inv = self::where('meter_id_fk', $meter_id)
+                        ->whereIn('status', ['owe', 'paid'])
+                        ->latest('id')
+                        ->first();
 
-         return   $inv_no= substr($inv_owe->inv_no, 2, 2);
-        } else {
-            $inv = DB::connection($db)->table('invoice')->where('status', 'paid')->where('meter_id_fk', $meter_id)->get(['inv_no', 'meter_id_fk','status'])->last();
-            try{
-                $inv_no = intval(substr($inv->inv_no, 2, 2))+1 < 10 ? "0" . intval(substr($inv->inv_no, 2, 2))+1 : intval(substr($inv->inv_no, 2, 2))+1 ;
-            }catch(Exception $e){
-                $inv_no = '01';
+        $inv_running_no = '01';
+
+        if ($last_inv) {
+            $current_period_no = intval(substr($last_inv->inv_no, 2, 2));
+            
+            if ($last_inv->status == 'owe') {
+                $inv_running_no = str_pad($current_period_no, 2, '0', STR_PAD_LEFT);
+            } else {
+                $inv_running_no = str_pad($current_period_no + 1, 2, '0', STR_PAD_LEFT);
             }
         }
-        return $budgetyear_id_str . "" . $inv_no . "" . $funcCtrl->createNumberString($meter_id);
+
+        $meter_suffix = $this->createNumberString($meter_id);
+
+        return $budgetyear_id_str . $inv_running_no . $meter_suffix;
     }
 
-
+    private function createNumberString($number)
+    {
+        return str_pad($number, 4, '0', STR_PAD_LEFT);
+    }
 }

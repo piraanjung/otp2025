@@ -1,107 +1,93 @@
 @extends('layouts.keptkaya')
 
-@section('mainheader')
-    ตารางขนาดมิเตอร์
-@endsection
-@section('nav-header')
-    <a href="{{ url('tabwatermeter') }}"> ขนาดมิเตอร์</a>
-@endsection
-@section('nav-usergroup')
-    active
-@endsection
+{{-- ปรับข้อความ Header ให้ตรงกับเนื้อหา --}}
+@section('mainheader', 'จัดการกลุ่มผู้ใช้งาน')
+@section('nav-header', 'ตั้งค่าระบบ')
+@section('nav-current', 'กลุ่มผู้ใช้งาน')
+@section('page-topic', 'ตารางกลุ่มผู้ใช้งาน')
+@section('nav-usergroup', 'active')
+
 @section('content')
-
-    {{-- @if (collect($usergroups)->isEmpty())
-        <h4 class="text-center mt-3">ยังไม่มีข้อมูลประเภทผู้ใช้งาน</h4>
-    @else --}}
-        <div class="card card-outline card-danger">
-            <div class="card-header">
-                <h3 class="card-title"></h3>
-                <div class="card-tools">
-                    <a href="{{ route('keptkayas.kp_usergroup.create') }}" class="btn btn-primary fa-pull-right">เพิ่มข้อมูล</a>
-
+    <div class="row">
+        <div class="col-12">
+            <div class="card mb-4">
+                {{-- Card Header: จัดปุ่มเพิ่มให้อยู่ขวาด้วย Flexbox --}}
+                <div class="card-header pb-0 d-flex justify-content-between align-items-center">
+                    <h6>รายการกลุ่มผู้ใช้งาน</h6>
+                    <a href="{{ route('keptkayas.kp_usergroup.create') }}" class="btn bg-gradient-primary btn-sm mb-0">
+                        <i class="fas fa-plus me-2"></i> เพิ่มข้อมูล
+                    </a>
                 </div>
-            </div>
-            <div class="card-body pb-3 text-center">
-                <?php    $order = 1; ?>
 
-                <div class="card">
-                    <div class="table-responsive">
+                <div class="card-body px-0 pt-0 pb-2">
+                    <div class="table-responsive p-0">
                         <table class="table align-items-center mb-0">
                             <thead>
                                 <tr>
-                                    <th>ID</th>
-                                    <th>ชื่อกลุ่มผู้ใช้งาน</th>
-                                    <th>สถานะ</th>
-                                    <th class=""></th>
+                                    <th class="text-uppercase text-secondary text-xxs font-weight-bolder opacity-7">ID</th>
+                                    <th class="text-uppercase text-secondary text-xxs font-weight-bolder opacity-7 ps-2">ชื่อกลุ่มผู้ใช้งาน</th>
+                                    <th class="text-center text-uppercase text-secondary text-xxs font-weight-bolder opacity-7">สถานะ</th>
+                                    <th class="text-secondary opacity-7">จัดการ</th>
                                 </tr>
                             </thead>
                             <tbody>
-                                @foreach ($usergroups as $usergroup)
+                                @forelse ($usergroups as $usergroup)
                                     <tr>
-                                        <td>{{ $usergroup->id }}</td>
                                         <td>
-                                            <div class="d-flex px-2">
-                                                <div>
-
-                                                </div>
-                                                <div class="my-auto">
-                                                    <h6 class="mb-0">{{ $usergroup->usergroup_name }}</h6>
+                                            <div class="d-flex px-2 py-1">
+                                                <div class="d-flex flex-column justify-content-center">
+                                                    <h6 class="mb-0 text-sm text-secondary">{{ $usergroup->id }}</h6>
                                                 </div>
                                             </div>
                                         </td>
-
-
                                         <td>
-                                            <span class="badge badge-success">
-                                                @if ($usergroup->deleted == '0' && $usergroup->status == 'active')
-                                                    มีการใช้งานอยู่
-                                                @endif
-                                            </span>
+                                            <p class="text-sm font-weight-bold mb-0">{{ $usergroup->usergroup_name }}</p>
                                         </td>
-
+                                        <td class="align-middle text-center text-sm">
+                                            @if ($usergroup->deleted == '0' && $usergroup->status == 'active')
+                                                <span class="badge badge-sm bg-gradient-success">ใช้งานอยู่</span>
+                                            @else
+                                                <span class="badge badge-sm bg-gradient-secondary">ไม่ใช้งาน</span>
+                                            @endif
+                                        </td>
                                         <td class="align-middle">
-                                            <ul class="navbar-nav">
-                                                <li class="nav-item dropdown">
-                                                    <a class="nav-link" data-toggle="dropdown" href="#" aria-expanded="false">
-                                                        <i class="far fa-comments"></i>
+                                            <a href="{{ route('keptkayas.kp_usergroup.edit', $usergroup) }}" 
+                                               class="text-secondary font-weight-bold text-xs me-3" 
+                                               data-toggle="tooltip" 
+                                               data-original-title="Edit user">
+                                                <i class="fas fa-edit"></i> แก้ไข
+                                            </a>
+
+                                            @if ($usergroup->deleted == 0)
+                                                <form action="{{ route('keptkayas.kp_usergroup.destroy', $usergroup) }}" 
+                                                      method="POST" 
+                                                      class="d-inline delete-form">
+                                                    @csrf
+                                                    @method('DELETE')
+                                                    <a href="javascript:void(0);" 
+                                                       class="text-danger font-weight-bold text-xs btn-delete"
+                                                       data-toggle="tooltip" 
+                                                       data-original-title="Delete user">
+                                                        <i class="fas fa-trash"></i> ลบ
                                                     </a>
-                                                    <div class="dropdown-menu dropdown-menu-sm dropdown-menu-right"
-                                                        style="left: inherit; right: 0px;">
-
-                                                        <ul class="navbar-nav">
-                                                            <li><a class="dropdown-item text-center"
-                                                                    href="{{ route('keptkayas.kp_usergroup.edit', $usergroup) }}">แก้ไขข้อมูล</a>
-                                                            </li>
-                                                            <li>
-                                                                @if ($usergroup->deleted == 0)
-                                                                    <form
-                                                                        action="{{ route('keptkayas.kp_usergroup.destroy', $usergroup) }}"
-                                                                        method="Post">
-                                                                        @csrf
-                                                                        @method('DELETE')
-                                                                        <a class="dropdown-item text-center test"
-                                                                            href="javascript:test()">ลบขัอมูล</a>
-                                                                    </form>
-                                                                @endif
-
-                                                            </li>
-                                                        </ul>
-                                                    </div>
-                                                </li>
-                                            </ul>
-
+                                                </form>
+                                            @endif
                                         </td>
                                     </tr>
-                                @endforeach
+                                @empty
+                                    <tr>
+                                        <td colspan="4" class="text-center p-4">
+                                            <p class="text-secondary mb-0">ไม่พบข้อมูลกลุ่มผู้ใช้งาน</p>
+                                        </td>
+                                    </tr>
+                                @endforelse
                             </tbody>
                         </table>
                     </div>
                 </div>
             </div>
         </div>
-    {{-- @endif --}}
-
+    </div>
 @endsection
 
 

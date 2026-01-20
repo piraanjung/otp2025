@@ -212,12 +212,18 @@ $c2 = 1;
 
 
     <div class="row row_info" style="opacity: 1;">
-        <div class="col-6" style="border: 1px solid #000000; border-bottom: none;">
+        {{-- <div class="col-6" style="border: 1px solid #000000; border-bottom: none;">
             @include('payment._rc_left_form')
         </div>
         <div class="col-6" style="border: 1px solid #000; border-bottom: none;">
             @include('payment._rc_left_form')
-        </div>
+        </div> --}}
+        <div class="col-6 ...">
+    @include('payment._rc_left_form', ['is_copy' => false])
+</div>
+<div class="col-6 ...">
+    @include('payment._rc_left_form', ['is_copy' => true])
+</div>
         <p style=" page-break-after: avoid;"></p>
 
     </div>

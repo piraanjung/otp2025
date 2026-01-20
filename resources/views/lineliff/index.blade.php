@@ -333,13 +333,167 @@
     .select2 {
       width: 100% !important
     }
-  </style>
-  <link href="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/css/select2.min.css" rel="stylesheet" />
 
+
+  </style>
+  <style>
+    /* ปรับให้ Modal เต็มจอบนมือถือ */
+    @media (max-width: 576px) {
+        .modal-dialog.modal-fullscreen-sm-down {
+            max-width: none;
+            height: 100%;
+            margin: 0;
+        }
+        .modal-content {
+            height: 100%;
+            border: 0;
+            border-radius: 0;
+        }
+    }
+
+    /* Input ที่กดแล้วเด้ง Modal */
+    .clickable-input {
+        background-color: #fff !important; /* ให้ดูเหมือน Input ปกติ */
+        cursor: pointer;
+        caret-color: transparent; /* ไม่ให้มี cursor กระพริบ */
+    }
+
+    /* รายการใน Modal */
+    .list-group-item-action {
+        cursor: pointer;
+    }
+    .list-group-item-action:active {
+        background-color: #e9ecef;
+    }
+
+    /* Import ฟอนต์ไทยสวยๆ */
+@import url('https://fonts.googleapis.com/css2?family=Prompt:wght@300;400;500;600&display=swap');
+
+body {
+    font-family: 'Prompt', sans-serif;
+    background-color: #f0f2f5; /* สีพื้นหลังให้อ่อนสบายตา */
+}
+
+/* ปรับแต่ง Card หลัก */
+.material-card {
+    border: none;
+    border-radius: 20px;
+    box-shadow: 0 4px 20px rgba(0,0,0,0.08);
+    background: #fff;
+    overflow: hidden;
+}
+
+/* ส่วนหัว Profile */
+.profile-header {
+    background: linear-gradient(135deg, #007bff 0%, #0056b3 100%);
+    color: white;
+    padding: 30px 20px 20px;
+    text-align: center;
+    border-radius: 0 0 50% 50% / 20px; /* ทำโค้งด้านล่างเล็กน้อย */
+    margin-bottom: 25px;
+}
+
+.profile-avatar {
+    width: 90px;
+    height: 90px;
+    border-radius: 50%;
+    border: 4px solid rgba(255,255,255,0.8);
+    box-shadow: 0 4px 10px rgba(0,0,0,0.2);
+    object-fit: cover;
+    background-color: #ddd;
+}
+
+/* Selection Cards (เลือกประเภทหน่วยงาน) */
+.org-selector-wrapper {
+    display: flex;
+    gap: 15px;
+    justify-content: center;
+}
+
+.org-radio-input {
+    display: none;
+}
+
+.org-card {
+    flex: 1;
+    border: 2px solid #e9ecef;
+    border-radius: 15px;
+    padding: 15px 10px;
+    text-align: center;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    background: #fff;
+    color: #6c757d;
+}
+
+.org-card i {
+    font-size: 1.5rem;
+    margin-bottom: 5px;
+    display: block;
+}
+
+/* เมื่อถูกเลือก (Checked State) */
+.org-radio-input:checked + .org-card {
+    border-color: #007bff;
+    background-color: #f0f7ff;
+    color: #007bff;
+    font-weight: 600;
+    box-shadow: 0 4px 12px rgba(0,123,255,0.15);
+}
+
+/* Floating Form Inputs Customization */
+.form-floating > .form-control {
+    border-radius: 12px;
+    border: 1px solid #dee2e6;
+    height: 55px;
+}
+.form-floating > .form-control:focus {
+    box-shadow: none;
+    border-color: #007bff;
+    border-width: 2px;
+}
+.select2-container .select2-selection--single {
+    height: 55px !important;
+    border-radius: 12px !important;
+    border: 1px solid #dee2e6 !important;
+    display: flex;
+    align-items: center;
+}
+
+/* Clickable Readonly Inputs */
+.clickable-input {
+    background-color: #fff !important;
+    cursor: pointer;
+    background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16'%3e%3cpath fill='none' stroke='%23343a40' stroke-linecap='round' stroke-linejoin='round' stroke-width='2' d='M2 5l6 6 6-6'/%3e%3c/svg%3e");
+    background-repeat: no-repeat;
+    background-position: right 0.75rem center;
+    background-size: 16px 12px;
+}
+
+/* ปุ่ม Submit */
+.btn-submit-material {
+    border-radius: 50px;
+    padding: 12px;
+    font-size: 1.1rem;
+    font-weight: 500;
+    letter-spacing: 0.5px;
+    box-shadow: 0 4px 15px rgba(23, 162, 184, 0.4);
+    transition: transform 0.2s;
+}
+.btn-submit-material:active {
+    transform: scale(0.98);
+}
+</style>
+  <link href="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/css/select2.min.css" rel="stylesheet" />
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/4.1.1/animate.min.css"/>
 @endsection
 
 @section('content')
+<a href="#" id="to_index_page" class="btn btn-sm btn-outline"><i class="bi bi-skip-backward-circle"></i>
+</a>
 
+<div id="index_page">
   <div id="store_container" class="store-container">
     <div class="border-animation">
       <svg role="img" xmlns="http://www.w3.org/2000/svg" id="store" viewBox="130 0 1230 930">
@@ -569,94 +723,177 @@
     </div>
   </div>
 
-  <div id="phone_div" class=" m-3 hidden">
-    <div class="card">
-      <div class="card-body">
-        <div class="h4">ท่านยังไม่ได้เป็นสมาชิก</div>
-        <div class="h6">กรอกข้อมูลเพื่อทำการลงทะเบียน</div>
-        <form>
-         <div class="form-group">
-            <label for="label" id="org_label">องค์กรที่ท่านสังกัด</label>
-            <select name="orgs_lists" id="orgs_lists" class="select2" required>
-              <option value="">เลือก...</option>
-              @foreach ($orgs as $key => $org)
-                <option value="{{ $key }}">{{ $org->org_type_name.$org->org_name.':'.$org->districts->district_name }}</option>
-              @endforeach
-            </select>
-             <input type="hidden" name="org_id" id="org_id">
-          </div>
-          <div class="form-group d-flex flex-row">
-            <label for="exampleFormControlSelect1" class="w-25">จังหวัด</label>
-            <select name="province_id" id="province_id" class="select2" disabled required>
-              {{-- <option value="">เลือก...</option>
-              @foreach ($provinces as $province)
-                <option value="{{ $province->id }}">{{ $province->province_name }}</option>
-              @endforeach --}}
-            </select>
-          </div>
-
-          <div class="form-group d-flex flex-row justify-content-between">
-            <label for="" class="w-25">อำเภอ</label>
-            <select name="district_id" id="district_id" class="select2" disabled></select>
-          </div>
-          <div class="form-group d-flex flex-row">
-            <label for="" class="w-25">ตำบล</label>
-            <select name="tambon_id" id="tambon_id" class="select2" required disabled></select>
-          </div>
-
-          <div class="form-group  d-flex flex-row">
-            <label for="label" id="zone_label" class="w-25">หมู่ที่</label>
-            <select name="zone_id" id="zone_id" class="select2" required></select>
-          </div>
-          <div class="form-group  d-flex flex-row">
-            <label for="label" id="subzone_label" class="w-25">ซอย</label>
-            <select name="subzone_id" id="subzone_id" class="select2" required></select>
-          </div>
-           <div class="form-group  d-flex flex-row">
-              <div class="text-center">
-                <input type="radio" id="new_member" class="" checked name="member_status" value="new_member">
-                <label for="new_member">สมาชิกใหม่</label>
+  <div class="form-group p-4">
+      <div class="org-selector-wrapper">
+          <label class="w-50">
+              <input type="radio" class="org-radio-input member_status" name="member_status" id="new_user" value="new_user">
+              <div class="org-card">
+                  <i class="bi bi-building"></i> {{-- ต้องมี Bootstrap Icons --}}
+                  <span>ยังไม่เป็นสมาชิก</span>
               </div>
-              <div class="text-center">
-                <input type="radio" id="old_member" class="" name="member_status" value="old_member">
-                <label for="old_member">เป็นสมาชิกเทศบาล/อบต.</label>
+          </label>
+
+          <label class="w-50">
+              <input type="radio" class="org-radio-input member_status" name="member_status" id="member" value="member">
+              <div class="org-card">
+                  <i class="bi bi-mortarboard-fill"></i>
+                  <span>เป็นสมาชิกแล้ว</span>
               </div>
-          </div>
-
-         
-          
-          <div class="form-group  d-flex flex-row hidden" id="old_member_div">
-            <label for="label" id="user_label" class="w-25">ชื่อ-สกุล</label>
-            <select name="user_id" id="user_id" class="select2" required></select>
-          </div>
-
-           <div class="form-group  d-flex flex-row" id="new_member_div">
-              <div class="text-center">
-                <label for="new_member">ชื่อ</label>
-                <input type="text" name="firstname" class="form-control" id="firstname" required>
-
-              </div>
-              <div class="text-center">
-                <label for="be_member">สกุล</label>
-                <input type="text" name="lastname" class="form-control" id="lastname" required>
-
-              </div>
-          </div>
-         <div class="form-group">
-            <label for="">บ้านเลขที่</label>
-            <input type="text" name="address" id="address"  class="form-control" required>
-          </div>
-          <div class="form-group">
-            <label for="">หมายเลขโทรศัพท์</label>
-            <input type="text" name="phone" id="phone"  class="form-control" required>
-          </div>
-        </form>
-        <input type="button" value="สมัครใช้งานระบบ" id="phone_search_btn" class="btn btn-info m-2">
+          </label>
       </div>
-    </div>
   </div>
+</div>
 
+  <div class="container-fluid p-0" style="max-width: 600px; margin: 0 auto;">
+    {{-- ส่วนหัว Profile แบบ Material --}}
+    <div class="material-card mb-4 pb-4">
+        <div class="profile-header d-none">
+            <div class="mb-2">
+                {{-- รูป Profile --}}
+                <img src="" id="pictureUrl" class="profile-avatar" alt="Profile">
+            </div>
+            {{-- ชื่อ Display Name --}}
+            <h5 id="display_name" class="mb-0 font-weight-bold">Guest User</h5>
+            <small class="text-white-50">ลงทะเบียนสมาชิกใหม่</small>
+        </div>
 
+        <div id="new_user_form" class="d-none">
+          <div class="px-4">
+              <form id="registerForm">
+
+                  {{-- 1. ชื่อ - นามสกุล (ย้ายมาไว้บนสุด เพื่อความชัดเจน) --}}
+                  <div class="row g-2 mb-4">
+                      <div class="col-6">
+                          <div class="form-floating">
+                              <input type="text" name="firstname" class="form-control" id="firstname" placeholder="ชื่อ" required>
+                              <label for="firstname">ชื่อ</label>
+                          </div>
+                      </div>
+                      <div class="col-6">
+                          <div class="form-floating">
+                              <input type="text" name="lastname" class="form-control" id="lastname" placeholder="นามสกุล" required>
+                              <label for="lastname">นามสกุล</label>
+                          </div>
+                      </div>
+                  </div>
+
+                  <hr class="text-muted opacity-25 mb-4">
+
+                  {{-- 2. เลือกประเภทหน่วยงาน (Selection Cards) --}}
+                  <div class="form-group mb-4">
+                      <label class="d-block text-secondary small mb-2 ps-1">สังกัดหน่วยงาน</label>
+                      <div class="org-selector-wrapper">
+                          <label class="w-50">
+                              <input type="radio" class="org-radio-input" name="org_type_selector" id="type_general" value="general">
+                              <div class="org-card">
+                                  <i class="bi bi-building"></i> {{-- ต้องมี Bootstrap Icons --}}
+                                  <span>เทศบาล/อบต.</span>
+                              </div>
+                          </label>
+
+                          <label class="w-50">
+                              <input type="radio" class="org-radio-input" name="org_type_selector" id="type_uni" value="uni" checked>
+                              <div class="org-card">
+                                  <i class="bi bi-mortarboard-fill"></i>
+                                  <span>มหาวิทยาลัย</span>
+                              </div>
+                          </label>
+                      </div>
+                  </div>
+
+                  {{-- 3. Dropdown ชื่อหน่วยงาน --}}
+                  <div class="form-floating mb-4">
+                     <input type="text" id="org_display" class="form-control clickable-input" placeholder="เลือกหน่วยงาน..." readonly>
+                      <label id="org_label">ระบุชื่อมหาวิทยาลัย</label>
+
+                      <input type="hidden" name="org_id" id="org_id">
+                      <input type="hidden" name="province_id" id="province_id">
+                      <input type="hidden" name="district_id" id="district_id">
+                      <input type="hidden" name="tambon_id" id="tambon_id">
+                  </div>
+
+                  {{-- 4. ส่วนแสดงที่อยู่ (Readonly) --}}
+                  <div id="location_info_display" class="d-none bg-light p-3 rounded-3 mb-3 border border-light">
+                      <p class="small text-muted mb-2"><i class="bi bi-geo-alt-fill"></i> ที่ตั้งหน่วยงาน</p>
+                      <div class="row g-2">
+                          <div class="col-4">
+                              <input type="text" id="show_province" class="form-control form-control-sm bg-white border-0" disabled placeholder="จ.">
+                          </div>
+                          <div class="col-4">
+                              <input type="text" id="show_district" class="form-control form-control-sm bg-white border-0" disabled placeholder="อ.">
+                          </div>
+                          <div class="col-4">
+                              <input type="text" id="show_tambon" class="form-control form-control-sm bg-white border-0" disabled placeholder="ต.">
+                          </div>
+                      </div>
+                  </div>
+
+                  {{-- 5. ส่วนรายละเอียดฟอร์ม --}}
+                  <div id="form_details" class="d-none animate__animated animate__fadeIn">
+
+                      {{-- Zone / Subzone (Clickable Inputs) --}}
+                      <div class="form-floating mb-3">
+                          <input type="text" id="zone_display" class="form-control clickable-input" placeholder="เลือก" readonly>
+                          <label id="zone_label">หมู่ที่/โซน</label>
+                          <input type="hidden" name="zone_id" id="zone_id">
+                      </div>
+
+                      <div class="form-floating mb-4">
+                          <input type="text" id="subzone_display" class="form-control clickable-input" placeholder="เลือก" readonly disabled>
+                          <label id="subzone_label">ซอย/อาคาร</label>
+                          <input type="hidden" name="subzone_id" id="subzone_id">
+                      </div>
+
+                      {{-- สมาชิกใหม่ (กรอกเพิ่มเติม) --}}
+                      <div id="new_member_div">
+                          <div class="form-floating mb-3" id="address_div">
+                              <input type="text" name="address" id="address" class="form-control" placeholder="บ้านเลขที่">
+                              <label>บ้านเลขที่ / ห้องเลขที่</label>
+                          </div>
+
+                          <div class="form-floating mb-3">
+                              <input type="tel" name="phone" id="phone" class="form-control border-danger" placeholder="เบอร์โทร">
+                              <label>หมายเลขโทรศัพท์ผู้สมัคร</label>
+                          </div>
+                      </div>
+
+                      <button type="button" id="phone_search_btn" class="btn btn-info text-white w-100 btn-submit-material mt-2">
+                          ลงทะเบียนเข้าใช้งาน
+                      </button>
+                  </div>
+
+              </form>
+          </div>
+        </div>
+        <div id="member_form" class="d-none">
+            {{-- สมาชิกเก่า (Search) --}}
+            <div class="form-group  mb-3" id="old_member_div">
+                <label class="text-secondary small ps-1 mb-1">ค้นหาชื่อของคุณ</label>
+                <select name="user_id" id="user_id" class="select2 w-100"></select>
+            </div>
+
+        </div>
+    </div>
+</div>
+
+{{-- MODAL สำหรับเลือก คณะ/สาขา (ใช้ตัวเดียววนใช้) --}}
+<div class="modal fade" id="selectionModal" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-scrollable modal-fullscreen-sm-down">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="modalTitle">เลือกรายการ</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body p-0">
+                <div class="p-2 bg-light sticky-top border-bottom">
+                    <input type="text" id="modalSearch" class="form-control" placeholder="ค้นหา...">
+                </div>
+                <div class="list-group list-group-flush" id="modalListContainer">
+                    </div>
+            </div>
+        </div>
+    </div>
+</div>
 @endsection
 
 @section('script')
@@ -671,8 +908,6 @@
   <script src="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/js/select2.min.js"></script>
 
   <script>
-    const store_container = document.getElementById('store_container')
-    const phone_div = document.getElementById('phone_div')
     const phone_search_btn = document.getElementById('phone_search_btn')
     const phone_text = document.getElementById('phone')
     const province_id_text = document.getElementById('province_id')
@@ -694,8 +929,12 @@
       }
 
       profile = await liff.getProfile();
-      console.log('profile', profile)
 
+      console.log('profile', profile)
+      $('#display_name').text(profile.displayName)
+      $('#firstname').val(profile.displayName)
+      $('#lastname').val(profile.displayName)
+      $('#pictureUrl').attr('src', profile.pictureUrl)
       // 1.ส่ง line user_id ไปcheck ก่อนว่าเป็น memberไหม
       $.post(`/api/line/fine_line_id`, {
         userId: profile.userId,
@@ -706,28 +945,31 @@
           phone_div.classList.remove('hidden')
         }
         if (data.res == 1) {
-          window.location.href = '/line/dashboard/' + data.waste_pref_id+'/'+data.org_id;
+        //   window.location.href = '/line/dashboard/' + data.waste_pref_id+'/'+data.org_id;
         }
       })
-      // ถ้าไม่เป็นให้แสดง text กรอก phone
-
-
-      // $('#loading').addClass('hidden');
-      // let url = (profile.pictureUrl).replace("https://profile.line-scdn.net/", "");
-      // $.post(`api/line/fine_line_id`,{
-      //       userId: profile.userId,
-      //       displayName: profile.displayName,
-      //       url: url,
-      //       phone: profile.phoneNumber
-      //   }).then(function (data)  {
-      //     console.log('dta', data)
-      //     if (data.res === 1) {
-      //        window.location.href ='/line/dashboard/'+data.user_waste_pref_id;
-      //     }
-      // })
-
 
     }
+
+    $('.member_status').click(function(){
+      $('#index_page').addClass('d-none')
+      $('.profile-header').removeClass('d-none')
+      let val = $(this).val()
+      if(val === 'new_user'){
+        $('#member_form').addClass('d-none')
+        $('#new_user_form').removeClass('d-none')
+      }else{
+        $('#member_form').removeClass('d-none')
+        $('#new_user_form').addClass('d-none')
+      }
+    })
+
+    $('#to_index_page').click(function(){
+      $('#index_page').removeClass('d-none')
+      $('.profile-header').addClass('d-none')
+      $('#member_form').removeClass('d-none').addClass('d-none')
+      $('#new_user_form').removeClass('d-none').addClass('d-none')
+    })
 
     const sendMessage = async () => {
       const body = {
@@ -758,9 +1000,9 @@
       window.location.href = '/line'
     }
 
-    
 
-    $('#phone_search_btn').on('click',  function () {//async
+
+    $('#phone_search_btn').on('click', async function () {//async
       let firstname = $('#firstname').val()
       let lastname = $('#lastname').val()
       let phone = phone_text.value;
@@ -793,9 +1035,14 @@
           line_user_id: profile.userId,
           displayName : profile.displayName,
           line_user_image: line_user_image,
+           firstname : $('#firstname').val(),
+          lastname : $('#lastname').val(),
+          address : $('#address').val(),
+          zone_id:$('#zone_id').val(),
+          subzone_id:$('#subzone_id').val(),
         }
       );
-      $.post(`/api/line/user_line_register`,
+      await $.post(`/api/line/user_line_register`,
         {
           phoneNum    : phone,
           province_id :  province_id_text.value,
@@ -816,147 +1063,259 @@
             //มีข้อมูล user อยู่แล้วและทำการ update user_line_id แล้ว
             //ให้ไปหา dashboard ของ line  user
 
-            // window.location.href = '/line/dashboard/' + data.waste_pref_id +'/'+org_id_text.value+ '/1';
+            window.location.href = '/line/dashboard/' + data.waste_pref_id +'/'+org_id_text.value+ '/1';
             //  data.waste_pref_id +'/'+org_id_text.value+ '/register==1
           } else {
             // ไม่มีข้อมูล user เป็น new  user ให้ทำการ register
           }
         })
-      // await $.post(`/api/line/update_user_by_phone`,
-      //   {
-      //     phoneNum    : phone,
-      //     province_id :  province_id_text.value,
-      //     district_id : district_id_text.value,
-      //     tambon_id   : tambon_id_text.value,
-      //     org_id      : org_id_text.value,
-      //     line_user_id: profile.userId,
-      //     displayName : profile.displayName,
-      //     line_user_image: line_user_image,
-      //   }, function (data) {
-      //     if (data.res == 1) {
-      //       //มีข้อมูล user อยู่แล้วและทำการ update user_line_id แล้ว
-      //       //ให้ไปหา dashboard ของ line  user
-      //       window.location.href = '/line/dashboard/' + data.waste_pref_id +'/'+org_id_text.value+ '/1';
-      //     } else {
-      //       // ไม่มีข้อมูล user เป็น new  user ให้ทำการ register
-      //     }
-      //   })
-    })
-
-    const organizations = @json($orgs);
-    $('#orgs_lists').change(function(){
-
-      let id = $(this).val(); // Get the ID
-      let selectedOrg = organizations[id];
-      $('#org_id').val(selectedOrg.id)
-      $('#province_id').html(`<option value="${selectedOrg.provinces.id}">${selectedOrg.provinces.province_name}</option>`)
-      $('#district_id').html(`<option value="${selectedOrg.districts.id}">${selectedOrg.districts.district_name}</option>`)
-      $('#tambon_id').html(`<option value="${selectedOrg.tambons.id}">${selectedOrg.tambons.tambon_name}</option>`)
-      
-       $.get(`/zones/getzones/${selectedOrg.tambons.id}`).done(function (data) {
-        let text = `<option>เลือก...</option>`
-        data.zones.forEach(element => {
-          text += `<option value="${element.id}">${element.zone_name} ${element.location}</option>`
-        });
-
-        $('#zone_id').html(text)
-      });
-    });
-
-    $('#zone_id').change(function(){
-        //get subzone
-        let zone_id = $(this).val();
-        $.get('/api/subzone/get_subzones_in_zone/'+zone_id, function(subzones){
-          console.log('subzonedata',);
-           let text = '<option>เลือก ...</option>'
-          subzones.forEach(ele =>{
-            text += `<option value="${ele.id}">${ele.subzone_name}</option>`;
-          });
-          $('#subzone_id').html(text)
-
-        });
-        //get  user ใน subzone
-        $.get('/api/zone/users_by_zone/'+zone_id, function(data){
-          let text = '<option>เลือก ...</option>'
-          data.forEach(ele =>{
-            text += `<option value="${ele.id}">${ele.firstname} ${ele.lastname} : ${ele.phone}:${ele.address}}</option>`;
-          });
-          $('#user_id').html(text)
-
-        })
-    })
-
-    $('#user_id').change(function(){
-      const selectedOptionText = $('#user_id').find('option:selected').text();      
-      let splitTxt = selectedOptionText.split(":")
-      let name = splitTxt[0].split(" ")
-      $('#firstname').val(name[0])
-      $('#lastname').val(name[1])
-      $('#phone').val(splitTxt[1])
-      $('#address').val(splitTxt[2])
-    })
-
-    $('#old_member').click(function(){
-      $('#old_member_div').removeClass('hidden')
-      // $('#new_member_div').addClass('hidden')
-      // $('user_id').val("")
 
     })
 
-     $('#new_member').click(function(){
-      $('#old_member_div').addClass('hidden')
-      // $('#new_member_div').removeClass('hidden')
-      $('phone').val("")
-    })
 
-    // $('#province_id').change(function () {
-    //   let id = $(this).val()
-    //   console.log('ssd', id)
-    //   $.get(`/api/get_districts/${id}`).done(function (data) {
-    //     console.log('province_id', data)
-    //     let text = `<option>เลือก ..</option>`
-    //     data.forEach(element => {
-    //       text += `<option value="${element.id}">${element.district_name}</option>`
-    //     });
-
-    //     $('#district_id').html(text)
-    //   });
-
-    // })
-
-    // $('#district_id').change(function () {
-    //   let id = $(this).val()
-    //   $.get(`/api/get_tambons/${id}`).done(function (data) {
-    //     console.log('tab', data)
-    //     let text = `<option>เลือก ..</option>`
-    //     data.forEach(element => {
-    //       text += `<option value="${element.id}">${element.tambon_name}</option>`
-    //     });
-
-    //     $('#tambon_id').html(text)
-    //   });
-
-    // })
-
-    // $('#tambon_id').change(function () {
-    //   let id = $(this).val()
-    //   console.log('id',id)
-    //   $.get(`/api/get_org/${id}`).done(function (data) {
-    //     console.log('tabๆ', data)
-    //     // let text = `<option value="${data[0].id}" selected>${data[0].org_name}</option>`
-    //     // data.forEach(element => {
-    //     //   text += `<option value="${element.id}">${element.tambon_name}</option>`
-    //     // });
-    //     $('#org_label').html(data[0].org_type_name)
-    //     $('#org_name').html(data[0].org_name)
-    //     $('#org_id').val(data[0].id)
-    //   });
-
-    // })
-    $(document).ready(function () {
-      $('.select2').select2();
-    });
-
-    main()
   </script>
+  <script>
+    // 1. รับข้อมูล Org จาก Blade (PHP)
+    const allOrganizations = @json($orgs);
+
+    // Cache Data สำหรับ Modal
+    let orgListCache = [];     // เก็บรายชื่อหน่วยงานที่กรองแล้ว
+    let zoneListCache = [];
+    let subzoneListCache = [];
+
+    // ตัวบอกสถานะ Modal ว่ากำลังเลือกอะไร
+    let currentModalType = ''; // 'org', 'zone', 'subzone'
+
+    $(document).ready(function () {
+        $('#user_id').select2({ width: '100%' }); // อันนี้ค้นหาชื่อเก่า เก็บ select2 ไว้ หรือจะแก้เป็น modal ก็ได้
+
+        // เริ่มต้น: กรองหน่วยงานแบบ มหาวิทยาลัย รอไว้
+        filterOrgList('uni');
+    });
+
+    // ==========================================
+    // 1. จัดการเลือกประเภทหน่วยงาน (Radio Change)
+    // ==========================================
+    $('input[name="org_type_selector"]').change(function() {
+        let type = $(this).val();
+        let org_label = type !== 'uni' ? 'ระบุชื่อเทศบาล/อบต.' : 'ระบุชื่อมหาวิทยาลัย'
+        $('#org_label').html(org_label)
+        resetForm(); // ล้างค่าเก่าออก
+        filterOrgList(type); // กรองข้อมูลใหม่ใส่ Cache
+    });
+
+    // ฟังก์ชันกรองข้อมูล (เก็บลง Array แทนการสร้าง Option)
+    function filterOrgList(type) {
+        orgListCache = []; // Reset Cache
+        // Loop ข้อมูลดิบ แล้วเลือกเฉพาะที่ตรงประเภท
+        for (const [key, org] of Object.entries(allOrganizations)) {
+            let isUni = (org.org_short_type_name === 'ม.');
+
+            if ((type === 'uni' && isUni) || (type === 'general' && !isUni)) {
+                // สร้าง Object สำหรับ Modal
+                orgListCache.push({
+                    id: key, // key คือ ID ใน object json
+                    name: `${org.org_type_name}${org.org_name}`, // ชื่อที่จะโชว์ตัวหนา
+                    desc: `อ.${org.districts.district_name} จ.${org.provinces.province_name}`, // รายละเอียดตัวเล็ก
+                    fullData: org // เก็บ object เต็มไว้ใช้ตอนเลือก
+                });
+            }
+        }
+
+        // เคลียร์ค่าที่แสดงอยู่
+        $('#org_display').val('').attr('placeholder', 'แตะเพื่อเลือกหน่วยงาน...');
+    }
+
+    // ==========================================
+    // 2. จัดการ Modal (รวม Org, Zone, Subzone)
+    // ==========================================
+
+    // 2.1 เปิด Modal เลือก "หน่วยงาน"
+    $('#org_display').click(function(){
+        currentModalType = 'org';
+        $('#modalTitle').text('เลือกหน่วยงาน');
+        renderModalList(orgListCache); // ส่งข้อมูลที่กรองแล้วไปแสดง
+        new bootstrap.Modal(document.getElementById('selectionModal')).show();
+    });
+
+    // 2.2 เปิด Modal เลือก "คณะ/โซน"
+    $('#zone_display').click(function() {
+        if(!$('#org_id').val()) { alert('กรุณาเลือกหน่วยงานก่อน'); return; }
+
+        currentModalType = 'zone';
+        $('#modalTitle').text($('#zone_label').text());
+        renderModalList(zoneListCache);
+        new bootstrap.Modal(document.getElementById('selectionModal')).show();
+    });
+
+    // 2.3 เปิด Modal เลือก "สาขา/อาคาร"
+    $('#subzone_display').click(function() {
+        if($(this).is(':disabled')) return;
+
+        currentModalType = 'subzone';
+        $('#modalTitle').text($('#subzone_label').text());
+        renderModalList(subzoneListCache);
+        new bootstrap.Modal(document.getElementById('selectionModal')).show();
+    });
+
+    // ==========================================
+    // 3. ฟังก์ชัน Render & Select
+    // ==========================================
+
+    // สร้าง List ใน Modal (ใช้ได้กับทุกประเภท)
+    function renderModalList(items) {
+        let html = '';
+        $('#modalSearch').val('');
+
+        if (!items || items.length === 0) {
+            html = '<div class="p-4 text-center text-muted">ไม่พบข้อมูล</div>';
+        } else {
+            items.forEach(item => {
+                // เช็คว่า data มาท่าไหน (Org มี field name/desc, Zone อาจมีแค่ zone_name)
+                let name = item.name || item.zone_name || item.subzone_name;
+                let desc = item.desc || item.location || '';
+                let id = item.id;
+
+                html += `
+                <a href="#" class="list-group-item list-group-item-action py-3 select-item-btn"
+                   data-id="${id}" data-type="${currentModalType}">
+                    <div class="d-flex w-100 justify-content-between align-items-center">
+                        <div>
+                            <div class="fw-bold text-dark">${name}</div>
+                            ${desc ? `<small class="text-muted">${desc}</small>` : ''}
+                        </div>
+                        <i class="bi bi-chevron-right text-muted opacity-50"></i>
+                    </div>
+                </a>`;
+            });
+        }
+        $('#modalListContainer').html(html);
+    }
+
+    // เมื่อกดเลือกรายการใน Modal
+    $(document).on('click', '.select-item-btn', function(e) {
+        e.preventDefault();
+        let id = $(this).data('id');
+        let type = $(this).data('type');
+
+        // หา Object เต็มจาก Cache (เพื่อเอาข้อมูลอื่นมาใช้)
+        // สำหรับ Org เราเก็บ fullData ไว้, สำหรับ Zone/Subzone อาจจะต้อง find
+        let selectedItem = null;
+
+        if (type === 'org') {
+            selectedItem = orgListCache.find(x => x.id == id);
+            if(selectedItem) handleOrgSelection(selectedItem.fullData, id);
+
+        } else if (type === 'zone') {
+            let name = $(this).find('.fw-bold').text(); // ดึงชื่อจาก HTML หรือจะหาจาก cache ก็ได้
+            $('#zone_id').val(id);
+            $('#zone_display').val(name);
+
+            // Logic โหลด Subzone (สาขา)
+            fetchSubzones(id);
+
+        } else if (type === 'subzone') {
+            let name = $(this).find('.fw-bold').text();
+            $('#subzone_id').val(id);
+            $('#subzone_display').val(name);
+        }
+
+        // ปิด Modal
+        bootstrap.Modal.getInstance(document.getElementById('selectionModal')).hide();
+    });
+
+    // ==========================================
+    // 4. Logic เฉพาะเมื่อเลือกหน่วยงาน (แยกออกมาให้ชัด)
+    // ==========================================
+    function handleOrgSelection(orgData, id) {
+        // 1. Set ค่าพื้นฐาน
+        $('#org_id').val(orgData.id); // ใช้ ID จริงจาก DB
+        $('#org_display').val(`${orgData.org_type_name}${orgData.org_name}`);
+
+        // 2. Set Hidden Location
+        $('#province_id').val(orgData.org_province_id_fk);
+        $('#district_id').val(orgData.org_district_id_fk);
+        $('#tambon_id').val(orgData.org_tambon_id_fk);
+
+        // 3. Set Display Location (สำหรับ อบต.)
+        $('#show_province').val(orgData.provinces.province_name);
+        $('#show_district').val(orgData.districts.district_name);
+        $('#show_tambon').val(orgData.tambons.tambon_name);
+
+        // 4. Check Type (ม. หรือ อบต.)
+        let isUni = (orgData.org_short_type_name === 'ม.');
+
+        if (isUni) {
+            // === มหาวิทยาลัย ===
+            $('#location_info_display').addClass('d-none');
+            $('#address_div').addClass('d-none');
+            $('#address').val('-');
+
+            $('#zone_label').text('คณะ / หน่วยงาน');
+            $('#subzone_label').text('สาขาวิชา / ภาควิชา');
+            $('#zone_display').attr('placeholder', 'แตะเพื่อเลือกคณะ...');
+            $('#subzone_display').attr('placeholder', 'แตะเพื่อเลือกสาขา...');
+        } else {
+            // === อบต. ===
+            $('#location_info_display').removeClass('d-none');
+            $('#address_div').removeClass('d-none');
+            if($('#address').val() === '-') $('#address').val('');
+
+            $('#zone_label').text('หมู่ที่ / โซน');
+            $('#subzone_label').text('ซอย / อาคาร');
+            $('#zone_display').attr('placeholder', 'แตะเพื่อเลือกหมู่...');
+            $('#subzone_display').attr('placeholder', 'แตะเพื่อเลือกซอย...');
+        }
+
+        // 5. Reset & Load Zones
+        $('#form_details').removeClass('d-none');
+        $('#zone_id').val('');
+        $('#zone_display').val('');
+        $('#subzone_id').val('');
+        $('#subzone_display').val('').prop('disabled', true);
+
+        // AJAX Get Zones
+        $.get(`/zones/getzones/${orgData.tambons.id}`).done(function (data) {
+            zoneListCache = data.zones || [];
+        });
+    }
+
+    // ฟังก์ชันย่อย: โหลด Subzone
+    function fetchSubzones(zoneId) {
+        $('#subzone_id').val('');
+        $('#subzone_display').val('กำลังโหลด...').prop('disabled', true);
+
+        // ** อย่าลืมแก้ URL ให้ตรงกับ Route ของคุณ **
+        $.get(`/api/subzone/get_subzones_in_zone/${zoneId}`).done(function(data) {
+            subzoneListCache = data || [];
+            if(subzoneListCache.length > 0) {
+                $('#subzone_display').val('').prop('disabled', false).attr('placeholder', 'แตะเพื่อเลือก...');
+            } else {
+                $('#subzone_display').val('-').prop('disabled', true);
+            }
+        }).fail(function(){
+             $('#subzone_display').val('-').prop('disabled', true);
+        });
+    }
+
+    // Reset Form Helper
+    function resetForm() {
+        $('#form_details').addClass('d-none');
+        $('#org_id').val('');
+        $('#org_display').val('');
+        $('#zone_id').val('');
+        $('#subzone_id').val('');
+        zoneListCache = [];
+        subzoneListCache = [];
+    }
+
+    // Search ใน Modal
+    $('#modalSearch').on('keyup', function() {
+        let value = $(this).val().toLowerCase();
+        $("#modalListContainer a").filter(function() {
+            $(this).toggle($(this).text().toLowerCase().indexOf(value) > -1)
+        });
+    });
+    main()
+</script>
 @endsection

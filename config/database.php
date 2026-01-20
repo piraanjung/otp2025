@@ -67,7 +67,7 @@ return [
             'driver' => 'mysql',
             'host' => env('DB_HOST_HS1', '127.0.0.1'),
             'port' => env('DB_PORT_HS1', '3306'),
-            'database' => env('DB_DATABASE_HS1', 'envsogo_hongzaeng1'),
+            'database' => env('DB_DATABASE_HS1', 'forge'),
             'username' => env('DB_USERNAME_HS1', 'forge'),
             'password' => env('DB_PASSWORD_HS1', ''),
             'unix_socket' => env('DB_SOCKET', ''),

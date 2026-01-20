@@ -4,19 +4,21 @@ namespace App\Models\Tabwater;
 
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use App\Traits\BelongsToOrganization;
 
 class TwMeterType extends Model
 {
     use HasFactory;
+    use BelongsToOrganization;
 
     protected $table = 'tw_meter_types';
-    protected $fillable = ['id','meter_type_name', 'org_id_fk', 'description', 'metersize', 'status']; // ยังคงเหมือนเดิม
+    protected $fillable = ['id', 'meter_type_name', 'org_id_fk', 'description', 'metersize', 'status']; // ยังคงเหมือนเดิม
 
 
     // เพิ่ม Relationship เพื่อเชื่อมโยงกับ MeterTypeRateConfig
     public function rateConfigs()
     {
-        return $this->hasMany(MeterTypeRateConfig::class, 'meter_type_id', 'id');
+        return $this->hasMany(MeterTypeRateConfig::class, 'meter_type_id_fk', 'id');
     }
 
     /**
@@ -26,11 +28,11 @@ class TwMeterType extends Model
     public function currentRateConfig()
     {
         return $this->hasOne(MeterTypeRateConfig::class)
-                    ->where('is_active', true)
-                    ->where(function ($query) {
-                        $query->whereNull('end_date')
-                              ->orWhere('end_date', '>=', now());
-                    })
-                    ->orderBy('effective_date', 'desc'); // ดึงอันล่าสุด
+            ->where('is_active', true)
+            ->where(function ($query) {
+                $query->whereNull('end_date')
+                    ->orWhere('end_date', '>=', now());
+            })
+            ->orderBy('effective_date', 'desc'); // ดึงอันล่าสุด
     }
 }

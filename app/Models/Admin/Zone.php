@@ -5,10 +5,11 @@ namespace App\Models\Admin;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Facades\Auth;
-
+use App\Traits\BelongsToOrganization;
 class Zone extends Model
 {
     use HasFactory;
+    use BelongsToOrganization;
     protected $fillable = ["zone_name","org_id_fk", "tambon_id", "location","status"];
 
     public function subzone(){
