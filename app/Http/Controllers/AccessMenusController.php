@@ -23,14 +23,13 @@ class AccessMenusController extends Controller
         $user = Auth::user();
         // 1. เช็คว่าเป็น Staff หรือไม่? (แก้ 'role' และ 'staff' ให้ตรงกับ DB ของคุณ)
         // เช่น $user->type == 'employee' หรือ $user->is_staff
-         
+
         $isStaff = $user->hasAnyRole(['Recycle Bank Staff', 'Tabwater Staff']);
 
         // 2. เช็ค Session ก่อนเลย ว่าเคยถูกจำว่าเป็น mobile แล้วหรือยัง?
         if (Session::get('is_mobile') && $isStaff) {
              return redirect()->route('staff_accessmenu');
         }
-        return 'xx';
 
         // 3. ถ้ายังไม่มีใน Session ให้เช็คจาก User Agent
         $userAgent = $_SERVER['HTTP_USER_AGENT'] ?? '';
@@ -41,7 +40,7 @@ class AccessMenusController extends Controller
         if ($isStaff && $isMobileDevice) {
             // *** จำค่าลง Session ไว้เลย ***
             Session::put('is_mobile', true);
-            
+
             return redirect()->route('staff_accessmenu');
         }
 
@@ -54,14 +53,14 @@ public function dashboard(Request $request)
     // --- 1. เตรียม Object และ Controller ที่ต้องใช้ ---
     $apiUserCtrl = new UsersController();
     $reportCtrl = new ReportsController();
-    
+
     // ดึง org_id จาก User ที่ Login
     $org_id = Auth::user()->org_id_fk;
 
     // --- 2. ข้อมูลกราฟจำนวนสมาชิกแยกตาม Subzone ---
     $subzones = Zone::getOrgSubzone('array');
     $user_in_subzone_label = collect($subzones)->pluck('subzone_name');
-    
+
     $user_count = [];
     foreach ($subzones as $subzone) {
         $user_count[] = $apiUserCtrl->users_subzone_count($subzone['id']);
@@ -71,9 +70,9 @@ public function dashboard(Request $request)
         'labels' => $user_in_subzone_label,
         'data' => $user_count,
     ];
-    
+
     $user_count_sum = collect($user_count)->sum();
-    $subzone_count = count($subzones); 
+    $subzone_count = count($subzones);
 
     // --- 3. ข้อมูลกราฟปริมาณการใช้น้ำ ---
     $data = $reportCtrl->water_used($request, 'dashboard');
@@ -95,7 +94,7 @@ public function dashboard(Request $request)
     $endOfMonth   = Carbon::now()->endOfMonth();
 
     $zones = Zone::where('org_id_fk', $org_id)->get();
-    
+
     // เตรียมตัวแปร Array สำหรับใส่กราฟ
     $zone_labels = [];
     $zone_paid_data = [];
@@ -113,7 +112,7 @@ public function dashboard(Request $request)
 
         // เก็บข้อมูลทุกโซน (หรือจะกรองเฉพาะที่มีข้อมูลก็ได้ if $total_zone > 0)
         // แต่กราฟแท่งแสดงค่า 0 ได้ ไม่ error ครับ
-        if ($total_zone >= 0) { 
+        if ($total_zone >= 0) {
             $zone_labels[] = $zone->zone_name;
             $zone_paid_data[] = $paid_count;
             $zone_unpaid_data[] = $unpaid_count;
@@ -149,10 +148,10 @@ public function dashboard(Request $request)
         }
 
         $orgInfos = Organization::find(Auth::user()->org_id_fk);
-        
+
         $notifies_pending = TwNotifies::where('status', 'pending')->get();
         $notifies_pending_count = TwNotifies::where('status', 'pending')->count();
-        
+
         return view('staff_accessmenu', compact('orgInfos', 'notifies_pending', 'notifies_pending_count'));
     }
 }

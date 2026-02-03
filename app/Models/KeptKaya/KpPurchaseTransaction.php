@@ -15,7 +15,8 @@ class KpPurchaseTransaction extends Model
 
     protected $fillable = [
         'org_id_fk',
-        'kp_u_trans_no',        // เลขที่เอกสาร (Unique String)
+        'kp_u_trans_no',// เลขที่เอกสาร (Unique String)
+        'kiosk_id_fk',     
         'kp_user_w_pref_id_fk', // ลูกค้า
         'machine_id_fk',        // (Optional) เครื่องชั่ง
         'transaction_date',     // วันเวลา
@@ -46,7 +47,7 @@ class KpPurchaseTransaction extends Model
     {
         return $this->belongsTo(User::class, 'recorder_id', 'id');
     }
-    
+
     public function details()
     {
         // ตรวจสอบชื่อ FK ใน DB ให้ตรงกับ parameter ที่ 2

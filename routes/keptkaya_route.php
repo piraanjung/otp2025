@@ -41,21 +41,32 @@ use Firebase\JWT\Key;
 use Spatie\Permission\Models\Permission;
 use Spatie\Permission\Models\Role;
 use App\Http\Controllers\KeptKaya\AnnualReportController;
+use App\Http\Controllers\Kiosk\KioskController;
 
 Route::middleware(['auth'])->prefix('keptkayas')->name('keptkayas.')->group(function () {
-   Route::get('/korkor3', [KorKor3Controller::class, 'index'])->name('korkor3.index');
+    Route::resource('kiosks', KioskController::class);
+    Route::get('/kiosks/noscreen/login', [KioskController::class, 'login'])->name('kiosks.noscreen.login');
+    Route::post('/kiosks/noscreen/userMatchKiosk', [KioskController::class, 'userMatchKiosk']);
+    // หน้า Monitor ควบคุมตู้
+    Route::get('/kiosks/noscreen/monitor', [KioskController::class, 'monitor'])->name('kiosk.monitor');
+
+    // Route สำหรับกด Disconnect
+    Route::post('/kiosks/noscreen/disconnect', [KioskController::class, 'disconnect'])->name('kiosk.disconnect');
+    Route::post('/kiosks/noscreen/save-transaction', [KioskController::class, 'storeTransaction']);
+
+    Route::get('/korkor3', [KorKor3Controller::class, 'index'])->name('korkor3.index');
     Route::get('/korkor3/export', [KorKor3Controller::class, 'exportKorKor3'])->name('korkor3.export');
-   Route::prefix('/reports')->name('reports.')->group(function () {
-    Route::get('/', [AnnualReportController::class, 'index'])->name('index');
-    Route::get('/generate', [AnnualReportController::class, 'generate'])->name('generate');
-});
+    Route::prefix('/reports')->name('reports.')->group(function () {
+        Route::get('/', [AnnualReportController::class, 'index'])->name('index');
+        Route::get('/generate', [AnnualReportController::class, 'generate'])->name('generate');
+    });
 
     // 1. Dashboard (ย้ายเข้ามาใน Group ตัดคำว่า keptkayas/ ออก เพราะมี prefix แล้ว)
     // URL: /keptkayas/dashboard/{type} -> Name: keptkayas.dashboard
     Route::get('dashboard/{keptkayatype?}', [DashboardController::class, 'index'])->name('dashboard');
 
     // 2. Main Module Routes
-    Route::get('recycle_classify/index',[KpRecycleClassifyController::class, 'index'])->name('recycle_classify');
+    Route::get('recycle_classify/index', [KpRecycleClassifyController::class, 'index'])->name('recycle_classify');
 
     Route::get('scanner', function () {
         return view('keptkayas.barcode.scanner');
@@ -128,8 +139,8 @@ Route::middleware(['auth'])->prefix('keptkayas')->name('keptkayas.')->group(func
     });
     // หมายเหตุ: Routes ข้างล่างนี้อยู่นอก prefix /{w_user}/waste-bins แต่อยู่ใน keptkayas group
     Route::put('waste-bins/{waste_bin}', [WasteBinController::class, 'update'])->name('waste_bins.update');
-    Route::get('waste-bins/map', [WasteBinController::class, 'map'])->name('waste_bins.map'); 
-    Route::get('waste-bins/viewmap', [WasteBinController::class, 'viewmap'])->name('waste_bins.viewmap'); 
+    Route::get('waste-bins/map', [WasteBinController::class, 'map'])->name('waste_bins.map');
+    Route::get('waste-bins/viewmap', [WasteBinController::class, 'viewmap'])->name('waste_bins.viewmap');
 
     // 9. Annual Payments
     Route::prefix('annual-payments')->name('annual_payments.')->group(function () {
@@ -174,5 +185,4 @@ Route::middleware(['auth'])->prefix('keptkayas')->name('keptkayas.')->group(func
         Route::get('/{usergroup_id}/infos', [KpUserGroupController::class, 'infos'])->name('usergroup.infos');
         Route::resource('/', KpUserGroupController::class);
     });
-
 }); // End Main Group

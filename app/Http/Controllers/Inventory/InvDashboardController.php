@@ -1,7 +1,7 @@
 <?php
 
-namespace App\Http\Controllers;
-
+namespace App\Http\Controllers\Inventory;
+use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
 use App\Models\InvItem;
 use App\Models\InvItemDetail;
@@ -20,11 +20,11 @@ class InvDashboardController extends Controller
 
         // 1. ตัวเลขสรุป (Cards)
         $totalItems = InvItem::where('org_id_fk', $orgId)->count(); // จำนวน SKU ทั้งหมด
-        
+
         $totalBottles = InvItemDetail::whereHas('item', function($q) use ($orgId) {
             $q->where('org_id_fk', $orgId);
         })->where('status', 'ACTIVE')->count(); // จำนวนขวดที่มีของ
-        
+
         // ของใกล้หมดอายุใน 30 วัน
         $expiringSoon = InvItemDetail::whereHas('item', function($q) use ($orgId) {
             $q->where('org_id_fk', $orgId);
@@ -57,7 +57,7 @@ class InvDashboardController extends Controller
         }
 
         return view('inventory.inv_dashboard', compact(
-            'totalItems', 'totalBottles', 'expiringSoon', 
+            'totalItems', 'totalBottles', 'expiringSoon',
             'recentTransactions', 'labels', 'data'
         ));
     }

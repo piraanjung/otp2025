@@ -13,9 +13,10 @@ class InvItem extends Model
     protected $table = 'inv_items';
 
     protected $fillable = [
-        'org_id_fk', 'inv_category_id_fk', 'name', 'code', 
-        'min_stock', 'unit', 'is_chemical', 'return_required', 
-        'image_path', 'cas_number', 'expire_date'
+        'org_id_fk', 'inv_category_id_fk', 'name', 'code',
+        'min_stock', 'unit', 'is_chemical', 'return_required',
+        'image_path', 'cas_number', 'expire_date',
+        'msds_link', // <--- เพิ่มตรงนี้
     ];
 
     // ✅ เชื่อมกลับไปหา Organization เดิม

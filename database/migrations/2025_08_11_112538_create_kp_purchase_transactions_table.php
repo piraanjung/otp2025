@@ -16,6 +16,7 @@ return new class extends Migration
             $table->string('kp_u_trans_no')->unique(); // เลขที่ธุรกรรม (เช่น T-0001)
             $table->foreignId('kp_user_w_pref_id_fk')->constrained('kp_user_waste_preferences')->onDelete('cascade'); // ผู้ขาย (สมาชิก Keptkaya)
             $table->foreignId('machine_id_fk')->constrained('machines')->defualt(0)->onDelete('cascade'); // ผู้ขาย (สมาชิก Keptkaya)
+            $table->foreignId('kiosk_id_fk')->constrained('kiosks')->defualt(0)->onDelete('cascade'); // ผู้ขาย (สมาชิก Keptkaya)
             $table->date('transaction_date');
             $table->decimal('total_weight', 10, 2)->default(0.00); // น้ำหนักรวม
             $table->decimal('total_amount', 10, 2)->default(0.00); // ยอดรวมเป็นเงิน

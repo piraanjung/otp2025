@@ -1,7 +1,8 @@
 <?php
 
-namespace App\Http\Controllers;
+namespace App\Http\Controllers\Kiosk;
 
+use App\Http\Controllers\Controller;
 use App\Models\KeptKaya\KPAccounts;
 use App\Models\KeptKaya\KpPurchaseTransaction;
 use App\Models\KeptKaya\KpPurchaseTransactionDetail;
@@ -93,7 +94,7 @@ class KioskApiController extends Controller
         $items = $request->input('items'); // { "btmc_PET600": {count: 1, score: 10}, ... }
         $frontendTotalScore = $request->input('total_score');
         $recorderId = $request->input('kiosk_id', 999);
-        
+
         DB::beginTransaction(); // เริ่ม Transaction Database เพื่อความปลอดภัย
         try {
             // 2. หา User จากเบอร์โทร
@@ -119,14 +120,14 @@ class KioskApiController extends Controller
             foreach ($items as $label => $data) {
                 // *** สำคัญ: ต้อง Map จาก AI Label ("btmc_PET600") ไปหา Item ID ใน Database ***
                 // ตัวอย่าง: ค้นหาจากชื่อ หรือ Hardcode mapping ไว้
-                $recycleItem = $this->findItemByLabel($label); 
-                
+                $recycleItem = $this->findItemByLabel($label);
+
                 if ($recycleItem) {
                     $qty = intval($data['count']);
                     $points = intval($data['score']); // หรือจะคำนวณใหม่จาก $recycleItem->point * $qty ก็ได้
-                    
+
                     $totalPoints += $points;
-                    
+
                     // เตรียมข้อมูลสำหรับ loop บันทึก Detail
                     $cart[] = [
                         'kp_tbank_item_id'           => $recycleItem->id,
@@ -142,9 +143,9 @@ class KioskApiController extends Controller
 
             // 5. สร้าง Transaction Header (ตาม Logic ที่คุณให้มา)
             $wasteId = substr("0000", strlen($userWastePref->id)) . $userWastePref->id;
-            
+
             // Kiosk ส่วนใหญ่สะสมแต้มอย่างเดียว -> cash_back = 0
-            $cashBack = 0; 
+            $cashBack = 0;
 
             $transaction = KpPurchaseTransaction::create([
                 'kp_u_trans_no'        => 'T-' . Carbon::now()->format('ymdH') . $wasteId,
@@ -208,13 +209,13 @@ class KioskApiController extends Controller
         ];
 
         $id = $map[$label] ?? null;
-        
+
         if ($id) {
             // return object KpRecycleItem หรือ object จำลอง
             // ในที่นี้สมมติคืนค่าเป็น Object ที่มี id
             return (object) ['id' => $id, 'current_pricepoint_id' => 1, 'unit_name' => 'ชิ้น'];
         }
-        
+
         return null;
     }
 }

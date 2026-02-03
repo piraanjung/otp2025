@@ -53,7 +53,7 @@
     line-height: 50px;
     background: transparent;
     z-index: 1030;
-        min-height: 70px; 
+        min-height: 70px;
         background: transparent; /* หรือสีที่คุณต้องการ */
     }
   /* กรอบหลักสำหรับคลุมรูปและกล่องข้อความ */
@@ -162,9 +162,9 @@
     .main-container {
         /* เปลี่ยน margin-left เป็น 0 ตามที่คุณต้องการ */
         /* และผมแนะนำให้ลด margin-top ลงด้วยเพราะ 16rem (256px) สูงเกินไปสำหรับมือถือ */
-        
+
         margin: 16rem 0 0 0;  /* <-- โค้ดที่คุณต้องการ */
-        
+
         /* หรือถ้าอยากให้สวยบนมือถือ แนะนำให้ใช้แบบบรรทัดล่างนี้แทนครับ */
         /* margin: 4rem auto 0 auto;  */
     }
@@ -181,13 +181,13 @@
         .btn-hide, .btn-show-sidebar {
             display: none !important; /* ซ่อนปุ่ม Toggle บนมือถือ */
         }
-    
+
 
   /* CSS เพิ่มเติมสำหรับ Flat Design */
     .flat-section {
         background-color: #f8f9fa; /* สีพื้นหลังเทาอ่อนแบบเรียบ */
     }
-    
+
     .sectioner-header p {
         color: #6c757d;
     }
@@ -223,7 +223,7 @@
         border-radius: 10px;
         margin-right: 15px;
     }
-    
+
     /* สีไอคอนพื้นหลังแบบ Flat */
     .bg-flat-success { background-color: #2ecc71; color: white; }
     .bg-flat-info { background-color: #3498db; color: white; }
@@ -255,12 +255,11 @@
         font-weight: 600;
         font-size: 0.9rem;
     }
-  
+
 </style>
 </head>
 
 <body>
-
     <nav class="navbar navbar-expand-lg">
         <div class="container">
             <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarSupportedContent"
@@ -277,7 +276,7 @@
                     <li class="nav-item"> <a class="nav-link" href="#" data-scroll-nav="4">ธนาคารชุมชนออมทรัพย์</a> </li>
                     <li class="nav-item"> <a class="nav-link" href="#" data-scroll-nav="5">จัดเก็บค่าถังขยะรายปี</a> </li>
                     <li class="nav-item"> <a class="nav-link" href="#" data-scroll-nav="7">ติดต่อเรา</a> </li>
-                    <li class="nav-item"> <a class="nav-link" href="https://qa.envsogo.site/login">Login</a> </li>
+                    <li class="nav-item"> <a class="nav-link" href="{{ route('login') }}">Login</a> </li>
                 </ul>
             </div>
         </div>
@@ -301,7 +300,7 @@
         <div class="banner-overlay">
             <div class="container">
                 <div class="main-container centralized">
-                    
+
                     <div class="main-circle">
                         <div class="inner centralized" style="background-image: url('https://qa.envsogo.site/logo/ko_envsogo.png'); background-repeat: no-repeat; background-position: center;">
                         </div>
@@ -363,7 +362,7 @@
                 </div>
 
                 <div class="img-wrapper-relative">
-                    
+
                     <img src="https://qa.envsogo.site/imgs/tabwater.png" class="img-fluid w-100 d-block"  style="height: 700px !important" alt="Water System Diagram">
 
                     <button class="btn-show-sidebar" onclick="toggleSidebar()">
@@ -371,7 +370,7 @@
                     </button>
 
                     <div class="floating-sidebar" id="infoSidebar">
-                        
+
                         <div class="d-flex justify-content-between align-items-center mb-3">
                             <h5 class="m-0 text-dark font-weight-bold">ข้อมูลระบบ</h5>
                             <button class="btn-hide" onclick="toggleSidebar()">
@@ -395,7 +394,7 @@
                             <h6 class="text-warning mb-1"><i class="fa fa-file-invoice mr-2"></i>การเงิน & ใบแจ้งหนี้</h6>
                             <p class="small mb-0 text-secondary">ออกบิล, รับชำระ, ออกใบเสร็จ และตัดรอบบิลอัตโนมัติ</p>
                         </div>
-                        
+
                         <div class="mt-3">
                             <span class="flat-badge">Web-based</span>
                             <span class="flat-badge">Mobile Support</span>
@@ -436,7 +435,7 @@
                         <h3>ธนาคารขยะเปียก</h3>
                         <span class="line"></span>
                         <p>
-                            <span style="font-size: 2rem; font-weight:bold; color: black;">SmartWaste</span> 
+                            <span style="font-size: 2rem; font-weight:bold; color: black;">SmartWaste</span>
                             ถังหมัก AIroTrash และระบบธนาคารขยะเปียกครบวงจร
                         </p>
                     </div>
@@ -518,7 +517,7 @@
                     <div class="section-content">
                         <div class="row">
                             <div class="col-sm-12 col-md-12 col-lg-8">
-                                <form id="contact_form" name="aa" action="https://qa.envsogo.site/login" method="POST">
+                                <form id="contact_form" name="aa" action="#" method="POST">
                                     <input type="hidden" name="_token" value="GFH9pFIiiChM3gI3WyAQdYHyEktOPlpU2YlCMBet">
                                     <div class="row">
                                         <div class="col">
@@ -580,7 +579,7 @@
     <script src="https://cdn.jsdelivr.net/bxslider/4.2.12/jquery.bxslider.min.js"></script>
     <script src="https://qa.envsogo.site/Applight/js/scrollIt.min.js"></script>
     <script src="https://qa.envsogo.site/Applight/js/wow.min.js"></script>
-    
+
     <script>
         wow = new WOW();
         wow.init();
@@ -641,7 +640,7 @@
             });
         });
     </script>
-    
+
     <script>
         $(document).ready(function() {
             var bubbleList = $('.bubble-container');
@@ -660,10 +659,10 @@
         function toggleSidebar() {
         var sidebar = document.getElementById('infoSidebar');
         var showBtn = document.querySelector('.btn-show-sidebar');
-        
+
         // สลับ Class เพื่อเลื่อนกล่อง
         sidebar.classList.toggle('sidebar-hidden');
-        
+
         // จัดการการแสดงปุ่ม "ดูรายละเอียด"
         if (sidebar.classList.contains('sidebar-hidden')) {
             showBtn.style.display = 'block';
@@ -672,7 +671,7 @@
         }
     }
     </script>
-    
+
     {{-- <script defer="" src="https://static.cloudflareinsights.com/beacon.min.js/vcd15cbe7772f49c399c6a5babf22c1241717689176015" integrity="sha512-ZpsOmlRQV6y907TI0dKBHq9Md29nnaEIPlkf84rnaERnq6zvWvPUqr2ft8M1aS28oN72PdrCzSjY4U6VaAw1EQ==" data-cf-beacon="{&quot;version&quot;:&quot;2024.11.0&quot;,&quot;token&quot;:&quot;38d411edd0bb489997cfe0a5405644f9&quot;,&quot;r&quot;:1,&quot;server_timing&quot;:{&quot;name&quot;:{&quot;cfCacheStatus&quot;:true,&quot;cfEdge&quot;:true,&quot;cfExtPri&quot;:true,&quot;cfL4&quot;:true,&quot;cfOrigin&quot;:true,&quot;cfSpeedBrain&quot;:true},&quot;location_startswith&quot;:null}}" crossorigin="anonymous"></script> --}}
 
 </body>

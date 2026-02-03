@@ -22,7 +22,7 @@ class LineController extends Controller
 
     public function index(Request $request)
     {
-       return $provinces = Province::get(['id', 'province_name']);
+        $provinces = Province::get(['id', 'province_name']);
         return view('lineliff.index', compact('provinces'));
     }
     public function fine_line_id(Request $request)

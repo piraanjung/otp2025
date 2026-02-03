@@ -1,8 +1,9 @@
 <?php
 
-namespace App\Http\Controllers;
+namespace App\Http\Controllers\Inventory;
 
 use Illuminate\Http\Request;
+use App\Http\Controllers\Controller;
 use App\Models\InvCategory;
 use Illuminate\Support\Facades\Auth;
 
@@ -45,7 +46,7 @@ class InvCategoryController extends Controller
     public function destroy($id)
     {
         $category = InvCategory::findOrFail($id);
-        
+
         // ควรเช็คก่อนลบว่ามี Item ผูกอยู่ไหม? (เพื่อความปลอดภัย)
         if($category->items()->count() > 0) {
              return back()->with('error', 'ไม่สามารถลบได้ เนื่องจากมีพัสดุอยู่ในหมวดหมู่นี้');

@@ -9,7 +9,7 @@
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/css/bootstrap.min.css" rel="stylesheet"
         integrity="sha384-EVSTQN3/azprG1Anm3QDgpJLIm9Nao0Yz1ztcQTwFspd3yD65VohhpuuCOmLASjC" crossorigin="anonymous">
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
-    
+
     <script src="https://code.jquery.com/jquery-3.7.0.js"></script>
 
     <style>
@@ -34,9 +34,12 @@
             background: var(--bg);
             color: var(--fg);
             font-family: "Nunito", sans-serif;
-            min-height: 100vh; /* แก้จาก height: 100vh เพื่อให้ scroll ได้ */
-            display: block; /* เอา grid/place-items ออกเพื่อให้ layout มือถือปกติ */
-            padding-bottom: 2em; /* เผื่อที่ด้านล่าง */
+            min-height: 100vh;
+            /* แก้จาก height: 100vh เพื่อให้ scroll ได้ */
+            display: block;
+            /* เอา grid/place-items ออกเพื่อให้ layout มือถือปกติ */
+            padding-bottom: 2em;
+            /* เผื่อที่ด้านล่าง */
             overflow-x: hidden;
             -webkit-tap-highlight-color: transparent;
         }
@@ -58,7 +61,8 @@
         /* --- APP CONTAINER --- */
         .app {
             background: hsl(var(--hue), 10%, 85%);
-            border-radius: 0 0 2em 2em; /* โค้งแค่ด้านล่าง */
+            border-radius: 0 0 2em 2em;
+            /* โค้งแค่ด้านล่าง */
             padding: 1.5em;
             margin-bottom: 1.5em;
             min-height: 100vh;
@@ -70,7 +74,8 @@
             position: fixed;
             top: 20px;
             left: 20px;
-            z-index: 1030; /* อยู่เหนือ Content แต่อยู่ใต้ Modal */
+            z-index: 1030;
+            /* อยู่เหนือ Content แต่อยู่ใต้ Modal */
             width: 45px;
             height: 45px;
             border-radius: 50%;
@@ -115,10 +120,12 @@
             top: 0;
             left: -280px;
             width: 280px;
-            max-width: 85vw; /* กันไม่ให้เกินจอมือถือเล็ก */
+            max-width: 85vw;
+            /* กันไม่ให้เกินจอมือถือเล็ก */
             height: 100%;
             background: #ffffff;
-            z-index: 1045; /* อยู่เหนือ Backdrop แต่อยู่ใต้ Modal (Bootstrap Modal คือ 1055) */
+            z-index: 1045;
+            /* อยู่เหนือ Backdrop แต่อยู่ใต้ Modal (Bootstrap Modal คือ 1055) */
             transition: left 0.3s cubic-bezier(0.4, 0, 0.2, 1);
             box-shadow: 4px 0 15px rgba(0, 0, 0, 0.1);
             display: flex;
@@ -216,9 +223,11 @@
         /* --- DASHBOARD ELEMENTS --- */
         .header {
             display: flex;
-            justify-content: flex-end; /* ชิดขวา */
+            justify-content: flex-end;
+            /* ชิดขวา */
             margin-bottom: 1.5em;
-            margin-top: 1em; /* หลบปุ่มเมนู */
+            margin-top: 1em;
+            /* หลบปุ่มเมนู */
         }
 
         .header__profile-btn {
@@ -231,7 +240,7 @@
         .header__profile-icon {
             border-radius: 12px;
             object-fit: cover;
-            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
         }
 
         .header__info {
@@ -261,15 +270,17 @@
             width: 100%;
             transition: transform 0.2s;
             cursor: pointer;
-            position: relative; /* สำหรับจัด Layout ภายใน */
+            position: relative;
+            /* สำหรับจัด Layout ภายใน */
         }
 
         .main__stat-block:active {
-             transform: scale(0.98);
+            transform: scale(0.98);
         }
 
         .main__stat-block--lg {
-            grid-column: 1 / -1; /* เต็มความกว้าง */
+            grid-column: 1 / -1;
+            /* เต็มความกว้าง */
             padding: 1.5em;
         }
 
@@ -277,7 +288,8 @@
             position: relative;
             width: 100%;
             height: auto;
-            aspect-ratio: 1/1; /* ให้เป็นสี่เหลี่ยมจัตุรัส */
+            aspect-ratio: 1/1;
+            /* ให้เป็นสี่เหลี่ยมจัตุรัส */
             max-width: 120px;
             margin: 0 auto 0.5em;
         }
@@ -311,12 +323,13 @@
             font-size: 0.8em;
             color: hsl(var(--hue), 10%, 40%);
         }
-        
+
         /* SVG Rings */
         .ring {
             width: 100%;
             height: 100%;
         }
+
         .icon {
             position: absolute;
             top: 30%;
@@ -333,24 +346,53 @@
                 --fg: hsl(var(--hue), 66%, 94%);
                 --gradient: linear-gradient(145deg, hsl(var(--hue), 10%, 15%), hsl(var(--hue), 10%, 30%));
             }
-            .app { background: hsl(var(--hue), 10%, 20%); }
-            .modern-sidebar { background: #2d2d2d; color: #fff; }
-            .sidebar-link { color: #ccc; }
-            .sidebar-link:hover, .sidebar-link.active { background-color: #3d3d3d; color: var(--primary); }
-            .menu-trigger-btn { background: #333; color: #fff; }
-            .main__stat-block { 
+
+            .app {
+                background: hsl(var(--hue), 10%, 20%);
+            }
+
+            .modern-sidebar {
+                background: #2d2d2d;
+                color: #fff;
+            }
+
+            .sidebar-link {
+                color: #ccc;
+            }
+
+            .sidebar-link:hover,
+            .sidebar-link.active {
+                background-color: #3d3d3d;
+                color: var(--primary);
+            }
+
+            .menu-trigger-btn {
+                background: #333;
+                color: #fff;
+            }
+
+            .main__stat-block {
                 box-shadow: -0.5em -0.5em 1.5em hsl(var(--hue), 10%, 30%), 0.5em 0.5em 1.5em hsl(var(--hue), 5%, 5%);
             }
         }
+
         /* --- ANIMATION KEYFRAMES (เพิ่มส่วนนี้เพื่อให้วงกลมวิ่ง) --- */
-        
+
         /* 1. สร้างการเคลื่อนไหว (จากว่างเปล่า -> ไปยังค่าที่กำหนด) */
         @keyframes fill-ring-lg {
-            from { stroke-dashoffset: 515; } /* 515 คือเส้นรอบวงของวงใหญ่ */
+            from {
+                stroke-dashoffset: 515;
+            }
+
+            /* 515 คือเส้นรอบวงของวงใหญ่ */
         }
 
         @keyframes fill-ring-sm {
-            from { stroke-dashoffset: 163; } /* 163 คือเส้นรอบวงของวงเล็ก */
+            from {
+                stroke-dashoffset: 163;
+            }
+
+            /* 163 คือเส้นรอบวงของวงเล็ก */
         }
 
         /* 2. สั่งให้วงกลมเริ่มวิ่งเมื่อโหลดหน้า */
@@ -358,7 +400,7 @@
             /* วงใหญ่: วิ่ง 1.5 วินาที */
             animation: fill-ring-lg 1.5s ease-out forwards;
         }
-        
+
         .main__stat-graph:not(.main__stat-graph--filled) .ring-stroke {
             /* วงเล็ก (ถ้ามี): วิ่ง 1 วินาที */
             animation: fill-ring-sm 1s ease-out forwards;
@@ -371,40 +413,46 @@
         }
 
         /* ทำให้เส้นกราฟมีความโค้งมนที่ปลายเส้น */
-.ring-stroke {
-    stroke-linecap: round;
-    /* เพิ่มเงาเรืองแสงให้กราฟ */
-    filter: drop-shadow(0px 0px 4px rgba(55, 226, 213, 0.5)); 
-    transition: all 1s ease-out;
-}
+        .ring-stroke {
+            stroke-linecap: round;
+            /* เพิ่มเงาเรืองแสงให้กราฟ */
+            filter: drop-shadow(0px 0px 4px rgba(55, 226, 213, 0.5));
+            transition: all 1s ease-out;
+        }
 
-/* พื้นหลังรางวงกลม (สีเทาจางๆ) */
-.ring-track {
-    stroke: #f0f0f0; /* ปรับสีเทาให้อ่อนลงจะได้ดูสะอาดขึ้น */
-}
+        /* พื้นหลังรางวงกลม (สีเทาจางๆ) */
+        .ring-track {
+            stroke: #f0f0f0;
+            /* ปรับสีเทาให้อ่อนลงจะได้ดูสะอาดขึ้น */
+        }
 
-/* Animation การวิ่งของเส้น (ที่ให้ไปรอบที่แล้ว) */
-@keyframes fill-ring-lg {
-    from { stroke-dashoffset: 515; }
-}
-@keyframes fill-ring-sm {
-    from { stroke-dashoffset: 163; }
-}
+        /* Animation การวิ่งของเส้น (ที่ให้ไปรอบที่แล้ว) */
+        @keyframes fill-ring-lg {
+            from {
+                stroke-dashoffset: 515;
+            }
+        }
 
-.main__stat-graph--filled .ring-stroke {
-    animation: fill-ring-lg 1.5s ease-out forwards;
-}
+        @keyframes fill-ring-sm {
+            from {
+                stroke-dashoffset: 163;
+            }
+        }
+
+        .main__stat-graph--filled .ring-stroke {
+            animation: fill-ring-lg 1.5s ease-out forwards;
+        }
     </style>
 </head>
 
 <body id="body">
-<svg style="position: absolute; width: 0; height: 0; overflow: hidden;" aria-hidden="true">
+    <svg style="position: absolute; width: 0; height: 0; overflow: hidden;" aria-hidden="true">
         <defs>
             <linearGradient id="ring" x1="0%" y1="0%" x2="100%" y2="0%">
                 <stop offset="0%" stop-color="#37e2d5" />
                 <stop offset="100%" stop-color="#22a6b3" />
             </linearGradient>
-            
+
             <linearGradient id="green-ring" x1="0%" y1="0%" x2="100%" y2="0%">
                 <stop offset="0%" stop-color="#a8ff78" />
                 <stop offset="100%" stop-color="#78ffd6" />
@@ -419,10 +467,8 @@
 
     <div class="modern-sidebar" id="mainSidebar">
         <div class="sidebar-header">
-            <img src="https://profile.line-scdn.net/{{$userWastePref->user->image ?? ''}}" 
-                 onerror="this.src='https://via.placeholder.com/60'"
-                 alt="Profile"
-                 class="sidebar-avatar">
+            <img src="https://profile.line-scdn.net/{{$userWastePref->user->image ?? ''}}"
+                onerror="this.src='https://via.placeholder.com/60'" alt="Profile" class="sidebar-avatar">
             <div class="sidebar-user-info">
                 <h5 class="mb-0">{{$userWastePref->user->firstname ?? 'Guest'}}</h5>
                 <small>ยินดีต้อนรับ</small>
@@ -434,7 +480,7 @@
             <a href="#" class="sidebar-link active main_bottom_nav" data-id="recycle">
                 <i class="bi bi-house-door-fill"></i> หน้าหลัก (รีไซเคิล)
             </a>
-            
+
             <div class="sidebar-divider">บริการหลัก</div>
 
             <a href="#" class="sidebar-link main_bottom_nav" data-id="recycle">
@@ -472,10 +518,9 @@
 
         <header class="header">
             <button class="header__profile-btn" type="button">
-                <img class="header__profile-icon" 
-                     src="https://profile.line-scdn.net/{{$userWastePref->user->image ?? ''}}" 
-                     onerror="this.src='https://via.placeholder.com/78'"
-                     width="60" height="60">
+                <img class="header__profile-icon"
+                    src="https://profile.line-scdn.net/{{$userWastePref->user->image ?? ''}}"
+                    onerror="this.src='https://via.placeholder.com/78'" width="60" height="60">
             </button>
             <div class="header__info">
                 <div style="font-size: 1.4em; font-weight: bold;">{{$userWastePref->user->firstname ?? 'User'}}</div>
@@ -495,25 +540,24 @@
 
             <div class="kp div_recycle">
                 <h3 class="mb-3 text-center"><i class="bi bi-bank"></i> ธนาคารขยะรีไซเคิล</h3>
-                
+
                 <div class="main__stat-blocks">
                     <div class="main__stat-block main__stat-block--lg">
                         <div class="main__stat-graph main__stat-graph--filled">
                             <svg class="ring" viewBox="0 0 180 180">
-    <circle class="ring-track" cx="90" cy="90" r="82" fill="none" stroke-width="12" />
-    
-    <circle class="ring-stroke" cx="90" cy="90" r="82" fill="none" 
-            stroke="url(#ring)" 
-            stroke-width="12" 
-            stroke-dasharray="515" 
-            stroke-dashoffset="100" 
-            transform="rotate(-90,90,90)" />
-</svg>
+                                <circle class="ring-track" cx="90" cy="90" r="82" fill="none" stroke-width="12" />
+
+                                <circle class="ring-stroke" cx="90" cy="90" r="82" fill="none" stroke="url(#ring)"
+                                    stroke-width="12" stroke-dasharray="515" stroke-dashoffset="100"
+                                    transform="rotate(-90,90,90)" />
+                            </svg>
                             <div class="main__stat-detail">
-                                <strong class="main__stat-value">{{ $userWastePref->purchaseTransactions[0]->total_amount ?? '0.00' }}</strong>
+                                <strong
+                                    class="main__stat-value">{{ $userWastePref->purchaseTransactions[0]->total_amount ?? '0.00' }}</strong>
                                 <span class="main__stat-unit">บาท (คงเหลือ)</span>
                                 <div class="my-1"></div>
-                                <strong class="main__stat-value">{{ $userWastePref->purchaseTransactions[0]->total_points ?? '0.00' }}</strong>
+                                <strong
+                                    class="main__stat-value">{{ $userWastePref->purchaseTransactions[0]->total_points ?? '0.00' }}</strong>
                                 <span class="main__stat-unit">แต้มสะสม</span>
                             </div>
                         </div>
@@ -523,8 +567,9 @@
                 <div class="main__stat-blocks">
                     <div class="main__stat-block" data-bs-toggle="modal" data-bs-target="#qrcodeModal">
                         <div class="main__stat-graph">
-                             <svg class="ring" viewBox="0 0 60 60">
-                                <circle class="ring-track" cx="30" cy="30" r="26" fill="none" stroke="#e0e0e0" stroke-width="6" />
+                            <svg class="ring" viewBox="0 0 60 60">
+                                <circle class="ring-track" cx="30" cy="30" r="26" fill="none" stroke="#e0e0e0"
+                                    stroke-width="6" />
                             </svg>
                             <i class="bi bi-qr-code icon" style="font-size: 1.5rem;"></i>
                         </div>
@@ -533,10 +578,11 @@
                         </div>
                     </div>
 
-                    <a href="{{url('kiosk')}}" class="main__stat-block">
+                    <a href="{{url('keptkayas/kiosk/noscreen/login')}}" class="main__stat-block">
                         <div class="main__stat-graph">
                             <svg class="ring" viewBox="0 0 60 60">
-                                <circle class="ring-track" cx="30" cy="30" r="26" fill="none" stroke="#e0e0e0" stroke-width="6" />
+                                <circle class="ring-track" cx="30" cy="30" r="26" fill="none" stroke="#e0e0e0"
+                                    stroke-width="6" />
                             </svg>
                             <i class="bi bi-camera icon" style="font-size: 1.5rem;"></i>
                         </div>
@@ -548,7 +594,8 @@
                     <a href="{{route('keptkayas.shop.index')}}" class="main__stat-block">
                         <div class="main__stat-graph">
                             <svg class="ring" viewBox="0 0 60 60">
-                                <circle class="ring-track" cx="30" cy="30" r="26" fill="none" stroke="#e0e0e0" stroke-width="6" />
+                                <circle class="ring-track" cx="30" cy="30" r="26" fill="none" stroke="#e0e0e0"
+                                    stroke-width="6" />
                             </svg>
                             <i class="bi bi-cart icon" style="font-size: 1.5rem;"></i>
                         </div>
@@ -558,9 +605,10 @@
                     </a>
 
                     <a href="{{ route('keptkayas.recycle_classify') }}" class="main__stat-block">
-                         <div class="main__stat-graph">
+                        <div class="main__stat-graph">
                             <svg class="ring" viewBox="0 0 60 60">
-                                <circle class="ring-track" cx="30" cy="30" r="26" fill="none" stroke="#e0e0e0" stroke-width="6" />
+                                <circle class="ring-track" cx="30" cy="30" r="26" fill="none" stroke="#e0e0e0"
+                                    stroke-width="6" />
                             </svg>
                             <i class="bi bi-tags icon" style="font-size: 1.5rem;"></i>
                         </div>
@@ -577,16 +625,20 @@
                 <div class="main__stat-blocks">
                     <div class="main__stat-block main__stat-block--lg">
                         <div class="main__stat-graph">
-                             <svg class="ring" viewBox="0 0 180 180">
-                                <circle class="ring-track" cx="90" cy="90" r="82" fill="none" stroke="#e0e0e0" stroke-width="12" />
-                                <circle class="ring-stroke" cx="90" cy="90" r="82" fill="none" stroke="hsl(3, 90%, 55%)" stroke-width="12" 
-                                        stroke-dasharray="515" stroke-dashoffset="200" transform="rotate(-90,90,90)" />
+                            <svg class="ring" viewBox="0 0 180 180">
+                                <circle class="ring-track" cx="90" cy="90" r="82" fill="none" stroke="#e0e0e0"
+                                    stroke-width="12" />
+                                <circle class="ring-stroke" cx="90" cy="90" r="82" fill="none" stroke="hsl(3, 90%, 55%)"
+                                    stroke-width="12" stroke-dasharray="515" stroke-dashoffset="200"
+                                    transform="rotate(-90,90,90)" />
                             </svg>
                             <div class="main__stat-detail">
-                                <strong class="main__stat-value">{{ $userWastePref->purchase_transactions[0]->total_amounts ?? '0.00' }}</strong>
+                                <strong
+                                    class="main__stat-value">{{ $userWastePref->purchase_transactions[0]->total_amounts ?? '0.00' }}</strong>
                                 <span class="main__stat-unit">Kg (ปี 2568)</span>
                                 <div class="my-1"></div>
-                                <strong class="main__stat-value">{{ $userWastePref->purchase_transactions[0]->total_points ?? '0.00' }}</strong>
+                                <strong
+                                    class="main__stat-value">{{ $userWastePref->purchase_transactions[0]->total_points ?? '0.00' }}</strong>
                                 <span class="main__stat-unit">แต้มสะสม</span>
                             </div>
                         </div>
@@ -594,9 +646,11 @@
                 </div>
 
                 <div class="main__stat-blocks">
-                    <div class="main__stat-block" data-bs-toggle="modal" data-bs-target="#qrcodeModal"> <div class="main__stat-graph">
+                    <div class="main__stat-block" data-bs-toggle="modal" data-bs-target="#qrcodeModal">
+                        <div class="main__stat-graph">
                             <svg class="ring" viewBox="0 0 60 60">
-                                <circle class="ring-track" cx="30" cy="30" r="26" fill="none" stroke="#e0e0e0" stroke-width="6" />
+                                <circle class="ring-track" cx="30" cy="30" r="26" fill="none" stroke="#e0e0e0"
+                                    stroke-width="6" />
                             </svg>
                             <i class="bi bi-exclamation-triangle icon" style="font-size: 1.5rem; color: orange;"></i>
                         </div>
@@ -608,7 +662,8 @@
                     <a href="{{route('keptkayas.shop.index')}}" class="main__stat-block">
                         <div class="main__stat-graph">
                             <svg class="ring" viewBox="0 0 60 60">
-                                <circle class="ring-track" cx="30" cy="30" r="26" fill="none" stroke="#e0e0e0" stroke-width="6" />
+                                <circle class="ring-track" cx="30" cy="30" r="26" fill="none" stroke="#e0e0e0"
+                                    stroke-width="6" />
                             </svg>
                             <i class="bi bi-book icon" style="font-size: 1.5rem;"></i>
                         </div>
@@ -652,9 +707,9 @@
         </div>
     </div>
 
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/js/bootstrap.bundle.min.js" 
-            integrity="sha384-MrcW6ZMFYlzcLA8Nl+NtUVF0sA7MsXsP1UyJoMp4YLEuNSfAP+JcXn/tWtIaxVXM" 
-            crossorigin="anonymous"></script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/js/bootstrap.bundle.min.js"
+        integrity="sha384-MrcW6ZMFYlzcLA8Nl+NtUVF0sA7MsXsP1UyJoMp4YLEuNSfAP+JcXn/tWtIaxVXM"
+        crossorigin="anonymous"></script>
 
     <script>
         $(document).ready(function () {
@@ -696,15 +751,16 @@
                 setTimeout(() => {
                     // Hide all sections
                     $('.kp').addClass('hidden');
-                    
+
                     // Show target section with simple fade
                     $('.div_' + div_id).removeClass('hidden').hide().fadeIn(300);
-                    
+
                     // Scroll to top
                     window.scrollTo(0, 0);
-                }, 300); 
+                }, 300);
             });
         });
     </script>
 </body>
+
 </html>

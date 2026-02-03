@@ -10,15 +10,15 @@ use App\Http\Controllers\Admin\SuperAdminAuthController;
 use App\Http\Controllers\Admin\SuperUserController;
 use App\Http\Controllers\Admin\UserController;
 use App\Http\Controllers\Admin\ZoneController;
-use App\Http\Controllers\InvCategoryController;
-use App\Http\Controllers\InvDashboardController;
-use App\Http\Controllers\InvHazardLevelController;
-use App\Http\Controllers\InvItemController;
-use App\Http\Controllers\InvStockController;
-use App\Http\Controllers\InvTransactionController;
-use App\Http\Controllers\InvUnitController;
+use App\Http\Controllers\Inventory\InvCategoryController;
+use App\Http\Controllers\Inventory\InvDashboardController;
+use App\Http\Controllers\Inventory\InvHazardLevelController;
+use App\Http\Controllers\Inventory\InvItemController;
+use App\Http\Controllers\Inventory\InvStockController;
+use App\Http\Controllers\Inventory\InvTransactionController;
+use App\Http\Controllers\Inventory\InvUnitController;
 use App\Http\Controllers\KeptKaya\MachineController;
-use App\Http\Controllers\KioskApiController;
+use App\Http\Controllers\Kiosk\KioskApiController;
 use App\Http\Controllers\Tabwater\CutmeterController;
 use App\Http\Controllers\Tabwater\BudgetYearController;
 use App\Http\Controllers\Tabwater\InvoicePeriodController;
@@ -44,6 +44,7 @@ use App\Http\Controllers\Tabwater\TwPricingTypeController;
 use App\Http\Controllers\Tabwater\UndertakerSubzoneController;
 use App\Models\User;
 
+
 Route::get('/', function () {
     return view('welcome');
 
@@ -55,6 +56,8 @@ Route::get('/kiosk_login', function () {
 Route::post('/api/check_member', [KioskApiController::class, 'checkMember']);
 Route::post('/api/save_session', [KioskApiController::class, 'saveSession']);
 Route::get('/kiosk', [KioskApiController::class, 'index']);
+
+
 
 
 // Route สำหรับหน้า Web App หลัก (ต้องเปิดด้วยโทรศัพท์ User)
@@ -131,8 +134,8 @@ Route::prefix('tabwater/staff/mobile/')->name('tabwater.staff.mobile.')->group(f
     Route::get('{meter_id}/meter_reading',[ StaffMobileController::class, 'meter_reading'])->name('meter_reading');
     Route::post('process-meter-image', [StaffMobileController::class, 'process_meter_image'])->name('process_meter_image');
     Route::resource('/',StaffMobileController::class);
-   
-   
+
+
 });
 
 Route::prefix('tabwater/notify')->name('tabwater.notify.')->group(function () {
@@ -145,7 +148,7 @@ Route::get('twmanmobile/main', [TwManMobileController::class, 'main'])->name('tw
 Route::get('twmanmobile/edit_members_subzone_selected', [TwManMobileController::class, 'edit_members_subzone_selected'])->name('twmanmobile.edit_members_subzone_selected');
 
 
- 
+
 Route::middleware(['auth', 'role:Admin|Super Admin'])->name('admin.')->prefix('admin')->group(function () {
     Route::get('/register', [UserController::class, 'showRegistrationForm'])->name('register');
     Route::post('/register', [UserController::class, 'register']);
@@ -180,10 +183,10 @@ Route::middleware(['auth', 'role:Admin|Super Admin'])->name('admin.')->prefix('a
         Route::delete('{user}/roles/{role}', [UserController::class, 'removeRole'])->name('roles.remove');
         Route::get('{user_id}/permissions', [UserController::class, 'givePermission'])->name('permissions');
         Route::delete('{user}/permissions/{permission}', [UserController::class, 'revokePermission'])->name('permissions.revoke');
-        
+
 
     });
-    
+
     Route::resource('/invoice_period', InvoicePeriodController::class);
     Route::get('/metertype/{metertype_id}/infos', [MetertypeController::class, 'infos'])->name('metertype.infos');
 
@@ -269,9 +272,9 @@ Route::middleware(['auth', 'role:Admin|finance|Super Admin'])->group(function ()
 
         Route::resource('', PaymentController::class);
     });
-    
 
-    
+
+
 
     Route::prefix('reports/')->name('reports.')->group(function(){
         Route::post('export', [ReportsController::class, 'export'])->name('export');
@@ -332,7 +335,7 @@ Route::middleware(['auth'])->group(function () {
 
 
 Route::middleware(['auth'])->prefix('inventory')->name('inventory.')->group(function () {
-    
+
     // หน้า Dashboard รวม (ที่เราทำไป Phase 1)
     Route::get('/dashboard', [InvDashboardController::class, 'index'])->name('dashboard');
 
@@ -342,7 +345,10 @@ Route::middleware(['auth'])->prefix('inventory')->name('inventory.')->group(func
     Route::post('/items', [InvItemController::class, 'store'])->name('items.store');
 
     Route::get('/stock/receive/{id}', [InvStockController::class, 'receiveForm'])->name('stock.receive');
+    Route::get('download-template', [InvItemController::class, 'downloadTemplate'])->name('items.template');
 
+    // Route สำหรับ process การ import
+    Route::post('import', [InvItemController::class, 'import'])->name('items.import');
     // ฟังก์ชันบันทึกการรับของ
     Route::post('/stock/receive', [InvStockController::class, 'storeReceive'])->name('stock.store_receive');
     Route::get('/stock/withdraw/{item_id}', [InvTransactionController::class, 'withdrawForm'])->name('withdraw.form');

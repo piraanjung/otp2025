@@ -14,9 +14,10 @@ use App\Http\Controllers\Api\IoTBoxDataController;
 use App\Http\Controllers\Api\OcrController;
 use App\Http\Controllers\FunctionsController;
 use App\Http\Controllers\Api\FunctionsController as apiFunctionsController;
+use App\Http\Controllers\Api\KioskController;
 use App\Http\Controllers\ImageController;
 use App\Http\Controllers\KeptKaya\MachineController;
-use App\Http\Controllers\KioskApiController;
+use App\Http\Controllers\Kiosk\KioskApiController;
 use Illuminate\Support\Facades\Log;
 
 Route::get('/testget', function(){
@@ -30,6 +31,17 @@ Route::post('/testpost', function(Request $request){
         'sensor' => $request->sensor
     ]);
 });
+
+Route::get('/kiosk/index', [KioskController::class, 'index']);
+Route::post('/kiosk/upload', [KioskController::class, 'upload']);
+Route::get('/kiosk/activate', [KioskController::class, 'activateKiosk']);
+Route::get('/kiosk/ready', [KioskController::class, 'setReady']);
+Route::get('/kiosk/object-detected', [KioskController::class, 'objectDetected']);
+Route::get('/kiosk/check-command', [KioskController::class, 'checkCommand']);
+Route::get('/kiosk/drop-object', [KioskController::class, 'dropObject']);
+Route::get('/kiosk/sleep', [KioskController::class, 'sleepMode']);
+Route::post('/kiosk/save-transaction', [KioskController::class, 'saveTransaction']);
+
 
 // Endpoint สำหรับ Frontend (Browser) เพื่อส่งคำสั่ง "Start" ไปยัง ESP8266
 Route::post('/device/start-sale', [DeviceController::class, 'startSale']);
@@ -75,7 +87,7 @@ Route::middleware(['throttle:api'])->name('api.')->group(function () {
         Route::get('/get_members_subzone_infos/{zone_id}', 'Api\SubzoneController@get_members_subzone_infos');
         Route::get('/get_members_last_inactive_invperiod/{zone_id}', 'Api\SubzoneController@get_members_last_inactive_invperiod');
         Route::get('/get_subzones_in_zone/{zone_id}', [SubzoneController::class, 'get_subzones_in_zone']);
-        
+
     });
 
     Route::prefix('zone')->group(function () {
@@ -141,7 +153,7 @@ Route::middleware(['throttle:api'])->name('api.')->group(function () {
     Route::prefix('owepaper')->group(function () {
         Route::get('/testIndex', [OwepaperController::class, 'testIndex']);
     });
-    
+
     Route::get('/get_districts/{province_id}', [apiFunctionsController::class,'getDistricts']);
     Route::get('/get_tambons/{district_id}', [FunctionsController::class,'getTambons']);
     Route::get('/get_org/{tambon_id}', [FunctionsController::class,'get OrgName']);
@@ -169,7 +181,7 @@ Route::post('/kiosk/upload-log', [KioskApiController::class, 'uploadTransactionL
 // Route สำหรับรับไฟล์ภาพ (ใช้โดย ESP32-CAM ช่วงกลางคืน)
 Route::post('/kiosk/upload-image', [KioskApiController::class, 'uploadImage'])->name('uploadImage');
 
-    // Route::prefix('cutmeter')->group(function () {      
+    // Route::prefix('cutmeter')->group(function () {
     //     Route::get('/index/{zone_id?}/{subzone_id?}', [CutmeterController::class,'index']);
     //     Route::get('/owe', 'Api\CutmeterController@owe');
     //     Route::get('/get_reciepting', 'Api\CutmeterController@get_reciepting');

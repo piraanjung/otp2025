@@ -945,7 +945,7 @@ body {
           phone_div.classList.remove('hidden')
         }
         if (data.res == 1) {
-        //   window.location.href = '/line/dashboard/' + data.waste_pref_id+'/'+data.org_id;
+          window.location.href = '/line/dashboard/' + data.waste_pref_id+'/'+data.org_id;
         }
       })
 
