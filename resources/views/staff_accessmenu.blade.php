@@ -1,193 +1,455 @@
-<!DOCTYPE html>
-<html lang="en">
+@extends('layouts.keptkaya_mobile')
 
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Document</title>
-        <link href="https://fonts.googleapis.com/css2?family=Sarabun:ital,wght@0,500;0,700;1,400;1,500&display=swap">
-
+@section('style')
     <style>
-        body {
-            margin: 0;
-            font-family: "Sarabun", sans-serif;
-
-            min-height: 100vh;
-            position: relative;
-            background: radial-gradient(ellipse at center, rgba(139, 143, 145, 1) 0%, rgba(111, 113, 113, 1) 47%, rgba(63, 63, 65, 1) 100%);
-        }
-
-        .legend {
-            /* position: absolute; */
+        .my-icon {
+            font-size: 2rem;
             color: white;
-            left: 45vh;
-            /* top: 3vh; */
-            text-align: right;
-            width: 40vh;
-            font-size: 6vh;
-            /* font-family: 'Raleway', cursive; */
+            background: blue;
+            border-radius: 50% 50%;
+            padding: 10px
         }
-
-        .legend-top {
-            font-weight: 800;
-            border-bottom: solid 1px white;
-            float: right;
-        }
-
-        .legend-bottom {
-            font-weight: 300;
-            clear: both;
-        }
-
-        .item {
-            border: solid 4vh #d1d81e;
-            border-radius: 100%;
-            position: absolute;
-            box-shadow: #000 0 0 15px;
-            background-color: white;
-            display: flex;
-            flex-direction: column;
-            text-align: center;
-        }
-        .item:hover{
-            border: solid 5vh #d1d81e;
-            box-shadow: #cc0c0c 0 0 15px;
-
-        }
-
-        .value {
-            display: flex;
-            flex-grow: 1;
-            /* font-family: 'Rubik'; */
-            font-weight: bold;
-            align-items: flex-end;
-            justify-content: center;
-        }
-
-        /* .value span {
-            vertical-align: baseline;
-        }
-
-        .value small {
-            font-size: .3em;
-            line-height: 1em;
-        } */
-
-        .title {
-            flex-grow: 1;
-            align-items: flex-end;
-            justify-content: center;
-        }
-
-        .title i {
-            display: block;
-            font-size: 1.4em;
-        }
-
-        #first {
-            left: 1vh;
-            top: 20vh;
-            width: 30vh;
-            height: 30%;
-            z-index: 1;
-        }
-
-        #first .value {
-            font-size: 2rem;
-        }
-
-        #first .title {
-            font-size: 4vh;
-        }
-
-        #second {
-            left: 15vh;
-            top: 53vh;
-            width: 25vh;
-            height: 25%;
-            z-index: 2;
-        }
-
-        #second .value {
-            font-size: 2rem;
-        }
-
-        #second .title {
-            font-size: 3vh;
-        }
-        a{
-            color: #000
-        }
-
-        #third {
-            left: 1vh;
-            top: 78vh;
-            width: 20vh;
-            height: 20%;
-            z-index: 3;
-        }
-
-        #third .value {
-            font-size: 2rem;
-        }
-
-        #third .title {
-            font-size: 2.5vh;
-        }
-        /* สำหรับจอใหญ่ */
-.my-button:hover {
-    background-color: #f0f0f0;
-}
-
-/* สำหรับจอมือถือ */
-@media (pointer: coarse) {
-  .my-button:hover {
-    /* ไม่ต้องทำอะไร */
-  }
-  .my-button:active {
-    background-color: #f0f0f0;
-  }
-}
     </style>
-</head>
+@endsection
 
-<body>
-    <div id='container'>
-        <div class='legend' id="myElement">
-            <div class='legend-top my-button'>เจ้าหน้าที่</div>
-            <div class='legend-bottom'>ANDROID</div>
-        </div>
-        <a href="{{ route('keptkaya.purchase.select_user') }}">
-        <div id='first' class='item'>
-            <div class='value'>
-                <div>ธนาคารขยะ<br>รีไซเคิล</div>
-            </div>
-            <div class='title'> <i class="fa fa-trash"></i> </div>
-        </div>
-        </a>
-        <div id='second' class='item'>
-            <div class='value'>
-                <div>จดมิเตอร์<br>ประปา</div>
-            </div>
-            <div class='title'> <i class="fa fa-film" aria-hidden="true"></i> </div>
-        </div>
-        <div id='third' class='item'>
-            <div class='value'>
-                <div>ธนาคารขยะ<br>เปียก</div>
-            </div>
-            <div class='title'> <i class="fa fa-music" aria-hidden="true"></i> </div>
-        </div>
-</body>
+@section('content')
 
-</html>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.6.1/jquery.min.js"></script>
+    <div class="container-fluid">
+        <div class="accordion-1">
+            <div class="container">
+                <div class="row">
+                    <div class="col-md-6 mx-auto text-center">
+                        <img src="{{ asset('logo/ko_envsogo.png') }}" width="50%">
+                        <h2>ENVSOGO::STAFF</h2>
+                        {{-- <p>A lot of people don’t appreciate the moment until it’s passed. I'm not trying my hardest,
+                            and I'm not trying to do </p> --}}
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="col-md-10 mx-auto">
+                        <div class="accordion" id="accordionRental">
+                            <div class="accordion-item mb-3">
+                                <h5 class="accordion-header" id="headingOne">
+                                    <button class="accordion-button border-bottom font-weight-bold collapsed" type="button"
+                                        data-bs-toggle="collapse" data-bs-target="#collapseOne" aria-expanded="false"
+                                        aria-controls="collapseOne">
+                                        ธนาคารขยะรีไซเคิล
+                                        <i class="collapse-close fa fa-plus text-xs pt-1 position-absolute end-0 me-3"
+                                            aria-hidden="true"></i>
+                                        <i class="collapse-open fa fa-minus text-xs pt-1 position-absolute end-0 me-3"
+                                            aria-hidden="true"></i>
+                                    </button>
+                                </h5>
+                                <div id="collapseOne" class="accordion-collapse collapse" aria-labelledby="headingOne"
+                                    data-bs-parent="#accordionRental" style="">
+                                    <div class="accordion-body text-sm opacity-8">
+                                        <div class="row">
+                                            <div class="col-lg-6 col-sm-6">
+                                                <div class="card  mb-4">
+                                                    <div class="card-body p-3">
+                                                        <div class="row">
+                                                            <div class="col-8">
+                                                                <div class="numbers">
+                                                                    <p
+                                                                        class="text-sm mb-0 text-capitalize font-weight-bold">
+                                                                        Today's Money</p>
+                                                                    <h5 class="font-weight-bolder mb-0">
+                                                                        รับซื้อขยะรีไซเคิล
+                                                                        {{-- <span
+                                                                            class="text-success text-sm font-weight-bolder">+55%</span>
+                                                                        --}}
+                                                                    </h5>
+                                                                </div>
+                                                            </div>
+                                                            <div class="col-4 text-end">
+                                                                <a href="{{route('keptkayas.purchase.select_user')}}">
+                                                                    <div
+                                                                        class="icon icon-shape bg-primary shadow text-center border-radius-md">
+                                                                        <i class="ni ni-money-coins text-lg opacity-10"
+                                                                            aria-hidden="true"></i>
+                                                                    </div>
+                                                                </a>
+                                                            </div>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                                <div class="card ">
+                                                    <div class="card-body p-3">
+                                                        <div class="row">
+                                                            <div class="col-8">
+                                                                <div class="numbers">
+                                                                    <p
+                                                                        class="text-sm mb-0 text-capitalize font-weight-bold">
+                                                                        Today's Users</p>
+                                                                    <h5 class="font-weight-bolder mb-0">
+                                                                        ราคาขยะรีไซเคิล
+                                                                        {{-- <span
+                                                                            class="text-success text-sm font-weight-bolder">+3%</span>
+                                                                        --}}
+                                                                    </h5>
+                                                                </div>
+                                                            </div>
+                                                            <div class="col-4 text-end">
+                                                                <div
+                                                                    class="icon icon-shape bg-primary shadow text-center border-radius-md">
+                                                                    <i class="ni ni-world text-lg opacity-10"
+                                                                        aria-hidden="true"></i>
+                                                                </div>
+                                                            </div>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                            <div class="col-lg-6 col-sm-6 mt-sm-0 mt-4">
+                                                <div class="card  mb-4">
+                                                    <div class="card-body p-3">
+                                                        <div class="row">
+                                                            <div class="col-9">
+                                                                <div class="numbers">
+                                                                    <p
+                                                                        class="text-sm mb-0 text-capitalize font-weight-bold">
+                                                                        New Clients</p>
+                                                                    <h5 class="font-weight-bolder mb-0">
+                                                                        วิธีคัดแยกขยะรีไซเคิล
+                                                                        {{-- <span
+                                                                            class="text-danger text-sm font-weight-bolder">-2%</span>
+                                                                        --}}
+                                                                    </h5>
+                                                                </div>
+                                                            </div>
+                                                            <div class="col-3 text-end">
+                                                                <div
+                                                                    class="icon icon-shape bg-primary shadow text-center border-radius-md">
+                                                                    <i class="ni ni-paper-diploma text-lg opacity-10"
+                                                                        aria-hidden="true"></i>
+                                                                </div>
+                                                            </div>
+                                                        </div>
+                                                    </div>
+                                                </div>
 
-<script>
-//     const myElement = document.getElementById('myElement');
-// myElement.addEventListener('touchstart', function() {
-//     this.classList.add('hover-effect');
-// });
-// myElement.addEventListener('touchend', function() {
-//     this.classList.remove('hover-effect');
-// });
-</script>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="accordion-item mb-3">
+                                <h5 class="accordion-header" id="headingTwo">
+                                    <button class="accordion-button border-bottom font-weight-bold" type="button"
+                                        data-bs-toggle="collapse" data-bs-target="#collapseTwo" aria-expanded="false"
+                                        aria-controls="collapseTwo">
+                                        <div style="position: absolute; top: 0; background-color: red;
+                                        padding-left:8px;padding-right:8px; border-radius: 15px;left:5rem">
+                                            {{ $notifies_pending_count }}
+                                        </div>
+                                        ประปา
+                                        <i class="collapse-close fa fa-plus text-xs pt-1 position-absolute end-0 me-3"
+                                            aria-hidden="true"></i>
+                                        <i class="collapse-open fa fa-minus text-xs pt-1 position-absolute end-0 me-3"
+                                            aria-hidden="true"></i>
+                                    </button>
+                                </h5>
+                                <div id="collapseTwo" class="accordion-collapse collapse" aria-labelledby="headingTwo"
+                                    data-bs-parent="#accordionRental">
+                                    <div class="accordion-body text-sm opacity-8">
+                                        <div class="row">
+                                            <div class="col-lg-6 col-sm-6">
+                                                <div class="card  mb-4">
+                                                    <div class="card-body p-3">
+                                                        <div class="row">
+                                                            <div class="col-8">
+                                                                <a href="{{ route('twmanmobile.main') }}">
+                                                                    <div class="numbers">
+                                                                        <p
+                                                                            class="text-sm mb-0 text-capitalize font-weight-bold">
+                                                                            Today's Money</p>
+                                                                        <h5 class="font-weight-bolder mb-0">
+                                                                            จดมิเตอร์ประปา
+                                                                            <span
+                                                                                class="text-success text-sm font-weight-bolder">+55%</span>
+                                                                        </h5>
+                                                                    </div>
+                                                                </a>
+                                                            </div>
+                                                            <div class="col-4 text-end">
+                                                                <div
+                                                                    class="icon icon-shape bg-primary shadow text-center border-radius-md">
+                                                                    <i class="ni ni-money-coins text-lg opacity-10"
+                                                                        aria-hidden="true"></i>
+                                                                </div>
+                                                            </div>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                                <div class="card ">
+                                                    <div class="card-body p-3">
+                                                        <div class="row">
+                                                            <div class="col-8">
+                                                                <div class="numbers">
+                                                                    <p
+                                                                        class="text-sm mb-0 text-capitalize font-weight-bold">
+                                                                        Today's Users</p>
+                                                                    <h5 class="font-weight-bolder mb-0">
+                                                                        ตัดมิเตอร์
+                                                                        <span
+                                                                            class="text-success text-sm font-weight-bolder">+3%</span>
+                                                                    </h5>
+                                                                </div>
+                                                            </div>
+                                                            <div class="col-4 text-end">
+                                                                <div
+                                                                    class="icon icon-shape bg-primary shadow text-center border-radius-md">
+                                                                    <i class="ni ni-world text-lg opacity-10"
+                                                                        aria-hidden="true"></i>
+                                                                </div>
+                                                            </div>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                            <div class="col-lg-6 col-sm-6 mt-sm-0 mt-4">
+                                                <div class="card  mb-4">
+                                                    <div class="card-body p-3">
+                                                        <div class="row">
+                                                            <div class="col-8">
+                                                                <div class="numbers">
+                                                                    <p
+                                                                        class="text-sm mb-0 text-capitalize font-weight-bold">
+                                                                        New Clients</p>
+                                                                    <h5 class="font-weight-bolder mb-0">
+                                                                        แจ้งซ่อมงานประปา
+                                                                        <span class="text-danger text-sm font-weight-bolder">
+                                                                            {{ $notifies_pending_count }}
+                                                                        </span>
+                                                                    </h5>
+                                                                </div>
+                                                            </div>
+                                                            <div class="col-4 text-end">
+                                                                <div
+                                                                    class="icon icon-shape bg-primary shadow text-center border-radius-md">
+                                                                    <i class="ni ni-paper-diploma text-lg opacity-10"
+                                                                        aria-hidden="true"></i>
+                                                                </div>
+                                                            </div>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                                <div class="card ">
+                                                    <div class="card-body p-3">
+                                                        <div class="row">
+                                                            <div class="col-8">
+                                                                <div class="numbers">
+                                                                    <p
+                                                                        class="text-sm mb-0 text-capitalize font-weight-bold">
+                                                                        Sales</p>
+                                                                    <h5 class="font-weight-bolder mb-0">
+                                                                        $103,430
+                                                                        <span
+                                                                            class="text-success text-sm font-weight-bolder">+5%</span>
+                                                                    </h5>
+                                                                </div>
+                                                            </div>
+                                                            <div class="col-4 text-end">
+                                                                <div
+                                                                    class="icon icon-shape bg-primary shadow text-center border-radius-md">
+                                                                    <i class="ni ni-cart text-lg opacity-10"
+                                                                        aria-hidden="true"></i>
+                                                                </div>
+                                                            </div>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="accordion-item mb-3">
+                                <h5 class="accordion-header" id="headingThree">
+                                    <button class="accordion-button border-bottom font-weight-bold" type="button"
+                                        data-bs-toggle="collapse" data-bs-target="#collapseThree" aria-expanded="false"
+                                        aria-controls="collapseThree">
+                                        ธนาคารขยะเปียก
+                                        <i class="collapse-close fa fa-plus text-xs pt-1 position-absolute end-0 me-3"
+                                            aria-hidden="true"></i>
+                                        <i class="collapse-open fa fa-minus text-xs pt-1 position-absolute end-0 me-3"
+                                            aria-hidden="true"></i>
+                                    </button>
+                                </h5>
+                                <div id="collapseThree" class="accordion-collapse collapse" aria-labelledby="headingThree"
+                                    data-bs-parent="#accordionRental">
+                                    <div class="accordion-body text-sm opacity-8">
+                                        <div class="row">
+                                            <div class="col-lg-6 col-sm-6">
+                                                <div class="card  mb-4">
+                                                    <div class="card-body p-3">
+                                                        <div class="row">
+                                                            {{-- <div class="col-8">
+                                                                <div class="numbers">
+                                                                    <p
+                                                                        class="text-sm mb-0 text-capitalize font-weight-bold">
+                                                                        Today's Money</p>
+                                                                    <h5 class="font-weight-bolder mb-0">
+                                                                        จดมิเตอร์ประปา
+                                                                        <span
+                                                                            class="text-success text-sm font-weight-bolder">+55%</span>
+                                                                    </h5>
+                                                                </div>
+                                                            </div>
+                                                            <div class="col-4 text-end">
+                                                                <div
+                                                                    class="icon icon-shape bg-primary shadow text-center border-radius-md">
+                                                                    <i class="ni ni-money-coins text-lg opacity-10"
+                                                                        aria-hidden="true"></i>
+                                                                </div>
+                                                            </div> --}}
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                                <div class="card ">
+                                                    <div class="card-body p-3">
+                                                        <div class="row">
+                                                            <div class="col-8">
+                                                                <div class="numbers">
+                                                                    <p
+                                                                        class="text-sm mb-0 text-capitalize font-weight-bold">
+                                                                        Today's Users</p>
+                                                                    <h5 class="font-weight-bolder mb-0">
+                                                                        ตัดมิเตอร์
+                                                                        <span
+                                                                            class="text-success text-sm font-weight-bolder">+3%</span>
+                                                                    </h5>
+                                                                </div>
+                                                            </div>
+                                                            <div class="col-4 text-end">
+                                                                <div
+                                                                    class="icon icon-shape bg-primary shadow text-center border-radius-md">
+                                                                    <i class="ni ni-world text-lg opacity-10"
+                                                                        aria-hidden="true"></i>
+                                                                </div>
+                                                            </div>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                            <div class="col-lg-6 col-sm-6 mt-sm-0 mt-4">
+                                                {{-- <div class="card  mb-4">
+                                                    <div class="card-body p-3">
+                                                        <div class="row">
+                                                            <div class="col-8">
+                                                                <div class="numbers">
+                                                                    <p
+                                                                        class="text-sm mb-0 text-capitalize font-weight-bold">
+                                                                        แจ้งเตือนจาก User</p>
+                                                                    <h5 class="font-weight-bolder mb-0">
+                                                                        +3,462
+                                                                        <span
+                                                                            class="text-danger text-sm font-weight-bolder">-2%</span>
+                                                                    </h5>
+                                                                </div>
+                                                            </div>
+                                                            <div class="col-4 text-end">
+                                                                <div
+                                                                    class="icon icon-shape bg-primary shadow text-center border-radius-md">
+                                                                    <i class="ni ni-paper-diploma text-lg opacity-10"
+                                                                        aria-hidden="true"></i>
+                                                                </div>
+                                                            </div>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                                <div class="card ">
+                                                    <div class="card-body p-3">
+                                                        <div class="row">
+                                                            <div class="col-8">
+                                                                <div class="numbers">
+                                                                    <p
+                                                                        class="text-sm mb-0 text-capitalize font-weight-bold">
+                                                                        Sales</p>
+                                                                    <h5 class="font-weight-bolder mb-0">
+                                                                        $103,430
+                                                                        <span
+                                                                            class="text-success text-sm font-weight-bolder">+5%</span>
+                                                                    </h5>
+                                                                </div>
+                                                            </div>
+                                                            <div class="col-4 text-end">
+                                                                <div
+                                                                    class="icon icon-shape bg-primary shadow text-center border-radius-md">
+                                                                    <i class="ni ni-cart text-lg opacity-10"
+                                                                        aria-hidden="true"></i>
+                                                                </div>
+                                                            </div>
+                                                        </div>
+                                                    </div>
+                                                </div> --}}
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            {{-- <div class="accordion-item mb-3">
+                                <h5 class="accordion-header" id="headingFour">
+                                    <button class="accordion-button border-bottom font-weight-bold" type="button"
+                                        data-bs-toggle="collapse" data-bs-target="#collapseFour" aria-expanded="false"
+                                        aria-controls="collapseFour">
+                                        Can I resell the products?
+                                        <i class="collapse-close fa fa-plus text-xs pt-1 position-absolute end-0 me-3"
+                                            aria-hidden="true"></i>
+                                        <i class="collapse-open fa fa-minus text-xs pt-1 position-absolute end-0 me-3"
+                                            aria-hidden="true"></i>
+                                    </button>
+                                </h5>
+                                <div id="collapseFour" class="accordion-collapse collapse" aria-labelledby="headingFour"
+                                    data-bs-parent="#accordionRental">
+                                    <div class="accordion-body text-sm opacity-8">
+                                        I always felt like I could do anything. That’s the main thing people are controlled
+                                        by! Thoughts- their perception of themselves! They're slowed down by their
+                                        perception of themselves. If you're taught you can’t do anything, you won’t do
+                                        anything. I was taught I could do everything.
+                                        <br><br>
+                                        If everything I did failed - which it doesn't, it actually succeeds - just the fact
+                                        that I'm willing to fail is an inspiration. People are so scared to lose that they
+                                        don't even try. Like, one thing people can't say is that I'm not trying, and I'm not
+                                        trying my hardest, and I'm not trying to do the best way I know how.
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="accordion-item mb-3">
+                                <h5 class="accordion-header" id="headingFifth">
+                                    <button class="accordion-button border-bottom font-weight-bold" type="button"
+                                        data-bs-toggle="collapse" data-bs-target="#collapseFifth" aria-expanded="false"
+                                        aria-controls="collapseFifth">
+                                        Where do I find the shipping details?
+                                        <i class="collapse-close fa fa-plus text-xs pt-1 position-absolute end-0 me-3"
+                                            aria-hidden="true"></i>
+                                        <i class="collapse-open fa fa-minus text-xs pt-1 position-absolute end-0 me-3"
+                                            aria-hidden="true"></i>
+                                    </button>
+                                </h5>
+                                <div id="collapseFifth" class="accordion-collapse collapse" aria-labelledby="headingFifth"
+                                    data-bs-parent="#accordionRental">
+                                    <div class="accordion-body text-sm opacity-8">
+                                        There’s nothing I really wanted to do in life that I wasn’t able to get good at.
+                                        That’s my skill. I’m not really specifically talented at anything except for the
+                                        ability to learn. That’s what I do. That’s what I’m here for. Don’t be afraid to be
+                                        wrong because you can’t learn anything from a compliment.
+                                        I always felt like I could do anything. That’s the main thing people are controlled
+                                        by! Thoughts- their perception of themselves! They're slowed down by their
+                                        perception of themselves. If you're taught you can’t do anything, you won’t do
+                                        anything. I was taught I could do everything.
+                                    </div>
+                                </div>
+                            </div> --}}
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+
+@endsection

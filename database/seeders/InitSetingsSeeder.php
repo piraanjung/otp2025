@@ -2,7 +2,7 @@
 
 namespace Database\Seeders;
 
-use App\Models\MeterType;
+use App\Models\TwMeterType;
 use App\Models\SequenceNumber;
 use Illuminate\Database\Console\Seeds\WithoutModelEvents;
 use Illuminate\Database\Seeder;
@@ -22,7 +22,7 @@ class InitSetingsSeeder extends Seeder
             "user" => 1,
         ]);
 
-        MeterType::create([
+        TwMeterType::create([
 
             'meter_type_name' => 'มิเตอร์โรงงาน',
             'price_per_unit' => 12.0,

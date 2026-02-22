@@ -13,7 +13,7 @@ class Account extends Model
     protected $table = "accounts";
 
     public function invoice(){
-        return $this->hasMany(Invoice::class, 'id');
+        return $this->hasMany(TwInvoice::class, 'id');
     }
     public function user_payee(){
         return $this->belongsTo(User::class,'payee', 'id');

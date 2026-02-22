@@ -24,9 +24,11 @@
 
         <x-slot name="logo">
             <a href="/">
-                <x-application-logo class="w-20 h-20 fill-current text-gray-500" />
+            <img src="{{asset('logo/ko_envsogo.png')}}" class="w-40 h-40 fill-current text-gray-500">
+
+                {{-- <x-application-logo class="w-20 h-20 fill-current text-gray-500" /> --}}
             </a>
-            <h2>ระบบประปา</h2>
+            {{-- <h1>Envsogo</h1> --}}
         </x-slot>
 
         <!-- Session Status -->
@@ -43,7 +45,7 @@
                 <x-label for="username" :value="__('User name')" />
 
                 <x-input id="username" class="block mt-1 w-full" type="text" name="username" 
-                    value="twman1"
+                    value="admin1"
                     required autofocus />
             </div>
 
@@ -52,7 +54,7 @@
                 <x-label for="password" :value="__('Password')" />
 
                 <x-input id="password" class="block mt-1 w-full" type="password" name="password" required 
-                    value="1234"
+                    value="999999999"
                     autocomplete="current-password" />
             </div>
 
@@ -78,43 +80,3 @@
         </form>
     </x-auth-card>
 </x-guest-layout>
-<script src="https://static.line-scdn.net/liff/edge/versions/2.21.1/sdk.js"></script>
-<script>
-        window.onload = function() {
-            const statusElement = document.getElementById('status');
-
-            liff.init({
-                liffId: '1656703539-Rzmb63NE' // <<== แทนที่ด้วย LIFF ID ของคุณ
-            })
-            .then(() => {
-                statusElement.textContent = "LIFF ID ถูกต้องและเชื่อมต่อสำเร็จ";
-                alert("LIFF ID ถูกต้องและเชื่อมต่อสำเร็จ");
-                
-                if (liff.isInClient()) {
-                    statusElement.textContent = "Redirecting to external browser...";
-                    
-                    setTimeout(() => {
-                        const currentUrl = window.location.href;
-                        
-                        liff.openWindow({
-                            url: currentUrl,
-                            external: true
-                        });
-                    }, 100);
-                } else {
-                    statusElement.textContent = "Running in an external browser.";
-                }
-            })
-            .catch((err) => {
-                statusElement.textContent = "เกิดข้อผิดพลาดในการเชื่อมต่อ LIFF";
-                alert('err')
-                alert("เกิดข้อผิดพลาดในการเชื่อมต่อ LIFF SDK:", err.code, err.message);
-                
-                if (err.code === "2001") {
-                    alert("LIFF ID ที่ระบุไม่ถูกต้อง กรุณาตรวจสอบ LIFF ID");
-                } else {
-                    alert("เกิดข้อผิดพลาดในการเชื่อมต่อ LIFF: " + err.message);
-                }
-            });
-        };
-    </script>

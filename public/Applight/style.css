@@ -50,9 +50,9 @@ h6 {
 }
 .navbar .nav-item a {
 	color: #fff;
-	text-transform: uppercase;
+	/* text-transform: uppercase; */
 	font-weight: 600;
-	font-size: 13px;
+	font-size: 17px;
 }
 .navbar .nav-item a:hover {
 	color: #5f0099;
@@ -601,3 +601,223 @@ h3 {
 	font-size: 10px;
 }
 }
+
+
+        @keyframes rotateMain {
+            from {
+                transform: rotate(0deg);
+            }
+
+            to {
+                transform: rotate(360deg);
+            }
+        }
+
+        @keyframes rotateInner {
+            from {
+                transform: rotate(0deg);
+            }
+
+            to {
+                transform: rotate(-360deg);
+            }
+        }
+
+        body {
+            font-family: "Sarabun", sans-serif;
+            font-weight: 700;
+            font-style: normal;
+            /* background: linear-gradient(to right, #8e9eab, #eef2f3);
+            height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            flex-wrap: wrap;
+            gap: 30px; */
+        }
+
+        .centralized {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        .centralized a{
+            color: #000
+        }
+
+        .main-container {
+            /* border: solid 1px #000; */
+            margin: 16rem 0 0 11rem;
+            /* padding-top: 300px; */
+            /* height: 350px; */
+            width: 100%;
+            position: relative;
+        
+        }
+
+        .main-container .main-circle {
+            border: 6px solid #bcbcbc;
+            border-radius: 100%;
+            box-sizing: border-box;
+            padding: 24px;
+            height: 400px;
+            width: 400px;
+            position: relative;
+        }
+
+        .main-container .main-circle .inner {
+            background: #ededed;
+            border: 4px solid #e3e3e3;
+            border-radius: 100%;
+            box-shadow: 4px 5px 5px 0px rgba(0, 0, 0, 0.2);
+            box-sizing: border-box;
+            color: #8dc03f;
+            font-size: 34px;
+            height: 100%;
+            line-height: 1.5;
+            text-align: center;
+            width: 100%;
+            text-shadow: 1px 1px 1px #000;
+
+            text-align: center
+        }
+
+        .main-container .bubble-container {
+            border: 6px;
+            box-sizing: border-box;
+            height: 300px;
+            position: absolute;
+            width: 300px;
+            opacity: 0;
+            transform: rotate(0deg);
+            transition: transform ease-in 0.7s, opacity ease 1s;
+        }
+
+        .main-container .bubble-container .pointer {
+            background: #fff;
+            border: 4px solid #bcbcbc;
+            border-radius: 100%;
+            box-sizing: border-box;
+            position: absolute;
+            left: calc(50% -117px);
+            height: 54px;
+            top: calc(50% - 167px);
+            width: 54px;
+        }
+
+        .main-container .bubble-container .pointer .arrow {
+            width: 0;
+            height: 0;
+            border-style: solid;
+            border-width: 7px 14px 7px 0;
+            border-color: transparent #bcbcbc transparent transparent;
+            position: absolute;
+            left: -15px;
+            top: 5.52px;
+        }
+
+        .main-container .bubble-container .pointer .inner {
+            background: #000;
+            border-radius: 100%;
+            box-sizing: border-box;
+            height: 14px;
+            width: 14px;
+        }
+
+        .main-container .bubble-container .bubble {
+            border-radius: 100%;
+            box-sizing: border-box;
+            position: absolute;
+            height: 210px;
+            top: calc(50% - 215px);
+            left: -280px;
+            width: 210px;
+            transform: rotate(0deg);
+            transition: all ease 0.8s;
+
+            text-align: center
+        }
+
+        .bubble .inner:hover {
+            transform: rotate(0deg);
+            transition: all ease 0.8s;
+            transform: scale(1.08) !important;
+        }
+
+        .main-container .bubble-container .bubble .inner {
+            background: #fff;
+            border-radius: 100%;
+            box-shadow: 4px 5px 5px 0px rgba(0, 0, 0, 0.2);
+            box-sizing: border-box;
+            height: 184px;
+            width: 184px;
+            overflow: hidden;
+            font-size: 30px;
+        }
+
+        .main-container .bubble-container.black .bubble,
+        .main-container .bubble-container.black .pointer .inner {
+            background: #505269;
+        }
+
+        .main-container .bubble-container.blue-dark .bubble,
+        .main-container .bubble-container.blue-dark .pointer .inner {
+            background: #4c67aa;
+        }
+
+        .main-container .bubble-container.blue-light .bubble,
+        .main-container .bubble-container.blue-light .pointer .inner {
+            background: #25ade1;
+        }
+
+        .main-container .bubble-container.green .bubble,
+        .main-container .bubble-container.green .pointer .inner {
+            background: #8dc03f;
+        }
+
+        .main-container .bubble-container.orange .bubble {
+            background: #fa9128;
+        }
+
+        .main-container .bubble-container.orange .pointer .inner {
+            background: #fa9128;
+        }
+
+        .main-container .bubble-container.red .bubble,
+        .main-container .bubble-container.red .pointer .inner {
+            background: #e46020;
+        }
+
+
+		#otp-connect {
+			z-index: 999;
+            position: absolute;
+            margin-top: 6rem;
+            left: 5rem;
+            font-size: 4rem;
+            font-weight: bolder;
+			color: white;
+            text-shadow: 10px 5px 2px #000;
+			font-family: "Bruno Ace SC", sans-serif;
+			font-weight: 600;
+			font-style: normal;
+        }
+
+        #org {
+			z-index: 998;
+            position: absolute;
+            margin-top: 35rem;
+            left: 5rem;
+            font-size: 3.5rem;
+            font-weight: bolder;
+            text-shadow: 2px 2px 2px #ffffff;
+
+        }
+
+        #org_addr {
+            font-size: 2rem;
+            text-align: center;
+			color: black;
+
+            text-shadow: 2px 2px 2px #ffffff;
+        }

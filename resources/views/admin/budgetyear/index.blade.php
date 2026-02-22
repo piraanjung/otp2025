@@ -1,10 +1,13 @@
 @extends('layouts.admin1')
 
 @section('nav-header')
-    ตั้งค่าปีงบประมาณ
+   <a href="{{ url('/admin/budgetyear') }}"> ปีงบประมาณ</a>
+@endsection
+@section('mainheader')
+    สร้างปีงบประมาณ
 @endsection
 @section('nav-main')
-    <a href="{{ url('/budgetyear') }}">ปีงบประมาณ</a>
+    ตารางรายการปีงบประมาณ
 @endsection
 @section('budgetyear-show')
     show

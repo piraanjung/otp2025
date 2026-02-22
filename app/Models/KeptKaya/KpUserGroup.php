@@ -19,7 +19,7 @@ class KpUserGroup extends Model
 
 
     public function kp_usergroup_payrate_permonth(){
-        return $this->hasMany(KpUsergroupPayratePerMonth::class, 'kp_usergroup_idfk');
+        return $this->hasMany(WasteBinPayratePerMonth::class, 'kp_usergroup_idfk');
     }
 
   

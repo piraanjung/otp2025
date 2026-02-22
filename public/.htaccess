@@ -40,3 +40,11 @@
     RewriteCond %{REQUEST_FILENAME} !-f
     RewriteRule ^ index.php [L]
 </IfModule>
+
+<IfModule mod_headers.c>
+    <FilesMatch "\.(json|bin)$">
+        # สั่งให้ Browser เก็บไฟล์เหล่านี้ไว้ 1 ปี (31536000 วินาที) และไม่ต้องตรวจสอบกับ Server อีก
+        Header set Cache-Control "public, max-age=31536000, immutable"
+    </FilesMatch>
+</IfModule>
+

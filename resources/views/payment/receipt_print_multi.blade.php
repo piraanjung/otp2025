@@ -358,24 +358,24 @@ $c2 = 1;
             head.appendChild(style);
 
              window.print();
-             if ($('#type').val() == 'paid_receipt') {
-                setTimeout(function() {
-                     window.location.href = '/payment';
-                 }, 200);
-             } else {
-                 //type == history_recipt
-                 setTimeout(function() {
+            //  if ($('#type').val() == 'paid_receipt') {
+            //     setTimeout(function() {
+            //          window.location.href = '/payment';
+            //      }, 200);
+            //  } else {
+            //      //type == history_recipt
+            //      setTimeout(function() {
 
-                    document.querySelector("form").addEventListener("submit", function(evt) {
-                         evt.preventDefault();
-                     });
+            //         document.querySelector("form").addEventListener("submit", function(evt) {
+            //              evt.preventDefault();
+            //          });
 
-                     // Just call the .click method of the button
-                     $("input[type='submit']").click();
+            //          // Just call the .click method of the button
+            //          $("input[type='submit']").click();
 
-                 }, 200);
+            //      }, 200);
 
-             }
+            //  }
         });
     </script>
 @endsection

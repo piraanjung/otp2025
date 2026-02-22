@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Api\FunctionsController;
 use App\Http\Controllers\Controller;
+use App\Models\Admin\Organization;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use SebastianBergmann\CodeUnit\FunctionUnit;
@@ -14,9 +15,11 @@ class RoleController extends Controller
 {
     public function index()
     {
-       return $user = User::where('id',Auth::user()->id)->getRoleNames();
         $roles = Role::whereNotIn('name', ['super admin'])->get();
-        return view('admin.roles.index', compact('roles'));
+        $orgInfos = Organization::getOrgName(Auth::user()->org_id_fk);
+        session(['orgInfos' => $orgInfos]);
+
+        return view('admin.roles.index', compact('roles', 'orgInfos'));
     }
 
     public function create()
@@ -49,7 +52,6 @@ class RoleController extends Controller
     public function destroy(Role $role)
     {
         $role->delete();
-        FunctionsController::reset_auto_increment_when_deleted('roles');
         return back()->with(['message', 'Role deleted.', 'color'=> 'success']);
     }
 

@@ -3,63 +3,56 @@
 namespace App\Models;
 
 use App\Models\Admin\District;
+use App\Models\Admin\Organization;
 use App\Models\Admin\Province;
 use App\Models\Admin\Staff;
 use App\Models\Admin\Subzone;
 use App\Models\Admin\Tambon;
 use App\Models\Admin\Zone;
-use App\Models\KeptKaya\UserWastePreference;
+use App\Models\KeptKaya\KpUserWastePreference;
 use App\Models\KeptKaya\WasteBin;
 use App\Models\KeptKaya\AnnualCollectionPayment;
-use App\Models\KeptKaya\KpPurchaseTransaction;
+use App\Models\Tabwater\TwMeterInfos;
 use App\Models\Tabwater\UndertakerSubzone;
-use App\Models\Tabwater\UserMerterInfo;
 use Laravel\Sanctum\HasApiTokens;
 use Spatie\Permission\Traits\HasRoles;
 use Illuminate\Notifications\Notifiable;
-use Illuminate\Contracts\Auth\MustVerifyEmail;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
-use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Foundation\Auth\User as Authenticatable;
-
+use App\Models\FoodWaste\FoodWasteUserPreference;
+use App\Models\FoodWaste\FoodWasteBin;
+use App\Models\Tabwater\TwNotifies;
+use Illuminate\Support\Facades\Auth;
+use Illuminate\Database\Eloquent\Relations\BelongsToMany; // <--- สำคัญ: ตรวจสอบว่ามีการ use นี้หรือไม่
 class User extends Authenticatable
 {
     use HasApiTokens, HasFactory, Notifiable, HasRoles;
-    use HasRoles;
 
-    /**
-     * The attributes that are mass assignable.
-     *
-     * @var array<int, string>
-     */
     protected $fillable = [
-        'id',
-        'settings_id_fk',
-        'username',
-        'prefix',
-        'firstname',
-        'lastname',
-        'name',
-        'email',
-        'password',
-        'id_card',
-        'phone',
-        'gender',
-        'role_id',
-        'address',
-        'zone_id',
-        'subzone_id',
-        'tambon_code',
-        'district_code',
-        'province_code',
-        'status'
+        "id",
+        "org_id_fk",
+        "username",
+        "prefix",
+        "firstname",
+        "lastname",
+        "name",
+        "email",
+        "password",
+        "id_card",
+        "line_id",
+        "image",
+        "phone",
+        "gender",
+        "address",
+        "zone_id",
+        "subzone_id",
+        "tambon_code",
+        "district_code",
+        "province_code",
+        "status",
     ];
 
-    /**
-     * The attributes that should be hidden for serialization.
-     *
-     * @var array<int, string>
-     */
+    
     protected $hidden = [
         'password',
         'remember_token',
@@ -75,13 +68,9 @@ class User extends Authenticatable
     ];
     protected $table = 'users';
 
-    public function user_profile()
-    {
-        return $this->hasOne('App\Models\User', 'user_id', 'id');
-    }
-    public function usercategory()
-    {
-        return $this->belongsTo('App\Usercategory', 'user_cat_id');
+
+    public function org(){
+        return $this->belongsTo(Organization::class, 'org_id_fk', 'id');
     }
 
     public function user_zone()
@@ -101,7 +90,7 @@ class User extends Authenticatable
 
     public function usermeterinfos()
     {
-        return $this->hasMany(UserMerterInfo::class, 'user_id', 'id');
+        return $this->hasMany(TwMeterInfos::class, 'user_id', 'id');
     }
     public function user_province()
     {
@@ -121,7 +110,7 @@ class User extends Authenticatable
 
     public function wastePreference()
     {
-        return $this->hasOne(UserWastePreference::class);
+        return $this->hasOne(KpUserWastePreference::class);
     }
 
     public function wasteBins()
@@ -133,28 +122,27 @@ class User extends Authenticatable
     {
         return $this->hasMany(AnnualCollectionPayment::class);
     }
-
-    // New Relationship for Waste Bank Transactions where user is a member
-    public function wasteBankTransactionsAsMember()
-    {
-        return $this->hasMany(WasteBankTransaction::class, 'user_id');
-    }
-
-    // New Relationship for Waste Bank Transactions where user is a staff
-    public function wasteBankTransactionsAsStaff()
-    {
-        return $this->hasMany(WasteBankTransaction::class, 'staff_id');
-    }
-
     public function staff()
     {
         return $this->hasOne(Staff::class);
     }
 
-     public function purchaseTransactions(): HasMany
+    public function foodwastePreference()
     {
-        // Assuming kp_user_id_fk is the foreign key in the kp_purchase_transactions table
-        return $this->hasMany(KpPurchaseTransaction::class, 'kp_user_id_fk', 'id');
+        return $this->hasOne(FoodWasteUserPreference::class);
     }
-    
+
+    public function foodwasteBins()
+    {
+        return $this->hasMany(FoodWasteBin::class,'u_pref_id_fk');
+    }
+
+    public function acceptedNotifies(): BelongsToMany // <--- ตรวจสอบการประกาศ Type Hint
+    {
+        return $this->belongsToMany(TwNotifies::class, 'notify_staff', 'user_id', 'notify_id')
+                    ->withPivot('staff_status')
+                    ->withTimestamps();
+    }
+
+
 }

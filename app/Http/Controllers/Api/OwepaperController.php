@@ -4,11 +4,13 @@ namespace App\Http\Controllers\Api;
 
 use App\Http\Controllers\Controller;
 use App\Models\Subzone;
-use App\Models\UserMerterInfo;
+use App\Models\Tabwater\UserMerterInfo;
 use App\Models\Zone;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use App\Http\Controllers\Api\ReportsController as apiReportCtrl;
+use App\Models\Tabwater\UserMerterInfo as TabwaterUserMerterInfo;
+
 class OwepaperController extends Controller
 {
     public function index(REQUEST $request)
@@ -29,7 +31,7 @@ class OwepaperController extends Controller
         //หา user  ที่ invoice.status  เป็นowe หรือ invoice, init
         $oweInfosArr = DB::table('user_meter_infos as umf')
             ->join('invoice as iv', 'iv.user_id', '=', 'umf.user_id')
-            ->join('user_profile as upf', 'upf.user_id', '=', 'umf.user_id')
+            ->join('user as u', 'u.id', '=', 'umf.user_id')
             ->join('zone as z', 'z.id', '=', 'upf.zone_id')
             ->join('subzone as udt_sz', 'udt_sz.id', '=', 'umf.undertake_subzone_id')
             ->join('zone as udt_z', 'udt_z.id', '=', 'umf.undertake_zone_id')
@@ -50,7 +52,7 @@ class OwepaperController extends Controller
 
         $oweInfosArr = $oweInfosArr->select(
             'umf.owe_count',
-            'upf.name', 'upf.address',
+            'u.firstname','u.laststname', 'u.address',
             'z.zone_name',
             'udt_sz.subzone_name',
             'umf.meternumber', 'umf.user_id',
@@ -333,10 +335,10 @@ class OwepaperController extends Controller
     public function oweAndInvoiceCount()
     {
         $owes = DB::table('user_meter_infos as umf')
-            ->join('invoice as iv', 'iv.user_id', '=', 'umf.user_id')
-            ->join('user_profile as upf', 'upf.user_id', '=', 'umf.user_id')
-            ->join('zone as z', 'z.id', '=', 'upf.zone_id')
-            ->join('subzone as sz', 'sz.id', '=', 'upf.subzone_id')
+            ->join('invoice as iv', 'iv.meter_id_fk', '=', 'umf.meter_id')
+            ->join('users as u', 'u.id', '=', 'umf.user_id')
+            ->join('zones as z', 'z.id', '=', 'u.zone_id')
+            ->join('subzones as sz', 'sz.id', '=', 'u.subzone_id')
             ->whereIn('umf.status', ['active', 'changemeter', 'cutmeter'])
             ->whereIn('iv.status', ['owe', 'invoice', 'init'])
             ->where('iv.deleted', 0)
@@ -430,33 +432,33 @@ class OwepaperController extends Controller
     public function testIndex(REQUEST $request)
     {
 
-        $startTime = microtime(true);
-        $oweAndInvoiceDivideBySubzoneArray = collect([]);
-        $a = $this->indexFilterOweAndInvoiceCount($request->merge(['zone_id' => 'all', 'subzone_id' => 'all']));
-        $a11 = collect($a)->groupBy('undertake_subzone_id');
-        $oweAndInvoiceDivideBySubzoneArray->push(
-            [
-                'zone_id' => 'all',
-                'subzone_id' => 'all',
-                'zoneName' => 'ทั้งหมด',
-                'subzoneName' => 'ทั้งหมด',
-                'oweCount' => collect($a)->count(),
-            ]
-        );
-        foreach ($a11 as $a1) {
-            // $this->testIndex()
-            // return $a1[0]['subzone'];
-            $oweAndInvoiceDivideBySubzoneArray->push(
-                [
-                    'zone_id' => $a1[0]['zone']->id,
-                    'subzone_id' => $a1[0]['subzone']->id,
-                    'zoneName' => $a1[0]['zone']->zone_name,
-                    'subzoneName' => $a1[0]['subzone']->subzone_name,
-                    'oweCount' => collect($a1)->count(),
-                ]
-            );
-        }
-       return "Time:  " . number_format((microtime(true) - $startTime), 4) . " Seconds\n";
+        // $startTime = microtime(true);
+        // $oweAndInvoiceDivideBySubzoneArray = collect([]);
+        // $a = $this->indexFilterOweAndInvoiceCount($request->merge(['zone_id' => 'all', 'subzone_id' => 'all']));
+        // $a11 = collect($a)->groupBy('undertake_subzone_id');
+        // $oweAndInvoiceDivideBySubzoneArray->push(
+        //     [
+        //         'zone_id' => 'all',
+        //         'subzone_id' => 'all',
+        //         'zoneName' => 'ทั้งหมด',
+        //         'subzoneName' => 'ทั้งหมด',
+        //         'oweCount' => collect($a)->count(),
+        //     ]
+        // );
+        // foreach ($a11 as $a1) {
+        //     // $this->testIndex()
+        //     // return $a1[0]['subzone'];
+        //     $oweAndInvoiceDivideBySubzoneArray->push(
+        //         [
+        //             'zone_id' => $a1[0]['zone']->id,
+        //             'subzone_id' => $a1[0]['subzone']->id,
+        //             'zoneName' => $a1[0]['zone']->zone_name,
+        //             'subzoneName' => $a1[0]['subzone']->subzone_name,
+        //             'oweCount' => collect($a1)->count(),
+        //         ]
+        //     );
+        // }
+    //    return "Time:  " . number_format((microtime(true) - $startTime), 4) . " Seconds\n";
 
         $zone_id = $request->get('zone_id');
         $subzone_id = $request->get('subzone_id');
@@ -473,13 +475,13 @@ class OwepaperController extends Controller
             $request->merge($a);
         }
         $type = $request->get('type');
-        $findOweAndInvoiceStatusInInvioceTable = UserMerterInfo::whereIn('status', ['active', 'cutmeter'])->where('deleted', 0)
+        $findOweAndInvoiceStatusInInvioceTable = TabwaterUserMerterInfo::whereIn('status', ['active', 'cutmeter'])->where('deleted', 0)
             ->with([
-                'user_profile' => function ($query) {
-                    return $query->select('name', 'user_id', 'address');
+                'user' => function ($query) {
+                    return $query->select('firstname', 'lastname', 'id', 'address');
                 },
                 'invoice' => function ($query) use ($type) {
-                    $query = $query->select('status', 'user_id');
+                    $query = $query->select('status', 'meter_id');
                     if ($type == 'payment-search') {
                         $query = $query->where('receipt_id', '>', 0);
                     } else {
@@ -489,14 +491,14 @@ class OwepaperController extends Controller
                     $query = $query->where('deleted', 0);
                     return $query;
                 },
-                'zone' => function ($query) use ($zone_id) {
+                'zones' => function ($query) use ($zone_id) {
                     $query = $query->select('id', 'zone_name');
                     if ($zone_id != 'all') {
                         $query = $query->where('id', $zone_id);
                     }
                     return $query;
                 },
-                'subzone' => function ($query) use ($subzone_id) {
+                'subzones' => function ($query) use ($subzone_id) {
                     $query = $query->select('id', 'subzone_name');
                     if ($subzone_id != 'all') {
                         $query = $query->where('id', $subzone_id);
@@ -505,7 +507,7 @@ class OwepaperController extends Controller
                 },
             ])
             ->get([
-                'user_id', 'undertake_subzone_id', 'undertake_zone_id', 'owe_count', 'meternumber', 'comment',
+                'user_id', 'meter_id', 'undertake_subzone_id', 'undertake_zone_id', 'owe_count', 'meternumber', 'comment',
             ]);
         $filterOweAndInvoiceStatusInInvioceNotEmpty = collect($findOweAndInvoiceStatusInInvioceTable)->filter(function ($val) {
             return collect($val->invoice)->isNotEmpty() && collect($val->subzone)->isNotEmpty() && collect($val->user_profile)->isNotEmpty();
@@ -532,7 +534,7 @@ class OwepaperController extends Controller
         }
         $type = $request->get('type');
 
-        $findOweAndInvoiceStatusInInvioceTable = UserMerterInfo::whereIn('status', ['active', 'cutmeter','deleted', 'inactive']);
+        $findOweAndInvoiceStatusInInvioceTable = \App\Models\Tabwater\UserMerterInfo::whereIn('status', ['active', 'cutmeter','deleted', 'inactive']);
         // $findOweAndInvoiceStatusInInvioceTable = UserMerterInfo::whereIn('status', ['active', 'cutmeter'])->where('deleted', 0);
         if ($request->get('subzone_id') != "all") {
             $findOweAndInvoiceStatusInInvioceTable = $findOweAndInvoiceStatusInInvioceTable->where('undertake_subzone_id', $request->get('subzone_id'));
@@ -626,7 +628,7 @@ class OwepaperController extends Controller
                 [
                     'zone_id' => $a1[0]['undertake_zone_id'],
                     'subzone_id' => $a1[0]['undertake_subzone_id'],
-                    'zoneName' => Zone::where('id', $a1[0]['undertake_zone_id'])->get('zone_name')[0]->zone_name,
+                    'zoneName' => Zones::where('id', $a1[0]['undertake_zone_id'])->get('zone_name')[0]->zone_name,
                     'subzoneName' => Subzone::where('id', $a1[0]['undertake_subzone_id'])->get('subzone_name')[0]->subzone_name,
                     'oweCount' => collect($a1)->count(),
                 ]

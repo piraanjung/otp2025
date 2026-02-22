@@ -10,7 +10,7 @@ class WasteBankTransaction extends Model
 {
     use HasFactory;
 
-    protected $table = 'waste_bank_transactions';
+    protected $table = 'kp_waste_bank_transactions';
 
     protected $fillable = [
         'user_id',

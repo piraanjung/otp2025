@@ -4,29 +4,34 @@ namespace App\Models\KeptKaya;
 
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Support\Facades\Auth;
+use App\Traits\BelongsToOrganization;
 
 class KpTbankItems extends Model
 {
     use HasFactory;
-    protected $fillable =[
+    use BelongsToOrganization;
+    protected $fillable = [
         'id',
         'kp_itemscode',
         'kp_itemsname',
         'kp_items_group_idfk',
-        'tbank_item_unit_idfk',
+        'ef_id_fk',
         'status',
-        'image_path',
-        'deleted'
+        'image',
+        'deleted',
+        'org_id_fk'
     ];
 
     protected $table = 'kp_tbank_items';
 
 
-    public function items_price_and_point_infos(){
-        return $this->hasMany(KpTbankItemsPriceAndPoint::class, 'items_id_fk', 'id');
+    public function items_price_and_point_infos()
+    {
+        return $this->hasMany(KpTbankItemsPriceAndPoint::class, 'kp_items_idfk', 'id');
     }
 
-     public function prices()
+    public function prices()
     {
         return $this->hasMany(KpTbankItemsPriceAndPoint::class, 'kp_items_idfk', 'id');
     }
@@ -35,14 +40,21 @@ class KpTbankItems extends Model
     public function activePrices()
     {
         return $this->hasMany(KpTbankItemsPriceAndPoint::class, 'kp_items_idfk', 'id')
-                    ->where('status', 'active');
-    }
-    
-    public function units(){
-        return $this->belongsTo(KpTbankUnits::class, 'tbank_item_unit_idfk');
+            // ->whereHas('kp_units_info', function($q){
+            //     $q->where('org_id_fk', 1);
+            // })
+            ->where('status', 'active');
     }
 
-    public function kp_items_groups(){
+    public function kp_items_groups()
+    {
         return $this->belongsTo(KpTbankItemsGroups::class, 'kp_items_group_idfk', 'id');
+    }
+
+    public function emissionFactor()
+    {
+        // สมมติว่าในตาราง kp_tbank_items คุณมีคอลัมน์ emission_factor_id
+        // ถ้ายังไม่มี ต้องไปเพิ่ม column นี้ใน Database ก่อนนะครับ!
+        return $this->belongsTo(\App\Models\EmissionFactor::class, 'ef_id_fk');
     }
 }

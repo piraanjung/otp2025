@@ -3,14 +3,14 @@
 namespace App\Http\Controllers\KeptKaya;
 
 use App\Http\Controllers\Controller;
+use App\Models\Admin\Organization;
 use App\Models\Admin\Staff;
 use App\Models\KeptKaya\KpPurchaseShop;
 use Illuminate\Http\Request;
 use App\Models\KeptKaya\KpSellTransaction;
 use App\Models\KeptKaya\KpSellDetail;
 use App\Models\KeptKaya\KpTbankItems;
-use App\Models\KeptKaya\TbankItemUnit;
-use Illuminate\Support\Facades\Auth;
+use App\Models\User;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Str;
@@ -26,10 +26,14 @@ class KpSellController extends Controller
     public function showSellForm()
     {
         // Fetch necessary data for the form
-        $recycleItems = KpTbankItems::with('units')->get(); // Load all items with their units
+        $recycleItems = (new KpTbankItems())->setConnection(session('db_conn'))->with(
+            'items_price_and_point_infos.kp_units_info')
+            ->whereHas('items_price_and_point_infos',)
+            ->get(); // Load all items with their units
         $staffs = Staff::all(); // Get users with 'staff' role
         $shops =  KpPurchaseShop::where('status', 'active')->get();
-        return view('keptkaya.sell.sell_form', compact('recycleItems', 'staffs', 'shops'));
+        $user = User::setLocalUser();
+        return view('keptkayas.sell.sell_form', compact('recycleItems', 'staffs', 'shops', 'user'));
     }
 
     /**
@@ -44,16 +48,17 @@ class KpSellController extends Controller
             'shop_name' => 'required',
             'sell_date' => 'required|date',
             'details' => 'required|array|min:1',
-            'details.*.kp_recycle_item_id' => 'required|exists:kp_tbank_items,id',
+            'details.*.kp_recycle_item_id' => 'required|exists:'.session('db_conn').'.kp_tbank_items,id',
             'details.*.weight' => 'required|numeric|min:0.01',
             'details.*.amount' => 'required|numeric|min:0.01',
             'details.*.price_per_unit' => 'required|numeric|min:0',
             'details.*.comment' => 'nullable|string',
-            'recorder_id' => 'required|exists:staffs,user_id',
+            'recorder_id' => 'required|exists:'.session('db_conn').'.staffs,user_id',
         ]);
         $totalWeight = array_sum(array_column($validated['details'], 'weight'));
         $totalAmount = array_sum(array_column($validated['details'], 'amount'));
 
+        
         DB::beginTransaction();
         try {
             // 1. Create the main sell transaction
@@ -80,7 +85,7 @@ class KpSellController extends Controller
             }
 
             DB::commit();
-            return redirect()->route('keptkaya.sell.history')->with('success', 'บันทึกการขายขยะเรียบร้อยแล้ว');
+            return redirect()->route('keptkayas.sell.history')->with('success', 'บันทึกการขายขยะเรียบร้อยแล้ว');
         } catch (\Exception $e) {
             DB::rollBack();
             Log::error("Error saving sell transaction: " . $e->getMessage());
@@ -88,19 +93,17 @@ class KpSellController extends Controller
         }
     }
 
-     
-        public function showSellHistory()
-        {
-            $transactions = KpSellTransaction::with(['recorder'])->orderByDesc('transaction_date')->paginate(20);
-            return view('keptkaya.sell.history', compact('transactions'));
-        }
-        public function showReceipt(KpSellTransaction $transaction)
-        {
-            $transaction->load(['details.item', 'recorder']);
-            return view('keptkaya.sell.receipt', compact('transaction'));
-        }
 
-        public function destroy(Request $request, $transaction){
+    public function showSellHistory()
+    {
+        $transactions = KpSellTransaction::with(['recorder'])->orderByDesc('transaction_date')->paginate(20);
+        return view('keptkayas.sell.history', compact('transactions'));
+    }
+    public function showReceipt(KpSellTransaction $transaction)
+    {
+        $transaction->load(['details.item', 'recorder']);
+        return view('keptkayas.sell.receipt', compact('transaction'));
+    }
 
-        }
+    public function destroy(Request $request, $transaction) {}
 }

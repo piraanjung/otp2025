@@ -17,287 +17,222 @@ $c2 = 1;
 // $invoiceNumber = FunctionsController::invoice_last_record()->id + 1;
 ?>
 @section('style')
-    <link rel="stylesheet" href="{{ asset('adminlte/dist/css/adminlte.min.css') }}">
+    <link rel="stylesheet" href="{{ asset('/templatemo/css/bootstrap.min.css') }}">
     <script src="{{ asset('/js/jquery-1.11.3.min.js') }}"></script>
     <script src="{{ asset('/js/ajax/libs/popper.js/1.14.3/umd/popper.min.js') }}"></script>
     <script src="{{ asset('/js/bootstrap/4.5.2/js/bootstrap.min.js') }}"></script>
     <link rel="stylesheet" href="{{ asset('adminlte/plugins/fontawesome-free/css/all.css') }}">
     <style>
         * {
-            font: 10.3pt "Sarabun";
-            font-weight: bold;
+            font: 10pt "Sarabun";
+            /* font-weight: bold; */
             /* color:aquamarine !important */
         }
-
-        td {
-            padding: 4.7pt !important;
+        /* .org_logo{
+            width: 80px;
+            justify-content: flex-end
         }
+        .row, .d-flex{
+            margin: 0px 0px;
+            border: 1px solid red
+        } */
 
-        .address {
-            font-size: 10pt;
+        /* #table_title div ,.d-flex div{
+            font-size: 0.9rem;
+            font-weight: bold;
+            border-right: 1px solid red;
+            width: 200px !important;
+            text-align: center
+        } */
+        /* .d-flex div{
+             font-size: 1rem !important;
         }
+        #table_title #vat{
+             width: 100px !important;
+        } */
 
-        .address2 {
-            font-size: 10pt;
+        /* #table_title td div{
+             font-size: 0.8rem;
         }
-
-        .number {
-            padding-top: 2px !important;
-            padding-bottom: 2px !important
+        .head, .tax_number, #org_address{
+            font-weight: bold;
+            font-size: 1.5rem
         }
-
-        .t2-pr-3 {
-            padding-right: 0.8rem !important;
+        .tax_number{
+            font-size: 1.2rem !important
         }
+        .org_address{
+            font-size: 1.05rem !important
 
-        td.waterUsedHisHead {
-            /* font-size: 10pt; */
-            padding: 2pt;
-        }
+        } */
 
-        .head {
-            font-size: 16pt;
-            font-weight: bold
-        }
 
-        .head2 {
-            font-size: 14pt;
-        }
 
+
+        
+    </style>
+
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+
+    <style>
+        /* CSS ทั่วไปสำหรับหน้าจอ */
         body {
-            -webkit-print-color-adjust: exact !important;
+            font-family: 'Tahoma', 'Sarabun', sans-serif;
+            font-size: 8pt;
+            /* ปรับลดขนาด Font เพื่อให้ข้อมูลทั้งหมดพอดีในพื้นที่แคบลง */
+            /* background-color: #f8f9fa; */
         }
 
-        .head {
-            height: 3pc;
+        .a5-container {
+            /* กำหนดขนาด A5 แนวนอน (210mm x 148mm) */
+            width: 210mm;
+            height: 148mm;
+            margin: 0 0;
+            border: 1px solid #d60707;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+            background-color: white;
+            padding: 0mm;
+            /* ลดขอบกระดาษด้านใน */
+            display: flex;
         }
 
-        .noneborder_top_left {
-            border-top: 1px solid white;
-            border-right: 1px solid white;
+        /* ภาชนะของเอกสารชุดเดียว (ต้นฉบับ/สำเนา) */
+        .document-wrapper {
+            padding: 0 0px;
+            /* เพิ่ม padding เล็กน้อยระหว่างต้นฉบับ/สำเนา */
+            height: 100%;
+            display: flex;
+            flex-direction: column;
+            gap: 0.2rem;
+            /* ลดระยะห่างระหว่างส่วนหลัก */
         }
 
-        .barcode {
-            height: 50pt;
-            width: 160pt
-        }
-
-        .border-bottom-none {
-            border-bottom: 1px solid white;
-        }
-
-        .border-right-none {
-            border-right: 1px solid white;
-        }
-
-        .border-top-none {
-            border-top: 1px solid white;
-            padding-left: 10px
-        }
-
-        .border-left-none {
-            border-left: 1px solid white;
-        }
-
-        .border-bottom-fill {
-            border-bottom: 1px solid black;
-        }
-
-        .border-right-fill {
-            border-right: 1px solid black;
-        }
-
-        .border-top-fill {
-            border-top: 1px solid black;
-        }
-
-        .border-left-fill {
-            border-left: 1px solid black;
-        }
-
-        .unit_usedtext {
+        .header-box {
+            border: 1px solid #000;
+            padding: 0rem 0rem;
+            line-height: 1.1;
             font-size: 8pt;
         }
 
-        .inv_number_text {
-            font-size: 1.3rem
-        }
-
-        .print {
-            page-break-after: always;
-        }
-
-        .t2 {
-            /* margin-left: 72px !important; */
-            margin-left: 30px !important;
-        }
-        .t2_for_name_address {
-            margin-left: 62px !important;
-            /* margin-left: 8px !important; */
-        }
-        .t2_r {
-            /* margin-left: 41px !important; */
-            margin-left: 10px !important;
-        }
-
-        .waterUsedHisHead2,
-        .waterUsedHisHead2 div {
-            font-size: 16px;
-            font-weight: bold;
-            padding-top: 1px !important;
-            padding-bottom: 1px !important
-        }
-
-        .waterUsedHisHead2,
-        .waterUsedHisHead2_r {
-            /* border-bottom: 1px solid #000; */
-        }
-
-        .waterUsedHisHead2,
-        .waterUsedHisHead2 div {
-            /* font-weight: bold; */
-        }
-
-        .baht {
-            font-size: 0.8rem;
-        }
-
-        .bookbank {
-            border-top: 0.1rem solid black;
-            border-bottom: 0.1rem solid black;
-        }
-
-        .bookbank div {
+        .detail-table thead th,
+        .detail-table thead th div,
+        .detail-table tbody td {
+            font-size: 7.4pt;
             text-align: center;
-            font-size: 0.9rem;
+            padding: 0.1rem 0.05rem;
+            /* ลด Padding ในตารางให้มากที่สุด */
+            border: 1px solid #000;
+            
+        }
+        
+
+        .detail-table thead th div {
+            border: none;
         }
 
-        td {
-            border: 1px solid white
+        .detail-table thead th,
+        .detail-table thead th div {
+            font-weight: bold;
+            background: rgb(195, 195, 234)
         }
 
-        .qrcode_description {
-            padding-left: 0.6rem;
-            font-size: 1rem;
-
+        .unit {
+            font-weight: bold;
+            font-size: 6pt
         }
 
-        .header-bg {
-            /* background-color: #1955b0; */
-            /* color: white */
-            color: #000;
+        .detail-table tbody td {
+            font-size: 8.6pt;
+            padding-top: 2px;
+            padding-bottom: 2px;
         }
 
-        #ref td {
-            padding: 0px !important;
-            border-top: 1px solid white
+        .summary-box {
+            border: 1px solid #000;
         }
 
-        .summary_text {
-            font-size: 0.96rem;
-            padding-top: 1.5px !important;
-            padding-bottom: 1.5px !important
+        #username .title,
+        #user_address .title,
+        #meter .title {
+            font-weight: bold;
+            font-size: 9pt;
+            background: rgb(195, 195, 234)
         }
 
-        .tax_number {
-            font-size: 1.1rem;
+        #username .detail,
+        #meter .detail,
+        #user_address .detail,
+        #user_address .detail div {
+            font-size: 9pt
+        }
+
+        #org_name {
+            font-size: 12pt;
             font-weight: bold
         }
 
-        #info td {
-            width: 0.9rem !important;
-            padding-top: 4px !important;
-            padding-bottom: 4px !important
+        .org_address{
+            font-size: 9pt
         }
 
-        .t {
-            margin-left: 2px !important
+        p {
+            margin-bottom: 0.2rem
         }
 
+        .etc {
+            font-size: 6.5pt;
+            font-weight: bold;
+            text-align: right;
+            color: red
+        }
+
+        /* CSS สำหรับการพิมพ์เท่านั้น */
         @media print {
-
-            .waterUsedHisHead2,
-            .waterUsedHisHead2 div {
-                font-size: .80rem;
-                font-weight: bold;
-                padding-top: 1px !important;
-                padding-bottom: 1px !important
+            @page {
+                size: A5 landscape;
+                margin: 0;
             }
 
-            .waterUsedHisHead2_r div {
-                font-size: .8rem !important;
-                font-weight: bold;
-
+            body {
+                font-size: 8.5pt;
             }
-
-            #ref td {
-                padding: 0px !important;
-                border-top: 1px solid white
+            .a5-container {
+                width: 210mm;
+                height: 148mm;
+                border: none;
+                box-shadow: none;
+                margin: 0;
+                padding: 0px;
             }
-
-            #info td {
-                width: 0.9rem !important;
-                padding-top: 4px !important;
-                padding-bottom: 4px !important
-            }
-            #info_over6 td{
-                padding-top: 4px !important;
-                padding-bottom: 0px !important;
-            }
-
-            .t {
-                margin-left: 2px !important
-            }
-
-            .summary_text {
-                font-size: 0.96rem;
-                padding-top: 4px !important;
-                padding-bottom: 4px !important
-            }
-
-            .number {
-                padding-top: 4px !important;
-                padding-bottom: 4px !important
-            }
-            .row_info{
-                opacity: 1 !important;
-            }
-        }
-        .imgtest{
-            position: absolute;
-            z-index: 100;
-            float: right;
-            width: 40%;
-            height:40px !important;
-            margin-top: -6%;
-            margin-left: 10%
-        }
-        .row_sign{
-            margin-top: -0.5% !important
         }
     </style>
 @endsection
 @section('content')
     <input type="hidden" id="type" value="{{ $type }}">
 
-    <br>
 
-    <div class="row row_info" style="opacity: 1">
-        <div class="col-6">
+    <div class="row row_info" style="opacity: 1;">
+        {{-- <div class="col-6" style="border: 1px solid #000000; border-bottom: none;">
             @include('payment._rc_left_form')
         </div>
-        <div class="col-6">
-            @include('payment._rc_right_form')
-        </div>
+        <div class="col-6" style="border: 1px solid #000; border-bottom: none;">
+            @include('payment._rc_left_form')
+        </div> --}}
+        <div class="col-6 ...">
+    @include('payment._rc_left_form', ['is_copy' => false])
+</div>
+<div class="col-6 ...">
+    @include('payment._rc_left_form', ['is_copy' => true])
+</div>
         <p style=" page-break-after: avoid;"></p>
 
     </div>
-    <br class="print">
+    {{-- <br class="print"> --}}
 
-    <form action="{{ route('payment.search') }}" method = "post" style="opacity: 0">
+    <form action="{{ route('payment.search') }}" method="post" style="opacity: 0">
         @csrf
-        <input type ="submit">
-        <input type = "hidden" value = "nav" name = "nav">
+        <input type="submit">
+        <input type="hidden" value="nav" name="nav">
 
     </form>
 @endsection
@@ -305,7 +240,7 @@ $c2 = 1;
 @section('script')
     <script src="https://cdn.jsdelivr.net/npm/jquery.qrcode@1.0.3/jquery.qrcode.min.js"></script>
     <script>
-        $(document).ready(function() {
+        $(document).ready(function () {
             // console.log($('#qrcode_text').val())
             // $('#qrcode').qrcode($('#qrcode_text').val());
 
@@ -339,19 +274,19 @@ $c2 = 1;
 
             head.appendChild(style);
 
-             window.print();
-            if ($('#type').val() == 'paid_receipt') {
-                setTimeout(function() {
-                     window.location.href = '/payment';
-                 }, 200);
-             } else {
-                 //type == history_recipt
-                 setTimeout(function() {
-                     $("input[type='submit']").click();
+            // window.print();
+            // if ($('#type').val() == 'paid_receipt') {
+            //     setTimeout(function () {
+            //         window.location.href = '/payment';
+            //     }, 200);
+            // } else {
+            //     //type == history_recipt
+            //     setTimeout(function () {
+            //         $("input[type='submit']").click();
 
-             }, 200);
+            //     }, 200);
 
-             }
+            // }
         });
     </script>
 @endsection

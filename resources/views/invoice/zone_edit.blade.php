@@ -18,14 +18,18 @@
 
 @section('content')
     <style>
-        .hidden {
-            display: none
+        .number {
+           text-align: right
+        }
+        th{
+            font-size: 0.9rem;
+            padding: .5rem .75rem !important;
+        }
+        .number:read-only{
+            background: rgb(200, 196, 196);
         }
     </style>
     <link href="https://cdn.datatables.net/2.2.0/css/dataTables.dataTables.css">
-    <link href="https://cdn.datatables.net/select/2.1.0/css/select.dataTables.css">
-    <link href="https://cdn.datatables.net/buttons/3.2.0/css/buttons.dataTables.css">
-
 
     <div id="web_app">
         <div class="card">
@@ -37,9 +41,9 @@
                     <table class="table  table-striped datatable" id="oweTable">
                         <thead class="bg-light">
                             <tr>
-                                <th class="text-center">เลขใบแจ้งหนี้</th>
+                                <th class="text-center">เลขใบ<div>แจ้งหนี้</div></th>
                                 <th class="text-center">เลขมิเตอร์</th>
-                                <th>เลขมิเตอร์จากโรงงาน</th>
+                                <th>เลขมิเตอร์<div>จากโรงงาน</div></th>
                                 <th>เลขสมาชิก</th>
                                 <th class="text-center">ชื่อ-สกุล</th>
                                 <th class="text-center">บ้านเลขที่</th>
@@ -49,13 +53,13 @@
                                 </th>
                                 <th class="text-center">ใช้น้ำสุทธิ<div>(หน่วย)</div>
                                 </th>
-                                <th class="text-center">เป็นเงิน<div>(บาท)</div>
+                                <th class="text-center">&nbsp;&nbsp;เป็นเงิน&nbsp;&nbsp;<div>(บาท)</div>
                                 <th class="text-center">ค่ารักษามาตร<div>(บาท)</div>
-                                <th class="text-center">vat 7%<div>(บาท)</div>
+                                <th class="text-center">&nbsp;&nbsp;vat 7%&nbsp;&nbsp;<div>(บาท)</div>
                                 </th>
                                 <th class="text-center">รวมเป็นเงิน<div>(บาท)</div>
                                 </th>
-                                <th>สถานะการชำระเงิน</th>
+                                <th>สถานะ</th>
                                 <th>วันที่บันทึก</th>
                                 <th>วันที่แก้ไข</th>
                                 <th>ผู้บันทึก</th>
@@ -64,24 +68,24 @@
 
                         <tbody id="app">
                             <?php $i = 1; ?>
+                            <div style="opacity: 0">
+                                <span id="price_per_unit_ref">{{ $inv_in_seleted_subzone[0]->meter_type['rateConfigs'][0]['fixed_rate_per_unit'] }}</span>
+                                <span  id="vat_ref">{{ $inv_in_seleted_subzone[0]->meter_type['rateConfigs'][0]['vat'] }}</span>
+                                <span  id="reserve_meter_ref">{{ $inv_in_seleted_subzone[0]->meter_type['rateConfigs'][0]['min_usage_charge'] }}</span>
+                            </div>
                             @foreach ($inv_in_seleted_subzone as $u_meter_info)
-                                <tr data-id="{{ $i }}" class="data">
+                                                                    
 
-                                    {{-- <th class="text-center" width="2%">
-                                        <a href="javascript:void(0)" class="btn btn-outline-warning delbtn2"
-                                            onclick="del('{{ $u_meter_info->invoice[0]->inv_id }}')">
-                                            <i class="fas fa-trash"></i>
-                                        </a>
-                                    </th> --}}
+                                <tr data-id="{{ $i }}" class="data">
                                    
                                     <td class="border-0 text-center">
-                                        {{ $u_meter_info->invoice[0]->inv_id }}
-                                        <input type="hidden" value="{{ $u_meter_info->invoice[0]->inv_id }}"
+                                        {{ $u_meter_info->invoice_temp[0]->id }}
+                                        <input type="hidden" value="{{ $u_meter_info->invoice_temp[0]->id }}"
                                             name="data[{{ $i }}][inv_id]" data-id="{{ $i }}"
                                             id="inv_id{{ $i }}"
                                             class="form-control text-right inv_id border-primary text-sm text-bold"
                                             readonly>
-                                        <input type="hidden" value="{{ $u_meter_info->invoice[0]->inv_id }}"
+                                        <input type="hidden" value="{{ $u_meter_info->invoice_temp[0]->id }}"
                                             name="data[{{ $i }}][inv_id]">
                                         <input type="hidden" value="0" id="changevalue{{ $i }}"
                                             name="data[{{ $i }}][changevalue]">
@@ -92,20 +96,19 @@
                                         <input type="hidden" value="{{ $u_meter_info->meternumber }}"
                                             name="data[{{ $i }}][meternumber]" data-id="{{ $i }}"
                                             id="meternumber{{ $i }}"
-                                            class="form-control text-right meternumber border-primary text-sm text-bold"
+                                            class="form-control  meternumber border-primary text-sm text-bold text-center"
                                             readonly>
                                         <input type="hidden" value="{{ $u_meter_info->meter_id }}"
                                             name="data[{{ $i }}][meter_id]">
                                     </td>
                                     <td>
-                                        {{ $u_meter_info->factory_no }}
+                                        {{ $u_meter_info->factory_no  }}
                                     </td>
-                                    <td>
-                                        {{ $u_meter_info->user_id }}
+                                    <td class="text-center">
+                                         {{ "U".substr("0000",strlen($u_meter_info->user_id)).$u_meter_info->user_id }}
                                     </td>
                                     <td class="border-0 text-left">
-                                        <span class="username" data-user_id="{{ $u_meter_info->user_id }}"><i
-                                                class="fas fa-search-plus"></i>
+                                        <span class="username" data-user_id="{{ $u_meter_info->user_id }}">
                                             {{ $u_meter_info->user->firstname . ' ' . $u_meter_info->user->lastname }}</span>
                                         <input type="hidden" name="data[{{ $i }}][user_id]"
                                             value="{{ $u_meter_info->user_id }}">
@@ -113,86 +116,86 @@
                                     </td>
                                     <td class="text-center">
                                         {{ $u_meter_info->meter_address }}
-                                        <input type="hidden" readonly class="form-control "
+                                        <input type="hidden" readonly class="form-control number"
                                             value="{{ $u_meter_info->meter_address }}"
                                             name="data[{{ $i }}][address]">
                                     </td>
-                                    @if (collect($u_meter_info->invoice)->isEmpty())
+                                    @if (collect($u_meter_info->invoice_temp)->isEmpty())
                                         {{ dd($u_meter_info) }}
                                     @endif
                                     <td class="border-0">
-                                        <input type="text" value="{{ $u_meter_info->invoice[0]->lastmeter }}"
+                                        <input type="text" value="{{ $u_meter_info->invoice_temp[0]->lastmeter }}"
                                             name="data[{{ $i }}][lastmeter]" data-id="{{ $i }}"
                                             id="lastmeter{{ $i }}"
-                                            data-price_per_unit="{{ $u_meter_info->meter_type->price_per_unit }}"
-                                            class="form-control text-right lastmeter">
-                                           <span class="hidden"> {{$u_meter_info->invoice[0]->lastmeter}}</span>
+                                             data-val_ref="{{ $u_meter_info->invoice_temp[0]->lastmeter }}"
+                                            class="form-control text-right lastmeter number">
+                                           <span class="hidden"> {{$u_meter_info->invoice_temp[0]->lastmeter}}</span>
 
                                     </td>
                                     <td class="border-0 text-right">
-                                        <input type="text" value="{{ $u_meter_info->invoice[0]->currentmeter }}"
+                                        <input type="text" value="{{ $u_meter_info->invoice_temp[0]->currentmeter }}"
                                             name="data[{{ $i }}][currentmeter]" data-id="{{ $i }}"
                                             id="currentmeter{{ $i }}"
-                                            data-price_per_unit="{{ $u_meter_info->meter_type->price_per_unit }}"
-                                            class="form-control text-right currentmeter border-success">
-                                           <span class="hidden"> {{$u_meter_info->invoice[0]->currentmeter}}</span>
+                                            data-val_ref="{{ $u_meter_info->invoice_temp[0]->currentmeter }}"
+                                            class="form-control text-right currentmeter border-success number">
+                                           <span class="hidden"> {{$u_meter_info->invoice_temp[0]->currentmeter}}</span>
 
                                     </td>
 
                                     <td class="border-0 text-right">
                                         <!-- จำนวนสุทธิ -->
-                                        <input type="text" readonly class="form-control text-right water_used_net"
+                                        <input type="text" readonly class="form-control text-right water_used_net number"
                                             id="water_used_net{{ $i }}"
                                             name="data[{{ $i }}][water_used]"
-                                            value="{{ $u_meter_info->invoice[0]->water_used }}">
-                                            <span class="hidden"> {{$u_meter_info->invoice[0]->water_used}}</span>
+                                            value="{{ $u_meter_info->invoice_temp[0]->water_used }}">
+                                            <span class="hidden"> {{$u_meter_info->invoice_temp[0]->water_used}}</span>
 
                                     </td>
                                     <td class="border-0 text-right">
                                         <!-- เป็นเงิน -->
-                                        <input type="text" readonly class="form-control text-right paid"
+                                        <input type="text" readonly class="form-control text-right paid number"
                                             name="data[{{ $i }}][paid]" id="paid{{ $i }}"
-                                            value="{{ $u_meter_info->invoice[0]->paid }}">
-                                            <span class="hidden"> {{$u_meter_info->invoice[0]->paid}}</span>
+                                            value="{{ $u_meter_info->invoice_temp[0]->paid }}">
+                                            <span class="hidden"> {{$u_meter_info->invoice_temp[0]->paid}}</span>
 
                                     </td>
                                     <td class="border-0 text-right">
                                         <!-- ค่ารักษามาตร -->
-                                        <input type="text" readonly class="form-control text-right meter_reserve_price"
-                                            id="meter_reserve_price{{ $i }}" value="10">
-                                            <span class="hidden"> 10</span>
+                                        <input type="text" readonly class="form-control text-right meter_reserve_price number"
+                                            name="data[{{ $i }}][reserve_meter]"
+                                            id="meter_reserve_price{{ $i }}" value="{{ $u_meter_info->invoice_temp[0]->reserve_meter }}">
+                                            <span class="hidden"> {{ $u_meter_info->invoice_temp[0]->reserve_meter }}</span>
 
-                                        {{-- value="{{ $u_meter_info->invoice[0]->inv_type == 'r' ? $u_meter_info->invoice[0]->reserve : 0 }}"> --}}
                                     </td>
                                     <td class="border-0 text-right">
-                                        <input type="text" readonly class="form-control text-right vat"
+                                        <input type="text" readonly class="form-control text-right vat number"
                                             name="data[{{ $i }}][vat]" id="vat{{ $i }}"
-                                            value="{{ $u_meter_info->invoice[0]->vat }}">
-                                            <span class="hidden"> {{$u_meter_info->invoice[0]->vat}}</span>
+                                            value="{{ number_format($u_meter_info->invoice_temp[0]->vat,2) }}">
+                                            <span class="hidden"> {{$u_meter_info->invoice_temp[0]->vat}}</span>
 
                                     </td>
 
                                     <td class="border-0 text-right">
-                                        <input type="text" readonly class="form-control text-right total"
+                                        <input type="text" readonly class="form-control text-right total number"
                                             id="total{{ $i }}" name="data[{{ $i }}][totalpaid]"
-                                            value="{{ $u_meter_info->invoice[0]->totalpaid }}">
-                                            <span class="hidden"> {{$u_meter_info->invoice[0]->totalpaid}}</span>
+                                            value="{{ number_format($u_meter_info->invoice_temp[0]->totalpaid,2) }}">
+                                            <span class="hidden"> {{$u_meter_info->invoice_temp[0]->totalpaid}}</span>
 
                                     </td>
                                     <td>
-                                        <span class="hidden"> {{$u_meter_info->invoice[0]->status}}</span>
+                                        <span class=""> {{$u_meter_info->invoice_temp[0]->status}}</span>
 
                                     </td>
                                     <td>
-                                        <span class="hidden"> {{$u_meter_info->invoice[0]->created_at}}</span>
+                                        <span class=""> {{$u_meter_info->invoice_temp[0]->created_at}}</span>
 
                                     </td>
                                     <td>
-                                        <span class="hidden"> {{$u_meter_info->invoice[0]->updated_at}}</span>
+                                        <span class=""> {{$u_meter_info->invoice_temp[0]->updated_at}}</span>
 
                                     </td>
                                     <td>
-                                        <span class="hidden"> {{$u_meter_info->invoice[0]->recorder->firstname." ".$u_meter_info->invoice[0]->recorder->lastname."(".$u_meter_info->invoice[0]->recorder_id.")"}}</span>
+                                        <span class=""> {{$u_meter_info->invoice_temp[0]->recorder->firstname." ".$u_meter_info->invoice_temp[0]->recorder->lastname."(".$u_meter_info->invoice_temp[0]->recorder_id.")"}}</span>
 
                                     </td>
                                 </tr>
@@ -211,19 +214,7 @@
 
 
 @section('script')
-<script src="https://code.jquery.com/jquery-3.7.1.js"></script>
 
-<script src="https://cdn.datatables.net/2.2.0/js/dataTables.js"></script>
-<script src="https://cdn.datatables.net/buttons/3.2.0/js/buttons.dataTables.js"></script>
-    <script src="https://cdn.datatables.net/select/1.3.3/js/dataTables.select.min.js"></script>
-    <script src="https://cdn.datatables.net/buttons/3.2.0/js/dataTables.buttons.js"></script>
-
-<script src="https://cdnjs.cloudflare.com/ajax/libs/pdfmake/0.2.7/vfs_fonts.js"></script>
-<script src="https://cdn.datatables.net/buttons/3.2.0/js/buttons.html5.min.js"></script>
-<script src="https://cdn.datatables.net/buttons/3.2.0/js/buttons.print.min.js"></script>
-
-<script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"></script>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/pdfmake/0.2.7/pdfmake.min.js"></script>
     <script>
         let screenW = window.screen.availWidth
         console.log('screenW', screenW)
@@ -264,22 +255,6 @@
                 },
                 select: false,
               
-            // buttons: [
-              
-            //     {
-            //         extend: 'collection',
-            //         text: 'Export',
-            //         buttons: ['copy', 
-            //          {
-            //             extend: 'excelHtml5',
-            //             title: 'ตุลาคม 2567 - <?=$inv_in_seleted_subzone[0]->undertake_subzone->subzone_name;?>'
-            //         }, 
-            //         'pdf', 'print']
-            //     }
-            // ]
-        
-    
-
             }) //table
             // ทำการ clone thead แล้วสร้าง input text
             if (cloneThead2) {
@@ -337,44 +312,55 @@
 
         })
 
-
+       
         //คำนวนเงินค่าใช้น้ำ
         $(document).on('keyup', '.currentmeter', function() {
             let id = $(this).data('id')
-            let res = check_meter_reserve_price(id)
-            let price_per_unit = 6 //$(this).data('price_per_unit')
             let currentmeter = $(this).val()
             let lastmeter = $(`#lastmeter${id}`).val()
-            let net = currentmeter - lastmeter
-            let paid = net * price_per_unit
-            let vat = 0 // net === 0 ? 0.7 : paid * 0.07
+            let water_used = parseFloat(currentmeter) - parseFloat(lastmeter)
+            
+            const [paid,vat, total, reserve_meter] = cal(water_used)
 
-            let total = paid + vat + res;
-            $('#water_used_net' + id).val(net)
+            $('#water_used_net' + id).val(water_used)
             $('#paid' + id).val(paid)
-            $('#vat' + id).val(vat.toFixed(2))
+            $('#vat' + id).val(vat)
+            $('#meter_reserve_price' + id).val(reserve_meter);
             $('#total' + id).val(total);
             $('#changevalue' + id).val(1)
-
         });
 
         $(document).on('keyup', '.lastmeter', function() {
-            let id = $(this).data('id')
-            let price_per_unit = 6 //$(this).data('price_per_unit')
-            let currentmeter = $(this).val()
-            let lastmeter = $(`#lastmeter${id}`).val()
-            let net = currentmeter - lastmeter
-            let paid = net * price_per_unit
-            let vat = 0 //net === 0 ? 0.7 : paid * 0.07
-            let total = paid + vat + 10 //$(`#meter_reserve_price${id}`).val();
-            $('#water_used_net' + id).val(net)
+           let id = $(this).data('id')
+            let lastmeter = $(this).val()
+            let currentmeter = $(`#currentmeter${id}`).val()
+            let water_used = parseFloat(currentmeter) - parseFloat(lastmeter)
+            //     if(parseFloat(water_used) < 0){
+            //     alert('จำนวนการใช้น้ำติดลบไม่ได้')
+            //     lastmeter = $(this).data('val_ref')
+            //     $(this).val(lastmeter)
+            //     water_used = parseFloat(currentmeter) - parseFloat(lastmeter)
+            // }
+            const [paid,vat, total, reserve_meter] = cal(water_used)
+            $('#water_used_net' + id).val(water_used)
             $('#paid' + id).val(paid)
-            $('#vat' + id).val(vat.toFixed(2))
+            $('#vat' + id).val(vat)
+            $('#meter_reserve_price' + id).val(reserve_meter);
             $('#total' + id).val(total);
             $('#changevalue' + id).val(1)
-            check_meter_reserve_price(id)
-
+       
         });
+         function cal(water_used){
+            let reserve_meter_ref   =  parseFloat($('#reserve_meter_ref').text().trim())
+            let price_per_unit_ref  =  parseFloat($('#price_per_unit_ref').text().trim())
+            let vat_ref             =  parseFloat($(`#vat_ref`).text().trim())
+            console.log('reserve_meter_ref',reserve_meter_ref)
+            let paid                = parseFloat(water_used) * price_per_unit_ref
+            let vat                 = paid *vat_ref
+            let total               = paid + vat + reserve_meter_ref
+            return [parseFloat(paid).toFixed(2), parseFloat(vat).toFixed(2), parseFloat(total).toFixed(2), reserve_meter_ref.toFixed(2)]
+        }
+
 
         function check_meter_reserve_price(inv_id) {
             let lastmeter = $(`#lastmeter${inv_id}`).val()

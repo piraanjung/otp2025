@@ -4,15 +4,17 @@ namespace App\Http\Controllers\KeptKaya;
 
 use App\Http\Controllers\Controller;
 use App\Models\Keptkaya\KpTbankUnits;
+use App\Models\User;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
 
 class KpTbankUnitsController extends Controller
 {
     public function index()
     {
         // ดึงข้อมูลทั้งหมดจากตาราง kp_tbank_units
-        $units = KpTbankUnits::all();
-        return view('keptkaya.tbank.units.index', compact('units'));
+        $units = KpTbankUnits::where('org_id_fk', Auth::user()->org_id_fk)->get();
+        return view('keptkayas.tbank.units.index', compact('units'));
     }
 
     /**
@@ -20,7 +22,8 @@ class KpTbankUnitsController extends Controller
      */
     public function create()
     {
-        return view('keptkaya.tbank.units.create');
+        $user = User::setLocalUser();
+        return view('keptkayas.tbank.units.create', compact('user'));
     }
 
     /**
@@ -29,11 +32,11 @@ class KpTbankUnitsController extends Controller
     public function store(Request $request)
     {
         // ตรวจสอบความถูกต้องของข้อมูล (Validation) สำหรับแต่ละรายการใน Array
-        // $request->validate([
-        //     'unitname.*' => 'required|string|max:255|unique:kp_tbank_items_units,unitname',
-        //     'unit_short_name.*' => 'nullable|string|max:50', // เพิ่ม validation สำหรับ unit_short_name
-        //     'status' => 'required',
-        // ]);
+        $request->validate([
+            'unitname.unitname.*' => 'required|string|max:255|unique:'.session('db_conn').'.kp_tbank_items_units,unitname',
+            'unitname.unit_short_name.*' => 'nullable|string|max:50', // เพิ่ม validation สำหรับ unit_short_name
+            'status' => 'required',
+        ]);
 
         // วนลูปสร้างแต่ละ Unit
         // $unitNames = $request->input('unitname');
@@ -42,13 +45,14 @@ class KpTbankUnitsController extends Controller
         foreach ($request->get('unitname') as $index => $unitName) {
             KpTbankUnits::create([
                 'unitname' => $unitName['unitname'],
+                'org_id_fk' => Auth::user()->org_id_fk,
                 'unit_short_name' => $unitName['unit_short_name'] ?? null, // ดึงค่า unit_short_name ตาม index
                 'status' => 'active',
                 'deleted' => '0',
             ]);
         }
 
-        return redirect()->route('keptkaya.tbank.units.index')->with('success', 'Unit(s) created successfully.');
+        return redirect()->route('keptkayas.tbank.units.index')->with('success', 'Unit(s) created successfully.');
     }
 
     /**
@@ -56,7 +60,7 @@ class KpTbankUnitsController extends Controller
      */
     public function show(KpTbankUnits $unit)
     {
-        return view('keptkaya.tbank.units.show', compact('unit'));
+        return view('keptkayas.tbank.units.show', compact('unit'));
     }
 
     /**
@@ -64,7 +68,7 @@ class KpTbankUnitsController extends Controller
      */
     public function edit(KpTbankUnits $unit)
     {
-        return view('keptkaya.tbank.units.edit', compact('unit'));
+        return view('keptkayas.tbank.units.edit', compact('unit'));
     }
 
     /**
@@ -82,7 +86,7 @@ class KpTbankUnitsController extends Controller
 
         $unit->update($request->all());
 
-        return redirect()->route('keptkaya.tbank.units.index')->with('success', 'Unit updated successfully.');
+        return redirect()->route('keptkayas.tbank.units.index')->with('success', 'Unit updated successfully.');
     }
 
     /**
@@ -93,6 +97,6 @@ class KpTbankUnitsController extends Controller
         // ลบข้อมูล
         $unit->delete();
 
-        return redirect()->route('keptkaya.tbank.units.index')->with('success', 'Unit deleted successfully.');
+        return redirect()->route('keptkayas.tbank.units.index')->with('success', 'Unit deleted successfully.');
     }
 }

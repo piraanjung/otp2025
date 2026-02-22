@@ -58,27 +58,25 @@
                     {{-- @dd($infos) --}}
                         <?php $firstRow = 1; ?>
                         @foreach ($infos as $owe)
-
                             <tr>
                                 @if ($firstRow == 1)
                                     <td>{{ $i }}</td>
-                                    <td class="text-right">{{ $owe->usermeterinfos->meternumber }}</td>
+                                    <td class="text-right">{{ $owe->tw_meter_infos->meternumber }}</td>
 
                                     <td class="text-start">
-                                        {{ $owe->usermeterinfos->user->prefix . '' . $owe->usermeterinfos->user->firstname . ' ' . $owe->usermeterinfos->user->lastname }}
+                                        {{ $owe->tw_meter_infos->user->prefix . '' . $owe->tw_meter_infos->user->firstname . ' ' . $owe->tw_meter_infos->user->lastname }}
                                     </td>
-                                    <td class="text-right">{{ $owe->usermeterinfos->user->address }}</td>
+                                    <td class="text-right">{{ $owe->tw_meter_infos->user->address }}</td>
                                     <td class="text-right">
-                                        {{ $owe->usermeterinfos->user->user_zone->zone_name }}</td>
+                                        {{ $owe->tw_meter_infos->user->user_zone->zone_name }}</td>
                                     <td class="text-right">
-                                        {{ collect($owe->usermeterinfos->user->user_subzone)->isEmpty() ? '-' : $owe->usermeterinfos->user->user_subzone->subzone_name }}
+                                        {{ collect($owe->tw_meter_infos->user->user_subzone)->isEmpty() ? '-' : $owe->tw_meter_infos->user->user_subzone->subzone_name }}
                                     </td>
 
                                     <td class="text-end">
-                                        @if (collect($owe->acc_transactions)->isEmpty())
-                                        @dd($owe)
+                                        @if (collect($owe->tw_acc_transactions)->isEmpty())
                                     @endif
-                                        {{ $owe->acc_transactions->cashier_info->prefix . '' . $owe->acc_transactions->cashier_info->firstname . ' ' . $owe->acc_transactions->cashier_info->lastname }}
+                                        {{ $owe->tw_acc_transactions->cashier_info->prefix . '' . $owe->tw_acc_transactions->cashier_info->firstname . ' ' . $owe->tw_acc_transactions->cashier_info->lastname }}
                                     </td>
 
                                     <td class="text-center">{{ $owe->updated_at }}</td>
@@ -87,23 +85,23 @@
                                     <td class="info_blur">{{ $i }}</td>
 
                                     <td class="info_blur text-right">
-                                        {{ $owe->usermeterinfos->meternumber }}</td>
+                                        {{ $owe->tw_meter_infos->meternumber }}</td>
 
                                     <td class="info_blur text-start">
-                                        {{ $owe->usermeterinfos->user->prefix . '' . $owe->usermeterinfos->user->firstname . ' ' . $owe->usermeterinfos->user->lastname }}
+                                        {{ $owe->tw_meter_infos->user->prefix . '' . $owe->tw_meter_infos->user->firstname . ' ' . $owe->tw_meter_infos->user->lastname }}
                                     </td>
                                     <td class="info_blur text-end">
-                                        {{ $owe->usermeterinfos->user->address }}</td>
+                                        {{ $owe->tw_meter_infos->user->address }}</td>
                                     <td class="info_blur text-center">
-                                        {{ $owe->usermeterinfos->user->user_zone->zone_name }}</td>
+                                        {{ $owe->tw_meter_infos->user->user_zone->zone_name }}</td>
                                     <td class="info_blur text-center">
-                                        {{ collect($owe->usermeterinfos->user->user_subzone)->isEmpty() ? '-' : $owe->usermeterinfos->user->user_subzone->subzone_name }}
+                                        {{ collect($owe->tw_meter_infos->user->user_subzone)->isEmpty() ? '-' : $owe->tw_meter_infos->user->user_subzone->subzone_name }}
                                     </td>
                                     <td class="info_blur text-end">
-                                        @if (collect($owe->acc_transactions)->isEmpty())
+                                        @if (collect($owe->tw_acc_transactions)->isEmpty())
                                         @dd($owe)
                                     @endif
-                                        {{ $owe->acc_transactions->cashier_info->prefix . '' . $owe->acc_transactions->cashier_info->firstname . ' ' . $owe->acc_transactions->cashier_info->lastname }}
+                                        {{ $owe->tw_acc_transactions->cashier_info->prefix . '' . $owe->tw_acc_transactions->cashier_info->firstname . ' ' . $owe->tw_acc_transactions->cashier_info->lastname }}
                                     </td>
                                     <td class="info_blur text-center">{{ $owe->updated_at }}</td>
                                 @endif

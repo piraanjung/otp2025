@@ -19,7 +19,7 @@
                     $table->decimal('total_weight', 10, 2)->default(0.00); // น้ำหนักรวม
                     $table->decimal('total_amount', 10, 2)->default(0.00); // ยอดรวมเป็นเงิน
                     $table->string('status')->default('completed'); // สถานะธุรกรรม (e.g., completed, cancelled)
-                    $table->foreignId('recorder_id')->nullable()->constrained('staffs','user_id')->onDelete('set null'); // ผู้บันทึก (พนักงาน/ผู้ดูแล)
+                    $table->foreignId('recorder_id')->nullable()->constrained('staffs')->onDelete('set null'); // ผู้บันทึก (พนักงาน/ผู้ดูแล)
                     $table->timestamps();
                 });
             }

@@ -19,6 +19,7 @@
 </head>
 
 <body class="font-sans antialiased">
+
     @if (Session::has('message'))
         <!-- This example requires Tailwind CSS v2.0+ -->
         <div class="bg-indigo-600" x-data="{open: true}" x-show="open">

@@ -13,10 +13,10 @@ return new class extends Migration
      */
     public function up()
     {
-        Schema::create('meter_types', function (Blueprint $table) {
-            $table->bigIncrements('id');
+        Schema::create('tw_meter_types', function (Blueprint $table) {
+            $table->id();
             $table->string('meter_type_name');
-            $table->float('price_per_unit', 5,2);
+            $table->string('description')->nullable();
             $table->integer('metersize')->default(0);
             $table->timestamps();
         });
@@ -29,6 +29,6 @@ return new class extends Migration
      */
     public function down()
     {
-        Schema::dropIfExists('meter_types');
+        Schema::dropIfExists('tw_meter_types');
     }
 };

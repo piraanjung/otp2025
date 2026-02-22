@@ -96,95 +96,95 @@
 
 
                     <div class="col-lg-3 cus-btn col-md-6 col-12 mb-4 mb-lg-0
-                        {{-- {{ Auth::user()->hasPermission('access-tabwater-menu') ? '' : " inactive-menu" }} --}} " >
+                        {{-- {{ Auth::user()->hasPermission('access-tabwater-menu') ? '' : " inactive-menu" }} --}} ">
                         <div class=" featured-block d-flex justify-content-center align-items-center">
-                        <a href="{{'dashboard'}}" class="d-block">
-                            <img src="{{ asset('soft-ui/assets/img/water.png') }}"
-                                class="featured-block-image img-fluid" style="height:220px" alt="">
+                            <a href="{{'dashboard'}}" class="d-block">
+                                <img src="{{ asset('soft-ui/assets/img/water.png') }}"
+                                    class="featured-block-image img-fluid" style="height:220px" alt="">
 
-                            {{-- <p class="featured-block-text"> <strong>ระบบ</strong></p> --}}
-                            <p class="featured-block-text">จดมิเตอร์ประปา</p>
+                                {{-- <p class="featured-block-text"> <strong>ระบบ</strong></p> --}}
+                                <p class="featured-block-text">จดมิเตอร์ประปา</p>
 
-                        </a>
+                            </a>
+                        </div>
                     </div>
-                </div>
 
 
-                <div class="col-lg-3 cus-btn col-md-6 col-12 mb-4 mb-lg-0 mb-md-4
+                    <div class="col-lg-3 cus-btn col-md-6 col-12 mb-4 mb-lg-0 mb-md-4
                     {{ Auth::user()->can('access waste bank') ? '' : "inactive-menu" }}
                     ">
-                    <div class="featured-block d-flex justify-content-center align-items-center">
+                        <div class="featured-block d-flex justify-content-center align-items-center">
 
 
-                        <button type="submit" class="btn btn-outline-white">
-                            <a href="{{Auth::user()->can('access waste bank') ? route('keptkaya.dashboard') : '#'}}"
+                            <button type="submit" class="btn btn-outline-white">
+                                <a href="{{Auth::user()->can('access waste bank') ? route('keptkayas.dashboard') : '#'}}"
+                                    class="d-block">
+                                    <img src="{{ asset('imgs/recycle_sys.jpg') }}"
+                                        style="width: 60%"
+                                        class="featured-block-image img-fluid" alt="">
+
+                                    {{-- <p class="featured-block-text"><strong>ระบบ</strong> </p> --}}
+                                    <p class="featured-block-text">ธนาคารขยะชุมชน</p>
+                                </a>
+
+                            </button>
+
+                        </div>
+                    </div>
+
+                    <div class="col-lg-3 cus-btn col-md-6 col-12 mb-4 mb-lg-0 mb-md-4
+                    {{ Auth::user()->can('access waste bank') ? '' : "inactive-menu" }}
+                    ">
+                        <div class="featured-block d-flex justify-content-center align-items-center">
+
+
+                            <button type="submit" class="btn btn-outline-white">
+                                <a href="{{Auth::user()->can('access waste bank') ? route('keptkayas.dashboard') : '#'}}"
+                                    class="d-block">
+                                    <img src="{{ asset('imgs/bin_empty.png') }}"
+                                        style="width: 67%"
+                                        class="featured-block-image img-fluid" alt="">
+
+                                    {{-- <p class="featured-block-text"><strong>ระบบ</strong> </p> --}}
+                                    <p class="featured-block-text">จัดเก็บค่าจัดการขยะรายปี</p>
+                                </a>
+
+                            </button>
+
+                        </div>
+                    </div>
+
+                    <div class="col-lg-3 cus-btn col-md-6 col-12 mb-4 mb-lg-0 mb-md-4
+                    {{ Auth::user()->can('access waste bank') ? '' : "inactive-menu" }}
+                    ">
+                        <div class="featured-block d-flex justify-content-center align-items-center">
+                            <a href="{{Auth::user()->can('access waste bank') ? route('keptkayas.dashboard') : '#'}}"
                                 class="d-block">
-                                <img src="{{ asset('imgs/recycle_sys.jpg') }}"
-                                 style="width: 60%"
+
+                                <img src="{{ asset('templatemo/images/icons/receive.png') }}"
                                     class="featured-block-image img-fluid" alt="">
 
-                                {{-- <p class="featured-block-text"><strong>ระบบ</strong> </p> --}}
-                                <p class="featured-block-text">ธนาคารขยะชุมชน</p>
+                                <p class="featured-block-text"> <strong>ระบบ</strong></p>
+                                <p class="featured-block-text">ธนาคารขยะเปียก</p>
+
                             </a>
-
-                        </button>
-
+                        </div>
                     </div>
-                </div>
 
-                 <div class="col-lg-3 cus-btn col-md-6 col-12 mb-4 mb-lg-0 mb-md-4
-                    {{ Auth::user()->can('access waste bank') ? '' : "inactive-menu" }}
-                    ">
-                    <div class="featured-block d-flex justify-content-center align-items-center">
-
-
-                        <button type="submit" class="btn btn-outline-white">
-                            <a href="{{Auth::user()->can('access waste bank') ? route('keptkaya.dashboard') : '#'}}"
-                                class="d-block">
-                                <img src="{{ asset('imgs/bin_empty.png') }}"
-                                    style="width: 67%"
+                    <div class="col-lg-3 cus-btn col-md-6 col-12 mb-4 mb-lg-0 
+                    {{-- {{ Auth::user()->hasPermission('access-local-bank-menu') ? '' : " inactive-menu" }} --}} ">
+                        <div class=" featured-block d-flex justify-content-center align-items-center">
+                            <a href="#" class="d-block">
+                                <img src="{{ asset('templatemo/images/icons/scholarship.png') }}"
                                     class="featured-block-image img-fluid" alt="">
 
-                                {{-- <p class="featured-block-text"><strong>ระบบ</strong> </p> --}}
-                                <p class="featured-block-text">จัดเก็บค่าจัดการขยะรายปี</p>
+                                <p class="featured-block-text"><strong>ระบบ</strong> </p>
+                                <p class="featured-block-text">ธนาคารชุมชนออมทรัพย์</p>
                             </a>
-
-                        </button>
-
+                        </div>
                     </div>
+
                 </div>
-
-                <div class="col-lg-3 cus-btn col-md-6 col-12 mb-4 mb-lg-0 mb-md-4
-                    {{ Auth::user()->can('access waste bank') ? '' : "inactive-menu" }}
-                    ">
-                    <div class="featured-block d-flex justify-content-center align-items-center">
-                        <a href="{{Auth::user()->can('access waste bank') ? route('keptkaya.dashboard') : '#'}}"
-                            class="d-block">
-
-                            <img src="{{ asset('templatemo/images/icons/receive.png') }}"
-                                class="featured-block-image img-fluid" alt="">
-
-                            <p class="featured-block-text"> <strong>ระบบ</strong></p>
-                            <p class="featured-block-text">ธนาคารขยะเปียก</p>
-
-                        </a>
-                    </div>
-                </div>
-
-                <div class="col-lg-3 cus-btn col-md-6 col-12 mb-4 mb-lg-0 
-                    {{-- {{ Auth::user()->hasPermission('access-local-bank-menu') ? '' : " inactive-menu" }} --}} " >
-                        <div class=" featured-block d-flex justify-content-center align-items-center">
-                    <a href="#" class="d-block">
-                        <img src="{{ asset('templatemo/images/icons/scholarship.png') }}"
-                            class="featured-block-image img-fluid" alt="">
-
-                        <p class="featured-block-text"><strong>ระบบ</strong> </p>
-                        <p class="featured-block-text">ธนาคารชุมชนออมทรัพย์</p>
-                    </a>
-                </div>
-            </div>
-
-            </div>
             </div>
         </section>
 

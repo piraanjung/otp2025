@@ -10,18 +10,19 @@ class WasteBinPayment extends Model
 {
     use HasFactory;
 
+    protected $table = 'kp_waste_bin_payments';
     protected $fillable = [
         'wbs_id',
         'pay_mon',
         'pay_yr',
         'amount_paid',
-        'payment_date',
+        'pay_date',
         'notes',
         'staff_id',
     ];
 
     protected $casts = [
-        'payment_date' => 'date',
+        'pay_date' => 'date',
     ];
 
     /**
@@ -29,7 +30,7 @@ class WasteBinPayment extends Model
      */
     public function subscription()
     {
-        return $this->belongsTo(WasteBinSubscription::class);
+        return $this->belongsTo(WasteBinSubscription::class, 'wbs_id');
     }
 
     /**

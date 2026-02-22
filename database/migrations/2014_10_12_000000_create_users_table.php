@@ -14,29 +14,23 @@ return new class extends Migration
     public function up()
     {
         Schema::create('users', function (Blueprint $table) {
-            $table->unsignedBigInteger('id');
-            $table->string('username');
-            $table->string('password');
-            $table->string('prefix');
-            $table->integer('role_id');
-            $table->string('firstname');
-            $table->string('lastname');
-            $table->string('email')->unique();
+            $table->id();
+            $table->string('username')->nullable();
+            $table->string('password')->nullable();
+            $table->string('prefix')->nullable();
+            $table->string('firstname')->nullable();
+            $table->string('lastname')->nullable();
+            $table->string('email')->unique()->nullable();
             $table->string('line_id')->nullable();
-            $table->string('id_card');
-            $table->string('phone');
-            $table->enum('gender',['m', 'w']);
-            $table->string('address');
-            $table->integer('zone_id')->comment('หมู่หรือชุมชน แล้วแต่พื้นที่จะแยก');
-            $table->integer('subzone_id')->default(0);
-            $table->string('tambon_code');
-            $table->string('district_code');
-            $table->string('province_code');
-            $table->timestamp('email_verified_at')->nullable();
-            $table->rememberToken();
-            $table->enum('status', ['active', 'inactive', 'deleted'])->default('active');
+            $table->string('id_card')->nullable();
+            $table->string('phone')->nullable();
+            $table->text('image')->nullable();
+            $table->enum('gender',['m', 'w'])->nullable();
+            $table->string('address')->nullable();
+            $table->timestamp('email_verified_at')->nullable()->nullable();
+            $table->rememberToken()->nullable();
+            $table->enum('status', ['active', 'inactive', 'deleted'])->default('active')->nullable();
             $table->timestamps();
-            $table->primary('id');
         });
     }
 

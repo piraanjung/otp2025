@@ -2,8 +2,8 @@
 
 namespace App\Exports;
 
-use App\Models\Invoice;
-use App\Models\UserMerterInfo;
+use App\Models\Tabwater\Invoice;
+use App\Models\Tabwater\UserMerterInfo;
 use Illuminate\Contracts\View\View;
 use Maatwebsite\Excel\Concerns\FromView;
 
@@ -48,7 +48,7 @@ class InvoiceInCurrentInvoicePeriodExport implements FromView
         'undertake_subzone_id',
          'submeter_name', 'factory_no', 'meter_address']);
 
-        $umfsFilter = collect($umfs)->filter(function($v){
+         $umfsFilter = collect($umfs)->filter(function($v){
             return collect($v->invoice_currrent_inv_period)->isNotEmpty();
         })->values();
         return view('exports.invoices_in_curr_inv_period', [

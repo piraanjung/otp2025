@@ -1,382 +1,324 @@
 @extends('layouts.admin1')
 
-
-@section('nav-payment-search')
-    active
-@endsection
-@section('nav-header')
-จัดการใบเสร็จรับเงิน
-@endsection
+@section('nav-payment-search', 'active')
+@section('nav-header', 'จัดการใบเสร็จรับเงิน')
 @section('nav-main')
     <a href="{{ route('payment.search') }}">ค้นหาใบเสร็จรับเงิน</a>
 @endsection
-
-@section('nav-topic')
-    ค้นหาใบเสร็จรับเงิน
-@endsection
-
+@section('nav-topic', 'ค้นหาใบเสร็จรับเงิน')
 
 @section('style')
     <link href="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/css/select2.min.css" rel="stylesheet" />
     <script src="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/js/select2.min.js"></script>
-    <!-- Latest compiled and minified JavaScript -->
 
     <style>
-        .select2-container .select2-selection--single {
-            box-sizing: border-box;
-            cursor: pointer;
-            display: block;
-            height: 50px;
-            user-select: none;
-            -webkit-user-select: none;
-            padding-top: 5px;
-            font-size: 1.1rem;
-            width: 700px !important
-        }
-
+        /* ปรับให้ Select2 เต็มความกว้างของ Container แม่ */
         .select2-container {
-            width: 700px !important
+            width: 100% !important;
         }
-
+        .select2-container .select2-selection--single {
+            height: 45px; /* ปรับความสูงให้พอดีสวยงาม */
+            padding-top: 8px;
+            font-size: 1rem;
+        }
         .select2-container--default .select2-selection--single .select2-selection__arrow {
-            height: 26px;
-            position: absolute;
-            top: 11px;
-            right: 1px;
-            width: 20px;
+            height: 40px;
+            top: 2px;
         }
 
-        .hidden {
-            display: none
-        }
+        .hidden { display: none; }
 
         .budgetyear-div {
             cursor: pointer;
+            transition: all 0.3s ease; /* Smooth transition */
         }
-
         .budgetyear-div:hover {
-            opacity: 0.8;
-            transform: scale(1.05);
-            transition: all 1s;
+            transform: translateY(-5px); /* ขยับขึ้นเล็กน้อยเมื่อ Hover */
+            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+        }
+        
+        /* จัดตัวเลขในตารางให้ชิดขวา */
+        .text-num {
+            text-align: right;
         }
     </style>
-    {{-- <link rel="stylesheet" href="//code.jquery.com/ui/1.13.1/themes/base/jquery-ui.css"> --}}
 @endsection
 
 @section('content')
-<div class="preloader-wrapper">
-    <button class="btn btn-primary btn-sm mb-2" type="button" disabled>
-        <span class="spinner-border spinner-border-sm" role="status"></span>
-        Loading...
-    </button>
-</div>
-    <div class="col-5 my-auto">
-        <div class="h-100">
-            <h5 class="mb-1">ค้นหา : ชื่อ,ที่อยู่ ,เลขมิเตอร์</h5>
-            <form action="{{ route('payment.search') }}" method="POST" id="searchform" class="d-flex justify-content-between">
-                @csrf
-                <select class="js-example-basic-single form-control" name="user_info">
-                    <option>เลือก...</option>
-                    @foreach ($users as $user)
-                        @foreach ($user->usermeterinfos as $usermeterinfo)
-                            <option value="{{ $usermeterinfo->meter_id }}">
-                            {{ $user->prefix . '' . $user->firstname . ' ' . $user->lastname . '     [บ้านเลขที่ ' . $user->address . ' ' . $user->user_zone->zone_name }}
+    {{-- Preloader --}}
+    <div class="preloader-wrapper text-center my-3">
+        <button class="btn btn-primary btn-sm mb-2" type="button" disabled>
+            <span class="spinner-border spinner-border-sm" role="status"></span>
+            กำลังโหลดข้อมูล...
+        </button>
+    </div>
 
-                                - [{{ $usermeterinfo->meternumber }}]
+    {{-- Search Section --}}
+    <div class="row justify-content-center mb-4">
+        <div class="col-lg-8 col-md-10 col-12">
+            <div class="card card-body shadow-sm">
+                <h6 class="mb-2"><i class="fa fa-search me-2"></i>ค้นหา : ชื่อ, ที่อยู่, เลขมิเตอร์</h6>
+                <form action="{{ route('payment.search') }}" method="POST" id="searchform">
+                    @csrf
+                    <select class="js-example-basic-single form-control" name="user_info">
+                        <option value="">-- กรุณาเลือกผู้ใช้น้ำ --</option>
+                        @foreach ($users as $user)
+                            @foreach ($user->usermeterinfos as $usermeterinfo)
+                                <option value="{{ $usermeterinfo->meter_id }}" 
+                                    {{ request('user_info') == $usermeterinfo->meter_id ? 'selected' : '' }}>
+                                    
+                                    {{ $user->prefix . $user->firstname . ' ' . $user->lastname }} 
+                                    [บ้านเลขที่ {{ $user->address }} {{ optional($user->user_zone)->zone_name }}]
+                                    - [มิเตอร์: {{ $usermeterinfo->meternumber }}]
 
-                            </option>
+                                </option>
+                            @endforeach
                         @endforeach
-                        {{-- <option value="{{ $user->usermeterinfos[0]->meter_id }}">
-                            {{ $user->prefix . '' . $user->firstname . ' ' . $user->lastname . '     [บ้านเลขที่ ' . $user->address . ' ' . $user->user_zone->zone_name }}
-
-                            - [{{ $user->usermeterinfos[0]->meternumber }}]
-
-                        </option> --}}
-                    @endforeach
-                </select>
-                {{-- <button type="submit" class="btn btn-secondary ms-3"><i class="fa fa-search">ค้นหา</i></button> --}}
-            </form>
-
+                    </select>
+                </form>
+            </div>
         </div>
     </div>
+
     @if (collect($inv_by_budgetyear)->isNotEmpty())
+        {{-- ดึงข้อมูล User คนแรกมาแสดงหัวข้อ (ใช้ optional กัน error) --}}
+        @php
+            $firstItem = $inv_by_budgetyear[0][0] ?? null;
+            // dd($firstItem);
+            $userInfo = $firstItem ? $firstItem['tw_meter_infos']['user'] : null;
+            $meterInfo = $firstItem ? $firstItem['tw_meter_infos'] : null;
+        @endphp
+
         <div class="container-fluid my-3 py-3">
-            <div class="row mb-5">
-                <div class="col-lg-3">
-                    <div class="card position-sticky top-1">
-                        <!-- sidebar budgetyear -->
+            <div class="row">
+                
+                {{-- Left Sidebar: Budget Year Navigation --}}
+                <div class="col-lg-3 mb-4">
+                    <div class="position-sticky top-1" style="z-index: 99;">
+                        <h6 class="text-secondary ps-2">เลือกปีงบประมาณ</h6>
                         @foreach ($inv_by_budgetyear as $budgetyear)
-                            <div class="col-12 mt-2 budgetyear-div ">
-                                <div class="card">
-                                    <span
-                                        class="mask {{ $budgetyear[0]['invoice_period']['budgetyear']['status'] == 'active' ? 'bg-gradient-info' : 'bg-gradient-dark' }} opacity-9 border-radius-xl">
-                                    </span>
-                                    <div class="card-body p-3 position-relative">
-                                        <a href="#by{{ $budgetyear[0]['invoice_period']['budgetyear_id'] }}" data-scroll="">
-                                            <div class="row">
-                                                <div class="col-12  d-flex justify-content-between">
-                                                    <div
-                                                        class="icon icon-shape bg-white shadow text-center border-radius-md">
-                                                        <i class="ni ni-circle-08 text-dark text-gradient text-lg opacity-10"
-                                                            aria-hidden="true"></i>
-                                                    </div>
-                                                    <div class="">
-                                                        <h5 class="text-white font-weight-bolder mb-0 text-end">
-                                                            {{ $budgetyear[0]['invoice_period']['budgetyear']['budgetyear_name'] }}
-                                                        </h5>
-                                                        <span class="text-white ">ปีงบประมาณ</span>
-                                                    </div>
+                            @php
+                                $isActive = $budgetyear[0]['invoice_period']['budgetyear']['status'] == 'active';
+                                $lastmeter_sum = collect($budgetyear)->sum('lastmeter');
+                                $currentmeter_sum = collect($budgetyear)->sum('currentmeter');
+                                $net = $currentmeter_sum - $lastmeter_sum;
+                                $inv_period_count = collect($budgetyear)->count();
+                            @endphp
+                            
+                            <div class="card mb-3 budgetyear-div">
+                                <span class="mask {{ $isActive ? 'bg-gradient-info' : 'bg-gradient-dark' }} opacity-9 border-radius-xl"></span>
+                                <div class="card-body p-3 position-relative">
+                                    <a href="#by{{ $budgetyear[0]['invoice_period']['budgetyear_id'] }}" class="text-decoration-none">
+                                        <div class="row">
+                                            <div class="col-12 d-flex justify-content-between align-items-center">
+                                                <div class="icon icon-shape bg-white shadow text-center border-radius-md">
+                                                    <i class="ni ni-calendar-grid-58 text-dark text-gradient text-lg opacity-10"></i>
                                                 </div>
-                                                <div class="col-12 text-start mt-1 pt-1" style="border-top: 1px solid;">
-                                                    <?php
-                                                    $lastmeter_sum = collect($budgetyear)->sum('lastmeter');
-                                                    $currentmeter_sum = collect($budgetyear)->sum('currentmeter');
-                                                    $net = $currentmeter_sum - $lastmeter_sum;
-                                                    $inv_period_count = collect($budgetyear)->count();
-                                                    ?>
-                                                    <p class="text-white font-weight-bolder mt-auto mb-0">
-                                                        &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;{{ $inv_period_count }}
-                                                        <sup>รอบบิล</sup>
-                                                    </p>
-                                                    <p class="text-white font-weight-bolder mt-auto mb-0"> <span
-                                                            class=""> ใช้น้ำ</span>
-                                                        {{ $net }}<sup>ลิตร </sup></p>
+                                                <div class="text-end">
+                                                    <span class="text-white text-sm d-block opacity-8">ปีงบประมาณ</span>
+                                                    <h5 class="text-white font-weight-bolder mb-0">
+                                                        {{ $budgetyear[0]['invoice_period']['budgetyear']['budgetyear_name'] }}
+                                                    </h5>
                                                 </div>
                                             </div>
-                                        </a>
-                                    </div>
+                                            <div class="col-12 mt-3 pt-2 border-top border-white-50">
+                                                <div class="d-flex justify-content-between text-white text-sm">
+                                                    <span><i class="ni ni-paper-diploma me-1"></i> {{ $inv_period_count }} รอบบิล</span>
+                                                    <span><i class="ni ni-drop me-1"></i> {{ number_format($net) }} ลิตร</span>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </a>
                                 </div>
                             </div>
                         @endforeach
                     </div>
                 </div>
-                <div class="col-lg-9 mt-lg-0 mt-4">
-                    <!-- ข้อมูล user -->
-                    <div class="card card-body" id="profile">
-                        <div class="row justify-content-left align-items-left">
-                            <div class="col-sm-auto col-4">
-                                <div class="avatar avatar-xl position-relative">
-                                    <img src="{{ asset('soft-ui/assets/img/bruce-mars.jpg') }}" alt="bruce"
-                                        class="w-100 border-radius-lg shadow-sm">
-                                </div>
-                            </div>
-                            <div class="col-sm-auto col-8 my-auto">
-                                <div class="h-100">
-                                    <h5 class="mb-1 font-weight-bolder d-flex justify-content-between">
-                                        <span>
-                                            {{ $inv_by_budgetyear[0][0]['usermeterinfos']['user']['firstname'] . ' ' . $inv_by_budgetyear[0][0]['usermeterinfos']['user']['lastname'] }}
-                                        </span>
-                                        <span>
-                                            {{ $inv_by_budgetyear[0][0]['usermeterinfos']['meternumber'] }}
-                                        </span>
-                                    </h5>
-                                    <p class="mb-0 font-weight-bold ">
-                                        เส้นทาง
-                                        {{ $inv_by_budgetyear[0][0]['usermeterinfos']['undertake_subzone']['undertake_subzone_name'] }}
-                                        ::
-                                        {{ $inv_by_budgetyear[0][0]['usermeterinfos']['user']['address'] }}
-                                        {{ $inv_by_budgetyear[0][0]['usermeterinfos']['undertake_zone']['undertake_zone_name'] }}
-                                        ต.
-                                        {{ $inv_by_budgetyear[0][0]['usermeterinfos']['user']['user_tambon']['tambon_name'] }}
-                                        อ.
-                                        {{ $inv_by_budgetyear[0][0]['usermeterinfos']['user']['user_district']['district_name'] }}
-                                        จ.
-                                        {{ $inv_by_budgetyear[0][0]['usermeterinfos']['user']['user_province']['province_name'] }}
-                                        {{-- &nbsp;{{ $inv_by_budgetyear[1][0]['usermeterinfos']['user']['user_tambon']['zipcode'] }} --}}
 
-                                    </p>
-                                </div>
+                {{-- Right Content: Invoices --}}
+                <div class="col-lg-9">
+                    
+                    {{-- User Profile Card --}}
+                    @if($userInfo)
+                    <div class="card card-body mb-4 shadow-sm border-0" id="profile">
+                        <div class="d-flex align-items-center">
+                            <div class="avatar avatar-xl position-relative me-3">
+                                <img src="{{ asset('soft-ui/assets/img/bruce-mars.jpg') }}" alt="profile" class="w-100 border-radius-lg shadow-sm">
+                            </div>
+                            <div>
+                                <h5 class="mb-1 font-weight-bolder text-dark">
+                                    {{ $userInfo['firstname'] . ' ' . $userInfo['lastname'] }}
+                                    <span class="text-muted text-sm fw-normal ms-2"><i class="fas fa-tachometer-alt"></i> {{ $meterInfo['meternumber'] }}</span>
+                                </h5>
+                                <p class="mb-0 text-sm text-secondary">
+                                    <i class="fas fa-map-marker-alt text-danger me-1"></i>
+                                    {{ $meterInfo['undertake_subzone']['undertake_subzone_name'] ?? '-' }} ::
+                                    {{ $userInfo['address'] }}
+                                    {{ $meterInfo['undertake_zone']['undertake_zone_name'] ?? '-' }}
+                                    ต.{{ $userInfo['user_tambon']['tambon_name'] ?? '-' }}
+                                    อ.{{ $userInfo['user_district']['district_name'] ?? '-' }}
+                                    จ.{{ $userInfo['user_province']['province_name'] ?? '-' }}
+                                </p>
                             </div>
                         </div>
                     </div>
+                    @endif
 
-                    <!-- ตาราง ขวา -->
+                    {{-- Invoice Lists by Budget Year --}}
                     @foreach ($inv_by_budgetyear as $budgetyear)
-                        <?php
-                        $grouped = collect($budgetyear)->groupBy('acc_trans_id_fk');
-                        ?>
-                        <div class="row my-4" id="by{{ $budgetyear[0]['invoice_period']['budgetyear_id'] }}">
-                            <div class="col-12">
-                                <div
-                                    class="card {{ $budgetyear[0]['invoice_period']['budgetyear']['status'] == 'active' ? 'bg-gradient-info' : 'bg-gradient-dark' }}">
-                                    <div
-                                        class="card-header {{ $budgetyear[0]['invoice_period']['budgetyear']['status'] == 'active' ? 'bg-gradient-info' : 'bg-gradient-dark' }}">
+                        @php
+                            $grouped = collect($budgetyear)->groupBy('acc_trans_id_fk');
+                            $yearId = $budgetyear[0]['invoice_period']['budgetyear_id'];
+                            $yearName = $budgetyear[0]['invoice_period']['budgetyear']['budgetyear_name'];
+                            $isYearActive = $budgetyear[0]['invoice_period']['budgetyear']['status'] == 'active';
+                        @endphp
 
-                                        <div class="card-title text-white fs-4 fw-bold">
-                                            ปีงบประมาณ
-                                            {{ $budgetyear[0]['invoice_period']['budgetyear']['budgetyear_name'] }}
+                        <div class="mb-5 scroll-mt-5" id="by{{ $yearId }}" style="scroll-margin-top: 20px;">
+                            <div class="d-flex align-items-center mb-3">
+                                <span class="badge {{ $isYearActive ? 'bg-gradient-info' : 'bg-gradient-secondary' }} me-2 p-2">
+                                    <i class="ni ni-bookmark-04 text-lg"></i>
+                                </span>
+                                <h4 class="mb-0 text-dark">ปีงบประมาณ {{ $yearName }}</h4>
+                            </div>
+
+                            @foreach ($grouped as $acc_trans_id => $group)
+                                <div class="card mb-4 shadow-sm border-1">
+                                    <div class="card-header bg-light p-3">
+                                        <div class="d-flex justify-content-between align-items-center flex-wrap">
+                                            <div>
+                                                <h6 class="mb-0 text-primary"><i class="fas fa-file-invoice-dollar me-1"></i> ใบเสร็จเลขที่: {{ $acc_trans_id }}</h6>
+                                                <small class="text-muted">วันที่ชำระ: {{ date('d/m/Y', strtotime($group[0]['updated_at'])) }}</small>
+                                            </div>
+                                            <div class="d-flex gap-2 mt-2 mt-sm-0">
+                                                <a href="{{ route('payment.receipt_print_history', $acc_trans_id) }}" target="_blank" class="btn btn-outline-primary btn-sm mb-0">
+                                                    <i class="fas fa-print me-1"></i> พิมพ์
+                                                </a>
+                                                <form action="{{ route('payment.destroy', $acc_trans_id) }}" method="post" onsubmit="return confirm('ยืนยันการยกเลิกใบเสร็จนี้? การกระทำนี้ไม่สามารถย้อนกลับได้');">
+                                                    @csrf
+                                                    @method('DELETE')
+                                                    <button type="submit" class="btn btn-outline-danger btn-sm mb-0">
+                                                        <i class="fas fa-ban me-1"></i> ยกเลิก
+                                                    </button>
+                                                </form>
+                                            </div>
                                         </div>
                                     </div>
-                                    <div class="card-body">
-                                        @foreach ($grouped as $group)
-                                            <div class="card mt-4">
-                                                <div class="card-header">
-                                                    <div class="card-title d-flex justify-content-between">
-                                                        <span>เลขใบเสร็จรับเงิน{{ $group[0]['acc_trans_id_fk'] }}</span>
-                                                        <span
-                                                            class="text-end">{{ date_format(new DateTime($group[0]['updated_at']), 'd-m-Y') }}</span>
-
-                                                        <div class="text-right d-flex">
-                                                            <a href="{{ route('payment.receipt_print_history', $group[0]['acc_trans_id_fk']) }}"
-                                                                class="btn btn-primary btn-sm">ปริ้นใบเสร็จ</a>
-                                                            <form
-                                                                action="{{ route('payment.destroy', $group[0]['acc_trans_id_fk']) }}"
-                                                                method="post">
-                                                                @csrf
-                                                                @method('DELETE')
-                                                                &nbsp;<button type="submit"
-                                                                    class="btn btn-warning cancel_receipt_paper btn-sm">
-                                                                    ยกเลิกใบเสร็จรับเงิน
-                                                                </button>
-                                                            </form>
-                                                        </div>
-                                                    </div>
-                                                </div>
-                                                <div class="card-body">
-                                                    <div class="table-responsive">
-                                                        <table class="table align-items-center mb-0 ">
-                                                            <thead>
-                                                                <tr>
-                                                                    <th></th>
-                                                                    <th
-                                                                        class="text-uppercase text-secondary font-weight-bolder text-center">
-                                                                        เลขใบแจ้งหนี้
-                                                                    </th>
-                                                                    <th
-                                                                        class="text-uppercase text-secondary font-weight-bolder text-center ps-2">
-                                                                        รอบบิล</th>
-                                                                    <th
-                                                                        class="text-uppercase text-secondary font-weight-bolder text-center ps-2">
-                                                                        ก่อนจดมิเตอร์<sup>หน่วย</sup></th>
-                                                                    <th
-                                                                        class="text-uppercase text-secondary font-weight-bolder text-center">
-                                                                        หลังจดมิเตอร์<sup>หน่วย</sup></th>
-                                                                    <th
-                                                                        class="text-uppercase text-secondary font-weight-bolder text-center">
-                                                                        ใช้น้ำจำนวน<sup>หน่วย</sup></th>
-
-                                                                    <th
-                                                                        class="text-uppercase text-secondary font-weight-bolder text-center ps-2">
-                                                                        ค่าน้ำประปา<sup>บาท</sup></th>
-                                                                    <th
-                                                                        class="text-uppercase text-secondary font-weight-bolder text-center">
-                                                                        รักษามิเตอร์<sup>บาท</sup></th>
-                                                                    <th
-                                                                        class="text-uppercase text-secondary font-weight-bolder text-center">
-                                                                        Vat 7%<sup>บาท</sup></th>
-                                                                    <th
-                                                                        class="text-uppercase text-secondary font-weight-bolder text-center">
-                                                                        รวมเป็นเงิน<sup>บาท</sup></th>
-                                                                </tr>
-                                                                </tr>
-                                                            </thead>
-                                                            <tbody>
-                                                                <?php $totalpaid = 0; ?>
-                                                                @foreach ($group as $invoice)
-                                                                    <tr>
-                                                                        <td>
-                                                                            @if ($invoice['totalpaid'] == 0)
-                                                                            <i class="fa fa-minus-circle text-danger del_dup_inv" data-inv_id="{{ $invoice['inv_id'] }}"></i>
-                                                                            @endif
-                                                                        </td>
-                                                                        <td>
-
-                                                                            <div class="text-center">
-                                                                                <h6 class="mb-0 ">
-                                                                                    {{ $invoice['inv_id'] }}</h6>
-                                                                            </div>
-                                                                        </td>
-                                                                        <td>
-                                                                            <span class="badge badge-dot me-4">
-                                                                                <i class="bg-info"></i>
-                                                                                <span
-                                                                                    class="text-dark ">{{ $invoice['invoice_period']['inv_p_name'] }}</span>
-                                                                            </span>
-                                                                        </td>
-                                                                        <td class="align-middle text-center">
-                                                                            <p class="text-secondary mb-0">
-                                                                                {{ $invoice['lastmeter'] }}</p>
-                                                                        </td>
-                                                                        <td class="align-middle text-center">
-                                                                            <span
-                                                                                class="text-secondary  font-weight-bold">{{ $invoice['currentmeter'] }}</span>
-                                                                        </td>
-                                                                        <td class="align-middle text-center">
-                                                                            <p class="text-secondary mb-0">
-                                                                                {{ $invoice['water_used'] }}</p>
-                                                                        </td>
-                                                                        <td class="align-middle text-center">
-                                                                            <span
-                                                                                class="text-secondary  font-weight-bold">{{ $invoice['inv_type'] == 'u' ? $invoice['paid'] : 0 }}</span>
-                                                                        </td>
-                                                                        <td class="align-middle text-center">
-                                                                            <span
-                                                                                class="text-secondary  font-weight-bold">{{ $invoice['inv_type'] == 'r' ? 10 : 0 }}</span>
-                                                                        </td>
-                                                                        <td class="align-middle text-center">
-                                                                            <span
-                                                                                class="text-secondary  font-weight-bold">{{ $invoice['vat'] }}</span>
-                                                                        </td>
-                                                                        <td class="align-middle text-center">
-                                                                            @php
-                                                                                $totalpaid += $invoice['totalpaid'];
-                                                                            @endphp
-                                                                            <span
-                                                                                class="text-secondary  font-weight-bold">{{ $invoice['totalpaid'] }}</span>
-                                                                        </td>
-                                                                    </tr>
-                                                                @endforeach
-                                                                <tr>
-                                                                    <td colspan="8" class="text-end"><b>รวมเป็นเงิน</b>
-                                                                    </td>
-                                                                    <td class="text-center">
-                                                                        {{ number_format($totalpaid, 2) }}
-                                                                    </td>
-                                                                </tr>
-                                                            </tbody>
-                                                        </table>
-                                                    </div>
-                                                </div>
-                                            </div>
-                                        @endforeach
+                                    
+                                    <div class="card-body p-0">
+                                        <div class="table-responsive">
+                                            <table class="table align-items-center mb-0 table-striped">
+                                                <thead class="bg-gray-100">
+                                                    <tr>
+                                                        <th class="text-uppercase text-secondary text-xxs font-weight-bolder opacity-7 ps-2">สถานะ</th>
+                                                        <th class="text-uppercase text-secondary text-xxs font-weight-bolder opacity-7 text-center">ใบแจ้งหนี้</th>
+                                                        <th class="text-uppercase text-secondary text-xxs font-weight-bolder opacity-7 ps-2">รอบบิล</th>
+                                                        <th class="text-uppercase text-secondary text-xxs font-weight-bolder opacity-7 text-num">ก่อนจด</th>
+                                                        <th class="text-uppercase text-secondary text-xxs font-weight-bolder opacity-7 text-num">หลังจด</th>
+                                                        <th class="text-uppercase text-secondary text-xxs font-weight-bolder opacity-7 text-num">ใช้น้ำ</th>
+                                                        <th class="text-uppercase text-secondary text-xxs font-weight-bolder opacity-7 text-num">ค่าน้ำ</th>
+                                                        <th class="text-uppercase text-secondary text-xxs font-weight-bolder opacity-7 text-num">บริการ</th>
+                                                        <th class="text-uppercase text-secondary text-xxs font-weight-bolder opacity-7 text-num">Vat</th>
+                                                        <th class="text-uppercase text-secondary text-xxs font-weight-bolder opacity-7 text-num pe-4">รวม</th>
+                                                    </tr>
+                                                </thead>
+                                                <tbody>
+                                                    @php $totalpaid = 0; @endphp
+                                                    @foreach ($group as $invoice)
+                                                        @php $totalpaid += $invoice['totalpaid']; @endphp
+                                                        <tr>
+                                                            <td class="ps-2">
+                                                                @if ($invoice['totalpaid'] == 0)
+                                                                    <a href="javascript:;" class="text-danger del_dup_inv" data-inv_id="{{ $invoice['id'] }}" title="ลบรายการซ้ำ">
+                                                                        <i class="fas fa-trash-alt"></i>
+                                                                    </a>
+                                                                @else
+                                                                    <i class="fas fa-check-circle text-success text-xs"></i>
+                                                                @endif
+                                                            </td>
+                                                            <td class="text-center font-weight-bold">{{ $invoice['id'] }}</td>
+                                                            <td>
+                                                                <span class="badge badge-dot me-4">
+                                                                    <i class="bg-info"></i>
+                                                                    <span class="text-dark text-xs">{{ $invoice['invoice_period']['inv_p_name'] }}</span>
+                                                                </span>
+                                                            </td>
+                                                            <td class="text-num text-sm">{{ $invoice['lastmeter'] }}</td>
+                                                            <td class="text-num text-sm">{{ $invoice['currentmeter'] }}</td>
+                                                            <td class="text-num text-sm fw-bold text-dark">{{ $invoice['water_used'] }}</td>
+                                                            <td class="text-num text-sm">{{ $invoice['inv_type'] == 'u' ? number_format($invoice['paid'], 2) : '-' }}</td>
+                                                            <td class="text-num text-sm">{{ $invoice['inv_type'] == 'r' ? number_format(10, 2) : '-' }}</td>
+                                                            <td class="text-num text-sm">{{ number_format($invoice['vat'], 2) }}</td>
+                                                            <td class="text-num fw-bold text-dark pe-4">{{ number_format($invoice['totalpaid'], 2) }}</td>
+                                                        </tr>
+                                                    @endforeach
+                                                    <tr class="bg-gray-50">
+                                                        <td colspan="9" class="text-end text-uppercase text-secondary text-xs font-weight-bolder opacity-7">
+                                                            ยอดรวมสุทธิ
+                                                        </td>
+                                                        <td class="text-num font-weight-bolder text-primary text-sm pe-4">
+                                                            {{ number_format($totalpaid, 2) }} ฿
+                                                        </td>
+                                                    </tr>
+                                                </tbody>
+                                            </table>
+                                        </div>
                                     </div>
                                 </div>
-                            </div>
+                            @endforeach
                         </div>
                     @endforeach
+
                 </div>
             </div>
         </div>
+    @else
+        {{-- กรณีไม่มีข้อมูล --}}
+        @if(request()->has('user_info'))
+            <div class="container text-center mt-5">
+                <img src="https://cdn-icons-png.flaticon.com/512/7486/7486744.png" width="150" alt="no data" class="opacity-5 mb-3">
+                <h4 class="text-muted">ไม่พบประวัติการชำระเงิน</h4>
+                <p>กรุณาลองค้นหาใหม่อีกครั้ง หรือผู้ใช้นี้ยังไม่มีการชำระเงินในระบบ</p>
+            </div>
+        @endif
     @endif
 
 @endsection
 
-
 @section('script')
-    <script
-        src="https://www.jqueryscript.net/demo/Export-Html-Table-To-Excel-Spreadsheet-using-jQuery-table2excel/src/jquery.table2excel.js">
-    </script>
-    <script src="https://code.jquery.com/ui/1.13.1/jquery-ui.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-3-typeahead/4.0.1/bootstrap3-typeahead.min.js"></script>
-
-    <script>
+    <script src="https://www.jqueryscript.net/demo/Export-Html-Table-To-Excel-Spreadsheet-using-jQuery-table2excel/src/jquery.table2excel.js"></script>
+    {{-- <script src="https://code.jquery.com/ui/1.13.1/jquery-ui.js"></script> --}} <script>
         $(document).ready(function() {
-            $('.js-example-basic-single').select2();
-            $('.preloader-wrapper').addClass('hidden')
+            // Setup Select2
+            $('.js-example-basic-single').select2({
+                placeholder: "ค้นหาผู้ใช้น้ำ...",
+                allowClear: true,
+                width: '100%' // สำคัญ: บังคับให้เต็มจอ
+            });
+
+            // Hide Preloader
+            $('.preloader-wrapper').fadeOut();
         });
 
+        // Event เมื่อเลือก User ใน Select2 ให้ Submit Form ทันที
+        $('.js-example-basic-single').on('select2:select', function (e) {
+            $('.preloader-wrapper').removeClass('hidden').fadeIn(); // โชว์ loading อีกรอบ
+            $('#searchform').submit();
+        });
+
+        // Delete Logic
         $(document).on('click', '.del_dup_inv', function(){
-            let inv_id = $(this).data('inv_id')
-            let res = window.confirm('ต้องการลบข้อมูลใช่หรือไม่? !!!')
-            if(res){
-                $.get('/invioice/delete_duplicate_inv/'+inv_id, function(res){
-
+            let inv_id = $(this).data('inv_id');
+            if(confirm('ต้องการลบข้อมูลรายการนี้ใช่หรือไม่? (การกระทำนี้ไม่สามารถย้อนกลับได้)')) {
+                // แก้ไข URL จาก invioice เป็น invoice
+                $.get('/invoice/delete_duplicate_inv/' + inv_id)
+                .done(function(res) {
+                    alert('ลบข้อมูลสำเร็จ');
+                    location.reload(); // รีโหลดหน้าเพื่ออัปเดตข้อมูล
                 })
+                .fail(function() {
+                    alert('เกิดข้อผิดพลาดในการลบข้อมูล');
+                });
             }
-        })
-
-        $('.js-example-basic-single').change(function(){
-            $('#searchform').submit()
-        })
+        });
     </script>
 @endsection

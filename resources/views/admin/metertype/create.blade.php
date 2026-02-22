@@ -1,4 +1,4 @@
-@extends('layouts.admin1')
+@extends('layouts.super-admin')
 @section('mainheader')
     สร้างขนาดมิเตอร์
 @endsection
@@ -35,13 +35,13 @@
                             <input type="text" class="form-control" id="metersize" name="metersize">
                         </div>
                         <div class="form-group col-md-3">
-                            <strong class="text-muted d-block mb-2">ราคาต่อหน่วย
-                                @error('price_per_unit')
+                            <strong class="text-muted d-block mb-2">หมายเหตุ
+                                @error('description')
                                     <span class="text-danger h-8">({{ $message }})</span>
                                 @enderror
                             </strong>
-                            <input type="text" class="form-control" id="price_per_unit" placeholder="ตัวอย่าง : 8.25"
-                                name="price_per_unit">
+                            <textarea class="form-control" id="description" placeholder="ตัวอย่าง : 8.25"
+                                name="description"></textarea>
                         </div>
                         <div class="form-group col-md-2">
                             <strong class="text-muted d-block mb-2">&nbsp;</strong>

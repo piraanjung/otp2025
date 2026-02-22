@@ -11,12 +11,13 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::create('kp_purchase_details', function (Blueprint $table) {
+        Schema::create('kp_purchase_transactions_details', function (Blueprint $table) {
             $table->id();
             $table->foreignId('kp_purchase_trans_id')->constrained('kp_purchase_transactions')->onDelete('cascade');
             $table->foreignId('kp_recycle_item_id')->constrained('kp_tbank_items')->onDelete('restrict');
             $table->foreignId('kp_tbank_items_pricepoint_id')->nullable()->constrained('kp_tbank_items_pricepoint')->onDelete('set null');
-            $table->foreignId('recorder_id')->nullable()->constrained('staffs', 'user_id')->onDelete('set null');
+            $table->foreignId('recorder_id')->nullable()->constrained('users', 'id')->onDelete('set null');
+            $table->foreignId('kp_units_idfk')->constrained('kp_tbank_items_units', 'id')->onDelete('cascade');
             $table->decimal('amount_in_units', 10, 2); // ปริมาณ (น้ำหนัก/ชิ้น)
             $table->decimal('price_per_unit', 8, 2); // ราคาต่อหน่วยที่ใช้ ณ เวลาที่ซื้อ
             $table->decimal('amount', 10, 2); // ยอดเงินสำหรับรายการนี้
@@ -31,6 +32,6 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::dropIfExists('kp_purchase_details');
+        Schema::dropIfExists('kp_purchase_transactions_details');
     }
 };

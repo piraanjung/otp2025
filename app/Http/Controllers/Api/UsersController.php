@@ -5,12 +5,13 @@ namespace App\Http\Controllers\Api;
 use App\Http\Controllers\Api\FunctionsController;
 use App\Http\Controllers\Api\ZoneController;
 use App\Http\Controllers\Controller;
-use App\Models\Tabwater\Invoice;
-use App\Models\Tabwater\InvoicePeriod;
+use App\Models\Tabwater\TwInvoice;
+use App\Models\Tabwater\TwInvoicePeriod;
+use App\Models\Tabwater\TwMeterInfos;
 use App\Models\Tabwater\UndertakerSubzone;
 use App\Models\User;
-use App\Models\Tabwater\UserMerterInfo;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Config;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Str;
@@ -20,13 +21,13 @@ class UsersController extends Controller
 {
     public function __construct()
     {
+        Config::set('database.default', 'envsogo_hs1');
     }
     public function index()
     {
-      return  $active_users = $this->usersInfos('all');
-
+        return  $active_users = $this->usersInfos('all');
     }
-       public function users()
+    public function users()
     {
         $users = DB::table('user')->get(['firstname', 'lastname']);
         $userArray = [];
@@ -46,7 +47,7 @@ class UsersController extends Controller
         $fn = new FunctionsController;
         foreach ($user[0]->usermeterinfos[0]->invoice as $u) {
             $date = explode(" ", $u->updated_at);
-            $u->updated_at_th = date_format(date_create($date[0]),'d-m-Y');//$fn->engDateToThaiDateFormat($date[0]);
+            $u->updated_at_th = date_format(date_create($date[0]), 'd-m-Y'); //$fn->engDateToThaiDateFormat($date[0]);
         }
         return response()->json($user);
     }
@@ -123,7 +124,7 @@ class UsersController extends Controller
             ])->first();
 
         foreach ($users->user_meter_infos as $invoice) {
-            $invoice->invoice = Invoice::where('user_id', $invoice->user_id)
+            $invoice->invoice = TwInvoice::where('user_id', $invoice->user_id)
                 ->where('status', 'init')
                 ->with(['invoice_period'])
                 ->first();
@@ -158,6 +159,13 @@ class UsersController extends Controller
 
     public function authen(Request $request)
     {
+        // $jsonString = $request->getContent();
+        // $data = json_decode($jsonString, true); // true เพื่อให้ได้เป็น Associative Array
+
+        // เข้าถึงข้อมูลได้เหมือน PHP Array
+        // $username = $data['username'];
+        // $passwords = $data['password'];
+        // $user_cate_id = $data['user_cate_id'];
         $code = 200;
         $username = ($request->has('username') ? $request->username : 0);
         $passwords = ($request->has('passwords') ? $request->passwords : 0);
@@ -169,7 +177,8 @@ class UsersController extends Controller
         } else {
             if ($user_cate_id == 5) {
                 //เจ้าหน้าที่บันทึกมิเตอร์
-                $result = User::where('username', $username)->where('role_id', $user_cate_id)
+
+                $result = User::where('username', $username)
                     ->with([
                         'undertaker_subzone.subzone' => function ($q) {
                             return $q->select('id', 'subzone_name', 'zone_id');
@@ -187,7 +196,7 @@ class UsersController extends Controller
                     $subzone->members_status_paid    = $this->usermeter_info_get_invoice_status_count($subzone->subzone_id, 'paid');
                 }
 
-                $result[0]->inv_period = InvoicePeriod::where('status', 'active')->get(['id', 'inv_p_name']);
+                $result[0]->inv_period = TwInvoicePeriod::where('status', 'active')->get(['id', 'inv_p_name']);
             } else {
                 $result = User::where('username', $username)
                     ->with(
@@ -368,9 +377,12 @@ class UsersController extends Controller
                 'umf.submeter_name',
                 'umf.meter_address',
                 'umf.user_id',
-                'u.prefix','u.firstname','u.lastname',
+                'u.prefix',
+                'u.firstname',
+                'u.lastname',
                 'umf.acceptance_date',
-                'u.address', 'u.created_at',
+                'u.address',
+                'u.created_at',
                 'zones.zone_name',
             );
         if ($subzone_id != 'all') {
@@ -380,25 +392,25 @@ class UsersController extends Controller
 
         $arr = [];
         foreach ($active_users as $key => $user) {
-            $arr[] =[
-               'meternumber'       => $user->meternumber,
+            $arr[] = [
+                'meternumber'       => $user->meternumber,
                 'user_id'           => $user->user_id,
                 'factory_no'        => $user->factory_no,
-                'fullname'          => $user->prefix."".$user->firstname." ".$user->lastname,
+                'fullname'          => $user->prefix . "" . $user->firstname . " " . $user->lastname,
                 'acceptance_date'   => $user->acceptance_date,
                 'submeter_name'     => $user->submeter_name == "" ? "-" : $user->submeter_name,
                 'address'           => $user->meter_address,
                 'zone_name'         => $user->zone_name,
                 'showLink'          => '<div class="dropstart float-lg-end ms-auto pe-0">
-                                            <a href="javascript:;" class="cursor-pointer" id="dropdownTable'.$user->meter_id.'" data-bs-toggle="dropdown" aria-expanded="true">
+                                            <a href="javascript:;" class="cursor-pointer" id="dropdownTable' . $user->meter_id . '" data-bs-toggle="dropdown" aria-expanded="true">
                                             <i class="fa fa-ellipsis-h text-secondary" aria-hidden="true"></i>
                                             </a>
-                                            <ul class="dropdown-menu px-2 py-3 ms-sm-n4 ms-n5 " aria-labelledby="dropdownTable'.$user->meter_id.'"  data-popper-placement="left-start">
-                                                <li><a class="dropdown-item border-radius-md" href="/admin/users/'.$user->meter_id.'/edit/addmeter">เพิ่มมิเตอร์ใหม่</a></li>
-                                                <li><a class="dropdown-item border-radius-md" href="/admin/users/'.$user->meter_id.'/edit">แก้ไขข้อมูล</a></li>
+                                            <ul class="dropdown-menu px-2 py-3 ms-sm-n4 ms-n5 " aria-labelledby="dropdownTable' . $user->meter_id . '"  data-popper-placement="left-start">
+                                                <li><a class="dropdown-item border-radius-md" href="/admin/users/' . $user->meter_id . '/edit/addmeter">เพิ่มมิเตอร์ใหม่</a></li>
+                                                <li><a class="dropdown-item border-radius-md" href="/admin/users/' . $user->meter_id . '/edit">แก้ไขข้อมูล</a></li>
                                                 <li>
 
-                                                <a class="dropdown-item border-radius-md destroy" href="/admin/users/'.$user->user_id.'/destroy">ยกเลิกการใช้งาน</a>
+                                                <a class="dropdown-item border-radius-md destroy" href="/admin/users/' . $user->user_id . '/destroy">ยกเลิกการใช้งาน</a>
                                                 </li>
                                             </ul>
                                             </div>
@@ -417,52 +429,21 @@ class UsersController extends Controller
 
     public function users_subzone_count($subzone_id = null)
     {
-        return UserMerterInfo::where('status', 'active')
+        return TwMeterInfos::where('status', 'active')
             ->where('undertake_subzone_id', $subzone_id)->count();
     }
 
     public function usermeter_info_get_invoice_status_count($subzone_id, $status)
     {
-
-    //    $users = User::where('zone_id', 19)->where('status', 1)
-    //     ->with([
-    //         'usermeterinfos' => function($q){
-    //             return $q->select('meter_id', 'user_id', 'status', 'undertake_zone_id')
-    //             ->whereIn('status', ['active']);
-    //         },
-    //         'usermeterinfos.invoice' => function($q){
-    //             return $q->select('meter_id_fk', 'inv_period_id_fk', 'status')
-    //             ->where('inv_period_id_fk',  51);
-    //         }
-    //     ])
-    //     ->where('role_id', 3)
-    //     ->get(['id', 'firstname', 'lastname','zone_id']);
-
-    //     $usermeterinfoNotEmpty = collect($users)->filter(function($v){
-    //         return collect($v->usermeterinfos)->isNotEmpty();
-    //     });
-    //     foreach($usermeterinfoNotEmpty as $user){
-    //         UserMerterInfo::where('user_id', $user->id)->update([
-    //             'undertake_zone_id' => $user->zone_id,
-    //             'undertake_subzone_id' => $user->zone_id,
-    //         ]);
-    //     }
-    //     return 'ss';    
-        // return  collect($users)->filter(function($v){
-        //     return $v->zone_id != $v->usermeterinfos[0]->undertake_zone_id;
-        // });
-
-
-        $curr_inv_period = InvoicePeriod::where('status', 'active')->get('id')->first();
+        $curr_inv_period = TwInvoicePeriod::where('status', 'active')->get('id')->first();
         $curr_inv_period_id = $curr_inv_period->id;
-        $res = UserMerterInfo::where('undertake_subzone_id', $subzone_id)
-            ->with(['invoice' => function ($query) use ($status,$curr_inv_period_id) {
+        $res = TwMeterInfos::where('undertake_subzone_id', $subzone_id)
+            ->with(['invoice' => function ($query) use ($status, $curr_inv_period_id) {
                 return $query->select('meter_id_fk')->where('status', $status)->where('inv_period_id_fk', $curr_inv_period_id);
             }])
-            ->where('status', 'active')->get(['meter_id', 'status']);
+            ->where('status', 'active')->get(['id', 'status']);
         return collect($res)->filter(function ($item) {
             return collect($item->invoice)->isNotEmpty();
         })->count();
     }
-
 }

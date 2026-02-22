@@ -40,6 +40,14 @@ return [
             'driver' => 'session',
             'provider' => 'users',
         ],
+         'web_hs1' => [
+            'driver' => 'session',
+            'provider' => 'users_hs1',
+        ],
+        'web_kp1' => [
+            'driver' => 'session',
+            'provider' => 'users_kp1',
+        ],
     ],
 
     /*
@@ -64,6 +72,7 @@ return [
             'driver' => 'eloquent',
             'model' => App\Models\User::class,
         ],
+        
 
         // 'users' => [
         //     'driver' => 'database',

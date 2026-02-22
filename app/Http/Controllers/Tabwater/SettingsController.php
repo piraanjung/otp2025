@@ -9,7 +9,7 @@ use App\Models\Accounting;
 use App\Models\AccTransactions;
 use App\Models\Admin\UserProfile;
 use App\Models\SequenceNumber;
-use App\Models\Setting;
+use App\Models\Tabwater\Setting;
 use App\Models\Staff;
 use App\Models\User;
 use App\Models\UserMerterInfo;
@@ -20,6 +20,7 @@ use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Hash;
 use PhpOffice\PhpSpreadsheet\Reader\Xlsx as ReaderXlsx;
 use Illuminate\Support\Facades\Auth;
+use Spatie\Permission\Contracts\Role;
 
 class SettingsController extends Controller
 {
@@ -373,6 +374,10 @@ class SettingsController extends Controller
 
     public function store_users(REQUEST $request)
     {
+  $conn = 'envsogo_'.strtolower(session('org_code'));
+//   $users = (new User())->setConnection($conn)->where('role_id', 2)->get();
+  
+//   return 'ss';
         //Allowed mime types
         $excelMimes = array('text/xls', 'text/xlsx', 'application/excel', 'application/vnd.msexcel', 'application/vnd.ms-excel', 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet');
 
@@ -385,83 +390,94 @@ class SettingsController extends Controller
                 $worksheet = $spreadsheet->getActiveSheet();
                 $worksheet_arr = $worksheet->toArray();
 
-                for ($i = 0; $i < 5; $i++) {
+               for ($i = 0; $i < 2; $i++) {
                     unset($worksheet_arr[$i]);
-                }
+               }
 
                 $user_array = [];
                 $userMeterInmfos_array = [];
-                $userNumberSq = SequenceNumber::where('id', 1)->get('user')->first();
-                $i = $userNumberSq->user;
-                $password = Hash::make('user1234');
+              //  $userNumberSq = SequenceNumber::where('id', 1)->get('user')->first();
+                //$i = $userNumberSq->user;
+                // $password = Hash::make('user1234');
+                $conn = 'envsogo_super_admin';
+                $a = 2;
                 foreach ($worksheet_arr as $row) {
-                    $user_array[] = [
-                        "username" => 'user' . $i,
-                        "password" => $password,
-                        "settings_id_fk" => $row[19],
-                        "prefix" => $row[3],
-                        "firstname" => $row[4],
-                        "lastname" => $row[5],
-                        "email" => $row[6],
-                        "line_id" => $row[7],
-                        "id_card" => $row[8],
-                        "phone" => $row[9],
-                        "gender" => $row[10],
-                        "address" => $row[11],
-                        "zone_id" => $row[12],
-                        "subzone_id" => $row[13],
-                        "tambon_code" => $row[14],
-                        "district_code" => $row[15],
-                        "province_code" => $row[16],
+                    $user = (new User())->setConnection($conn)->create( [
+                        "org_id_fk" => $row[1],
+                        "username" => 'hs1'.$row[2],
+                        "password" => $row[3],
+                        "prefix" => $row[4],
+                        "firstname" => $row[5],
+                        "lastname" => $row[6],
+                        "email" =>'hs1'.$row[2].$a.'@gmail.com',
+                        "line_id" => $row[8],
+                        "id_card" => $row[9],
+                        "phone" => $row[10],
+                        "gender" => $row[11],
+                        "address" => $row[12],
+                        "zone_id" => $row[13],
+                        "subzone_id" => $row[14],
+                        "tambon_code" => $row[15],
+                        "district_code" => $row[16],
+                        "province_code" => $row[17],
                         "email_verified_at" => date('Y-m-d H:i:s'),
                         "remember_token" => '',
-                        "role_id" => $row[17],
-                        "status" => "active",
+                        "role_id" => $row[19],
+                        "status" => $row[18],
                         "created_at" => date('Y-m-d H:i:s'),
                         "updated_at" => date('Y-m-d H:i:s'),
-                    ];
-                    $userMeterInmfos_array[] = [
-                        "meter_id" => $row[0],
-                        "user_id" => $i++,
-                        "meternumber" => FunctionsController::createMeterNumberString($row[0]),
-                        "metertype_id" => $row[18],
-                        "meter_address" => $row[19],
-                        "undertake_zone_id" => $row[20],
-                        "undertake_subzone_id" => $row[21],
-                        "acceptace_date" => date('Y-m-d'),
-                        "payment_id" => $row[22] == "เงินสด" ? 1 : 2,
-                        "discounttype" => $row[23],
-                        "status" => "active",
-                        "comment" => "",
-                        "owe_count" => 0,
-                        "recorder_id" => Auth::id(),
-                        "created_at" => date('Y-m-d H:i:s'),
-                        "updated_at" => date('Y-m-d H:i:s'),
-                    ];
+                    ]);
+                    $role = 'User';//3
+                    if($row[19] == 2){
+                        $role = 'Admin';
+                    }else if($row[19] == 5){
+                        $role = 'Tabwater Staff';
+                    }
+                    $user->assignRole($role);
+                    $a++;
+                    // $userMeterInmfos_array[] = [
+                    //     "meter_id" => $row[0],
+                    //     "user_id" => $i++,
+                    //     "meternumber" => FunctionsController::createMeterNumberString($row[0]),
+                    //     "metertype_id" => $row[18],
+                    //     "meter_address" => $row[19],
+                    //     "undertake_zone_id" => $row[20],
+                    //     "undertake_subzone_id" => $row[21],
+                    //     "acceptace_date" => date('Y-m-d'),
+                    //     "payment_id" => $row[22] == "เงินสด" ? 1 : 2,
+                    //     "discounttype" => $row[23],
+                    //     "status" => "active",
+                    //     "comment" => "",
+                    //     "owe_count" => 0,
+                    //     "recorder_id" => Auth::id(),
+                    //     "created_at" => date('Y-m-d H:i:s'),
+                    //     "updated_at" => date('Y-m-d H:i:s'),
+                    // ];
                 }
 
-                $user_cols = collect($user_array[0])->count();
-                $user_limit = collect($user_array)->count(); // Mysql placeholder limit ...
-                collect($user_array)->chunk(floor($user_limit / $user_cols))
-                    ->each(function ($calls) {
-                        User::insert($calls->toArray());
-                    });
+              
+                // $user_cols = collect($user_array[0])->count();
+                // $user_limit = collect($user_array)->count(); // Mysql placeholder limit ...
+                // collect($user_array)->chunk(floor($user_limit / $user_cols))
+                //     ->each(function ($calls) use($conn) {
+                //         (new User())->setConnection($conn)->insert($calls->toArray());
+                //     });
 
-                $usermeterinfo_cols = collect($userMeterInmfos_array[0])->count();
-                $usermeterinfo_limit = collect($userMeterInmfos_array)->count(); // Mysql placeholder limit ...
-                collect($userMeterInmfos_array)->chunk(floor($usermeterinfo_limit / $usermeterinfo_cols))
-                    ->each(function ($calls) {
-                        UserMerterInfo::insert($calls->toArray());
-                    });
+                // $usermeterinfo_cols = collect($userMeterInmfos_array[0])->count();
+                // $usermeterinfo_limit = collect($userMeterInmfos_array)->count(); // Mysql placeholder limit ...
+                // collect($userMeterInmfos_array)->chunk(floor($usermeterinfo_limit / $usermeterinfo_cols))
+                //     ->each(function ($calls) {
+                //         UserMerterInfo::insert($calls->toArray());
+                //     });
 
 
-                SequenceNumber::where('id', 1)->update([
-                    'user' => $userNumberSq->user + collect($user_array)->count(),
-                ]);
+                // SequenceNumber::where('id', 1)->update([
+                //     'user' => $userNumberSq->user + collect($user_array)->count(),
+                // ]);
 
-                foreach ($userMeterInmfos_array as $user) {
-                    $user = User::where('id', $user['user_id'])->assignRole('user');
-                }
+                // foreach ($userMeterInmfos_array as $user) {
+                //     $user = User::where('id', $user['user_id'])->assignRole('user');
+                // }
             }
         }
 

@@ -3,9 +3,8 @@
 namespace App\Http\Controllers\Api;
 
 use App\Http\Controllers\Controller;
-use App\Models\Admin\UserProfile;
+use App\Models\Admin\Zone;
 use App\Models\User;
-use App\Models\Zone;
 
 class ZoneController extends Controller
 {
@@ -40,7 +39,8 @@ class ZoneController extends Controller
 
     public function users_by_zone($zone_id)
     {
-        $users = UserProfile::where('zone_id', $zone_id)->get(['name', 'user_id', 'phone']);
+        //active
+        $users = User::where('zone_id', $zone_id)->get(['id', 'firstname', 'lastname', 'phone', 'zone_id', ]);
         return response()->json($users);
 
     }

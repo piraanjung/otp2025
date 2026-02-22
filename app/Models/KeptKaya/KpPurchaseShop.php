@@ -18,6 +18,7 @@
             'address',
             'status',
             'comment',
+            'org_id_fk'
         ];
     }
     
