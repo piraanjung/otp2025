@@ -13,3 +13,69 @@ npm-debug.log
 yarn-error.log
 /.idea
 /.vscode
+/.vs
+
+# OS generated files
+.DS_Store
+Thumbs.db
+Desktop.ini
+
+# Composer
+composer.phar
+
+# PHPUnit
+.phpunit.cache
+
+# Laravel specific
+/storage/debugbar/
+/storage/logs/
+/storage/framework/cache/*
+/storage/framework/sessions/*
+/storage/framework/testing/*
+/storage/framework/views/*
+
+# IDEs
+*.sublime*
+*.swp
+*.swo
+*.bak
+*.tmp
+
+# Misc
+*.log
+*.pid
+*.seed
+*.sqlite
+
+# Node
+/node_modules/
+/npm-debug.log*
+/yarn-debug.log*
+/yarn-error.log*
+
+# Env
+.env.*.local
+.env.local
+.env.development.local
+.env.test.local
+.env.production.local
+
+# Coverage
+coverage/
+
+# Build
+/build/
+dist/
+
+# Lock files
+package-lock.json
+yarn.lock
+pnpm-lock.yaml
+
+# Others
+.idea/
+.vscode/
+.vs/
+
+# User uploads (optional, uncomment if needed)
+public/uploads/
