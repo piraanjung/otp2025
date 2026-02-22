@@ -11,7 +11,7 @@
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
 
     <script src="https://code.jquery.com/jquery-3.7.0.js"></script>
-
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
     <style>
         /* --- GLOBAL RESET & VARIABLES --- */
         :root {
@@ -446,6 +446,7 @@
 </head>
 
 <body id="body">
+    {{-- {{ dd( $userWastePref->kp_account) }} --}}
     <svg style="position: absolute; width: 0; height: 0; overflow: hidden;" aria-hidden="true">
         <defs>
             <linearGradient id="ring" x1="0%" y1="0%" x2="100%" y2="0%">
@@ -552,12 +553,13 @@
                                     transform="rotate(-90,90,90)" />
                             </svg>
                             <div class="main__stat-detail">
+
                                 <strong
-                                    class="main__stat-value">{{ $userWastePref->purchaseTransactions[0]->total_amount ?? '0.00' }}</strong>
+                                    class="main__stat-value">{{ number_format($userWastePref->kp_account->balance, 2) ?? '0.00' }}</strong>
                                 <span class="main__stat-unit">บาท (คงเหลือ)</span>
                                 <div class="my-1"></div>
                                 <strong
-                                    class="main__stat-value">{{ $userWastePref->purchaseTransactions[0]->total_points ?? '0.00' }}</strong>
+                                    class="main__stat-value">{{ number_format($userWastePref->kp_account->points, 2) ?? '0.00' }}</strong>
                                 <span class="main__stat-unit">แต้มสะสม</span>
                             </div>
                         </div>
@@ -578,7 +580,7 @@
                         </div>
                     </div>
 
-                    <a href="{{url('keptkayas/kiosk/noscreen/login')}}" class="main__stat-block">
+                    {{-- <a href="{{url('keptkayas/kiosk/noscreen/login')}}" class="main__stat-block">
                         <div class="main__stat-graph">
                             <svg class="ring" viewBox="0 0 60 60">
                                 <circle class="ring-track" cx="30" cy="30" r="26" fill="none" stroke="#e0e0e0"
@@ -589,7 +591,19 @@
                         <div class="main__stat-detail">
                             <strong class="main__stat-value" style="font-size: 1em;">ขายด้วยกล้อง</strong>
                         </div>
-                    </a>
+                    </a> --}}
+                    <div class="main__stat-block" onclick="startScanKiosk()">
+                        <div class="main__stat-graph">
+                            <svg class="ring" viewBox="0 0 60 60">
+                                <circle class="ring-track" cx="30" cy="30" r="26" fill="none" stroke="#e0e0e0"
+                                    stroke-width="6" />
+                            </svg>
+                            <i class="bi bi-camera icon" style="font-size: 1.5rem;"></i>
+                        </div>
+                        <div class="main__stat-detail">
+                            <strong class="main__stat-value" style="font-size: 1em;">สแกนตู้ Kiosk</strong>
+                        </div>
+                    </div>
 
                     <a href="{{route('keptkayas.shop.index')}}" class="main__stat-block">
                         <div class="main__stat-graph">
@@ -674,6 +688,8 @@
                 </div>
             </div>
 
+            <a href="#" onclick="matchUserWithKiosk('SLAVE_01')" class="btn btn-primary">SLAVE_01</a>
+
             <div class="kp div_tabwater hidden">
                 @if(View::exists('lineliff._tabwater'))
                     @include('lineliff/_tabwater')
@@ -707,10 +723,29 @@
         </div>
     </div>
 
+    <div class="modal fade" id="scannerModal" tabindex="-1" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">สแกน QR Code ตู้ Kiosk</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"
+                        onclick="stopBrowserScanner()"></button>
+                </div>
+                <div class="modal-body">
+                    <div id="reader" style="width: 100%; border-radius: 10px; overflow: hidden;"></div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary w-100" data-bs-dismiss="modal"
+                        onclick="stopBrowserScanner()">ยกเลิก</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/js/bootstrap.bundle.min.js"
         integrity="sha384-MrcW6ZMFYlzcLA8Nl+NtUVF0sA7MsXsP1UyJoMp4YLEuNSfAP+JcXn/tWtIaxVXM"
         crossorigin="anonymous"></script>
-
+    <script src="https://unpkg.com/html5-qrcode"></script>
     <script>
         $(document).ready(function () {
             // --- 1. Sidebar Logic ---
@@ -759,7 +794,174 @@
                     window.scrollTo(0, 0);
                 }, 300);
             });
+
         });
+
+
+
+
+        async function startScanKiosk() {
+
+            // 2. ถ้าไม่ได้อยู่ใน LINE หรือ LINE Scanner มีปัญหา ให้ใช้ Browser Camera แทน
+            // สร้าง Modal หรือ Div สำหรับแสดงหน้ากล้อง
+            showBrowserScanner();
+        }
+
+        function showBrowserScanner() {
+            // สร้างพื้นที่แสดงกล้อง (แนะนำให้สร้างเป็น Modal ของ Bootstrap)
+            const html5QrCode = new Html5Qrcode("reader");
+            // หมายเหตุ: ต้องมี <div id="reader"></div> ใน HTML ของคุณ
+
+            const config = { fps: 10, qrbox: { width: 250, height: 250 } };
+
+            html5QrCode.start({ facingMode: "environment" }, config, (decodedText) => {
+                matchUserWithKiosk(decodedText);
+                html5QrCode.stop(); // หยุดกล้องเมื่อเจอ QR
+                bootstrap.Modal.getInstance(document.getElementById('scannerModal')).hide();
+            });
+        }
+
+        let html5QrCode = null; // เก็บ instance ไว้ข้างนอกเพื่อสั่งปิดได้
+
+        async function startScanKiosk() {
+            // 1. ตรวจสอบว่าอยู่ใน LINE หรือไม่ และลองใช้ Native Scanner
+            if (typeof liff !== 'undefined' && liff.isInClient() && liff.scanCodeV2) {
+                try {
+                    const result = await liff.scanCodeV2();
+                    if (result.value) {
+                        matchUserWithKiosk(result.value);
+                        return;
+                    }
+                } catch (error) {
+                    console.log("LINE Scan canceled/failed, switching to browser mode.");
+                }
+            }
+
+            // 2. ถ้าไม่ใช่ LINE หรือ Native พัง ให้เปิด Modal และใช้ Browser Scanner
+            const scannerModal = new bootstrap.Modal(document.getElementById('scannerModal'));
+            scannerModal.show();
+
+            // รอให้ Modal กางออกเสร็จก่อนเริ่มกล้อง (กัน Error element not found)
+            document.getElementById('scannerModal').addEventListener('shown.bs.modal', function () {
+                showBrowserScanner();
+            }, { once: true });
+        }
+
+        function showBrowserScanner() {
+            if (html5QrCode === null) {
+                html5QrCode = new Html5Qrcode("reader");
+            }
+
+            // ปรับ Configuration ให้สแกนไวและแม่นยำขึ้น
+            const config = {
+                fps: 20, // เพิ่มเฟรมต่อวินาทีเพื่อให้จับภาพได้ต่อเนื่องขึ้น
+                qrbox: function (viewfinderWidth, viewfinderHeight) {
+                    // ปรับขนาดกล่องสแกนให้สัมพันธ์กับหน้าจอ (ใช้ 70% ของด้านที่สั้นที่สุด)
+                    let minEdge = Math.min(viewfinderWidth, viewfinderHeight);
+                    let qrboxSize = Math.floor(minEdge * 0.75);
+                    return { width: qrboxSize, height: qrboxSize };
+                },
+                aspectRatio: 1.0 // บังคับสัดส่วนช่องมองภาพเป็นสี่เหลี่ยมจัตุรัส
+            };
+
+            html5QrCode.start(
+                { facingMode: "environment" }, // บังคับใช้กล้องหลัง
+                config,
+                (decodedText) => {
+                    // เมื่อสแกนสำเร็จ
+                    console.log("Found QR Code: ", decodedText);
+
+                    // เพิ่มการสั่นแจ้งเตือน (ถ้าเครื่องรองรับ)
+                    if (navigator.vibrate) navigator.vibrate(100);
+
+                    matchUserWithKiosk(decodedText);
+                    stopBrowserScanner();
+
+                    // ปิด Modal
+                    let modalEl = document.getElementById('scannerModal');
+                    let modalInstance = bootstrap.Modal.getInstance(modalEl);
+                    if (modalInstance) modalInstance.hide();
+                },
+                (errorMessage) => {
+                    // ปล่อยว่างไว้: ไลบรารีจะพยายามสแกนเฟรมถัดไปเรื่อยๆ
+                }
+            ).catch((err) => {
+                console.error("Camera Start Error: ", err);
+                alert("ไม่สามารถเปิดกล้องได้: " + err);
+            });
+        }
+        function stopBrowserScanner() {
+            if (html5QrCode) {
+                html5QrCode.stop().then(() => {
+                    console.log("Camera stopped");
+                }).catch((err) => {
+                    console.error("Unable to stop camera", err);
+                });
+            }
+        }
+
+        function matchUserWithKiosk(kioskId) {
+            $.post("{{ url('api/kiosk/match') }}", {
+                _token: "{{ csrf_token() }}",
+                kiosk_id: kioskId,
+                user_id: "{{ $userWastePref->user_id }}"
+            })
+                .done(function (response) {
+                    if (response.status === 'success') {
+                        speak('เชื่อมต่อสำเร็จ!')
+                        // ใช้ SweetAlert2 แสดงสถานะรอ
+                        Swal.fire({
+                            title: 'เชื่อมต่อสำเร็จ!',
+                            text: 'กรุณาดำเนินการต่อที่ตู้ Kiosk ' + response.kiosk_name,
+                            icon: 'success',
+                            allowOutsideClick: false,
+                            showConfirmButton: false,
+                            html: '<div class="spinner-border text-primary" role="status"></div><p class="mt-3">กำลังรอการทำรายการจากตู้...</p>',
+                        });
+
+                        // เริ่มทำการตรวจสอบสถานะจากตู้ (Polling)
+                        // เพื่อดูว่าตู้ชั่งน้ำหนักเสร็จหรือยัง
+                        checkKioskTransactionStatus(kioskId);
+                    }
+                })
+                .fail(function (xhr) {
+                    Swal.fire('ข้อผิดพลาด', xhr.responseJSON.message || 'เชื่อมต่อเซิร์ฟเวอร์ไม่ได้', 'error');
+                });
+        }
+
+        function checkKioskTransactionStatus(kioskId) {
+            let checkInterval = setInterval(function () {
+                $.get("{{ url('api/kiosk/check-transaction/') }}/" + kioskId, function (res) {
+                    if (res.status === 'completed') {
+                        clearInterval(checkInterval); // หยุดถาม
+
+                        // แจ้งเตือนเมื่อทำรายการเสร็จสิ้น
+                        Swal.fire({
+                            title: 'ขอบคุณที่รักษ์โลก!',
+                            text: 'คุณได้รับ ' + res.points + ' แต้ม',
+                            icon: 'success',
+                            confirmButtonText: 'ตกลง'
+                        }).then(() => {
+                            location.reload(); // โหลดหน้าใหม่เพื่ออัปเดตยอดคงเหลือใน Dashboard
+                        });
+                    }
+                });
+            }, 3000); // เช็คทุกๆ 3 วินาที
+        }
+
+        function speak(text) {
+            // ตรวจสอบว่า Browser รองรับไหม
+            if ('speechSynthesis' in window) {
+                const utterance = new SpeechSynthesisUtterance(text);
+                utterance.lang = 'th-TH'; // ตั้งค่าเป็นภาษาไทย
+                utterance.pitch = 1;      // ระดับเสียง (0-2)
+                utterance.rate = 1;       // ความเร็ว (0.1-10)
+
+                window.speechSynthesis.speak(utterance);
+            } else {
+                console.error("Browser ของคุณไม่รองรับการออกเสียง");
+            }
+        }
     </script>
 </body>
 

@@ -48,9 +48,9 @@ class KpPurchaseController extends Controller
         if ($request->filled('username_search')) {
             $usernameSearch = $request->input('username_search');
             $query->with('wastePreference')
-            ->whereHas('wastePreference', function($q) use ($usernameSearch){
-                 $q->select('*')->where('id' ,$usernameSearch);
-            });
+                ->whereHas('wastePreference', function ($q) use ($usernameSearch) {
+                    $q->select('*')->where('id', $usernameSearch);
+                });
         }
 
         $keptKayaMembers = $query->orderBy('firstname')
@@ -86,7 +86,7 @@ class KpPurchaseController extends Controller
         //     return 'ss';
         // }
         $seller = User::where('id', $userId)
-                ->with('wastePreference')->get()->first();
+            ->with('wastePreference')->get()->first();
         $user = User::setLocalUser();
 
         return view('keptkayas.purchase.cart', compact('cart', 'user', 'seller'));
@@ -99,82 +99,91 @@ class KpPurchaseController extends Controller
      * @return \Illuminate\Http\RedirectResponse
      */
     public function saveTransaction(Request $request)
-{
-    // ... (ส่วน Validation และการคำนวณยอดรวม เหมือนเดิม) ...
-    $cart   = Session::get('purchase_cart', []);
-    $userId = Session::get('purchase_user_id');
+    {
+        // ... (ส่วน Validation และการคำนวณยอดรวม เหมือนเดิม) ...
+        $cart   = Session::get('purchase_cart', []);
+        $userId = Session::get('purchase_user_id');
 
-    if (empty($cart) || !$userId) {
-        return redirect()->route('keptkayas.purchase.select_user')->with('error', 'ไม่พบรายการในรถเข็นหรือผู้ใช้งาน');
-    }
+        if (empty($cart) || !$userId) {
+            return redirect()->route('keptkayas.purchase.select_user')->with('error', 'ไม่พบรายการในรถเข็นหรือผู้ใช้งาน');
+        }
 
-    $userWastePref = KpUserWastePreference::where('user_id', $userId)->first();
-    
-    // คำนวณยอดรวม
-    $totalWeight = array_sum(array_column($cart, 'amount_in_units'));
-    $totalAmount = array_sum(array_column($cart, 'amount'));
-    $totalPoints = array_sum(array_column($cart, 'points'));
-    $recorderId  = Auth::id();
+        $userWastePref = KpUserWastePreference::where('user_id', $userId)->first();
 
-    // Setup Transaction Data
-    $wasteIdFormatted = str_pad($userWastePref->id, 4, '0', STR_PAD_LEFT);
-    $isCashBack = $request->has('cash_back') ? 1 : 0; // 1 = รับเงินสด, 0 = ฝากเข้าบัญชี
+        // คำนวณยอดรวม
+        $totalWeight = array_sum(array_column($cart, 'amount_in_units'));
+        $totalAmount = array_sum(array_column($cart, 'amount'));
+        $totalPoints = array_sum(array_column($cart, 'points'));
+        $recorderId  = Auth::id();
 
-    // 1. บันทึก Transaction หลัก
-    $transaction = KpPurchaseTransaction::create([
-        'kp_u_trans_no'             => 'T-' . Carbon::now()->format('ymdH') . $wasteIdFormatted,
-        'kp_user_w_pref_id_fk'      => $userWastePref->id,
-        'transaction_date'          => Carbon::now()->toDateString(),
-        'total_weight'              => $totalWeight,
-        'total_amount'              => $totalAmount,
-        'total_points'              => $totalPoints,
-        'recorder_id'               => $recorderId,
-        'status'                    => 1,
-        'cash_back'                 => $isCashBack 
-    ]);
+        // Setup Transaction Data
+        $wasteIdFormatted = str_pad($userWastePref->id, 4, '0', STR_PAD_LEFT);
+        $isCashBack = $request->has('cash_back') ? 1 : 0; // 1 = รับเงินสด, 0 = ฝากเข้าบัญชี
 
-    // 2. จัดการบัญชี (KPAccounts) - แก้ไข Logic ตรงนี้
-    $accountModel = new KPAccounts();
-    $findKPAccounts = KPAccounts::find($userWastePref->id);
-    if (!$findKPAccounts) {
-        $accountModel->registerAccount($userWastePref->id);
-    }
-    // [LOGIC ที่แก้ไข]: กำหนดยอดเงินที่จะเข้าบัญชี
-    if ($isCashBack == 1) {
-        // ถ้ารับเงินสด -> ยอดเงินเข้าบัญชี = 0, แต่แต้มเข้าเต็มจำนวน
-        $balanceToAdd = 0;
-    } else {
-        // ถ้าฝากเงิน -> ยอดเงินเข้าบัญชี = totalAmount, แต้มเข้าเต็มจำนวน
-        $balanceToAdd = $totalAmount;
-    }
-
-    // เรียก function เดิม แต่ส่ง balance เป็น 0 ในกรณีรับเงินสด
-    // (สมมติว่า function นี้รองรับการบวก 0 บาทโดยไม่ error)
-    $accountModel->updateBalanceAndPoint($userWastePref->id, $balanceToAdd, $totalPoints);
-
-
-    // 3. บันทึก Detail สินค้าแต่ละรายการ
-    foreach ($cart as $item) {
-        KpPurchaseTransactionDetail::create([
-            'kp_purchase_trans_id'          => $transaction->id,
-            'kp_recycle_item_id'            => $item['kp_tbank_item_id'],
-            // ตรวจสอบ key นี้ดีๆ ว่าใน Session ใช้ชื่ออะไรแน่ (บางทีอาจไม่มี key นี้ถ้าไม่ได้ set มา)
-            'kp_tbank_items_pricepoint_id'  => $item['kp_tbank_items_pricepoint_id'] ?? null, 
-            'amount_in_units'               => $item['amount_in_units'],
-            'kp_units_idfk'                 => $item['kp_units_idfk'],
-            'price_per_unit'                => $item['price_per_unit'],
-            'amount'                        => $item['amount'],
-            'points'                        => $item['points'],
-            'recorder_id'                   => $recorderId
+        // 1. บันทึก Transaction หลัก
+        $transaction = KpPurchaseTransaction::create([
+            'kp_u_trans_no'             => 'T-' . Carbon::now()->format('ymdH') . $wasteIdFormatted,
+            'kp_user_w_pref_id_fk'      => $userWastePref->id,
+            'transaction_date'          => Carbon::now()->toDateString(),
+            'total_weight'              => $totalWeight,
+            'total_amount'              => $totalAmount,
+            'total_points'              => $totalPoints,
+            'recorder_id'               => $recorderId,
+            'status'                    => 1,
+            'cash_back'                 => $isCashBack
         ]);
+
+        // 2. จัดการบัญชี (KPAccounts) - แก้ไข Logic ตรงนี้
+        $accountModel = new KPAccounts();
+        $findKPAccounts = KPAccounts::find($userWastePref->id);
+        if (!$findKPAccounts) {
+            $accountModel->registerAccount($userWastePref->id);
+        }
+        // [LOGIC ที่แก้ไข]: กำหนดยอดเงินที่จะเข้าบัญชี
+        if ($isCashBack == 1) {
+            // ถ้ารับเงินสด -> ยอดเงินเข้าบัญชี = 0, แต่แต้มเข้าเต็มจำนวน
+            $balanceToAdd = 0;
+        } else {
+            // ถ้าฝากเงิน -> ยอดเงินเข้าบัญชี = totalAmount, แต้มเข้าเต็มจำนวน
+            $balanceToAdd = $totalAmount;
+        }
+
+        // เรียก function เดิม แต่ส่ง balance เป็น 0 ในกรณีรับเงินสด
+        // (สมมติว่า function นี้รองรับการบวก 0 บาทโดยไม่ error)
+        $accountModel->updateBalanceAndPoint($userWastePref->id, $balanceToAdd, $totalPoints);
+
+
+        // 3. บันทึก Detail สินค้าแต่ละรายการ
+        foreach ($cart as $item) {
+            // 1. ดึงข้อมูล Item จาก Database เพื่อเอาค่า EF (Emission Factor)
+            // สมมติว่า Model สินค้าชื่อ KpTbankItems และมี column 'ef_value'
+            $itemModel = KpTbankItems::find($item['kp_tbank_item_id']);
+            $efValue = $itemModel->emissionFactor->ef_value ?? 0; // ถ้าไม่มีค่า ให้เป็น 0 ไว้ก่อน
+
+            // 2. คำนวณคาร์บอน (สูตร: น้ำหนัก x EF)
+            $weight = $item['amount_in_units'];
+            $carbonSaved = $weight * $efValue;
+            KpPurchaseTransactionDetail::create([
+                'kp_purchase_trans_id'          => $transaction->id,
+                'kp_recycle_item_id'            => $item['kp_tbank_item_id'],
+                // ตรวจสอบ key นี้ดีๆ ว่าใน Session ใช้ชื่ออะไรแน่ (บางทีอาจไม่มี key นี้ถ้าไม่ได้ set มา)
+                'kp_tbank_items_pricepoint_id'  => $item['kp_tbank_items_pricepoint_id'] ?? null,
+                'amount_in_units'               => $item['amount_in_units'],
+                'kp_units_idfk'                 => $item['kp_units_idfk'],
+                'price_per_unit'                => $item['price_per_unit'],
+                'carbon_saved'                  => $carbonSaved, // ✅ บันทึกค่าที่คำนวณได้ลงไป
+                'amount'                        => $item['amount'],
+                'points'                        => $item['points'],
+                'recorder_id'                   => $recorderId
+            ]);
+        }
+
+        // 4. ล้างตะกร้าและ Redirect
+        Session::forget('purchase_cart');
+        Session::forget('purchase_user_id');
+
+        return redirect()->route('keptkayas.purchase.receipt', $transaction->id);
     }
-
-    // 4. ล้างตะกร้าและ Redirect
-    Session::forget('purchase_cart');
-    Session::forget('purchase_user_id');
-
-    return redirect()->route('keptkayas.purchase.receipt', $transaction->id);
-}
 
     public function showReceipt($transaction_id)
     {
@@ -306,7 +315,7 @@ class KpPurchaseController extends Controller
         }
 
         // ดึงรายการขยะทั้งหมด และโหลดราคาที่ Active
-        $recycleItems = KpTbankItems::with(['activePrices.kp_units_info'])
+      $recycleItems = KpTbankItems::with(['activePrices.kp_units_info', 'emissionFactor'])
             ->where('org_id_fk', Auth::user()->org_id_fk)
             ->whereHas('activePrices.kp_units_info')
             ->get();
@@ -404,7 +413,7 @@ class KpPurchaseController extends Controller
         $unitsAndPrices = KpTbankItemsPriceAndPoint::where('kp_items_idfk', $itemId)
             ->where('status', 'active')
             // ดึงราคาที่ valid ณ วันนี้ (ควรปรับตามตรรกะราคาของคุณ)
-            // ->where('effective_date', '<=', $today) 
+            // ->where('effective_date', '<=', $today)
             // ->where(function ($query) use ($today) {
             //     $query->where('end_date', '>=', $today)
             //           ->orWhereNull('end_date');

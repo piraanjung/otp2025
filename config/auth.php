@@ -72,14 +72,7 @@ return [
             'driver' => 'eloquent',
             'model' => App\Models\User::class,
         ],
-         'users_hs1' => [
-            'driver' => 'eloquent',
-            'model' => App\Models\UserHs1::class,
-        ],
-         'users_kp1' => [
-            'driver' => 'eloquent',
-            'model' => App\Models\UserKp1::class,
-        ],
+        
 
         // 'users' => [
         //     'driver' => 'database',

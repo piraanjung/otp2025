@@ -27,42 +27,32 @@ use Illuminate\Database\Eloquent\Relations\BelongsToMany; // <--- สำคั�
 class User extends Authenticatable
 {
     use HasApiTokens, HasFactory, Notifiable, HasRoles;
-    // use BelongsToOrganization;
-    /**
-     * The attributes that are mass assignable.
-     *
-     * @var array<int, string>
-     */
 
     protected $fillable = [
-        'id',
-        'org_id_fk',
-        'username',
-        'prefix',
-        'firstname',
-        'lastname',
-        'name',
-        'email',
-        'password',
-        'id_card',
-        'line_id',
-        'image',
-        'phone',
-        'gender',
-        'address',
-        'zone_id',
-        'subzone_id',
-        'tambon_code',
-        'district_code',
-        'province_code',
-        'status'
+        "id",
+        "org_id_fk",
+        "username",
+        "prefix",
+        "firstname",
+        "lastname",
+        "name",
+        "email",
+        "password",
+        "id_card",
+        "line_id",
+        "image",
+        "phone",
+        "gender",
+        "address",
+        "zone_id",
+        "subzone_id",
+        "tambon_code",
+        "district_code",
+        "province_code",
+        "status",
     ];
 
-    /**
-     * The attributes that should be hidden for serialization.
-     *
-     * @var array<int, string>
-     */
+    
     protected $hidden = [
         'password',
         'remember_token',
@@ -132,19 +122,6 @@ class User extends Authenticatable
     {
         return $this->hasMany(AnnualCollectionPayment::class);
     }
-
-    // New Relationship for Waste Bank Transactions where user is a member
-    public function wasteBankTransactionsAsMember()
-    {
-        return $this->hasMany(WasteBankTransaction::class, 'user_id');
-    }
-
-    // New Relationship for Waste Bank Transactions where user is a staff
-    public function wasteBankTransactionsAsStaff()
-    {
-        return $this->hasMany(WasteBankTransaction::class, 'staff_id');
-    }
-
     public function staff()
     {
         return $this->hasOne(Staff::class);
@@ -160,17 +137,6 @@ class User extends Authenticatable
         return $this->hasMany(FoodWasteBin::class,'u_pref_id_fk');
     }
 
-    public static function setLocalUser(){
-        return(new User())->setConnection(session('db_conn'))->find(Auth::guard(session('guard'))->user()->id);
-
-    }
-
-   public static function getUserIDFromMainDbByPhone($phone){
-        $user = SuperUser::where('phone', $phone)->get('id')->first();
-        return $user->id;
-    }
-
-
     public function acceptedNotifies(): BelongsToMany // <--- ตรวจสอบการประกาศ Type Hint
     {
         return $this->belongsToMany(TwNotifies::class, 'notify_staff', 'user_id', 'notify_id')
@@ -178,5 +144,5 @@ class User extends Authenticatable
                     ->withTimestamps();
     }
 
-    
+
 }

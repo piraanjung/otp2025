@@ -69,6 +69,13 @@
     </li>
 
     <li class="nav-item">
+        <a class="nav-link  " href="{{ route('org-admins.index') }}">
+        <div
+          class="icon icon-shape icon-sm shadow border-radius-md bg-white text-center me-2 d-flex align-items-center justify-content-center">
+          <i class="ni ni-circle-08 text-dark text-gradient text-lg opacity-10"></i></i>
+        </div>
+        <span class="nav-link-text ms-1">Org SuperAdmins </span>
+      </a>
       <a class="nav-link  " href="{{ route('admin.super_users.index') }}">
         <div
           class="icon icon-shape icon-sm shadow border-radius-md bg-white text-center me-2 d-flex align-items-center justify-content-center">
@@ -91,7 +98,7 @@
       </a>
     </li>
 
-    
+
 
     <li class="nav-item">
       <a data-bs-toggle="collapse" href="#roles" class="nav-link" aria-controls="roles" role="button"

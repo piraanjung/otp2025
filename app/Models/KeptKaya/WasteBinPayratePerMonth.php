@@ -3,7 +3,6 @@
 namespace App\Models\KeptKaya;
 
 use App\Models\Admin\BudgetYear as AdminBudgetYear;
-use App\Models\Keptkaya\KpUserGroup;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 
@@ -20,10 +19,10 @@ class WasteBinPayratePerMonth extends Model
         'payrate_permonth',
         'vat',
         'status',
-        'deleted'	
+        'deleted'
     ];
     public function kp_usergroup(){
-        return $this->belongsTo(KpUserGroup::class, 'kp_usergroup_idfk','id');
+        return $this->belongsTo(KpUserWastePreference::class, 'kp_usergroup_idfk','id');
     }
 
     public function budgetyear(){

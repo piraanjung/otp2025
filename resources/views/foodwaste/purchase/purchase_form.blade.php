@@ -68,10 +68,17 @@
                 <div class="row g-3">
                     <div class="col-md-3 col-9">
                         <label for="kp_units_idfk" class="form-label">ชื่อขยะ:</label>
+                        {{-- 🟢 [จุดแก้ไข 1] เพิ่ม data-ef ใน option --}}
                         <select id="kp_itemscode" name="kp_itemscode" class="form-select recyclename" required >
-                            <option value="">ชื่อขยะ</option>
+                            <option value="" data-ef="0">ชื่อขยะ</option>
                             @foreach ($recycleItems as $item)
-                                <option value="{{ $item->kp_itemscode }}" data-id="{{ $item->id }}">{{ $item->kp_itemsname }} | {{ $item->kp_itemscode }}</option>
+                               <option value="{{ $item->kp_itemscode }}"
+                                        data-id="{{ $item->id }}"
+                                        {{-- ✅ แก้ไขตรงนี้: เรียกผ่าน Relation emissionFactor --}}
+                                        data-ef="{{ $item->emissionFactor->ef_value ?? 0 }}">
+
+                                    {{ $item->kp_itemsname }} | {{ $item->kp_itemscode }}
+                                </option>
                             @endforeach
                         </select>
 
@@ -79,12 +86,11 @@
                     </div>
                     <div class="col-md-1 col-3">
                         <label for="kp_itemscode" class="form-label">QRCode</label>
-
                           <button type="button" class="btn btn-outline-secondary form-control pl-2" data-bs-toggle="modal" data-bs-target="#qrScannerModal">
                                 <i class="fa fa-qrcode"></i>
                             </button>
                     </div>
-                   
+
                     <div class="col-lg-3 col-6">
                         <label for="amount_in_units" class="form-label">จำนวน:</label>
                         <input type="number" step="0.01" name="amount_in_units" id="amount_in_units" class="form-control" required min="0.01">
@@ -98,21 +104,40 @@
                             @endforeach
                         </select>
                     </div>
-                    
-                    <div class="col-md-2 d-flex align-items-end">
+
+                    {{-- 🟢 [จุดแก้ไข 2] ส่วนแสดงผล Real-time Impact --}}
+                    <div class="col-12">
+                        <div class="alert alert-light border-success bg-opacity-10" id="impactPreview" style="display:none; border-style: dashed !important;">
+                            <div class="row text-center align-items-center">
+                                <div class="col-4 border-end">
+                                    <h5 class="fw-bold text-dark mb-0" id="previewCarbon">0</h5>
+                                    <small class="text-muted" style="font-size: 10px;">kgCO2e</small>
+                                </div>
+                                <div class="col-4 border-end">
+                                    <h5 class="fw-bold text-success mb-0">🌲 <span id="previewTrees">0</span></h5>
+                                    <small class="text-success" style="font-size: 10px;">ต้นไม้</small>
+                                </div>
+                                <div class="col-4">
+                                    <h5 class="fw-bold text-danger mb-0">🚗 <span id="previewCar">0</span></h5>
+                                    <small class="text-danger" style="font-size: 10px;">กม.</small>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="col-md-2 d-flex align-items-end ms-auto">
                         <button type="submit" class="btn btn-success w-100">
                             <i class="bi bi-plus-circle-fill me-1"></i> เพิ่มลงรถเข็น
                         </button>
                     </div>
                 </div>
             </form>
-
-          
         </div>
     </div>
 
     {{-- Cart List (Responsive) --}}
     @if(Session::has('purchase_cart') && count(Session::get('purchase_cart')) > 0)
+    {{-- ... (ส่วนแสดงผลตะกร้าสินค้าเหมือนเดิม ไม่ได้แก้ไข) ... --}}
     <div class="card mb-4 shadow-sm">
         <div class="card-header bg-secondary text-white d-flex justify-content-between align-items-center">
             <h5 class="mb-0">รายการในรถเข็น</h5>
@@ -242,18 +267,57 @@
     </div>
 @endsection
 
-  @section('script')
-        <script src="https://unpkg.com/html5-qrcode" type="text/javascript"></script>
-        <script>
-            $(document).ready(function(){
-                $('.recyclename').select2();
+@section('script')
+    <script src="https://unpkg.com/html5-qrcode" type="text/javascript"></script>
+    <script>
+        $(document).ready(function(){
+            $('.recyclename').select2();
 
-                $('#kp_itemscode').change(function(){
-                    let selectedOption = $(this).find(':selected');
-                    $('#kp_tbank_item_id').val(selectedOption.data('id'));
-                });
-            })
-            document.addEventListener('DOMContentLoaded', function () {
+            // 🟢 [จุดแก้ไข 3] ฟังก์ชันคำนวณคาร์บอน
+            function calculateImpact() {
+                // ดึงค่า EF จาก Option ที่ถูกเลือกใน Select2
+                let selectedOption = $('#kp_itemscode').find(':selected');
+                let efValue = parseFloat(selectedOption.data('ef')) || 0;
+
+                // ดึงน้ำหนัก
+                let weight = parseFloat($('#amount_in_units').val()) || 0;
+
+                let previewBox = $('#impactPreview');
+
+                if(weight > 0 && efValue > 0) {
+                    // คำนวณ
+                    let carbonSaved = weight * efValue;
+                    let trees = Math.floor(carbonSaved / 10);
+                    let carKm = (carbonSaved / 0.12).toFixed(1);
+
+                    // อัปเดตหน้าจอ
+                    $('#previewCarbon').text(carbonSaved.toFixed(4));
+                    $('#previewTrees').text(trees);
+                    $('#previewCar').text(carKm);
+
+                    previewBox.slideDown();
+                } else {
+                    previewBox.slideUp();
+                }
+            }
+
+            // เรียกใช้ฟังก์ชันเมื่อมีการเปลี่ยนค่า (รองรับทั้งการคลิกเองและ QR Scan)
+            $('#kp_itemscode').on('change', function(){
+                let selectedOption = $(this).find(':selected');
+                $('#kp_tbank_item_id').val(selectedOption.data('id'));
+
+                calculateImpact(); // คำนวณเมื่อเปลี่ยนสินค้า
+            });
+
+            $('#amount_in_units').on('input keyup', function(){
+                calculateImpact(); // คำนวณเมื่อกรอกน้ำหนัก
+            });
+
+            // 🟢 จบส่วนการคำนวณ
+        });
+
+        // ... (ส่วน QR Code Scanner เดิม คงไว้เหมือนเดิม) ...
+        document.addEventListener('DOMContentLoaded', function () {
                 const qrScannerModal = document.getElementById('qrScannerModal');
                 const kp_itemscode = document.getElementById('kp_itemscode');
                 const kp_tbank_item_id = document.getElementById('kp_tbank_item_id');
@@ -272,7 +336,6 @@
                         (decodedText, decodedResult) => {
                             // on success
                             console.log(`QR Code scanned: ${decodedText.toString().toUpperCase()}`);
-                            // Stop the scanner and close the modal
                             html5QrCode.stop().then(() => {
                                 const modal = bootstrap.Modal.getInstance(qrScannerModal);
                                 modal.hide();
@@ -282,8 +345,7 @@
 
                             // Set the value of the Select2 dropdown
                             $('#kp_itemscode').val(decodedText.toString().toUpperCase()).trigger('change');
-                            
-                            // Check if the item code exists and update the hidden ID
+
                             const selectedOption = $('#kp_itemscode').find(':selected');
                             if (selectedOption.length) {
                                 kp_tbank_item_id.value = selectedOption.data('id');
@@ -291,11 +353,9 @@
                                 kp_tbank_item_id.value = '';
                                 alert('ไม่พบรหัสขยะที่สแกน');
                             }
-                            
+
                         },
                         (errorMessage) => {
-                            // on failure (or no QR code found)
-                            // This function is called continuously, so we don't need to do anything here
                         }
                     ).catch(err => {
                         console.error("Failed to start the scanner.", err);
@@ -304,7 +364,6 @@
                 });
 
                 qrScannerModal.addEventListener('hidden.bs.modal', () => {
-                    // Ensure the scanner is stopped when the modal is closed manually
                     if (html5QrCode.isScanning) {
                         html5QrCode.stop().catch(err => {
                             console.error("Failed to stop the scanner.", err);
@@ -312,5 +371,5 @@
                     }
                 });
             });
-        </script>
-    @endsection
+    </script>
+@endsection

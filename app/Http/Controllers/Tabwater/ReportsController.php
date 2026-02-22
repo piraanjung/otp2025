@@ -27,62 +27,62 @@ class ReportsController extends Controller
     // 1. REPORT OWE (รายงานหนี้ค้างชำระ - หน้าแรก)
     // =================================================================================
 
-    public function owe(Request $request)
+    public function owe(Request $request) 
 {
     $orgId = Auth::user()->org_id_fk;
 
     // 1. Prepare Filter Data
     $budgetyears = BudgetYear::with(['invoice_period:id,inv_p_name,budgetyear_id,status'])
         ->get(['id', 'budgetyear_name', 'status']);
-    
+
     $zones = Zone::where('status', 'active')->get(['id', 'zone_name']);
     $subzones = Subzone::where('status', 'active')->get(['id', 'subzone_name']);
 
     // 2. Query Data (Simple Default View)
     $invoice_owe_status = TwInvoice::where("status", "owe")
-        ->where('org_id_fk', $orgId) 
+        ->where('org_id_fk', $orgId)
         ->with(['tw_meter_infos.user.user_zone', 'tw_meter_infos.user.user_subzone']) // Eager Load เพิ่มเพื่อลด Query ใน View
         ->get();
 
     // Default Variables
     $defaultData = [
         'budgetyears' => $budgetyears,
-        'budgetyears_selected' => [], 
-        'inv_periods' => [], 
+        'budgetyears_selected' => [],
+        'inv_periods' => [],
         'selectedInvPeriodID' => [0],
-        'zone_selected' => ['all'], 
-        'subzone_selected' => ['all'], 
+        'zone_selected' => ['all'],
+        'subzone_selected' => ['all'],
         'selected_inv_periods' => ['all'],
-        'owe_zones' => [], 
-        'zones' => $zones, 
+        'owe_zones' => [],
+        'zones' => $zones,
         'subzones' => $subzones,
-        'owe_inv_periods' => [], 
+        'owe_inv_periods' => [],
         'orgInfos' => Organization::getOrgName($orgId)
     ];
 
     if ($invoice_owe_status->isEmpty()) {
         return view("reports.owe", array_merge($defaultData, [
             'owes' => [],
-            'reservemeter_sum' => 0, 
+            'reservemeter_sum' => 0,
             'crudetotal_sum' => 0,
         ]));
     }
 
     // Map Data & Calculate
     $owesGrouped = $invoice_owe_status->groupBy('meter_id_fk');
-    
+
     // *** ต้องมั่นใจว่า function mapOweData มีอยู่จริงใน Controller นี้นะครับ ***
-    $owes = $this->mapOweData($owesGrouped); 
-    
+    $owes = $this->mapOweData($owesGrouped);
+
     $reservemeter_sum = $invoice_owe_status->where('inv_type', 'r')->sum('paid');
     $crudetotal_sum   = $invoice_owe_status->where('inv_type', 'u')->sum('paid');
 
     // Prepare View Variables (Get Active Year Safely)
     $activeBudgetYear = $budgetyears->where('status', 'active')->first();
     $budgetyears_selected = $activeBudgetYear ? [$activeBudgetYear->id] : [];
-    
+
     $inv_periods = TwInvoicePeriod::whereIn('budgetyear_id', $budgetyears_selected)->get(['id', 'inv_p_name']);
-    
+
     $owe_inv_periods = $invoice_owe_status->groupBy('inv_period_id_fk')->map(function ($group, $key) {
         return TwInvoicePeriod::select('id', 'inv_p_name')->find($key);
     })->sortByDesc('id');
@@ -149,7 +149,7 @@ class ReportsController extends Controller
         $zones       = Zone::where('status', 'active')->get(['id', 'zone_name']);
         $subzones    = Subzone::where('status', 'active')->get(['id', 'subzone_name']);
         $budgetyears = BudgetYear::get(['id', 'budgetyear_name', 'status']);
-        
+
         $periodQuery = TwInvoicePeriod::query();
         if(!empty($budget_ids)) {
             $periodQuery->whereIn('budgetyear_id', $budget_ids);
@@ -212,7 +212,7 @@ class ReportsController extends Controller
                 'owe_count'     => $items->count(),
                 'status'        => $first->status,
                 'owe_infos'     => $items,
-                'inv_period_id_fk' => $first->inv_period_id_fk, 
+                'inv_period_id_fk' => $first->inv_period_id_fk,
             ];
         });
     }
@@ -233,13 +233,13 @@ class ReportsController extends Controller
     {
         // [FIX] เอา ManagesTenantConnection ออก
         $orgId = Auth::user()->org_id_fk;
-        
+
         if ($request->has('excel')) {
             return $this->export($request);
         }
 
         $fnCtrl = new FunctionsController();
-        
+
         // Defaults
         if (!$request->has('nav') || $request->get('nav') == 'nav') {
             $activePeriod = TwInvoicePeriod::where('status', 'active')->first(['id', 'budgetyear_id']);
@@ -268,19 +268,19 @@ class ReportsController extends Controller
         $subzones    = ($request->zone_id != 'all') ? Subzone::all() : 'all';
         $budgetyears = BudgetYear::all();
         $inv_periods = TwInvoicePeriod::where('budgetyear_id', $request->budgetyear_id)->orderByDesc('id')->get(['id', 'inv_p_name']);
-        
+
         // [Security] ดึงเฉพาะ User ใน Org เดียวกัน
 $receiptions = User::where('org_id_fk', $orgId)
     ->whereHas('roles', function ($query) {
         // เลือกเอาว่าจะเช็คจาก ID หรือ ชื่อ (แนะนำชื่อจะอ่านรู้เรื่องกว่า)
-        
+
         // กรณีเช็คจากชื่อ Role
-        $query->whereIn('name', ['Admin', 'Finance Staff']); 
-        
+        $query->whereIn('name', ['Admin', 'Finance Staff']);
+
         // หรือ กรณีเช็คจาก ID (ถ้าคุณมั่นใจว่า 1=Admin, 2=Finance)
-        // $query->whereIn('id', [1, 2]); 
+        // $query->whereIn('id', [1, 2]);
     })
-    ->get(['id', 'lastname', 'firstname']);        
+    ->get(['id', 'lastname', 'firstname']);
         $cashierName = 'ทั้งหมด';
         if ($request->cashier_id != 'all') {
              $c = User::find($request->cashier_id);
@@ -296,8 +296,8 @@ $receiptions = User::where('org_id_fk', $orgId)
         ];
 
         return view('reports.dailypayment', compact(
-            'zones', 'subzones', 'paidInfos', 'receiptions', 
-            'fromdateTh', 'todateTh', 'budgetyears', 'inv_periods', 
+            'zones', 'subzones', 'paidInfos', 'receiptions',
+            'fromdateTh', 'todateTh', 'budgetyears', 'inv_periods',
             'request_selected'
         ) + [
             'subzone_id' => $request->subzone_id,
@@ -322,16 +322,16 @@ $receiptions = User::where('org_id_fk', $orgId)
             })
             ->with([
                 'tw_invoices' => function ($q) use ($request) {
-                    $q->select('id', 'meter_id_fk', 'inv_no', 'acc_trans_id_fk', 'updated_at', 
-                               'inv_period_id_fk', 'lastmeter', 'currentmeter', 'water_used', 
+                    $q->select('id', 'meter_id_fk', 'inv_no', 'acc_trans_id_fk', 'updated_at',
+                               'inv_period_id_fk', 'lastmeter', 'currentmeter', 'water_used',
                                'paid', 'vat', 'reserve_meter', 'totalpaid', 'status')
                       ->whereBetween("updated_at", [$request->fromdate . " 00:00:00", $request->todate . " 23:59:59"])
                       ->where('status', 'paid');
-    
+
                     if ($request->inv_period_id != 'all') {
                         $q->where('inv_period_id_fk', $request->inv_period_id);
                     }
-                    
+
                     // Filter Cashier ที่ Invoice Level (ถ้าจำเป็นต้องเช็คที่นี่)
                     if ($request->cashier_id != 'all') {
                         $q->whereHas('tw_acc_transactions', function($transQ) use ($request) {
@@ -346,15 +346,15 @@ $receiptions = User::where('org_id_fk', $orgId)
         // Filter Zone/Subzone
         $query->when($request->zone_id != 'all', fn($q) => $q->where('undertake_zone_id', $request->zone_id));
         $query->when($request->subzone_id != 'all', fn($q) => $q->where('undertake_subzone_id', $request->subzone_id));
-        
+
         $query->where('status', 'active');
-        
+
         // [CRITICAL FIX] ใช้ whereHas เพื่อดึงเฉพาะ Meter ที่มีบิลจ่ายเงินในช่วงเวลานั้นจริงๆ
         // ไม่เช่นนั้น มันจะดึง Meter ทั้งหมดออกมา แล้วค่อยมา Filter ว่างทีหลัง ซึ่งช้ามาก
         $query->whereHas('tw_invoices', function ($q) use ($request) {
             $q->whereBetween("updated_at", [$request->fromdate . " 00:00:00", $request->todate . " 23:59:59"])
               ->where('status', 'paid');
-            
+
             if ($request->inv_period_id != 'all') {
                 $q->where('inv_period_id_fk', $request->inv_period_id);
             }
@@ -375,18 +375,18 @@ $receiptions = User::where('org_id_fk', $orgId)
     // =================================================================================
     // 3. REPORT METER HISTORY
     // =================================================================================
-    
+
     public function meter_record_history(Request $request)
 {
     // 1. Timezone ควรตั้งใน config/app.php แต่ถ้าจำเป็นจริงๆ ให้ใช้ Carbon จะดีกว่า
-    // date_default_timezone_set('Asia/Bangkok'); 
-    
+    // date_default_timezone_set('Asia/Bangkok');
+
     $orgId = Auth::user()->org_id_fk;
 
     // 2. Default Values (ใช้ when หรือ check ดีกว่าการ query ใน default parameter)
     $activeBudgetIds = BudgetYear::where('status', 'active')->pluck('id')->toArray();
     $budget_ids = $request->get('budgetyear', $activeBudgetIds);
-    
+
     // ตรวจสอบว่าเป็น array หรือไม่ ป้องกัน error
     if(!is_array($budget_ids)) $budget_ids = [$budget_ids];
 
@@ -403,7 +403,7 @@ $receiptions = User::where('org_id_fk', $orgId)
     // 3. Main Query
     $query = TwMeterInfos::query()
         ->whereHas('user', function($q) use ($orgId) {
-            $q->where('users.org_id_fk', $orgId); 
+            $q->where('users.org_id_fk', $orgId);
         })
         // แก้ไข N+1: Load user_zone และ user_subzone มาด้วยเลย
         ->with([
@@ -411,7 +411,7 @@ $receiptions = User::where('org_id_fk', $orgId)
             'tw_invoice_history' => fn($q) => $this->historySubQuery($q, $budget_ids, 'tw_invoice_history'),
             'user' => function($q) {
                 $q->select('id', 'prefix', 'firstname', 'lastname', 'zone_id', 'subzone_id', 'address')
-                  ->with(['user_zone:id,zone_name', 'user_subzone:id,subzone_name']); 
+                  ->with(['user_zone:id,zone_name', 'user_subzone:id,subzone_name']);
             }
         ]);
 
@@ -447,7 +447,7 @@ $receiptions = User::where('org_id_fk', $orgId)
         $meter->infos = $mappedPeriods;
         $meter->bringForward = $mappedPeriods[0]['lastmeter'] ?? 0; // ยอดยกมา
         $meter->sumCurrentMeter = $sumCurrentMeter;
-        
+
         return $meter;
     })->filter(function ($meter) {
         // Filter ตรงนี้
@@ -488,9 +488,9 @@ $receiptions = User::where('org_id_fk', $orgId)
                    ->whereIn('budgetyear_id', $budget_ids);
             });
         }
-        
+
         // (Optional) เลือกเฉพาะฟิลด์ที่จำเป็นเพื่อความเร็ว
-        // $q->select($table.'.*'); 
+        // $q->select($table.'.*');
 
         return $q;
     }
@@ -506,28 +506,28 @@ $receiptions = User::where('org_id_fk', $orgId)
     // 1. จัดการ Default Parameters ให้กระชับและปลอดภัยขึ้น
     if (!$request->filled('budgetyear_id')) {
         // ใช้ value() หรือ active() scope ถ้ามี
-        $activeId = BudgetYear::where('status', 'active')->value('id'); 
-        
+        $activeId = BudgetYear::where('status', 'active')->value('id');
+
         // ถ้าไม่มีปีงบประมาณ Active เลย ให้หยุดทำงานหรือ Handle error
         if (!$activeId && $from != 'dashboard') {
              return redirect()->back()->with('error', 'ไม่พบปีงบประมาณที่เปิดใช้งาน');
         }
 
         $request->merge([
-            'budgetyear_id' => $activeId, 
+            'budgetyear_id' => $activeId,
             'zone_id' => $request->get('zone_id', 'all'), // ใช้ค่าเดิมถ้ามี หรือ default 'all'
             'subzone_id' => $request->get('subzone_id', 'all')
         ]);
     }
-    
+
     // 2. Load BudgetYear
     $selected_budgetYear = BudgetYear::with('invoice_period:budgetyear_id,id')
         ->find($request->budgetyear_id);
-    
+
     // Handle กรณีไม่เจอข้อมูล
     if (!$selected_budgetYear) {
-         return $from == 'dashboard' 
-            ? [] 
+         return $from == 'dashboard'
+            ? []
             : view('reports.water_used', ['data' => [], 'waterUsedDataTables' => []]);
     }
 

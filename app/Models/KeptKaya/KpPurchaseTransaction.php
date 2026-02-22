@@ -16,7 +16,7 @@ class KpPurchaseTransaction extends Model
     protected $fillable = [
         'org_id_fk',
         'kp_u_trans_no',// เลขที่เอกสาร (Unique String)
-        'kiosk_id_fk',     
+        'kiosk_id_fk',
         'kp_user_w_pref_id_fk', // ลูกค้า
         'machine_id_fk',        // (Optional) เครื่องชั่ง
         'transaction_date',     // วันเวลา
@@ -25,7 +25,8 @@ class KpPurchaseTransaction extends Model
         'total_points',
         'status',
         'recorder_id',          // จนท.
-        'cash_back'
+        'cash_back',
+        'total_carbon_saved'
     ];
 
     protected $casts = [
@@ -34,7 +35,9 @@ class KpPurchaseTransaction extends Model
         'total_amount' => 'decimal:2',
         'total_points' => 'integer',
         'cash_back' => 'decimal:2',
+        'total_carbon_saved' => 'decimal:4'
     ];
+
 
     // --- Relationships ---
 

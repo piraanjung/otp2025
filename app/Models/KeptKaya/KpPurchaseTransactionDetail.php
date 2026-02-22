@@ -22,7 +22,7 @@ class KpPurchaseTransactionDetail extends Model
         'kp_recycle_item_id',
         'kp_units_idfk',                    // <--- เพิ่มตัวนี้ (สำคัญ! เพราะ Controller ส่งมา)
         'kp_tbank_items_pricepoint_id',
-        // 'recorder_id',               // แนะนำให้เอาออก ถ้าคนบันทึกคือคนเดียวกับ Header
+        'carbon_saved',                 // ✅ [เพิ่มใหม่] คาร์บอนที่ลดได้เฉพาะรายการนี้ (kgCO2e)
         'amount_in_units',
         'price_per_unit',
         'amount',
@@ -35,9 +35,14 @@ class KpPurchaseTransactionDetail extends Model
         'price_per_unit' => 'decimal:2',
         'amount' => 'decimal:2',
         'points' => 'integer',
+        'carbon_saved'    => 'decimal:4', // ✅ [เพิ่มใหม่] ทศนิยม 4 ตำแหน่งเพื่อความแม่นยำ
     ];
 
     // Relationships
+    public function unit(): BelongsTo
+    {
+        return $this->belongsTo(KpTbankUnits::class, 'kp_units_idfk', 'id');
+    }
     public function items_units()
     {
         return $this->belongsTo(KpTbankUnits::class, 'kp_tbank_items_units');
@@ -51,7 +56,7 @@ class KpPurchaseTransactionDetail extends Model
     {
         return $this->belongsTo(KpTbankItems::class, 'kp_recycle_item_id');
     }
-    
+
     public function pricePoint()
     {
         return $this->belongsTo(KpTbankItemsPriceAndPoint::class, 'kp_tbank_items_pricepoint_id');
@@ -68,7 +73,7 @@ class KpPurchaseTransactionDetail extends Model
     {
         return $this->belongsTo(User::class, 'recorder_id', 'id');
     }
-    
+
     public function details()
     {
         return $this->hasMany(KpPurchaseTransactionDetail::class, 'kp_purchase_trans_id');

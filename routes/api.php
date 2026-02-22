@@ -15,6 +15,7 @@ use App\Http\Controllers\Api\OcrController;
 use App\Http\Controllers\FunctionsController;
 use App\Http\Controllers\Api\FunctionsController as apiFunctionsController;
 use App\Http\Controllers\Api\KioskController;
+use App\Http\Controllers\Kiosk\KioskController as WebKioskController;
 use App\Http\Controllers\ImageController;
 use App\Http\Controllers\KeptKaya\MachineController;
 use App\Http\Controllers\Kiosk\KioskApiController;
@@ -43,10 +44,17 @@ Route::get('/kiosk/sleep', [KioskController::class, 'sleepMode']);
 Route::post('/kiosk/save-transaction', [KioskController::class, 'saveTransaction']);
 
 
+Route::post('/kiosk/wake-up', [WebKioskController::class, 'wakeUp']);
+Route::post('/kiosk/wake-up', [WebKioskController::class, 'wakeUp']);
+Route::post('/kiosk/match', [WebKioskController::class, 'matchKiosk']);
+Route::get('/kiosk/check-transaction/{kiosk_id}', [KioskController::class, 'checkTransactionStatus']);
+
+
 // Endpoint สำหรับ Frontend (Browser) เพื่อส่งคำสั่ง "Start" ไปยัง ESP8266
 Route::post('/device/start-sale', [DeviceController::class, 'startSale']);
 Route::get('/device/check-bottle-status', [DeviceController::class, 'checkBottleStatus']);
 Route::post('/bottle/upload-photo', [ImageController::class, 'uploadPhoto']);
+Route::post('/upload-unknown', [ImageController::class, 'uploadUnknownPhoto']);
 // 1. Endpoint ที่ Web ใช้ Polling (GET) - อ่านค่า status จาก Server
 Route::get('/device/check-object-status', [DeviceController::class, 'getSensorStatus']);
 Route::get('/device/config-price-points', [DeviceController::class, 'configPricePoints']);

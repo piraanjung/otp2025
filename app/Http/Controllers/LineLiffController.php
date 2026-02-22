@@ -13,16 +13,16 @@ use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Log;
 use SimpleSoftwareIO\QrCode\Facades\QrCode;
 
-class LineLiffController extends Controller
+class   LineLiffController extends Controller
 {
     public function index(){
-       
+
         $provinces = Province::all();
         $orgs = Organization::
         with('provinces', 'districts', 'tambons')
         ->get(['id', 'org_type_name', 'org_short_type_name', 'org_name', 'org_tambon_id_fk', 'org_district_id_fk', 'org_province_id_fk']);
         return view('lineliff.index', compact('provinces', 'orgs'));
-        
+
     }
 
     public function dashboard($user_waste_pref_id,$org_id, $regis =1){
@@ -32,17 +32,17 @@ class LineLiffController extends Controller
         if($regis == 1 && $user){
             $user->assignRole('User');
             // $user->givePermissionTo('access recycle bank');
-            $user->save(); 
-    
+            $user->save();
+
             // 💡 สำคัญ: บังคับโหลด Role/Permission ใหม่ทันที (ถ้าใช้ Spatie)
-            $user = $user->fresh(); 
+            $user = $user->fresh();
         }else{
             return $user;
         }
-        
+
         Auth::login($user);
 
-        $userWastePref = KpUserWastePreference::with('user', 'purchaseTransactions')
+        $userWastePref = KpUserWastePreference::with('user', 'purchaseTransactions', 'kp_account')
                 ->where('id', $user_waste_pref_id)->get()->first();
         $qrcode = QrCode::size(300)->generate($user_waste_pref_id."-".$userWastePref->user_id);
         return view('lineliff.dashboard', compact('userWastePref', 'qrcode'));
@@ -55,7 +55,7 @@ class LineLiffController extends Controller
             'displayName' => 'required|string',
             'pictureUrl' => 'nullable|string',
         ]);
-        
+
         $lineUserId = $validatedData['userId'];
 
         // ค้นหา User จาก line_user_id
@@ -125,7 +125,7 @@ class LineLiffController extends Controller
             $user->created_at = date("Y-m-d H:i:s");
             $user->updated_at = date("Y-m-d H:i:s");
             $user->save();
-            
+
             $newUWastePref = KpUserWastePreference::create([
                 'user_id' => $seqNumber->user,
                 'is_annual_collection' => 0,

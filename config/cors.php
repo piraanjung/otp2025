@@ -19,7 +19,7 @@ return [
 
     'allowed_methods' => ['*'],
 
-    'allowed_origins' => ['*'],
+    'allowed_origins' => ['*'], // หรือถ้าอยากปลอดภัย ให้ใส่ ['capacitor://localhost', 'http://localhost']
 
     'allowed_origins_patterns' => [],
 

@@ -2,7 +2,7 @@
 
 namespace App\Imports;
 
-use App\Models\Keptkaya\KpTbankItems;
+use App\Models\KeptKaya\KpTbankItems;
 use Maatwebsite\Excel\Concerns\ToModel;
 use Maatwebsite\Excel\Concerns\WithHeadingRow; // เพิ่ม WithHeadingRow ถ้าไฟล์ Excel มีหัวตาราง
 

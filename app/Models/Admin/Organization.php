@@ -60,7 +60,7 @@ class Organization extends Model
     public function zones()
     {
         return $this->belongsTo(Zone::class, 'org_zone_id_fk', 'id');
-    }    
+    }
 
     public static function getOrgName($org_id_fk)
     {

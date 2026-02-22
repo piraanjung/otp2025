@@ -7,7 +7,6 @@ use App\Http\Controllers\Controller;
 use App\Http\Controllers\FunctionsController;
 use App\Http\Controllers\Tabwater\InvoiceController;
 use App\Models\Admin\BudgetYear;
-use App\Models\Admin\ManagesTenantConnection;
 use App\Models\Tabwater\Account;
 use App\Models\Tabwater\TwInvoicePeriod;
 use App\Models\Admin\Subzone;
@@ -71,7 +70,7 @@ class PaymentController extends Controller
                 // เลือกเฉพาะบิลที่ค้างจ่ายมาแสดง
                 $query->whereIn('status', ['owe', 'invoice'])
                       ->orderBy('id', 'asc'); // เรียงตามลำดับบิลเก่าไปใหม่
-                
+
                 if ($inv_period_id != 0) {
                     $query->where('inv_period_id_fk', $inv_period_id);
                 }
@@ -175,7 +174,7 @@ class PaymentController extends Controller
     $selected_payments = collect($request->get('payments'))->filter(function ($v) {
         return isset($v['on']);
     });
-    
+
     if ($selected_payments->isEmpty()) {
         return back()->with('error', 'กรุณาเลือกรายการชำระเงิน');
     }
@@ -243,7 +242,7 @@ class PaymentController extends Controller
     if ($cutmeter) {
         // กรณีปลดหนี้หมด และโดนตัดมิเตอร์อยู่ -> เปลี่ยนสถานะเป็นรอติดตั้ง/ผ่าน
         if ($remaining_owe_count == 0 && $twUserInfo->cutmeter == 1) {
-            
+
             if ($cutmeter->status == 'cutmeter') {
                 // Logic เดิม: cutmeter -> passed
                 $cutmeter->status = 'passed';
@@ -277,7 +276,7 @@ class PaymentController extends Controller
     if(!$cutmeter) {
          $twUserInfo->cutmeter = $remaining_owe_count < 2 ? '0' : '1';
     }
-    
+
     $twUserInfo->last_meter_recording = $nextLastmeter;
     $twUserInfo->inv_no_index         = $receipt_running_no + 1; // รันเลขใบเสร็จถัดไป
     $twUserInfo->updated_at           = now();
@@ -356,7 +355,7 @@ private function receipt_print_by_trans($acc_trans_id)
             }
 
 
-            //update usermeter_info 
+            //update usermeter_info
             // $invStatusOwesCount = TwInvoice::where('meter_id_fk', $req_meter_id)->whereIn('status', ['owe', 'invoice'])->count();
 
             $usermeter_infos = TwMeterInfos::where('id', $req_meter_id)
@@ -518,10 +517,10 @@ private function receipt_print_by_trans($acc_trans_id)
             // แต่ถ้า code เดิมเป็นแบบนี้ ก็ใช้ไปก่อนได้ครับ
             $invoiceCtrl = new InvoiceController();
 
-            // *** ข้อควรระวัง: พารามิเตอร์ session('db_conn') อาจจะไม่จำเป็นแล้ว 
+            // *** ข้อควรระวัง: พารามิเตอร์ session('db_conn') อาจจะไม่จำเป็นแล้ว
             // ถ้าระบบเปลี่ยนมาใช้ org_id_fk แทนการสลับ DB ตรวจสอบ function นี้ด้วยนะครับ
             $invoice_infos = json_decode($invoiceCtrl->get_invoice_and_invoice_history(
-                $request->get('user_info'), 
+                $request->get('user_info'),
                 'paid'
             )->content(), true);
 
@@ -531,8 +530,8 @@ private function receipt_print_by_trans($acc_trans_id)
         }
 
         // --- ลบ ManagesTenantConnection ออกได้เลย ---
-        // ManagesTenantConnection::configConnection(session('db_conn')); 
-        
+        // ManagesTenantConnection::configConnection(session('db_conn'));
+
         // 3. Query User
         // เนื่องจาก User Model ใช้ Trait BelongsToOrganization แล้ว
         // มันจะเติม where('org_id_fk', ...) ให้อัตโนมัติ
@@ -541,7 +540,7 @@ private function receipt_print_by_trans($acc_trans_id)
             ->whereHas('usermeterinfos', function ($q) {
                 $q->select('user_id');
             })
-            ->get(['prefix', 'firstname', 'lastname', 'address', 'id', 'zone_id']); 
+            ->get(['prefix', 'firstname', 'lastname', 'address', 'id', 'zone_id']);
             // Note: ตรวจสอบว่าตาราง users มี org_id_fk ใช่ไหม ถ้าใช่ก็ผ่านครับ
 
         // 4. Query Zone

@@ -4,12 +4,16 @@ use App\Http\Controllers\AccessMenusController;
 use App\Http\Controllers\Admin\ExcelController;
 use App\Http\Controllers\Admin\IndexController;
 use App\Http\Controllers\Admin\MetertypeController;
+use App\Http\Controllers\Admin\OrgAdminController;
 use App\Http\Controllers\Admin\PermissionController;
 use App\Http\Controllers\Admin\RoleController;
 use App\Http\Controllers\Admin\SuperAdminAuthController;
 use App\Http\Controllers\Admin\SuperUserController;
 use App\Http\Controllers\Admin\UserController;
 use App\Http\Controllers\Admin\ZoneController;
+use App\Http\Controllers\Api\KioskController;
+use App\Http\Controllers\EmissionFactorController;
+use App\Http\Controllers\ImageController;
 use App\Http\Controllers\Inventory\InvCategoryController;
 use App\Http\Controllers\Inventory\InvDashboardController;
 use App\Http\Controllers\Inventory\InvHazardLevelController;
@@ -57,7 +61,12 @@ Route::post('/api/check_member', [KioskApiController::class, 'checkMember']);
 Route::post('/api/save_session', [KioskApiController::class, 'saveSession']);
 Route::get('/kiosk', [KioskApiController::class, 'index']);
 
+Route::middleware(['auth'])->group(function () {
+    Route::get('/kiosk/scan/{kioskId}', [KioskController::class, 'scanQr'])->name('kiosk.scan');
 
+    // หน้า AI Camera (หน้าหลักที่จะใช้งาน)
+    Route::get('/kiosk/session/{kioskId}', [KioskController::class, 'sessionPage'])->name('kiosk.session');
+});
 
 
 // Route สำหรับหน้า Web App หลัก (ต้องเปิดด้วยโทรศัพท์ User)
@@ -99,6 +108,11 @@ Route::resource('/test', TestController::class);
 
 Auth::routes();
 
+Route::group(['middleware' => ['auth', 'role:Admin|Super Admin']], function () {
+    Route::resource('org-admins', OrgAdminController::class);
+    Route::get('/ajax/users/search', [OrgAdminController::class, 'searchUsers'])->name('ajax.users.search');
+});
+
 Route::get('/accessmenu', [AccessMenusController::class, 'accessmenu'])->middleware(['auth'])->name('accessmenu');
 Route::get('/staff_accessmenu', [AccessMenusController::class, 'staff_accessmenu'])->middleware(['auth'])->name('staff_accessmenu');
 
@@ -111,7 +125,6 @@ Route::post('/line/fine_line_id', [LineLiffController::class , 'fine_line_id']);
 Route::post('/line/update_user_by_phone', [LineLiffController::class , 'update_user_by_phone']);
 Route::post('/line/login', [LineLiffController::class , 'handleLineLogin']);
 
-// $a ='auth:web_hs1,web_kp1';
 
 Route::prefix('staffs')->name('keptkayas.staffs.')->group(function () {
     Route::get('/', [StaffController::class, 'index'])->name('index');
@@ -150,6 +163,7 @@ Route::get('twmanmobile/edit_members_subzone_selected', [TwManMobileController::
 
 
 Route::middleware(['auth', 'role:Admin|Super Admin'])->name('admin.')->prefix('admin')->group(function () {
+    Route::get('/admin/unknown-images', [ImageController::class, 'indexUnknownImages']);
     Route::get('/register', [UserController::class, 'showRegistrationForm'])->name('register');
     Route::post('/register', [UserController::class, 'register']);
     Route::get('/transfer_old_data', [TransferOldDataToNewDBController::class, 'index'])->name('transfer_old_data');
@@ -332,7 +346,13 @@ Route::middleware(['auth'])->group(function () {
     })->name('superadmin.dashboard');
 });
 
-
+Route::prefix('admin/ef')->group(function () {
+    Route::get('/', [EmissionFactorController::class, 'index'])->name('ef.index');
+    Route::post('/store', [EmissionFactorController::class, 'store'])->name('ef.store');
+    Route::put('/{emissionFactor}', [EmissionFactorController::class, 'update'])->name('ef.update');
+    Route::post('/import', [EmissionFactorController::class, 'import'])->name('ef.import');
+    Route::delete('/{emissionFactor}', [EmissionFactorController::class, 'destroy'])->name('ef.destroy');
+});
 
 Route::middleware(['auth'])->prefix('inventory')->name('inventory.')->group(function () {
 

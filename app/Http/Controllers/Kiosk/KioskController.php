@@ -6,7 +6,9 @@ use App\Http\Controllers\Controller;
 use App\Models\KeptKaya\KpPurchaseTransaction;
 use App\Models\KeptKaya\KpTbankItemsPriceAndPoint;
 use App\Models\KeptKaya\KpTbankUnits;
+use App\Models\KeptKaya\KpUserWastePreference;
 use App\Models\Kiosk;
+use App\Models\KioskMatch;
 use Carbon\Carbon;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
@@ -86,44 +88,28 @@ class KioskController extends Controller
         return redirect()->route('keptkayas.kiosks.index')->with('success', 'ลบตู้เรียบร้อย');
     }
 
-    public function userMatchKiosk(Request $request)
-    {
-        // 1. รับค่า kioskId จาก JS (ต้องตรงกับชื่อตัวแปรใน $.post)
-        $kioskId = $request->kioskId;
+    public function userMatchKiosk(Request $request) {
+    $kiosk = Kiosk::find($request->kiosk_id);
+    $timeLimit = now()->subSeconds(30); // ยอมรับความล่าช้าได้ 30 วินาที
 
-        // 2. ค้นหาตู้ Kiosk
-        $kiosk = Kiosk::where('id', $kioskId)->first();
+    // เช็ค NodeMCU
+    $mcuReady = ($kiosk->mcu_last_heartbeat > $timeLimit && $kiosk->mcu_status == 'ok');
+    // เช็ค ESP32-CAM
+    $camReady = ($kiosk->cam_last_heartbeat > $timeLimit && $kiosk->cam_status == 'ok');
 
-        // กรณีไม่เจอตู้
-        if (!$kiosk) {
-            return response()->json(['status' => 'error', 'message' => 'ไม่พบตู้ Kiosk นี้ในระบบ' . $kioskId], 404);
-        }
+    if (!$mcuReady || !$camReady) {
+        $errorMsg = !$mcuReady ? "ระบบเซนเซอร์ไม่พร้อม " : "";
+        $errorMsg .= !$camReady ? "ระบบกล้องไม่พร้อม" : "";
 
-        // 3. (Optional) เช็คว่าตู้ว่างไหม?
-        // ถ้าสถานะไม่ใช่ idle และไม่ใช่ user คนเดิมที่เชื่อมต่ออยู่
-        if ($kiosk->status != 'idle' && $kiosk->current_user_id != Auth::id()) {
-            return response()->json(['status' => 'error', 'message' => 'ตู้นี้กำลังถูกใช้งานโดยผู้อื่น'], 400);
-        }
-
-
-        // 4. ผูก User ปัจจุบันเข้ากับตู้ (auth()->id() คือ user ที่ login ในมือถือ)
-        try {
-            Kiosk::where('id', $kioskId)->update([
-                'status' => 'active',
-                'current_user_id' => Auth::id(),
-                'last_online_at' => now(),
-                'updated_at' => now()
-            ]);
-
-            return response()->json([
-                'status' => 'success',
-                'message' => 'Connected successfully',
-                'kiosk_name' => $kiosk->name
-            ]);
-        } catch (\Exception $e) {
-            return response()->json(['status' => 'error', 'message' => $e->getMessage()], 500);
-        }
+        return response()->json([
+            'status' => 'error',
+            'message' => 'ตู้ไม่พร้อมใช้งาน: ' . $errorMsg
+        ], 503);
     }
+
+    // ถ้าผ่านทั้งคู่ค่อยอนุญาตให้ Match
+    // ... logic matching ...
+}
 
     public function monitor()
     {
@@ -197,7 +183,7 @@ class KioskController extends Controller
 
                 // ดึงราคา/คะแนน ปัจจุบันจาก DB (Table: kp_tbank_items_price_and_point)
                 // เลือก record ล่าสุดที่ Active
-                $priceConfig = $this->getPrice($itemId,2);
+                $priceConfig = $this->getPrice($itemId, 2);
 
                 // ค่า Default ถ้าหาราคาไม่เจอ
                 $pricePerUnit = $priceConfig ? $priceConfig->price_for_member : 0;
@@ -268,13 +254,148 @@ class KioskController extends Controller
         });
     }
 
-    public function getPrice($itemId, $unitId) {
-    // $unitId อาจจะเป็น 'kg' หรือ 'piece'
-    // $unit = KpTbankUnits::where('id', $unitId)->first();
+    public function getPrice($itemId, $unitId)
+    {
+        // $unitId อาจจะเป็น 'kg' หรือ 'piece'
+        // $unit = KpTbankUnits::where('id', $unitId)->first();
 
-    return KpTbankItemsPriceAndPoint::where('kp_items_idfk', $itemId)
-        ->where('kp_units_idfk', $unitId)
-        ->where('status', 'active')
-        ->first();
+        return KpTbankItemsPriceAndPoint::where('kp_items_idfk', $itemId)
+            ->where('kp_units_idfk', $unitId)
+            ->where('status', 'active')
+            ->first();
+    }
+    public function wakeUp(Request $request)
+    {
+        // $kioskId = $request->kiosk_id;
+
+        // // อัปเดตสถานะใน Database
+        // Kiosk::where('kiosk_id', $kioskId)->update(['status' => 'READY']);
+
+        // // ส่งสัญญาณ Real-time ผ่าน Laravel Reverb หรือ Pusher
+        // broadcast(new KioskReady($kioskId));
+
+        // return response()->json(['message' => 'Acknowledged']);
+    }
+
+    public function checkStatus(Request $request)
+    {
+        $kioskId = $request->kiosk;
+
+        // ดึงสถานะล่าสุดจาก Database
+        $kiosk = Kiosk::where('kiosk_id', $kioskId)->first();
+
+        // Logic การตอบกลับ
+        if ($kiosk->status == 'WAITING_SCAN') {
+            return "WAIT"; // บอก NodeMCU ว่ายังไม่มีใครสแกน (รอต่อไปจนครบ 15 วิ)
+        } elseif ($kiosk->status == 'PAIRED') {
+            return "PAIRED"; // มีคนสแกนแล้ว! (NodeMCU จะขยายเวลา)
+        } elseif ($kiosk->current_command == 'OPEN') {
+            // เมื่อส่งคำสั่ง OPEN แล้ว อย่าลืมเคลียร์คำสั่งทิ้งด้วย เดี๋ยวเปิดรัว
+            $kiosk->current_command = null;
+            $kiosk->save();
+            return "OPEN";
+        } elseif ($kiosk->status == 'IDLE') {
+            return "FINISHED";
+        }
+
+        return "WAIT";
+    }
+
+    public function scanQr($kioskId)
+    {
+        // 1. หาตู้จาก ID
+        $kiosk = Kiosk::where('kiosk_id', $kioskId)->firstOrFail();
+
+        // 2. เช็คว่าตู้พร้อมไหม (ต้องอยู่ในสถานะ WAITING_SCAN เท่านั้น)
+        if ($kiosk->status !== 'WAITING_SCAN') {
+            return redirect()->back()->with('error', 'ตู้นี้ยังไม่พร้อม หรือมีคนใช้งานอยู่');
+        }
+
+        // 3. จับคู่ User กับตู้ (Pairing)
+        $kiosk->update([
+            'status' => 'PAIRED', // 🔥 ค่านี้แหละที่ NodeMCU รออยู่!
+            'current_user_id' => Auth::id(),
+            'last_active_at' => now(),
+        ]);
+
+        // 4. พา User ไปหน้ากล้อง AI ทันที
+        return redirect()->route('kiosk.session', ['kioskId' => $kioskId]);
+    }
+
+    public function sessionPage($kioskId)
+    {
+        // โหลดหน้า View ที่มีกล้อง AI (Teachable Machine)
+        return view('kiosk.ai-camera', compact('kioskId'));
+    }
+
+    public function matchKiosk(Request $request) {
+    $kioskId = $request->kiosk_id;
+    $userId = $request->user_id;
+
+    // ตรวจสอบว่าเป็นสมาชิกธนาคารขยะหรือไม่
+    $isMember = KpUserWastePreference::where('user_id', $userId)
+                ->where('is_waste_bank', '1')
+                ->exists();
+
+    if (!$isMember) {
+        return response()->json([
+            'status' => 'error',
+            'message' => 'คุณยังไม่ได้ลงทะเบียนสมาชิกธนาคารขยะ'
+        ], 403);
+    }
+
+    // ถ้าผ่านการเช็คสิทธิ์ ก็ทำการบันทึกลง kiosk_matches ตามปกติ
+    KioskMatch::create([
+        'kiosk_id' => $kioskId,
+        'user_id' => $userId,
+        'status' => 'pending',
+        'expires_at' => now()->addMinutes(5)
+    ]);
+
+    return response()->json(['status' => 'success']);
+}
+
+// ใน KioskController.php
+public function checkTransactionStatus($kiosk_id)
+{
+    // ค้นหาตู้หรือรายการ matching ล่าสุด
+    $kiosk = Kiosk::where('id', $kiosk_id)->first();
+
+    if (!$kiosk) {
+        return response()->json(['status' => 'error', 'message' => 'ไม่พบตู้'], 404);
+    }
+
+    // ถ้าตู้กลับไปเป็นสถานะ idle หรือมีรายการ Transaction ใหม่เกิดขึ้น
+    // สมมติว่าเมื่อทำงานเสร็จ ESP32 จะส่งค่าน้ำหนักมา และ Server จะเปลี่ยนสถานะตู้เป็น 'idle'
+    if ($kiosk->status == 'idle') {
+        // ดึงข้อมูลแต้มล่าสุดมาโชว์ (ตัวอย่าง)
+        return response()->json([
+            'status' => 'completed',
+            'points' => 10, // หรือดึงจาก table points
+            'message' => 'รายการเสร็จสมบูรณ์'
+        ]);
+    }
+
+    // ถ้ายังทำงานไม่เสร็จ
+    return response()->json([
+        'status' => 'processing',
+        'message' => 'กำลังรอการชั่งน้ำหนัก...'
+    ]);
+}
+
+public function checkKioskReady($kiosk_id) {
+    $kiosk = Kiosk::find($kiosk_id);
+
+    // ตรวจสอบว่าทั้ง MCU และ CAM ส่ง Heartbeat มาใน 10 วินาทีล่าสุดไหม
+    $isMcuReady = $kiosk->mcu_last_active > now()->subSeconds(10);
+    $isCamReady = $kiosk->cam_last_active > now()->subSeconds(10);
+
+    return response()->json([
+        'ready' => ($isMcuReady && $isCamReady),
+        'details' => [
+            'mcu' => $isMcuReady,
+            'cam' => $isCamReady
+        ]
+    ]);
 }
 }

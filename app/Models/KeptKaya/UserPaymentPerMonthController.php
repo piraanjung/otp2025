@@ -11,6 +11,7 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
 use App\Http\Controllers\Api\FunctionsController;
+use App\Models\Admin\BudgetYear;
 use App\Models\UserKayaInfos;
 use App\Models\UserPaymentPerMonth;
 use App\Models\UserPaymentPeryear;
@@ -22,7 +23,7 @@ class UserPaymentPerMonthController extends Controller
     {
         $subzones  = collect(Subzone::all())->sortBy('zone_id');
         $page = 'index';
-        $paid_per_year_members = UserKayaInfos::where([
+        $paid_per_year_members = kpuser::where([
             'status' => 'active',
             'trashbankmember' => "0"
         ])->get();
@@ -31,7 +32,7 @@ class UserPaymentPerMonthController extends Controller
 
     public function index2(Request $request)
     {
-        $current_budgetyear = KpBudgetYear::where('status', 'active')->first();
+        $current_budgetyear = BudgetYear::where('status', 'active')->first();
         $budgetyear_id      = $current_budgetyear->id;
         $owe_users = DB::table('user_kaya_infos as umf')
             ->join('users as u', 'umf.user_id', '=', 'u.id')

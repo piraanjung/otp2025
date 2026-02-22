@@ -38,8 +38,7 @@
             <span class="nav-link-text ms-1">Dashboard</span>
         </a>
     </li>
-
-    @if (Session::get('keptkaya_type') == 'annual') 
+    @if (Session::get('keptkaya_type') == '')
     @if(auth()->user()->can('access annaul modules') || auth()->user()->hasRole('Super Admin|Admin|Annual Trash Staff'))
 <li class="nav-item">
     <a data-bs-toggle="collapse" href="#receipt" class="nav-link active" aria-controls="receipt" role="button" aria-expanded="true">
@@ -380,8 +379,8 @@
                                 </div>
 
                             </a>
-                        
-                        
+
+
                     </li>
                     <li class="nav-item @yield('nav-staff')">
                         <a class="nav-link " href="{{route('keptkayas.staffs.index')}}">
