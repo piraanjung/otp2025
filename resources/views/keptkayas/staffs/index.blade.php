@@ -56,10 +56,10 @@
                                         <th
                                             class="text-center text-uppercase text-secondary text-xxs font-weight-bolder opacity-7">
                                             สถานะ</th>
-                                        <th
+                                        {{-- <th
                                             class="text-center text-uppercase text-secondary text-xxs font-weight-bolder opacity-7">
-                                            สิทธิ์เข้าถึงโมดูล</th>
-                                        <th class="text-secondary opacity-7">การจัดการ</th>
+                                            สิทธิ์เข้าถึงโมดูล</th> --}}
+                                        {{-- <th class="text-secondary opacity-7">การจัดการ</th> --}}
                                     </tr>
                                     {{-- Search row --}}
                                     <tr class="bg-gray-100">
@@ -81,7 +81,7 @@
                                                 <option value="suspended" {{ request('search_status') == 'suspended' ? 'selected' : '' }}>Suspended</option>
                                             </select>
                                         </th>
-                                        <th class="p-1">
+                                        {{-- <th class="p-1">
                                             <div class="d-flex flex-column">
                                                 <select name="search_can_access_waste_bank"
                                                     id="search_can_access_waste_bank"
@@ -98,7 +98,7 @@
                                                     <option value="false" {{ request('search_can_access_annual_collection') == 'false' ? 'selected' : '' }}>เก็บรายปี: ไม่</option>
                                                 </select>
                                             </div>
-                                        </th>
+                                        </th> --}}
                                         <th class="p-1 text-center">
                                             <button type="button" id="applySearchBtn"
                                                 class="btn btn-primary btn-sm mb-0">ค้นหา</button>

@@ -3,12 +3,12 @@
 @endphp
 <ul class="navbar-nav">
     <li class="nav-item">
-        <a href="{{route('accessmenu')}}" class="nav-link active">
+        <a href="{{route('accessmenu')}}" class="nav-link active w-50 bg-info mb-2">
             <div
                 class="icon icon-sm shadow-sm border-radius-md bg-yellow text-center d-flex align-items-center justify-content-center  me-2">
                 <i class="ni ni-compass-04" aria-hidden="true"></i>
             </div>
-            <span class="nav-link-text ms-1">Main Menu</span>
+            <span class="nav-link-text ms-1">กลับไปหน้าหลัก</span>
         </a>
 
     </li>
@@ -38,371 +38,356 @@
             <span class="nav-link-text ms-1">Dashboard</span>
         </a>
     </li>
-    @if (Session::get('keptkaya_type') == '')
-    @if(auth()->user()->can('access annaul modules') || auth()->user()->hasRole('Super Admin|Admin|Annual Trash Staff'))
-<li class="nav-item">
-    <a data-bs-toggle="collapse" href="#receipt" class="nav-link active" aria-controls="receipt" role="button" aria-expanded="true">
-        <div class="icon icon-shape icon-sm shadow border-radius-md bg-white text-center d-flex align-items-center justify-content-center me-2">
-            <svg width="12px" height="12px" viewBox="0 0 42 42" version="1.1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
-                <title>office</title>
-                <g stroke="none" stroke-width="1" fill="none" fill-rule="evenodd">
-                    <g transform="translate(-1869.000000, -293.000000)" fill="#FFFFFF" fill-rule="nonzero">
-                        <g transform="translate(1716.000000, 291.000000)">
-                            <g id="office" transform="translate(153.000000, 2.000000)">
-                                <path class="color-background" d="M12.25,17.5 L8.75,17.5 L8.75,1.75 C8.75,0.78225 9.53225,0 10.5,0 L31.5,0 C32.46775,0 33.25,0.78225 33.25,1.75 L33.25,12.25 L29.75,12.25 L29.75,3.5 L12.25,3.5 L12.25,17.5 Z" opacity="0.6"></path>
-                                <path class="color-background" d="M40.25,14 L24.5,14 C23.53225,14 22.75,14.78225 22.75,15.75 L22.75,38.5 L19.25,38.5 L19.25,22.75 C19.25,21.78225 18.46775,21 17.5,21 L1.75,21 C0.78225,21 0,21.78225 0,22.75 L0,40.25 C0,41.21775 0.78225,42 1.75,42 L40.25,42 C41.21775,42 42,41.21775 42,40.25 L42,15.75 C42,14.78225 41.21775,14 40.25,14 Z M12.25,36.75 L7,36.75 L7,33.25 L12.25,33.25 L12.25,36.75 Z M12.25,29.75 L7,29.75 L7,26.25 L12.25,26.25 L12.25,29.75 Z M35,36.75 L29.75,36.75 L29.75,33.25 L35,33.25 L35,36.75 Z M35,29.75 L29.75,29.75 L29.75,26.25 L35,26.25 L35,29.75 Z M35,22.75 L29.75,22.75 L29.75,19.25 L35,19.25 L35,22.75 Z"></path>
-                            </g>
-                        </g>
-                    </g>
-                </g>
-            </svg>
-        </div>
-        <span class="nav-link-text ms-1">จัดเก็บขยะรายปี</span>
-    </a>
-
-    <div class="collapse show" id="receipt">
-        <ul class="nav ms-4 ps-3">
-
-            <li class="nav-item mt-2 mb-1">
-                <h6 class="ps-2 ms-2 text-uppercase text-xs font-weight-bolder opacity-6">ปฏิบัติงาน</h6>
-            </li>
-
+    @if (Session::get('keptkayatype') == 'annual')
+        {{-- @if(auth()->user()->can('access annual bin') || auth()->user()->hasRole('Super Admin|Annual Trash Staff')) --}}
             <li class="nav-item">
-                <a class="nav-link @yield('nav-waste_bins-viewmap')" href="{{ route('keptkayas.waste_bins.viewmap') }}">
-                    <div class="icon icon-shape icon-sm shadow border-radius-md bg-white text-center me-2 d-flex align-items-center justify-content-center">
-                        <i class="fa fa-map-marked-alt text-dark text-gradient text-lg"></i>
-                    </div>
-                    <span class="sidenav-normal">แผนที่ถังขยะ</span>
-                </a>
-            </li>
-
-            <li class="nav-item">
-                <a class="nav-link @yield('nav-keptkayas.annual_payments.index')" href="{{route('keptkayas.annual_payments.index')}}">
-                    <div class="icon icon-shape icon-sm shadow border-radius-md bg-white text-center me-2 d-flex align-items-center justify-content-center">
-                        <i class="fa fa-cash-register text-dark text-gradient text-lg"></i>
-                    </div>
-                    <span class="sidenav-normal">รับชำระเงิน</span>
-                </a>
-            </li>
-
-            <li class="nav-item">
-                <a class="nav-link @yield('nav-keptkayas.annual_payments.invoice')" href="{{ route('keptkayas.annual_payments.invoice') }}">
-                    <div class="icon icon-shape icon-sm shadow border-radius-md bg-white text-center me-2 d-flex align-items-center justify-content-center">
-                        <i class="fa fa-file-invoice text-dark text-gradient text-lg"></i>
-                    </div>
-                    <span class="sidenav-normal">ออกใบแจ้งหนี้</span>
-                </a>
-            </li>
-
-            <li class="nav-item">
-                <form action="{{ route('keptkayas.annual_payments.history') }}" name="myForm2" id="myForm2" method="post" class="mb-0">
-                    @csrf
-                    <button type="submit" class="nav-link @yield('nav-user_payment_per_month-history') border-0 bg-transparent w-100 text-start" style="cursor: pointer;">
-                        <input type="hidden" value="nav" name="nav">
-                        <div class="icon icon-shape icon-sm shadow border-radius-md bg-white text-center me-2 d-flex align-items-center justify-content-center">
-                            <i class="fa fa-search text-dark text-gradient text-lg"></i>
-                        </div>
-                        <span class="sidenav-normal">ค้นหาใบเสร็จ</span>
-                    </button>
-                </form>
-            </li>
-
-            <li class="nav-item mt-3 mb-1">
-                <h6 class="ps-2 ms-2 text-uppercase text-xs font-weight-bolder opacity-6">รายงาน</h6>
-            </li>
-
-            <li class="nav-item">
-                <a class="nav-link @yield('nav-daily')" href="">
-                    {{-- {{ route('report.daily') }} --}}
-                    <div class="icon icon-shape icon-sm shadow border-radius-md bg-white text-center me-2 d-flex align-items-center justify-content-center">
-                        <i class="fa fa-clipboard-list text-warning text-gradient text-lg"></i>
-                    </div>
-                    <span class="sidenav-normal">สรุปรับเงินประจำวัน</span>
-                </a>
-            </li>
-
-            <li class="nav-item">
-                <a class="nav-link @yield('nav-user_payment_per_month-table')" href="{{ route('keptkayas.korkor3.index') }}">
-                    <div class="icon icon-shape icon-sm shadow border-radius-md bg-white text-center me-2 d-flex align-items-center justify-content-center">
-                        <i class="fa fa-table text-warning text-gradient text-lg"></i>
-                    </div>
-                    <span class="sidenav-normal">ตารางชำระเงิน (กค.3)</span>
-                </a>
-            </li>
-
-            <li class="nav-item">
-                <a class="nav-link @yield('nav-cart')" href="{{ route('keptkayas.reports.index') }}">
-                    <div class="icon icon-shape icon-sm shadow border-radius-md bg-white text-center me-2 d-flex align-items-center justify-content-center">
-                        <i class="fa fa-chart-pie text-warning text-gradient text-lg"></i>
-                    </div>
-                    <span class="sidenav-normal">รวมรายงานทั้งหมด</span>
-                </a>
-            </li>
-
-            <li class="nav-item mt-3 mb-1">
-                <h6 class="ps-2 ms-2 text-uppercase text-xs font-weight-bolder opacity-6">ตั้งค่าระบบ</h6>
-            </li>
-
-             <li class="nav-item">
-                <a class="nav-link @yield('nav-keptkayas.users')" href="{{route('keptkayas.users.index')}}">
-                    <div class="icon icon-shape icon-sm shadow border-radius-md bg-white text-center me-2 d-flex align-items-center justify-content-center">
-                        <i class="fa fa-user-friends text-dark text-gradient text-lg"></i>
-                    </div>
-                    <span class="sidenav-normal">สมาชิก</span>
-                </a>
-            </li>
-
-
-            <li class="nav-item @yield('nav-staff')">
-                <a class="nav-link @yield('nav-keptkayas.kp_usergroup')" href="{{route('keptkayas.kp_usergroup.index')}}">
-                    <div class="icon icon-shape icon-sm shadow border-radius-md bg-white text-center me-2 d-flex align-items-center justify-content-center">
-                        <i class="fa fa-layer-group text-secondary text-gradient text-lg"></i>
-                    </div>
-                    <span class="sidenav-normal">กลุ่มผู้ใช้งาน</span>
-                </a>
-            </li>
-
-            <li class="nav-item">
-                <a class="nav-link @yield('nav-cart')" href="{{ route('keptkayas.wbin_payrate_per_months.index') }}">
-                    <div class="icon icon-shape icon-sm shadow border-radius-md bg-white text-center me-2 d-flex align-items-center justify-content-center">
-                        <i class="fa fa-coins text-secondary text-gradient text-lg"></i>
-                    </div>
-                    <span class="sidenav-normal">กำหนดอัตราค่าขยะ</span>
-                </a>
-            </li>
-
-            <li class="nav-item">
-                <a class="nav-link @yield('nav-cart')" href="{{ route('keptkayas.annual_batch.index') }}">
-                    <div class="icon icon-shape icon-sm shadow border-radius-md bg-white text-center me-2 d-flex align-items-center justify-content-center">
-                        <i class="fa fa-cogs text-secondary text-gradient text-lg"></i>
-                    </div>
-                    <span class="sidenav-normal">ประมวลผลรายปี</span>
-                </a>
-            </li>
-
-        </ul>
-    </div>
-</li>
-@endif
-@endif
-    @if (Session::get('keptkaya_type') == 'recycle')
-    @if(auth()->user()->can('access recycle bank modules') || auth()->user()->hasRole('Admin'))
-        <li class="nav-item">
-            <a data-bs-toggle="collapse" href="#cart" class="nav-link active" aria-controls="cart" role="button"
-                aria-expanded="true">
-                <div
-                    class="icon icon-shape icon-sm shadow border-radius-md bg-white text-center d-flex align-items-center justify-content-center  me-2">
-                    <svg width="12px" height="12px" viewBox="0 0 42 42" version="1.1" xmlns="http://www.w3.org/2000/svg"
-                        xmlns:xlink="http://www.w3.org/1999/xlink">
-                        <title>office</title>
-                        <g stroke="none" stroke-width="1" fill="none" fill-rule="evenodd">
-                            <g transform="translate(-1869.000000, -293.000000)" fill="#FFFFFF" fill-rule="nonzero">
-                                <g transform="translate(1716.000000, 291.000000)">
-                                    <g id="office" transform="translate(153.000000, 2.000000)">
-                                        <path class="color-background"
-                                            d="M12.25,17.5 L8.75,17.5 L8.75,1.75 C8.75,0.78225 9.53225,0 10.5,0 L31.5,0 C32.46775,0 33.25,0.78225 33.25,1.75 L33.25,12.25 L29.75,12.25 L29.75,3.5 L12.25,3.5 L12.25,17.5 Z"
-                                            opacity="0.6"></path>
-                                        <path class="color-background"
-                                            d="M40.25,14 L24.5,14 C23.53225,14 22.75,14.78225 22.75,15.75 L22.75,38.5 L19.25,38.5 L19.25,22.75 C19.25,21.78225 18.46775,21 17.5,21 L1.75,21 C0.78225,21 0,21.78225 0,22.75 L0,40.25 C0,41.21775 0.78225,42 1.75,42 L40.25,42 C41.21775,42 42,41.21775 42,40.25 L42,15.75 C42,14.78225 41.21775,14 40.25,14 Z M12.25,36.75 L7,36.75 L7,33.25 L12.25,33.25 L12.25,36.75 Z M12.25,29.75 L7,29.75 L7,26.25 L12.25,26.25 L12.25,29.75 Z M35,36.75 L29.75,36.75 L29.75,33.25 L35,33.25 L35,36.75 Z M35,29.75 L29.75,29.75 L29.75,26.25 L35,26.25 L35,29.75 Z M35,22.75 L29.75,22.75 L29.75,19.25 L35,19.25 L35,22.75 Z">
-                                        </path>
+                <a data-bs-toggle="collapse" href="#receipt" class="nav-link active" aria-controls="receipt" role="button"
+                    aria-expanded="true">
+                    <div
+                        class="icon icon-shape icon-sm shadow border-radius-md bg-white text-center d-flex align-items-center justify-content-center me-2">
+                        <svg width="12px" height="12px" viewBox="0 0 42 42" version="1.1" xmlns="http://www.w3.org/2000/svg"
+                            xmlns:xlink="http://www.w3.org/1999/xlink">
+                            <title>office</title>
+                            <g stroke="none" stroke-width="1" fill="none" fill-rule="evenodd">
+                                <g transform="translate(-1869.000000, -293.000000)" fill="#FFFFFF" fill-rule="nonzero">
+                                    <g transform="translate(1716.000000, 291.000000)">
+                                        <g id="office" transform="translate(153.000000, 2.000000)">
+                                            <path class="color-background"
+                                                d="M12.25,17.5 L8.75,17.5 L8.75,1.75 C8.75,0.78225 9.53225,0 10.5,0 L31.5,0 C32.46775,0 33.25,0.78225 33.25,1.75 L33.25,12.25 L29.75,12.25 L29.75,3.5 L12.25,3.5 L12.25,17.5 Z"
+                                                opacity="0.6"></path>
+                                            <path class="color-background"
+                                                d="M40.25,14 L24.5,14 C23.53225,14 22.75,14.78225 22.75,15.75 L22.75,38.5 L19.25,38.5 L19.25,22.75 C19.25,21.78225 18.46775,21 17.5,21 L1.75,21 C0.78225,21 0,21.78225 0,22.75 L0,40.25 C0,41.21775 0.78225,42 1.75,42 L40.25,42 C41.21775,42 42,41.21775 42,40.25 L42,15.75 C42,14.78225 41.21775,14 40.25,14 Z M12.25,36.75 L7,36.75 L7,33.25 L12.25,33.25 L12.25,36.75 Z M12.25,29.75 L7,29.75 L7,26.25 L12.25,26.25 L12.25,29.75 Z M35,36.75 L29.75,36.75 L29.75,33.25 L35,33.25 L35,36.75 Z M35,29.75 L29.75,29.75 L29.75,26.25 L35,26.25 L35,29.75 Z M35,22.75 L29.75,22.75 L29.75,19.25 L35,19.25 L35,22.75 Z">
+                                            </path>
+                                        </g>
                                     </g>
                                 </g>
                             </g>
-                        </g>
-                    </svg>
-                </div>
-                <span class="nav-link-text ms-1">ธนาคารขยะรีไซเคิล</span>
-            </a>
-            <div class="collapse show" id="cart" style="">
-                <ul class="nav ms-4 ps-3">
-                    <li class="nav-item  ">
-                        <a class="nav-link @yield('nav-cart')" href="{{ route('keptkayas.purchase.select_user') }}">
-                            <div
-                                class="icon icon-shape icon-sm shadow border-radius-md bg-white text-center me-2 d-flex align-items-center justify-content-center">
-                                <i class="fa fa-shopping-cart text-danger text-gradient text-lg"></i>
-                            </div>
-                            <span class="sidenav-normal">รับซื้อขยะรีไซเคิล </span>
-                        </a>
-                    </li>
+                        </svg>
+                    </div>
+                    <span class="nav-link-text ms-1">จัดเก็บขยะรายปี</span>
+                </a>
 
-                    <li class="nav-item  ">
-                        <a class="nav-link @yield('nav-cart')" href="{{ route('keptkayas.sell.form') }}">
-                            <div
-                                class="icon icon-shape icon-sm shadow border-radius-md bg-white text-center me-2 d-flex align-items-center justify-content-center">
-                                <i class="fa fa-sd-card text-danger text-gradient text-lg"></i>
-                            </div>
-                            <span class="sidenav-normal">บันทึกข้อมูลการขายขยะรีไซเคิล</span>
-                        </a>
-                    </li>
-                    <li class="nav-item ">
-                        <a class="nav-link " href="{{route('keptkayas.sell.history')}}">
-                            <div
-                                class="icon icon-shape icon-sm shadow border-radius-md bg-white text-center me-2 d-flex align-items-center justify-content-center">
-                                <i class="fa fa-history text-danger text-gradient text-lg"></i>
-                            </div>
-                            <span class="sidenav-normal">ประวัติข้อมูลการขายขยะรีไซเคิล</span>
-                        </a>
-                    </li>
+                <div class="collapse show" id="receipt">
+                    <ul class="nav ms-4 ps-3">
 
+                        <li class="nav-item mt-2 mb-1">
+                            <h6 class="ps-2 ms-2 text-uppercase text-xs font-weight-bolder opacity-6">ปฏิบัติงาน</h6>
+                        </li>
 
-                </ul>
-            </div>
-        </li>
-
-        <li class="nav-item">
-            <a data-bs-toggle="collapse" href="#pagesExamples" class="nav-link active" aria-controls="pagesExamples"
-                role="button" aria-expanded="true">
-                <div
-                    class="icon icon-shape icon-sm shadow border-radius-md bg-white text-center d-flex align-items-center justify-content-center  me-2">
-                    <i class="fa fa-user"></i>
-                </div>
-                <span class="nav-link-text ms-1">ตั้งค่าข้อมูล</span>
-            </a>
-            <div class="collapse show" id="pagesExamples" style="">
-                <ul class="nav ms-4 ps-3">
-                    <li class="nav-item ">
-                        <a class="nav-link " href="{{route('keptkayas.tbank.items_group.index')}}">
-                            <div
-                                class="icon icon-shape icon-sm shadow border-radius-md bg-white text-center me-2 d-flex align-items-center justify-content-center">
-                                <i class="fa fa-object-group text-danger text-gradient text-lg"></i>
-                            </div>
-                            <div class="d-flex justify-content-between" style="width: 100%">
-
-                                <span class="sidenav-normal">ประเภทขยะรีไซเคิล</span>
-                                @if ($infos_count['items_group_count'] > 0)
-                                    <span
-                                        class="badge badge-sm badge-circle badge-floating badge-danger border-white">{{ $infos_count['items_group_count'] }}</span>
-                                @endif
-                            </div>
-                        </a>
-                    </li>
-                    <li class="nav-item ">
-                        <a class="nav-link " href="{{route('keptkayas.tbank.units.index')}}">
-                            <div
-                                class="icon icon-shape icon-sm shadow border-radius-md bg-white text-center me-2 d-flex align-items-center justify-content-center">
-                                <i class="fa fa-tablets text-danger text-gradient text-lg"></i>
-                            </div>
-                            <div class="d-flex justify-content-between" style="width: 100%">
-                                <span class="sidenav-normal">หน่วยนับ</span>
-                                @if ($infos_count['units_count'] > 0)
-                                    <span
-                                        class="badge badge-sm badge-circle badge-floating badge-danger border-white">{{ $infos_count['units_count'] }}</span>
-                                @endif
-                            </div>
-
-                        </a>
-                    </li>
-                    <li class="nav-item ">
-                        <a class="nav-link " href="{{route('keptkayas.tbank.items.index')}}">
-                            <div
-                                class="icon icon-shape icon-sm shadow border-radius-md bg-white text-center me-2 d-flex align-items-center justify-content-center">
-                                <i class="fa fa-wine-bottle text-danger text-gradient text-lg"></i>
-                            </div>
-                            <div class="d-flex justify-content-between" style="width: 100%">
-
-                                <span class="sidenav-normal">ขยะรีไซเคิล</span>
-                                @if ($infos_count['items_count'] > 0)
-                                    <span
-                                        class="badge badge-sm badge-circle badge-floating badge-danger border-white">{{ $infos_count['items_count'] }}</span>
-                                @endif
-                            </div>
-
-                        </a>
-                    </li>
-                    <li class="nav-item  ">
-                        <a class="nav-link @yield('nav-cart')" href="{{ route('keptkayas.tbank.prices.index') }}">
-                            <div
-                                class="icon icon-shape icon-sm shadow border-radius-md bg-white text-center me-2 d-flex align-items-center justify-content-center">
-                                <i class="fa fa-money-bill-wave text-danger text-gradient text-lg"></i>
-                            </div>
-                            <div class="d-flex justify-content-between" style="width: 100%">
-
-                                <span class="sidenav-normal">ตั้งราคารับซื้อขยะรีไซเคิล</span>
-                                @if ($infos_count['items_prices_count'] > 0)
-                                    <span
-                                        class="badge badge-sm badge-circle badge-floating badge-danger border-white">{{ $infos_count['items_prices_count'] }}</span>
-                                @endif
-                            </div>
-
-
-                        </a>
-                    </li>
-                    <li class="nav-item  ">
-                        <a class="nav-link @yield('nav-cart')" href="{{ route('keptkayas.purchase-shops.index') }}">
-                            <div
-                                class="icon icon-shape icon-sm shadow border-radius-md bg-white text-center me-2 d-flex align-items-center justify-content-center">
-                                <i class="fa fa-home text-danger text-gradient text-lg"></i>
-                            </div>
-                            <div class="d-flex justify-content-between" style="width: 100%">
-                                <span class="sidenav-normal">ร้านรับซื้อขยะ </span>
-
-                                @if ($infos_count['shop_count'] > 0)
-                                    <span
-                                        class="badge badge-sm badge-circle badge-floating badge-danger border-white">{{ $infos_count['shop_count'] }}</span>
-                                @endif
-                            </div>
-
-                        </a>
-                    </li>
-
-            </div>
-        </li>
-    @endif
-    @endif
-    {{-- @can('manage staff') --}}
-    @if(auth()->user()->hasRole('Super Admin|Admin'))
-
-        {{-- <li class="nav-item">
-            <a data-bs-toggle="collapse" href="#pagesExamples" class="nav-link active" aria-controls="pagesExamples"
-                role="button" aria-expanded="true">
-                <div
-                    class="icon icon-shape icon-sm shadow border-radius-md bg-white text-center d-flex align-items-center justify-content-center  me-2">
-                    <i class="fa fa-user"></i>
-                </div>
-                <span class="nav-link-text ms-1">ผู้ใช้งานระบบ</span>
-            </a>
-            <div class="collapse show" id="pagesExamples" style="">
-                <ul class="nav ms-4 ps-3">
-                    <li class="nav-item @yield('nav-user')">
-                        <a class="nav-link nav-user" href="{{ route('keptkayas.users.index') }}">
+                        <li class="nav-item">
+                            <a class="nav-link @yield('nav-waste_bins-viewmap')"
+                                href="{{ route('keptkayas.waste_bins.viewmap') }}">
                                 <div
                                     class="icon icon-shape icon-sm shadow border-radius-md bg-white text-center me-2 d-flex align-items-center justify-content-center">
-                                    <i class="fa fa-users text-danger text-gradient text-lg"></i>
+                                    <i class="fa fa-map-marked-alt text-dark text-gradient text-lg"></i>
+                                </div>
+                                <span class="sidenav-normal">แผนที่ถังขยะ</span>
+                            </a>
+                        </li>
+
+                        <li class="nav-item">
+                            <a class="nav-link @yield('nav-keptkayas.annual_payments.index')"
+                                href="{{route('keptkayas.annual_payments.index')}}">
+                                <div
+                                    class="icon icon-shape icon-sm shadow border-radius-md bg-white text-center me-2 d-flex align-items-center justify-content-center">
+                                    <i class="fa fa-cash-register text-dark text-gradient text-lg"></i>
+                                </div>
+                                <span class="sidenav-normal">รับชำระเงิน</span>
+                            </a>
+                        </li>
+
+                        <li class="nav-item">
+                            <a class="nav-link @yield('nav-keptkayas.annual_payments.invoice')"
+                                href="{{ route('keptkayas.annual_payments.invoice') }}">
+                                <div
+                                    class="icon icon-shape icon-sm shadow border-radius-md bg-white text-center me-2 d-flex align-items-center justify-content-center">
+                                    <i class="fa fa-file-invoice text-dark text-gradient text-lg"></i>
+                                </div>
+                                <span class="sidenav-normal">ออกใบแจ้งหนี้</span>
+                            </a>
+                        </li>
+
+                        <li class="nav-item">
+                            <form action="{{ route('keptkayas.annual_payments.history') }}" name="myForm2" id="myForm2"
+                                method="post" class="mb-0">
+                                @csrf
+                                <button type="submit"
+                                    class="nav-link @yield('nav-user_payment_per_month-history') border-0 bg-transparent w-100 text-start"
+                                    style="cursor: pointer;">
+                                    <input type="hidden" value="nav" name="nav">
+                                    <div
+                                        class="icon icon-shape icon-sm shadow border-radius-md bg-white text-center me-2 d-flex align-items-center justify-content-center">
+                                        <i class="fa fa-search text-dark text-gradient text-lg"></i>
+                                    </div>
+                                    <span class="sidenav-normal">ค้นหาใบเสร็จ</span>
+                                </button>
+                            </form>
+                        </li>
+
+                        <li class="nav-item mt-3 mb-1">
+                            <h6 class="ps-2 ms-2 text-uppercase text-xs font-weight-bolder opacity-6">รายงาน</h6>
+                        </li>
+
+                        <li class="nav-item">
+                            <a class="nav-link @yield('nav-daily')" href="">
+                                {{-- {{ route('report.daily') }} --}}
+                                <div
+                                    class="icon icon-shape icon-sm shadow border-radius-md bg-white text-center me-2 d-flex align-items-center justify-content-center">
+                                    <i class="fa fa-clipboard-list text-warning text-gradient text-lg"></i>
+                                </div>
+                                <span class="sidenav-normal">สรุปรับเงินประจำวัน</span>
+                            </a>
+                        </li>
+
+                        <li class="nav-item">
+                            <a class="nav-link @yield('nav-user_payment_per_month-table')"
+                                href="{{ route('keptkayas.korkor3.index') }}">
+                                <div
+                                    class="icon icon-shape icon-sm shadow border-radius-md bg-white text-center me-2 d-flex align-items-center justify-content-center">
+                                    <i class="fa fa-table text-warning text-gradient text-lg"></i>
+                                </div>
+                                <span class="sidenav-normal">ตารางชำระเงิน (กค.3)</span>
+                            </a>
+                        </li>
+
+                        <li class="nav-item">
+                            <a class="nav-link @yield('nav-cart')" href="{{ route('keptkayas.reports.index') }}">
+                                <div
+                                    class="icon icon-shape icon-sm shadow border-radius-md bg-white text-center me-2 d-flex align-items-center justify-content-center">
+                                    <i class="fa fa-chart-pie text-warning text-gradient text-lg"></i>
+                                </div>
+                                <span class="sidenav-normal">รวมรายงานทั้งหมด</span>
+                            </a>
+                        </li>
+
+                        <li class="nav-item mt-3 mb-1">
+                            <h6 class="ps-2 ms-2 text-uppercase text-xs font-weight-bolder opacity-6">ตั้งค่าระบบ</h6>
+                        </li>
+
+                        <li class="nav-item">
+                            <a class="nav-link @yield('nav-keptkayas.users')" href="{{route('keptkayas.users.index')}}">
+                                <div
+                                    class="icon icon-shape icon-sm shadow border-radius-md bg-white text-center me-2 d-flex align-items-center justify-content-center">
+                                    <i class="fa fa-user-friends text-dark text-gradient text-lg"></i>
+                                </div>
+                                <span class="sidenav-normal">สมาชิก</span>
+                            </a>
+                        </li>
+
+
+                        <li class="nav-item @yield('nav-staff')">
+                            <a class="nav-link @yield('nav-keptkayas.kp_usergroup')"
+                                href="{{route('keptkayas.kp_usergroup.index')}}">
+                                <div
+                                    class="icon icon-shape icon-sm shadow border-radius-md bg-white text-center me-2 d-flex align-items-center justify-content-center">
+                                    <i class="fa fa-layer-group text-secondary text-gradient text-lg"></i>
+                                </div>
+                                <span class="sidenav-normal">กลุ่มผู้ใช้งาน</span>
+                            </a>
+                        </li>
+
+                        <li class="nav-item">
+                            <a class="nav-link @yield('nav-cart')"
+                                href="{{ route('keptkayas.wbin_payrate_per_months.index') }}">
+                                <div
+                                    class="icon icon-shape icon-sm shadow border-radius-md bg-white text-center me-2 d-flex align-items-center justify-content-center">
+                                    <i class="fa fa-coins text-secondary text-gradient text-lg"></i>
+                                </div>
+                                <span class="sidenav-normal">กำหนดอัตราค่าขยะ</span>
+                            </a>
+                        </li>
+
+                        <li class="nav-item">
+                            <a class="nav-link @yield('nav-cart')" href="{{ route('keptkayas.annual_batch.index') }}">
+                                <div
+                                    class="icon icon-shape icon-sm shadow border-radius-md bg-white text-center me-2 d-flex align-items-center justify-content-center">
+                                    <i class="fa fa-cogs text-secondary text-gradient text-lg"></i>
+                                </div>
+                                <span class="sidenav-normal">ประมวลผลรายปี</span>
+                            </a>
+                        </li>
+
+                        <li class="nav-item">
+                            <a class="nav-link @yield('nav-cart')" href="{{ route('keptkayas.bins.index') }}">
+                                <div
+                                    class="icon icon-shape icon-sm shadow border-radius-md bg-white text-center me-2 d-flex align-items-center justify-content-center">
+                                    <i class="fa fa-cogs text-secondary text-gradient text-lg"></i>
+                                </div>
+                                <span class="sidenav-normal">ลงทะเบียนถังขยะ</span>
+                            </a>
+                        </li>
+
+
+                    </ul>
+                </div>
+            </li>
+        {{-- @endif --}}
+    @endif
+    @if (Session::get('keptkayatype') == 'recycle')
+        @if(auth()->user()->can('access recycle bank') || auth()->user()->hasRole('Admin'))
+            <li class="nav-item">
+                <a data-bs-toggle="collapse" href="#cart" class="nav-link active" aria-controls="cart" role="button"
+                    aria-expanded="true">
+                    <div
+                        class="icon icon-shape icon-sm shadow border-radius-md bg-white text-center d-flex align-items-center justify-content-center  me-2">
+                        <svg width="12px" height="12px" viewBox="0 0 42 42" version="1.1" xmlns="http://www.w3.org/2000/svg"
+                            xmlns:xlink="http://www.w3.org/1999/xlink">
+                            <title>office</title>
+                            <g stroke="none" stroke-width="1" fill="none" fill-rule="evenodd">
+                                <g transform="translate(-1869.000000, -293.000000)" fill="#FFFFFF" fill-rule="nonzero">
+                                    <g transform="translate(1716.000000, 291.000000)">
+                                        <g id="office" transform="translate(153.000000, 2.000000)">
+                                            <path class="color-background"
+                                                d="M12.25,17.5 L8.75,17.5 L8.75,1.75 C8.75,0.78225 9.53225,0 10.5,0 L31.5,0 C32.46775,0 33.25,0.78225 33.25,1.75 L33.25,12.25 L29.75,12.25 L29.75,3.5 L12.25,3.5 L12.25,17.5 Z"
+                                                opacity="0.6"></path>
+                                            <path class="color-background"
+                                                d="M40.25,14 L24.5,14 C23.53225,14 22.75,14.78225 22.75,15.75 L22.75,38.5 L19.25,38.5 L19.25,22.75 C19.25,21.78225 18.46775,21 17.5,21 L1.75,21 C0.78225,21 0,21.78225 0,22.75 L0,40.25 C0,41.21775 0.78225,42 1.75,42 L40.25,42 C41.21775,42 42,41.21775 42,40.25 L42,15.75 C42,14.78225 41.21775,14 40.25,14 Z M12.25,36.75 L7,36.75 L7,33.25 L12.25,33.25 L12.25,36.75 Z M12.25,29.75 L7,29.75 L7,26.25 L12.25,26.25 L12.25,29.75 Z M35,36.75 L29.75,36.75 L29.75,33.25 L35,33.25 L35,36.75 Z M35,29.75 L29.75,29.75 L29.75,26.25 L35,26.25 L35,29.75 Z M35,22.75 L29.75,22.75 L29.75,19.25 L35,19.25 L35,22.75 Z">
+                                            </path>
+                                        </g>
+                                    </g>
+                                </g>
+                            </g>
+                        </svg>
+                    </div>
+                    <span class="nav-link-text ms-1">ธนาคารขยะรีไซเคิล</span>
+                </a>
+                <div class="collapse show" id="cart" style="">
+                    <ul class="nav ms-4 ps-3">
+                        <li class="nav-item  ">
+                            <a class="nav-link @yield('nav-cart')" href="{{ route('keptkayas.purchase.select_user') }}">
+                                <div
+                                    class="icon icon-shape icon-sm shadow border-radius-md bg-white text-center me-2 d-flex align-items-center justify-content-center">
+                                    <i class="fa fa-shopping-cart text-danger text-gradient text-lg"></i>
+                                </div>
+                                <span class="sidenav-normal">รับซื้อขยะรีไซเคิล </span>
+                            </a>
+                        </li>
+
+                        <li class="nav-item  ">
+                            <a class="nav-link @yield('nav-cart')" href="{{ route('keptkayas.sell.form') }}">
+                                <div
+                                    class="icon icon-shape icon-sm shadow border-radius-md bg-white text-center me-2 d-flex align-items-center justify-content-center">
+                                    <i class="fa fa-sd-card text-danger text-gradient text-lg"></i>
+                                </div>
+                                <span class="sidenav-normal">บันทึกข้อมูลการขายขยะรีไซเคิล</span>
+                            </a>
+                        </li>
+                        <li class="nav-item ">
+                            <a class="nav-link " href="{{route('keptkayas.sell.history')}}">
+                                <div
+                                    class="icon icon-shape icon-sm shadow border-radius-md bg-white text-center me-2 d-flex align-items-center justify-content-center">
+                                    <i class="fa fa-history text-danger text-gradient text-lg"></i>
+                                </div>
+                                <span class="sidenav-normal">ประวัติข้อมูลการขายขยะรีไซเคิล</span>
+                            </a>
+                        </li>
+
+
+                    </ul>
+                </div>
+            </li>
+
+            <li class="nav-item">
+                <a data-bs-toggle="collapse" href="#pagesExamples" class="nav-link active" aria-controls="pagesExamples"
+                    role="button" aria-expanded="true">
+                    <div
+                        class="icon icon-shape icon-sm shadow border-radius-md bg-white text-center d-flex align-items-center justify-content-center  me-2">
+                        <i class="fa fa-user"></i>
+                    </div>
+                    <span class="nav-link-text ms-1">ตั้งค่าข้อมูล</span>
+                </a>
+                <div class="collapse show" id="pagesExamples" style="">
+                    <ul class="nav ms-4 ps-3">
+                        <li class="nav-item ">
+                            <a class="nav-link " href="{{route('keptkayas.tbank.items_group.index')}}">
+                                <div
+                                    class="icon icon-shape icon-sm shadow border-radius-md bg-white text-center me-2 d-flex align-items-center justify-content-center">
+                                    <i class="fa fa-object-group text-danger text-gradient text-lg"></i>
                                 </div>
                                 <div class="d-flex justify-content-between" style="width: 100%">
 
-                                    <span class="sidenav-normal">สมาชิก</span>
-                                    @if ($infos_count['kp_user_waste_preferences'] > 0)
+                                    <span class="sidenav-normal">ประเภทขยะรีไซเคิล</span>
+                                    @if ($infos_count['items_group_count'] > 0)
                                         <span
-                                            class="badge badge-sm badge-circle badge-floating badge-danger border-white">{{ $infos_count['kp_user_waste_preferences'] }}</span>
+                                            class="badge badge-sm badge-circle badge-floating badge-danger border-white">{{ $infos_count['items_group_count'] }}</span>
+                                    @endif
+                                </div>
+                            </a>
+                        </li>
+                        <li class="nav-item ">
+                            <a class="nav-link " href="{{route('keptkayas.tbank.units.index')}}">
+                                <div
+                                    class="icon icon-shape icon-sm shadow border-radius-md bg-white text-center me-2 d-flex align-items-center justify-content-center">
+                                    <i class="fa fa-tablets text-danger text-gradient text-lg"></i>
+                                </div>
+                                <div class="d-flex justify-content-between" style="width: 100%">
+                                    <span class="sidenav-normal">หน่วยนับ</span>
+                                    @if ($infos_count['units_count'] > 0)
+                                        <span
+                                            class="badge badge-sm badge-circle badge-floating badge-danger border-white">{{ $infos_count['units_count'] }}</span>
                                     @endif
                                 </div>
 
                             </a>
-
-
-                    </li>
-                    <li class="nav-item @yield('nav-staff')">
-                        <a class="nav-link " href="{{route('keptkayas.staffs.index')}}">
-                        <div
+                        </li>
+                        <li class="nav-item ">
+                            <a class="nav-link " href="{{route('keptkayas.tbank.items.index')}}">
+                                <div
                                     class="icon icon-shape icon-sm shadow border-radius-md bg-white text-center me-2 d-flex align-items-center justify-content-center">
-                                    <i class="fab fa-ubuntu text-danger text-gradient text-lg"></i>
+                                    <i class="fa fa-wine-bottle text-danger text-gradient text-lg"></i>
                                 </div>
                                 <div class="d-flex justify-content-between" style="width: 100%">
 
-                                    <span class="sidenav-normal">เจ้าหน้าที่</span>
-                                    @if ($infos_count['kp_user_waste_preferences'] > 0)
+                                    <span class="sidenav-normal">ขยะรีไซเคิล</span>
+                                    @if ($infos_count['items_count'] > 0)
                                         <span
-                                            class="badge badge-sm badge-circle badge-floating badge-danger border-white">{{ $infos_count['kp_user_waste_preferences'] }}</span>
+                                            class="badge badge-sm badge-circle badge-floating badge-danger border-white">{{ $infos_count['items_count'] }}</span>
                                     @endif
                                 </div>
-                        </a>
-                    </li>
+
+                            </a>
+                        </li>
+                        <li class="nav-item  ">
+                            <a class="nav-link @yield('nav-cart')" href="{{ route('keptkayas.tbank.prices.index') }}">
+                                <div
+                                    class="icon icon-shape icon-sm shadow border-radius-md bg-white text-center me-2 d-flex align-items-center justify-content-center">
+                                    <i class="fa fa-money-bill-wave text-danger text-gradient text-lg"></i>
+                                </div>
+                                <div class="d-flex justify-content-between" style="width: 100%">
+
+                                    <span class="sidenav-normal">ตั้งราคารับซื้อขยะรีไซเคิล</span>
+                                    @if ($infos_count['items_prices_count'] > 0)
+                                        <span
+                                            class="badge badge-sm badge-circle badge-floating badge-danger border-white">{{ $infos_count['items_prices_count'] }}</span>
+                                    @endif
+                                </div>
 
 
-            </div>
-        </li> --}}
+                            </a>
+                        </li>
+                        <li class="nav-item  ">
+                            <a class="nav-link @yield('nav-cart')" href="{{ route('keptkayas.purchase-shops.index') }}">
+                                <div
+                                    class="icon icon-shape icon-sm shadow border-radius-md bg-white text-center me-2 d-flex align-items-center justify-content-center">
+                                    <i class="fa fa-home text-danger text-gradient text-lg"></i>
+                                </div>
+                                <div class="d-flex justify-content-between" style="width: 100%">
+                                    <span class="sidenav-normal">ร้านรับซื้อขยะ </span>
+
+                                    @if ($infos_count['shop_count'] > 0)
+                                        <span
+                                            class="badge badge-sm badge-circle badge-floating badge-danger border-white">{{ $infos_count['shop_count'] }}</span>
+                                    @endif
+                                </div>
+
+                            </a>
+                        </li>
+
+                </div>
+            </li>
+        @endif
     @endif
+
     <li class="nav-item">
         <a href="{{ route('logout') }}" class="nav-link active mt-4" style="border: 1px solid red">
             <div

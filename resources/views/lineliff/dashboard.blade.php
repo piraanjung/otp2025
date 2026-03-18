@@ -4,7 +4,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Envsogo Waste Bank</title>
+    <title>PI-OS</title>
 
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/css/bootstrap.min.css" rel="stylesheet"
         integrity="sha384-EVSTQN3/azprG1Anm3QDgpJLIm9Nao0Yz1ztcQTwFspd3yD65VohhpuuCOmLASjC" crossorigin="anonymous">
@@ -442,6 +442,37 @@
         .main__stat-graph--filled .ring-stroke {
             animation: fill-ring-lg 1.5s ease-out forwards;
         }
+
+        /* เพิ่มใน <style> */
+        .text-danger.main__stat-value {
+            animation: shake 0.5s cubic-bezier(.36, .07, .19, .97) both;
+            color: #d32f2f !important;
+            text-shadow: 0 0 10px rgba(211, 47, 47, 0.2);
+        }
+
+        @keyframes shake {
+
+            10%,
+            90% {
+                transform: translate3d(-1px, 0, 0);
+            }
+
+            20%,
+            80% {
+                transform: translate3d(2px, 0, 0);
+            }
+
+            30%,
+            50%,
+            70% {
+                transform: translate3d(-4px, 0, 0);
+            }
+
+            40%,
+            60% {
+                transform: translate3d(4px, 0, 0);
+            }
+        }
     </style>
 </head>
 
@@ -468,8 +499,8 @@
 
     <div class="modern-sidebar" id="mainSidebar">
         <div class="sidebar-header">
-            <img src="https://profile.line-scdn.net/{{$userWastePref->user->image ?? ''}}"
-                onerror="this.src='https://via.placeholder.com/60'" alt="Profile" class="sidebar-avatar">
+            <img src="https://profile.line-scdn.net/{{$userWastePref->user->image ?? ''}}" alt="Profile"
+                class="sidebar-avatar">
             <div class="sidebar-user-info">
                 <h5 class="mb-0">{{$userWastePref->user->firstname ?? 'Guest'}}</h5>
                 <small>ยินดีต้อนรับ</small>
@@ -478,26 +509,26 @@
         </div>
 
         <div class="sidebar-content">
-            <a href="#" class="sidebar-link active main_bottom_nav" data-id="recycle">
-                <i class="bi bi-house-door-fill"></i> หน้าหลัก (รีไซเคิล)
+            <a href="#" class="sidebar-link  main_bottom_nav" data-id="recycle">
+                <i class="bi bi-house-door-fill"></i> หน้าหลัก
             </a>
 
             <div class="sidebar-divider">บริการหลัก</div>
 
-            <a href="#" class="sidebar-link main_bottom_nav" data-id="recycle">
+            <a href="#" class="sidebar-link active main_bottom_nav" data-id="recycle">
                 <i class="bi bi-recycle"></i> ขยะรีไซเคิล
             </a>
             <a href="#" class="sidebar-link main_bottom_nav" data-id="wet">
                 <i class="bi bi-trash-fill"></i> ขยะเปียก
             </a>
-            <a href="#" class="sidebar-link main_bottom_nav" data-id="tabwater">
+            {{-- <a href="#" class="sidebar-link main_bottom_nav" data-id="tabwater">
                 <i class="bi bi-droplet-fill"></i> งานประปา
-            </a>
+            </a> --}}
 
-            <div class="sidebar-divider">อื่นๆ</div>
+            {{-- <div class="sidebar-divider">อื่นๆ</div>
             <a href="#" class="sidebar-link">
                 <i class="bi bi-shop"></i> ตลาดชุมชน
-            </a>
+            </a> --}}
         </div>
 
         <div class="sidebar-footer">
@@ -506,7 +537,6 @@
             </a>
         </div>
     </div>
-
     <div class="app">
         <svg class="app__gradients" style="position: absolute; width: 0; height: 0;">
             <defs>
@@ -530,16 +560,16 @@
         </header>
 
         <main>
-            <div class="main__date-nav">
+            {{-- <div class="main__date-nav">
                 <div class="main__date d-flex align-items-center justify-content-center">
                     <img src="{{asset('logo/ko_envsogo.png')}}" alt="Logo" style="width: 80px; height: auto;">
                     <strong class="ms-3">
-                        <span style="font-size:1.5rem;">Envsogo</span>
+                        <span style="font-size:1.5rem;">PI-OS</span>
                     </strong>
                 </div>
-            </div>
+            </div> --}}
 
-            <div class="kp div_recycle">
+            <div class="kp div_recycle hidden">
                 <h3 class="mb-3 text-center"><i class="bi bi-bank"></i> ธนาคารขยะรีไซเคิล</h3>
 
                 <div class="main__stat-blocks">
@@ -633,47 +663,134 @@
                 </div>
             </div>
 
-            <div class="kp div_wet hidden">
+            <div class="kp div_wet">
                 <h3 class="mb-3 text-center"><i class="bi bi-trash"></i> ธนาคารขยะเปียก</h3>
+
+                @if(isset($activeBatch) && $activeBatch)
+                    <div class="card shadow-sm mb-4 border-0"
+                        style="background: linear-gradient(135deg, #11998e, #38ef7d); color: white; border-radius: 1.5em;">
+                        <div class="card-body p-3">
+                            <div class="d-flex justify-content-between align-items-center mb-2">
+                                <span class="badge bg-white text-success rounded-pill px-3 small">ล็อต:
+                                    {{ $activeBatch->batch_code }}</span>
+                                <small style="font-size: 0.7rem;"><i class="bi bi-calendar3"></i> เริ่ม:
+                                    {{ $activeBatch->start_date->format('d M y') }}</small>
+                            </div>
+                            <div class="row text-center mt-2">
+                                <div class="col-4 border-end border-white-50">
+                                    <h4 class="fw-bold mb-0">{{ $activeBatch->days_passed }}</h4>
+                                    <small style="font-size: 0.6rem;">วัน</small>
+                                </div>
+                                <div class="col-4 border-end border-white-50">
+                                    <h4 class="fw-bold mb-0">{{ number_format($activeBatch->total_weight ?? 0, 1) }}</h4>
+                                    <small style="font-size: 0.6rem;">กก. รวม</small>
+                                </div>
+                                <div class="col-4">
+                                    <h4 class="fw-bold mb-0" style="font-size: 0.9rem;">
+                                        {{ $activeBatch->temp_status ?? '-' }}
+                                    </h4>
+                                    <small style="font-size: 0.6rem;">ความร้อน</small>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                @endif
 
                 <div class="main__stat-blocks">
                     <div class="main__stat-block main__stat-block--lg">
-                        <div class="main__stat-graph">
+                        <div class="main__stat-graph main__stat-graph--filled">
                             <svg class="ring" viewBox="0 0 180 180">
-                                <circle class="ring-track" cx="90" cy="90" r="82" fill="none" stroke="#e0e0e0"
-                                    stroke-width="12" />
-                                <circle class="ring-stroke" cx="90" cy="90" r="82" fill="none" stroke="hsl(3, 90%, 55%)"
-                                    stroke-width="12" stroke-dasharray="515" stroke-dashoffset="200"
+                                <circle class="ring-track" cx="90" cy="90" r="82" fill="none"
+                                    stroke="rgba(0,255,255,0.2)" stroke-width="12" />
+                                <circle class="ring-stroke" cx="90" cy="90" r="82" fill="none" stroke="#fff"
+                                    stroke-width="12" stroke-dasharray="515" stroke-dashoffset="150"
                                     transform="rotate(-90,90,90)" />
                             </svg>
                             <div class="main__stat-detail">
-                                <strong
-                                    class="main__stat-value">{{ $userWastePref->purchase_transactions[0]->total_amounts ?? '0.00' }}</strong>
-                                <span class="main__stat-unit">Kg (ปี 2568)</span>
+                                <strong class="main__stat-value">{{ number_format($totalCarbonSaved, 2) }}</strong>
+                                <span class="main__stat-unit">kgCO2e (คาร์บอน)</span>
                                 <div class="my-1"></div>
-                                <strong
-                                    class="main__stat-value">{{ $userWastePref->purchase_transactions[0]->total_points ?? '0.00' }}</strong>
-                                <span class="main__stat-unit">แต้มสะสม</span>
+                                <strong class="main__stat-value">{{ number_format($totalWasteWeight, 2) }}</strong>
+                                <span class="main__stat-unit">กก. (ขยะสะสม)</span>
                             </div>
                         </div>
                     </div>
                 </div>
 
+                <div class="main__stat-block main__stat-block--lg mb-4">
+                    <button type="button"
+            class="btn btn-sm shadow-none position-absolute"
+            style="top: 10px; right: 10px; z-index: 10; border-radius: 50%; width: 32px; height: 32px; background: rgba(255,255,255,0.8); display: flex; align-items: center; justify-content: center;"
+            data-bs-toggle="modal"
+            data-bs-target="#userMetricsModal">
+        <i class="bi bi-gear-fill text-success"></i>
+    </button>
+                    <h6 class="fw-bold mb-3"><i class="bi bi-activity text-success"></i> พลังงานที่ได้รับ 7 วันล่าสุด
+                    </h6>
+                    <div class="chart-container" style="position: relative; height:180px; width:100%;">
+                                            <canvas id="calorieDashboardChart"></canvas>
+
+                    </div>
+                    @if(!Auth::user()->weight)
+                        <small class="text-muted"
+                            style="font-size: 0.7rem;">*ตั้งค่าข้อมูลส่วนตัวเพื่อคำนวณความต้องการพลังงาน</small>
+                    @endif
+
+                </div>
+
                 <div class="main__stat-blocks">
-                    <div class="main__stat-block" data-bs-toggle="modal" data-bs-target="#qrcodeModal">
+
+                    <div class="main__stat-block position-relative" data-bs-toggle="modal"
+                        data-bs-target="#issueListModal">
                         <div class="main__stat-graph">
                             <svg class="ring" viewBox="0 0 60 60">
                                 <circle class="ring-track" cx="30" cy="30" r="26" fill="none" stroke="#e0e0e0"
                                     stroke-width="6" />
                             </svg>
                             <i class="bi bi-exclamation-triangle icon" style="font-size: 1.5rem; color: orange;"></i>
+
+                            @if($pendingIssuesCount > 0)
+                                <span class="position-absolute translate-middle badge rounded-pill bg-danger"
+                                    style="top: 15px; right: 15px; font-size: 0.7rem; border: 2px solid white;">
+                                    {{ $pendingIssuesCount }}
+                                </span>
+                            @endif
                         </div>
                         <div class="main__stat-detail">
-                            <strong class="main__stat-value" style="font-size: 0.9em;">แจ้งปัญหาถังหมัก</strong>
+                            <strong class="main__stat-value" style="font-size: 0.85em;">ติดตาม / แจ้ง<div>ปัญหาถังหมัก
+                                </div></strong>
                         </div>
                     </div>
 
-                    <a href="{{route('keptkayas.shop.index')}}" class="main__stat-block">
+                    <a href="{{route('foodwaste.airo.dashboard')}}" class="main__stat-block text-center">
+                        <div class="main__stat-graph">
+                            <svg class="ring" viewBox="0 0 60 60">
+                                <circle class="ring-track" cx="30" cy="30" r="26" fill="none" stroke="#e0e0e0"
+                                    stroke-width="6" />
+                            </svg>
+                            <i class="bi bi-camera-fill icon" style="font-size: 1.5rem;"></i>
+                        </div>
+                        <div class="main__stat-detail">
+                            <strong class="main__stat-value" style="font-size: 0.9em;">บันทึก<div>การหมักประจำวัน</div>
+                            </strong>
+                        </div>
+                    </a>
+
+                    <a href="{{ route('foodwaste.airo.batch_history') }}" class="main__stat-block text-center">
+                        <div class="main__stat-graph">
+                            <svg class="ring" viewBox="0 0 60 60">
+                                <circle class="ring-track" cx="30" cy="30" r="26" fill="none" stroke="#e0e0e0"
+                                    stroke-width="6" />
+                            </svg>
+                            <i class="bi bi-journal-text icon" style="font-size: 1.5rem;"></i>
+                        </div>
+                        <div class="main__stat-detail">
+                            <strong class="main__stat-value" style="font-size: 0.9em;">ดูประวัติ<div>ปุ๋ยแต่ละล็อต</div>
+                            </strong>
+                        </div>
+                    </a>
+
+                    <a href="{{route('foodwaste.airo.how_to')}}" class="main__stat-block text-center">
                         <div class="main__stat-graph">
                             <svg class="ring" viewBox="0 0 60 60">
                                 <circle class="ring-track" cx="30" cy="30" r="26" fill="none" stroke="#e0e0e0"
@@ -687,19 +804,55 @@
                     </a>
                 </div>
             </div>
-
-            <a href="#" onclick="matchUserWithKiosk('SLAVE_01')" class="btn btn-primary">SLAVE_01</a>
-
-            <div class="kp div_tabwater hidden">
+            {{-- <div class="kp div_tabwater hidden text-center">
                 @if(View::exists('lineliff._tabwater'))
-                    @include('lineliff/_tabwater')
+                @include('lineliff/_tabwater')
                 @else
-                    <div class="alert alert-warning m-3 text-center">กำลังปรับปรุงระบบประปา</div>
+                <div class="alert alert-warning m-3">กำลังปรับปรุงระบบประปา</div>
                 @endif
-            </div>
-
+            </div> --}}
         </main>
     </div>
+    @include('foodwaste.airo._report_modal')
+    @include('foodwaste.airo._my_issue_modal')
+    <script>
+        // แก้ไข typo ตรงนี้: เปลี่ยน oquement เป็น document
+        document.addEventListener('DOMContentLoaded', function () {
+            const issueSelect = document.querySelector('select[name="issue_type"]');
+            if (issueSelect) {
+                issueSelect.addEventListener('change', function () {
+                    const adviceBox = document.getElementById('auto-advice');
+                    const advices = {
+                        'smell': '💡 วิธีแก้: เติมใบไม้แห้งสับและพรวนกองปุ๋ยเพื่อเติมอากาศ',
+                        'maggots': '💡 ไม่ต้องตกใจ: หนอนแมลงวันลายช่วยย่อยขยะได้เร็วขึ้นมากครับ',
+                        'wet': '💡 วิธีแก้: เติมวัตถุแห้งเช่น ขากาแฟ หรือเศษใบไม้แห้งเพิ่มครับ',
+                        'mold': '💡 ข้อมูล: ราสีขาวคือราดี ช่วยย่อยสลาย แต่ถ้าสีดำให้เติมปูนขาวเล็กน้อย'
+                    };
+                    adviceBox.innerHTML = advices[this.value] || '';
+                    adviceBox.classList.toggle('d-none', !advices[this.value]);
+                });
+            }
+        });
+    </script>
+
+
+
+    </div>
+
+    {{-- <a href="#" onclick="matchUserWithKiosk('SLAVE_01')" class="btn btn-primary">SLAVE_01</a> --}}
+
+    <div class="kp div_tabwater hidden">
+        @if(View::exists('lineliff._tabwater'))
+            @include('lineliff/_tabwater')
+        @else
+            <div class="alert alert-warning m-3 text-center">กำลังปรับปรุงระบบประปา</div>
+        @endif
+    </div>
+
+    </main>
+    </div>
+
+
 
     <div class="modal fade" id="qrcodeModal" tabindex="-1" aria-labelledby="qrcodeModalLabel" aria-hidden="true">
         <div class="modal-dialog modal-dialog-centered">
@@ -742,10 +895,60 @@
         </div>
     </div>
 
+    <div class="modal fade" id="userMetricsModal" tabindex="-1" aria-labelledby="userMetricsModalLabel"
+        aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content" style="border-radius: 1.5em; border: none;">
+                <div class="modal-header border-0">
+                    <h5 class="modal-title fw-bold" id="userMetricsModalLabel">ตั้งค่าข้อมูลร่างกาย</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <form action="{{ route('admin.users.update_metrics') }}" method="POST">
+                    @csrf
+                    <div class="modal-body p-4">
+                        <div class="row g-3">
+                            <div class="col-6">
+                                <label class="form-label small fw-bold">เพศ</label>
+                                <select name="gender" class="form-select rounded-pill">
+                                    <option value="male" {{ Auth::user()->gender == 'male' ? 'selected' : '' }}>ชาย
+                                    </option>
+                                    <option value="female" {{ Auth::user()->gender == 'female' ? 'selected' : '' }}>หญิง
+                                    </option>
+                                </select>
+                            </div>
+                            <div class="col-6">
+                                <label class="form-label small fw-bold">อายุ (ปี)</label>
+                                <input type="number" name="age" class="form-control rounded-pill"
+                                    value="{{ Auth::user()->age }}" required>
+                            </div>
+                            <div class="col-6">
+                                <label class="form-label small fw-bold">น้ำหนัก (kg)</label>
+                                <input type="number" step="0.1" name="weight" class="form-control rounded-pill"
+                                    value="{{ Auth::user()->weight }}" required>
+                            </div>
+                            <div class="col-6">
+                                <label class="form-label small fw-bold">ส่วนสูง (cm)</label>
+                                <input type="number" name="height" class="form-control rounded-pill"
+                                    value="{{ Auth::user()->height }}" required>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="modal-footer border-0 p-4 pt-0">
+                        <button type="submit"
+                            class="btn btn-primary w-100 rounded-pill fw-bold py-2 shadow">บันทึกข้อมูล</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/js/bootstrap.bundle.min.js"
         integrity="sha384-MrcW6ZMFYlzcLA8Nl+NtUVF0sA7MsXsP1UyJoMp4YLEuNSfAP+JcXn/tWtIaxVXM"
         crossorigin="anonymous"></script>
     <script src="https://unpkg.com/html5-qrcode"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+<script src="https://cdn.jsdelivr.net/npm/chartjs-plugin-annotation@3.0.1/dist/chartjs-plugin-annotation.min.js"></script>
     <script>
         $(document).ready(function () {
             // --- 1. Sidebar Logic ---
@@ -963,6 +1166,95 @@
             }
         }
     </script>
+
+    <script>
+    document.addEventListener('DOMContentLoaded', function () {
+        // 1. ลงทะเบียน Plugin (ทำครั้งเดียวตอนเริ่ม)
+        if (typeof chartjsPluginAnnotation !== 'undefined') {
+            Chart.register(chartjsPluginAnnotation);
+        }
+
+        // 2. เตรียมข้อมูล (รับค่าจาก PHP)
+        const ctx = document.getElementById('calorieDashboardChart').getContext('2d');
+        const targetCalories = {{ $targetCalories ?? 0 }};
+        const chartLabels = {!! json_encode($chartLabels ?? ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun']) !!};
+        const chartData = {!! json_encode($chartData ?? [0,0,0,0,0,0,0]) !!};
+
+        // 3. สร้างกราฟเพียง "อันเดียว" (เลือกเอาแบบ Bar ที่เราทำสี Warning ไว้จะสวยกว่าครับ)
+        new Chart(ctx, {
+            type: 'bar',
+            data: {
+                labels: chartLabels,
+                datasets: [{
+                    label: 'kcal',
+                    data: chartData,
+                    // เปลี่ยนสีแท่งกราฟอัตโนมัติถ้ากินเกินเป้าหมาย
+                    backgroundColor: chartData.map(value => {
+                        return (targetCalories > 0 && value > targetCalories)
+                            ? 'rgba(255, 99, 132, 0.8)'
+                            : 'rgba(56, 239, 125, 0.6)';
+                    }),
+                    borderColor: chartData.map(value => {
+                        return (targetCalories > 0 && value > targetCalories) ? '#ff6384' : '#11998e';
+                    }),
+                    borderWidth: 1,
+                    borderRadius: 8
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: {
+                    legend: { display: false },
+                    // วาดเส้นประเป้าหมาย (Goal Line)
+                    annotation: {
+                        annotations: {
+                            line1: {
+                                type: 'line',
+                                yMin: targetCalories,
+                                yMax: targetCalories,
+                                borderColor: 'red',
+                                borderWidth: 2,
+                                borderDash: [6, 6],
+                                label: {
+                                    display: targetCalories > 0,
+                                    content: 'เป้าหมาย: ' + targetCalories + ' kcal',
+                                    position: 'end',
+                                    backgroundColor: 'rgba(255, 0, 0, 0.8)',
+                                    color: '#fff',
+                                    font: { size: 10 }
+                                }
+                            }
+                        }
+                    }
+                },
+                scales: {
+                    y: {
+                        beginAtZero: true,
+                        suggestedMax: targetCalories > 0 ? targetCalories + 500 : 2000
+                    },
+                    x: { grid: { display: false } }
+                }
+            }
+        });
+
+        // --- ส่วนของ Event Listener สำหรับการแจ้งปัญหา (คงไว้เหมือนเดิม) ---
+        const issueSelect = document.querySelector('select[name="issue_type"]');
+        if(issueSelect) {
+            issueSelect.addEventListener('change', function () {
+                const adviceBox = document.getElementById('auto-advice');
+                const advices = {
+                    'smell': '💡 วิธีแก้: เติมใบไม้แห้งสับและพรวนกองปุ๋ยเพื่อเติมอากาศ',
+                    'maggots': '💡 ไม่ต้องตกใจ: หนอนแมลงวันลายช่วยย่อยขยะได้เร็วขึ้นมากครับ',
+                    'wet': '💡 วิธีแก้: เติมวัตถุแห้งเช่น ขากาแฟ หรือเศษใบไม้แห้งเพิ่มครับ',
+                    'mold': '💡 ข้อมูล: ราสีขาวคือราดี ช่วยย่อยสลาย แต่ถ้าสีดำให้เติมปูนขาวเล็กน้อย'
+                };
+                adviceBox.innerHTML = advices[this.value] || '';
+                adviceBox.classList.toggle('d-none', !advices[this.value]);
+            });
+        }
+    });
+</script>
 </body>
 
 </html>

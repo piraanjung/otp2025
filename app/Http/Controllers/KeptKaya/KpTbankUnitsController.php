@@ -22,7 +22,9 @@ class KpTbankUnitsController extends Controller
      */
     public function create()
     {
-        $user = User::setLocalUser();
+        $user = User::where('org_id_fk', Auth::user()->org_id_fk)
+        ->role('User')
+        ->get();
         return view('keptkayas.tbank.units.create', compact('user'));
     }
 

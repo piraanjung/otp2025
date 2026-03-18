@@ -175,9 +175,7 @@ Route::middleware(['auth', 'role:Admin|Super Admin'])->name('admin.')->prefix('a
     Route::delete('/permissions/{permission}/roles/{role}', [PermissionController::class, 'removeRole'])->name('permissions.roles.remove');
     Route::resource('/permissions', PermissionController::class);
 
-    Route::prefix('super_users')->name('super_users.')->group(function(){
-        Route::resource('/', SuperUserController::class);
-    });
+
 
     //tabwater
     Route::prefix('users/')->name('users.')->group(function(){
@@ -190,14 +188,13 @@ Route::middleware(['auth', 'role:Admin|Super Admin'])->name('admin.')->prefix('a
         Route::put('{user_id}/update', [UserController::class, 'update'])->name('update');
         Route::get('{user}', [UserController::class, 'show'])->name('show');
         Route::get('{user_id}/cancel', [UserController::class, 'cancel'])->name('cancel');
-        // Route::delete('{user}', [UserController::class, 'destroy'])->name('destroy');
         Route::delete('{meter_id}/destroy', [UserController::class, 'destroy'])->name('destroy');
         Route::get('{user}/history', [UserController::class, 'history'])->name('history');
         Route::post('{user}/roles', [UserController::class, 'assignRole'])->name('roles');
         Route::delete('{user}/roles/{role}', [UserController::class, 'removeRole'])->name('roles.remove');
         Route::get('{user_id}/permissions', [UserController::class, 'givePermission'])->name('permissions');
         Route::delete('{user}/permissions/{permission}', [UserController::class, 'revokePermission'])->name('permissions.revoke');
-
+        Route::post('update-metrics', [UserController::class, 'updateMetrics'])->name('update_metrics');
 
     });
 
@@ -388,4 +385,5 @@ require __DIR__ . '/auth.php';
 require __DIR__ . '/foodwaste_route.php';
 require __DIR__ . '/keptkaya_route.php';
 require __DIR__ . '/keptkaya_mobile_route.php';
+require __DIR__ . '/admin.php';
 // require __DIR__ . '/tabwater.php';

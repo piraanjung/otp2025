@@ -7,14 +7,14 @@
     active
 @endsection
 @section('nav-main')
-    <a href="{{ route('admin.users.index') }}"> ผู้ใช้น้ำประปา</a>
+    <a href="{{ route('admin.users.index') }}"> ผู้ใช้งานระบบ</a>
 @endsection
 
 @section('nav-header')
     ผู้ใช้งานระบบ
 @endsection
 @section('nav-current')
-    ข้อมูลผู้ใช้น้ำประปา
+    ข้อมูลผู้ใช้งานระบบ
 @endsection
 @section('nav-topic')
 @endsection
@@ -81,12 +81,12 @@
 @endsection
 @section('content')
  <div class="preloader-wrapper">
-        <button class="btn btn-primary btn-sm mb-2" type="button" disabled>
+        {{-- <button class="btn btn-primary btn-sm mb-2" type="button" disabled>
             <span class="spinner-border spinner-border-sm" role="status"></span>
             Loading...
-        </button>
+        </button> --}}
     </div>
-   
+
             <div class="card">
                 <div class="card-header">
                     <h4>มิเตอร์ที่ยังใช้งานปัจจุบัน</h4>
@@ -104,9 +104,8 @@
                                         factory_no</th>
                                 <th class="font-weight-bolder opacity-7 ps-2">
                                     เลขผู้ใช้น้ำ</th>
-                               
-                                <th class="font-weight-bolder opacity-7 ps-2">
-                                        ชื่อมิเตอร์ย่อย</th>
+
+
                                 {{-- <th class="font-weight-bolder opacity-7 ps-2">
                                     วันที่ลงทะเบียน
                                 </th> --}}
@@ -120,41 +119,30 @@
                         <tbody>
                     @foreach ($user_active as $u_active)
                             <tr>
-                                <td>{{$u_active[0]->user_id}}</td>
+                                <td>{{$u_active->user_id}}</td>
                                 <td>
-                                    {{$u_active[0]->prefix."".$u_active[0]->firstname." ".$u_active[0]->lastname}}
+                                    {{$u_active->prefix."".$u_active->firstname." ".$u_active->lastname}}
                                 </td>
                                 <td class="text-right">
-                                    @foreach ($u_active as $item)
-                                    <div>{{$item['factory_no']}}</div>
-                                    @endforeach
+                                    {{-- @dd($u_active->user_zone->zone_name) --}}
+                                    <div>{{$u_active->user_zone->zone_name}}</div>
+                                </td>
+
+                                <td>
+                                    {{$u_active->submeter_name}}
                                 </td>
                                 <td>
-                                    @foreach ($u_active as $item)
-                                   <div> 
-                                     {{-- <a class="meternumber" href="{{route('admin.users.edit', ['user_id' => $item->meter_id])}}">
-                                            {{$item['meternumber']}} 
-                                        </a> --}}
-                                    </div>
-                                  
-                                    @endforeach
-                                </td>
-                               
-                                <td>
-                                    {{-- {{$u_active[0]->submeter_name}} --}}
+                                    {{-- {{$u_active->user_zone->zone_name}} --}}
                                 </td>
                                 <td>
-                                    {{$u_active[0]->user_zone->zone_name}}
-                                </td>
-                                <td>
-                                    {{$u_active[0]->user_subzone->subzone_name}}
+                                    {{-- {{$u_active->user_subzone->subzone_name}} --}}
                                 </td>
                                 <td>
                                     <div class="dropstart float-lg-end ms-auto pe-0">
-                                        <a href="javascript:;" class="cursor-pointer" id="dropdownTable{{$u_active[0]->id}}" data-bs-toggle="dropdown" aria-expanded="true">
+                                        <a href="javascript:;" class="cursor-pointer" id="dropdownTable{{$u_active->id}}" data-bs-toggle="dropdown" aria-expanded="true">
                                         <i class="fa fa-ellipsis-h text-secondary" aria-hidden="true"></i>
                                         </a>
-                                        <ul class="dropdown-menu px-2 py-3 ms-sm-n4 ms-n5 " aria-labelledby="dropdownTable{{$u_active[0]->id}}"  data-popper-placement="left-start">
+                                        <ul class="dropdown-menu px-2 py-3 ms-sm-n4 ms-n5 " aria-labelledby="dropdownTable{{$u_active->id}}"  data-popper-placement="left-start">
                                             {{-- <li><a class="dropdown-item border-radius-md" href="{{route('admin.users.edit', ['user_id' => $item->meter_id, 'addmeter' => 'addmeter'])}}">เพิ่มมิเตอร์ใหม่</a></li>
                                              <li>
 
@@ -168,7 +156,7 @@
                                         </div>
                                 </td>
                             </tr>
-                       
+
                     @endforeach
                 </tbody>
                 </table>
@@ -191,7 +179,7 @@
                                         factory_no</th>
                                 <th class="font-weight-bolder opacity-7 ps-2">
                                     เลขผู้ใช้น้ำ</th>
-                               
+
                                 <th class="font-weight-bolder opacity-7 ps-2">
                                         ชื่อมิเตอร์ย่อย</th>
                                 {{-- <th class="font-weight-bolder opacity-7 ps-2">
@@ -220,20 +208,20 @@
                                 </td>
                                 <td>
                                     @foreach ($user as $item)
-                                   <div>  
+                                   <div>
                                    @if($item->status == 'active')
                                         {{-- <a class="meternumber" href="{{route('admin.users.edit', ['user_id' => $item->meter_id])}}">
-                                            {{$item['meternumber']}} 
+                                            {{$item['meternumber']}}
                                         </a> --}}
                                     @else
                                         {{-- {{$item['meternumber']}} (ยกเลิกการใช้งาน) --}}
                                     @endif
-                                    
+
                                     </div>
-                                  
+
                                     @endforeach
                                 </td>
-                               
+
                                 <td>
                                     {{$user[0]->submeter_name}}
                                 </td>
@@ -250,7 +238,7 @@
                                         </a>
                                         <ul class="dropdown-menu px-2 py-3 ms-sm-n4 ms-n5 " aria-labelledby="dropdownTable{{$user[0]->id}}"  data-popper-placement="left-start">
                                             {{-- <li><a class="dropdown-item border-radius-md" href="{{route('admin.users.edit', ['user_id' => $item->meter_id, 'addmeter' => 'addmeter'])}}">เพิ่มมิเตอร์ใหม่</a></li>
-                                            
+
                                             <li> --}}
 
                                             {{-- <a class="dropdown-item border-radius-md destroy" href="{{route('admin.users.destroy', ['user_id' => $item->meter_id])}}">ยกเลิกการใช้งาน</a> --}}
@@ -259,15 +247,15 @@
                                         </div>
                                 </td>
                             </tr>
-                       
+
                     @endforeach
                 </tbody>
                 </table>
 
                 </div>
             </div>
-       
-       
+
+
 @endsection
 
 @section('script')
@@ -289,7 +277,7 @@
                 //     dataSrc: ''
                 // },
                 "sPaginationType": "listbox",
-               
+
                 "lengthMenu": [
                     [10, 25, 50, 150, -1],
                     [10, 25, 50, 150, "All"]
@@ -332,7 +320,7 @@
 
 
             $(`<div class="create_user" style="margin-left:15%"><label class="m-0">&nbsp;</label>
-            <a href="{{ route('admin.users.create') }}" class="btn bg-gradient-success btn-sm" >เพิ่มผู้ใช้งานระบบ</a></div>`)
+            <a href="{{ route('admin.super_users.create') }}" class="btn bg-gradient-success btn-sm" >เพิ่มผู้ใช้งานระบบ</a></div>`)
                 .insertAfter('.dataTables_filter')
 
             // $('#example_filter label').html('ค้นหา:')
@@ -354,7 +342,7 @@
                 //     dataSrc: ''
                 // },
                 "sPaginationType": "listbox",
-               
+
                 "lengthMenu": [
                     [10, 25, 50, 150, -1],
                     [10, 25, 50, 150, "All"]
@@ -422,7 +410,7 @@
         $(document).on('click', '.select_row_all', function(e) {
             $("tbody tr").addClass('selected')
         });
- 
+
         $(document).on('click', '#example2_length tbody tr', function(e) {
             $(this).hasClass('selected') ? $(this).removeClass('selected') : $(this).addClass('selected');
         });

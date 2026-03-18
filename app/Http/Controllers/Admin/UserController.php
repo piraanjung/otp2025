@@ -25,43 +25,43 @@ use Illuminate\Support\Facades\Log;
 class UserController extends Controller
 {
     public function index()
-{
-    // 1. สร้าง Base Query ไว้ก่อน (ยังไม่ get)
-    $query = TwMeterInfos::with([
-        'tw_invoices' => function ($q) {
-            return $q->select('meter_id_fk', 'status');
-        },
-        'user' => function ($q) {
-            return $q->select('id', 'prefix', 'firstname', 'lastname', 'status');
-        }
-    ])
-    ->whereHas('user', function ($q) {
-        return $q->where('org_id_fk', Auth::user()->org_id_fk);
-    });
+    {
+        // 1. สร้าง Base Query ไว้ก่อน (ยังไม่ get)
+        $query = TwMeterInfos::with([
+            'tw_invoices' => function ($q) {
+                return $q->select('meter_id_fk', 'status');
+            },
+            'user' => function ($q) {
+                return $q->select('id', 'prefix', 'firstname', 'lastname', 'status');
+            }
+        ])
+            ->whereHas('user', function ($q) {
+                return $q->where('org_id_fk', Auth::user()->org_id_fk);
+            });
 
-    // 2. ดึงเฉพาะ Active โดยสั่ง SQL (เร็วกว่า filter ใน PHP)
-    // ใช้ clone $query เพื่อไม่ให้กระทบ query หลัก
-    $user_active = (clone $query)
-        ->where('status', 'active') 
-        // ->where('deleted', '!=', '1') // (Option) กันเหนียวถ้า active แต่ deleted=1
-        ->get()
-        ->groupBy('user_id');
+        // 2. ดึงเฉพาะ Active โดยสั่ง SQL (เร็วกว่า filter ใน PHP)
+        // ใช้ clone $query เพื่อไม่ให้กระทบ query หลัก
+        $user_active = (clone $query)
+            ->where('status', 'active')
+            // ->where('deleted', '!=', '1') // (Option) กันเหนียวถ้า active แต่ deleted=1
+            ->get()
+            ->groupBy('user_id');
 
-    // 3. ดึงเฉพาะ Deleted โดยสั่ง SQL
-    $user_deleted = (clone $query)
-        ->where('status', 'deleted')
-        ->get()
-        ->groupBy('user_id');
+        // 3. ดึงเฉพาะ Deleted โดยสั่ง SQL
+        $user_deleted = (clone $query)
+            ->where('status', 'deleted')
+            ->get()
+            ->groupBy('user_id');
 
-    // Query Zone (เหมือนเดิม)
-    $zones = Zone::all();
-    $orgInfos = Organization::getOrgName(Auth::user()->org_id_fk);
+        // Query Zone (เหมือนเดิม)
+        $zones = Zone::all();
+        $orgInfos = Organization::getOrgName(Auth::user()->org_id_fk);
 
-    $usertype = "user";
-    
-    // ไม่ต้องส่ง $users ก้อนใหญ่ไป ส่งแค่ที่แยกแล้วไป
-    return view('admin.users.index', compact('orgInfos', 'usertype', 'zones', 'user_deleted', 'user_active'));
-}
+        $usertype = "user";
+
+        // ไม่ต้องส่ง $users ก้อนใหญ่ไป ส่งแค่ที่แยกแล้วไป
+        return view('admin.users.index', compact('orgInfos', 'usertype', 'zones', 'user_deleted', 'user_active'));
+    }
 
     public function users_search(Request $request)
     {
@@ -87,7 +87,7 @@ class UserController extends Controller
         $zones              = Zone::all();
         $meter_types        = TwMeterType::all();
         $usergroups         = Role::get(['id', 'name']);
-        $usernumber         = FunctionsController::createInvoiceNumberString($meter_sq_number[0]->user);
+        $usernumber         = ''; //FunctionsController::createInvoiceNumberString($meter_sq_number[0]->user);
         $username           = "user" . $meter_sq_number[0]->user;
         $meternumber        = FunctionsController::createInvoiceNumberString($meter_sq_number[0]->tabmeter);
         $password           = "user" . substr($usernumber, 3);
@@ -147,56 +147,55 @@ class UserController extends Controller
             ],
 
         );
-        DB::beginTransaction(); 
+        DB::beginTransaction();
 
-    try {
-        // ล็อค row นี้ไว้ ห้ามคนอื่นแย่ง update จนกว่าจะจบ transaction
-        $sequence = SequenceNumber::where('id', 1)->lockForUpdate()->first(); 
-        
-        $newUserId = $sequence->user;
-        $newMeterId = $sequence->tabmeter;
+        try {
+            // ล็อค row นี้ไว้ ห้ามคนอื่นแย่ง update จนกว่าจะจบ transaction
+            $sequence = SequenceNumber::where('id', 1)->lockForUpdate()->first();
 
-        // 1. Create User
-        $user = User::create([
-            "id"            => $newUserId,
-            "username"      => $request->username,
-            "password"      => Hash::make($request->password),
-            // ... field อื่นๆ
-            "status"        => 1,
-            "created_at"    => now(), // ใช้ now()
-            "updated_at"    => now(),
-        ]);
+            $newUserId = $sequence->user;
+            $newMeterId = $sequence->tabmeter;
 
-        $user->assignRole("user");
+            // 1. Create User
+            $user = User::create([
+                "id"            => $newUserId,
+                "username"      => $request->username,
+                "password"      => Hash::make($request->password),
+                // ... field อื่นๆ
+                "status"        => 1,
+                "created_at"    => now(), // ใช้ now()
+                "updated_at"    => now(),
+            ]);
 
-        // 2. Create User Meter Info
-        TwUsersInfos::create([
-            "meter_id"              => $newMeterId,
-            "user_id"               => $newUserId,
-            "meternumber"           => FunctionsController::createMeterNumberString($newMeterId),
-            // ... field อื่นๆ
-            "created_at"            => now(),
-            "updated_at"            => now(),
-        ]);
+            $user->assignRole("user");
 
-        // 3. Update Sequence
-        $sequence->update([
-            'tabmeter' => $newMeterId + 1,
-            'user'     => $newUserId + 1
-        ]);
+            // 2. Create User Meter Info
+            TwUsersInfos::create([
+                "meter_id"              => $newMeterId,
+                "user_id"               => $newUserId,
+                "meternumber"           => FunctionsController::createMeterNumberString($newMeterId),
+                // ... field อื่นๆ
+                "created_at"            => now(),
+                "updated_at"            => now(),
+            ]);
 
-        DB::commit(); // ยืนยันการบันทึกทั้งหมด
+            // 3. Update Sequence
+            $sequence->update([
+                'tabmeter' => $newMeterId + 1,
+                'user'     => $newUserId + 1
+            ]);
 
-        return redirect()->route('admin.users.index')
-            ->with(['message' => 'บันทึกแล้ว', 'color' => 'success']);
+            DB::commit(); // ยืนยันการบันทึกทั้งหมด
 
-    } catch (\Throwable $th) {
-        DB::rollBack(); // ยกเลิกทั้งหมดถ้ามี error จุดใดจุดหนึ่ง
-        Log::error($th->getMessage()); // เก็บ Log ไว้ดู
-        
-        // ส่งกลับไปหน้าเดิมพร้อม error
-        return back()->withInput()->with(['message' => 'เกิดข้อผิดพลาด: ' . $th->getMessage(), 'color' => 'danger']);
-    }
+            return redirect()->route('admin.users.index')
+                ->with(['message' => 'บันทึกแล้ว', 'color' => 'success']);
+        } catch (\Throwable $th) {
+            DB::rollBack(); // ยกเลิกทั้งหมดถ้ามี error จุดใดจุดหนึ่ง
+            Log::error($th->getMessage()); // เก็บ Log ไว้ดู
+
+            // ส่งกลับไปหน้าเดิมพร้อม error
+            return back()->withInput()->with(['message' => 'เกิดข้อผิดพลาด: ' . $th->getMessage(), 'color' => 'danger']);
+        }
     }
     private function addUserAsTWmember($ids)
     {
@@ -521,5 +520,25 @@ class UserController extends Controller
         $users = User::where('subzone_id', $subzone_id)
             ->get(['id', 'firstname', 'lastname', 'subzone_id']);
         return response()->json($users);
+    }
+
+    public function updateMetrics(Request $request)
+    {
+        $request->validate([
+            'age'    => 'required|integer|min:1|max:120',
+            'weight' => 'required|numeric|min:10|max:300',
+            'height' => 'required|integer|min:50|max:250',
+            'gender' => 'required|in:male,female',
+        ]);
+
+        $user = User::find(Auth::id());
+        $user->update([
+            'age'    => $request->age,
+            'weight' => $request->weight,
+            'height' => $request->height,
+            'gender' => $request->gender == 'male' ? 'm' : 'f',
+        ]);
+
+        return back()->with('success', 'บันทึกข้อมูลร่างกายเรียบร้อยแล้ว');
     }
 }

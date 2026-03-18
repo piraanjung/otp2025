@@ -1,7 +1,11 @@
 @extends('layouts.foodwaste')
 
 @section('title_page', 'ผู้ใช้งาน')
-
+@section('nav-header', 'สมาชิกถังขยะเปียก')
+@section('nav-current', 'สมาชิกถังขยะเปียก')
+@section('nav-wet-waste-users', 'active')
+@section('page-topic', 'สมาชิกถังขยะเปียก' )
+@section('title_page', 'ถังขยะเปียก')
 @section('content')
     <div class="row">
         <div class="col-12">
@@ -18,7 +22,7 @@
                                 <option value="all" {{ $perPage == 'all' ? 'selected' : '' }}>ทั้งหมด</option>
                             </select>
                         </form>
-                        <a href="{{ route('foodwaste.users.create') }}" class="btn bg-gradient-primary btn-sm mb-0">เพิ่มผู้ใช้งานใหม่</a>
+                        <a href="{{ route('foodwaste.users.create') }}" class="btn bg-primary btn-sm mb-0">เพิ่มผู้ใช้งานใหม่</a>
                     </div>
                 </div>
                 <div class="card-body px-0 pt-0 pb-2">
@@ -116,36 +120,26 @@
                                         <span class="badge badge-sm bg-gradient-{{ $user->status == 'active' ? 'success' : 'secondary' }}">{{ ucfirst($user->status) }}</span>
                                     </td>
                                     <td class="align-middle text-center">
-                                       
-                                           
+
+
                                             <input type="hidden" name="is_waste_bank" value="0">
                                             <div class="form-check form-check-inline">
                                                 <input class="form-check-input waste-bank-checkbox" type="checkbox" id="waste_bank_{{ $user->id }}" name="waste[{{$user->id}}][is_foodwaste_bank]" value="1"
                                                     {{ collect($user->foodwastePreference)->isNotEmpty() ? 'checked' : '' }}
-                                                    
+
                                                 <label class="form-check-label" for="waste_bank_{{ $user->id }}">ธนาคารขยะเปียก</label>
                                             </div>
                                     </td>
                                     <td class="align-middle">
-                                        
+
                                         @if(collect($user->foodwastePreference)->isNotEmpty())
-                                            <a href="{{ route('foodwaste.waste_bins.index', $user->id) }}" class="btn btn-link text-info text-gradient px-0 mb-0 me-2">
+                                            <a href="{{ route('foodwaste.waste_bins.index', $user) }}" class="btn btn-link text-info text-gradient px-0 mb-0 me-2">
                                                 <i class="fas fa-trash-alt me-1"></i> จัดการถังขยะ
                                                 <div>{{collect($user->foodwasteBins)->count() }} ถัง</div>
 
                                             </a>
                                         @endif
-                                        <a href="{{ route('foodwaste.users.edit', $user->id) }}" class="btn btn-link text-secondary font-weight-bold text-xs px-0 mb-0 me-2">
-                                            <i class="fas fa-edit me-1"></i> แก้ไข
-                                            <div>&nbsp;</div>
-                                        </a>
-                                        {{-- <form action="{{ route('keptkayas.users.destroy', $user->id) }}" method="POST" class="d-inline">
-                                            @csrf
-                                            @method('DELETE')
-                                            <button type="submit" class="btn btn-link text-danger text-gradient px-0 mb-0" onclick="return confirm('คุณแน่ใจหรือไม่ที่จะลบผู้ใช้งานนี้?')">
-                                                <i class="fas fa-trash-alt me-1"></i> ลบ
-                                            </button>
-                                        </form> --}}
+
                                     </td>
                                 </tr>
                                 @empty
@@ -153,7 +147,8 @@
                                     <td colspan="5" class="text-center">ไม่มีผู้ใช้งานในระบบ</td>
                                 </tr>
                                 @endforelse
-                                                                        </form>
+
+                            </form>
 
                             </tbody>
                         </table>
@@ -219,7 +214,7 @@
 
         let searchTimeout;
         const debounceDelay = 300; // milliseconds
-        
+
         function applyLiveSearch() {
             console.log('searchStatusSelect.value',searchStatusSelect.value)
             clearTimeout(searchTimeout);
@@ -264,7 +259,7 @@
         // searchAnnualCollectionSelect.addEventListener('change', applyLiveSearch);
         searchWasteBankSelect.addEventListener('change', applyLiveSearch);
         perPageSelect.addEventListener('change', applyLiveSearch); // Attach listener to per_page select
-        
+
         // Event listener for the "ค้นหา" button
         applySearchBtn.addEventListener('click', applyLiveSearch);
 

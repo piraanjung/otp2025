@@ -20,7 +20,7 @@
 
 @section('content')
     <div class="container-fluid py-4">
-        
+
         {{-- 1. ส่วนแสดงข้อมูลผู้ใช้งาน (User Context) --}}
         <div class="row mb-4">
             <div class="col-12 col-md-10 col-lg-8 mx-auto">
@@ -44,7 +44,7 @@
             <div class="col-12 col-md-10 col-lg-8 mx-auto">
                 <form action="{{ route('keptkayas.waste_bins.store', $w_user->id) }}" method="POST">
                     @csrf
-                    
+
                     {{-- 2. การ์ดฟอร์มหลัก --}}
                     <div class="card mb-4">
                         <div class="card-header pb-0">
@@ -53,15 +53,21 @@
                             </h6>
                             <hr class="horizontal dark mt-2 mb-0">
                         </div>
-                        
+
                         <div class="card-body">
                             {{-- Section: Bin Info --}}
                             <div class="row g-3">
                                 <div class="col-12 col-md-4">
                                     <label for="bin_code" class="form-label font-weight-bold">รหัสถังขยะ</label>
                                     <div class="input-group input-group-outline">
-                                        <input type="text" class="form-control fw-bold text-primary @error('bin_code') is-invalid @enderror"
-                                            id="bin_code" readonly name="bin_code" value="{{ $bin_code }}">
+                                        {{-- <input type="text" class="form-control fw-bold text-primary @error('bin_code') is-invalid @enderror"
+                                            id="bin_code" readonly name="bin_code" value="{{ $bin_code }}"> --}}
+                                            <select name="bin_code" id="bin_code" class="form-control fw-bold text-primary @error('bin_code') is-invalid @enderror">
+                                                <option>เลือก...</option>
+                                                @foreach ($active_bins as $bin)
+                                                    <option value="{{ $bin->bin_code }}">{{ $bin->bin_code }}</option>
+                                                @endforeach
+                                            </select>
                                     </div>
                                     @error('bin_code')<div class="text-danger text-xs mt-1">{{ $message }}</div>@enderror
                                 </div>
@@ -96,7 +102,7 @@
                                 <h6 class="font-weight-bolder text-primary mb-3">
                                     <i class="fas fa-map-marked-alt me-2"></i>ตำแหน่งที่ตั้ง
                                 </h6>
-                                
+
                                 <div class="col-12 mb-3">
                                     <label for="location_description" class="form-label font-weight-bold">รายละเอียดจุดตั้งถัง</label>
                                     <div class="input-group input-group-outline">
@@ -118,12 +124,12 @@
 
                                 <div class="col-6 col-md-4">
                                     <label class="form-label text-xs">Lat</label>
-                                    <input type="number" step="any" class="form-control form-control-sm border ps-2 bg-light" 
+                                    <input type="number" step="any" class="form-control form-control-sm border ps-2 bg-light"
                                            id="latitude" name="latitude" value="{{ old('latitude') }}" readonly>
                                 </div>
                                 <div class="col-6 col-md-4">
                                     <label class="form-label text-xs">Long</label>
-                                    <input type="number" step="any" class="form-control form-control-sm border ps-2 bg-light" 
+                                    <input type="number" step="any" class="form-control form-control-sm border ps-2 bg-light"
                                            id="longitude" name="longitude" value="{{ old('longitude') }}" readonly>
                                 </div>
                             </div>
@@ -196,9 +202,9 @@
             // Fallback location (Bangkok or user zone)
             const zoneLat = parseFloat("{{ $w_user->org->lat ?? 0 }}");
             const zoneLong = parseFloat("{{ $w_user->org->long ?? 0 }}");
-            
+
             // ถ้า User Zone ไม่มีค่า ให้ใช้ Default กลางๆ หรือพิกัดไทย
-            const defaultLat = zoneLat || 13.7563; 
+            const defaultLat = zoneLat || 13.7563;
             const defaultLng = zoneLong || 100.5018;
 
             const initialLat = parseFloat("{{ old('latitude') }}") || defaultLat;

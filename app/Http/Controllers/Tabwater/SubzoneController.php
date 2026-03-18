@@ -12,7 +12,6 @@ class SubzoneController extends Controller
 {
     public function edit(Subzone $subzone)
     {
-        ManagesTenantConnection::configConnection(session('db_conn'));
         $zone = Zone::where('id', $subzone->id)->with([
             'subzone' => function ($query) {
                 return $query->where('status', 'active');

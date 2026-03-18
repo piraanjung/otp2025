@@ -19,7 +19,7 @@ class StaffController extends Controller
     public function index(Request $request)
     {
         // รายการ Role ที่ถือว่าเป็น Staff
-        $staffRoles = ['Tabwater Staff', 'Tabwater Header', 'Finance Staff', 'finance header'];
+        $staffRoles = ['Admin','Tabwater Staff', 'Tabwater Header', 'Finance Staff', 'finance header'];
 
         // Get search and filter parameters
         $searchName = $request->input('search_name');
@@ -52,7 +52,7 @@ class StaffController extends Controller
                 $q->where('name', 'access waste bank');
             });
         }
-        
+
         if ($searchCanAccessAnnualCollection === 'true') {
             $query->permission('access annual collection');
         } elseif ($searchCanAccessAnnualCollection === 'false') {
@@ -73,7 +73,7 @@ class StaffController extends Controller
     }
 
 
-    
+
     public function create()
     {
         // ดึงผู้ใช้งานที่ไม่มี role ที่เกี่ยวข้องกับ staff/super_admin
@@ -86,7 +86,7 @@ class StaffController extends Controller
 
         // ดึง roles ที่สามารถ assign ได้
         $assignableRoles = Role::whereIn('name', ['Tabwater Staff', 'Tabwater Header', 'tabwater header', 'finance staff', 'finance header'])->get();
-        
+
         $permissions = Permission::all();
         $staffRoles = ['Tabwater Staff', 'Tabwater Header', 'Admin', 'finance staff', 'finance header'];
         $roles = Role::whereIn('name', $staffRoles)->get();
@@ -114,7 +114,7 @@ class StaffController extends Controller
             'role_name.unique' => 'ผู้ใช้งานนี้มีบทบาทที่เลือกอยู่แล้ว'
         ]);
         $user = User::find($request->user_id);
-        
+
         foreach($request->roles as $role){
             $user->assignRole($role);
         }
@@ -132,8 +132,8 @@ class StaffController extends Controller
             $staff->deleted	= '0';
             $staff->save();
         }
-        
-        
+
+
 
         return redirect()->route('keptkayas.staffs.index')->with('success', 'เพิ่มเจ้าหน้าที่ใหม่เรียบร้อยแล้ว');
     }
@@ -195,7 +195,7 @@ class StaffController extends Controller
     {
         // ดึง roles ทั้งหมดที่เกี่ยวข้องกับ staff
         $staffRoles = ['staff', 'tabwater staff', 'tabwater header', 'finance staff', 'finance header'];
-        
+
         // ลบ roles ทั้งหมดที่อยู่ในรายการนี้ออกจากผู้ใช้งาน
         foreach ($staffRoles as $roleName) {
             $staff->removeRole($roleName);
@@ -219,17 +219,17 @@ class StaffController extends Controller
             $staffUser->acceptedNotifies()->attach($notify->id, [
                 'staff_status' => 'working' // ตั้งสถานะเฉพาะของ Staff คนนี้
             ]);
-            
+
             // 3. **อัปเดตสถานะหลักของงาน:** //    ถ้าสถานะหลักยังเป็น 'pending' ให้เปลี่ยนเป็น 'processing'
             if ($notify->status === 'pending') {
                  $notify->update(['status' => 'processing']);
             }
 
             return redirect()->route('staff.dashboard')->with('success', "คุณได้รับงาน #{$notify->id} เพื่อดำเนินการแล้ว");
-        
+
         } catch (\Illuminate\Database\QueryException $e) {
             // ตรวจจับ Primary Key Conflict (กรณี Staff คนนี้เคยรับงานนี้ไปแล้ว)
-            if ($e->getCode() == 23000) { 
+            if ($e->getCode() == 23000) {
                 return back()->with('warning', 'คุณเคยรับงานนี้ไปแล้ว!');
             }
             return back()->with('error', 'เกิดข้อผิดพลาดในการรับงาน');

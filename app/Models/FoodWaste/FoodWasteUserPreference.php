@@ -2,6 +2,8 @@
 
 namespace App\Models\FoodWaste;
 
+use App\Models\KeptKaya\KPAccounts;
+use App\Models\KeptKaya\KpPurchaseTransaction;
 use App\Models\User;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;

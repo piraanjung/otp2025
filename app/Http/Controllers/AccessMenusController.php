@@ -24,7 +24,7 @@ class AccessMenusController extends Controller
         // 1. เช็คว่าเป็น Staff หรือไม่? (แก้ 'role' และ 'staff' ให้ตรงกับ DB ของคุณ)
         // เช่น $user->type == 'employee' หรือ $user->is_staff
 
-        $isStaff = $user->hasAnyRole(['Recycle Bank Staff', 'Tabwater Staff']);
+        $isStaff = $user->hasRole(['Recycle Bank Staff', 'Tabwater Staff']);
 
         // 2. เช็ค Session ก่อนเลย ว่าเคยถูกจำว่าเป็น mobile แล้วหรือยัง?
         if (Session::get('is_mobile') && $isStaff) {

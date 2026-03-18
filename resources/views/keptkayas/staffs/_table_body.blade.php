@@ -17,7 +17,7 @@
             <span
                 class="badge badge-sm bg-gradient-{{ $staff->status == 'active' ? 'success' : ($staff->status == 'inactive' ? 'secondary' : 'warning') }}">{{ ucfirst($staff->status) }}</span>
         </td>
-        <td class="align-middle text-center text-sm">
+        {{-- <td class="align-middle text-center text-sm">
             @if($staff->hasPermissionTo('access waste bank'))
                 <span class="badge badge-sm bg-gradient-info me-1">ธนาคารขยะ</span>
             @endif
@@ -27,7 +27,7 @@
             @if(!$staff->hasPermissionTo('access waste bank') && !$staff->hasPermissionTo('access annual collection'))
                 <span class="text-xs text-muted">ไม่มีสิทธิ์</span>
             @endif
-        </td>
+        </td> --}}
         <td class="align-middle">
             {{-- <a href="{{ route('keptkayas.staffs.edit', $staff->user_id) }}"
                 class="btn btn-link text-secondary font-weight-bold text-xs px-0 mb-0 me-2">
@@ -43,7 +43,7 @@
             </form> --}}
         </td>
     </tr>
-    
+
 @empty
     <tr>
         <td colspan="5" class="text-center">ไม่มีข้อมูลเจ้าหน้าที่ในระบบ</td>

@@ -2,9 +2,11 @@
 
 namespace App\Models\Admin;
 
+use App\Traits\BelongsToOrganization;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use App\Models\User;
+
 class Organization extends Model
 {
     use HasFactory; // 👈 เพิ่ม Trait นี้เข้ามา
@@ -73,9 +75,13 @@ class Organization extends Model
             'org_code'              => $connection->org_code,
             'org_address'           => $connection->org_address,
             'org_zipcode'           => $connection->org_zipcode,
+            'org_province_id'       => $connection->provinces->id,
             'org_province'          => $connection->provinces->province_name,
+            'org_district_id'       => $connection->districts->id,
             'org_district'          => $connection->districts->district_name,
+            'org_tambon_id'         => $connection->tambons->id,
             'org_tambon'            => $connection->tambons->tambon_name,
+            'org_zone_id'           => $connection->zones->id,
             'org_zone'              => $connection->zones->zone_name,
             'org_logo_img'          => $connection->org_logo_img,
             'org_type_name'         => $connection->org_type_name,
@@ -90,11 +96,11 @@ class Organization extends Model
     public static function getOrgDatabase($org_id_code)
     {
         $organization = (new Organization())->setConnection('envsogo_main')->where('org_code', $org_id_code)
-        ->get(['id', 'org_dabase'])->first();
+            ->get(['id', 'org_dabase'])->first();
     }
 
-    public  function users(){
+    public  function users()
+    {
         return $this->hasMany(User::class, 'org_id_fk');
     }
-
 }

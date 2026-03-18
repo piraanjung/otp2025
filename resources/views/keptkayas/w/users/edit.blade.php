@@ -1,4 +1,4 @@
-@extends('layouts.app')
+@extends('layouts.keptkaya')
 
 @section('title_page', 'แก้ไขผู้ใช้งาน')
 
@@ -11,7 +11,8 @@
                     <h6>แก้ไขข้อมูลผู้ใช้งาน: {{ $user->firstname }} {{ $user->lastname }}</h6>
                 </div>
                 <div class="card-body">
-                    <form action="{{ route('users.update', $user->id) }}" method="POST">
+                    <form action="" method="POST">
+                        {{-- {{ route('users.update', $user->id) }} --}}
                         @csrf
                         @method('PUT')
                         <div class="row">
@@ -116,7 +117,8 @@
                         </div>
 
                         <button type="submit" class="btn bg-gradient-primary">บันทึกการเปลี่ยนแปลง</button>
-                        <a href="{{ route('users.index') }}" class="btn btn-secondary">ยกเลิก</a>
+                        <a href="" class="btn btn-secondary">ยกเลิก</a>
+                        {{-- {{ route('users.index') }} --}}
                     </form>
                 </div>
             </div>

@@ -4,10 +4,14 @@ namespace App\Http\Controllers;
 
 use App\Models\Admin\Organization;
 use App\Models\Admin\Province;
+use App\Models\FoodWaste\CompostBatches;
+use App\Models\FoodWaste\FoodWasteIssueReport;
 use App\Models\KeptKaya\KPAccounts;
 use App\Models\KeptKaya\KpUserWastePreference;
+use App\Models\FoodWaste\MealLog;
 use App\Models\Tabwater\SequenceNumber;
 use App\Models\User;
+use App\Models\FoodWaste\FoodWasteLog;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Log;
@@ -15,40 +19,93 @@ use SimpleSoftwareIO\QrCode\Facades\QrCode;
 
 class   LineLiffController extends Controller
 {
-    public function index(){
+    public function index()
+    {
 
         $provinces = Province::all();
-        $orgs = Organization::
-        with('provinces', 'districts', 'tambons')
-        ->get(['id', 'org_type_name', 'org_short_type_name', 'org_name', 'org_tambon_id_fk', 'org_district_id_fk', 'org_province_id_fk']);
+        $orgs = Organization::with('provinces', 'districts', 'tambons')
+            ->get(['id', 'org_type_name', 'org_short_type_name', 'org_name', 'org_tambon_id_fk', 'org_district_id_fk', 'org_province_id_fk']);
         return view('lineliff.index', compact('provinces', 'orgs'));
-
     }
 
-    public function dashboard($user_waste_pref_id,$org_id, $regis =1){
+    public function dashboard($user_waste_pref_id, $org_id, $regis = 1)
+    {
         $uWastePref = KpUserWastePreference::find($user_waste_pref_id);
         $user = User::find($uWastePref->user_id);
-
-        if($regis == 1 && $user){
-            $user->assignRole('User');
-            // $user->givePermissionTo('access recycle bank');
-            $user->save();
-
-            // 💡 สำคัญ: บังคับโหลด Role/Permission ใหม่ทันที (ถ้าใช้ Spatie)
-            $user = $user->fresh();
-        }else{
-            return $user;
-        }
-
         Auth::login($user);
 
         $userWastePref = KpUserWastePreference::with('user', 'purchaseTransactions', 'kp_account')
-                ->where('id', $user_waste_pref_id)->get()->first();
-        $qrcode = QrCode::size(300)->generate($user_waste_pref_id."-".$userWastePref->user_id);
-        return view('lineliff.dashboard', compact('userWastePref', 'qrcode'));
+            ->where('id', $user_waste_pref_id)->get()->first();
+
+        $userId = $user->id;
+
+        // --- 🌟 1. ดึงสถิติทั่วไป ---
+        $totalWasteWeight = FoodWasteLog::where('user_id', $userId)->sum('weight_kg');
+        $totalCarbonSaved = FoodWasteLog::where('user_id', $userId)->sum('carbon_saved_kg');
+
+        // --- 🌟 2. ดึงข้อมูลล็อตปัจจุบัน (Active Batch) ---
+        // ค้นหาล็อตที่สถานะเป็น 'filling' (กำลังเติม) ของ User คนนี้
+        $activeBatch = CompostBatches::where('user_id', $userId)
+            ->where('status', 'filling')
+            ->latest()
+            ->first();
+
+        if ($activeBatch) {
+            // คำนวณวันที่ผ่านไป และน้ำหนักรวมเฉพาะในล็อตนี้
+            $activeBatch->days_passed = (int) now()->diffInDays($activeBatch->start_date) == 0 ? 1 : (int) now()->diffInDays($activeBatch->start_date);
+            $activeBatch->total_weight = FoodWasteLog::where('batch_id', $activeBatch->id)->sum('weight_kg');
+
+            // ดึงสถานะความร้อนล่าสุดจาก Log ล่าสุดในล็อต
+            $lastLog = FoodWasteLog::where('batch_id', $activeBatch->id)->latest()->first();
+            $activeBatch->temp_status = $lastLog ? $lastLog->temperature_feel : 'ยังไม่มีข้อมูล';
+        }
+
+        // --- 🌟 3. ข้อมูลกราฟ ---
+        $weeklyStats = MealLog::where('user_id', $userId)
+            ->where('created_at', '>=', now()->subDays(6))
+            ->selectRaw('DATE(created_at) as date, SUM(total_calories) as daily_calories')
+            ->groupBy('date')->orderBy('date', 'ASC')->get();
+
+        $chartLabels = $weeklyStats->pluck('date')->toArray();
+        $chartData = $weeklyStats->pluck('daily_calories')->toArray();
+
+        $qrcode = QrCode::size(300)->generate($user_waste_pref_id . "-" . $userWastePref->user_id);
+
+        $pendingIssuesCount = FoodWasteIssueReport::where('user_id', $userId)
+            ->where('status', '!=', 'resolved')
+            ->count();
+        // 2. ดึงรายการแจ้งปัญหาทั้งหมดของ User คนนี้
+        $myIssues = FoodWasteIssueReport::where('user_id', $userId)
+            ->latest()
+            ->get();
+        // ส่ง $activeBatch กลับไปที่ View ด้วย
+
+        $targetCalories = 0;
+
+        // คำนวณ TDEE ถ้ามีข้อมูลครบ
+        $user = User::find(Auth::id());
+        $targetCalories = $user->calculateTDEE();
+
+        $todayCalories = MealLog::where('user_id', Auth::id())
+            ->whereDate('created_at', now())
+            ->sum('total_calories');
+
+        return view('lineliff.dashboard', compact(
+            'userWastePref',
+            'qrcode',
+            'totalWasteWeight',
+            'totalCarbonSaved',
+            'chartLabels',
+            'chartData',
+            'pendingIssuesCount',
+            'activeBatch',
+            'myIssues',
+            'targetCalories',
+            'todayCalories'
+        ));
     }
 
-     public function handleLineLogin(Request $request)
+    public function handleLineLogin(Request $request)
     {
         $validatedData = $request->validate([
             'userId' => 'required|string',
@@ -88,7 +145,7 @@ class   LineLiffController extends Controller
     }
 
 
-     public function update_user_by_phone(Request $request)
+    public function update_user_by_phone(Request $request)
     {
         $_user = User::with('wastePreference')->where('phone', $request->phoneNum)->get()->first();
         $res = 0;

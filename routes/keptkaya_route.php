@@ -41,6 +41,7 @@ use Firebase\JWT\Key;
 use Spatie\Permission\Models\Permission;
 use Spatie\Permission\Models\Role;
 use App\Http\Controllers\KeptKaya\AnnualReportController;
+use App\Http\Controllers\KeptKaya\BinsController;
 use App\Http\Controllers\Kiosk\KioskController;
 
 Route::middleware(['auth'])->prefix('keptkayas')->name('keptkayas.')->group(function () {
@@ -129,6 +130,8 @@ Route::middleware(['auth'])->prefix('keptkayas')->name('keptkayas.')->group(func
         Route::get('receipt/{transaction}', [KpSellController::class, 'showReceipt'])->name('receipt');
         Route::delete('/users/{transaction}', [KpSellController::class, 'destroy'])->name('destroy');
     });
+
+    Route::resource('bins',BinsController::class);
 
     // 8. Waste Bins Specifics
     Route::prefix('/{w_user}/waste-bins')->name('waste_bins.')->group(function () {

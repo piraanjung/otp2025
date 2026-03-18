@@ -26,52 +26,35 @@
           <div class="card shadow">
 
             <div class="card-body">
-                <form action="{{url('zone/store')}}" method="POST" onSubmit="return checkZoneNameValues();">
-                    @csrf
-                    <div class="row">
-                        <div class="col-md-3">
-                        <div class="form-group">
-                            <label for="" class="label-control">ชื่อหมู่</label>
-                        </div>
-                        </div>
-                        <div class="col-md-5">
-                        <div class="form-group">
-                            <label for="" class="label-control">ที่อยู่</label>
-                        </div>
-                        </div>
-                        <div class="col-md-1">
-                        <label for="" class="label-control">&nbsp;</label>
+                <form action="{{url('admin/zone')}}" method="POST" onSubmit="return checkZoneNameValues();">
+    @csrf
+    <div class="row">
+        <div class="col-md-3"><label>ชื่อหมู่</label></div>
+        <div class="col-md-5"><label>ที่อยู่</label></div>
+        <div class="col-md-1"></div>
+    </div>
 
-                        </div>
-                    </div>
-                    <div id="zonelist"></div>
+    <div id="zonelist">
+        <div class="row mb-1">
+            <div class="col-md-3">
+                <input type="text" name="zone[0][zonename]" class="form-control" required>
+            </div>
+            <div class="col-md-5">
+                <input type="text" name="zone[0][zoneAddress]" id="zoneAddress" class="form-control" value="ที่อยู่เริ่มต้น">
+            </div>
+            <div class="col-md-1">
+                <button type="button" class="btn btn-outline-primary addZoneBtn">
+                    <i class="fa fa-plus"></i>
+                </button>
+            </div>
+        </div>
+    </div>
 
-                    <div class="row">
-                        <div class="col-md-3">
-                        <div class="form-group">
-                            <input type="text" name="zone[0][zonename]" id="zonename" class="form-control zonename">
-                        </div>
-                        </div>
-                        <div class="col-md-5">
-                        <div class="form-group">
-                            <?php
-                                // $tambonAddr = 'ต.'.$tambonInfos['tambon'].' อ.'.$tambonInfos['district'].' จ.'.$tambonInfos['province']  ?>
-                            <input type="text" name="zone[0][zoneAddress]" id="zoneAddress" value="" class="form-control zoneAddress">
-                        </div>
-                        </div>
-                        <div class="col-md-1">
-                        <a href="javascript:void(0)" class="btn btn-outline-primary form-control addZoneBtn">
-                            <i class="fa fa-plus "></i>
-                        </a>
-                        </div>
-                    </div>
-
-
-                    <div id="saveBtn">
-                            <hr>
-                            <button type="submit" class="btn btn-success  zonelistSaveBtn">บันทึก</button>
-                    </div>
-               </form>
+    <div id="saveBtn">
+        <hr>
+        <button type="submit" class="btn btn-success">บันทึก</button>
+    </div>
+</‰form>
             </div>
           </div>
         </div>
@@ -81,37 +64,32 @@
 
 @section('script')
     <script>
-        let i = 1;
-        $('.addZoneBtn').click(function(){
-            let text = `
-                <div class="row mb-1 aa">
-                    <div class="col-md-3 aaa">
-                        <input type="text" name="zone[${i}][zonename]" class="form-control" value="">
+       let i = 1; // เริ่มที่ 1 เพราะแถวแรกคือ 0
+$(document).on('click', '.addZoneBtn', function(){
+    let addressValue = $('#zoneAddress').val(); // ดึงค่าจากช่องแรกมาใส่ช่องใหม่
+    let text = `
+        <div class="row mb-1 zone-row">
+            <div class="col-md-3">
+                <input type="text" name="zone[${i}][zonename]" class="form-control" value="">
+            </div>
+            <div class="col-md-5">
+                <input type="text" name="zone[${i}][zoneAddress]" class="form-control" value="${addressValue}">
+            </div>
+            <div class="col-md-1">
+                <button type="button" class="btn btn-outline-danger delZoneBtn">
+                   <i class="fa fa-minus"></i>
+                </button>
+            </div>
+        </div>
+    `;
+    $('#zonelist').append(text);
+    i++;
+});
 
-                    </div>
-                    <div class="col-md-5">
-                        <input type="text" name="zone[${i}][zoneAddress]" class="form-control zoneAddress" value="${$('#zoneAddress').val()}">
-
-                    </div>
-                    <div class="col-md-1">
-                        <a href="javascript:void(0)" class="btn btn-outline-danger form-control delZoneBtn">
-                           <i class="fa fa-minus "></i>
-                       </a>
-                    </div>
-                </div>
-            `;
-            $('#zonelist').prepend(text)
-            i++;
-
-
-        });
-
-        //ลบ รายการ zone
-
-       $("body").on("click",".delZoneBtn",function(e){
-            checkEmptyZoneLinst()
-            $(this).parent().parent().remove();
-        });
+// ฟังก์ชันลบแถว
+$(document).on('click', '.delZoneBtn', function(){
+    $(this).closest('.row').remove();
+});
 
         function checkEmptyZoneLinst(){
             $('.aa').each(function(index, element){

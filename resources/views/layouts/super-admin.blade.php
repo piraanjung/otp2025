@@ -7,7 +7,7 @@
   <link rel="apple-touch-icon" sizes="76x76" href="{{ asset('soft-ui/assets/img/apple-icon.png')}}">
   <link rel="icon" type="image/png" href="{{ asset('soft-ui/assets/img/favicon.png')}}">
   <title>
-    EnvSoGo
+
   </title>
   <!--     Fonts and icons     -->
   <link href="https://fonts.googleapis.com/css?family=Open+Sans:300,400,600,700" rel="stylesheet" />
@@ -19,8 +19,16 @@
   {{-- <link rel="stylesheet" href="{{asset('fontawesome/css/all.css')}}"> --}}
   <!-- CSS Files -->
   <link id="pagestyle" href="{{ asset('soft-ui/assets/css/soft-ui-dashboard.css?v=1.0.7')}}" rel="stylesheet" />
-  <!-- Nepcha Analytics (nepcha.com) -->
-    {{-- <link rel="stylesheet" href="{{asset('css/my_css.css')}}"> --}}
+  <link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.15.4/css/all.css"
+
+integrity="sha384-DyZ88mC6Up2uqS4h/KRgHuoeGwBcD4Ng9SiP4dIRy0EXTlnuz47vAwmeGwVChigm" crossorigin="anonymous" />
+
+<style>
+    .btn.btn-sm i, .btn-group-sm>.btn i {
+    font-size: 1rem;
+}
+</style>
+
 
 </head>
 
@@ -45,7 +53,7 @@
         <div class="collapse navbar-collapse mt-sm-0 mt-2 me-md-0 me-sm-4" id="navbar">
           <div class="ms-md-auto pe-md-3 d-flex align-items-center">
             <div class="input-group">
-              <span class="input-group-text text-body"><i class="fas fa-search" aria-hidden="true"></i></span>
+              <span class="input-group-text text-body"><i class="ni ni-atom" aria-hidden="true"></i></span>
               <input type="text" class="form-control" placeholder="Type here...">
             </div>
           </div>
@@ -280,7 +288,7 @@
   <script src="{{ asset('soft-ui/assets/js/soft-ui-dashboard.min.js?v=1.0.7')}}"></script>
   <script src="{{asset('js/jquery-3.7.1.slim.js')}}"></script>
   @yield('script')
-      
+
 </body>
 
 </html>

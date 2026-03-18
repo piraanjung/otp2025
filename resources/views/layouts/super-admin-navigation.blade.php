@@ -31,7 +31,8 @@
         <span class="nav-link-text ms-1">Settings & Import</span>
       </a> --}}
     </li>
-    <li class="nav-item">
+    @if (auth()->user()->can('access tabwater') || auth()->user()->hasRole('Super Admin'))
+ <li class="nav-item">
       <a data-bs-toggle="collapse" href="#meterTypes" class="nav-link" aria-controls="meterTypes" role="button"
         aria-expanded="true">
         <div
@@ -58,6 +59,7 @@
       </div>
     </li>
 
+
     <li class="nav-item">
       <a class="nav-link  " href="{{ route('admin.pricing_types.index') }}">
         <div
@@ -67,15 +69,18 @@
         <span class="nav-link-text ms-1">ประเภทการชำระเงิน</span>
       </a>
     </li>
+     @endif
 
     <li class="nav-item">
-        <a class="nav-link  " href="{{ route('org-admins.index') }}">
-        <div
-          class="icon icon-shape icon-sm shadow border-radius-md bg-white text-center me-2 d-flex align-items-center justify-content-center">
-          <i class="ni ni-circle-08 text-dark text-gradient text-lg opacity-10"></i></i>
-        </div>
-        <span class="nav-link-text ms-1">Org SuperAdmins </span>
-      </a>
+        @if (auth()->user()->hasRole('Super Admin'))
+            <a class="nav-link  " href="{{ route('org-admins.index') }}">
+                <div
+                class="icon icon-shape icon-sm shadow border-radius-md bg-white text-center me-2 d-flex align-items-center justify-content-center">
+                <i class="ni ni-circle-08 text-dark text-gradient text-lg opacity-10"></i></i>
+                </div>
+                <span class="nav-link-text ms-1">Org SuperAdmins </span>
+            </a>
+        @endif
       <a class="nav-link  " href="{{ route('admin.super_users.index') }}">
         <div
           class="icon icon-shape icon-sm shadow border-radius-md bg-white text-center me-2 d-flex align-items-center justify-content-center">
@@ -90,15 +95,18 @@
         </div>
         <span class="nav-link-text ms-1">Staffs </span>
       </a>
-    </li>
-    <li class="nav-item ">
-      <a class="nav-link nav-user @yield('nav-user')" href="{{ route('admin.users.index') }}">
-        <span class="sidenav-mini-icon text-xs"> P </span>
-        <span class="sidenav-normal"> ผู้ใช้น้ำประปา </span>
+
+      <a class="nav-link  " href="{{ route('admin.zone.index') }}">
+        <div
+          class="icon icon-shape icon-sm shadow border-radius-md bg-white text-center me-2 d-flex align-items-center justify-content-center">
+          <i class="ni ni-circle-08 text-dark text-gradient text-lg opacity-10"></i></i>
+        </div>
+        <span class="nav-link-text ms-1">ตั้งค่าหมู่บ้าน </span>
       </a>
     </li>
 
 
+    @if (auth()->user()->hasRole('Super Admin'))
 
     <li class="nav-item">
       <a data-bs-toggle="collapse" href="#roles" class="nav-link" aria-controls="roles" role="button"
@@ -127,6 +135,7 @@
 
         </ul>
     </li>
+    @endif
     {{--
     <li class="nav-item ">
       <a class="nav-link collapsed" data-bs-toggle="collapse" aria-expanded="false" href="#roles">
@@ -150,6 +159,7 @@
         </ul>
       </div>
     </li> --}}
+    @if (auth()->user()->can('access tabwater') || auth()->user()->hasRole('Super Admin'))
 
     <li class="nav-item">
       <a data-bs-toggle="collapse" href="#settings" class="nav-link" aria-controls="settings" role="button"
@@ -198,7 +208,7 @@
         </ul>
       </div>
     </li>
-
+    @endif
 
   </ul>
 </div>

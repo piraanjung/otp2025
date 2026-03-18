@@ -16,8 +16,6 @@ class ZoneController extends Controller
 {
     public function index()
     {
-        ManagesTenantConnection::configConnection(session('db_conn'));
-
         $zones = Zone::all();
         $orgInfos = Organization::getOrgName(Auth::user()->org_id_fk);
 
@@ -31,15 +29,25 @@ class ZoneController extends Controller
         return view('admin.zone.create',);
     }
 
-    /**
-     * Store a newly created resource in storage.
-     *
-     * @param  \Illuminate\Http\Request  $request
-     * @return \Illuminate\Http\Response
-     */
+
     public function store(Request $request)
     {
-        //
+
+        foreach($request->zone as $zone){
+            Zone::create([
+                "zone_name" => $zone['zonename'],
+                "org_id_fk" => Auth::user()->org_id_fk,
+                "tambon_id" => Auth::user()->tambon_code,
+                "location" => $zone['zoneAddress'],
+                "status" => 'active',
+                "lat" => 0,
+                'long' => 0,
+                'created_at' => date('Y-m-d H:i:s'),
+                'updated_at' => date('Y-m-d H:i:s'),
+            ]);
+        }
+
+        return redirect('admin/zone');
     }
 
     /**
@@ -87,7 +95,6 @@ class ZoneController extends Controller
          $zonename = $zone->zone_name;
         try{
             $zone->delete();
-            FunctionsController::reset_auto_increment_when_deleted('zones');
             $message = 'ลบ '.$zonename.' แล้ว'; $color = "success";
         }catch(\Exception $e){
             $message = 'ลบ '.$zonename.' ไม่ได้ ใช้งานอยู่'; $color = "danger";

@@ -55,7 +55,6 @@ class LineController extends Controller
 
     public function user_line_register(Request $request)
     {
-        return $request->all();
 
         $user =User::create([
             'username'      => $request->org_id.$request->phoneNum,

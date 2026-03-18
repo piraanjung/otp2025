@@ -1,7 +1,10 @@
-@extends('layouts.keptkaya')
+@extends('layouts.foodwaste')
 
 @section('title_page', 'เพิ่มถังขยะใหม่')
-
+@section('nav-header', 'สมาชิกถังขยะเปียก')
+@section('nav-current', 'เพิ่มถังขยะใหม่')
+@section('nav-wet-waste-users', 'active')
+@section('page-topic', 'เพิ่มถังขยะของ:'. $w_user->firstname." ". $w_user->lastname )
 @section('content')
     <div class="container-fluid py-4">
         <div class="row">
@@ -14,7 +17,7 @@
                         <form action="{{ route('foodwaste.waste_bins.store', $w_user->id) }}" method="POST">
                             @csrf
                             <div class="row">
-                            
+
                                 <div class="col-4">
                                     <label for="bin_code" class="form-label">รหัสถังขยะ </label>
                                     <select name="bin_code" class="form-control" required>
@@ -23,7 +26,7 @@
                                             <option value="{{$bin->id}}">{{ $bin->bin_code }}</option>
                                         @endforeach
                                     </select>
-                                    
+
                                     @error('bin_code')<div class="invalid-feedback">{{ $message }}</div>@enderror
                                 </div>
 
@@ -39,13 +42,17 @@
                                 </div>
 
                                 <div class="col-4">
-                                    <label for="user_group" class="form-label">ประเภทถังขยะ</label>
+                                    <label for="user_group" class="form-label">ประเภทผู้ใช้งาน</label>
                                     <select name="user_group" id="user_group" class="form-control">
                                         <option>เลือก...</option>
-                                        @foreach ($foodwaste_bins as $foodwaste_bin)
+                                        <option value="home">ครัวเรือน</option>
+                                        <option value="scholl">โรงเรียน</option>
+                                        <option value="wat">วัด</option>
+                                        <option value="org">หน่วยราชการ</option>
+                                        {{-- @foreach ($foodwaste_bins as $foodwaste_bin)
                                             <option value="{{ $foodwaste_bin->id }}" data-usergroupname="{{$foodwaste_bin->bin_type}}">
                                                 {{ $foodwaste_bin->bin_type }}</option>
-                                        @endforeach
+                                        @endforeach --}}
                                     </select>
                                     {{-- <input type="text" class="form-control @error('bin_type') is-invalid @enderror"
                                         id="bin_type" name="bin_type" value="{{ old('bin_type') }}" required> --}}
@@ -54,14 +61,14 @@
 
                             </div>
 
-                            <div class="mb-3 hidden">
+                            <div class="mb-3 d-none">
                                 <label for="bin_type" class="form-label">&nbsp;</label>
                                 <input type="text" class="form-control @error('bin_type') is-invalid @enderror"
-                                    id="bin_type" name="bin_type" value="{{ old('bin_type') }}" readonly required>
+                                    id="bin_type" name="bin_type" value="{{ $bin_type}}" readonly required>
                                 @error('bin_type')<div class="invalid-feedback">{{ $message }}</div>@enderror
                             </div>
 
-                            <div class="mb-3">
+                            <div class="mb-3 mt-1">
                                 <label for="location_description" class="form-label">รายละเอียดตำแหน่งที่ตั้ง</label>
                                 <textarea class="form-control @error('location_description') is-invalid @enderror"
                                     id="location_description" name="location_description"
@@ -109,7 +116,7 @@
                                 </select>
                                 @error('status')<div class="invalid-feedback">{{ $message }}</div>@enderror
                             </div>
-                            
+
                             <button type="submit" class="btn bg-gradient-primary">บันทึกถังขยะ</button>
                             <a href="{{ route('keptkayas.waste_bins.index', $w_user->id) }}"
                                 class="btn btn-secondary">ยกเลิก</a>
@@ -142,8 +149,8 @@
         function initMap() {
             // Check for existing values from old() or fall back to a specific village
             // หาค่าละติจูดและลองจิจูดของหมู่บ้านที่ต้องการจาก Google Maps
-            const defaultLat = 17.3333436; // ตัวอย่าง: ละติจูดของหมู่บ้านสมมติในประเทศไทย
-            const defaultLng = 103.6683659; // ตัวอย่าง: ลองจิจูดของหมู่บ้านสมมติในประเทศไทย
+            const defaultLat = 16.059773; // ตัวอย่าง: ละติจูดของหมู่บ้านสมมติในประเทศไทย
+            const defaultLng = 105.172845; // ตัวอ
 
             const initialLat = parseFloat("{{ old('latitude', '') }}") || defaultLat;
             const initialLng = parseFloat("{{ old('longitude', '') }}") || defaultLng;

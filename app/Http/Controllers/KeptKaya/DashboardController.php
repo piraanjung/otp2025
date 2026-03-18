@@ -7,7 +7,7 @@ use App\Models\KeptKaya\KpPurchaseTransactionDetail;
 use App\Models\User;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
-
+use Illuminate\Http\Request;
 class DashboardController extends Controller
 {
     public function getCarbonSummary($userId = null)
@@ -40,11 +40,12 @@ class DashboardController extends Controller
     /**
      * หน้าแสดงผล Dashboard
      */
-    public function index()
+    public function index(Request $request, $keptkayatype = '')
     {
+        $request->session()->forget('keptkayatype');
+
         // 1. ดึงข้อมูลภาพรวมทั้งโรงเรียน
         $schoolStats = $this->getCarbonSummary();
-
         // 2. ดึงข้อมูลเฉพาะ User ที่ Login อยู่ (ถ้านักเรียน Login)
         $myStats = null;
         if (Auth::check()) {
@@ -92,6 +93,10 @@ class DashboardController extends Controller
         $chartLabels = $schoolStats->pluck('material_name');
         $chartData   = $schoolStats->pluck('total_carbon');
         $totalMembers = User::count(); // หรือกรองตาม Role เช่น ->where('role', 'student')->count();
+
+
+        $request->session()->put('keptkayatype', $keptkayatype);
+
         return view('keptkayas.dashboard_recycle', compact(
             'schoolStats', 'chartLabels', 'chartData',
             'topStudents', 'monthlyTrend', 'economicStats', 'recentActivities','totalMembers'

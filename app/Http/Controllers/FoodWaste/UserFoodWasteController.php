@@ -8,6 +8,7 @@ use App\Models\KeptKaya\UserWastePreference;
 use App\Models\User;
 use App\Services\UserWasteStatusService;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
 
@@ -40,7 +41,8 @@ class UserFoodWasteController extends Controller
         $searchStatus = $request->input('search_status');
 
 
-        $query = User::with(['foodwastePreference', 'foodwasteBins']);
+        $query = User::with(['foodwastePreference', 'foodwasteBins'])
+        ->where('org_id_fk', Auth::user()->org_id_fk);
 
         // Apply search filters
         $query->when($searchName, function ($q, $name) {
@@ -78,7 +80,7 @@ class UserFoodWasteController extends Controller
         }
     }
 
-  
+
 
      public function foodwaste_bin_users(Request $request)
     {
@@ -95,7 +97,7 @@ class UserFoodWasteController extends Controller
         $searchName = $request->input('search_name');
         $searchEmail = $request->input('search_email');
         $searchStatus = $request->input('search_status');
-     
+
 
         $query = User::with(['foodwastePreference', 'foodwasteBins']);
 
@@ -116,8 +118,8 @@ class UserFoodWasteController extends Controller
             $q->where('status', $status);
         });
 
-      
-      
+
+
 
         // Check if it's an AJAX request for live search
         if ($request->ajax()) {

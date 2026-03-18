@@ -9,6 +9,7 @@ use App\Models\Admin\Staff;
 use App\Models\Admin\Subzone;
 use App\Models\Admin\Tambon;
 use App\Models\Admin\Zone;
+use App\Models\FoodWaste\CompostBatches;
 use App\Models\KeptKaya\KpUserWastePreference;
 use App\Models\KeptKaya\WasteBin;
 use App\Models\KeptKaya\AnnualCollectionPayment;
@@ -21,6 +22,7 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use App\Models\FoodWaste\FoodWasteUserPreference;
 use App\Models\FoodWaste\FoodWasteBin;
+use App\Models\FoodWaste\FoodWasteLog;
 use App\Models\Tabwater\TwNotifies;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany; // <--- สำคัญ: ตรวจสอบว่ามีการ use นี้หรือไม่
@@ -42,6 +44,9 @@ class User extends Authenticatable
         "line_id",
         "image",
         "phone",
+        'age',
+        'weight',
+        'height',
         "gender",
         "address",
         "zone_id",
@@ -52,7 +57,7 @@ class User extends Authenticatable
         "status",
     ];
 
-    
+
     protected $hidden = [
         'password',
         'remember_token',
@@ -69,7 +74,8 @@ class User extends Authenticatable
     protected $table = 'users';
 
 
-    public function org(){
+    public function org()
+    {
         return $this->belongsTo(Organization::class, 'org_id_fk', 'id');
     }
 
@@ -115,8 +121,14 @@ class User extends Authenticatable
 
     public function wasteBins()
     {
-        return $this->hasMany(WasteBin::class,'user_id');
+        return $this->hasMany(WasteBin::class, 'user_id');
     }
+
+    public function getUserAnnualBin()
+    {
+        return $this->hasOne(WasteBin::class, 'id');
+    }
+
 
     public function annualCollectionPayments()
     {
@@ -134,15 +146,41 @@ class User extends Authenticatable
 
     public function foodwasteBins()
     {
-        return $this->hasMany(FoodWasteBin::class,'u_pref_id_fk');
+        return $this->hasMany(FoodWasteBin::class, 'u_pref_id_fk');
     }
 
     public function acceptedNotifies(): BelongsToMany // <--- ตรวจสอบการประกาศ Type Hint
     {
         return $this->belongsToMany(TwNotifies::class, 'notify_staff', 'user_id', 'notify_id')
-                    ->withPivot('staff_status')
-                    ->withTimestamps();
+            ->withPivot('staff_status')
+            ->withTimestamps();
     }
 
+    // เชื่อมไปหาลอตขยะ
+    public function compostBatches()
+    {
+        return $this->hasMany(CompostBatches::class, 'user_id');
+    }
 
+    // เชื่อมไปหาประวัติทิ้งขยะ
+    public function wasteLogs()
+    {
+        return $this->hasMany(FoodWasteLog::class, 'user_id');
+    }
+
+    public function calculateTDEE()
+    {
+        if (!$this->weight || !$this->height || !$this->age) {
+            return 0; // ถ้าข้อมูลไม่ครบ ให้คืนค่า 0
+        }
+
+        // สูตร Mifflin-St Jeor
+        if ($this->gender === 'male') {
+            $bmr = (10 * $this->weight) + (6.25 * $this->height) - (5 * $this->age) + 5;
+        } else {
+            $bmr = (10 * $this->weight) + (6.25 * $this->height) - (5 * $this->age) - 161;
+        }
+
+        return $bmr * 1.2; // คูณค่ากิจกรรมระดับเริ่มต้น
+    }
 }

@@ -1,19 +1,31 @@
 @extends('layouts.admin1')
 
+@section('nav-header')
+   <a href="{{ url('/admin/zone') }}"> ตั้งค่าหมู่บ้าน/ซอย</a>
+@endsection
 @section('mainheader')
-    พื้นที่จดมิเตอร์น้ำประปา
+    ตั้งค่าหมู่บ้าน/ซอย
 @endsection
-@section('zone')
+@section('nav-main')
+    ตารางรายการหมู่บ้าน/ซอย
+@endsection
+@section('budgetyear-show')
+    show
+@endsection
+
+
+@section('nav-topic')
+    ตั้งค่าหมู่บ้าน/ซอย
+@endsection
+
+@section('invoice_period')
     active
-@endsection
-@section('nav')
-    <a href="{{ url('/users') }}"> พื้นที่จดมิเตอร์น้ำประปา</a>
 @endsection
 @section('content')
     <div class="row">
         <div class="col-12">
             <a href="{{ route('admin.zone.create') }}" class="btn btn-primary my-4 col-2 "><i
-                    class="fas fa-plus-circle"></i>สร้างพื้นที่จดมิเตอร์</a>
+                    class="fas fa-plus-circle"></i>สร้างหมู่บ้าน/ซอย</a>
             <div class="table-responsive">
                 <div class="row">
                     @foreach ($zones as $item)

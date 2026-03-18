@@ -2,6 +2,7 @@
 
 namespace App\Services;
 
+use App\Models\FoodWaste\FoodWasteBin;
 use App\Models\User;
 use App\Models\KeptKaya\UserWastePreference;
 use App\Models\KeptKaya\WasteBin;
@@ -62,14 +63,14 @@ class UserWasteStatusService
         });
     }
 
-  
-    public function updateWasteBinAndUserStatus(WasteBin $wasteBin, array $data)
+
+    public function updateWasteBinAndUserStatus(FoodWasteBin $foodwasteBin, array $data)
     {
-        DB::transaction(function () use ($wasteBin, $data) {
-            $wasteBin->update($data); // อัปเดตสถานะถังขยะ
+        DB::transaction(function () use ($foodwasteBin, $data) {
+            $foodwasteBin->update($data); // อัปเดตสถานะถังขยะ
 
             // หลังจากอัปเดตถังขยะแล้ว ให้เรียกอัปเดตสถานะของ User โดยรวม
-            $this->updateOverallUserWasteStatus($wasteBin->user);
+            $this->updateOverallUserWasteStatus($foodwasteBin->user);
         });
     }
 }

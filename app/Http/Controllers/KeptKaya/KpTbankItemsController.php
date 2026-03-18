@@ -42,9 +42,9 @@ class KpTbankItemsController extends Controller
             'items.*.kp_itemsname' => 'required|string|max:255',
             'items.*.kp_items_group_idfk' => 'required|exists:kp_tbank_items_groups,id',
             'items.*.kp_itemscode' => 'nullable|string|max:50|unique:kp_tbank_items,kp_itemscode',
-            'images.*' => 'nullable|image|mimes:jpeg,png,jpg,gif|max:2048', // Validation สำหรับไฟล์
+            // 'images.*' => 'nullable|image|mimes:jpeg,png,jpg,gif|max:2048', // Validation สำหรับไฟล์
         ]);
-        
+
 
         // ดึงรายการทั้งหมดจากฟอร์ม
         $itemsData = $request->input('items');
@@ -59,7 +59,7 @@ class KpTbankItemsController extends Controller
             $item->kp_itemsname         = $itemData['kp_itemsname'];
             $item->kp_items_group_idfk  = $itemData['kp_items_group_idfk'];
             $item->kp_itemscode         = $itemData['kp_itemscode'] ?? null;
-            $item->org_id_fk            = Auth::user()->org_id_fk;   
+            $item->org_id_fk            = Auth::user()->org_id_fk;
 
             // 3. จัดการการอัปโหลดรูปภาพ
             if (isset($images[$key]) && $images[$key]->isValid()) {
@@ -104,14 +104,13 @@ class KpTbankItemsController extends Controller
                 $item->image = $imageName;
 
                 // --- 5. Clean up ---
-                imagedestroy($image);
-                imagedestroy($resizedImage);
+             
                 unlink($tempImagePath); // ลบไฟล์ชั่วคราวทิ้ง
             }
 
             $item->save();
         }
-      
+
         // --- โค้ดสำหรับบันทึกหน่วยนับที่เลือก (Assuming a pivot table) ---
         // This will require a pivot table model and relationship
         // $item->units()->attach($validated['tbank_item_unit_ids']);

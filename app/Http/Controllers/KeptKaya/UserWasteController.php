@@ -22,13 +22,12 @@ class UserWasteController extends Controller
         $this->wasteStatusService = $wasteStatusService;
     }
 
-  
+
     /**
      * Display a listing of the resource.
      */
     public function index(Request $request)
     {
-
         // Get the 'per_page' value from the request, default to 10
         $perPage = $request->input('per_page', 10);
 
@@ -305,7 +304,7 @@ class UserWasteController extends Controller
     public function edit(User $user)
     {
 
-        return view('keptkayas.users.edit', compact('user'));
+        return view('keptkayas.w.users.edit', compact('user'));
     }
 
     /**
@@ -352,7 +351,7 @@ class UserWasteController extends Controller
 
     DB::transaction(function () use ($wasteData) {
         foreach ($wasteData as $userId => $preferences) {
-            
+
             // 1. เตรียมข้อมูล boolean (แปลงค่า 1/0 เป็น true/false)
             $isAnnual = isset($preferences['is_annual_collection']) && $preferences['is_annual_collection'] == '1';
             $isWasteBank = isset($preferences['is_waste_bank']) && $preferences['is_waste_bank'] == '1';

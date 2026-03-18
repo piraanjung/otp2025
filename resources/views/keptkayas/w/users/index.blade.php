@@ -28,7 +28,7 @@
                                 <option value="all" {{ $perPage == 'all' ? 'selected' : '' }}>ทั้งหมด</option>
                             </select>
                         </form>
-                        
+
                         {{-- 2. ปุ่มบันทึก (อยู่นอก Form แต่สั่ง Submit Form หลักได้ด้วย attribute form="mainBatchForm") --}}
                         <button type="button" id="btnSaveBatch" class="btn bg-gradient-success btn-sm mb-0 me-2">
                             <i class="fas fa-save me-1"></i> บันทึกข้อมูลที่เลือก
@@ -53,7 +53,7 @@
                     {{-- FORM หลัก: ครอบตารางทั้งหมด --}}
                     <form id="mainBatchForm" action="{{ route('keptkayas.updateWasteServicePreferences') }}" method="POST">
                         @csrf
-                        
+
                         <div class="table-responsive p-2">
                             <table class="table align-items-center mb-0">
                                 <thead>
@@ -90,7 +90,7 @@
                                                     <option value="true" {{ request('search_is_annual_collection') == 'true' ? 'selected' : '' }}>เก็บรายปี: ใช่</option>
                                                     <option value="false" {{ request('search_is_annual_collection') == 'false' ? 'selected' : '' }}>เก็บรายปี: ไม่</option>
                                                 </select>
-                                                
+
                                                 <div class="form-check form-check-inline mb-1">
                                                     <input class="form-check-input" type="checkbox" id="selectAllWasteBank">
                                                     <label class="form-check-label" for="selectAllWasteBank">ธนาคารขยะ (ทั้งหมด)</label>
@@ -107,7 +107,7 @@
                                         </th>
                                     </tr>
                                 </thead>
-                                
+
                                 <tbody id="userTableBody">
                                     @forelse($users as $user)
                                     <tr>
@@ -145,14 +145,14 @@
                                             @endif
 
                                             <div class="form-check form-check-inline">
-                                                <input class="form-check-input annual-coll-checkbox" type="checkbox" 
-                                                    id="annual_coll_{{ $user->id }}" 
-                                                    name="waste[{{$user->id}}][is_annual_collection]" 
+                                                <input class="form-check-input annual-coll-checkbox" type="checkbox"
+                                                    id="annual_coll_{{ $user->id }}"
+                                                    name="waste[{{$user->id}}][is_annual_collection]"
                                                     value="1"
                                                     {{ $isAnnual ? 'checked' : '' }}
-                                                    {{ $hasBins ? 'disabled' : '' }} 
+                                                    {{ $hasBins ? 'disabled' : '' }}
                                                 >
-                                                <label class="form-check-label" for="annual_coll_{{ $user->id }}" 
+                                                <label class="form-check-label" for="annual_coll_{{ $user->id }}"
                                                        @if($hasBins) data-bs-toggle="tooltip" title="ไม่สามารถยกเลิกได้ เนื่องจากมีถังขยะในระบบ" @endif>
                                                     เก็บรายปี
                                                     @if($hasBins) <i class="fas fa-lock text-xs text-warning ms-1"></i> @endif
@@ -164,9 +164,9 @@
                                             {{-- ============================ --}}
                                             <input type="hidden" name="waste[{{$user->id}}][is_waste_bank]" value="0">
                                             <div class="form-check form-check-inline">
-                                                <input class="form-check-input waste-bank-checkbox" type="checkbox" 
-                                                    id="waste_bank_{{ $user->id }}" 
-                                                    name="waste[{{$user->id}}][is_waste_bank]" 
+                                                <input class="form-check-input waste-bank-checkbox" type="checkbox"
+                                                    id="waste_bank_{{ $user->id }}"
+                                                    name="waste[{{$user->id}}][is_waste_bank]"
                                                     value="1"
                                                     {{ $isBank ? 'checked' : '' }}
                                                 >
@@ -180,8 +180,8 @@
                                                     <div>{{ $user->wasteBins ? $user->wasteBins->count() : 0 }} ถัง</div>
                                                 </a>
                                             @endif
-                                            <a href="{{ route('keptkayas.users.edit', $user->id) }}" class="btn btn-link text-secondary font-weight-bold text-xs px-0 mb-0 me-2">
-                                                <i class="fas fa-edit me-1"></i> แก้ไข
+                                            <a href="{{ route('keptkayas.waste_bins.index', $user->id) }}" class="btn btn-link text-secondary font-weight-bold text-xs px-0 mb-0 me-2">
+                                                <i class="fas fa-edit me-1"></i> แก้ไข(จำนวนถัง)
                                             </a>
                                         </td>
                                     </tr>
@@ -209,7 +209,7 @@
 @section('script')
 <script>
     document.addEventListener('DOMContentLoaded', function() {
-        
+
         // --- 1. SEARCH VARIABLES & ELEMENTS ---
         const elements = {
             searchName: document.getElementById('search_name'),
@@ -271,7 +271,7 @@
 
 
         // --- 3. SELECT ALL LOGIC (SAFE MODE) ---
-        
+
         // ฟังก์ชันเลือกทั้งหมด "เก็บรายปี" - จะไม่ยุ่งกับตัวที่ Disabled
         if(elements.chkAllAnnual) {
             elements.chkAllAnnual.addEventListener('change', function() {
@@ -292,7 +292,7 @@
         if(elements.btnSave && elements.mainForm) {
             elements.btnSave.addEventListener('click', function(e) {
                 e.preventDefault();
-                
+
                 Swal.fire({
                     title: 'ยืนยันการบันทึก?',
                     text: "ตรวจสอบความถูกต้องของบริการที่เลือกก่อนบันทึก",

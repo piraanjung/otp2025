@@ -29,13 +29,13 @@
         .table-hover tbody tr:hover {
             background-color: #f8f9fa;
         }
-        
+
         /* Highlight selected rows */
         table.dataTable tbody tr.selected > * {
             box-shadow: inset 0 0 0 9999px rgba(var(--bs-primary-rgb), 0.1) !important;
             color: #344767 !important;
         }
-        
+
         /* Badges for Multiple Meters */
         .meter-badge {
             display: inline-block;
@@ -82,7 +82,7 @@
             margin-bottom: 0;
             border-radius: 0.375rem;
         }
-        
+
         /* Tab Customization */
         .nav-tabs .nav-link {
             border: none;
@@ -135,7 +135,7 @@
             </div>
 
             <div class="tab-content p-4" id="userTabsContent">
-                
+
                 <div class="tab-pane fade show active" id="active-content" role="tabpanel" aria-labelledby="active-tab">
                     <div class="table-responsive p-0">
                         <table class="table table-hover align-items-center mb-0" id="example">
@@ -266,7 +266,7 @@
     <script src="https://code.jquery.com/jquery-3.7.0.js"></script>
     <script src="https://cdn.datatables.net/1.13.6/js/jquery.dataTables.min.js"></script>
     <script src="https://cdn.datatables.net/1.13.6/js/dataTables.bootstrap5.min.js"></script>
-    
+
     <script src="https://cdn.datatables.net/buttons/2.4.2/js/dataTables.buttons.min.js"></script>
     <script src="https://cdn.datatables.net/buttons/2.4.2/js/buttons.bootstrap5.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"></script>
@@ -274,7 +274,7 @@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/pdfmake/0.1.53/vfs_fonts.js"></script>
     <script src="https://cdn.datatables.net/buttons/2.4.2/js/buttons.html5.min.js"></script>
     <script src="https://cdn.datatables.net/buttons/2.4.2/js/buttons.print.min.js"></script>
-    
+
     <script src="https://cdn.datatables.net/select/1.7.0/js/dataTables.select.min.js"></script>
 
     <script>
@@ -335,7 +335,7 @@
             // Styling adjustments after init
             $('.dataTables_length select').addClass('form-select form-select-sm').css('width', 'auto').css('display', 'inline-block');
             $('.dt-buttons').addClass('d-flex gap-2 mb-3 mt-2');
-            
+
             // Fix Tab Display Issue: When switching tabs, adjust columns
             $('button[data-bs-toggle="tab"], a[data-bs-toggle="tab"]').on('shown.bs.tab', function (e) {
                 table1.columns.adjust().draw();

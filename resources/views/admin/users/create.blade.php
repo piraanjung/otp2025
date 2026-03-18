@@ -1,14 +1,14 @@
 @extends('layouts.admin1')
 
 @section('nav-main')
-    <a href="{{ route('admin.users.create') }}"> สร้างข้อมูลผู้ใช้น้ำประปา</a>
+    <a href="{{ route('admin.super_users.create') }}"> สร้างข้อมูลผู้ใช้งานระบบ</a>
 @endsection
 
 @section('nav-header')
     ผู้ใช้งานระบบ
 @endsection
 @section('nav-current')
-    ข้อมูลผู้ใช้น้ำประปา
+    ข้อมูลผู้ใช้งานระบบ
 @endsection
 
 @section('user-show')
@@ -22,6 +22,7 @@
     <li class="breadcrumb-item text-sm text-dark active" aria-current="page">ผู้ใช้งานระบบ</li>
 @endsection
 @section('style')
+
     <style>
         .hidden {
             display: none
@@ -34,40 +35,27 @@
     </style>
 @endsection
 @section('content')
-   <form action="{{ route('admin.users.store') }}" method="POST">
-    @csrf
+    {{-- <form action="{{ route('admin.super_users.store') }}" method="POST">
+        @csrf --}}
 
-    {{-- Checkbox 'Select All' และ Textarea อยู่ด้านนอก loop --}}
-    <div style="margin-bottom: 15px;">
-        <input type="checkbox" id="select_all">
-        <label for="select_all">เลือกทั้งหมด (Select All)</label>
-    </div>
-
-    <div style="margin-bottom: 15px;">
-        <label for="user_id_lists">User IDs ที่ถูกเลือก (ส่งค่านี้ไป)</label>
-        <textarea name="user_id_lists" id="user_id_lists" rows="5" style="width: 100%;" readonly></textarea>
-        {{-- เพิ่ม readonly เพื่อไม่ให้ผู้ใช้แก้ไขเอง --}}
-    </div>
-    
-    <hr>
-    
-    {{-- รายการ Checkbox ของผู้ใช้แต่ละคน --}}
-    @foreach ($as_tw_members as $user)
-        <div class="d-flex" style="margin-bottom: 5px;"> 
-            <div>
-                {{-- สำคัญ: ต้องใส่ class='user_checkbox' และ value เป็น ID ของผู้ใช้ --}}
-                <input type="checkbox" class="user_checkbox" name="user_ids[]" value="{{ $user->id }}" id="user_{{ $user->id }}">
-            </div>
-            <div style="margin-left: 10px;">
-                <label for="user_{{ $user->id }}">{{ $user->id }} - {{ $user->name ?? 'No Name' }}</label>
-            </div>
+        {{-- Checkbox 'Select All' และ Textarea อยู่ด้านนอก loop --}}
+        {{-- <div style="margin-bottom: 15px;">
+            <input type="checkbox" id="select_all">
+            <label for="select_all">เลือกทั้งหมด (Select All)</label>
         </div>
-    @endforeach
 
-    <hr>
+        <div style="margin-bottom: 15px;">
+            <label for="user_id_lists">User IDs ที่ถูกเลือก (ส่งค่านี้ไป)</label>
+            <textarea name="user_id_lists" id="user_id_lists" rows="5" style="width: 100%;" readonly></textarea> --}}
+            {{-- เพิ่ม readonly เพื่อไม่ให้ผู้ใช้แก้ไขเอง --}}
+        {{-- </div>
 
-    <button type="submit" class="btn btn-primary">บันทึก</button>
-</form>
+        <hr>
+ --}}
+
+
+        {{-- <button type="submit" class="btn btn-primary">บันทึก</button> --}}
+    {{-- </form> --}}
     <div class="row">
         <div class="col-12">
             <div class="card">
@@ -81,7 +69,7 @@
                                         <span>ข้อมูลผู้ใช้งาน</span>
                                     </button>
                                     <button class="multisteps-form__progress-btn" id="b2" data-id="2" type="button"
-                                        title="Address">Meter Info</button>
+                                        title="Address">Info</button>
                                     <button class="multisteps-form__progress-btn" id="b3" data-id="3" type="button"
                                         title="Address">ตั้งค่าเข้าใช้งานระบบ</button>
                                     <button class="multisteps-form__progress-btn" id="b4" data-id="4" type="button"
@@ -93,7 +81,7 @@
 
                         <div class="row ">
                             <div class="col-12 col-lg-10 m-auto">
-                                <form class="multisteps-form__form mb-8" action="{{ route('admin.users.store') }}"
+                                <form class="multisteps-form__form mb-8" action="{{ route('admin.super_users.store') }}"
                                     method="post" style="height: 492px;">
                                     @csrf
                                     <div class="card multisteps-form__panel p-3 border-radius-xl bg-white  js-active"
@@ -190,8 +178,15 @@
                                                                     <span class="text-danger h-8">({{ $message }})</span>
                                                                 @enderror
                                                             </label>
-                                                            <input type="text" class="form-control required " id="address"
-                                                                name="address" value="">
+                                                            @if ($orgInfos['org_short_type_name'] == 'รพ.' || $orgInfos['org_short_type_name'] == 'ม.')
+                                                                <input type="text" class="form-control bg-gray-200" id="address"
+                                                                    readonly name="address"
+                                                                    value="{{ $orgInfos['org_address'] }}">
+                                                            @else
+                                                                <input type="text" class="form-control required " id="address"
+                                                                    name="address" value="">
+                                                            @endif
+
                                                         </div>
                                                         <div class="col-12 col-sm-2">
                                                             <label>หมู่ที่
@@ -199,15 +194,23 @@
                                                                     <span class="text-danger h-8">({{ $message }})</span>
                                                                 @enderror
                                                             </label>
-                                                            <select class="form-control required " name="zone_id"
-                                                                id="zone_id">
-                                                                <option>เลือก...</option>
-                                                                @foreach ($zones as $zone)
-                                                                    <option value="{{ $zone->id }}">
-                                                                        {{ $zone->zone_name }}
-                                                                    </option>
-                                                                @endforeach
-                                                            </select>
+                                                            @if ($orgInfos['org_short_type_name'] == 'รพ.' || $orgInfos['org_short_type_name'] == 'ม.')
+                                                                <input type="text" class="form-control bg-gray-200" id="zone_id"
+                                                                    readonly
+                                                                    value="{{ $orgInfos['org_zone'] }}">
+                                                                      <input type="hidden" name="zone_id" value="{{ $orgInfos['org_zone_id'] }}">
+                                                            @else
+                                                                <select class="form-control required " name="zone_id"
+                                                                    id="zone_id">
+                                                                    <option>เลือก...</option>
+                                                                    @foreach ($zones as $zone)
+                                                                        <option value="{{ $zone->id }}">
+                                                                            {{ $zone->zone_name }}
+                                                                        </option>
+                                                                    @endforeach
+                                                                </select>
+                                                            @endif
+
                                                         </div>
                                                         <div class="col-12 col-sm-3">
                                                             <label>จังหวัด
@@ -216,8 +219,10 @@
                                                                 @enderror
                                                             </label>
                                                             <select class="form-control bg-gray-200" name="province_code"
-                                                                id="province_code" onchange="getDistrict()">
-                                                                <option value="35" selected>ขอนแก่น</option>
+                                                                id="province_code">
+                                                                <option value="{{ $orgInfos['org_province_id'] }}" selected>
+                                                                    {{ $orgInfos['org_province'] }}
+                                                                </option>
                                                             </select>
                                                         </div>
                                                         <div class="col-12 col-sm-2">
@@ -227,8 +232,10 @@
                                                                 @enderror
                                                             </label>
                                                             <select class="form-control bg-gray-200" name="district_code"
-                                                                id="district_code" onchange="getTambon()">
-                                                                <option value="3508">พระยืน</option>
+                                                                id="district_code">
+                                                                <option value="{{ $orgInfos['org_district_id'] }}" selected>
+                                                                    {{ $orgInfos['org_district'] }}
+                                                                </option>
                                                             </select>
                                                         </div>
                                                         <div class="col-12 col-sm-2">
@@ -239,7 +246,9 @@
                                                             </label>
                                                             <select class="form-control bg-gray-200" name="tambon_code"
                                                                 id="tambon_code" onchange="getZone()">
-                                                                <option value="350805">ขามป้อม</option>
+                                                                <option value="{{ $orgInfos['org_tambon_id']}}" selected>
+                                                                    {{ $orgInfos['org_tambon'] }}
+                                                                </option>
 
                                                             </select>
                                                         </div>
@@ -256,61 +265,17 @@
 
                                     <div class="card multisteps-form__panel p-3 border-radius-xl bg-white"
                                         data-animation="FadeIn" id="pd2">
-                                        <h5 class="font-weight-bolder">Meter Info</h5>
+                                        <h5 class="font-weight-bolder">Info</h5>
                                         <div class="multisteps-form__content">
                                             <div class="row mt-3">
                                                 <div class="col-12 col-sm-4">
-                                                    <label>เลขที่ผู้ใช้น้ำประปา</label>
+                                                    <label>เลขที่ผู้ใช้งาน</label>
                                                     <input type="text" class="form-control bg-gray-200" readonly
                                                         name="new_meter_id" value="{{ $usernumber }}">
                                                 </div>
-                                                <div class="col-12 col-sm-4">
-                                                    <label>เลขมิเตอร์</label>
-                                                    <input type="text" class="form-control bg-gray-200" readonly
-                                                        name="meternumber" id="meternumber" value="{{ $meternumber }}">
-                                                </div>
-                                                <div class="col-12 col-sm-4">
-                                                    <label>รหัสมิเตอร์จากโรงงาน</label>
-                                                    @error('factory_no')
-                                                        <span class="text-danger h-8">({{ $message }})</span>
-                                                    @enderror
-                                                    <input type="text" class="form-control required" name="factory_no"
-                                                        id="factory_no" value="{{ $factory_no }}">
-                                                </div>
 
-                                                <div class="col-12 col-sm-3">
-                                                    <label>ประเภทมิเตอร์
-                                                        @error('metertype_id')
-                                                            <span class="text-danger h-8">({{ $message }})</span>
-                                                        @enderror
-                                                    </label>
-                                                    <select class="form-control required" name="metertype_id"
-                                                        id="metertype_id">
-                                                        <option>เลือก...</option>
-                                                        @foreach ($meter_types as $meter_type)
-                                                            <option value="{{ $meter_type->id }}">
-                                                                {{ $meter_type->meter_type_name }}
-                                                            </option>
-                                                        @endforeach
-                                                    </select>
-                                                </div>
-                                                <div class="col-12 col-sm-3">
-                                                    <label>ราคาต่อหน่วย (บาท)</label>
-                                                    <input type="text" class="form-control bg-gray-200" readonly
-                                                        name="counter_unit" id="counter_unit" value="">
-                                                </div>
-                                                <div class="col-12 col-sm-3">
-                                                    <label>ค่ารักษามิเตอร์ (บาท) </label>
-                                                    <input type="text" class="form-control bg-gray-200" readonly
-                                                        name="reserve_price" id="reserve_price" value="">
-                                                </div>
-                                                <div class="col-12 col-sm-3">
-                                                    <label>ขนาดมิเตอร์ </label>
-                                                    <input type="text" class="form-control bg-gray-200" readonly
-                                                        name="metersize" id="metersize" value="">
-                                                </div>
-                                                <div class="col-12 col-sm-6">
-                                                    <label>พื้นที่จัดเก็บ
+                                                <div class="col-12 col-sm-4">
+                                                    <label>แผนก
                                                         @error('undertake_zone_id')
                                                             <span class="text-danger h-8">({{ $message }})</span>
                                                         @enderror
@@ -325,8 +290,8 @@
                                                         @endforeach
                                                     </select>
                                                 </div>
-                                                <div class="col-12 col-sm-6">
-                                                    <label>เส้นทางจัดเก็บ
+                                                <div class="col-12 col-sm-4">
+                                                    <label>หน่วย
                                                         @error('undertake_subzone_id')
                                                             <span class="text-danger h-8">({{ $message }})</span>
                                                         @enderror
@@ -336,27 +301,15 @@
                                                     </select>
                                                 </div>
                                                 <div class="col-12 col-sm-4">
-                                                    <label>วันที่ขอใช้น้ำ</label>
+                                                    <label>วันที่ขอใช้งาน</label>
                                                     <?php $year = date('Y') + 543;
-    $now = date('d/m/' . $year); ?>
+                                                        $now = date('d/m/' . $year);
+                                                    ?>
                                                     <input type="text" class="form-control datepicker bg-gray-200"
                                                         name="acceptance_date" id="acceptance_date" readonly
                                                         value="{{ $now }}">
                                                 </div>
-                                                <div class="col-12 col-sm-4">
-                                                    <label>วิธีชำระเงิน</label>
-                                                    <span class="ml-auto text-right text-semibold text-reagent-gray">
-                                                        <input type="text" class="form-control bg-gray-200" readonly
-                                                            name="payment_id" value="1">
-                                                    </span>
-                                                </div>
-                                                <div class="col-12 col-sm-4">
-                                                    <label>ประเภทผู้ได้ส่วนลด</label>
-                                                    <span class="ml-auto text-right text-semibold text-reagent-gray">
-                                                        <input type="text" class="form-control bg-gray-200"
-                                                            name="discounttype" value="1" readonly>
-                                                    </span>
-                                                </div>
+
                                             </div>
                                             <div class="button-row d-flex mt-4">
                                                 <button class="btn bg-gradient-light mb-0 js-btn-prev" data-id="1"
@@ -640,43 +593,43 @@
     </script>
 
     <script>
-$(document).ready(function() {
-    // ฟังก์ชันสำหรับดึงค่า User ID ที่ถูกเลือกทั้งหมด
-    function updateTextarea() {
-        var selectedIDs = [];
-        
-        // วนลูปหา checkbox ที่มี class 'user_checkbox' ที่ถูกเลือก
-        $('.user_checkbox:checked').each(function() {
-            selectedIDs.push($(this).val());
+        $(document).ready(function () {
+            // ฟังก์ชันสำหรับดึงค่า User ID ที่ถูกเลือกทั้งหมด
+            function updateTextarea() {
+                var selectedIDs = [];
+
+                // วนลูปหา checkbox ที่มี class 'user_checkbox' ที่ถูกเลือก
+                $('.user_checkbox:checked').each(function () {
+                    selectedIDs.push($(this).val());
+                });
+
+                // นำค่า ID ที่ได้มาต่อกันด้วย comma (,) แล้วใส่ใน textarea
+                $('#user_id_lists').val(selectedIDs.join(', '));
+            }
+
+            // 1. จัดการเมื่อกด Checkbox 'Select All'
+            $('#select_all').on('click', function () {
+                // กำหนดสถานะของ checkbox ผู้ใช้ทั้งหมดให้เหมือนกับ checkbox 'Select All'
+                $('.user_checkbox').prop('checked', this.checked);
+                updateTextarea(); // อัพเดตค่าใน Textarea ทันที
+            });
+
+            // 2. จัดการเมื่อมีการกด Checkbox ของผู้ใช้แต่ละคน
+            $('.user_checkbox').on('click', function () {
+                // ตรวจสอบว่ามี checkbox ของผู้ใช้ที่ไม่ถูกเลือกหรือไม่
+                if ($('.user_checkbox:checked').length == $('.user_checkbox').length) {
+                    // ถ้าถูกเลือกทั้งหมด ให้อัพเดต Checkbox 'Select All'
+                    $('#select_all').prop('checked', true);
+                } else {
+                    // ถ้าไม่ถูกเลือกทั้งหมด ให้ยกเลิกการเลือก Checkbox 'Select All'
+                    $('#select_all').prop('checked', false);
+                }
+
+                updateTextarea(); // อัพเดตค่าใน Textarea ทันที
+            });
+
+            // อัพเดตค่า Textarea เมื่อโหลดหน้าครั้งแรก (เผื่อกรณีมีการโหลดค่าเก่ามา)
+            updateTextarea();
         });
-        
-        // นำค่า ID ที่ได้มาต่อกันด้วย comma (,) แล้วใส่ใน textarea
-        $('#user_id_lists').val(selectedIDs.join(', '));
-    }
-
-    // 1. จัดการเมื่อกด Checkbox 'Select All'
-    $('#select_all').on('click', function() {
-        // กำหนดสถานะของ checkbox ผู้ใช้ทั้งหมดให้เหมือนกับ checkbox 'Select All'
-        $('.user_checkbox').prop('checked', this.checked);
-        updateTextarea(); // อัพเดตค่าใน Textarea ทันที
-    });
-
-    // 2. จัดการเมื่อมีการกด Checkbox ของผู้ใช้แต่ละคน
-    $('.user_checkbox').on('click', function() {
-        // ตรวจสอบว่ามี checkbox ของผู้ใช้ที่ไม่ถูกเลือกหรือไม่
-        if ($('.user_checkbox:checked').length == $('.user_checkbox').length) {
-            // ถ้าถูกเลือกทั้งหมด ให้อัพเดต Checkbox 'Select All'
-            $('#select_all').prop('checked', true);
-        } else {
-            // ถ้าไม่ถูกเลือกทั้งหมด ให้ยกเลิกการเลือก Checkbox 'Select All'
-            $('#select_all').prop('checked', false);
-        }
-        
-        updateTextarea(); // อัพเดตค่าใน Textarea ทันที
-    });
-    
-    // อัพเดตค่า Textarea เมื่อโหลดหน้าครั้งแรก (เผื่อกรณีมีการโหลดค่าเก่ามา)
-    updateTextarea();
-});
-</script>
+    </script>
 @endsection

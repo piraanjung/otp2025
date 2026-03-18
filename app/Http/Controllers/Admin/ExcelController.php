@@ -24,11 +24,8 @@ class ExcelController extends Controller
 {
     public function index()
     {
-        $conn = 'envsogo_'.strtolower(session('org_code'));
-        $users = (new User())->setConnection($conn)->all();
-                $orgInfos = (new Organization())->setConnection($conn)->getOrgName(Auth::user()->org_id_fk);
-
-        return view("admin.excel.index", compact("users",'orgInfos'));
+        $users = User::all();
+        return view("admin.excel.index", compact("users"));
     }
     public function create()
     {
@@ -113,7 +110,7 @@ class ExcelController extends Controller
 
    public function import_invoice_by_invoice_period(Request $request)
     {
-        
+
         set_time_limit(300);
         $request->validate([
             'file' => 'required|mimes:xlsx,xls',
@@ -139,7 +136,7 @@ class ExcelController extends Controller
                     }
 
                     $currentInvoicePeriod = InvoicePeriod::where('status', 'active')->get()->first();
-                        
+
                     //update invoice status ของ invoice period ปัจจุบัน เป็น owe
                     Invoice::where('inv_period_in_fk', $currentInvoicePeriod->id)
                     ->where('deleted', 0)
@@ -148,7 +145,7 @@ class ExcelController extends Controller
                         'updated_at' => date('Y-m-d H:i:s')
                     ]);
 
-                    // update invoice period ปัจจุบันเป็น status = inactive 
+                    // update invoice period ปัจจุบันเป็น status = inactive
                     $currentInvoicePeriod->status = 'inactive';
                     $currentInvoicePeriod->save();
 
@@ -171,7 +168,7 @@ class ExcelController extends Controller
                             'factory_no' => $chunks[0],
                             'submeter_name' => $chunks[7],
                             "user_id"  =>$chunks[2],
-                             "meternumber" => "KP10".substr('0000', strlen($chunks[4])).$chunks[4], 
+                             "meternumber" => "KP10".substr('0000', strlen($chunks[4])).$chunks[4],
                              "metertype_id" =>1,
                              "undertake_zone_id" => $request->get('subzone'),
                               "undertake_subzone_id" => $request->get('subzone'),
@@ -220,12 +217,12 @@ class ExcelController extends Controller
                 }
             }
             return redirect()->route('admin.excel.index');
-        
+
     }
 
  public function import_invoice_byzone(Request $request)
     {
-        
+
         set_time_limit(300);
         $request->validate([
             'file' => 'required|mimes:xlsx,xls',
@@ -261,7 +258,7 @@ class ExcelController extends Controller
                             // list($code , $meter_id) = explode("KP10",$worksheet[15]);
                             $meterCode = substr("0000", strlen(intval($worksheet[4]))) . intval($worksheet[4]);
 
-                            
+
                              UserMerterInfo::create([
                                 "meter_id" => intval($worksheet[4]),
                                 'submeter_name' => $worksheet[7],

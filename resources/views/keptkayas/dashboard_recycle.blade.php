@@ -32,7 +32,6 @@
                 </span>
             </div>
         </div>
-
         {{-- คำนวณยอดรวม --}}
         @php
             $sumWeight = $schoolStats->sum('total_weight');
