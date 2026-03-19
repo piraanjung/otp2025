@@ -224,7 +224,7 @@
         {{-- @endif --}}
     @endif
     @if (Session::get('keptkayatype') == 'recycle')
-        @if(auth()->user()->can('access recycle bank') || auth()->user()->hasRole('Admin'))
+        @if(auth()->user()->can('access recycle bank') || auth()->user()->hasRole('Admin|Super Admin'))
             <li class="nav-item">
                 <a data-bs-toggle="collapse" href="#cart" class="nav-link active" aria-controls="cart" role="button"
                     aria-expanded="true">

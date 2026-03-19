@@ -1131,7 +1131,7 @@
             console.log("Sending data:", payload);
 
             try {
-                const response = await $.post(`/api/line/user_line_register`, payload);
+                const response = await $.post(`/line/user_line_register`, payload);
                 if (response.res == 1) {
                     window.location.href = `/line/dashboard/${response.waste_pref_id}/${org_id_text.value}/1`;
                 } else {

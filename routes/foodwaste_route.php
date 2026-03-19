@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Controllers\FoodWaste\Admin\FoodWasteRewardController;
 use App\Http\Controllers\FoodWaste\AdminIssueController;
 use App\Http\Controllers\FoodWaste\AdminIssueTypeController;
 use App\Http\Controllers\FoodWaste\AdminLocalFoodController;
@@ -13,21 +14,8 @@ use App\Http\Controllers\FoodWaste\FoodWasteBankController;
 use App\Http\Controllers\FoodWaste\UserMatchingWasteBinsController;
 use App\Http\Controllers\FoodWaste\FoodwastIotboxController;
 use App\Http\Controllers\FoodWaste\UserFoodWasteController;
-use App\Http\Controllers\KeptKaya\KpPurchaseShopController;
-use App\Http\Controllers\KeptKaya\KpTbankPriceController;
 use App\Http\Controllers\Keptkaya\KpUserGroupController;
-use App\Http\Controllers\Keptkaya\CartController;
-use App\Http\Controllers\KeptKaya\KpPurchaseController;
-use App\Http\Controllers\Keptkaya\KpBudgetYearController;
-use App\Http\Controllers\KeptKaya\KpSellController;
 use App\Http\Controllers\KeptKaya\RecycleWasteStaffCotroller;
-use App\Http\Controllers\Keptkaya\KpTbankItemsController;
-use App\Http\Controllers\Keptkaya\KpTbankItemsGroupsController;
-use App\Http\Controllers\Keptkaya\KpTbankUnitsController;
-use App\Http\Controllers\KeptKaya\WasteBinPayratePerMonthController;
-use App\Http\Controllers\KeptKaya\WasteBinSubscriptionController;
-use App\Http\Controllers\KpMemberShopController;
-use App\Http\Controllers\KpShopProductController;
 use Illuminate\Support\Facades\Route;
 
 
@@ -73,8 +61,12 @@ Route::middleware(['auth', 'role:Super Admin|Admin|FoodWaste Staff|User'])->pref
             Route::get('/dashboard', [FoodWasteBankController::class, 'dashboard'])->name('dashboard');
             Route::get('/', [FoodWasteBankController::class, 'index'])->name('index');
             });
-    });
 
+        Route::prefix('fw_rewards')->name('fw_rewards.')->group(function () {
+            Route::get('/', [FoodWasteRewardController::class, 'index'])->name('index');
+            Route::post('/update', [FoodWasteRewardController::class, 'update'])->name('update');
+        });
+    });
 
 
     Route::prefix('/airo')->name('airo.')->group(function () {

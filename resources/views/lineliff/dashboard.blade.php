@@ -714,21 +714,65 @@
                                 <span class="main__stat-unit">กก. (ขยะสะสม)</span>
                             </div>
                         </div>
+                        <div class="main__stat-blocks mb-4">
+                            <div class="main__stat-block" data-bs-toggle="modal" data-bs-target="#pointsInfoModal"
+                                style="cursor: pointer;">
+                                <div class="main__stat-graph" style="max-width: 60px;">
+                                    <svg class="ring" viewBox="0 0 60 60">
+                                        <circle class="ring-track" cx="30" cy="30" r="26" fill="none" stroke="#e0e0e0"
+                                            stroke-width="6" />
+                                        <circle class="ring-stroke" cx="30" cy="30" r="26" fill="none" stroke="#ffc107"
+                                            stroke-width="6" stroke-dasharray="163" stroke-dashoffset="40"
+                                            transform="rotate(-90,30,30)" />
+                                    </svg>
+                                    <i class="bi bi-star-fill icon"
+                                        style="font-size: 1.2rem; color: #ffc107; top: 50%;"></i>
+                                </div>
+                                <div class="main__stat-detail"
+                                    style="position: relative; inset: auto; margin-top: 10px;">
+                                    <strong class="main__stat-value text-warning" style="font-size: 1.4em;">
+                                        {{ number_format($totalPoints ?? 0) }}
+                                    </strong>
+                                    <span class="main__stat-unit">แต้มสะสม</span>
+                                </div>
+                            </div>
+
+                            <div class="main__stat-block">
+                                <div class="main__stat-graph" style="max-width: 60px;">
+                                    <svg class="ring" viewBox="0 0 60 60">
+                                        <circle class="ring-track" cx="30" cy="30" r="26" fill="none" stroke="#e0e0e0"
+                                            stroke-width="6" />
+                                        <circle class="ring-stroke" cx="30" cy="30" r="26" fill="none" stroke="#28a745"
+                                            stroke-width="6" stroke-dasharray="163" stroke-dashoffset="80"
+                                            transform="rotate(-90,30,30)" />
+                                    </svg>
+                                    <i class="bi bi-wallet2 icon"
+                                        style="font-size: 1.2rem; color: #28a745; top: 50%;"></i>
+                                </div>
+                                <div class="main__stat-detail"
+                                    style="position: relative; inset: auto; margin-top: 10px;">
+                                    <strong class="main__stat-value text-success" style="font-size: 1.4em;">
+                                        ฿{{ number_format($totalBalance ?? 0, 2) }}
+                                    </strong>
+                                    <span class="main__stat-unit">เงินในกระเป๋า</span>
+                                </div>
+                            </div>
+                        </div>
                     </div>
+
+
                 </div>
 
                 <div class="main__stat-block main__stat-block--lg mb-4">
-                    <button type="button"
-            class="btn btn-sm shadow-none position-absolute"
-            style="top: 10px; right: 10px; z-index: 10; border-radius: 50%; width: 32px; height: 32px; background: rgba(255,255,255,0.8); display: flex; align-items: center; justify-content: center;"
-            data-bs-toggle="modal"
-            data-bs-target="#userMetricsModal">
-        <i class="bi bi-gear-fill text-success"></i>
-    </button>
+                    <button type="button" class="btn btn-sm shadow-none position-absolute"
+                        style="top: 10px; right: 10px; z-index: 10; border-radius: 50%; width: 32px; height: 32px; background: rgba(255,255,255,0.8); display: flex; align-items: center; justify-content: center;"
+                        data-bs-toggle="modal" data-bs-target="#userMetricsModal">
+                        <i class="bi bi-gear-fill text-success"></i>
+                    </button>
                     <h6 class="fw-bold mb-3"><i class="bi bi-activity text-success"></i> พลังงานที่ได้รับ 7 วันล่าสุด
                     </h6>
                     <div class="chart-container" style="position: relative; height:180px; width:100%;">
-                                            <canvas id="calorieDashboardChart"></canvas>
+                        <canvas id="calorieDashboardChart"></canvas>
 
                     </div>
                     @if(!Auth::user()->weight)
@@ -736,7 +780,9 @@
                             style="font-size: 0.7rem;">*ตั้งค่าข้อมูลส่วนตัวเพื่อคำนวณความต้องการพลังงาน</small>
                     @endif
 
+
                 </div>
+
 
                 <div class="main__stat-blocks">
 
@@ -804,13 +850,71 @@
                     </a>
                 </div>
             </div>
-            {{-- <div class="kp div_tabwater hidden text-center">
-                @if(View::exists('lineliff._tabwater'))
-                @include('lineliff/_tabwater')
-                @else
-                <div class="alert alert-warning m-3">กำลังปรับปรุงระบบประปา</div>
-                @endif
-            </div> --}}
+            <div class="main__stat-block" data-bs-toggle="modal" data-bs-target="#pointHistoryModal"
+                style="cursor: pointer;">
+            </div>
+
+            <div class="modal fade" id="pointHistoryModal" tabindex="-1" aria-hidden="true">
+                <div class="modal-dialog modal-dialog-centered modal-dialog-scrollable">
+                    <div class="modal-content" style="border-radius: 1.5rem; border: none;">
+                        <div class="modal-header border-0 pb-0">
+                            <h5 class="modal-title fw-bold text-success"><i class="bi bi-clock-history"></i>
+                                ประวัติแต้มสะสม</h5>
+                            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                        </div>
+                        <div class="modal-body p-4">
+                            @php
+                                // เรียกฟังก์ชันดึงประวัติ (หรือส่งมาจาก Controller ก็ได้)
+                                $waste_preference_id = $user->foodwastePreference->id;
+                                $transactions = App\Models\FoodWaste\FoodWasteTransaction::where('fw_pref_id_fk', $waste_preference_id)
+                                    ->latest()->take(10)->get();
+                            @endphp
+
+                            @if($transactions->isEmpty())
+                                <div class="text-center py-4 text-muted">
+                                    <i class="bi bi-inbox fs-1"></i>
+                                    <p>ยังไม่มีประวัติการรับแต้ม</p>
+                                </div>
+                            @else
+                                <div class="timeline">
+                                    @foreach($transactions as $trx)
+                                        <div class="d-flex align-items-center mb-3 p-3 bg-light" style="border-radius: 1rem;">
+                                            <div class="flex-shrink-0">
+                                                @if($trx->points > 0)
+                                                    <div class="bg-success text-white rounded-circle d-flex align-items-center justify-content-center"
+                                                        style="width: 40px; height: 40px;">
+                                                        <i class="bi bi-plus-lg"></i>
+                                                    </div>
+                                                @else
+                                                    <div class="bg-danger text-white rounded-circle d-flex align-items-center justify-content-center"
+                                                        style="width: 40px; height: 40px;">
+                                                        <i class="bi bi-dash-lg"></i>
+                                                    </div>
+                                                @endif
+                                            </div>
+                                            <div class="flex-grow-1 ms-3">
+                                                <div class="fw-bold text-dark" style="font-size: 0.9rem;">{{ $trx->note }}</div>
+                                                <div class="small text-muted">{{ $trx->created_at->format('d M Y | H:i') }}
+                                                </div>
+                                            </div>
+                                            <div class="text-end">
+                                                <div class="fw-bold {{ $trx->points > 0 ? 'text-success' : 'text-danger' }}">
+                                                    {{ ($trx->points > 0 ? '+' : '') . $trx->points }}
+                                                </div>
+                                                <div class="small text-muted" style="font-size: 0.7rem;">PTS</div>
+                                            </div>
+                                        </div>
+                                    @endforeach
+                                </div>
+                            @endif
+                        </div>
+                        <div class="modal-footer border-0">
+                            <button type="button" class="btn btn-light w-100 rounded-pill fw-bold"
+                                data-bs-dismiss="modal">ปิดหน้าต่าง</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
         </main>
     </div>
     @include('foodwaste.airo._report_modal')
@@ -942,13 +1046,80 @@
         </div>
     </div>
 
+    <div class="modal fade" id="pointsInfoModal" tabindex="-1" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content" style="border-radius: 2em; border: none; background: #f8f9fa;">
+                <div class="modal-header border-0 pb-0">
+                    <h5 class="modal-title fw-bold text-success"><i class="bi bi-gift-fill"></i> วิธีการรับแต้มสะสม</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body p-4">
+                    <div class="d-flex align-items-center mb-3 p-3 bg-white shadow-sm" style="border-radius: 1.2em;">
+                        <div class="flex-shrink-0 bg-warning-light p-2 rounded-circle me-3">
+                            <i class="bi bi-calendar-check-fill text-warning fs-4"></i>
+                        </div>
+                        <div>
+                            <h6 class="mb-0 fw-bold">เทเศษอาหารครั้งแรกของวัน</h6>
+                            <small class="text-muted">รับทันที <strong>10 แต้ม</strong></small>
+                        </div>
+                    </div>
+
+                    <div class="d-flex align-items-center mb-3 p-3 border border-success border-2"
+                        style="border-radius: 1.2em; background: #e9f7ef;">
+                        <div class="flex-shrink-0 p-2 rounded-circle me-3" style="background: #28a745;">
+                            <i class="bi bi-moon-stars-fill text-white fs-4"></i>
+                        </div>
+                        <div>
+                            <h6 class="mb-0 fw-bold text-success text-uppercase">โบนัสรวบรวมเทตอนเย็น</h6>
+                            <small class="text-dark">รวบรวมมาเททีเดียวเวลา 17:00 - 21:00 น.
+                                (โดยไม่มีการเทช่วงเช้า/เที่ยง) <strong>รับเพิ่ม +20 แต้ม</strong> (รวมเป็น 30
+                                แต้ม)</small>
+                        </div>
+                    </div>
+
+                    <div class="d-flex align-items-center p-3 bg-white shadow-sm" style="border-radius: 1.2em;">
+                        <div class="flex-shrink-0 bg-info-light p-2 rounded-circle me-3">
+                            <i class="bi bi-moisture text-info fs-4"></i>
+                        </div>
+                        <div>
+                            <h6 class="mb-0 fw-bold">แต้มคุณภาพ (วัดโดยเจ้าหน้าที่)</h6>
+                            <small class="text-muted">ทุกๆ 1 กก. ของเนื้อขยะแห้ง (หักความชื้น) รับ <strong>100
+                                    แต้ม</strong> </small>
+                        </div>
+                    </div>
+
+                    <div class="mt-4 p-3 bg-light rounded-3">
+                        <p class="small text-muted mb-0"><i class="bi bi-lightbulb-fill text-warning"></i>
+                            <strong>เคล็ดลับ:</strong> สลัดน้ำออกจากเศษอาหารให้แห้งที่สุดก่อนเท
+                            เพื่อให้ได้แต้มสูงสุดตอนจบสัปดาห์!</p>
+                    </div>
+                </div>
+                <div class="modal-footer border-0">
+                    <button type="button" class="btn btn-success w-100 rounded-pill py-2 fw-bold"
+                        data-bs-dismiss="modal">เข้าใจแล้ว!</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <style>
+        .bg-warning-light {
+            background-color: rgba(255, 193, 7, 0.1);
+        }
+
+        .bg-info-light {
+            background-color: rgba(13, 202, 240, 0.1);
+        }
+    </style>
+
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/js/bootstrap.bundle.min.js"
         integrity="sha384-MrcW6ZMFYlzcLA8Nl+NtUVF0sA7MsXsP1UyJoMp4YLEuNSfAP+JcXn/tWtIaxVXM"
         crossorigin="anonymous"></script>
     <script src="https://unpkg.com/html5-qrcode"></script>
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 
-<script src="https://cdn.jsdelivr.net/npm/chartjs-plugin-annotation@3.0.1/dist/chartjs-plugin-annotation.min.js"></script>
+    <script
+        src="https://cdn.jsdelivr.net/npm/chartjs-plugin-annotation@3.0.1/dist/chartjs-plugin-annotation.min.js"></script>
     <script>
         $(document).ready(function () {
             // --- 1. Sidebar Logic ---
@@ -1168,93 +1339,93 @@
     </script>
 
     <script>
-    document.addEventListener('DOMContentLoaded', function () {
-        // 1. ลงทะเบียน Plugin (ทำครั้งเดียวตอนเริ่ม)
-        if (typeof chartjsPluginAnnotation !== 'undefined') {
-            Chart.register(chartjsPluginAnnotation);
-        }
+        document.addEventListener('DOMContentLoaded', function () {
+            // 1. ลงทะเบียน Plugin (ทำครั้งเดียวตอนเริ่ม)
+            if (typeof chartjsPluginAnnotation !== 'undefined') {
+                Chart.register(chartjsPluginAnnotation);
+            }
 
-        // 2. เตรียมข้อมูล (รับค่าจาก PHP)
-        const ctx = document.getElementById('calorieDashboardChart').getContext('2d');
-        const targetCalories = {{ $targetCalories ?? 0 }};
-        const chartLabels = {!! json_encode($chartLabels ?? ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun']) !!};
-        const chartData = {!! json_encode($chartData ?? [0,0,0,0,0,0,0]) !!};
+            // 2. เตรียมข้อมูล (รับค่าจาก PHP)
+            const ctx = document.getElementById('calorieDashboardChart').getContext('2d');
+            const targetCalories = {{ $targetCalories ?? 0 }};
+            const chartLabels = {!! json_encode($chartLabels ?? ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun']) !!};
+            const chartData = {!! json_encode($chartData ?? [0, 0, 0, 0, 0, 0, 0]) !!};
 
-        // 3. สร้างกราฟเพียง "อันเดียว" (เลือกเอาแบบ Bar ที่เราทำสี Warning ไว้จะสวยกว่าครับ)
-        new Chart(ctx, {
-            type: 'bar',
-            data: {
-                labels: chartLabels,
-                datasets: [{
-                    label: 'kcal',
-                    data: chartData,
-                    // เปลี่ยนสีแท่งกราฟอัตโนมัติถ้ากินเกินเป้าหมาย
-                    backgroundColor: chartData.map(value => {
-                        return (targetCalories > 0 && value > targetCalories)
-                            ? 'rgba(255, 99, 132, 0.8)'
-                            : 'rgba(56, 239, 125, 0.6)';
-                    }),
-                    borderColor: chartData.map(value => {
-                        return (targetCalories > 0 && value > targetCalories) ? '#ff6384' : '#11998e';
-                    }),
-                    borderWidth: 1,
-                    borderRadius: 8
-                }]
-            },
-            options: {
-                responsive: true,
-                maintainAspectRatio: false,
-                plugins: {
-                    legend: { display: false },
-                    // วาดเส้นประเป้าหมาย (Goal Line)
-                    annotation: {
-                        annotations: {
-                            line1: {
-                                type: 'line',
-                                yMin: targetCalories,
-                                yMax: targetCalories,
-                                borderColor: 'red',
-                                borderWidth: 2,
-                                borderDash: [6, 6],
-                                label: {
-                                    display: targetCalories > 0,
-                                    content: 'เป้าหมาย: ' + targetCalories + ' kcal',
-                                    position: 'end',
-                                    backgroundColor: 'rgba(255, 0, 0, 0.8)',
-                                    color: '#fff',
-                                    font: { size: 10 }
+            // 3. สร้างกราฟเพียง "อันเดียว" (เลือกเอาแบบ Bar ที่เราทำสี Warning ไว้จะสวยกว่าครับ)
+            new Chart(ctx, {
+                type: 'bar',
+                data: {
+                    labels: chartLabels,
+                    datasets: [{
+                        label: 'kcal',
+                        data: chartData,
+                        // เปลี่ยนสีแท่งกราฟอัตโนมัติถ้ากินเกินเป้าหมาย
+                        backgroundColor: chartData.map(value => {
+                            return (targetCalories > 0 && value > targetCalories)
+                                ? 'rgba(255, 99, 132, 0.8)'
+                                : 'rgba(56, 239, 125, 0.6)';
+                        }),
+                        borderColor: chartData.map(value => {
+                            return (targetCalories > 0 && value > targetCalories) ? '#ff6384' : '#11998e';
+                        }),
+                        borderWidth: 1,
+                        borderRadius: 8
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: { display: false },
+                        // วาดเส้นประเป้าหมาย (Goal Line)
+                        annotation: {
+                            annotations: {
+                                line1: {
+                                    type: 'line',
+                                    yMin: targetCalories,
+                                    yMax: targetCalories,
+                                    borderColor: 'red',
+                                    borderWidth: 2,
+                                    borderDash: [6, 6],
+                                    label: {
+                                        display: targetCalories > 0,
+                                        content: 'เป้าหมาย: ' + targetCalories + ' kcal',
+                                        position: 'end',
+                                        backgroundColor: 'rgba(255, 0, 0, 0.8)',
+                                        color: '#fff',
+                                        font: { size: 10 }
+                                    }
                                 }
                             }
                         }
-                    }
-                },
-                scales: {
-                    y: {
-                        beginAtZero: true,
-                        suggestedMax: targetCalories > 0 ? targetCalories + 500 : 2000
                     },
-                    x: { grid: { display: false } }
+                    scales: {
+                        y: {
+                            beginAtZero: true,
+                            suggestedMax: targetCalories > 0 ? targetCalories + 500 : 2000
+                        },
+                        x: { grid: { display: false } }
+                    }
                 }
+            });
+
+            // --- ส่วนของ Event Listener สำหรับการแจ้งปัญหา (คงไว้เหมือนเดิม) ---
+            const issueSelect = document.querySelector('select[name="issue_type"]');
+            if (issueSelect) {
+                issueSelect.addEventListener('change', function () {
+                    const adviceBox = document.getElementById('auto-advice');
+                    const advices = {
+                        'smell': '💡 วิธีแก้: เติมใบไม้แห้งสับและพรวนกองปุ๋ยเพื่อเติมอากาศ',
+                        'maggots': '💡 ไม่ต้องตกใจ: หนอนแมลงวันลายช่วยย่อยขยะได้เร็วขึ้นมากครับ',
+                        'wet': '💡 วิธีแก้: เติมวัตถุแห้งเช่น ขากาแฟ หรือเศษใบไม้แห้งเพิ่มครับ',
+                        'mold': '💡 ข้อมูล: ราสีขาวคือราดี ช่วยย่อยสลาย แต่ถ้าสีดำให้เติมปูนขาวเล็กน้อย'
+                    };
+                    adviceBox.innerHTML = advices[this.value] || '';
+                    adviceBox.classList.toggle('d-none', !advices[this.value]);
+                });
             }
         });
-
-        // --- ส่วนของ Event Listener สำหรับการแจ้งปัญหา (คงไว้เหมือนเดิม) ---
-        const issueSelect = document.querySelector('select[name="issue_type"]');
-        if(issueSelect) {
-            issueSelect.addEventListener('change', function () {
-                const adviceBox = document.getElementById('auto-advice');
-                const advices = {
-                    'smell': '💡 วิธีแก้: เติมใบไม้แห้งสับและพรวนกองปุ๋ยเพื่อเติมอากาศ',
-                    'maggots': '💡 ไม่ต้องตกใจ: หนอนแมลงวันลายช่วยย่อยขยะได้เร็วขึ้นมากครับ',
-                    'wet': '💡 วิธีแก้: เติมวัตถุแห้งเช่น ขากาแฟ หรือเศษใบไม้แห้งเพิ่มครับ',
-                    'mold': '💡 ข้อมูล: ราสีขาวคือราดี ช่วยย่อยสลาย แต่ถ้าสีดำให้เติมปูนขาวเล็กน้อย'
-                };
-                adviceBox.innerHTML = advices[this.value] || '';
-                adviceBox.classList.toggle('d-none', !advices[this.value]);
-            });
-        }
-    });
-</script>
+    </script>
 </body>
 
 </html>

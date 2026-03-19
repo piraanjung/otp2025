@@ -29,10 +29,11 @@
             @endif
         </td> --}}
         <td class="align-middle">
-            {{-- <a href="{{ route('keptkayas.staffs.edit', $staff->user_id) }}"
+            {{-- @dd($staff) --}}
+            <a href="{{ route('keptkayas.staffs.edit', $staff->id) }}"
                 class="btn btn-link text-secondary font-weight-bold text-xs px-0 mb-0 me-2">
                 <i class="fas fa-edit me-1"></i> แก้ไข
-            </a> --}}
+            </a>
             {{-- <form action="{{ route('keptkayas.staffs.destroy', $staff->user_id) }}" method="POST" class="d-inline">
                 @csrf
                 @method('DELETE')

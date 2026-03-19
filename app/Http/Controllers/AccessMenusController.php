@@ -9,6 +9,7 @@ use App\Models\Admin\Organization;
 use App\Models\Admin\Zone;
 use App\Models\Tabwater\TwInvoice;
 use App\Models\Tabwater\TwNotifies;
+use App\Models\User;
 use Carbon\Carbon;
 // use App\Models\User; // ไม่ได้ใช้ เอาออกได้
 use Illuminate\Http\Request;
@@ -20,9 +21,7 @@ class AccessMenusController extends Controller
 {
     public function accessmenu(Request $request)
     {
-        $user = Auth::user();
-        // 1. เช็คว่าเป็น Staff หรือไม่? (แก้ 'role' และ 'staff' ให้ตรงกับ DB ของคุณ)
-        // เช่น $user->type == 'employee' หรือ $user->is_staff
+        $user = User::find(Auth::id());
 
         $isStaff = $user->hasRole(['Recycle Bank Staff', 'Tabwater Staff']);
 
@@ -142,8 +141,9 @@ public function dashboard(Request $request)
 
     public function staff_accessmenu()
     {
+        $user = User::find(Auth::id());
         // เพิ่มความปลอดภัย: เช็คอีกทีว่าเป็น Staff จริงไหม ถ้าไม่ใช่ให้ดีดออก
-        if (!Auth::user()->hasAnyRole(['Recycle Bank Staff', 'Tabwater Staff'])) { // แก้ตาม DB ของคุณ
+        if (!$user->hasAnyRole(['Recycle Bank Staff', 'Tabwater Staff'])) { // แก้ตาม DB ของคุณ
             return redirect()->route('accessmenu'); // หรือ route อื่น
         }
 

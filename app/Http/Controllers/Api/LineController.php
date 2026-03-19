@@ -64,6 +64,9 @@ class LineController extends Controller
             'line_id'       => $request->line_user_id,
             'image'         => $request->line_user_image,
             'phone'         => $request->phoneNum,
+            'age'           => 0,
+            'height'        => 0,
+            'weight'        => 0,
             'tambon_code'   => $request->tambon_id,
             'district_code' => $request->district_id,
             'province_code' => $request->province_id,
@@ -74,6 +77,8 @@ class LineController extends Controller
             'created_at' => date('Y-m-d H:i:s'),
             'updated_at' => date('Y-m-d H:i:s'),
         ]);
+
+        $user->assignRole('User');
 
         $userWastPref = KpUserWastePreference::create([
             'user_id' => $user->id,

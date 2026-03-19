@@ -124,7 +124,9 @@
                                     {{$u_active->prefix."".$u_active->firstname." ".$u_active->lastname}}
                                 </td>
                                 <td class="text-right">
-                                    {{-- @dd($u_active->user_zone->zone_name) --}}
+                                    @if (collect($u_active->user_zone)->isEmpty())
+                                    @dd($u_active)
+                                    @endif
                                     <div>{{$u_active->user_zone->zone_name}}</div>
                                 </td>
 

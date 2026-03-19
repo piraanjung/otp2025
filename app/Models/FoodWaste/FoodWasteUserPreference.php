@@ -32,16 +32,15 @@ class FoodWasteUserPreference extends Model
 
     public function foodwaste_bins()
     {
-        return $this->hasMany(FoodWasteBin::class,'u_pref_id_fk');
+        return $this->hasMany(FoodWasteBin::class, 'u_pref_id_fk');
     }
 
-    public function purchaseTransactions(): HasMany
+
+
+    public function foodwaste_account() // เปลี่ยนชื่อให้สื่อสารชัดเจน
     {
-        // Assuming kp_user_id_fk is the foreign key in the kp_purchase_transactions table
-        return $this->hasMany(KpPurchaseTransaction::class, 'kp_user_w_pref_id_fk', 'id');
-    }
-
-    public function kp_account(){
-        return $this->hasOne(KPAccounts::class, 'u_wpref_id_fk');
+        // เปลี่ยนจาก KPAccounts เป็น FoodWasteAccount 
+        // และใช้ 'fw_pref_id_fk' ตามที่นิยามไว้ใน Model Account
+        return $this->hasOne(FoodWasteAccount::class, 'fw_pref_id_fk');
     }
 }

@@ -63,8 +63,8 @@ class KpPurchaseController extends Controller
             $q->whereDate('transaction_date', $today);
         }]);
 
-        $user = User::setLocalUser();
-        return view('keptkayas.purchase.select_user', compact('keptKayaMembers', 'user'));
+
+        return view('keptkayas.purchase.select_user', compact('keptKayaMembers'));
     }
 
 

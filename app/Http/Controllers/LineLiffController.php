@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Models\Admin\Organization;
 use App\Models\Admin\Province;
 use App\Models\FoodWaste\CompostBatches;
+use App\Models\FoodWaste\FoodWasteAccount;
 use App\Models\FoodWaste\FoodWasteIssueReport;
 use App\Models\KeptKaya\KPAccounts;
 use App\Models\KeptKaya\KpUserWastePreference;
@@ -12,8 +13,11 @@ use App\Models\FoodWaste\MealLog;
 use App\Models\Tabwater\SequenceNumber;
 use App\Models\User;
 use App\Models\FoodWaste\FoodWasteLog;
+use App\Models\FoodWaste\FoodWasteUserPreference;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Log;
 use SimpleSoftwareIO\QrCode\Facades\QrCode;
 
@@ -28,80 +32,101 @@ class   LineLiffController extends Controller
         return view('lineliff.index', compact('provinces', 'orgs'));
     }
 
-    public function dashboard($user_waste_pref_id, $org_id, $regis = 1)
+    public function dashboard($userId, $org_id)
     {
-        $uWastePref = KpUserWastePreference::find($user_waste_pref_id);
-        $user = User::find($uWastePref->user_id);
+
+        // 1. ดึงข้อมูล User และ Preference (ใช้ user_id เป็นตัวกรองหลัก)
+        $user = User::findOrFail($userId);
         Auth::login($user);
+        // พยายามดึงข้อมูลการสมัครสมาชิกธนาคารขยะ
+        $userWastePref = KpUserWastePreference::where('user_id', $userId)->first();
 
-        $userWastePref = KpUserWastePreference::with('user', 'purchaseTransactions', 'kp_account')
-            ->where('id', $user_waste_pref_id)->get()->first();
+        // ดึงกระเป๋าเงิน (Account) ผ่านความสัมพันธ์จาก Preference
+        $account = $userWastePref ? $userWastePref->kp_account : null;
 
-        $userId = $user->id;
-
-        // --- 🌟 1. ดึงสถิติทั่วไป ---
+        // --- 🌟 1. ดึงสถิติทั่วไป (ใช้ userId ตรงๆ) ---
         $totalWasteWeight = FoodWasteLog::where('user_id', $userId)->sum('weight_kg');
         $totalCarbonSaved = FoodWasteLog::where('user_id', $userId)->sum('carbon_saved_kg');
 
         // --- 🌟 2. ดึงข้อมูลล็อตปัจจุบัน (Active Batch) ---
-        // ค้นหาล็อตที่สถานะเป็น 'filling' (กำลังเติม) ของ User คนนี้
         $activeBatch = CompostBatches::where('user_id', $userId)
             ->where('status', 'filling')
             ->latest()
             ->first();
 
-        if ($activeBatch) {
-            // คำนวณวันที่ผ่านไป และน้ำหนักรวมเฉพาะในล็อตนี้
-            $activeBatch->days_passed = (int) now()->diffInDays($activeBatch->start_date) == 0 ? 1 : (int) now()->diffInDays($activeBatch->start_date);
-            $activeBatch->total_weight = FoodWasteLog::where('batch_id', $activeBatch->id)->sum('weight_kg');
 
-            // ดึงสถานะความร้อนล่าสุดจาก Log ล่าสุดในล็อต
+        if ($activeBatch) {
+            $days = (int) now()->diffInDays($activeBatch->start_date);
+            $activeBatch->days_passed = ($days == 0) ? 1 : $days;
+            $activeBatch->total_weight = FoodWasteLog::where('batch_id', $activeBatch->id)->sum('weight_kg');
+            $isReadyToMove = $activeBatch->days_passed >= 7;
+            $activeBatch->is_ready = $isReadyToMove;
+            
             $lastLog = FoodWasteLog::where('batch_id', $activeBatch->id)->latest()->first();
             $activeBatch->temp_status = $lastLog ? $lastLog->temperature_feel : 'ยังไม่มีข้อมูล';
         }
 
-        // --- 🌟 3. ข้อมูลกราฟ ---
+
+        // --- 🌟 3. ข้อมูลกราฟ (ดึงย้อนหลัง 7 วัน) ---
         $weeklyStats = MealLog::where('user_id', $userId)
             ->where('created_at', '>=', now()->subDays(6))
             ->selectRaw('DATE(created_at) as date, SUM(total_calories) as daily_calories')
-            ->groupBy('date')->orderBy('date', 'ASC')->get();
+            ->groupBy('date')
+            ->orderBy('date', 'ASC')
+            ->get();
 
-        $chartLabels = $weeklyStats->pluck('date')->toArray();
+        // เตรียมข้อมูลส่งให้ Chart.js หรือ Library กราฟที่คุณใช้
+        $chartLabels = $weeklyStats->pluck('date')->map(function ($date) {
+            return \Carbon\Carbon::parse($date)->format('d/m'); // ปรับฟอร์แมตวันที่ให้สั้นลง
+        })->toArray();
+
         $chartData = $weeklyStats->pluck('daily_calories')->toArray();
 
-        $qrcode = QrCode::size(300)->generate($user_waste_pref_id . "-" . $userWastePref->user_id);
-
-        $pendingIssuesCount = FoodWasteIssueReport::where('user_id', $userId)
-            ->where('status', '!=', 'resolved')
-            ->count();
-        // 2. ดึงรายการแจ้งปัญหาทั้งหมดของ User คนนี้
-        $myIssues = FoodWasteIssueReport::where('user_id', $userId)
-            ->latest()
-            ->get();
-        // ส่ง $activeBatch กลับไปที่ View ด้วย
-
-        $targetCalories = 0;
-
-        // คำนวณ TDEE ถ้ามีข้อมูลครบ
-        $user = User::find(Auth::id());
+        // --- 🌟 เช็คค่าว่าง (ป้องกันกราฟพังถ้า User ใหม่ยังไม่มีข้อมูล) ---
+        if (empty($chartLabels)) {
+            $chartLabels = [now()->format('d/m')];
+            $chartData = [0];
+        }
         $targetCalories = $user->calculateTDEE();
-
-        $todayCalories = MealLog::where('user_id', Auth::id())
+        $todayCalories = MealLog::where('user_id', $userId)
             ->whereDate('created_at', now())
             ->sum('total_calories');
 
+        // --- 🌟 4. ดึงแต้มและเงินจากตาราง Account จริง ---
+        $totalPoints = $account ? $account->points_balance : 0;
+        $totalBalance = $account ? $account->money_balance : 0.00;
+
+        // --- 🌟 5. ส่วนอื่นๆ ---
+        $qrcode = QrCode::size(300)->generate("USER-" . $userId);
+        $myIssues = FoodWasteIssueReport::where('user_id', $userId)->latest()->get();
+        $pendingIssuesCount = $myIssues->where('status', '!=', 'resolved')->count();
+
+        $userFoodWastePref = FoodWasteUserPreference::with('foodwaste_account')->where('user_id', $userId)
+            ->where('is_foodwaste_bank', '1')->first();
+
+
+        $foodWastePoints = 0;
+        if ($userFoodWastePref && $userFoodWastePref->foodwaste_account) {
+            $foodWastePoints = $userFoodWastePref->foodwaste_account->points_balance;
+        }
         return view('lineliff.dashboard', compact(
+            'user',
             'userWastePref',
+            'userFoodWastePref',
+            'foodWastePoints',
+            'account',
             'qrcode',
             'totalWasteWeight',
             'totalCarbonSaved',
-            'chartLabels',
-            'chartData',
             'pendingIssuesCount',
             'activeBatch',
             'myIssues',
             'targetCalories',
-            'todayCalories'
+            'todayCalories',
+            'totalPoints',
+            'totalBalance',
+            'chartLabels',
+            'chartData' // 👈 เพิ่ม 2 ตัวนี้กลับเข้าไปใน compact
         ));
     }
 
@@ -206,5 +231,31 @@ class   LineLiffController extends Controller
             'user_id' => $user_id,
             'waste_pref_id' => $waste_pref_id
         ]);
+    }
+
+    public function register_bank(Request $request)
+    {
+        $userId = Auth::id();
+
+        return DB::transaction(function () use ($userId) {
+            // 1. สร้าง/อัปเดต Preference (ตัวแม่)
+            $pref = FoodWasteUserPreference::updateOrCreate(
+                ['user_id' => $userId],
+                ['is_foodwaste_bank' => 1]
+            );
+
+            // 2. สร้างกระเป๋าเงิน (Account ตัวลูก) สำหรับขยะเปียก
+            // ใช้ Model FoodWasteAccount ตามที่คุณส่งมาล่าสุด
+            $account = FoodWasteAccount::firstOrCreate(
+                ['fw_pref_id_fk' => $pref->id],
+                [
+                    'points_balance' => 0,
+                    'money_balance' => 0,
+                    'total_weight_contributed' => 0
+                ]
+            );
+
+            return back()->with('success', 'ยินดีด้วย! คุณเปิดบัญชีธนาคารขยะเปียกสำเร็จ');
+        });
     }
 }

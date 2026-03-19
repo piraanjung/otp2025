@@ -7,8 +7,9 @@ use App\Http\Controllers\Admin\MetertypeController;
 use App\Http\Controllers\Admin\OrgAdminController;
 use App\Http\Controllers\Admin\PermissionController;
 use App\Http\Controllers\Admin\RoleController;
-use App\Http\Controllers\Admin\SuperAdminAuthController;
-use App\Http\Controllers\Admin\SuperUserController;
+use App\Http\Controllers\Admin\SubzoneController as AdminSubzoneController;
+
+// use App\Http\Controllers\Admin\SuperAdminAuthController;
 use App\Http\Controllers\Admin\UserController;
 use App\Http\Controllers\Admin\ZoneController;
 use App\Http\Controllers\Api\KioskController;
@@ -51,7 +52,6 @@ use App\Models\User;
 
 Route::get('/', function () {
     return view('welcome');
-
 });
 Route::get('/kiosk_login', function () {
     return view('kiosk/kiosk_login');
@@ -85,14 +85,14 @@ Route::get('/logout', function () {
 
     $userAgent = $_SERVER['HTTP_USER_AGENT'] ?? '';
 
-        // ตรวจสอบคำที่บ่งชี้ถึงอุปกรณ์มือถือ
-        $ismobile = preg_match(
-            "/(android|avantgo|blackberry|bolt|boost|cello|hiptop|irengin|mobi|mini|mo(bil|si)|ntellect|palm|pda|phone|plucker|pocket|psp|series(4|6)0|symbian|treo|up\.(browser|link)|wap|windows ce|xda|xiino)/i",
-            $userAgent
-        );
-        if ($ismobile) {
-            return redirect()->route('login');
-        }
+    // ตรวจสอบคำที่บ่งชี้ถึงอุปกรณ์มือถือ
+    $ismobile = preg_match(
+        "/(android|avantgo|blackberry|bolt|boost|cello|hiptop|irengin|mobi|mini|mo(bil|si)|ntellect|palm|pda|phone|plucker|pocket|psp|series(4|6)0|symbian|treo|up\.(browser|link)|wap|windows ce|xda|xiino)/i",
+        $userAgent
+    );
+    if ($ismobile) {
+        return redirect()->route('login');
+    }
     return redirect('/');
 });
 
@@ -120,10 +120,11 @@ Route::get('/staff_accessmenu', [AccessMenusController::class, 'staff_accessmenu
 Route::get('/dashboard', [AccessMenusController::class, 'dashboard'])->middleware(['auth'])->name('dashboard');
 
 Route::get('/lineliff', [LineLiffController::class, 'index'])->name('lineliff.index');
-Route::get('/line/dashboard/{user_waste_pref_id}/{org_id}/{regis?}', [LineLiffController::class , 'dashboard']);
-Route::post('/line/fine_line_id', [LineLiffController::class , 'fine_line_id']);
-Route::post('/line/update_user_by_phone', [LineLiffController::class , 'update_user_by_phone']);
-Route::post('/line/login', [LineLiffController::class , 'handleLineLogin']);
+Route::get('/line/dashboard/{user_waste_pref_id}/{org_id}/{regis?}', [LineLiffController::class, 'dashboard']);
+Route::post('/line/fine_line_id', [LineLiffController::class, 'fine_line_id']);
+Route::post('/line/user_line_register', [LineLiffController::class, 'user_line_register']);
+Route::post('/line/update_user_by_phone', [LineLiffController::class, 'update_user_by_phone']);
+Route::post('/line/login', [LineLiffController::class, 'handleLineLogin']);
 
 
 Route::prefix('staffs')->name('keptkayas.staffs.')->group(function () {
@@ -138,17 +139,14 @@ Route::prefix('staffs')->name('keptkayas.staffs.')->group(function () {
 
 Route::prefix('zones')->name('zones.')->group(function () {
     Route::get('/getzones/{tambon_id}', [ZoneController::class, 'getZones'])->name('getzones');
-
 });
 
 Route::prefix('tabwater/staff/mobile/')->name('tabwater.staff.mobile.')->group(function () {
-    Route::get('{subzone_id}/{status}/members',[ StaffMobileController::class, 'members'])->name('members');
-    Route::get('{subzone_id}/membersJson',[ StaffMobileController::class, 'membersJson'])->name('membersJson');
-    Route::get('{meter_id}/meter_reading',[ StaffMobileController::class, 'meter_reading'])->name('meter_reading');
+    Route::get('{subzone_id}/{status}/members', [StaffMobileController::class, 'members'])->name('members');
+    Route::get('{subzone_id}/membersJson', [StaffMobileController::class, 'membersJson'])->name('membersJson');
+    Route::get('{meter_id}/meter_reading', [StaffMobileController::class, 'meter_reading'])->name('meter_reading');
     Route::post('process-meter-image', [StaffMobileController::class, 'process_meter_image'])->name('process_meter_image');
-    Route::resource('/',StaffMobileController::class);
-
-
+    Route::resource('/', StaffMobileController::class);
 });
 
 Route::prefix('tabwater/notify')->name('tabwater.notify.')->group(function () {
@@ -160,7 +158,9 @@ Route::get('twmanmobile', [TwManMobileController::class, 'index'])->name('twmanm
 Route::get('twmanmobile/main', [TwManMobileController::class, 'main'])->name('twmanmobile.main');
 Route::get('twmanmobile/edit_members_subzone_selected', [TwManMobileController::class, 'edit_members_subzone_selected'])->name('twmanmobile.edit_members_subzone_selected');
 
-
+Route::middleware(['auth', 'role:User|Admin|Super Admin'])->name('admin.')->prefix('admin/')->group(function () {
+    Route::post('users/update-metrics', [UserController::class, 'updateMetrics'])->name('users.update_metrics');
+});
 
 Route::middleware(['auth', 'role:Admin|Super Admin'])->name('admin.')->prefix('admin')->group(function () {
     Route::get('/admin/unknown-images', [ImageController::class, 'indexUnknownImages']);
@@ -178,7 +178,7 @@ Route::middleware(['auth', 'role:Admin|Super Admin'])->name('admin.')->prefix('a
 
 
     //tabwater
-    Route::prefix('users/')->name('users.')->group(function(){
+    Route::prefix('users/')->name('users.')->group(function () {
         Route::get('', [UserController::class, 'index'])->name('index');
         Route::get('staff', [UserController::class, 'staff'])->name('staff');
         Route::get('create', [UserController::class, 'create'])->name('create');
@@ -194,8 +194,6 @@ Route::middleware(['auth', 'role:Admin|Super Admin'])->name('admin.')->prefix('a
         Route::delete('{user}/roles/{role}', [UserController::class, 'removeRole'])->name('roles.remove');
         Route::get('{user_id}/permissions', [UserController::class, 'givePermission'])->name('permissions');
         Route::delete('{user}/permissions/{permission}', [UserController::class, 'revokePermission'])->name('permissions.revoke');
-        Route::post('update-metrics', [UserController::class, 'updateMetrics'])->name('update_metrics');
-
     });
 
     Route::resource('/invoice_period', InvoicePeriodController::class);
@@ -210,8 +208,11 @@ Route::middleware(['auth', 'role:Admin|Super Admin'])->name('admin.')->prefix('a
     Route::resource('/subzone', SubzoneController::class);
     Route::get('/subzone/{zone_id}/getSubzone', [SubzoneController::class, 'getSubzone'])->name('subzone.getSubzone');
 
+    Route::get('super_admin/subzone/{id}/edit', [AdminSubzoneController::class, 'edit'])->name('super_admin.subzone.edit');
+    Route::put('super_admin/subzone/{id}', [AdminSubzoneController::class, 'update'])->name('super_admin.subzone.update');
 
-     Route::get('/settings/invoice', [SettingsController::class, 'invoice'])->name('settings.invoice');
+
+    Route::get('/settings/invoice', [SettingsController::class, 'invoice'])->name('settings.invoice');
     Route::post('/settings/invoice_and_vat', [SettingsController::class, 'update_invoice_and_vat'])->name('settings.invoice_and_vat');
     Route::post('/settings/create_and_update', [SettingsController::class, 'create_and_update'])->name('settings.create_and_update');
     Route::post('/settings/store_users', [SettingsController::class, 'store_users'])->name('settings.store_users');
@@ -228,38 +229,38 @@ Route::middleware(['auth', 'role:Admin|Super Admin'])->name('admin.')->prefix('a
     Route::resource('meter_rates', MeterRateConfigController::class);
     Route::resource('pricing_types', TwPricingTypeController::class);
 
-     Route::prefix('settings')->name('settings.')->group(function () {
-    //     Route::get('/', [SuperAdminSettingsController::class, 'showSettingsForm'])->name('settings_form');
+    Route::prefix('settings')->name('settings.')->group(function () {
+        //     Route::get('/', [SuperAdminSettingsController::class, 'showSettingsForm'])->name('settings_form');
 
-    //     Route::post('/import-provinces', [SuperAdminSettingsController::class, 'importProvinces'])->name('import.provinces');
-    //     Route::get('/export-provinces', [SuperAdminSettingsController::class, 'exportProvinces'])->name('export.provinces');
-    //     // Routes สำหรับ Import/Export Districts
-    //     Route::post('/import-districts', [SuperAdminSettingsController::class, 'importDistricts'])->name('import.districts');
-    //     Route::get('/export-districts', [SuperAdminSettingsController::class, 'exportDistricts'])->name('export.districts');
-    //     Route::get('/user-to-tabwater', [SuperAdminSettingsController::class, 'userToTabwater'])->name('user_to_tabwater');
+        //     Route::post('/import-provinces', [SuperAdminSettingsController::class, 'importProvinces'])->name('import.provinces');
+        //     Route::get('/export-provinces', [SuperAdminSettingsController::class, 'exportProvinces'])->name('export.provinces');
+        //     // Routes สำหรับ Import/Export Districts
+        //     Route::post('/import-districts', [SuperAdminSettingsController::class, 'importDistricts'])->name('import.districts');
+        //     Route::get('/export-districts', [SuperAdminSettingsController::class, 'exportDistricts'])->name('export.districts');
+        //     Route::get('/user-to-tabwater', [SuperAdminSettingsController::class, 'userToTabwater'])->name('user_to_tabwater');
 
-    //     // Routes สำหรับ Import/Export Tambons
-    //     Route::post('/import-tambons', [SuperAdminSettingsController::class, 'importTambons'])->name('import.tambons');
-    //     Route::get('/export-tambons', [SuperAdminSettingsController::class, 'exportTambons'])->name('export.tambons');
+        //     // Routes สำหรับ Import/Export Tambons
+        //     Route::post('/import-tambons', [SuperAdminSettingsController::class, 'importTambons'])->name('import.tambons');
+        //     Route::get('/export-tambons', [SuperAdminSettingsController::class, 'exportTambons'])->name('export.tambons');
 
-    //     Route::post('/import-tw_zones', [SuperAdminSettingsController::class, 'importTWZones'])->name('import.tw_zones');
-    //     Route::get('/export-tw_zones', [SuperAdminSettingsController::class, 'exportTWZones'])->name('export.tw_zones');
+        //     Route::post('/import-tw_zones', [SuperAdminSettingsController::class, 'importTWZones'])->name('import.tw_zones');
+        //     Route::get('/export-tw_zones', [SuperAdminSettingsController::class, 'exportTWZones'])->name('export.tw_zones');
 
-    //     // Routes สำหรับ Import/Export TW_ZoneBlocks
-    //     Route::post('/import-tw-zoneblocks', [SuperAdminSettingsController::class, 'importTWZoneBlocks'])->name('import.tw_zoneblocks');
-    //     Route::get('/export-tw-zoneblocks', [SuperAdminSettingsController::class, 'exportTWZoneBlocks'])->name('export.tw_zoneblocks');
+        //     // Routes สำหรับ Import/Export TW_ZoneBlocks
+        //     Route::post('/import-tw-zoneblocks', [SuperAdminSettingsController::class, 'importTWZoneBlocks'])->name('import.tw_zoneblocks');
+        //     Route::get('/export-tw-zoneblocks', [SuperAdminSettingsController::class, 'exportTWZoneBlocks'])->name('export.tw_zoneblocks');
 
-    //     // Routes สำหรับ Import/Export Organizations
-    //     Route::post('/import-organizations', [SuperAdminSettingsController::class, 'importOrganizations'])->name('import.organizations');
-    //     Route::get('/export-organizations', [SuperAdminSettingsController::class, 'exportOrganizations'])->name('export.organizations');
+        //     // Routes สำหรับ Import/Export Organizations
+        //     Route::post('/import-organizations', [SuperAdminSettingsController::class, 'importOrganizations'])->name('import.organizations');
+        //     Route::get('/export-organizations', [SuperAdminSettingsController::class, 'exportOrganizations'])->name('export.organizations');
 
-    //     Route::post('/import-users', [SuperAdminSettingsController::class, 'importUsers'])->name('import.users');
-    //     Route::get('/export-users', [SuperAdminSettingsController::class, 'exportUsers'])->name('export.users');
+        //     Route::post('/import-users', [SuperAdminSettingsController::class, 'importUsers'])->name('import.users');
+        //     Route::get('/export-users', [SuperAdminSettingsController::class, 'exportUsers'])->name('export.users');
 
-    //     // Routes สำหรับ Import/Export TwMeters
-    //     Route::post('/import-twmeters', [SuperAdminSettingsController::class, 'importTwMeters'])->name('import.tw_meters');
-    //     Route::get('/export-twmeters', [SuperAdminSettingsController::class, 'exportTwMeters'])->name('export.tw_meters');
-     });
+        //     // Routes สำหรับ Import/Export TwMeters
+        //     Route::post('/import-twmeters', [SuperAdminSettingsController::class, 'importTwMeters'])->name('import.tw_meters');
+        //     Route::get('/export-twmeters', [SuperAdminSettingsController::class, 'exportTwMeters'])->name('export.tw_meters');
+    });
 
 
     Route::get('undertaker_subzone', [UndertakerSubzoneController::class, 'index'])->name('undertaker_subzone');
@@ -272,7 +273,7 @@ Route::middleware(['auth', 'role:Admin|Super Admin'])->name('admin.')->prefix('a
 
 
 Route::middleware(['auth', 'role:Admin|finance|Super Admin'])->group(function () {
-    Route::prefix('payment/')->name('payment.')->group(function(){
+    Route::prefix('payment/')->name('payment.')->group(function () {
         Route::get('paymenthistory/{inv_period}/{subzone_id}', [PaymentController::class, 'paymenthistory'])->name('paymenthistory');
         Route::match(['get', 'post'], 'search', [PaymentController::class, 'search'])->name('search');
         Route::delete('acc_trans_id_fk/destroy', [PaymentController::class, 'destroy'])->name('destroy');
@@ -287,7 +288,7 @@ Route::middleware(['auth', 'role:Admin|finance|Super Admin'])->group(function ()
 
 
 
-    Route::prefix('reports/')->name('reports.')->group(function(){
+    Route::prefix('reports/')->name('reports.')->group(function () {
         Route::post('export', [ReportsController::class, 'export'])->name('export');
         Route::get('owe', [ReportsController::class, 'owe'])->name('owe');
         Route::get('ledger', [ReportsController::class, 'ledger'])->name('ledger');
@@ -303,7 +304,7 @@ Route::group(['middleware' => ['role:Admin|tabwater|Super Admin']], function () 
 
     Route::resource('/invoice', InvoiceController::class);
     Route::get('/invoice/print/{zone_id}/{curr_inv_prd}', [InvoiceController::class, 'printInvoice'])
-    ->name('invoice.print_invoice');
+        ->name('invoice.print_invoice');
     Route::get('/invoice/zone_create/{zone_id}/{curr_inv_prd}/{new_user?}', [InvoiceController::class, 'zone_create'])->name('invoice.zone_create');
     Route::get('/invoice/export_excel/{zone_id}/{curr_inv_prd}', [InvoiceController::class, 'export_excel'])->name('invoice.export_excel');
     Route::get('/invoice/{subzone_id}/zone_edit/{curr_inv_prd}', [InvoiceController::class, 'zone_edit'])->name('invoice.zone_edit');
@@ -318,9 +319,9 @@ Route::group(['middleware' => ['role:Admin|tabwater|Super Admin']], function () 
     Route::resource('meter_types', MeterTypeController::class);
 
     Route::prefix('usermeter_infos')->name('usermeter_infos.')->group(function () {
-    Route::resource('/',  UserMeterInfosController::class);
-    Route::get('/edit_invoices/{meter_id}',  [UserMeterInfosController::class, 'edit_invoices'])->name('edit_invoices');
-    Route::post('/store_edited_invoice',  [UserMeterInfosController::class, 'store_edited_invoice'])->name('store_edited_invoice');
+        Route::resource('/',  UserMeterInfosController::class);
+        Route::get('/edit_invoices/{meter_id}',  [UserMeterInfosController::class, 'edit_invoices'])->name('edit_invoices');
+        Route::post('/store_edited_invoice',  [UserMeterInfosController::class, 'store_edited_invoice'])->name('store_edited_invoice');
     });
 });
 
@@ -332,8 +333,7 @@ Route::prefix('superadmin')->name('superadmin.')->group(function () {
     Route::post('/login', [SuperAdminAuthController::class, 'login'])->name('login.post');
     Route::post('/logout', [SuperAdminAuthController::class, 'logout'])->name('logout');
     Route::resource('staff', StaffController::class);
-    Route::resource('/machines',MachineController::class);
-
+    Route::resource('/machines', MachineController::class);
 });
 
 Route::middleware(['auth'])->group(function () {

@@ -81,7 +81,7 @@ Route::get('/line/user_qrcode', [LineController::class, 'user_qrcode']);
 Route::post('/line/update_user_by_phone', [LineController::class, 'update_user_by_phone']);
 Route::post('/line/user_line_register', [LineController::class, 'user_line_register']);
 
-Route::get('/line/dashboard/{user_waste_pref_id}/{db_conn}', [LineController::class, 'dashboard']);
+// Route::get('/line/dashboard/{user_waste_pref_id}/{db_conn}', [LineController::class, 'dashboard']);
 
 Route::get('/sensor_data', [IoTBoxDataController::class, 'store']);
 

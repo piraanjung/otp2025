@@ -20,7 +20,7 @@ class OrgAdminController extends Controller
     {
         // ดึงเฉพาะ User ที่เป็น OrgAdmin พร้อมข้อมูล Organization
         // สมมติว่า Role ชื่อ 'OrgAdmin'
-        $admins = User::role('OrgAdmin')
+        $admins = User::role('Admin')
             ->with('org') // Eager load organization
             ->orderBy('created_at', 'desc')
             ->paginate(10);

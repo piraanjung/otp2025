@@ -62,7 +62,7 @@
                                         @empty
                                             <span class="badge bg-secondary">No Role</span>
                                         @endforelse
-                                        
+
                                     </td>
                                 </tr>
                             @empty

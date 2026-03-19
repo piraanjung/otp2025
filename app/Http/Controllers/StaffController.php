@@ -19,7 +19,7 @@ class StaffController extends Controller
     public function index(Request $request)
     {
         // รายการ Role ที่ถือว่าเป็น Staff
-        $staffRoles = ['Admin','Tabwater Staff', 'Tabwater Header', 'Finance Staff', 'finance header'];
+        $staffRoles = ['Admin', 'Tabwater Staff', 'Tabwater Header', 'Finance Staff', 'finance header'];
 
         // Get search and filter parameters
         $searchName = $request->input('search_name');
@@ -29,14 +29,15 @@ class StaffController extends Controller
         $searchCanAccessAnnualCollection = $request->input('search_can_access_annual_collection');
         $isAjax = $request->input('ajax');
 
-        $query = User::role($staffRoles)->with(['roles', 'permissions', 'staff.user']);
+        $query = User::role($staffRoles)->with(['roles', 'permissions', 'staff.user'])
+        ->where('org_id_fk', Auth::user()->org_id_fk);
 
         // Apply filters
         if ($searchName) {
-            $query->where(function($q) use ($searchName) {
+            $query->where(function ($q) use ($searchName) {
                 $q->where('firstname', 'like', "%{$searchName}%")
-                  ->orWhere('lastname', 'like', "%{$searchName}%")
-                  ->orWhere('email', 'like', "%{$searchName}%");
+                    ->orWhere('lastname', 'like', "%{$searchName}%")
+                    ->orWhere('email', 'like', "%{$searchName}%");
             });
         }
 
@@ -98,38 +99,40 @@ class StaffController extends Controller
      */
     public function store(Request $request)
     {
-        $request->validate([
-            'user_id' => 'required|exists:users,id',
-            'roles' => [
-                'required',
-                // Rule::in(['tabwater staff', 'tabwater header', 'finance staff', 'finance header']),
-                Rule::unique('model_has_roles', 'model_id')->where(function ($query) use ($request) {
-                    $roleId = Role::where('name', $request->roles)->first()->id;
-                    return $query->where('role_id', $roleId)
-                                 ->where('model_type', 'App\\Models\\User');
-                })
+        $request->validate(
+            [
+                'user_id' => 'required|exists:users,id',
+                'roles' => [
+                    'required',
+                    // Rule::in(['tabwater staff', 'tabwater header', 'finance staff', 'finance header']),
+                    Rule::unique('model_has_roles', 'model_id')->where(function ($query) use ($request) {
+                        $roleId = Role::where('name', $request->roles)->first()->id;
+                        return $query->where('role_id', $roleId)
+                            ->where('model_type', 'App\\Models\\User');
+                    })
+                ],
             ],
-        ],
-        [
-            'role_name.unique' => 'ผู้ใช้งานนี้มีบทบาทที่เลือกอยู่แล้ว'
-        ]);
+            [
+                'role_name.unique' => 'ผู้ใช้งานนี้มีบทบาทที่เลือกอยู่แล้ว'
+            ]
+        );
         $user = User::find($request->user_id);
 
-        foreach($request->roles as $role){
+        foreach ($request->roles as $role) {
             $user->assignRole($role);
         }
-        if(collect($request->get('permissions'))->isNotEmpty()){
-            foreach($request->get('permissions') as $permission){
+        if (collect($request->get('permissions'))->isNotEmpty()) {
+            foreach ($request->get('permissions') as $permission) {
                 $user->givePermissionTo($permission);
             }
         }
 
         $staff = Staff::find($user->id);
-        if(collect($staff)->isEmpty()){
+        if (collect($staff)->isEmpty()) {
             $staff = new Staff();
             $staff->user_id = $user->id;
             $staff->status  = 'active';
-            $staff->deleted	= '0';
+            $staff->deleted    = '0';
             $staff->save();
         }
 
@@ -153,10 +156,22 @@ class StaffController extends Controller
      */
     public function edit(User $staff)
     {
-        // ดึง roles ที่สามารถ assign ได้
-        $assignableRoles = Role::whereIn('name', ['staff', 'tabwater staff', 'tabwater header', 'finance staff', 'finance header'])->get();
-        $staff->load('roles');
-        return view('keptkayas.staffs.edit', compact('staff', 'assignableRoles'));
+        // ดึง Roles ทั้งหมด (หรือเฉพาะกลุ่มที่อนุญาต)
+        $allRoles = Role::whereIn('name', [
+            'staff',
+            'Admin',
+            'tabwater staff',
+            'tabwater header',
+            'finance staff',
+            'finance header'
+        ])->get();
+
+        // ดึง Permissions ทั้งหมด
+        $allPermissions = Permission::all();
+
+        // Load ข้อมูลความสัมพันธ์
+        $staff->load('roles', 'permissions');
+        return view('keptkayas.staffs.edit', compact('staff', 'allRoles', 'allPermissions'));
     }
 
     /**
@@ -164,26 +179,29 @@ class StaffController extends Controller
      */
     public function update(Request $request, User $staff)
     {
+        // 1. ปรับ Validation ให้ตรงกับชื่อ input ในหน้า Blade
         $request->validate([
-            'role_name' => [
-                'required',
-                Rule::in(['staff', 'tabwater staff', 'tabwater header', 'finance staff', 'finance header']),
-                Rule::unique('model_has_roles', 'model_id')->where(function ($query) use ($request, $staff) {
-                    $roleId = Role::where('name', $request->role_name)->first()->id;
-                    return $query->where('role_id', $roleId)
-                                 ->where('model_type', 'App\\Models\\User')
-                                 ->where('model_id', '!=', $staff->id);
-                })
-            ],
+            'roles' => ['required', 'array'], // รับเป็น array ตามหน้า Blade
+            'roles.*' => [Rule::in(['staff', 'tabwater staff', 'tabwater header', 'finance staff', 'Admin'])],
+            'permissions' => ['nullable', 'array'], // เพิ่มการตรวจสอบ permissions
             'status' => ['required', Rule::in(['active', 'inactive', 'suspended'])],
-        ],
-        [
-            'role_name.unique' => 'ผู้ใช้งานนี้มีบทบาทที่เลือกอยู่แล้ว'
         ]);
 
-        $staff->syncRoles([$request->role_name]);
-        $staff->status = $request->status;
-        $staff->save();
+        // 2. อัปเดต Roles (ใช้ syncRoles จะจัดการลบอันเก่าและเพิ่มอันใหม่ให้เอง)
+        $staff->syncRoles($request->roles);
+
+        // 3. อัปเดต Permissions (เพิ่มส่วนนี้เพื่อให้สิทธิ์ที่ติ๊กไว้ถูกบันทึก)
+        if ($request->has('permissions')) {
+            $staff->syncPermissions($request->permissions);
+        } else {
+            // ถ้าไม่ได้ติ๊กอะไรเลย ให้ล้าง permissions เดิม (Direct Permissions)
+            $staff->syncPermissions([]);
+        }
+
+        // 4. อัปเดตข้อมูลอื่นๆ
+        // $staff->status = $request->status;
+        // $staff->deleted = $request->has('deleted') ? '1' : '0'; // รองรับ checkbox 'deleted'
+        // $staff->save();
 
         return redirect()->route('keptkayas.staffs.index')->with('success', 'อัปเดตข้อมูลเจ้าหน้าที่เรียบร้อยแล้ว');
     }
@@ -206,7 +224,7 @@ class StaffController extends Controller
 
     public function acceptJob(TwNotifies $notify)
     {
-        $staffUser = Auth::user();
+        $staffUser = User::find(Auth::id());
 
         // 1. ตรวจสอบสิทธิ์และสถานะงานโดยรวม (เช่น ไม่ควรรับงานที่ถูกยกเลิกแล้ว)
         if ($notify->status === 'cancel') {
@@ -222,11 +240,10 @@ class StaffController extends Controller
 
             // 3. **อัปเดตสถานะหลักของงาน:** //    ถ้าสถานะหลักยังเป็น 'pending' ให้เปลี่ยนเป็น 'processing'
             if ($notify->status === 'pending') {
-                 $notify->update(['status' => 'processing']);
+                $notify->update(['status' => 'processing']);
             }
 
             return redirect()->route('staff.dashboard')->with('success', "คุณได้รับงาน #{$notify->id} เพื่อดำเนินการแล้ว");
-
         } catch (\Illuminate\Database\QueryException $e) {
             // ตรวจจับ Primary Key Conflict (กรณี Staff คนนี้เคยรับงานนี้ไปแล้ว)
             if ($e->getCode() == 23000) {
