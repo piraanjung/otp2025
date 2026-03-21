@@ -26,7 +26,7 @@ COPY --from=composer:latest /usr/bin/composer /usr/bin/composer
 COPY . /var/www/html
 
 # ติดตั้ง Package ของ Laravel
-RUN composer install --optimize-autoloader --no-dev --no-scripts
+RUN composer install --optimize-autoloader --no-dev --no-scripts --ignore-platform-reqs
 
 # ปรับสิทธิ์โฟลเดอร์ให้เขียนข้อมูลได้
 RUN chown -R www-data:www-data /var/www/html/storage /var/www/html/bootstrap/cache
