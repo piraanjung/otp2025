@@ -48,8 +48,16 @@ use App\Http\Controllers\Tabwater\TwManMobileController;
 use App\Http\Controllers\Tabwater\TwPricingTypeController;
 use App\Http\Controllers\Tabwater\UndertakerSubzoneController;
 use App\Models\User;
-
-
+use Illuminate\Support\Facades\Artisan;
+Route::get('/run-migrate', function () {
+    // สั่งรัน Migrate สร้างตาราง
+    Artisan::call('migrate', ['--force' => true]);
+    
+    // ถ้ามีข้อมูลตั้งต้น (Seeder) ให้เอาคอมเมนต์บรรทัดล่างออกครับ
+    // Artisan::call('db:seed', ['--force' => true]); 
+    
+    return 'ยินดีด้วย! สร้างตาราง Database เสร็จเรียบร้อยแล้ว 🎉';
+});
 Route::get('/', function () {
     return view('welcome');
 });
