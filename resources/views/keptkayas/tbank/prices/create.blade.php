@@ -5,6 +5,48 @@
 
 @section('content')
 
+{{-- ส่วนสำหรับ Import / Export Excel --}}
+    <div class="row mb-4">
+        <div class="col-md-12">
+            <div class="card card-outline card-success shadow-sm">
+                <div class="card-header">
+                    <h3 class="card-title"><i class="fas fa-file-excel"></i> จัดการราคาด้วย Excel</h3>
+                </div>
+                <div class="card-body">
+                    <div class="row align-items-center">
+                        {{-- ฝั่ง Export --}}
+                        <div class="col-md-5 border-right">
+                            <h5>1. ดาวน์โหลดเทมเพลต</h5>
+                            <p class="text-muted small">ดาวน์โหลดรายการขยะปัจจุบันเพื่อนำไปแก้ไขราคา</p>
+                            <a href="{{ route('keptkayas.tbank.prices.export') }}" class="btn btn-outline-primary">
+                                <i class="fas fa-download"></i> ดาวน์โหลด Template (รายการขยะ)
+                            </a>
+                        </div>
+
+                        {{-- ฝั่ง Import --}}
+                        <div class="col-md-7">
+                            <h5>2. อัปโหลดราคาใหม่</h5>
+                            <form action="{{ route('keptkayas.tbank.prices.import') }}" method="POST" enctype="multipart/form-data">
+                                @csrf
+                                <div class="input-group">
+                                    <div class="custom-file">
+                                        <input type="file" name="file" class="custom-file-input" id="priceExcel" accept=".xlsx, .xls" required>
+                                        <label class="custom-file-label" for="priceExcel">เลือกไฟล์ Excel ที่แก้ไขแล้ว...</label>
+                                    </div>
+                                    <div class="input-group-append">
+                                        <button type="submit" class="btn btn-success">
+                                            <i class="fas fa-upload"></i> เริ่มนำเข้าข้อมูล
+                                        </button>
+                                    </div>
+                                </div>
+                                <small class="text-danger mt-1 d-block">* ระบบจะปิดใช้งานราคาเก่าและเริ่มใช้ราคาใหม่ทันทีที่นำเข้าสำเร็จ</small>
+                            </form>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
     <div class="card card-info">
         <div class="card-header"></div>
         <div class="card-body">
@@ -35,7 +77,7 @@
                 @endphp
 
                 <h5 class="mb-3">รายการขยะและราคา</h5>
-                
+
                 <div id="items-container">
                     @foreach ($formItems as $itemIndex => $itemData)
                         {{-- เรียกใช้ Template สำหรับแต่ละรายการ --}}
@@ -52,7 +94,7 @@
                 <button type="button" class="btn btn-info mt-3" id="add-item-btn"><i class="fa fa-plus-circle me-1"></i> เพิ่มรายการขยะใหม่</button>
 
                 <hr>
-                
+
                 {{-- Global Fields --}}
                 <div class="row">
                     <div class="col-md-6 mb-3">

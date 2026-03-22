@@ -207,7 +207,7 @@
                 </li>
 
                  <li class="nav-item ">
-                    <a class="nav-link " href="{{ route('foodwaste.airo.dashboard') }}">
+                    <a class="nav-link " href="{{ route('foodwaste.airo.dashboard','waste') }}">
                         <div
                             class="icon icon-shape icon-sm shadow border-radius-md bg-white text-center me-2 d-flex align-items-center justify-content-center">
                             <i class="fa fa-object-group text-danger text-gradient text-lg"></i>

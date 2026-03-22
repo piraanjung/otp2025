@@ -4,29 +4,39 @@ namespace App\Imports;
 
 use App\Models\KeptKaya\KpTbankItems;
 use Maatwebsite\Excel\Concerns\ToModel;
-use Maatwebsite\Excel\Concerns\WithHeadingRow; // เพิ่ม WithHeadingRow ถ้าไฟล์ Excel มีหัวตาราง
+use Maatwebsite\Excel\Concerns\WithHeadingRow; // <--- ต้องมีอันนี้
+use Maatwebsite\Excel\Concerns\WithValidation;
+use Illuminate\Support\Facades\Auth;
 
-class KpTbankItemsImport implements ToModel, WithHeadingRow
+class KpTbankItemsImport implements ToModel, WithHeadingRow, WithValidation
 {
-    /**
-    * @param array $row
-    *
-    * @return \Illuminate\Database\Eloquent\Model|null
-    */
     public function model(array $row)
     {
-        // dd($row);
+        // ดึง org_id_fk จาก User ที่กำลังล็อกอินอยู่
+        $orgId = Auth::user()->org_id_fk;
+
         return new KpTbankItems([
-            // 'id' => $row['id'], // ไม่ต้อง Import ID ถ้าเป็น Auto-increment
-            'kp_itemscode' => $row['item_code'], // ใช้ชื่อคอลัมน์จาก Excel (แปลงเป็น snake_case หรือตามที่คุณตั้งใน headings)
-            'kp_itemsname' => $row['item_name'],
-            'kp_items_group_idfk' => $row['item_group_id'],
-            'status' => $row['status'],
-            'deleted' => '0'//$row['deleted'],
+            'kp_itemscode'        => trim($row['kp_itemscode']), // ตัดช่องว่างออก
+            'kp_itemsname'        => trim($row['kp_itemsname']),
+            'unit_bank_idfk'      => (int)$row['unit_bank_idfk'], // Force เป็นตัวเลข
+            'unit_kiosk_idfk'     => !empty($row['unit_kiosk_idfk']) ? (int)$row['unit_kiosk_idfk'] : null,
+            'kp_items_group_idfk' => (int)$row['kp_items_group_idfk'],
+            'ef_id_fk'            => (!empty($row['ef_id_fk']) && $row['ef_id_fk'] != 'null') ? $row['ef_id_fk'] : null,
+            'status'              => $row['status'] ?? 'active',
+            'favorite'            => $row['favorite'] ?? 0,
+            'org_id_fk'           => $orgId,
+            'deleted'             => '0',
         ]);
     }
 
-    // หากคุณต้องการจัดการกับข้อมูลที่ซ้ำกัน หรือปรับปรุงข้อมูลที่มีอยู่แล้ว
-    // คุณอาจจะต้องใช้ WithUpserts หรือ WithBatchInserts/WithChunkReading
-    // ดูเอกสาร Maatwebsite/Excel เพิ่มเติม
+    // กำหนดกฎการตรวจสอบข้อมูล (Validation)
+    public function rules(): array
+    {
+        return [
+            'kp_itemscode' => 'required|string',
+            'kp_itemsname' => 'required|string',
+            'unit_bank_idfk' => 'required|numeric',
+            'kp_items_group_idfk' => 'required|numeric',
+        ];
+    }
 }

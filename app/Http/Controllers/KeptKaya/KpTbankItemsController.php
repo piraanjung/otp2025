@@ -3,8 +3,10 @@
 namespace App\Http\Controllers\KeptKaya;
 
 use App\Exports\KpTbankItemsExport;
+use App\Exports\KpTbankItemsTemplateExport;
 use App\Imports\KpTbankItemsImport;
 use App\Http\Controllers\Controller;
+use App\Models\EmissionFactor;
 use App\Models\Keptkaya\KpTbankItems;
 use App\Models\Keptkaya\KpTbankItemsGroups;
 use App\Models\Keptkaya\KpTbankUnits;
@@ -29,93 +31,135 @@ class KpTbankItemsController extends Controller
 
     public function create()
     {
-        $kp_items_groups = KpTbankItemsGroups::where('org_id_fk', Auth::user()->org_id_fk)
-            ->where('status', 'active')->get();
-        $tbank_item_units = KpTbankUnits::where('org_id_fk', Auth::user()->org_id_fk)
-            ->where('status', 'active')->get();
+        // 1. ดึงข้อมูลกลุ่มขยะ
+        $kp_items_groups = KpTbankItemsGroups::all();
 
-        return view('keptkayas.tbank.items.create', compact('kp_items_groups', 'tbank_item_units'));
+        // 2. ดึงข้อมูลหน่วยนับ (สำคัญ: เช็คชื่อ Model และ Path ให้ถูกต้อง)
+        $units = KpTbankUnits::all();
+
+        // 3. ดึงข้อมูลค่า Emission Factor ทั้งหมด
+        $emissionFactors = EmissionFactor::orderBy('material_name', 'asc')->get();
+
+        // 4. ส่งตัวแปรทั้งหมดไปที่ View
+        return view('keptkayas.tbank.items.create', compact(
+            'kp_items_groups',
+            'units',
+            'emissionFactors'
+        ));
     }
     public function store(Request $request)
     {
+        // 1. Validation เบื้องต้น (ตรวจสอบว่ามีการส่ง items มาไหม)
         $request->validate([
+            'items' => 'required|array|min:1',
             'items.*.kp_itemsname' => 'required|string|max:255',
-            'items.*.kp_items_group_idfk' => 'required|exists:kp_tbank_items_groups,id',
-            'items.*.kp_itemscode' => 'nullable|string|max:50|unique:kp_tbank_items,kp_itemscode',
-            // 'images.*' => 'nullable|image|mimes:jpeg,png,jpg,gif|max:2048', // Validation สำหรับไฟล์
+            'items.*.unit_bank_idfk' => 'required|numeric',
+            'items.*.kp_items_group_idfk' => 'required|numeric',
+            'images.*' => 'nullable|image|mimes:jpeg,png,jpg|max:2048', // เช็คไฟล์รูปแยกตาม index
         ]);
 
+        try {
+            // 2. เริ่มการวนลูปบันทึกข้อมูล
+            foreach ($request->items as $index => $itemData) {
 
-        // ดึงรายการทั้งหมดจากฟอร์ม
-        $itemsData = $request->input('items');
-        // ดึงไฟล์ภาพทั้งหมด (Laravel จะเก็บไฟล์ที่มีการอัปโหลดไว้ตาม Key ที่ระบุ)
-        $images = $request->file('images') ?? [];
+                $item = new KpTbankItems();
+                $item->kp_itemsname        = $itemData['kp_itemsname'];
+                $item->kp_itemscode        = $itemData['kp_itemscode'] ?? 'ITEM-' . time() . $index;
+                $item->kp_items_group_idfk = $itemData['kp_items_group_idfk'];
+                $item->unit_bank_idfk      = $itemData['unit_bank_idfk'];
+                $item->unit_kiosk_idfk     = $itemData['unit_kiosk_idfk'] ?? null;
+                $item->ef_id_fk            = !empty($itemData['ef_id_fk']) ? $itemData['ef_id_fk'] : null;
+                $item->org_id_fk           = Auth::user()->org_id_fk;
+                $item->status              = 'active';
+                $item->deleted             = '0';
 
-        // วนลูปผ่านรายการสินค้า โดยใช้ Key ที่ไม่ต่อเนื่องจาก $itemsData
-        foreach ($itemsData as $key => $itemData) {
-
-            // สร้างรายการใหม่
-            $item = new KpTbankItems();
-            $item->kp_itemsname         = $itemData['kp_itemsname'];
-            $item->kp_items_group_idfk  = $itemData['kp_items_group_idfk'];
-            $item->kp_itemscode         = $itemData['kp_itemscode'] ?? null;
-            $item->org_id_fk            = Auth::user()->org_id_fk;
-
-            // 3. จัดการการอัปโหลดรูปภาพ
-            if (isset($images[$key]) && $images[$key]->isValid()) {
-                $imageFile = $images[$key];
-
-                // --- 1. สร้างชื่อไฟล์ ---
-                // ใช้ Slug ของ itemscode (ต้องมี use Illuminate\Support\Str; ที่ด้านบน)
-                $extension = 'jpg'; // บังคับเป็น JPG หลังการ resize/compress
-                $imageName = Str::slug($itemData['kp_itemscode'] ?? 'item') . '-' . time() . '.' . $extension;
-
-                // --- 2. การปรับขนาดรูปภาพ (GD Library) ---
-                // ตรวจสอบประเภทไฟล์ที่อัปโหลด (อาจมี JPEG/JPG/PNG)
-                $originalExtension = strtolower($imageFile->getClientOriginalExtension());
-                if ($originalExtension == 'png') {
-                    $image = imagecreatefrompng($imageFile->getPathname());
-                } else {
-                    $image = imagecreatefromjpeg($imageFile->getPathname());
+                // 3. จัดการรูปภาพ (เช็คจาก $request->images โดยใช้ index เดียวกับ item)
+                if ($request->hasFile("images.$index")) {
+                    $image = $request->file("images.$index");
+                    $imageName = time() . '_' . $index . '.' . $image->getClientOriginalExtension();
+                    $image->move(public_path('keptkaya/items'), $imageName);
+                    $item->image = $imageName;
                 }
 
-                $width = imagesx($image);
-                $height = imagesy($image);
-                $newWidth = 150;
-                $newHeight = 150;
-
-                $resizedImage = imagecreatetruecolor($newWidth, $newHeight);
-                imagecopyresampled($resizedImage, $image, 0, 0, 0, 0, $newWidth, $newHeight, $width, $height);
-
-                // --- 3. บันทึกรูปภาพที่ปรับขนาดแล้วลง Server ---
-
-                // **สร้างไฟล์ชั่วคราวเพื่อบันทึกเนื้อหา JPG ที่ถูกปรับขนาดแล้ว**
-                $tempImagePath = tempnam(sys_get_temp_dir(), 'resized_');
-                imagejpeg($resizedImage, $tempImagePath, 90); // Save as JPEG with quality 90
-
-                // **ใช้ Storage::disk('keptkaya_public')->put() เพื่อบันทึกไฟล์ชั่วคราวลงใน Disk**
-                // โค้ดนี้จะใช้ไฟล์ที่ถูกปรับขนาดและบีบอัดแล้ว
-                Storage::disk('keptkaya_public')->put(
-                    $imageName,
-                    file_get_contents($tempImagePath)
-                );
-
-                // --- 4. บันทึกชื่อไฟล์ลงฐานข้อมูล ---
-                $item->image = $imageName;
-
-                // --- 5. Clean up ---
-             
-                unlink($tempImagePath); // ลบไฟล์ชั่วคราวทิ้ง
+                $item->save();
             }
 
-            $item->save();
+            return redirect()->route('keptkayas.tbank.items.index')
+                ->with('success', 'บันทึกรายการขยะใหม่ทั้งหมดเรียบร้อยแล้ว');
+        } catch (\Exception $e) {
+            // กรณีเกิดข้อผิดพลาด
+            return back()->with('error', 'เกิดข้อผิดพลาด: ' . $e->getMessage())->withInput();
+        }
+    }
+    public function edit($id)
+    {
+        // 1. ดึงข้อมูล Item ที่ต้องการแก้ไข
+        $item = KpTbankItems::findOrFail($id);
+
+        // 2. ดึงข้อมูลตัวเลือกสำหรับ Dropdown
+        $units = KpTbankUnits::all();
+        $groups = KpTbankItemsGroups::all();
+        $emissionFactors = EmissionFactor::orderBy('material_name', 'asc')->get();
+
+        // 3. ส่งข้อมูลทั้งหมดไปที่หน้า Edit
+        return view('keptkayas.tbank.items.edit', compact(
+            'item',
+            'units',
+            'groups',
+            'emissionFactors'
+        ));
+    }
+
+    public function update(Request $request, $id)
+    {
+        // 1. Validation เบื้องต้น
+        $request->validate([
+            'kp_itemscode' => 'required',
+            'kp_itemsname' => 'required',
+            'image'        => 'nullable|image|mimes:jpeg,png,jpg,gif|max:2048', // จำกัดขนาด 2MB
+        ]);
+
+        $item = KpTbankItems::findOrFail($id);
+
+        // 2. จัดการรูปภาพ
+        if ($request->hasFile('image')) {
+            // --- ส่วนการลบรูปเก่า ---
+            if ($item->image) {
+                $oldPath = public_path('keptkaya/items/' . $item->image);
+                if (file_exists($oldPath)) {
+                    unlink($oldPath); // ลบไฟล์ออกจาก Folder
+                }
+            }
+
+            // --- ส่วนการบันทึกรูปใหม่ ---
+            $image = $request->file('image');
+            $imageName = time() . '.' . $image->getClientOriginalExtension(); // ตั้งชื่อไฟล์ใหม่ตามเวลา
+            $image->move(public_path('keptkaya/items'), $imageName);
+
+            // อัปเดตชื่อไฟล์ใน Database
+            $item->image = $imageName;
         }
 
-        // --- โค้ดสำหรับบันทึกหน่วยนับที่เลือก (Assuming a pivot table) ---
-        // This will require a pivot table model and relationship
-        // $item->units()->attach($validated['tbank_item_unit_ids']);
+        // 3. อัปเดตข้อมูลส่วนอื่นๆ
+        $item->kp_itemscode    = $request->kp_itemscode;
+        $item->kp_itemsname    = $request->kp_itemsname;
+        $item->unit_bank_idfk  = $request->unit_bank_idfk;
+        $item->unit_kiosk_idfk = $request->unit_kiosk_idfk;
+        $item->ef_id_fk        = $request->ef_id_fk;
+        $item->status          = $request->status;
 
-        return redirect()->route('keptkayas.tbank.items.index');
+        $item->save();
+
+        return redirect()->route('keptkayas.tbank.items.index')
+            ->with('success', 'อัปเดตข้อมูลและรูปภาพเรียบร้อยแล้ว');
+    }
+
+    public function destroy($id)
+    {
+        $item = KpTbankItems::findOrFail($id);
+        $item->delete();
+
+        return back()->with('success', 'ลบข้อมูลรายการขยะเรียบร้อยแล้ว');
     }
 
     public function buyItems(Request $request, $user_id = "")
@@ -166,14 +210,6 @@ class KpTbankItemsController extends Controller
         return view('kp_tbanks.items.set_items_pricepoint', compact('items'));
     }
 
-
-    public function export()
-    {
-        // กำหนดชื่อไฟล์ Excel ที่จะดาวน์โหลด
-        $fileName = 'kp_tbank_items_' . now()->format('YmdHis') . '.xlsx';
-        return Excel::download(new KpTbankItemsExport, $fileName);
-    }
-
     public function import(Request $request)
     {
         $request->validate([
@@ -182,10 +218,16 @@ class KpTbankItemsController extends Controller
 
         try {
             Excel::import(new KpTbankItemsImport, $request->file('file'));
-            return redirect()->back()->with('success', 'Data imported successfully!');
+
+            return back()->with('success', 'นำเข้าข้อมูลขยะรีไซเคิลเรียบร้อยแล้ว');
         } catch (\Exception $e) {
-            return redirect()->back()->with('error', 'Error importing data: ' . $e->getMessage());
+            return back()->with('error', 'เกิดข้อผิดพลาด: ' . $e->getMessage());
         }
+    }
+
+    public function exportTemplate()
+    {
+        return Excel::download(new KpTbankItemsTemplateExport, 'template_items_import.xlsx');
     }
 
     public function generateCode($group_id)
@@ -246,5 +288,78 @@ class KpTbankItemsController extends Controller
             return response()->json(['success' => false, 'message' => 'Failed to generate code.'], 500);
         }
         // --- สิ้นสุดส่วนที่ปรับปรุง ---
+    }
+
+    // 1. หน้าแสดงรายการที่ถูกลบ (Trash)
+    public function trash()
+    {
+        // ดึงเฉพาะรายการที่ถูก Soft Delete เท่านั้น
+        $items = KpTbankItems::onlyTrashed()->get();
+        return view('keptkayas.tbank.items.trash', compact('items'));
+    }
+
+    // 2. ฟังก์ชันกู้คืนข้อมูล (Restore)
+    public function restore($id)
+    {
+        $item = KpTbankItems::withTrashed()->findOrFail($id);
+        $item->restore();
+
+        return redirect()->route('keptkayas.tbank.items.trash')
+            ->with('success', 'กู้คืนรายการ ' . $item->kp_itemsname . ' เรียบร้อยแล้ว');
+    }
+
+    // 3. ฟังก์ชันลบถาวร (Force Delete) - ระวัง! กู้คืนไม่ได้อีก
+    public function forceDelete($id)
+    {
+        $item = KpTbankItems::withTrashed()->findOrFail($id);
+
+        // ลบรูปภาพออกจากเครื่องจริงๆ
+        if ($item->image) {
+            $path = public_path('keptkaya/items/' . $item->image);
+            if (file_exists($path)) {
+                unlink($path);
+            }
+        }
+
+        $item->forceDelete();
+
+        return redirect()->route('keptkayas.tbank.items.trash')
+            ->with('success', 'ลบข้อมูลออกจากระบบถาวรแล้ว');
+    }
+
+    public function pendingEf(Request $request)
+    {
+        // 1. ดึงกลุ่มขยะทั้งหมดมาทำตัวกรอง
+        $groups = KpTbankItemsGroups::all();
+
+        // 2. ดึงรายการที่ยังไม่มี EF และกรองตามกลุ่ม (ถ้ามีการเลือก)
+        $query = KpTbankItems::whereNull('ef_id_fk');
+
+        if ($request->has('group_id') && $request->group_id != '') {
+            $query->where('kp_items_group_idfk', $request->group_id);
+        }
+
+        $items = $query->get();
+
+        // 3. ดึงค่า EF มาให้เลือก
+        $emissionFactors = EmissionFactor::orderBy('material_name', 'asc')->get();
+
+        return view('keptkayas.tbank.items.pending_ef', compact('items', 'groups', 'emissionFactors'));
+    }
+
+    public function updateEfBulk(Request $request)
+    {
+        // รับข้อมูลมาเป็น Array เพื่ออัปเดตทีละหลายรายการ
+        foreach ($request->ef_mapping as $itemId => $efId) {
+            if (!empty($efId)) {
+                $item = KpTbankItems::find($itemId);
+                if ($item) {
+                    $item->update(['ef_id_fk' => $efId]);
+                }
+            }
+        }
+
+        return redirect()->route('keptkayas.tbank.items.index')
+            ->with('success', 'จับคู่ค่าคาร์บอน (EF) เรียบร้อยแล้ว');
     }
 }

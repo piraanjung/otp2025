@@ -26,6 +26,7 @@ use App\Models\FoodWaste\FoodWasteLog;
 use App\Models\Tabwater\TwNotifies;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany; // <--- สำคัญ: ตรวจสอบว่ามีการ use นี้หรือไม่
+
 class User extends Authenticatable
 {
     use HasApiTokens, HasFactory, Notifiable, HasRoles;

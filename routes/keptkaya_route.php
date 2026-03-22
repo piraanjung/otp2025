@@ -1,8 +1,6 @@
 <?php
 
-use App\Http\Controllers\KeptKaya\Admin\ExcelController;
-use App\Http\Controllers\KeptKaya\Admin\IndexController;
-use App\Http\Controllers\KeptKaya\Admin\KpUserController;
+use App\Http\Controllers\EmissionFactorController;
 use App\Http\Controllers\KeptKaya\AnnualBatchController;
 use App\Http\Controllers\KeptKaya\BarcodeController;
 use App\Http\Controllers\KeptKaya\DashboardController;
@@ -12,16 +10,10 @@ use App\Http\Controllers\KeptKaya\KpUserGroupController;
 use App\Http\Controllers\KeptKaya\CartController;
 use App\Http\Controllers\KeptKaya\KorKor3Controller;
 use App\Http\Controllers\Keptkayas\KpRecycleClassifyController;
-use App\Http\Controllers\KeptKeptKayakaya\InvoicePeriodController;
 use App\Http\Controllers\KeptKaya\KpPurchaseController;
 use App\Http\Controllers\KeptKaya\KpBudgetYearController;
-use App\Http\Controllers\KeptKaya\KpPaymentController;
 use App\Http\Controllers\KeptKaya\KpSellController;
-use App\Http\Controllers\KeptKaya\KpUsergroupPayratePerMonthController;
-use App\Http\Controllers\KeptKaya\KpUserMonthlyStatusController;
 use App\Http\Controllers\KeptKaya\RecycleWasteStaffCotroller;
-use App\Http\Controllers\KeptKaya\SettingsController;
-use App\Http\Controllers\KeptKaya\KpSubzoneController;
 use App\Http\Controllers\KeptKaya\KpTbankItemsController;
 use App\Http\Controllers\KeptKaya\KpTbankItemsGroupsController;
 use App\Http\Controllers\KeptKaya\KpTbankUnitsController;
@@ -31,15 +23,7 @@ use App\Http\Controllers\KeptKaya\WasteBinPayratePerMonthController;
 use App\Http\Controllers\KeptKaya\WasteBinSubscriptionController;
 use App\Http\Controllers\KpMemberShopController;
 use App\Http\Controllers\KpShopProductController;
-use App\Models\Admin\BudgetYear;
-use App\Models\User;
 use Illuminate\Support\Facades\Route;
-use Illuminate\Support\Facades\Auth;
-use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Session;
-use Firebase\JWT\Key;
-use Spatie\Permission\Models\Permission;
-use Spatie\Permission\Models\Role;
 use App\Http\Controllers\KeptKaya\AnnualReportController;
 use App\Http\Controllers\KeptKaya\BinsController;
 use App\Http\Controllers\Kiosk\KioskController;
@@ -96,6 +80,17 @@ Route::middleware(['auth'])->prefix('keptkayas')->name('keptkayas.')->group(func
             Route::resource('/recycle', RecycleWasteStaffCotroller::class);
         });
     });
+
+    Route::prefix('/emission-factors')->name('emission.')->group(function () {
+    Route::get('/', [EmissionFactorController::class, 'index'])->name('index');
+    Route::get('/create', [EmissionFactorController::class, 'create'])->name('create');
+    Route::post('/', [EmissionFactorController::class, 'store'])->name('store');
+    Route::get('/{id}/edit', [EmissionFactorController::class, 'edit'])->name('edit');
+    Route::put('/{id}', [EmissionFactorController::class, 'update'])->name('update');
+    Route::delete('/{id}', [EmissionFactorController::class, 'destroy'])->name('destroy');
+    Route::get('/export', [EmissionFactorController::class, 'export'])->name('export');
+    Route::post('/import', [EmissionFactorController::class, 'import'])->name('import');
+});
 
     Route::resource('annual_batch', AnnualBatchController::class);
 
@@ -163,13 +158,14 @@ Route::middleware(['auth'])->prefix('keptkayas')->name('keptkayas.')->group(func
 
     // 10. Tbank System
     Route::prefix('tbank/')->name('tbank.')->group(function () {
-        Route::resource('/items_group', KpTbankItemsGroupsController::class);
-        Route::resource('/units', KpTbankUnitsController::class);
+        Route::resource('items_group', KpTbankItemsGroupsController::class);
+        Route::resource('units', KpTbankUnitsController::class);
 
-        Route::get('/cart/cartLists/{user_id}', [CartController::class, 'cartLists'])->name('cart.cart_lists');
-        Route::get('/cart/add_to_cart/{id}/{amount}', [CartController::class, 'addToCart'])->name('cart.add_to_cart');
-        Route::resource('/cart', CartController::class);
+        Route::get('cart/cartLists/{user_id}', [CartController::class, 'cartLists'])->name('cart.cart_lists');
+        Route::get('cart/add_to_cart/{id}/{amount}', [CartController::class, 'addToCart'])->name('cart.add_to_cart');
+        Route::resource('cart', CartController::class);
         Route::resource('prices', KpTbankPriceController::class);
+
 
         Route::prefix('items/')->name('items.')->group(function () {
             Route::get('buyItems/{user_id?}', [KpTbankItemsController::class, 'buyItems'])->name('buy_items');
@@ -177,9 +173,16 @@ Route::middleware(['auth'])->prefix('keptkayas')->name('keptkayas.')->group(func
             Route::get('set_items_pricepoint', [KpTbankItemsController::class, 'set_items_pricepoint'])->name('set_items_pricepoint');
             Route::get('generate-code/{group_id}', [KpTbankItemsController::class, 'generateCode'])->name('generate_code');
 
-            Route::resource('/', KpTbankItemsController::class);
-            Route::get('export', [KpTbankItemsController::class, 'export'])->name('export');
+            Route::get('trash', [KpTbankItemsController::class, 'trash'])->name('trash');
+            Route::get('{id}/restore', [KpTbankItemsController::class, 'restore'])->name('restore');
+            Route::delete('{id}/force-delete', [KpTbankItemsController::class, 'forceDelete'])->name('forceDelete');
+
+            Route::resource('', KpTbankItemsController::class);
+            Route::get('export', [KpTbankItemsController::class, 'exportTemplate'])->name('export');
             Route::post('import', [KpTbankItemsController::class, 'import'])->name('import');
+
+            Route::get('pending-ef', [KpTbankItemsController::class, 'pendingEf'])->name('pendingEf');
+            Route::post('update-ef-bulk', [KpTbankItemsController::class, 'updateEfBulk'])->name('updateEfBulk');
         });
     });
 

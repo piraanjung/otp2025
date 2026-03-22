@@ -8,7 +8,7 @@ use App\Models\Admin\Zone;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 
-class SubzoneController extends Controller
+class AdminSubzoneController extends Controller
 {
     // ฟังก์ชันสำหรับบันทึกเส้นทางใหม่ (จากฟอร์มในหน้าจัดการ)
     public function store(Request $request)

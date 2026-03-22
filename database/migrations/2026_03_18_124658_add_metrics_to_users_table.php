@@ -13,9 +13,9 @@ return new class extends Migration
     {
         Schema::table('users', function (Blueprint $table) {
             // เพิ่มคอลัมน์ โดยตั้งค่าเป็น nullable เพื่อไม่ให้กระทบ User เก่าที่ยังไม่กรอก
-            $table->integer('age')->nullable()->after('email');
-            $table->float('weight')->nullable()->after('age');
-            $table->float('height')->nullable()->after('weight');
+            $table->integer('age')->default(0)->after('email');
+            $table->float('weight')->default(0)->after('age');
+            $table->float('height')->default(0)->after('weight');
         });
     }
 
