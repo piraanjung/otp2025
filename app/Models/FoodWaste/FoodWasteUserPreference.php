@@ -32,14 +32,14 @@ class FoodWasteUserPreference extends Model
 
     public function foodwaste_bins()
     {
-        return $this->hasMany(FoodWasteBin::class, 'u_pref_id_fk');
+        return $this->hasMany(FoodAnnualTrash::class, 'u_pref_id_fk');
     }
 
 
 
     public function foodwaste_account() // เปลี่ยนชื่อให้สื่อสารชัดเจน
     {
-        // เปลี่ยนจาก KPAccounts เป็น FoodWasteAccount 
+        // เปลี่ยนจาก KPAccounts เป็น FoodWasteAccount
         // และใช้ 'fw_pref_id_fk' ตามที่นิยามไว้ใน Model Account
         return $this->hasOne(FoodWasteAccount::class, 'fw_pref_id_fk');
     }

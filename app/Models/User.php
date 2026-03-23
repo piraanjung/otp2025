@@ -9,10 +9,11 @@ use App\Models\Admin\Staff;
 use App\Models\Admin\Subzone;
 use App\Models\Admin\Tambon;
 use App\Models\Admin\Zone;
+use App\Models\AnnualTrash\AnnualTrashPayment;
+use App\Models\AnnualTrash\AnnualTrashSubscription;
 use App\Models\FoodWaste\CompostBatches;
 use App\Models\KeptKaya\KpUserWastePreference;
-use App\Models\KeptKaya\WasteBin;
-use App\Models\KeptKaya\AnnualCollectionPayment;
+use App\Models\KeptKaya\AnnualTrash;
 use App\Models\Tabwater\TwMeterInfos;
 use App\Models\Tabwater\UndertakerSubzone;
 use Laravel\Sanctum\HasApiTokens;
@@ -21,10 +22,10 @@ use Illuminate\Notifications\Notifiable;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use App\Models\FoodWaste\FoodWasteUserPreference;
-use App\Models\FoodWaste\FoodWasteBin;
+use App\Models\FoodWaste\FoodAnnualTrash;
+use App\Models\FoodWaste\FoodWasteAccount;
 use App\Models\FoodWaste\FoodWasteLog;
 use App\Models\Tabwater\TwNotifies;
-use Illuminate\Support\Facades\Auth;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany; // <--- สำคัญ: ตรวจสอบว่ามีการ use นี้หรือไม่
 
 class User extends Authenticatable
@@ -120,20 +121,20 @@ class User extends Authenticatable
         return $this->hasOne(KpUserWastePreference::class);
     }
 
-    public function wasteBins()
+    public function AnnualTrashs()
     {
-        return $this->hasMany(WasteBin::class, 'user_id');
+        return $this->hasMany(AnnualTrash::class, 'user_id');
     }
 
     public function getUserAnnualBin()
     {
-        return $this->hasOne(WasteBin::class, 'id');
+        return $this->hasOne(AnnualTrash::class, 'id');
     }
 
 
     public function annualCollectionPayments()
     {
-        return $this->hasMany(AnnualCollectionPayment::class);
+        return $this->hasMany(AnnualTrashPayment::class);
     }
     public function staff()
     {
@@ -145,9 +146,9 @@ class User extends Authenticatable
         return $this->hasOne(FoodWasteUserPreference::class);
     }
 
-    public function foodwasteBins()
+    public function foodAnnualTrashs()
     {
-        return $this->hasMany(FoodWasteBin::class, 'u_pref_id_fk');
+        return $this->hasMany(FoodAnnualTrash::class, 'u_pref_id_fk');
     }
 
     public function acceptedNotifies(): BelongsToMany // <--- ตรวจสอบการประกาศ Type Hint
@@ -183,5 +184,29 @@ class User extends Authenticatable
         }
 
         return $bmr * 1.2; // คูณค่ากิจกรรมระดับเริ่มต้น
+    }
+
+    // เชื่อมกับบัญชีธนาคารขยะรีไซเคิล (1-to-1)
+    public function recycleAccount()
+    {
+        return $this->hasOne(RecycleBankAccount::class, 'user_id', 'id');
+    }
+
+    // เชื่อมกับบัญชีขยะเปียก (1-to-1)
+    public function foodWasteAccount()
+    {
+        return $this->hasOne(FoodWasteAccount::class, 'user_id', 'id');
+    }
+
+    // เชื่อมกับสิทธิ์ขยะรายปี (1-to-1)
+    public function annualTrashSubscription()
+    {
+        return $this->hasOne(AnnualTrashSubscription::class, 'user_id', 'id');
+    }
+
+    // เชื่อมกับประวัติการขายขยะ (1-to-Many)
+    public function recycleTransactions()
+    {
+        return $this->hasMany(RecycleTransaction::class, 'user_id', 'id');
     }
 }

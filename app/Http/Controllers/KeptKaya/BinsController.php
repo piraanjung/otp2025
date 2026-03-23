@@ -1,9 +1,10 @@
 <?php
 
 namespace App\Http\Controllers\KeptKaya;
+
 use App\Http\Controllers\Controller;
 
-use App\Models\FoodWaste\FoodwasteBinStocks;
+use App\Models\FoodWaste\FoodAnnualTrashStocks;
 use App\Models\FoodWaste\FoodwastIotbox; // ต้องใช้ Model ของ IoT Box เพื่อดึงข้อมูลมาแสดงในฟอร์ม
 use Illuminate\Http\Request;
 
@@ -11,15 +12,15 @@ class BinsController extends Controller
 {
     public function index()
     {
-        $bins = FoodwasteBinStocks::with('foodwaste_bin', 'foodwaste_bin.fw_user_preference', 'foodwaste_bin.fw_user_preference.user')
-        ->where('bin_type', 'ab')
-        ->get();
+        $bins = FoodAnnualTrashStocks::with('foodwaste_bin', 'foodwaste_bin.fw_user_preference', 'foodwaste_bin.fw_user_preference.user')
+            ->where('bin_type', 'ab')
+            ->get();
         return view('keptkayas.bins.index', compact('bins'));
     }
 
     public function create()
     {
-        $active_bins = FoodwasteBinStocks::all();
+        $active_bins = FoodAnnualTrashStocks::all();
         return view('keptkayas.bins.create');
     }
 
@@ -34,24 +35,24 @@ class BinsController extends Controller
         ]);
 
         // 2. สร้างข้อมูล
-        FoodwasteBinStocks::create($request->all());
+        FoodAnnualTrashStocks::create($request->all());
 
         return redirect()->route('keptkayas.bins.index')->with('success', 'สร้างถังขยะสำเร็จ');
     }
 
-    public function show(FoodwasteBinStocks $bin)
+    public function show(FoodAnnualTrashStocks $bin)
     {
         $bin->load('iotbox'); // โหลดข้อมูล IoT Box ที่เกี่ยวข้อง
         return view('foodwaste.bins.show', compact('bin'));
     }
 
-    public function edit(FoodwasteBinStocks $bin)
+    public function edit(FoodAnnualTrashStocks $bin)
     {
         $iotboxes = FoodwastIotbox::all();
         return view('foodwaste.bins.edit', compact('bin', 'iotboxes'));
     }
 
-    public function update(Request $request, FoodwasteBinStocks $bin)
+    public function update(Request $request, FoodAnnualTrashStocks $bin)
     {
         // 1. Validation
         $request->validate([
@@ -65,7 +66,7 @@ class BinsController extends Controller
         return redirect()->route('foodwaste.bins.index')->with('success', 'อัปเดตข้อมูลสำเร็จ');
     }
 
-    public function destroy(FoodwasteBinStocks $bin)
+    public function destroy(FoodAnnualTrashStocks $bin)
     {
         $bin->delete();
         return redirect()->route('foodwaste.bins.index')->with('success', 'ลบข้อมูลสำเร็จ');

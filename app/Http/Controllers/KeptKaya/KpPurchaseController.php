@@ -315,7 +315,7 @@ class KpPurchaseController extends Controller
         }
 
         // ดึงรายการขยะทั้งหมด และโหลดราคาที่ Active
-      $recycleItems = KpTbankItems::with(['activePrices.kp_units_info', 'emissionFactor'])
+        $recycleItems = KpTbankItems::with(['activePrices.kp_units_info', 'emissionFactor'])
             ->where('org_id_fk', Auth::user()->org_id_fk)
             ->whereHas('activePrices.kp_units_info')
             ->get();

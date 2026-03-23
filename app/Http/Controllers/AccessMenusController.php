@@ -143,7 +143,7 @@ public function dashboard(Request $request)
     {
         $user = User::find(Auth::id());
         // เพิ่มความปลอดภัย: เช็คอีกทีว่าเป็น Staff จริงไหม ถ้าไม่ใช่ให้ดีดออก
-        if (!$user->hasAnyRole(['Recycle Bank Staff', 'Tabwater Staff'])) { // แก้ตาม DB ของคุณ
+        if (!$user->hasAnyRole(['Recycle Bank Staff', 'Tabwater Staff', 'Staff'])) { // แก้ตาม DB ของคุณ
             return redirect()->route('accessmenu'); // หรือ route อื่น
         }
 

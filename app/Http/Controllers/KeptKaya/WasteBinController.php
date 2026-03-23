@@ -5,13 +5,13 @@ namespace App\Http\Controllers\KeptKaya;
 use App\Http\Controllers\Controller;
 use App\Http\Controllers\FunctionsController;
 use App\Models\Admin\Organization;
-use App\Models\FoodWaste\FoodwasteBinStocks;
+use App\Models\FoodWaste\FoodAnnualTrashStocks;
 use App\Models\Keptkaya\KpUserGroup;
 use App\Models\Keptkaya\KpUsergroupPayratePerMonth;
-use App\Models\KeptKaya\WasteBinPayratePerMonth;
+use App\Models\KeptKaya\AnnualTrashPayratePerMonth;
 use App\Models\User;
-use App\Models\KeptKaya\WasteBinSubscription; // Import WasteBinSubscription model
-use App\Models\KeptKaya\WasteBin;
+use App\Models\KeptKaya\AnnualTrashSubscription; // Import AnnualTrashSubscription model
+use App\Models\KeptKaya\AnnualTrash;
 use App\Services\UserWasteStatusService;
 use Carbon\Carbon;
 use Illuminate\Http\Request;
@@ -19,7 +19,7 @@ use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Validation\Rule;
 
-class WasteBinController extends Controller
+class AnnualTrashController extends Controller
 {
     protected $wasteStatusService;
 
@@ -28,11 +28,11 @@ class WasteBinController extends Controller
         $this->wasteStatusService = $wasteStatusService;
     }
 
-    
+
     public function index(User $w_user)
     {
-        $wasteBins = $w_user->wasteBins()->paginate(10);
-        return view('keptkayas.w.waste_bins.index', compact('w_user', 'wasteBins'));
+        $AnnualTrashs = $w_user->AnnualTrashs()->paginate(10);
+        return view('keptkayas.w.waste_bins.index', compact('w_user', 'AnnualTrashs'));
     }
 
     public function create(User $w_user)
@@ -42,7 +42,7 @@ class WasteBinController extends Controller
         $bin_code = $func->wastBinCode();
         $orgInfos = Organization::getOrgName($w_user->org_id_fk);
 
-       $active_bins = FoodwasteBinStocks::where('bin_type', 'ab')->get();
+        $active_bins = FoodAnnualTrashStocks::where('bin_type', 'ab')->get();
 
         return view('keptkayas.w.waste_bins.create', compact('w_user', 'user_groups', 'active_bins', 'bin_code'));
     }
@@ -61,8 +61,8 @@ class WasteBinController extends Controller
             'is_active_for_annual_collection' => 'boolean',
         ]);
 
-        // 2. Create WasteBin (เหมือนเดิม)
-        $wasteBin = $w_user->wasteBins()->create([
+        // 2. Create AnnualTrash (เหมือนเดิม)
+        $AnnualTrash = $w_user->AnnualTrashs()->create([
             'bin_code' => $request->bin_code,
             'bin_type' => $request->user_group,
             'location_description' => $request->location_description,
@@ -75,16 +75,16 @@ class WasteBinController extends Controller
         ]);
 
         // 3. Create Subscription (จุดที่ต้องแก้ logic การคำนวณเงิน)
-        if ($wasteBin->is_active_for_annual_collection) {
+        if ($AnnualTrash->is_active_for_annual_collection) {
 
             // 3.1 ดึงปีงบประมาณ (สมมติว่าเป็น พ.ศ. 2569)
-            $fiscalYear = WasteBinSubscription::calculateFiscalYear();
+            $fiscalYear = AnnualTrashSubscription::calculateFiscalYear();
 
             // แปลงเป็น ค.ศ. เพื่อคำนวณวัน (เช่น 2569 -> 2026)
             $fiscalYearAD = ($fiscalYear > 2500) ? $fiscalYear - 543 : $fiscalYear;
 
             // 3.2 ดึงเรทราคาต่อเดือน
-            $payratePerMonth = WasteBinPayratePerMonth::where('kp_usergroup_idfk', $request->get('user_group'))
+            $payratePerMonth = AnnualTrashPayratePerMonth::where('kp_usergroup_idfk', $request->get('user_group'))
                 ->where('status', 'active')
                 ->first(); // ใช้ first() ก็พอ ไม่ต้อง get()->first()
 
@@ -125,9 +125,9 @@ class WasteBinController extends Controller
                 $annualFee = $monthlyFee * $remainingMonths;
 
                 // บันทึกข้อมูล
-                WasteBinSubscription::firstOrCreate(
+                AnnualTrashSubscription::firstOrCreate(
                     [
-                        'waste_bin_id' => $wasteBin->id,
+                        'waste_bin_id' => $AnnualTrash->id,
                         'fiscal_year' => $fiscalYear, // ระบุปีด้วย เผื่อมีขยะเดิมแต่ปีใหม่
                     ],
                     [
@@ -152,22 +152,22 @@ class WasteBinController extends Controller
     }
 
 
-    public function show(WasteBin $wasteBin)
+    public function show(AnnualTrash $AnnualTrash)
     {
-        return view('keptkayas.waste_bins.show', compact('wasteBin'));
+        return view('keptkayas.waste_bins.show', compact('AnnualTrash'));
     }
 
     public function edit(User $w_user)
     {
-        $wasteBin = $w_user->getUserAnnualBin()->first();
-        return view('keptkayas.w.waste_bins.edit', compact('wasteBin'));
+        $AnnualTrash = $w_user->getUserAnnualBin()->first();
+        return view('keptkayas.w.waste_bins.edit', compact('AnnualTrash'));
     }
 
 
-    public function update(Request $request, WasteBin $wasteBin)
+    public function update(Request $request, AnnualTrash $AnnualTrash)
     {
         $request->validate([
-            'bin_code' => ['nullable', 'string', 'max:255', Rule::unique('waste_bins')->ignore($wasteBin->id)],
+            'bin_code' => ['nullable', 'string', 'max:255', Rule::unique('waste_bins')->ignore($AnnualTrash->id)],
             'bin_type' => 'required|string|max:255',
             'location_description' => 'nullable|string|max:255',
             'latitude' => 'nullable|numeric|between:-90,90',
@@ -176,24 +176,24 @@ class WasteBinController extends Controller
             'is_active_for_annual_collection' => 'boolean',
         ]);
 
-        // DB::transaction(function () use ($request, $wasteBin) {
-        $oldIsActiveForAnnualCollection = $wasteBin->is_active_for_annual_collection;
+        // DB::transaction(function () use ($request, $AnnualTrash) {
+        $oldIsActiveForAnnualCollection = $AnnualTrash->is_active_for_annual_collection;
         $newIsActiveForAnnualCollection = $request->has('is_active_for_annual_collection');
 
         $data = $request->all();
         $data['is_active_for_annual_collection'] = $newIsActiveForAnnualCollection;
 
-        $wasteBin->update($data); // Update waste bin data
+        $AnnualTrash->update($data); // Update waste bin data
 
         // If status changed to active for annual collection, create/ensure subscription
         if (!$oldIsActiveForAnnualCollection && $newIsActiveForAnnualCollection) {
-            $fiscalYear = WasteBinSubscription::calculateFiscalYear();
+            $fiscalYear = AnnualTrashSubscription::calculateFiscalYear();
             $annualFee = 1200.00; // Default annual fee
             $monthlyFee = $annualFee / 12;
 
-            WasteBinSubscription::firstOrCreate(
+            AnnualTrashSubscription::firstOrCreate(
                 [
-                    'waste_bin_id' => $wasteBin->id,
+                    'waste_bin_id' => $AnnualTrash->id,
                     'fiscal_year' => $fiscalYear,
                 ],
                 [
@@ -208,20 +208,20 @@ class WasteBinController extends Controller
         // Or handle this logic in a separate process. For now, we only create on activation.
 
         // Call service to update overall user waste status (waste_preference)
-        $this->wasteStatusService->updateWasteBinAndUserStatus($wasteBin, $data);
+        $this->wasteStatusService->updateAnnualTrashAndUserStatus($AnnualTrash, $data);
         // });
 
-        return redirect()->route('keptkayas.waste_bins.index', $wasteBin->user->id)
+        return redirect()->route('keptkayas.waste_bins.index', $AnnualTrash->user->id)
             ->with('success', 'อัปเดตถังขยะเรียบร้อยแล้ว!');
     }
 
 
-    public function destroy(WasteBin $wasteBin)
+    public function destroy(AnnualTrash $AnnualTrash)
     {
-        $w_user = $wasteBin->user; // Get user before deleting bin
+        $w_user = $AnnualTrash->user; // Get user before deleting bin
 
-        DB::transaction(function () use ($wasteBin, $w_user) {
-            $wasteBin->delete();
+        DB::transaction(function () use ($AnnualTrash, $w_user) {
+            $AnnualTrash->delete();
             // Call service to update overall user waste status (waste_preference)
             $this->wasteStatusService->updateOverallUserWasteStatus($w_user);
         });
@@ -238,7 +238,7 @@ class WasteBinController extends Controller
 
     public function map()
     {
-        $bins = WasteBin::with([
+        $bins = AnnualTrash::with([
             'user' => function ($q) {
                 return $q->select('id', 'firstname', 'lastname', 'address', 'zone_id', 'subzone_id');
             },

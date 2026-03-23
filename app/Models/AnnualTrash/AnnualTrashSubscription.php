@@ -1,19 +1,20 @@
 <?php
 
-namespace App\Models\KeptKaya;
+namespace App\Models\AnnualTrash;
 
-use App\Models\KeptKaya\WasteBin;
+use App\Models\KeptKaya\AnnualTrash;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 
-class WasteBinSubscription extends Model
+class AnnualTrashSubscription extends Model
 {
     use HasFactory;
 
-    protected $table = 'kp_waste_bin_subscriptions';
+    protected $table = 'annual_trash_subscriptions';
 
     public $timestamps = true;
     protected $fillable = [
+        'user_id',
         'waste_bin_id',
         'fiscal_year',
         'payrate_permonth_id_fk',
@@ -33,13 +34,14 @@ class WasteBinSubscription extends Model
     /**
      * Get the waste bin associated with the subscription.
      */
-    public function wasteBin()
+    public function AnnualTrash()
     {
-        return $this->belongsTo(WasteBin::class);
+        return $this->belongsTo(AnnualTrash::class);
     }
 
-    public function payrate_permonth(){
-        return $this->belongsTo(WasteBinPayratePerMonth::class, 'payrate_permonth_id_fk', 'id');
+    public function payrate_permonth()
+    {
+        return $this->belongsTo(AnnualTrashPayratePerMonth::class, 'payrate_permonth_id_fk', 'id');
     }
 
     /**
@@ -47,7 +49,7 @@ class WasteBinSubscription extends Model
      */
     public function payments()
     {
-        return $this->hasMany(WasteBinPayment::class, 'wbs_id','id');
+        return $this->hasMany(AnnualTrashPayment::class, 'wbs_id', 'id');
     }
 
     /**
@@ -81,9 +83,9 @@ class WasteBinSubscription extends Model
     public function isMonthPaid(int $month, int $year): bool
     {
         return $this->payments()
-                    ->where('pay_mon', $month)
-                    ->where('pay_yr', $year)
-                    ->exists();
+            ->where('pay_mon', $month)
+            ->where('pay_yr', $year)
+            ->exists();
     }
 
     /**
@@ -96,8 +98,8 @@ class WasteBinSubscription extends Model
     public function getAmountPaidForMonth(int $month, int $year): float
     {
         return $this->payments()
-                    ->where('pay_mon', $month)
-                    ->where('pay_yr', $year)
-                    ->sum('amount_paid');
+            ->where('pay_mon', $month)
+            ->where('pay_yr', $year)
+            ->sum('amount_paid');
     }
 }

@@ -1,635 +1,183 @@
-@extends('layouts.admin1')
+@extends('layouts.super-admin')
 
-@section('nav-main')
-    <a href="{{ route('admin.super_users.create') }}"> สร้างข้อมูลผู้ใช้งานระบบ</a>
-@endsection
+@section('title_page', 'เพิ่มผู้ใช้งานใหม่')
 
-@section('nav-header')
-    ผู้ใช้งานระบบ
-@endsection
-@section('nav-current')
-    ข้อมูลผู้ใช้งานระบบ
-@endsection
-
-@section('user-show')
-    active
-@endsection
-@section('nav-user')
-    active
-@endsection
-@section('url')
-    <li class="breadcrumb-item text-sm"><a class="opacity-5 text-dark" href="javascript:;">แอดมิน</a></li>
-    <li class="breadcrumb-item text-sm text-dark active" aria-current="page">ผู้ใช้งานระบบ</li>
-@endsection
-@section('style')
-
-    <style>
-        .hidden {
-            display: none
-        }
-
-        .other_input,
-        .required {
-            border: 1px solid red
-        }
-    </style>
-@endsection
 @section('content')
-    {{-- <form action="{{ route('admin.super_users.store') }}" method="POST">
-        @csrf --}}
-
-        {{-- Checkbox 'Select All' และ Textarea อยู่ด้านนอก loop --}}
-        {{-- <div style="margin-bottom: 15px;">
-            <input type="checkbox" id="select_all">
-            <label for="select_all">เลือกทั้งหมด (Select All)</label>
-        </div>
-
-        <div style="margin-bottom: 15px;">
-            <label for="user_id_lists">User IDs ที่ถูกเลือก (ส่งค่านี้ไป)</label>
-            <textarea name="user_id_lists" id="user_id_lists" rows="5" style="width: 100%;" readonly></textarea> --}}
-            {{-- เพิ่ม readonly เพื่อไม่ให้ผู้ใช้แก้ไขเอง --}}
-        {{-- </div>
-
-        <hr>
- --}}
-
-
-        {{-- <button type="submit" class="btn btn-primary">บันทึก</button> --}}
-    {{-- </form> --}}
-    <div class="row">
-        <div class="col-12">
-            <div class="card">
-                <div class="card-body">
-                    <div class="multisteps-form mb-5">
-                        <div class="row">
-                            <div class="col-12 col-lg-8 mx-auto my-5">
-                                <div class="multisteps-form__progress">
-                                    <button class="multisteps-form__progress-btn js-active" id="b1" data-id="1"
-                                        type="button" title="User Info">
-                                        <span>ข้อมูลผู้ใช้งาน</span>
-                                    </button>
-                                    <button class="multisteps-form__progress-btn" id="b2" data-id="2" type="button"
-                                        title="Address">Info</button>
-                                    <button class="multisteps-form__progress-btn" id="b3" data-id="3" type="button"
-                                        title="Address">ตั้งค่าเข้าใช้งานระบบ</button>
-                                    <button class="multisteps-form__progress-btn" id="b4" data-id="4" type="button"
-                                        title="Socials">บันทึก</button>
-
+    <div class="container-fluid py-4">
+        @if ($errors->any())
+            <div class="alert alert-danger alert-dismissible fade show text-white mx-4" role="alert">
+                <span class="alert-text"><strong>เกิดข้อผิดพลาด!</strong> กรุณาตรวจสอบข้อมูลในช่องที่มีสีแดง</span>
+                <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+        @endif
+        <form action="{{ route('admin.users.store') }}" method="POST">
+            @csrf
+            <div class="row">
+                {{-- ฝั่งซ้าย: ข้อมูลผู้ใช้งาน --}}
+                <div class="col-lg-8">
+                    <div class="card mb-4 shadow-sm border-0">
+                        <div class="card-header pb-0 bg-transparent border-0">
+                            <h6 class="fw-bold"><i class="fas fa-id-card text-primary me-2"></i>
+                                ลงทะเบียนสมาชิกและเปิดสิทธิ์บริการ</h6>
+                        </div>
+                        <div class="card-body">
+                            <div class="row">
+                                <div class="col-md-6 mb-3">
+                                    <label class="form-label text-sm">ชื่อผู้ใช้งาน (Username)</label>
+                                    <input type="text" class="form-control @error('username') is-invalid @enderror"
+                                        name="username" required placeholder="สำหรับเข้าสู่ระบบ">
+                                    @error('username')
+                                        <div class="invalid-feedback">{{ $message }}</div>
+                                    @enderror
+                                </div>
+                                <div class="col-md-6 mb-3">
+                                    <label class="form-label text-sm">รหัสผ่าน (Password)</label>
+                                    <input type="password" class="form-control @error('password') is-invalid @enderror"
+                                        name="password" required>
+                                </div>
+                                <div class="col-md-3 mb-3">
+                                    <label class="form-label text-sm">คำนำหน้า</label>
+                                    <input type="text" class="form-control" name="prefix" value="นาย">
+                                </div>
+                                <div class="col-md-4 mb-3">
+                                    <label class="form-label text-sm">ชื่อจริง</label>
+                                    <input type="text" class="form-control @error('firstname') is-invalid @enderror"
+                                        name="firstname" required value="xx">
+                                </div>
+                                <div class="col-md-5 mb-3">
+                                    <label class="form-label text-sm">นามสกุล</label>
+                                    <input type="text" class="form-control @error('lastname') is-invalid @enderror"
+                                        name="lastname" required value="xxx">
+                                </div>
+                                <div class="col-md-6 mb-3">
+                                    <label class="form-label text-sm">เบอร์โทรศัพท์</label>
+                                    <input type="text" class="form-control @error('phone') is-invalid @enderror"
+                                        name="phone" value="0999999">
+                                </div>
+                                <div class="col-md-6 mb-3">
+                                    <label class="form-label text-sm">เลขบัตรประชาชน</label>
+                                    <input type="text" class="form-control @error('id_card') is-invalid @enderror"
+                                        name="id_card" value="122222222">
                                 </div>
                             </div>
-                        </div>
 
-                        <div class="row ">
-                            <div class="col-12 col-lg-10 m-auto">
-                                <form class="multisteps-form__form mb-8" action="{{ route('admin.super_users.store') }}"
-                                    method="post" style="height: 492px;">
-                                    @csrf
-                                    <div class="card multisteps-form__panel p-3 border-radius-xl bg-white  js-active"
-                                        data-animation="FadeIn" id="pd1">
-                                        <h5 class="font-weight-bolder mb-0">ข้อมูลผู้ใช้งาน</h5>
-                                        <div class="multisteps-form__content">
-                                            <div class="row">
-                                                <div class="col-md-2">
-                                                    <div class="card card-primary card-outline">
-                                                        <div class="card-body box-profile">
-                                                            <div class="text-center">
-                                                                <img class="avatar avatar-xl position-relative"
-                                                                    src="{{ asset('soft-ui/assets/img/bruce-mars.jpg') }}"
-                                                                    alt="User profile picture">
-                                                            </div>
-                                                        </div>
-                                                    </div>
-                                                </div>
-                                                <div class="col-md-10">
-                                                    <div class="row">
-                                                        <div class="col-12 col-sm-2">
-                                                            <label for="feGender">คำนำหน้า
-                                                                @error('prefix_select')
-                                                                    <div class="text-danger h-8">({{ $message }})</div>
-                                                                @enderror
-                                                            </label>
-                                                            <select name="prefix_select" id="prefix_select"
-                                                                class="form-control required">
-                                                                <option value="">เลือก..</option>
-                                                                <option value="คุณ">คุณ</option>
-                                                                <option value="นาย">นาย</option>
-                                                                <option value="นาง">นาง</option>
-                                                                <option value="นส.">นส.</option>
-                                                                <option value="other">อื่นๆ</option>
-                                                            </select>
-                                                            <input type="text" class="form-control hidden mt-1 other_input"
-                                                                id="prefix_text" name="prefix_text" value=""
-                                                                placeholder="ระบุ...">
-                                                        </div>
-                                                        <div class="col-12 col-sm-4">
-                                                            <label for="feFirstName">ชื่อ
-                                                                @error('firstname')
-                                                                    <span class="text-danger h-8">({{ $message }})</span>
-                                                                @enderror
-                                                            </label>
-                                                            <input type="text" class="form-control required " id="firstname"
-                                                                name="firstname" value="">
-                                                        </div>
-                                                        <div class="col-12 col-sm-4">
-                                                            <label for="feFirstName">สกุล
-                                                                @error('lastname')
-                                                                    <span class="text-danger h-8">({{ $message }})</span>
-                                                                @enderror
-                                                            </label>
-                                                            <input type="text" class="form-control required " id="lastname"
-                                                                name="lastname" value="">
-                                                        </div>
+                            <hr class="horizontal dark my-4">
 
-                                                        <div class="col-12 col-sm-2">
-                                                            <label for="feGender">เพศ
-                                                                @error('gender')
-                                                                    <span class="text-danger h-8">({{ $message }})</span>
-                                                                @enderror
-                                                            </label>
-                                                            <select name="gender" id="gender"
-                                                                class="form-control required ">
-                                                                <option value="0">เลือก..</option>
-                                                                <option value="m">ชาย</option>
-                                                                <option value="w">หญิง</option>
-                                                            </select>
-                                                        </div>
-                                                        <div class="col-12 col-sm-6">
-                                                            <label for="feID_card">เลขบัตรประจำตัวประชาชน
-                                                                @error('id_card')
-                                                                    <span class="text-danger h-8">({{ $message }})</span>
-                                                                @enderror
-                                                            </label>
-                                                            <input type="text" class="form-control required " id="id_card"
-                                                                name="id_card" value="">
-                                                        </div>
+                            {{-- 🏠 พื้นที่และที่อยู่ --}}
+                            <div class="row">
+                                <div class="col-md-6 mb-3">
+                                    <label class="form-label text-primary fw-bold">โซน (Zone)</label>
+                                    <select class="form-select border-primary @error('zone_id') is-invalid @enderror"
+                                        id="zone_id" name="zone_id" required>
+                                        <option value="">-- เลือกโซน --</option>
+                                        @foreach($zones as $zone)
+                                            <option value="{{ $zone->id }}">{{ $zone->zone_name }}</option>
+                                        @endforeach
+                                    </select>
+                                </div>
+                                <div class="col-md-6 mb-3">
+                                    <label class="form-label text-primary fw-bold">ซอย/ชุมชนย่อย (Subzone)</label>
+                                    <select class="form-select border-primary @error('subzone_id') is-invalid @enderror"
+                                        id="subzone_id" name="subzone_id" required>
+                                        <option value="">-- กรุณาเลือกโซนก่อน --</option>
+                                    </select>
+                                </div>
+                                <div class="col-md-12 mb-3">
+                                    <label class="form-label">เลขที่บ้าน / รายละเอียดที่อยู่เพิ่มเติม</label>
+                                    <input type="text" class="form-control @error('address') is-invalid @enderror"
+                                        name="address" placeholder="เช่น 123/4 หมู่ 1" value="12">
+                                </div>
+                            </div>
 
-                                                        <div class="col-12 col-sm-6">
-                                                            <label for="fePhone">เบอร์โทรศัพท์
-                                                                @error('phone')
-                                                                    <span class="text-danger h-8">({{ $message }})</span>
-                                                                @enderror
-                                                            </label>
-                                                            <input type="text" class="form-control required " id="phone"
-                                                                name="phone" value="">
-                                                        </div>
-                                                        <div class="col-12 col-sm-3">
-                                                            <label for="feInputAddress">ที่อยู่
-                                                                @error('address')
-                                                                    <span class="text-danger h-8">({{ $message }})</span>
-                                                                @enderror
-                                                            </label>
-                                                            @if ($orgInfos['org_short_type_name'] == 'รพ.' || $orgInfos['org_short_type_name'] == 'ม.')
-                                                                <input type="text" class="form-control bg-gray-200" id="address"
-                                                                    readonly name="address"
-                                                                    value="{{ $orgInfos['org_address'] }}">
-                                                            @else
-                                                                <input type="text" class="form-control required " id="address"
-                                                                    name="address" value="">
-                                                            @endif
-
-                                                        </div>
-                                                        <div class="col-12 col-sm-2">
-                                                            <label>หมู่ที่
-                                                                @error('zone_id')
-                                                                    <span class="text-danger h-8">({{ $message }})</span>
-                                                                @enderror
-                                                            </label>
-                                                            @if ($orgInfos['org_short_type_name'] == 'รพ.' || $orgInfos['org_short_type_name'] == 'ม.')
-                                                                <input type="text" class="form-control bg-gray-200" id="zone_id"
-                                                                    readonly
-                                                                    value="{{ $orgInfos['org_zone'] }}">
-                                                                      <input type="hidden" name="zone_id" value="{{ $orgInfos['org_zone_id'] }}">
-                                                            @else
-                                                                <select class="form-control required " name="zone_id"
-                                                                    id="zone_id">
-                                                                    <option>เลือก...</option>
-                                                                    @foreach ($zones as $zone)
-                                                                        <option value="{{ $zone->id }}">
-                                                                            {{ $zone->zone_name }}
-                                                                        </option>
-                                                                    @endforeach
-                                                                </select>
-                                                            @endif
-
-                                                        </div>
-                                                        <div class="col-12 col-sm-3">
-                                                            <label>จังหวัด
-                                                                @error('province_code')
-                                                                    <span class="text-danger h-8">({{ $message }})</span>
-                                                                @enderror
-                                                            </label>
-                                                            <select class="form-control bg-gray-200" name="province_code"
-                                                                id="province_code">
-                                                                <option value="{{ $orgInfos['org_province_id'] }}" selected>
-                                                                    {{ $orgInfos['org_province'] }}
-                                                                </option>
-                                                            </select>
-                                                        </div>
-                                                        <div class="col-12 col-sm-2">
-                                                            <label>อำเภอ
-                                                                @error('district_code')
-                                                                    <span class="text-danger h-8">({{ $message }})</span>
-                                                                @enderror
-                                                            </label>
-                                                            <select class="form-control bg-gray-200" name="district_code"
-                                                                id="district_code">
-                                                                <option value="{{ $orgInfos['org_district_id'] }}" selected>
-                                                                    {{ $orgInfos['org_district'] }}
-                                                                </option>
-                                                            </select>
-                                                        </div>
-                                                        <div class="col-12 col-sm-2">
-                                                            <label>ตำบล
-                                                                @error('tambon_code')
-                                                                    <span class="text-danger h-8">({{ $message }})</span>
-                                                                @enderror
-                                                            </label>
-                                                            <select class="form-control bg-gray-200" name="tambon_code"
-                                                                id="tambon_code" onchange="getZone()">
-                                                                <option value="{{ $orgInfos['org_tambon_id']}}" selected>
-                                                                    {{ $orgInfos['org_tambon'] }}
-                                                                </option>
-
-                                                            </select>
-                                                        </div>
-
-                                                    </div>
-                                                </div>
-                                            </div>
-                                            <div class="button-row d-flex mt-2">
-                                                <button class="btn bg-gradient-dark ms-auto mb-0 js-btn-next" data-id="2"
-                                                    type="button" title="Next">Next</button>
-                                            </div>
-                                        </div>
-                                    </div>
-
-                                    <div class="card multisteps-form__panel p-3 border-radius-xl bg-white"
-                                        data-animation="FadeIn" id="pd2">
-                                        <h5 class="font-weight-bolder">Info</h5>
-                                        <div class="multisteps-form__content">
-                                            <div class="row mt-3">
-                                                <div class="col-12 col-sm-4">
-                                                    <label>เลขที่ผู้ใช้งาน</label>
-                                                    <input type="text" class="form-control bg-gray-200" readonly
-                                                        name="new_meter_id" value="{{ $usernumber }}">
-                                                </div>
-
-                                                <div class="col-12 col-sm-4">
-                                                    <label>แผนก
-                                                        @error('undertake_zone_id')
-                                                            <span class="text-danger h-8">({{ $message }})</span>
-                                                        @enderror
-                                                    </label>
-                                                    <select class="form-control required" name="undertake_zone_id"
-                                                        id="undertake_zone_id" onchange="getSubzone()">
-                                                        <option>เลือก...</option>
-                                                        @foreach ($zones as $zone)
-                                                            <option value="{{ $zone->id }}">
-                                                                {{ $zone->zone_name }}
-                                                            </option>
-                                                        @endforeach
-                                                    </select>
-                                                </div>
-                                                <div class="col-12 col-sm-4">
-                                                    <label>หน่วย
-                                                        @error('undertake_subzone_id')
-                                                            <span class="text-danger h-8">({{ $message }})</span>
-                                                        @enderror
-                                                    </label>
-                                                    <select class="form-control" name="undertake_subzone_id"
-                                                        id="undertake_subzone_id">
-                                                    </select>
-                                                </div>
-                                                <div class="col-12 col-sm-4">
-                                                    <label>วันที่ขอใช้งาน</label>
-                                                    <?php $year = date('Y') + 543;
-                                                        $now = date('d/m/' . $year);
-                                                    ?>
-                                                    <input type="text" class="form-control datepicker bg-gray-200"
-                                                        name="acceptance_date" id="acceptance_date" readonly
-                                                        value="{{ $now }}">
-                                                </div>
-
-                                            </div>
-                                            <div class="button-row d-flex mt-4">
-                                                <button class="btn bg-gradient-light mb-0 js-btn-prev" data-id="1"
-                                                    type="button" title="Prev">Prev</button>
-                                                <button class="btn bg-gradient-dark ms-auto mb-0 js-btn-next" data-id="3"
-                                                    type="button" title="Next">Next</button>
-                                            </div>
-                                        </div>
-                                    </div>
-
-                                    <div class="card multisteps-form__panel p-3 border-radius-xl bg-white"
-                                        data-animation="FadeIn" id="pd3">
-                                        <h5 class="font-weight-bolder">ตั้งค่าเข้าใช้งานระบบ</h5>
-                                        <div class="multisteps-form__content ">
-                                            <div class="mt-3 row">
-                                                <div class="col-6">
-                                                    @error('username')
-                                                        <div class="text-danger h-8">({{ $message }})</div>
-                                                    @enderror
-                                                    <label>User name</label>
-                                                    <input class="multisteps-form__input form-control required" type="text"
-                                                        name="username" value="{{ $username }}">
-                                                </div>
-                                                <div class="col-6">
-                                                    @error('password')
-                                                        <div class="text-danger h-8">({{ $message }})</div>
-                                                    @enderror
-                                                    <label>Password</label>
-                                                    <input class="multisteps-form__input form-control required" type="text"
-                                                        name="password" value="{{ $password }}">
-                                                </div>
-                                                <div class="col-6">
-                                                    @error('email')
-                                                        <div class="text-danger h-8">({{ $message }})</div>
-                                                    @enderror
-                                                    <label>Email</label>
-                                                    <input class="multisteps-form__input form-control required" type="text"
-                                                        name="email" value="{{ $username . '@hz.lgov' }}">
-                                                </div>
-
-                                            </div>
-                                            <div class="row">
-                                                <div class="button-row d-flex mt-4 col-12">
-                                                    <button class="btn bg-gradient-light mb-0 js-btn-prev" type="button"
-                                                        data-id="2" title="Prev">Prev</button>
-                                                    <button class="btn bg-gradient-dark ms-auto mb-0 js-btn-next"
-                                                        data-id="4" type="button" title="Next">Next</button>
-                                                </div>
-                                            </div>
-                                        </div>
-                                    </div>
-                                    <div class="card multisteps-form__panel p-3 border-radius-xl bg-white"
-                                        data-animation="FadeIn" id="pd4">
-                                        <h5 class="font-weight-bolder">บันทึกข้อมูล</h5>
-                                        <div class="multisteps-form__content text-center">
-                                            <button class="btn btn-success ms-auto mb-0 bg-red-500 hover:bg-green-300"
-                                                type="submit" title="บันทึกข้อมูล">บันทึกข้อมูล</button>
-
-                                            <div class="button-row d-flex mt-4">
-                                                <button class="btn bg-gradient-light mb-0 js-btn-prev" data-id="3"
-                                                    type="button" title="Prev">Prev</button>
-
-                                            </div>
-                                        </div>
-                                    </div>
-                                </form>
+                            <div class="row p-3 bg-gray-100 rounded-3">
+                                <div class="col-md-4">
+                                    <label class="text-xxs text-uppercase fw-bold text-muted">ตำบล/แขวง</label>
+                                    <div class="p-2 border-bottom">{{ $defaultAddress['tambon'] }}</div>
+                                </div>
+                                <div class="col-md-4">
+                                    <label class="text-xxs text-uppercase fw-bold text-muted">อำเภอ/เขต</label>
+                                    <div class="p-2 border-bottom">{{ $defaultAddress['district'] }}</div>
+                                </div>
+                                <div class="col-md-4">
+                                    <label class="text-xxs text-uppercase fw-bold text-muted">จังหวัด</label>
+                                    <div class="p-2 border-bottom">{{ $defaultAddress['province'] }}</div>
+                                </div>
                             </div>
                         </div>
                     </div>
                 </div>
-            </div>
 
-        </div>
+                {{-- ฝั่งขวา: การเปิดบริการ (Sticky Sidebar) --}}
+                <div class="col-lg-4">
+                    <div class="card shadow-sm border-0 sticky-top" style="top: 20px; z-index: 100;">
+                        <div class="card-header pb-0 bg-transparent border-0">
+                            <h6 class="fw-bold"><i class="fas fa-check-circle text-success me-2"></i> เปิดใช้งานบริการ</h6>
+                        </div>
+                        <div class="card-body">
+                            <div
+                                class="form-check form-switch mb-3 p-3 bg-gray-100 rounded-3 border-start border-success border-4">
+                                <input class="form-check-input ms-0 chk-service" type="checkbox" name="svc_recycle"
+                                    id="svc_recycle" checked>
+                                <label class="form-check-label fw-bold ms-4" for="svc_recycle">ธนาคารขยะรีไซเคิล</label>
+                                <p class="text-xxs mb-0 ms-4 text-muted">เปิดบัญชีสะสมทรัพย์และแต้ม</p>
+                            </div>
+
+                            <div
+                                class="form-check form-switch mb-3 p-3 bg-gray-100 rounded-3 border-start border-info border-4">
+                                <input class="form-check-input ms-0 chk-service" type="checkbox" name="svc_food_waste"
+                                    id="svc_food_waste">
+                                <label class="form-check-label fw-bold ms-4" for="svc_food_waste">ธนาคารขยะเปียก</label>
+                                <p class="text-xxs mb-0 ms-4 text-muted">ระบบถังหมักปุ๋ย AiroBact</p>
+                            </div>
+
+                            <div
+                                class="form-check form-switch mb-4 p-3 bg-gray-100 rounded-3 border-start border-warning border-4">
+                                <input class="form-check-input ms-0 chk-service" type="checkbox" name="svc_annual_trash"
+                                    id="svc_annual_trash" checked>
+                                <label class="form-check-label fw-bold ms-4" for="svc_annual_trash">ค่าขยะรายปี
+                                    (เทศบาล)</label>
+                                <p class="text-xxs mb-0 ms-4 text-muted">สิทธิ์ยกเว้น/จ่ายค่าขยะรายเดือน</p>
+                            </div>
+
+                            <button type="submit"
+                                class="btn bg-gradient-primary w-100 py-3 mb-2">บันทึกและเปิดสิทธิ์</button>
+                            <a href="{{ route('admin.users.index') }}" class="btn btn-outline-secondary w-100">ยกเลิก</a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </form>
     </div>
 @endsection
 
 @section('script')
     <script>
-        $('button.js-btn-next').click(function (e) {
-            var id = parseInt($(this).data('id'));
-            console.log(id)
-            changePageInfo(id)
-        })
-        $('button.js-btn-prev').click(function (e) {
-            var id = parseInt($(this).data('id'));
-            changePageInfo(id)
-        })
-        $('button.multisteps-form__progress-btn').click(function (e) {
-            var id = parseInt($(this).data('id'));
-            changePageInfo(id)
-        })
-
-        function changePageInfo(id) {
-            $(`#b${id}`).addClass('js-active')
-            $("#pd" + id).addClass('js-active')
-
-            if (id === 1) {
-                if ($(`#b2`).hasClass('js-active')) {
-                    $('#b2').removeClass('js-active')
-                }
-                if ($(`#b3`).hasClass('js-active')) {
-                    $('#b3').removeClass('js-active')
-                }
-                if ($(`#b4`).hasClass('js-active')) {
-                    $('#b4').removeClass('js-active')
-                }
-                $('#pd2').removeClass('js-active')
-                $('#pd3').removeClass('js-active')
-                $('#pd4').removeClass('js-active')
-            } else if (id === 2) {
-                if ($(`#b3`).hasClass('js-active')) {
-                    $('#b3').removeClass('js-active')
-                }
-                if ($(`#b1`).hasClass('js-active')) {
-                    $('#b1').removeClass('js-active')
-                }
-                $('#pd3').removeClass('js-active')
-                $('#pd1').removeClass('js-active')
-                $('#pd4').removeClass('js-active')
-            } else if (id === 3) {
-                if ($(`#b4`).hasClass('js-active')) {
-                    $('#b4').removeClass('js-active')
-                }
-                $('#b3').addClass('js-active')
-                $('#b2').addClass('js-active')
-                $('#b1').addClass('js-active')
-
-                $('#pd1').removeClass('js-active')
-                $('#pd2').removeClass('js-active')
-                $('#pd4').removeClass('js-active')
-            } else { //pd4
-                $('#pd3').removeClass('js-active')
-                $('#pd2').removeClass('js-active')
-                $('#pd1').removeClass('js-active')
-                $('#b1').addClass('js-active')
-                $('#b2').addClass('js-active')
-                $('#b3').addClass('js-active')
-
-            }
-        }
-
-        // $(document).ready(function() {
-        //     $('.datepicker').datepicker({
-        //         format: 'dd/mm/yyyy',
-        //         todayBtn: true,
-        //         language: 'th', //เปลี่ยน label ต่างของ ปฏิทิน ให้เป็น ภาษาไทย   (ต้องใช้ไฟล์ bootstrap-datepicker.th.min.js นี้ด้วย)
-        //         // thaiyear: true              //Set เป็นปี พ.ศ.
-        //     }).datepicker(); //กำหนดเป็นวันปัจุบัน
-        // });
-        $('#prefix_select').change(function () {
-            if ($(this).val() === "other") {
-                $('#prefix_text').removeClass('hidden')
-            } else {
-                if (!$('#prefix_text').hasClass('hidden')) {
-                    $('#prefix_text').addClass('hidden')
-                }
-            }
-        })
-
-        $('#usergroup').change(function () {
-            let id = $(this).val()
-            $.get(`/admin/usergroup/${id}/infos`).done(function (data) { //server
-                $(`#rate_payment_per_year`).val(data.rate_payment_per_year);
-                $(`#bin_quantity`).val(1);
-                $('#payment_per_year').val(data.rate_payment_per_year)
-
-            })
-        });
-
-        $('#metertype_id').change(function () {
-            let id = $(this).val()
-            $.get(`/admin/metertype/${id}/infos`).done(function (data) { //server
-                $('#counter_unit').val(data.price_per_unit)
-                $('#metersize').val(data.metersize)
-                $('#reserve_price').val(10)
-            })
-        });
-
-        $(`#bin_quantity`).keyup(function () {
-            let bin_quantity = $(this).val();
-            let total = $('#rate_payment_per_year').val() * bin_quantity;
-            $('#payment_per_year').val(total)
-        })
-
-        function getDistrict() {
-            var id = $("#province_code").val();
-            $.get("/district/getDistrict/" + id).done(function (data) {
-                var text = "<option>--Select--</option>";
-                data.forEach(function (val) {
-                    text += "<option seleted value='" + val.district_code + "'>" + val.district_name +
-                        "</option>";
-                });
-                $("#district_code").html(text);
-            });
-        }
-
-        function getTambon() {
-            var id = $("#district_code").val();
-            $.get("/tambon/getTambon/" + id).done(function (data) {
-                console.log(data)
-                var text = "<option>--Select--</option>";
-                data.forEach(function (val) {
-                    text += "<option seleted value='" + val.tambon_code + "'>" + val.tambon_name +
-                        "</option>";
-                });
-                $("#tambon_code").html(text);
-            });
-        }
-
-        function getZone() {
-            var id = $("#tambon_code").val();
-            $.get("../../../zone/getZone/" + id).done(function (data) {
-                var text = "<option>--Select--</option>";
-                data.forEach(function (val) {
-                    text += "<option seleted value='" + val.id + "'>" + val.zone_name + "</option>";
-                });
-                $("#zone_id").html(text);
-            });
-        }
-
-        function getSubzone() {
-            var zone_id = $("#undertake_zone_id").val();
-            $.get(`/admin/subzone/${zone_id}/getSubzone`).done(function (data) {
-                var text = "<option>เลือก...</option>";
-                if (data.length == 1) {
-                    text += `<option value='${data[0].id}' selected>${data[0].subzone_name}</option>`;
-                } else {
-                    if (data.length == 0) {
-                        text += "<option value='0'>-</option>";
-                    } else {
-                        data.forEach(function (val) {
-                            text += "<option seleted value='" + val.id + "'>" + val.subzone_name +
-                                "</option>";
-                        });
-                    }
-                }
-
-                $("#undertake_subzone_id").html(text);
-            });
-        }
-
-        $('select').change(() => {
-            checkValues()
-        });
-
-        $('input').keyup(() => {
-            checkValues()
-        });
-
-        function checkValues() {
-            let res = true
-            $("#undertake_subzone_id").removeClass("border-danger rounded")
-            $("#metertype").removeClass("border-danger rounded")
-            $("#undertake_zone_id").removeClass("border-danger rounded")
-
-            if ($("#metertype").val() === "เลือก...") {
-
-                $("#metertype").addClass("border-danger rounded")
-                res = false;
-            }
-
-            if ($("#undertake_zone_id").val() === "เลือก...") {
-                console.log($("#metertype").val())
-
-                $("#undertake_zone_id").addClass("border-danger rounded")
-                res = false;
-            } else {
-                if ($("#undertake_subzone_id").val() === "เลือก...") {
-                    $("#undertake_subzone_id").addClass("border-danger rounded")
-                    res = false;
-                }
-            }
-            console.log('factory_no', $('#factory_no').val())
-            if ($('#factory_no').val() === "") {
-                $("#factory_no").addClass("border-danger rounded")
-                res = false;
-            }
-            return res;
-
-        }
-    </script>
-
-    <script>
         $(document).ready(function () {
-            // ฟังก์ชันสำหรับดึงค่า User ID ที่ถูกเลือกทั้งหมด
-            function updateTextarea() {
-                var selectedIDs = [];
+            // 1. Cascading Select: Zone -> Subzone
+            $('#zone_id').on('change', function () {
+                var zoneId = $(this).val();
+                var $subzoneSelect = $('#subzone_id');
 
-                // วนลูปหา checkbox ที่มี class 'user_checkbox' ที่ถูกเลือก
-                $('.user_checkbox:checked').each(function () {
-                    selectedIDs.push($(this).val());
-                });
+                $subzoneSelect.empty().append('<option value="">-- กำลังโหลด... --</option>');
 
-                // นำค่า ID ที่ได้มาต่อกันด้วย comma (,) แล้วใส่ใน textarea
-                $('#user_id_lists').val(selectedIDs.join(', '));
-            }
-
-            // 1. จัดการเมื่อกด Checkbox 'Select All'
-            $('#select_all').on('click', function () {
-                // กำหนดสถานะของ checkbox ผู้ใช้ทั้งหมดให้เหมือนกับ checkbox 'Select All'
-                $('.user_checkbox').prop('checked', this.checked);
-                updateTextarea(); // อัพเดตค่าใน Textarea ทันที
-            });
-
-            // 2. จัดการเมื่อมีการกด Checkbox ของผู้ใช้แต่ละคน
-            $('.user_checkbox').on('click', function () {
-                // ตรวจสอบว่ามี checkbox ของผู้ใช้ที่ไม่ถูกเลือกหรือไม่
-                if ($('.user_checkbox:checked').length == $('.user_checkbox').length) {
-                    // ถ้าถูกเลือกทั้งหมด ให้อัพเดต Checkbox 'Select All'
-                    $('#select_all').prop('checked', true);
+                if (zoneId) {
+                    $.ajax({
+                        url: `{{ url('admin/subzone/${zoneId}/getSubzone ') }}`,
+                        type: "GET",
+                        success: function (data) {
+                            console.log('da', data)
+                            $subzoneSelect.empty().append('<option value="">-- เลือกซอย/ชุมชนย่อย --</option>');
+                            $.each(data, function (key, value) {
+                                $subzoneSelect.append('<option value="' + value.id + '">' + value.subzone_name + '</option>');
+                            });
+                        }
+                    });
                 } else {
-                    // ถ้าไม่ถูกเลือกทั้งหมด ให้ยกเลิกการเลือก Checkbox 'Select All'
-                    $('#select_all').prop('checked', false);
+                    $subzoneSelect.empty().append('<option value="">-- กรุณาเลือกโซนก่อน --</option>');
                 }
-
-                updateTextarea(); // อัพเดตค่าใน Textarea ทันที
             });
-
-            // อัพเดตค่า Textarea เมื่อโหลดหน้าครั้งแรก (เผื่อกรณีมีการโหลดค่าเก่ามา)
-            updateTextarea();
         });
     </script>
 @endsection

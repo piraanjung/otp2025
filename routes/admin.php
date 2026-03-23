@@ -1,6 +1,8 @@
 <?php
 
 use App\Http\Controllers\Admin\SuperUserController;
+use App\Http\Controllers\Admin\UserController;
+use App\Http\Controllers\Admin\WasteFinancialReportController;
 use Illuminate\Support\Facades\Route;
 
 
@@ -10,5 +12,9 @@ Route::middleware(['auth', 'role:Admin|finance|Super Admin'])->group(function ()
         Route::prefix('super_users')->name('super_users.')->group(function () {
             Route::resource('/', SuperUserController::class);
         });
+
+        Route::resource('/financial', WasteFinancialReportController::class);
+        Route::post('users/update-service', [UserController::class, 'updateService'])->name('users.update_service');
+
     });
 });

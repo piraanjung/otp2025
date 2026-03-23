@@ -81,7 +81,7 @@ class KioskApiController extends Controller
                 'status' => 'found',
                 'user_id' => $user->id,
                 'picture' => $user->image,
-                'name' => $user->firstname." ".$user->firstname,
+                'name' => $user->firstname . " " . $user->firstname,
             ]);
         }
         return response()->json(['status' => 'not_found'], 404);
@@ -187,7 +187,6 @@ class KioskApiController extends Controller
 
             DB::commit(); // บันทึกข้อมูลทั้งหมด
             return response()->json(['status' => 'success', 'points' => $totalPoints]);
-
         } catch (\Exception $e) {
             DB::rollBack(); // ถ้ามี Error ให้ยกเลิกการบันทึกทั้งหมด
             return response()->json(['status' => 'error', 'message' => $e->getMessage()], 500);
@@ -205,7 +204,7 @@ class KioskApiController extends Controller
         $map = [
             'btmc_PET600' => 1, // สมมติว่า ID 1 คือ ขวด PET
             'can_alum'    => 2, // สมมติว่า ID 2 คือ กระป๋อง
-            'glass_bottle'=> 3  // สมมติว่า ID 3 คือ ขวดแก้ว
+            'glass_bottle' => 3  // สมมติว่า ID 3 คือ ขวดแก้ว
         ];
 
         $id = $map[$label] ?? null;

@@ -31,12 +31,12 @@ class LineController extends Controller
         $waste_pref_id = 0;
         //check
         $user = User::where('line_id', $request->userId)
-                ->with('wastePreference')
-                ->first();
-        if(collect($user)->isEmpty() || collect($user->wastePreference)->isEmpty()){
+            ->with('wastePreference')
+            ->first();
+        if (collect($user)->isEmpty() || collect($user->wastePreference)->isEmpty()) {
             $org_id     = 0;
             $user_id    = 0;
-        }else{
+        } else {
             $org_id         = $user->org_id_fk;
             $res            = 1;
             $user_id        = $user->id;
@@ -56,8 +56,8 @@ class LineController extends Controller
     public function user_line_register(Request $request)
     {
 
-        $user =User::create([
-            'username'      => $request->org_id.$request->phoneNum,
+        $user = User::create([
+            'username'      => $request->org_id . $request->phoneNum,
             'password'      => Hash::make($request->phoneNum),
             'firstname'     => $request->firstname,
             'lastname'      => $request->lastname,
@@ -88,7 +88,7 @@ class LineController extends Controller
             'updated_at' => date('Y-m-d H:i:s'),
         ]);
 
-        (new KPAccounts())->registerAccount($userWastPref->id) ;
+        (new KPAccounts())->registerAccount($userWastPref->id);
 
         return response()->json([
             'res' => 1,
@@ -140,7 +140,7 @@ class LineController extends Controller
 
             $user_org = Organization::find($request->org_id);
             $local_user = (new User())->setConnection($user_org->org_database)->where('phone', $request->phoneNum)
-            ->where('line_id', $request->line_user_id)->get()->first();
+                ->where('line_id', $request->line_user_id)->get()->first();
 
             $local_user_wastePreference = (new KpUserWastePreference())->setConnection($user_org->org_database)->where('user_id', $local_user->id)->get();
             if (collect($local_user_wastePreference)->isEmpty()) {

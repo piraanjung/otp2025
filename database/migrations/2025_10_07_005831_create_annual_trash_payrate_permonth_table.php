@@ -13,7 +13,7 @@ return new class extends Migration
      */
     public function up()
     {
-        Schema::create('waste_bin_payrate_permonth', function (Blueprint $table) {
+        Schema::create('annual_trash_payrate_permonth', function (Blueprint $table) {
             $table->id();
             $table->foreignId('kp_usergroup_idfk')->constrained('kp_usergroups')->onDelete('restrict');
             $table->foreignId('budgetyear_idfk')->constrained('budget_year')->onDelete('restrict');
@@ -32,6 +32,6 @@ return new class extends Migration
      */
     public function down()
     {
-        Schema::dropIfExists('waste_bin_payrate_permonth');
+        Schema::dropIfExists('annual_trash_payrate_permonth');
     }
 };

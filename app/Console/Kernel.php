@@ -17,6 +17,7 @@ class Kernel extends ConsoleKernel
     {
         // $schedule->command('inspire')->hourly();
         $schedule->command('invoice:archive')->dailyAt('23:25');
+        $schedule->command('recycle:check-waive')->monthlyOn(1, '00:01');
     }
 
     /**

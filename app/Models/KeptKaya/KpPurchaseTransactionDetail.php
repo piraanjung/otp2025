@@ -48,7 +48,7 @@ class KpPurchaseTransactionDetail extends Model
         return $this->belongsTo(KpTbankUnits::class, 'kp_tbank_items_units');
     }
 
-     public function transaction()
+    public function transaction()
     {
         return $this->belongsTo(KpPurchaseTransaction::class, 'kp_purchase_trans_id');
     }

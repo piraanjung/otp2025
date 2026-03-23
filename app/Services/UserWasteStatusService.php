@@ -2,10 +2,10 @@
 
 namespace App\Services;
 
-use App\Models\FoodWaste\FoodWasteBin;
+use App\Models\FoodWaste\FoodAnnualTrash;
 use App\Models\User;
 use App\Models\KeptKaya\UserWastePreference;
-use App\Models\KeptKaya\WasteBin;
+use App\Models\KeptKaya\AnnualTrash;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log; // สำหรับการ Log
 
@@ -29,9 +29,9 @@ class UserWasteStatusService
 
             // 2. คำนวณสถานะ is_annual_collection ใหม่:
             // ผู้ใช้มี annual_collection เป็น true ถ้ามีถังขยะอย่างน้อย 1 ใบที่ active สำหรับ annual collection
-            $newIsAnnualCollection = $user->wasteBins()
-                                          ->where('is_active_for_annual_collection', true)
-                                          ->exists();
+            $newIsAnnualCollection = $user->AnnualTrashs()
+                ->where('is_active_for_annual_collection', true)
+                ->exists();
 
             // 3. คำนวณสถานะ is_waste_bank ใหม่:
             $newIsWasteBank = $oldIsWasteBank; // เริ่มต้นจากค่าเดิม
@@ -51,9 +51,10 @@ class UserWasteStatusService
             // หรือถ้า annual_collection เป็น true อยู่แล้ว ก็ไม่บังคับ waste_bank
 
             // 4. บันทึกการเปลี่ยนแปลงใน UserWastePreference (ถ้ามีอะไรเปลี่ยน)
-            if ($preference->is_annual_collection !== $newIsAnnualCollection ||
-                $preference->is_waste_bank !== $newIsWasteBank)
-            {
+            if (
+                $preference->is_annual_collection !== $newIsAnnualCollection ||
+                $preference->is_waste_bank !== $newIsWasteBank
+            ) {
                 $preference->update([
                     'is_annual_collection' => $newIsAnnualCollection,
                     'is_waste_bank' => $newIsWasteBank,
@@ -64,13 +65,13 @@ class UserWasteStatusService
     }
 
 
-    public function updateWasteBinAndUserStatus(FoodWasteBin $foodwasteBin, array $data)
+    public function updateAnnualTrashAndUserStatus(FoodAnnualTrash $foodAnnualTrash, array $data)
     {
-        DB::transaction(function () use ($foodwasteBin, $data) {
-            $foodwasteBin->update($data); // อัปเดตสถานะถังขยะ
+        DB::transaction(function () use ($foodAnnualTrash, $data) {
+            $foodAnnualTrash->update($data); // อัปเดตสถานะถังขยะ
 
             // หลังจากอัปเดตถังขยะแล้ว ให้เรียกอัปเดตสถานะของ User โดยรวม
-            $this->updateOverallUserWasteStatus($foodwasteBin->user);
+            $this->updateOverallUserWasteStatus($foodAnnualTrash->user);
         });
     }
 }

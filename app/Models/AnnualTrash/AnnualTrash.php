@@ -2,16 +2,16 @@
 
 namespace App\Models\KeptKaya;
 
+use App\Models\AnnualTrash\AnnualTrashSubscription;
 use App\Models\User;
-use App\Models\KeptKaya\WasteBinSubscription;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 
-class WasteBin extends Model
+class AnnualTrash extends Model
 {
     use HasFactory;
 
-    protected $table = 'kp_waste_bins';
+    protected $table = 'annual_trashs';
     protected $fillable = [
         'id',
         'user_id',
@@ -39,9 +39,9 @@ class WasteBin extends Model
         return $this->belongsTo(User::class, 'user_id');
     }
 
-   
+
     public function subscriptions()
 {
-    return $this->hasMany(WasteBinSubscription::class, 'waste_bin_id', 'id');
+    return $this->hasMany(AnnualTrashSubscription::class, 'waste_bin_id', 'id');
 }
 }

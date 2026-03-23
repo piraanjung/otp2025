@@ -19,7 +19,7 @@ class KpUserWastePreference extends Model
         'is_waste_bank',
     ];
 
-   // ✅ เพิ่มตรงนี้: บังคับให้เป็น boolean เพื่อความแม่นยำ
+    // ✅ เพิ่มตรงนี้: บังคับให้เป็น boolean เพื่อความแม่นยำ
     protected $casts = [
         'is_annual_collection' => 'boolean',
         'is_waste_bank' => 'boolean',
@@ -30,9 +30,9 @@ class KpUserWastePreference extends Model
         return $this->belongsTo(User::class);
     }
 
-    public function wasteBins()
+    public function AnnualTrashs()
     {
-        return $this->hasMany(WasteBin::class,'user_id', 'user_id');
+        return $this->hasMany(AnnualTrash::class, 'user_id', 'user_id');
     }
 
     public function purchaseTransactions()
@@ -41,9 +41,8 @@ class KpUserWastePreference extends Model
         return $this->hasMany(KpPurchaseTransaction::class, 'kp_user_w_pref_id_fk', 'id');
     }
 
-    public function kp_account(){
+    public function kp_account()
+    {
         return $this->hasOne(KPAccounts::class, 'u_wpref_id_fk');
     }
-
-   
 }

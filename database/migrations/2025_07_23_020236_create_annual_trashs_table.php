@@ -13,7 +13,7 @@ class CreateWasteBinsTable extends Migration
      */
     public function up()
     {
-        Schema::create('kp_waste_bins', function (Blueprint $table) {
+        Schema::create('annual_trashs', function (Blueprint $table) {
             $table->id();
             $table->foreignId('user_id')->constrained()->onDelete('cascade'); // ผู้ใช้เจ้าของถังขยะ
             $table->string('bin_code')->unique()->nullable(); // รหัสถังขยะ (ถ้ามี)

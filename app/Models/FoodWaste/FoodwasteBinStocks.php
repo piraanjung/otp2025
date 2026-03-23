@@ -6,7 +6,7 @@ use App\Traits\BelongsToOrganization;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 
-class FoodwasteBinStocks extends Model
+class FoodAnnualTrashStocks extends Model
 {
     use HasFactory;
     use BelongsToOrganization;
@@ -21,7 +21,8 @@ class FoodwasteBinStocks extends Model
         'status'
     ];
 
-    public function foodwaste_bin(){
-        return $this->hasOne(FoodwasteBin::class, 'bin_code_fk');
+    public function foodwaste_bin()
+    {
+        return $this->hasOne(FoodAnnualTrash::class, 'bin_code_fk');
     }
 }

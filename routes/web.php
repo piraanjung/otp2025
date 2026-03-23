@@ -7,7 +7,7 @@ use App\Http\Controllers\Admin\MetertypeController;
 use App\Http\Controllers\Admin\OrgAdminController;
 use App\Http\Controllers\Admin\PermissionController;
 use App\Http\Controllers\Admin\RoleController;
-use App\Http\Controllers\Admin\AdminSubzoneController ;
+use App\Http\Controllers\Admin\AdminSubzoneController;
 use App\Http\Controllers\Admin\SuperAdminAuthController;
 use App\Http\Controllers\Admin\UserController;
 use App\Http\Controllers\Admin\ZoneController;
@@ -48,13 +48,14 @@ use App\Http\Controllers\Tabwater\TwPricingTypeController;
 use App\Http\Controllers\Tabwater\UndertakerSubzoneController;
 use App\Models\User;
 use Illuminate\Support\Facades\Artisan;
+
 Route::get('/run-migrate', function () {
     // สั่งรัน Migrate สร้างตาราง
     Artisan::call('migrate', ['--force' => true]);
-    
+
     // ถ้ามีข้อมูลตั้งต้น (Seeder) ให้เอาคอมเมนต์บรรทัดล่างออกครับ
-    // Artisan::call('db:seed', ['--force' => true]); 
-    
+    // Artisan::call('db:seed', ['--force' => true]);
+
     return 'ยินดีด้วย! สร้างตาราง Database เสร็จเรียบร้อยแล้ว 🎉';
 });
 Route::get('/', function () {
@@ -393,4 +394,5 @@ require __DIR__ . '/foodwaste_route.php';
 require __DIR__ . '/keptkaya_route.php';
 require __DIR__ . '/keptkaya_mobile_route.php';
 require __DIR__ . '/admin.php';
+require __DIR__ . '/annual_trash.php';
 // require __DIR__ . '/tabwater.php';

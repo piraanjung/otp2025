@@ -77,6 +77,26 @@
                     <span class="nav-link-text ms-1">Emission Factor</span>
                 </a>
             </li>
+
+              <li class="nav-item">
+                <a class="nav-link  " href="{{ route('admin.financial.index') }}">
+                    <div
+                        class="icon icon-shape icon-sm shadow border-radius-md bg-white text-center me-2 d-flex align-items-center justify-content-center">
+                        <i class="ni ni-circle-08 text-dark text-gradient text-lg opacity-10"></i></i>
+                    </div>
+                    <span class="nav-link-text ms-1">รายงาน สรุป ทางบัญชี</span>
+                </a>
+            </li>
+
+            <li class="nav-item">
+                <a class="nav-link  " href="{{ route('admin.financial.index') }}">
+                    <div
+                        class="icon icon-shape icon-sm shadow border-radius-md bg-white text-center me-2 d-flex align-items-center justify-content-center">
+                        <i class="ni ni-circle-08 text-dark text-gradient text-lg opacity-10"></i></i>
+                    </div>
+                    <span class="nav-link-text ms-1">รายงาน สรุป ทางบัญชี</span>
+                </a>
+            </li>
         @endif
 
         <li class="nav-item">
@@ -89,7 +109,8 @@
                     <span class="nav-link-text ms-1">Org SuperAdmins </span>
                 </a>
             @endif
-            <a class="nav-link  " href="{{ route('admin.super_users.index') }}">
+            {{-- <a class="nav-link  " href="{{ route('admin.super_users.index') }}"> --}}
+            <a class="nav-link  " href="{{ route('admin.users.index') }}">
                 <div
                     class="icon icon-shape icon-sm shadow border-radius-md bg-white text-center me-2 d-flex align-items-center justify-content-center">
                     <i class="ni ni-circle-08 text-dark text-gradient text-lg opacity-10"></i></i>

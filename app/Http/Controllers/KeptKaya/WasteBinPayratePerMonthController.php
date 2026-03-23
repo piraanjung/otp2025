@@ -9,16 +9,16 @@ use Illuminate\Http\Request;
 use App\Models\Keptkaya\KpUsergroupPayratePerMonth;
 use App\Models\Keptkaya\KpUsergroup;
 use App\Models\Admin\BudgetYear;
-use App\Models\KeptKaya\WasteBinPayratePerMonth;
+use App\Models\KeptKaya\AnnualTrashPayratePerMonth;
 
-class WasteBinPayratePerMonthController extends Controller
+class AnnualTrashPayratePerMonthController extends Controller
 {
     // ... (เมธอดต่างๆ เช่น index, create, store, show, edit, update, destroy)
 
     public function index()
     {
         // เปลี่ยนชื่อ Model ตรงนี้
-        $payrates = WasteBinPayratePerMonth::with(['kp_usergroup', 'budgetyear'])
+        $payrates = AnnualTrashPayratePerMonth::with(['kp_usergroup', 'budgetyear'])
             ->where('deleted', 0)
             ->orderBy('budgetyear_idfk', 'desc')
             ->orderBy('kp_usergroup_idfk', 'asc')
@@ -43,7 +43,7 @@ class WasteBinPayratePerMonthController extends Controller
         ]);
 
         // เปลี่ยนชื่อ Model ตรงนี้
-        $existingRecord = WasteBinPayratePerMonth::where('kp_usergroup_idfk', $request->kp_usergroup_idfk)
+        $existingRecord = AnnualTrashPayratePerMonth::where('kp_usergroup_idfk', $request->kp_usergroup_idfk)
             ->where('budgetyear_idfk', $request->budgetyear_idfk)
             ->first();
         if ($existingRecord) {
@@ -53,8 +53,8 @@ class WasteBinPayratePerMonthController extends Controller
 
         try {
             // เปลี่ยนชื่อ Model ตรงนี้
-            WasteBinPayratePerMonth::create([
-                 "kp_usergroup_idfk" => $request->get('kp_usergroup_idfk'),
+            AnnualTrashPayratePerMonth::create([
+                "kp_usergroup_idfk" => $request->get('kp_usergroup_idfk'),
                 "budgetyear_idfk"   => $request->get('budgetyear_idfk'),
                 "payrate_permonth"  => $request->get('payrate_permonth'),
                 "status"            => $request->get('status'),
@@ -62,7 +62,7 @@ class WasteBinPayratePerMonthController extends Controller
                 "created_at"        => date('Y-m-d H:i:s'),
                 "updated_at"        => date('Y-m-d H:i:s'),
             ]);
-            
+
             return redirect()->route('keptkayas.wbin_payrate_per_months.index')->with('success', 'เพิ่มอัตราค่าบริการสำเร็จแล้ว.');
         } catch (\Exception $e) {
             return redirect()->route('keptkayas.wbin_payrate_per_months.index')->with('error', 'เกิดข้อผิดพลาดในการบันทึกข้อมูล' . $e);
@@ -72,7 +72,7 @@ class WasteBinPayratePerMonthController extends Controller
     public function edit($id)
     {
         // เปลี่ยนชื่อ Model ตรงนี้
-        $payrate = WasteBinPayratePerMonth::with(['kpUsergroup', 'budgetYear'])->where('deleted', 0)->findOrFail($id);
+        $payrate = AnnualTrashPayratePerMonth::with(['kpUsergroup', 'budgetYear'])->where('deleted', 0)->findOrFail($id);
         // ... (ดึงข้อมูลสำหรับ dropdowns)
         return view('keptkayas.wbin_payrate_per_months.edit', compact('payrate', 'usergroups', 'budgetYears'));
     }
@@ -82,10 +82,10 @@ class WasteBinPayratePerMonthController extends Controller
         $request->validate([ /* ... validation rules ... */]);
 
         // เปลี่ยนชื่อ Model ตรงนี้
-        $payrate = WasteBinPayratePerMonth::where('deleted', 0)->findOrFail($id);
+        $payrate = AnnualTrashPayratePerMonth::where('deleted', 0)->findOrFail($id);
 
         // เปลี่ยนชื่อ Model ตรงนี้
-        $existingRecord = WasteBinPayratePerMonth::where('kp_usergroup_idfk', $request->kp_usergroup_idfk)
+        $existingRecord = AnnualTrashPayratePerMonth::where('kp_usergroup_idfk', $request->kp_usergroup_idfk)
             ->where('budgetyear_idfk', $request->budgetyear_idfk)
             ->where('id', '!=', $id)
             ->first();
@@ -103,7 +103,7 @@ class WasteBinPayratePerMonthController extends Controller
     {
         try {
             // เปลี่ยนชื่อ Model ตรงนี้
-            $payrate = WasteBinPayratePerMonth::where('deleted', 0)->findOrFail($id);
+            $payrate = AnnualTrashPayratePerMonth::where('deleted', 0)->findOrFail($id);
             $payrate->update(['deleted' => 1, 'status' => 'inactive']);
             return redirect()->route('keptkayas.wbin_payrate_per_months.index')->with('success', 'ลบอัตราค่าบริการสำเร็จแล้ว.');
         } catch (\Exception $e) { /* ... handle error ... */

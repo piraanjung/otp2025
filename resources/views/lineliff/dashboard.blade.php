@@ -499,43 +499,40 @@
 
     <div class="modern-sidebar" id="mainSidebar">
         <div class="sidebar-header">
-            <img src="https://profile.line-scdn.net/{{$userWastePref->user->image ?? ''}}" alt="Profile"
-                class="sidebar-avatar">
-            <div class="sidebar-user-info">
-                <h5 class="mb-0">{{$userWastePref->user->firstname ?? 'Guest'}}</h5>
-                <small>ยินดีต้อนรับ</small>
-            </div>
-            <button class="close-sidebar-btn" id="closeMenuBtn">&times;</button>
+            <img src="https://profile.line-scdn.net/{{$user->image ?? ''}}" ...>
+            <h5 class="mb-0">{{$user->firstname ?? 'Guest'}}</h5>
+            <small>ยินดีต้อนรับ</small>
         </div>
+        <button class="close-sidebar-btn" id="closeMenuBtn">&times;</button>
+    </div>
 
-        <div class="sidebar-content">
-            <a href="#" class="sidebar-link  main_bottom_nav" data-id="recycle">
-                <i class="bi bi-house-door-fill"></i> หน้าหลัก
-            </a>
+    <div class="sidebar-content">
+        <a href="#" class="sidebar-link  main_bottom_nav" data-id="recycle">
+            <i class="bi bi-house-door-fill"></i> หน้าหลัก
+        </a>
 
-            <div class="sidebar-divider">บริการหลัก</div>
+        <div class="sidebar-divider">บริการของฉัน</div>
+        <a href="#" class="sidebar-link active main_bottom_nav" data-id="recycle">
+            <i class="bi bi-recycle"></i> ธนาคารขยะรีไซเคิล
+        </a>
+        <a href="#" class="sidebar-link main_bottom_nav" data-id="wet">
+            <i class="bi bi-trash-fill"></i> ธนาคารขยะเปียก
+        </a>
+        <a href="#" class="sidebar-link main_bottom_nav" data-id="annual">
+            <i class="bi bi-calendar-check"></i> ค่าขยะรายปี
+        </a>
 
-            <a href="#" class="sidebar-link active main_bottom_nav" data-id="recycle">
-                <i class="bi bi-recycle"></i> ขยะรีไซเคิล
-            </a>
-            <a href="#" class="sidebar-link main_bottom_nav" data-id="wet">
-                <i class="bi bi-trash-fill"></i> ขยะเปียก
-            </a>
-            {{-- <a href="#" class="sidebar-link main_bottom_nav" data-id="tabwater">
-                <i class="bi bi-droplet-fill"></i> งานประปา
-            </a> --}}
+        {{-- <div class="sidebar-divider">อื่นๆ</div>
+        <a href="#" class="sidebar-link">
+            <i class="bi bi-shop"></i> ตลาดชุมชน
+        </a> --}}
+    </div>
 
-            {{-- <div class="sidebar-divider">อื่นๆ</div>
-            <a href="#" class="sidebar-link">
-                <i class="bi bi-shop"></i> ตลาดชุมชน
-            </a> --}}
-        </div>
-
-        <div class="sidebar-footer">
-            <a href="#" class="logout-btn">
-                <i class="bi bi-box-arrow-right"></i> ออกจากระบบ
-            </a>
-        </div>
+    <div class="sidebar-footer">
+        <a href="#" class="logout-btn">
+            <i class="bi bi-box-arrow-right"></i> ออกจากระบบ
+        </a>
+    </div>
     </div>
     <div class="app">
         <svg class="app__gradients" style="position: absolute; width: 0; height: 0;">
@@ -569,6 +566,37 @@
                 </div>
             </div> --}}
 
+            <div class="kp div_annual hidden">
+                @php
+                    // เปลี่ยนมาดึงจาก user_id ตรงๆ
+                    $transactions = App\Models\RecycleTransaction::where('user_id', $user->id)
+                        ->latest()->take(10)->get();
+                @endphp
+                <h3 class="mb-3 text-center"><i class="bi bi-calendar-check"></i> ค่าธรรมเนียมขยะรายปี</h3>
+
+                <div class="card shadow-sm border-0 mb-4" style="border-radius: 1.5rem;">
+                    <div class="card-body text-center p-4">
+                        <div class="mb-3">
+                            @if($annualTrash && $annualTrash->billing_status == 'waived')
+                                <div class="display-1 text-success"><i class="bi bi-check-circle-fill"></i></div>
+                                <h4 class="fw-bold text-success">ท่านได้รับสิทธิ์ "ยกเว้น" ค่าธรรมเนียม</h4>
+                                <p class="text-muted">ขอบคุณที่ช่วยคัดแยกขยะรีไซเคิลอย่างต่อเนื่อง</p>
+                                <span class="badge bg-success rounded-pill">สถานะ: ฟรี (สวัสดิการชุมชน)</span>
+                            @else
+                                <div class="display-1 text-warning"><i class="bi bi-exclamation-circle-fill"></i></div>
+                                <h4 class="fw-bold">สถานะ: รอการชำระ</h4>
+                                <p class="text-muted">ยอดค้างชำระปัจจุบัน:
+                                    ฿{{ number_format($annualTrash->current_debt ?? 0, 2) }}</p>
+                                <button class="btn btn-primary rounded-pill w-100">ชำระเงินออนไลน์</button>
+                            @endif
+                        </div>
+                        <hr>
+                        <small class="text-muted">อัปเดตล่าสุดเมื่อ:
+                            {{ optional($annualTrash->last_checked_at)->format('d/m/Y') ?? 'กำลังตรวจสอบ' }}</small>
+                    </div>
+                </div>
+            </div>
+
             <div class="kp div_recycle hidden">
                 <h3 class="mb-3 text-center"><i class="bi bi-bank"></i> ธนาคารขยะรีไซเคิล</h3>
 
@@ -583,13 +611,16 @@
                                     transform="rotate(-90,90,90)" />
                             </svg>
                             <div class="main__stat-detail">
-
-                                <strong
-                                    class="main__stat-value">{{ number_format($userWastePref->kp_account->balance, 2) ?? '0.00' }}</strong>
+                                <strong class="main__stat-value">
+                                    {{ number_format($recycleAcc->balance ?? 0, 2) }}
+                                </strong>
                                 <span class="main__stat-unit">บาท (คงเหลือ)</span>
+
                                 <div class="my-1"></div>
-                                <strong
-                                    class="main__stat-value">{{ number_format($userWastePref->kp_account->points, 2) ?? '0.00' }}</strong>
+
+                                <strong class="main__stat-value">
+                                    {{ number_format($recycleAcc->points ?? 0) }}
+                                </strong>
                                 <span class="main__stat-unit">แต้มสะสม</span>
                             </div>
                         </div>
@@ -970,7 +1001,7 @@
                         {!! $qrcode ?? 'QR Code Error' !!}
                     </div>
                     <p class="text-muted">
-                        ID: {{ $userWastePref->id ?? '-' }} - {{ $userWastePref->user_id ?? '-' }}
+                        ID: USER-{{ $user->id }}
                     </p>
                 </div>
                 <div class="modal-footer">
@@ -1091,7 +1122,8 @@
                     <div class="mt-4 p-3 bg-light rounded-3">
                         <p class="small text-muted mb-0"><i class="bi bi-lightbulb-fill text-warning"></i>
                             <strong>เคล็ดลับ:</strong> สลัดน้ำออกจากเศษอาหารให้แห้งที่สุดก่อนเท
-                            เพื่อให้ได้แต้มสูงสุดตอนจบสัปดาห์!</p>
+                            เพื่อให้ได้แต้มสูงสุดตอนจบสัปดาห์!
+                        </p>
                     </div>
                 </div>
                 <div class="modal-footer border-0">

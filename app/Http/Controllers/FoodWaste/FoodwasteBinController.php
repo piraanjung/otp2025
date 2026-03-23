@@ -4,19 +4,19 @@ namespace App\Http\Controllers\FoodWaste;
 
 use App\Http\Controllers\Controller;
 use App\Http\Controllers\FunctionsController;
-use App\Models\FoodWaste\FoodWasteBin;
-use App\Models\FoodWaste\FoodwasteBinStocks;
+use App\Models\FoodWaste\FoodAnnualTrash;
+use App\Models\FoodWaste\FoodAnnualTrashStocks;
 use App\Models\FoodWaste\FoodwastIotbox;
 use App\Models\Keptkaya\KpUserGroup;
 use App\Models\User;
-use App\Models\KeptKaya\WasteBinSubscription; // Import WasteBinSubscription model
-use App\Models\KeptKaya\WasteBin;
+use App\Models\KeptKaya\AnnualTrashSubscription; // Import AnnualTrashSubscription model
+use App\Models\KeptKaya\AnnualTrash;
 use App\Services\UserWasteStatusService;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Validation\Rule;
 
-class FoodWasteBinController extends Controller
+class FoodAnnualTrashController extends Controller
 {
     protected $wasteStatusService;
 
@@ -33,8 +33,8 @@ class FoodWasteBinController extends Controller
      */
     public function index(User $w_user)
     {
-        $wasteBins = $w_user->foodwasteBins()->paginate(10);
-        return view('foodwaste.w.waste_bins.index', compact('w_user', 'wasteBins'));
+        $AnnualTrashs = $w_user->foodAnnualTrashs()->paginate(10);
+        return view('foodwaste.w.waste_bins.index', compact('w_user', 'AnnualTrashs'));
     }
 
     /**
@@ -45,10 +45,10 @@ class FoodWasteBinController extends Controller
      */
     public function create(User $w_user)
     {
-        $foodwaste_bins = FoodWasteBin::all();
+        $foodwaste_bins = FoodAnnualTrash::all();
         $func = new FunctionsController();
-        $bins_pending = FoodwasteBinStocks::where('status', 'pending')->get();
-        
+        $bins_pending = FoodAnnualTrashStocks::where('status', 'pending')->get();
+
         $iotboxes = FoodwastIotbox::where('status', 'pending')->get();
         return view('foodwaste.w.waste_bins.create', compact('w_user', 'foodwaste_bins', 'bins_pending', 'iotboxes'));
     }
@@ -67,7 +67,7 @@ class FoodWasteBinController extends Controller
             'status' => ['required', Rule::in(['active', 'inactive', 'damaged', 'removed'])],
         ]);
 
-        $w_user->foodwasteBins()->create([
+        $w_user->foodAnnualTrashs()->create([
             'bin_code_fk' => $request->bin_code,
             'user_id' => $w_user->id,
             'bin_type' => $request->bin_type,
@@ -78,7 +78,7 @@ class FoodWasteBinController extends Controller
             'status' => $request->status,
         ]);
 
-        FoodwasteBinStocks::where('id', $request->bin_code)->update([
+        FoodAnnualTrashStocks::where('id', $request->bin_code)->update([
             'status' => 'active',
             'updated_at' => date('Y-m-d H:i:s')
         ]);
@@ -95,21 +95,21 @@ class FoodWasteBinController extends Controller
     }
 
 
-    public function show(WasteBin $wasteBin)
+    public function show(AnnualTrash $AnnualTrash)
     {
-        return view('foodwaste.waste_bins.show', compact('wasteBin'));
+        return view('foodwaste.waste_bins.show', compact('AnnualTrash'));
     }
 
-    public function edit(FoodWasteBin $wasteBin)
+    public function edit(FoodAnnualTrash $AnnualTrash)
     {
-        return view('foodwaste.waste_bins.edit', compact('wasteBin'));
+        return view('foodwaste.waste_bins.edit', compact('AnnualTrash'));
     }
 
 
-    public function update(Request $request, FoodWasteBin $foodwasteBin)
+    public function update(Request $request, FoodAnnualTrash $foodAnnualTrash)
     {
         $request->validate([
-            'bin_code' => ['nullable', 'string', 'max:255', Rule::unique('waste_bins')->ignore($foodwasteBin->id)],
+            'bin_code' => ['nullable', 'string', 'max:255', Rule::unique('waste_bins')->ignore($foodAnnualTrash->id)],
             'bin_type' => 'required|string|max:255',
             'location_description' => 'nullable|string|max:255',
             'latitude' => 'nullable|numeric|between:-90,90',
@@ -118,24 +118,24 @@ class FoodWasteBinController extends Controller
             'is_active_for_annual_collection' => 'boolean',
         ]);
 
-        // DB::transaction(function () use ($request, $foodwasteBin) {
-        $oldIsActiveForAnnualCollection = $foodwasteBin->is_active_for_annual_collection;
+        // DB::transaction(function () use ($request, $foodAnnualTrash) {
+        $oldIsActiveForAnnualCollection = $foodAnnualTrash->is_active_for_annual_collection;
         $newIsActiveForAnnualCollection = $request->has('is_active_for_annual_collection');
 
         $data = $request->all();
         $data['is_active_for_annual_collection'] = $newIsActiveForAnnualCollection;
 
-        $foodwasteBin->update($data); // Update waste bin data
+        $foodAnnualTrash->update($data); // Update waste bin data
 
         // If status changed to active for annual collection, create/ensure subscription
         if (!$oldIsActiveForAnnualCollection && $newIsActiveForAnnualCollection) {
-            $fiscalYear = WasteBinSubscription::calculateFiscalYear();
+            $fiscalYear = AnnualTrashSubscription::calculateFiscalYear();
             $annualFee = 1200.00; // Default annual fee
             $monthlyFee = $annualFee / 12;
 
-            WasteBinSubscription::firstOrCreate(
+            AnnualTrashSubscription::firstOrCreate(
                 [
-                    'waste_bin_id' => $foodwasteBin->id,
+                    'waste_bin_id' => $foodAnnualTrash->id,
                     'fiscal_year' => $fiscalYear,
                 ],
                 [
@@ -150,20 +150,20 @@ class FoodWasteBinController extends Controller
         // Or handle this logic in a separate process. For now, we only create on activation.
 
         // Call service to update overall user waste status (waste_preference)
-        $this->wasteStatusService->updateWasteBinAndUserStatus($foodwasteBin, $data);
+        $this->wasteStatusService->updateAnnualTrashAndUserStatus($foodAnnualTrash, $data);
         // });
 
-        return redirect()->route('foodwaste.waste_bins.index', $foodwasteBin->user->id)
+        return redirect()->route('foodwaste.waste_bins.index', $foodAnnualTrash->user->id)
             ->with('success', 'อัปเดตถังขยะเรียบร้อยแล้ว!');
     }
 
 
-    public function destroy(FoodWasteBin $wasteBin)
+    public function destroy(FoodAnnualTrash $AnnualTrash)
     {
-        $w_user = $wasteBin->user; // Get user before deleting bin
+        $w_user = $AnnualTrash->user; // Get user before deleting bin
 
-        DB::transaction(function () use ($wasteBin, $w_user) {
-            $wasteBin->delete();
+        DB::transaction(function () use ($AnnualTrash, $w_user) {
+            $AnnualTrash->delete();
             // Call service to update overall user waste status (waste_preference)
             $this->wasteStatusService->updateOverallUserWasteStatus($w_user);
         });
@@ -179,7 +179,7 @@ class FoodWasteBinController extends Controller
 
     public function map()
     {
-        $bins = FoodWasteBin::with([
+        $bins = FoodAnnualTrash::with([
             'user' => function ($q) {
                 return $q->select('id', 'firstname', 'lastname', 'address', 'zone_id', 'subzone_id');
             },

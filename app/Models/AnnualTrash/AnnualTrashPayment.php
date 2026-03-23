@@ -1,16 +1,16 @@
 <?php
 
-namespace App\Models\KeptKaya;
+namespace App\Models\AnnualTrash;
 
 use App\Models\User;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 
-class WasteBinPayment extends Model
+class AnnualTrashPayment extends Model
 {
     use HasFactory;
 
-    protected $table = 'kp_waste_bin_payments';
+    protected $table = 'annual_trash_payments';
     protected $fillable = [
         'wbs_id',
         'pay_mon',
@@ -30,7 +30,7 @@ class WasteBinPayment extends Model
      */
     public function subscription()
     {
-        return $this->belongsTo(WasteBinSubscription::class, 'wbs_id');
+        return $this->belongsTo(AnnualTrashSubscription::class, 'wbs_id');
     }
 
     /**

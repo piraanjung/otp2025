@@ -3,7 +3,7 @@
 namespace App\Http\Controllers\FoodWaste;
 
 use App\Http\Controllers\Controller;
-use App\Models\FoodWaste\FoodwasteBinStocks;
+use App\Models\FoodWaste\FoodAnnualTrashStocks;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
@@ -13,7 +13,7 @@ class BinsController extends Controller
     public function index(Request $request)
     {
         // เริ่มต้น Query พร้อม Eager Loading ความสัมพันธ์ต่างๆ
-        $query = FoodwasteBinStocks::with([
+        $query = FoodAnnualTrashStocks::with([
             'foodwaste_bin',
             'foodwaste_bin.fw_user_preference',
             'foodwaste_bin.fw_user_preference.user'
@@ -61,7 +61,7 @@ class BinsController extends Controller
 
         try {
             // 2. หาเลขถังล่าสุดอิงจากคอลัมน์ bin_code ในตาราง foodwaste_bin_stocks
-            $latestBin = FoodwasteBinStocks::where('bin_code', 'like', $prefix . '%')
+            $latestBin = FoodAnnualTrashStocks::where('bin_code', 'like', $prefix . '%')
                 ->orderBy('bin_code', 'desc')
                 ->first();
 
@@ -79,7 +79,7 @@ class BinsController extends Controller
                 $currentNumber = str_pad($startNumber + $i, 4, '0', STR_PAD_LEFT);
                 $newBinCode = $prefix . $currentNumber;
 
-                FoodwasteBinStocks::create([
+                FoodAnnualTrashStocks::create([
                     'bin_code'    => $newBinCode,
                     'bin_type'    => $request->bin_type,
                     'org_id_fk'   => Auth::user()->org_id_fk,
@@ -97,7 +97,7 @@ class BinsController extends Controller
         }
     }
 
-    public function show(FoodwasteBinStocks $bin)
+    public function show(FoodAnnualTrashStocks $bin)
     {
         $bin->load('iotbox'); // โหลดข้อมูล IoT Box ที่เกี่ยวข้อง
         return view('foodwaste.bins.show', compact('bin'));
@@ -106,7 +106,7 @@ class BinsController extends Controller
     public function edit($id)
     {
         // ค้นหาถังขยะตาม ID ที่ส่งมา
-        $bin = FoodwasteBinStocks::findOrFail($id);
+        $bin = FoodAnnualTrashStocks::findOrFail($id);
 
         // ส่งข้อมูลไปที่หน้าแก้ไข
         return view('foodwaste.bins.edit', compact('bin'));
@@ -127,7 +127,7 @@ class BinsController extends Controller
 
         try {
             // 2. ค้นหาข้อมูลถังขยะที่ต้องการแก้ไข
-            $bin = FoodwasteBinStocks::findOrFail($id);
+            $bin = FoodAnnualTrashStocks::findOrFail($id);
 
             // 3. อัปเดตข้อมูล
             $bin->update([
@@ -149,7 +149,7 @@ class BinsController extends Controller
     {
         try {
             // 1. ค้นหาถังขยะที่ต้องการลบ
-            $bin = FoodwasteBinStocks::findOrFail($id);
+            $bin = FoodAnnualTrashStocks::findOrFail($id);
 
             // เก็บชื่อรหัสไว้ก่อนลบ เพื่อเอาไปแสดงในข้อความแจ้งเตือน
             $deletedCode = $bin->bin_code;
@@ -177,7 +177,7 @@ class BinsController extends Controller
         }
 
         // หาเลขล่าสุดใน Database
-        $latestBin = FoodwasteBinStocks::where('bin_code', 'like', $prefix . '%')
+        $latestBin = FoodAnnualTrashStocks::where('bin_code', 'like', $prefix . '%')
             ->orderBy('bin_code', 'desc')
             ->first();
 
@@ -203,16 +203,16 @@ class BinsController extends Controller
     }
 
     public function printSelected(Request $request)
-{
-    $ids = $request->input('selected_bins'); // รับค่าจาก Checkbox
+    {
+        $ids = $request->input('selected_bins'); // รับค่าจาก Checkbox
 
-    if (!$ids || count($ids) == 0) {
-        return back()->withErrors(['error' => 'กรุณาเลือกถังขยะที่ต้องการพิมพ์อย่างน้อย 1 รายการ']);
+        if (!$ids || count($ids) == 0) {
+            return back()->withErrors(['error' => 'กรุณาเลือกถังขยะที่ต้องการพิมพ์อย่างน้อย 1 รายการ']);
+        }
+
+        // ดึงข้อมูลตาม IDs ที่ส่งมา
+        $bins = FoodAnnualTrashStocks::whereIn('id', $ids)->get();
+
+        return view('foodwaste.bins.print-qr', compact('bins'));
     }
-
-    // ดึงข้อมูลตาม IDs ที่ส่งมา
-    $bins = FoodwasteBinStocks::whereIn('id', $ids)->get();
-
-    return view('foodwaste.bins.print-qr', compact('bins'));
-}
 }

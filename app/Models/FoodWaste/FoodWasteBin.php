@@ -6,7 +6,7 @@ use App\Models\User;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 
-class FoodWasteBin extends Model
+class FoodAnnualTrash extends Model
 {
     use HasFactory;
 
@@ -23,20 +23,24 @@ class FoodWasteBin extends Model
         'longitude',
         'status',
     ];
- 
-    public function fw_user_preference(){
+
+    public function fw_user_preference()
+    {
         return $this->belongsTo(FoodWasteUserPreference::class, 'u_pref_id_fk');
     }
 
-    public function bin_stock(){
-        return $this->belongsTo(FoodwasteBinStocks::class, 'bin_code_fk');
+    public function bin_stock()
+    {
+        return $this->belongsTo(FoodAnnualTrashStocks::class, 'bin_code_fk');
     }
 
-    public function iotbox(){
+    public function iotbox()
+    {
         return $this->belongsTo(FoodwastIotbox::class, 'iotbox_id_fk', 'id');
     }
 
-    public function iotbox_datas(){
+    public function iotbox_datas()
+    {
         return $this->hasMany(FoodWastIoTBoxesData::class, 'fwbin_id_fk', 'id');
     }
 }

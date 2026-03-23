@@ -28,7 +28,7 @@ class AuthenticatedSessionController extends Controller
      */
     public function store(LoginRequest $request)
     {
-       
+
         $request->authenticate();
         $userAgent = $_SERVER['HTTP_USER_AGENT'] ?? '';
         $ismobile = preg_match(
@@ -37,12 +37,12 @@ class AuthenticatedSessionController extends Controller
         );
         $request->session()->regenerate();
          $user = User::find(Auth::id());
-        
+
         if ($ismobile) {
             if(isset($request->kp_mobile_login)){
                 //ตู้รับซื้อขวด
                 return redirect()->intended(route('kp_mobile.create', absolute: false));
-            }else if($user->hasRole('User')){
+            }else if($user->hasRole('Staff')){
                 return redirect()->intended(route('staff_accessmenu', absolute: false));
             }
         }
@@ -68,5 +68,5 @@ class AuthenticatedSessionController extends Controller
 
         return redirect('/');
     }
-    
+
 }

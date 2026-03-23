@@ -88,28 +88,29 @@ class KioskController extends Controller
         return redirect()->route('keptkayas.kiosks.index')->with('success', 'ลบตู้เรียบร้อย');
     }
 
-    public function userMatchKiosk(Request $request) {
-    $kiosk = Kiosk::find($request->kiosk_id);
-    $timeLimit = now()->subSeconds(30); // ยอมรับความล่าช้าได้ 30 วินาที
+    public function userMatchKiosk(Request $request)
+    {
+        $kiosk = Kiosk::find($request->kiosk_id);
+        $timeLimit = now()->subSeconds(30); // ยอมรับความล่าช้าได้ 30 วินาที
 
-    // เช็ค NodeMCU
-    $mcuReady = ($kiosk->mcu_last_heartbeat > $timeLimit && $kiosk->mcu_status == 'ok');
-    // เช็ค ESP32-CAM
-    $camReady = ($kiosk->cam_last_heartbeat > $timeLimit && $kiosk->cam_status == 'ok');
+        // เช็ค NodeMCU
+        $mcuReady = ($kiosk->mcu_last_heartbeat > $timeLimit && $kiosk->mcu_status == 'ok');
+        // เช็ค ESP32-CAM
+        $camReady = ($kiosk->cam_last_heartbeat > $timeLimit && $kiosk->cam_status == 'ok');
 
-    if (!$mcuReady || !$camReady) {
-        $errorMsg = !$mcuReady ? "ระบบเซนเซอร์ไม่พร้อม " : "";
-        $errorMsg .= !$camReady ? "ระบบกล้องไม่พร้อม" : "";
+        if (!$mcuReady || !$camReady) {
+            $errorMsg = !$mcuReady ? "ระบบเซนเซอร์ไม่พร้อม " : "";
+            $errorMsg .= !$camReady ? "ระบบกล้องไม่พร้อม" : "";
 
-        return response()->json([
-            'status' => 'error',
-            'message' => 'ตู้ไม่พร้อมใช้งาน: ' . $errorMsg
-        ], 503);
+            return response()->json([
+                'status' => 'error',
+                'message' => 'ตู้ไม่พร้อมใช้งาน: ' . $errorMsg
+            ], 503);
+        }
+
+        // ถ้าผ่านทั้งคู่ค่อยอนุญาตให้ Match
+        // ... logic matching ...
     }
-
-    // ถ้าผ่านทั้งคู่ค่อยอนุญาตให้ Match
-    // ... logic matching ...
-}
 
     public function monitor()
     {
@@ -328,74 +329,76 @@ class KioskController extends Controller
         return view('kiosk.ai-camera', compact('kioskId'));
     }
 
-    public function matchKiosk(Request $request) {
-    $kioskId = $request->kiosk_id;
-    $userId = $request->user_id;
+    public function matchKiosk(Request $request)
+    {
+        $kioskId = $request->kiosk_id;
+        $userId = $request->user_id;
 
-    // ตรวจสอบว่าเป็นสมาชิกธนาคารขยะหรือไม่
-    $isMember = KpUserWastePreference::where('user_id', $userId)
-                ->where('is_waste_bank', '1')
-                ->exists();
+        // ตรวจสอบว่าเป็นสมาชิกธนาคารขยะหรือไม่
+        $isMember = KpUserWastePreference::where('user_id', $userId)
+            ->where('is_waste_bank', '1')
+            ->exists();
 
-    if (!$isMember) {
-        return response()->json([
-            'status' => 'error',
-            'message' => 'คุณยังไม่ได้ลงทะเบียนสมาชิกธนาคารขยะ'
-        ], 403);
+        if (!$isMember) {
+            return response()->json([
+                'status' => 'error',
+                'message' => 'คุณยังไม่ได้ลงทะเบียนสมาชิกธนาคารขยะ'
+            ], 403);
+        }
+
+        // ถ้าผ่านการเช็คสิทธิ์ ก็ทำการบันทึกลง kiosk_matches ตามปกติ
+        KioskMatch::create([
+            'kiosk_id' => $kioskId,
+            'user_id' => $userId,
+            'status' => 'pending',
+            'expires_at' => now()->addMinutes(5)
+        ]);
+
+        return response()->json(['status' => 'success']);
     }
 
-    // ถ้าผ่านการเช็คสิทธิ์ ก็ทำการบันทึกลง kiosk_matches ตามปกติ
-    KioskMatch::create([
-        'kiosk_id' => $kioskId,
-        'user_id' => $userId,
-        'status' => 'pending',
-        'expires_at' => now()->addMinutes(5)
-    ]);
+    // ใน KioskController.php
+    public function checkTransactionStatus($kiosk_id)
+    {
+        // ค้นหาตู้หรือรายการ matching ล่าสุด
+        $kiosk = Kiosk::where('id', $kiosk_id)->first();
 
-    return response()->json(['status' => 'success']);
-}
+        if (!$kiosk) {
+            return response()->json(['status' => 'error', 'message' => 'ไม่พบตู้'], 404);
+        }
 
-// ใน KioskController.php
-public function checkTransactionStatus($kiosk_id)
-{
-    // ค้นหาตู้หรือรายการ matching ล่าสุด
-    $kiosk = Kiosk::where('id', $kiosk_id)->first();
+        // ถ้าตู้กลับไปเป็นสถานะ idle หรือมีรายการ Transaction ใหม่เกิดขึ้น
+        // สมมติว่าเมื่อทำงานเสร็จ ESP32 จะส่งค่าน้ำหนักมา และ Server จะเปลี่ยนสถานะตู้เป็น 'idle'
+        if ($kiosk->status == 'idle') {
+            // ดึงข้อมูลแต้มล่าสุดมาโชว์ (ตัวอย่าง)
+            return response()->json([
+                'status' => 'completed',
+                'points' => 10, // หรือดึงจาก table points
+                'message' => 'รายการเสร็จสมบูรณ์'
+            ]);
+        }
 
-    if (!$kiosk) {
-        return response()->json(['status' => 'error', 'message' => 'ไม่พบตู้'], 404);
-    }
-
-    // ถ้าตู้กลับไปเป็นสถานะ idle หรือมีรายการ Transaction ใหม่เกิดขึ้น
-    // สมมติว่าเมื่อทำงานเสร็จ ESP32 จะส่งค่าน้ำหนักมา และ Server จะเปลี่ยนสถานะตู้เป็น 'idle'
-    if ($kiosk->status == 'idle') {
-        // ดึงข้อมูลแต้มล่าสุดมาโชว์ (ตัวอย่าง)
+        // ถ้ายังทำงานไม่เสร็จ
         return response()->json([
-            'status' => 'completed',
-            'points' => 10, // หรือดึงจาก table points
-            'message' => 'รายการเสร็จสมบูรณ์'
+            'status' => 'processing',
+            'message' => 'กำลังรอการชั่งน้ำหนัก...'
         ]);
     }
 
-    // ถ้ายังทำงานไม่เสร็จ
-    return response()->json([
-        'status' => 'processing',
-        'message' => 'กำลังรอการชั่งน้ำหนัก...'
-    ]);
-}
+    public function checkKioskReady($kiosk_id)
+    {
+        $kiosk = Kiosk::find($kiosk_id);
 
-public function checkKioskReady($kiosk_id) {
-    $kiosk = Kiosk::find($kiosk_id);
+        // ตรวจสอบว่าทั้ง MCU และ CAM ส่ง Heartbeat มาใน 10 วินาทีล่าสุดไหม
+        $isMcuReady = $kiosk->mcu_last_active > now()->subSeconds(10);
+        $isCamReady = $kiosk->cam_last_active > now()->subSeconds(10);
 
-    // ตรวจสอบว่าทั้ง MCU และ CAM ส่ง Heartbeat มาใน 10 วินาทีล่าสุดไหม
-    $isMcuReady = $kiosk->mcu_last_active > now()->subSeconds(10);
-    $isCamReady = $kiosk->cam_last_active > now()->subSeconds(10);
-
-    return response()->json([
-        'ready' => ($isMcuReady && $isCamReady),
-        'details' => [
-            'mcu' => $isMcuReady,
-            'cam' => $isCamReady
-        ]
-    ]);
-}
+        return response()->json([
+            'ready' => ($isMcuReady && $isCamReady),
+            'details' => [
+                'mcu' => $isMcuReady,
+                'cam' => $isCamReady
+            ]
+        ]);
+    }
 }

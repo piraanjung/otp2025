@@ -18,14 +18,14 @@ class KioskMatch extends Model
     ];
 
     public function wastePreference()
-{
-    // เชื่อมไปหาตารางธนาคารขยะ
-    return $this->hasOne(KpUserWastePreference::class);
-}
+    {
+        // เชื่อมไปหาตารางธนาคารขยะ
+        return $this->hasOne(KpUserWastePreference::class);
+    }
 
-public function kioskMatches()
-{
-    // ดูประวัติการสแกนตู้
-    return $this->hasMany(KioskMatch::class);
-}
+    public function kioskMatches()
+    {
+        // ดูประวัติการสแกนตู้
+        return $this->hasMany(KioskMatch::class);
+    }
 }
