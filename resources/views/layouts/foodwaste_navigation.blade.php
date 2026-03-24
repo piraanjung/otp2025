@@ -221,4 +221,14 @@
         </div>
     </li>
 
+     <li class="nav-item">
+        <a href="{{ route('logout') }}" class="nav-link active mt-4" style="border: 1px solid red">
+            <div
+                class="fab fa-ubuntu icon-sm shadow border-radius-md bg-danger text-center d-flex align-items-center justify-content-center  me-2">
+            </div>
+            <span class="nav-link-text ms-1 text-danger">Log Out</span>
+        </a>
+
+    </li>
+
 </ul>
