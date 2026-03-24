@@ -4,10 +4,12 @@ namespace App\Http\Controllers;
 
 use App\Models\Admin\Organization;
 use App\Models\Admin\Province;
-use App\Models\AnnualTrashSubscription;
+use App\Models\AnnualTrash\AnnualTrashPayratePerMonth;
+use App\Models\AnnualTrash\AnnualTrashSubscription;
 use App\Models\FoodWaste\CompostBatches;
 use App\Models\FoodWaste\FoodWasteAccount;
 use App\Models\FoodWaste\FoodWasteIssueReport;
+use App\Models\FoodWaste\FoodWasteIssueType;
 use App\Models\KeptKaya\KPAccounts;
 use App\Models\KeptKaya\KpUserWastePreference;
 use App\Models\FoodWaste\MealLog;
@@ -34,84 +36,82 @@ class   LineLiffController extends Controller
         return view('lineliff.index', compact('provinces', 'orgs'));
     }
 
-    public function dashboard($userId, $org_id)
-    {
-        // 1. ดึงข้อมูล User และ Login
-        $user = User::findOrFail($userId);
-        Auth::login($user);
+   public function dashboard($userId, $org_id)
+{
+    // 1. ดึงข้อมูล User และ Login
+    $user = User::findOrFail($userId);
+    Auth::login($user);
 
-        // 2. ดึงข้อมูลบัญชี (New Schema)
-        $recycleAcc = RecycleBankAccount::where('user_id', $userId)->first();
-        $foodWasteAcc = FoodWasteAccount::where('user_id', $userId)->first();
-        $annualTrash = AnnualTrashSubscription::where('user_id', $userId)->first();
+    // 2. ดึงข้อมูลบัญชี (New Schema)
+    $recycleAcc = RecycleBankAccount::where('user_id', $userId)->first();
+    $foodWasteAcc = FoodWasteAccount::where('user_id', $userId)->first();
+    $annualTrash = AnnualTrashSubscription::where('user_id', $userId)->first();
 
-        // 3. สถิติขยะเปียก & ล็อตปุ๋ย
-        $totalWasteWeight = $foodWasteAcc ? $foodWasteAcc->total_weight_kg : 0;
-        $totalCarbonSaved = FoodWasteLog::where('user_id', $userId)->sum('carbon_saved_kg'); // เพิ่มจุดนี้
+    // 3. สถิติขยะเปียก (น้ำหนักรวม และ คาร์บอน)
+    // 🌟 ดึงน้ำหนักสะสมจากบัญชีขยะเปียกโดยตรง
+    $totalWasteWeight = $foodWasteAcc ? $foodWasteAcc->total_weight_kg : 0;
+    $totalCarbonSaved = FoodWasteLog::where('user_id', $userId)->sum('carbon_saved_kg');
 
-        $activeBatch = CompostBatches::where('user_id', $userId)
-            ->where('status', 'filling')
-            ->latest()
-            ->first();
+    // 4. จัดการข้อมูล Batch (ล็อตปุ๋ยปัจจุบัน)
+    $activeBatch = CompostBatches::where('user_id', $userId)
+        ->where('status', 'filling')
+        ->latest()
+        ->first();
 
-        if ($activeBatch) {
-            $days = (int) now()->diffInDays($activeBatch->start_date);
-            $activeBatch->days_passed = ($days == 0) ? 1 : $days;
-            $activeBatch->total_weight = FoodWasteLog::where('batch_id', $activeBatch->id)->sum('weight_kg');
-            $activeBatch->is_ready = $activeBatch->days_passed >= 7;
+    if ($activeBatch) {
+        $days = (int) now()->diffInDays($activeBatch->start_date);
+        $activeBatch->days_passed = ($days == 0) ? 1 : $days;
+        $activeBatch->total_weight = FoodWasteLog::where('batch_id', $activeBatch->id)->sum('weight_kg');
 
-            $lastLog = FoodWasteLog::where('batch_id', $activeBatch->id)->latest()->first();
-            $activeBatch->temp_status = $lastLog ? $lastLog->temperature_feel : 'ยังไม่มีข้อมูล';
-        }
-
-        // 4. ข้อมูลกราฟ 7 วัน (MealLog)
-        $weeklyStats = MealLog::where('user_id', $userId)
-            ->where('created_at', '>=', now()->subDays(6))
-            ->selectRaw('DATE(created_at) as date, SUM(total_calories) as daily_calories')
-            ->groupBy('date')
-            ->orderBy('date', 'ASC')
-            ->get();
-
-        $chartLabels = $weeklyStats->pluck('date')->map(fn($date) => \Carbon\Carbon::parse($date)->format('d/m'))->toArray();
-        $chartData = $weeklyStats->pluck('daily_calories')->toArray();
-
-        if (empty($chartLabels)) {
-            $chartLabels = [now()->format('d/m')];
-            $chartData = [0];
-        }
-
-        // 5. พลังงานและเป้าหมาย
-        $targetCalories = $user->calculateTDEE();
-        $todayCalories = MealLog::where('user_id', $userId)->whereDate('created_at', now())->sum('total_calories');
-
-        // 6. แต้มและเงิน (ใช้จากตารางใหม่)
-        $totalPoints = $recycleAcc ? $recycleAcc->points : 0;
-        $totalBalance = $recycleAcc ? $recycleAcc->balance : 0.00;
-
-        // 7. ส่วนอื่นๆ
-        $qrcode = QrCode::size(300)->generate("USER-" . $userId);
-        $myIssues = FoodWasteIssueReport::where('user_id', $userId)->latest()->get();
-        $pendingIssuesCount = FoodWasteIssueReport::where('user_id', $userId)->where('status', '!=', 'resolved')->count();
-
-        return view('lineliff.dashboard', compact(
-            'user',
-            'recycleAcc',
-            'foodWasteAcc',
-            'annualTrash',
-            'activeBatch',
-            'totalWasteWeight',
-            'totalCarbonSaved',
-            'qrcode',
-            'pendingIssuesCount',
-            'myIssues',
-            'targetCalories',
-            'todayCalories',
-            'totalPoints',
-            'totalBalance',
-            'chartLabels',
-            'chartData'
-        ));
+        $lastLog = FoodWasteLog::where('batch_id', $activeBatch->id)->latest()->first();
+        $activeBatch->temp_status = $lastLog ? $lastLog->temperature_feel : 'ยังไม่มีข้อมูล';
     }
+
+    // 5. ข้อมูลกราฟแคลอรี่ (MealLog)
+    $weeklyStats = MealLog::where('user_id', $userId)
+        ->where('created_at', '>=', now()->subDays(6))
+        ->selectRaw('DATE(created_at) as date, SUM(total_calories) as daily_calories')
+        ->groupBy('date')
+        ->orderBy('date', 'ASC')
+        ->get();
+
+    $chartLabels = $weeklyStats->pluck('date')->map(fn($date) => \Carbon\Carbon::parse($date)->format('d/m'))->toArray();
+    $chartData = $weeklyStats->pluck('daily_calories')->toArray();
+
+    // 6. เป้าหมายแคลอรี่ (TDEE) - ใส่ค่า Default เพื่อให้เส้น Red Line ขึ้นเสมอ
+    $targetCalories = $user->calculateTDEE() ?: 2000;
+    $todayCalories = MealLog::where('user_id', $userId)->whereDate('created_at', now())->sum('total_calories');
+
+    // 7. 🌟 ส่วนสำคัญ: แต้มและเงิน
+    // ดึงแต้มจาก FoodWasteAccount (ขยะเปียก)
+    $foodWasteTotalPoints = $foodWasteAcc ? $foodWasteAcc->points_balance : 0;
+
+    // ดึงเงินจาก RecycleBankAccount (เงินจากการขายขยะรีไซเคิล)
+    $totalBalance = $recycleAcc ? $recycleAcc->balance : 0.00;
+
+    // 8. ข้อมูลอื่นๆ
+    $qrcode = QrCode::size(300)->generate("USER-" . $userId);
+    $myIssues = FoodWasteIssueReport::where('user_id', $userId)->latest()->get();
+    $pendingIssuesCount = FoodWasteIssueReport::where('user_id', $userId)->where('status', '!=', 'resolved')->count();
+    $issueTypes = FoodWasteIssueType::where('is_active', 1)->get();
+    return view('lineliff.dashboard', compact(
+        'user',
+        'totalWasteWeight',
+        'totalCarbonSaved',
+        'activeBatch',
+        'chartLabels',
+        'chartData',
+        'targetCalories',
+        'todayCalories',
+        'foodWasteTotalPoints',    // 🌟 แต้มขยะเปียก
+        'totalBalance',   // 🌟 ยอดเงินคงเหลือ
+        'qrcode',
+        'pendingIssuesCount',
+        'annualTrash',
+        'myIssues',
+        'issueTypes'
+    ));
+}
 
     // public function dashboard($userId, $org_id)
     // {
@@ -353,21 +353,33 @@ class   LineLiffController extends Controller
             ]);
 
             // 4. สร้างบัญชีธนาคารขยะเปียก (เงินชาวบ้าน)
-            FoodWasteAccount::create([
-                'user_id' => $user->id,
-                'balance' => 0,
-                'total_weight_kg' => 0,
-            ]);
+            // FoodWasteAccount::create([
+            //     'user_id' => $user->id,
+            //     'balance' => 0,
+            //     'total_weight_kg' => 0,
+            // ]);
 
             // 5. สร้างสิทธิ์ขยะรายปี (เงินเทศบาล)
             // ตั้งค่าเริ่มต้นเป็น 'waived' (ฟรี) ตามที่คุณต้องการ
-            AnnualTrashSubscription::create([
-                'user_id'        => $user->id,
-                'billing_status' => 'waived',
-                'waive_reason'   => 'new_recycle_member', // ยกเว้นให้เพราะเพิ่งสมัคร
-                'monthly_fee'    => 20.00,
-                'current_debt'   => 0,
-            ]);
+            $date = now();
+$fiscalYear = ($date->month >= 10) ? $date->year + 1 + 543 : $date->year + 543;
+// +543 กรณีต้องการเก็บเป็น พ.ศ. ตามระบบราชการไทย
+
+// 2. ดึงอัตราค่าธรรมเนียมล่าสุด
+$payRate = AnnualTrashPayratePerMonth::where('status', 1)->latest()->first();
+$monthFee = $payRate ? $payRate->payrate_permonth : 20.00;
+
+// 3. บันทึกข้อมูลพร้อมฟิลด์ที่บังคับทั้งหมด
+AnnualTrashSubscription::create([
+    'user_id'        => $user->id,
+    'fiscal_year'    => $fiscalYear,      // 🌟 ส่งค่าปีงบประมาณ (แก้ Error 1364)
+    'month_fee'      => $monthFee,        // 🌟 ส่งค่าธรรมเนียมต่อเดือน
+    'annual_fee'     => $monthFee * 12,   // 🌟 ส่งค่าธรรมเนียมรวมปี
+    'billing_status' => 'waived',
+    'waive_reason'   => 'new_member',
+    'current_debt'   => 0,
+]);
+
 
             // หากทุกอย่างสำเร็จ ยืนยันการบันทึก
             DB::commit();

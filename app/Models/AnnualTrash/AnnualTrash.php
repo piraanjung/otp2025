@@ -1,8 +1,9 @@
 <?php
 
-namespace App\Models\KeptKaya;
+namespace App\Models\AnnualTrash;
 
 use App\Models\AnnualTrash\AnnualTrashSubscription;
+use App\Models\KeptKaya\KpUserGroup;
 use App\Models\User;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;

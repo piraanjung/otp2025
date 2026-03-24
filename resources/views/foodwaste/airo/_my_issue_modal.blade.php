@@ -19,11 +19,9 @@
                                     style="font-size: 0.7rem;">{{ $issue->created_at->diffForHumans() }}</small>
                             </div>
                             <h6 class="fw-bold mb-1">
-                                @if($issue->issue_type == 'smell') 🤢 มีกลิ่นเหม็น
-                                @elseif($issue->issue_type == 'maggots') 🐛 พบหนอน
-                                @elseif($issue->issue_type == 'wet') 💧 ถังแฉะ
-                                @else ⚠️ อื่นๆ @endif
+                                {{ $issue->issueType->name }}
                             </h6>
+
                             <p class="small text-muted mb-2">{{ $issue->description }}</p>
 
                             @if($issue->staff_comment)

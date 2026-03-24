@@ -92,7 +92,7 @@
             </div>
 
             <div class="mt-3 d-grid">
-                <a href="{{ route('foodwaste.airo.batch_detail',$batch->id) }}" class="btn btn-outline-secondary btn-sm rounded-pill">ดูรายละเอียดการเทขยะ</a>
+                <a href="{{ route('foodwaste.airo.batch_detail', ['id' => $batch->id]) }}"  class="btn btn-outline-secondary btn-sm rounded-pill">ดูรายละเอียดการเทขยะ</a>
             </div>
         </div>
     </div>

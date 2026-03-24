@@ -16,7 +16,7 @@ return new class extends Migration
 
             // 1. เพิ่ม nullable() ก่อน constrained() เสมอเมื่อใช้ onDelete('set null')
             $table->foreignId('user_id')->nullable()->constrained('users')->onDelete('set null');
-            $table->foreignId('batch_id')->nullable()->constrained('compost_batches')->onDelete('set null');
+            $table->foreignId('batch_id')->nullable()->constrained('foodwaste_compost_batches')->onDelete('set null');
             $table->foreignId('issue_type_id')->nullable()->constrained('foodwaste_issue_types')->onDelete('set null');
 
             $table->string('description')->nullable();

@@ -4,9 +4,9 @@ namespace App\Http\Controllers\FoodWaste;
 
 use App\Http\Controllers\Controller;
 use App\Models\Admin\Organization;
-use App\Models\KeptKaya\AnnualTrashSubscription;
-use App\Models\KeptKaya\AnnualTrashPayment;
-use App\Models\KeptKaya\AnnualTrash; // To potentially link from AnnualTrash details
+use App\Models\AnnualTrash\AnnualTrashSubscription;
+use App\Models\AnnualTrash\AnnualTrashPayment;
+use App\Models\AnnualTrash\AnnualTrash; // To potentially link from AnnualTrash details
 use App\Models\User;
 use Barryvdh\DomPDF\Facade\Pdf;
 use Illuminate\Http\Request;

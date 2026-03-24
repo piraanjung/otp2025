@@ -13,6 +13,7 @@ use App\Models\User;
 use App\Models\Admin\Zone;
 use App\Models\FoodWaste\FoodWasteAccount;
 use App\Models\AnnualTrash\AnnualTrashPayratePerMonth;
+use App\Models\FoodWaste\FoodWasteUserPreference;
 use App\Models\RecycleBankAccount;
 use App\Models\Tabwater\TwUsersInfos;
 use Illuminate\Http\Request;
@@ -556,32 +557,40 @@ class UserController extends Controller
             );
         }
 
-        // --- ธนาคารขยะเปียก (AiroBact Bin) ---
+        // 4. บริการธนาคารขยะเปียก (AiroBact)
         if ($request->has('svc_food_waste')) {
-            FoodWasteAccount::firstOrCreate(
-                ['user_id' => $user->id],
-                ['points_balance' => 0, 'total_weight_kg' => 0]
-            );
+            // 🌟 สำคัญ: ต้องสร้าง Preference ก่อน เพื่อป้องกัน Error ใน Dashboard
+            $preference = FoodWasteUserPreference::create([
+                'user_id' => $user->id,
+                'setup_status' => 'completed',
+                'compost_bin_type' => 'AiroBact_Bin',
+            ]);
+
+            // สร้าง Account โดยผูกกับ User หรือ Preference (ตามโครงสร้าง DB ล่าสุดของคุณ)
+            FoodWasteAccount::create([
+                'user_id' => $user->id,
+                // 'fw_pref_id_fk' => $preference->id, // ถ้า DB ใช้ตัวนี้ให้เปิดบรรทัดนี้แทน
+                'points_balance' => 0,
+                'total_weight_kg' => 0,
+            ]);
         }
 
-        // --- ค่าขยะรายปี (Annual Trash) ---
+        // 5. บริการขยะรายปี
         if ($request->has('svc_annual_trash')) {
             $payRate = AnnualTrashPayratePerMonth::where('status', 1)->latest()->first();
-            $monthFee = $payRate ? $payRate->payrate_permonth : 20;
+            $monthFee = $payRate ? $payRate->payrate_permonth : 20.00;
 
-            AnnualTrashSubscription::firstOrCreate(
-                [
-                    'user_id' => $user->id,
-                    'fiscal_year' => AnnualTrashSubscription::calculateFiscalYear()
-                ],
-                [
-                    'payrate_permonth_id_fk' => $payRate->id ?? null,
-                    'month_fee' => $monthFee,
-                    'annual_fee' => $monthFee * 12,
-                    'status' => 'active'
-                ]
-            );
+            AnnualTrashSubscription::create([
+                'user_id' => $user->id,
+                'fiscal_year' => AnnualTrashSubscription::calculateFiscalYear(),
+                'payrate_permonth_id_fk' => $payRate->id ?? null,
+                'month_fee' => $monthFee,
+                'annual_fee' => $monthFee * 12,
+                'status' => 'active',
+                'billing_status' => 'waived', // ให้สิทธิ์ฟรีเริ่มต้น
+            ]);
         }
+
 
         DB::commit();
         return redirect()->route('admin.users.index')->with('success', 'อัปเดตข้อมูลและสิทธิ์บริการเรียบร้อยแล้ว');

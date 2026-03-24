@@ -13,7 +13,7 @@ use App\Models\AnnualTrash\AnnualTrashPayment;
 use App\Models\AnnualTrash\AnnualTrashSubscription;
 use App\Models\FoodWaste\CompostBatches;
 use App\Models\KeptKaya\KpUserWastePreference;
-use App\Models\KeptKaya\AnnualTrash;
+use App\Models\AnnualTrash\AnnualTrash;
 use App\Models\Tabwater\TwMeterInfos;
 use App\Models\Tabwater\UndertakerSubzone;
 use Laravel\Sanctum\HasApiTokens;

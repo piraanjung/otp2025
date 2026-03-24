@@ -8,8 +8,8 @@ use App\Models\FoodWaste\FoodAnnualTrash;
 use App\Models\FoodWaste\FoodAnnualTrashStocks;
 use App\Models\FoodWaste\FoodwastIotbox;
 use App\Models\User;
-use App\Models\KeptKaya\AnnualTrashSubscription; // Import AnnualTrashSubscription model
-use App\Models\KeptKaya\AnnualTrash;
+use App\Models\AnnualTrash\AnnualTrashSubscription; // Import AnnualTrashSubscription model
+use App\Models\AnnualTrash\AnnualTrash;
 use App\Services\UserWasteStatusService;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;

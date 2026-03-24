@@ -1,5 +1,6 @@
 @extends('layouts.print')
 @section('style')
+    <meta name="csrf-token" content="{{ csrf_token() }}">
     <style>
         @import url("https://fonts.googleapis.com/css?family=Fredoka+One");
 
@@ -745,13 +746,13 @@
             </div>
         </div>
 
-        <div class="form-group p-4">
+        {{-- <div class="form-group p-4">
             <div class="org-selector-wrapper">
                 <label class="w-50">
                     <input type="radio" class="org-radio-input member_status" name="member_status" id="new_user"
                         value="new_user">
                     <div class="org-card">
-                        <i class="bi bi-building"></i> {{-- ต้องมี Bootstrap Icons --}}
+                        <i class="bi bi-building"></i>
                         <span>ยังไม่เป็นสมาชิก</span>
                     </div>
                 </label>
@@ -765,7 +766,7 @@
                     </div>
                 </label>
             </div>
-        </div>
+        </div> --}}
     </div>
 
     <div class="container-fluid p-0" style="max-width: 600px; margin: 0 auto;">
@@ -820,10 +821,11 @@
 
                                 <label class="w-50">
                                     <input type="radio" class="org-radio-input" name="org_type_selector" id="type_uni"
-                                        value="uni" checked>
+                                        value="uni">
                                     <div class="org-card">
                                         <i class="bi bi-mortarboard-fill"></i>
-                                        <span>มหาวิทยาลัย</span>
+                                        <span>&nbsp;มหาวิทยาลัย &nbsp;&nbsp;</span>
+                                        <br>
                                     </div>
                                 </label>
 
@@ -832,14 +834,14 @@
                                         value="hospital">
                                     <div class="org-card">
                                         <i class="bi bi-hospital-fill"></i>
-                                        <span>โรงพยาบาล</span>
+                                        <span>&nbsp;โรงพยาบาล&nbsp;&nbsp;</span>
                                     </div>
                                 </label>
                             </div>
                         </div>
 
                         {{-- 3. Dropdown ชื่อหน่วยงาน --}}
-                        <div class="form-floating mb-4">
+                        <div class="form-floating mb-4 d-none" id="org_display_div">
                             <input type="text" id="org_display" class="form-control clickable-input"
                                 placeholder="เลือกหน่วยงาน..." readonly>
                             <label id="org_label">ระบุชื่อมหาวิทยาลัย</label>
@@ -1028,7 +1030,8 @@
                     }).then(function (data) {
                         console.log('dta', data);
                         if (data.res == 0) {
-                            $('#index_page').removeClass('d-none');
+                            $('#index_page').addClass('d-none');
+                            $('#new_user_form').removeClass('d-none')
                             // phone_div.classList.remove('hidden'); // ตรวจสอบว่าตัวแปร phone_div ประกาศไว้ที่ไหน
                         }
                         if (data.res == 1) {
@@ -1043,25 +1046,36 @@
         }
         // --- จบส่วนที่ปรับปรุง ---
 
-        $('.member_status').click(function () {
-            $('#index_page').addClass('d-none')
-            $('.profile-header').removeClass('d-none')
-            let val = $(this).val()
-            if (val === 'new_user') {
-                $('#member_form').addClass('d-none')
-                $('#new_user_form').removeClass('d-none')
-            } else {
-                $('#member_form').removeClass('d-none')
-                $('#new_user_form').addClass('d-none')
-            }
+        // $('.member_status').click(function () {
+        $(document).ready(function () {
+             $.ajaxSetup({
+                    headers: {
+                        'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
+                    }
+                });
+            setTimeout(function () {
+                $('#index_page').addClass('d-none')
+                $('.profile-header').removeClass('d-none')
+                // let val = $(this).val()
+                // if (val === 'new_user') {
+                //     $('#member_form').addClass('d-none')
+                //     $('#new_user_form').removeClass('d-none')
+                // } else {
+                //     $('#member_form').removeClass('d-none')
+                //     $('#new_user_form').addClass('d-none')
+                // }
+            }, 1500)
+
         })
 
-        $('#to_index_page').click(function () {
-            $('#index_page').removeClass('d-none')
-            $('.profile-header').addClass('d-none')
-            $('#member_form').removeClass('d-none').addClass('d-none')
-            $('#new_user_form').removeClass('d-none').addClass('d-none')
-        })
+        // })
+
+        // $('#to_index_page').click(function () {
+        //     $('#index_page').removeClass('d-none')
+        //     $('.profile-header').addClass('d-none')
+        //     $('#member_form').removeClass('d-none').addClass('d-none')
+        //     $('#new_user_form').removeClass('d-none').addClass('d-none')
+        // })
 
         const sendMessage = async () => {
             const body = {
@@ -1131,9 +1145,12 @@
             console.log("Sending data:", payload);
 
             try {
+
                 const response = await $.post(`/line/user_line_register`, payload);
+                            console.log("response data:", response);
+
                 if (response.res == 1) {
-                    window.location.href = `/line/dashboard/${response.waste_pref_id}/${org_id_text.value}/1`;
+                    window.location.href = `/line/dashboard/${response.user_id}/${org_id_text.value}/1`;
                 } else {
                     // กรณีอื่นๆ
                 }
@@ -1249,6 +1266,9 @@
             } else if (type === 'hospital') {
                 org_label = 'ระบุชื่อโรงพยาบาล';
             }
+            $('#org_display_div').removeClass('d-none')
+            $('#location_info_display').addClass('d-none');
+
             $('#org_label').html(org_label)
             resetForm(); // ล้างค่าเก่าออก
             filterOrgList(type); // กรองข้อมูลใหม่ใส่ Cache
@@ -1261,9 +1281,10 @@
             // Loop ข้อมูลดิบ แล้วเลือกเฉพาะที่ตรงประเภท
             for (const [key, org] of Object.entries(allOrganizations)) {
                 let isUni = (org.org_short_type_name === 'ม.');
+                let isLgov = (org.org_short_type_name === 'อบต.' || org.org_short_type_name === 'ทต.');
                 let isHospital = (org.org_short_type_name === 'รพ.' || org.org_short_type_name === 'รพสต.');
 
-                if ((type === 'uni' && isUni) || (type === 'general' && !isUni) || (type === 'hospital' && (isHospital))) {
+                if ((type === 'uni' && isUni) || (type === 'general' && isLgov) || (type === 'hospital' && (isHospital))) {
                     // สร้าง Object สำหรับ Modal
                     orgListCache.push({
                         id: key, // key คือ ID ใน object json
@@ -1329,16 +1350,16 @@
                     let id = item.id;
 
                     html += `
-                        <a href="#" class="list-group-item list-group-item-action py-3 select-item-btn"
-                           data-id="${id}" data-type="${currentModalType}">
-                            <div class="d-flex w-100 justify-content-between align-items-center">
-                                <div>
-                                    <div class="fw-bold text-dark">${name}</div>
-                                    ${desc ? `<small class="text-muted">${desc}</small>` : ''}
-                                </div>
-                                <i class="bi bi-chevron-right text-muted opacity-50"></i>
-                            </div>
-                        </a>`;
+                                    <a href="#" class="list-group-item list-group-item-action py-3 select-item-btn"
+                                       data-id="${id}" data-type="${currentModalType}">
+                                        <div class="d-flex w-100 justify-content-between align-items-center">
+                                            <div>
+                                                <div class="fw-bold text-dark">${name}</div>
+                                                ${desc ? `<small class="text-muted">${desc}</small>` : ''}
+                                            </div>
+                                            <i class="bi bi-chevron-right text-muted opacity-50"></i>
+                                        </div>
+                                    </a>`;
                 });
             }
             $('#modalListContainer').html(html);
@@ -1350,6 +1371,7 @@
             let id = $(this).data('id');
             let type = $(this).data('type');
             console.log('idd', id)
+            $('#location_info_display').addClass('d-none');
 
             // หา Object เต็มจาก Cache (เพื่อเอาข้อมูลอื่นมาใช้)
             // สำหรับ Org เราเก็บ fullData ไว้, สำหรับ Zone/Subzone อาจจะต้อง find
@@ -1393,17 +1415,17 @@
             $('#tambon_id').val(orgData.org_tambon_id_fk);
 
             // 3. Set Display Location (สำหรับ อบต.)
-            $('#show_province').val(orgData.provinces.province_name);
-            $('#show_district').val(orgData.districts.district_name);
-            $('#show_tambon').val(orgData.tambons.tambon_name);
+            $('#show_province').val('จ. ' + orgData.provinces.province_name);
+            $('#show_district').val('อ. ' + orgData.districts.district_name);
+            $('#show_tambon').val('ต. ' + orgData.tambons.tambon_name);
 
             // 4. Check Type (ม. หรือ อบต.)
             let isUni = (orgData.org_short_type_name === 'ม.');
             let isHospital = (orgData.org_short_type_name === 'รพ.' || orgData.org_short_type_name === 'รพสต.');
+            $('#location_info_display').removeClass('d-none');
 
             if (isUni) {
                 // === มหาวิทยาลัย ===
-                $('#location_info_display').addClass('d-none');
                 $('#address_div').addClass('d-none');
                 $('#address').val('-');
 
@@ -1412,7 +1434,6 @@
                 $('#zone_display').attr('placeholder', 'แตะเพื่อเลือกคณะ...');
                 $('#subzone_display').attr('placeholder', 'แตะเพื่อเลือกสาขา...');
             } else if (isHospital) {
-                $('#location_info_display').addClass('d-none');
                 $('#address_div').addClass('d-none');
                 $('#address').val('-');
 
@@ -1423,7 +1444,6 @@
             }
             else {
                 // === อบต. ===
-                $('#location_info_display').removeClass('d-none');
                 $('#address_div').removeClass('d-none');
                 if ($('#address').val() === '-') $('#address').val('');
 
@@ -1453,6 +1473,7 @@
 
             // ** อย่าลืมแก้ URL ให้ตรงกับ Route ของคุณ **
             $.get(`/api/subzone/get_subzones_in_zone/${zoneId}`).done(function (data) {
+                console.log('get_subzones_in_zone=' + zoneId, data)
                 subzoneListCache = data || [];
                 if (subzoneListCache.length > 0) {
                     $('#subzone_display').val('').prop('disabled', false).attr('placeholder', 'แตะเพื่อเลือก...');

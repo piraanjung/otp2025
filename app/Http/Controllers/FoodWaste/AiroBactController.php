@@ -130,12 +130,12 @@ class AiroBactController extends Controller
             $wasteLog = FoodWasteLog::create([
                 'user_id' => Auth::id(),
                 'batch_id' => $activeBatch->id,
-                'weight_kg' =>$weightKg,
+                'weight_kg' => $weightKg,
                 'photo_path' => $path,
                 'is_mixed' => $request->has('is_mixed'),
                 'moisture' => $request->moisture,
                 'carbon_saved_kg' => $carbonSaved,
-                'estimated_weight' =>$weightKg,
+                'estimated_weight' => $weightKg,
             ]);
 
             // 2. ดึงค่า Config (เพิ่มค่า Default เพื่อป้องกัน Error)
@@ -353,13 +353,16 @@ class AiroBactController extends Controller
     public function batchHistory()
     {
         $userId = Auth::id();
+        $user = User::with('foodwastePreference')->find($userId);
 
-        // ดึงข้อมูล Batch ของ User พร้อมกับข้อมูลขยะที่ผูกอยู่
+        // ดึง Batches
         $batches = CompostBatches::with('wasteLogs')
             ->where('user_id', $userId)
             ->latest()
             ->get();
-        $waste_preference = User::where('id', $userId)->with('foodwastePreference')->get()->first();
+
+        // 🌟 ดึง Preference (ถ้าไม่มีให้เป็น null หรือสร้างใหม่)
+        $waste_preference = $user->foodwastePreference;
 
         return view('foodwaste.airo.batch_history', compact('batches', 'waste_preference'));
     }
@@ -382,23 +385,25 @@ class AiroBactController extends Controller
     public function reportIssue(Request $request)
     {
         $request->validate([
-            'issue_type' => 'required',
+            'issue_type' => 'required|exists:foodwaste_issue_types,id', // ตรวจสอบว่า ID มีจริง
             'description' => 'nullable|string'
         ]);
 
-        // บันทึกลงฐานข้อมูล (อย่าลืมสร้าง Migration สำหรับตารางนี้)
+        // หา Batch ID ของถังที่กำลังเติมอยู่
+        $batchId = CompostBatches::where('user_id', Auth::id())
+            ->where('status', 'filling')
+            ->value('id');
+
+        // บันทึกข้อมูล
         FoodWasteIssueReport::create([
             'user_id' => Auth::id(),
-            'batch_id' => CompostBatches::where('user_id', Auth::id())->where('status', 'filling')->value('id'),
-            'issue_type' => $request->issue_type,
+            'batch_id' => $batchId, // 🌟 ถ้าเป็น NULL และ DB ไม่ได้ตั้งเป็น nullable จะพังจุดนี้
+            'issue_type_id' => $request->issue_type, // 🌟 เปลี่ยนชื่อให้ตรงกับ Model
             'description' => $request->description,
-            'status' => 'pending' // รอนิ่งจากเจ้าหน้าที่
+            'status' => 'pending'
         ]);
 
-        // ตัวเลือกเสริม: ส่ง Notification หาเจ้าหน้าที่ผ่าน LINE Notify หรือ Email
-        // $this->notifyStaff($request->issue_type);
-
-        return back()->with('success', 'ได้รับข้อมูลแจ้งปัญหาแล้ว เจ้าหน้าที่จะติดต่อกลับโดยเร็วที่สุดครับ');
+        return back()->with('success', 'แจ้งปัญหาเรียบร้อยแล้วครับ');
     }
 
     public function howTo()

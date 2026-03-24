@@ -14,14 +14,17 @@
                         <label class="form-label fw-bold small">หัวข้อปัญหา</label>
                         <select name="issue_type" class="form-select border-0 bg-light rounded-3" required>
                             <option value="">-- โปรดเลือกปัญหา --</option>
-                            <option value="smell">ถังหมักมีกลิ่นเหม็นเน่า</option>
+                            {{-- <option value="smell">ถังหมักมีกลิ่นเหม็นเน่า</option>
                             <option value="maggots">พบหนอน/แมลงเยอะเกินไป</option>
                             <option value="wet">ถังแฉะ มีน้ำเยิ้ม</option>
                             <option value="mold">พบราสีดำ (กังวลว่าเป็นเชื้อราไม่ดี)</option>
-                            <option value="other">อื่นๆ (โปรดระบุ)</option>
+                            <option value="other">อื่นๆ (โปรดระบุ)</option> --}}
+                            @foreach ($issueTypes as $issueType)
+                                <option value="{{ $issueType->id }}">{{ $issueType->name }}</option> 
+                            @endforeach
                         </select>
                     </div>
-
+                    <div id="auto-advice" class="alert alert-warning d-none"></div>
                     <div class="mb-3">
                         <label class="form-label fw-bold small">รายละเอียดเพิ่มเติม</label>
                         <textarea name="description" class="form-control border-0 bg-light rounded-3" rows="3" placeholder="อธิบายอาการเพิ่มเติม..."></textarea>

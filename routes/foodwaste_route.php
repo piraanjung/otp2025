@@ -14,6 +14,7 @@ use App\Http\Controllers\FoodWaste\FoodWasteBankController;
 use App\Http\Controllers\FoodWaste\UserMatchingWasteBinsController;
 use App\Http\Controllers\FoodWaste\FoodwastIotboxController;
 use App\Http\Controllers\FoodWaste\UserFoodWasteController;
+use App\Http\Controllers\FoodWaste\UserMatchingAnnualTrashsController;
 use App\Http\Controllers\Keptkaya\KpUserGroupController;
 use App\Http\Controllers\KeptKaya\RecycleWasteStaffCotroller;
 use Illuminate\Support\Facades\Route;
@@ -75,7 +76,7 @@ Route::middleware(['auth', 'role:Super Admin|Admin|FoodWaste Staff|User'])->pref
         Route::post('/report-issue', [AiroBactController::class, 'reportIssue'])->name('report_issue');
         Route::get('/how-to', [AiroBactController::class, 'howTo'])->name('how_to');
 
-        Route::get('/dashboard', [AiroBactController::class, 'index'])->name('dashboard');
+        Route::get('/dashboard/{type?}', [AiroBactController::class, 'index'])->name('dashboard');
     });
     Route::post('/store-meal', [AiroBactController::class, 'analyzeMeal'])->name('store_meal');
     Route::post('/store-waste', [AiroBactController::class, 'storeWaste'])->name('store_waste');
@@ -88,7 +89,7 @@ Route::middleware(['auth', 'role:Super Admin|Admin|FoodWaste Staff'])->prefix('f
     Route::get('/dashboard', [DashboardController::class, 'index'])->name('dashboard');
     // Admin Routes
 
-    Route::get('waste-bins/viewmap', [UserMatchingWasteBinsController::class, 'viewmap'])->name('foodwaste_bins.viewmap'); // NEW ROUTE
+    Route::get('waste-bins/viewmap', [UserMatchingAnnualTrashsController::class, 'viewmap'])->name('foodwaste_bins.viewmap'); // NEW ROUTE
 
     Route::get('/users/foodwaste_bin_users', [UserFoodWasteController::class, 'foodwaste_bin_users'])->name('users.foodwaste_bin_users');
     Route::get('/users/search/{query}', [UserFoodWasteController::class, 'search'])->name('users.search');
@@ -97,13 +98,13 @@ Route::middleware(['auth', 'role:Super Admin|Admin|FoodWaste Staff'])->prefix('f
     Route::resource('users', UserFoodWasteController::class);
 
     Route::prefix('/{wasteBin}/waste-bins')->name('waste_bins.')->group(function () {
-        Route::get('/', [UserMatchingWasteBinsController::class, 'index'])->name('index');
-        Route::get('/create', [UserMatchingWasteBinsController::class, 'create'])->name('create');
-        Route::post('/', [UserMatchingWasteBinsController::class, 'store'])->name('store');
-        Route::get('/edit', [UserMatchingWasteBinsController::class, 'edit'])->name('edit');
+        Route::get('/', [UserMatchingAnnualTrashsController::class, 'index'])->name('index');
+        Route::get('/create', [UserMatchingAnnualTrashsController::class, 'create'])->name('create');
+        Route::post('/', [UserMatchingAnnualTrashsController::class, 'store'])->name('store');
+        Route::get('/edit', [UserMatchingAnnualTrashsController::class, 'edit'])->name('edit');
     });
-    Route::put('waste-bins/{waste_bin}', [UserMatchingWasteBinsController::class, 'update'])->name('waste_bins.update');
-    Route::get('waste-bins/map', [UserMatchingWasteBinsController::class, 'map'])->name('waste_bins.map'); // NEW ROUTE
+    Route::put('waste-bins/{waste_bin}', [UserMatchingAnnualTrashsController::class, 'update'])->name('waste_bins.update');
+    Route::get('waste-bins/map', [UserMatchingAnnualTrashsController::class, 'map'])->name('waste_bins.map'); // NEW ROUTE
     //
     Route::resource('iotboxes', FoodwastIotboxController::class);
     // Route สำหรับดึงข้อมูลพรีวิวผ่าน AJAX
