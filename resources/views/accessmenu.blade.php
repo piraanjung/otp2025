@@ -265,9 +265,14 @@
     <div id="otp-connect">
         <div class="icon-box wow fadeInUp" data-wow-delay="0.2s">
             {{$orgInfos['org_code']}}:PIOS
-            {{--
+
             <hr style="margin-bottom: 3px;margin-top: 3px;">
-            <div id="org_addr">พัฒนาชุมชน เชื่อมใจ ให้ใกล้กัน</div> --}}
+            <form action="{{ route('logout') }}">
+                @csrf
+            <input type="submit" value="ออกจากระบบ">
+
+            </form>
+            <div id="org_addr">พัฒนาชุมชน เชื่อมใจ ให้ใกล้กัน</div>
         </div>
     </div>
     <div id="org" class="icon-box wow fadeInUp" data-wow-delay="0.4s">
