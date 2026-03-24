@@ -23,7 +23,7 @@ class AccessMenusController extends Controller
     {
         $user = User::find(Auth::id());
 
-        $isStaff = $user->hasRole(['Recycle Bank Staff', 'Tabwater Staff']);
+        $isStaff = $user->hasRole(['Recycle Bank Staff', 'Tabwater Staff', 'Staff']);
 
         // 2. เช็ค Session ก่อนเลย ว่าเคยถูกจำว่าเป็น mobile แล้วหรือยัง?
         if (Session::get('is_mobile') && $isStaff) {
