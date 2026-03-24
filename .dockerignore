@@ -1,5 +1,8 @@
 /vendor
 /node_modules
-/storage
-/public/build
 .env
+# ลบ /storage ออก หรือใช้แบบข้างล่างแทนเพื่อให้ Folder ยังอยู่
+/storage/framework/cache/*
+/storage/framework/sessions/*
+/storage/framework/views/*
+/storage/logs/*
