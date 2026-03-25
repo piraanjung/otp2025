@@ -2,7 +2,9 @@
 
 namespace App\Http\Controllers\KeptKaya;
 
+use App\Exports\PriceTemplateExport;
 use App\Http\Controllers\Controller;
+use App\Imports\KpTbankPriceImport;
 use App\Models\Admin\Organization;
 use App\Models\KeptKaya\KpTbankItems;
 use App\Models\KeptKaya\KpTbankItemsPriceAndPoint;
@@ -14,6 +16,7 @@ use Illuminate\Validation\Rule;
 use Illuminate\Support\Facades\Auth;
 use Carbon\Carbon;
 use Illuminate\Support\Facades\DB;
+use Maatwebsite\Excel\Facades\Excel;
 
 class KpTbankPriceController extends Controller
 {
@@ -38,9 +41,9 @@ class KpTbankPriceController extends Controller
         $price      = new KpTbankItemsPriceAndPoint();
         $items      = KpTbankItems::where('org_id_fk', Auth::user()->org_id_fk)->get();
         $units      = KpTbankUnits::where('org_id_fk', Auth::user()->org_id_fk)->get();
-        $recorders  = Staff::whereHas('user', function($q){
-                            $q->where('org_id_fk', Auth::user()->org_id_fk);
-                        })->get();
+        $recorders  = Staff::whereHas('user', function ($q) {
+            $q->where('org_id_fk', Auth::user()->org_id_fk);
+        })->get();
 
         return view('keptkayas.tbank.prices.create', compact('price', 'items', 'units', 'recorders'));
     }
@@ -120,13 +123,12 @@ class KpTbankPriceController extends Controller
                     'updated_at'            => date('Y-m-d H:i:s'),
                 ]);
             }
-            
         }
-// return 'ss';
+        // return 'ss';
         return redirect()->route('keptkayas.tbank.prices.index')
             ->with('success', 'บันทึกรายการกำหนดราคาหลายรายการเรียบร้อยแล้ว');
     }
-    
+
 
     /**
      * Show the form for editing the specified price.
@@ -186,5 +188,33 @@ class KpTbankPriceController extends Controller
         $price->delete();
         return redirect()->route('keptkayas.tbank.prices.index')
             ->with('success', 'ราคารับซื้อถูกลบเรียบร้อยแล้ว');
+    }
+
+    public function export()
+    {
+        // ใช้ Org ID จาก Session ของ Super Admin หรือจาก Auth ปกติ
+        $orgId = session('active_org_id') ?? Auth::user()->org_id_fk;
+
+        $fileName = 'price_template_' . date('Ymd_His') . '.xlsx';
+
+        return Excel::download(new PriceTemplateExport($orgId), $fileName);
+    }
+
+    public function import(Request $request)
+    {
+        $orgId = Auth::user()->org_id_fk;
+        $import = new KpTbankPriceImport($orgId);
+
+        try {
+            Excel::import($import, $request->file('file'));
+
+            if ($import->successCount > 0) {
+                return back()->with('success', "นำเข้าข้อมูลสำเร็จ {$import->successCount} รายการ");
+            } else {
+                return back()->with('error', "ไม่มีข้อมูลถูกนำเข้า กรุณาตรวจสอบว่า Item ID และชื่อหน่วยนับตรงกับในระบบหรือไม่ (ดูรายละเอียดใน Log)");
+            }
+        } catch (\Exception $e) {
+            return back()->with('error', "เกิดข้อผิดพลาดรุนแรง: " . $e->getMessage());
+        }
     }
 }

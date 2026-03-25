@@ -7,6 +7,7 @@ use App\Models\Admin\ManagesTenantConnection;
 use App\Models\Admin\Organization;
 use App\Models\Admin\Province;
 use App\Models\KeptKaya\KPAccounts;
+use App\Models\KeptKaya\KpPurchaseTransaction;
 use App\Models\KeptKaya\KpUserWastePreference;
 use App\Models\SuperUser;
 use App\Models\Tabwater\SequenceNumber;
@@ -14,6 +15,8 @@ use App\Models\User;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Hash;
+use Illuminate\Support\Facades\Http;
+use Illuminate\Support\Facades\Log;
 use Illuminate\Testing\Fluent\Concerns\Has;
 use SimpleSoftwareIO\QrCode\Facades\QrCode;
 
@@ -210,6 +213,189 @@ class LineController extends Controller
             'user_id'       => $user_id,
             'org_id'        => $request->org_id,
             'waste_pref_id' => $waste_pref_id
+        ]);
+    }
+
+    // app/Http/Controllers/Api/LineController.php
+
+    public function handleWebhook(Request $request)
+    {
+        Log::info('LINE Webhook Data: ', $request->all());
+        $events = $request->input('events', []);
+
+        foreach ($events as $event) {
+            if ($event['type'] === 'message' && $event['message']['type'] === 'text') {
+                $replyToken = $event['replyToken'];
+                $userText = trim($event['message']['text']);
+                $lineId = $event['source']['userId'];
+
+                // เงื่อนไข: ถ้าพิมพ์ว่า "ใบเสร็จ"
+                if (str_contains($userText, 'ใบเสร็จ')) {
+                    $this->replyWithLastReceipt($lineId, $replyToken);
+                }
+
+                // เงื่อนไข: ถ้าพิมพ์ว่า "แต้ม" (แถมให้)
+                if (str_contains($userText, 'แต้ม')) {
+                    $this->replyWithPoints($lineId, $replyToken);
+                }
+            }
+        }
+        return response()->json(['status' => 'ok']);
+    }
+
+    /**
+     * ค้นหาใบเสร็จล่าสุดและตอบกลับด้วย Flex Message (ฟรี)
+     */
+    public function replyWithLastReceipt($lineId, $replyToken)
+    {
+        $transaction = KpPurchaseTransaction::whereHas('userWastePreference.user', function ($q) use ($lineId) {
+            $q->where('line_id', $lineId);
+        })
+            // ตรวจสอบชื่อ Relation 'details' ใน KpPurchaseTransaction ให้ดีว่าเชื่อมไปที่ Detail หรือยัง
+            ->with(['details.item', 'userWastePreference.user'])
+            ->latest()
+            ->first();
+        if (!$transaction) {
+            return $this->replyText($replyToken, "บักแอโร่ยังไม่พบประวัติการขายขยะของคุณครับ" . $lineId);
+        } else
+
+            $flexData = $this->buildFlexReceipt($transaction);
+
+        $response = Http::withHeaders([
+            'Authorization' => 'Bearer ' . env('LINE_CHANNEL_ACCESS_TOKEN'),
+        ])->post('https://api.line.me/v2/bot/message/reply', [
+            'replyToken' => $replyToken,
+            'messages' => [
+                [
+                    'type' => 'flex',
+                    'altText' => 'ใบเสร็จล่าสุดจากบักแอโร่',
+                    'contents' => $flexData
+                ]
+            ]
+        ]);
+
+        if ($response->failed()) {
+            Log::error("LINE Reply Error: " . $response->body());
+        }
+    }
+
+
+    public function buildFlexReceipt($transaction)
+    {
+        $itemContents = [];
+        // $transaction = KpPurchaseTransaction::find(1);
+        // 1. วนลูปสร้างรายการสินค้าก่อน
+        foreach ($transaction->details as $detail) {
+            $itemContents[] = [
+                "type" => "box",
+                "layout" => "horizontal",
+                "contents" => [
+                    [
+                        "type" => "text",
+                        "text" => (string)($detail->item->kp_itemsname ?? 'ไม่ระบุชื่อ') . " (" . (float)$detail->amount . ")",
+                        "size" => "sm",
+                        "color" => "#555555",
+                        "flex" => 4,
+                        "wrap" => true
+                    ],
+                    [
+                        "type" => "text",
+                        "text" => number_format($detail->total_price, 2),
+                        "size" => "sm",
+                        "color" => "#111111",
+                        "align" => "end",
+                        "flex" => 2
+                    ]
+                ]
+            ];
+        }
+
+        // 2. ถ้าวนลูปเสร็จแล้วยังว่าง (ไม่มีสินค้าจริงๆ) ค่อยใส่ข้อความแจ้ง
+        if (empty($itemContents)) {
+            $itemContents[] = [
+                "type" => "text",
+                "text" => "ไม่มีรายการสินค้า",
+                "size" => "sm",
+                "color" => "#aaaaaa",
+                "align" => "center"
+            ];
+        }
+
+        return [
+            "type" => "bubble",
+            "header" => [
+                "type" => "box",
+                "layout" => "vertical",
+                "contents" => [
+                    ["type" => "text", "text" => "ใบเสร็จรับซื้อขยะ", "weight" => "bold", "color" => "#1DB446", "size" => "sm"],
+                    ["type" => "text", "text" => "บักแอโร่ (AiroBact Bin)", "weight" => "bold", "size" => "xl", "margin" => "md"],
+                    ["type" => "text", "text" => "วันเวลา: " . $transaction->created_at->format('d/m/Y H:i'), "size" => "xs", "color" => "#aaaaaa"]
+                ]
+            ],
+            "body" => [
+                "type" => "box",
+                "layout" => "vertical",
+                "contents" => [
+                    [
+                        "type" => "box",
+                        "layout" => "horizontal",
+                        "contents" => [
+                            ["type" => "text", "text" => "เลขที่", "size" => "xs", "color" => "#aaaaaa"],
+                            // 🌟 กันเหนียวด้วย (string) เพื่อไม่ให้เกิด Error invalid property เหมือนเมื่อกี้
+                            ["type" => "text", "text" => (string)($transaction->kp_u_trans_no ?? '-'), "size" => "xs", "color" => "#aaaaaa", "align" => "end"]
+                        ]
+                    ],
+                    ["type" => "separator", "margin" => "md"],
+                    ["type" => "box", "layout" => "vertical", "margin" => "md", "contents" => $itemContents],
+                    ["type" => "separator", "margin" => "md"],
+                    [
+                        "type" => "box",
+                        "layout" => "horizontal",
+                        "margin" => "md",
+                        "contents" => [
+                            ["type" => "text", "text" => "รวมเป็นเงิน", "weight" => "bold", "flex" => 0],
+                            ["type" => "text", "text" => number_format($transaction->total_amount, 2) . " บาท", "weight" => "bold", "align" => "end"]
+                        ]
+                    ],
+                    [
+                        "type" => "box",
+                        "layout" => "horizontal",
+                        "contents" => [
+                            ["type" => "text", "text" => "แต้มที่ได้รับ", "size" => "sm", "color" => "#1DB446"],
+                            ["type" => "text", "text" => "+ " . number_format($transaction->total_points) . " แต้ม", "size" => "sm", "color" => "#1DB446", "align" => "end", "weight" => "bold"]
+                        ]
+                    ],
+                    [
+                        "type" => "box",
+                        "layout" => "horizontal",
+                        "contents" => [
+                            ["type" => "text", "text" => "ลดคาร์บอนได้", "size" => "sm", "color" => "#333333"],
+                            ["type" => "text", "text" => number_format($transaction->total_carbon_saved, 4) . " kgCO2e", "size" => "sm", "align" => "end"]
+                        ]
+                    ]
+                ]
+            ],
+
+            "footer" => [
+                "type" => "box",
+                "layout" => "vertical",
+                "contents" => [
+                    ["type" => "text", "text" => "ขอบคุณที่ช่วยลดขยะครับ!", "align" => "center", "color" => "#aaaaaa", "size" => "xs"]
+                ]
+            ]
+        ];
+    }
+
+    /**
+     * Helper สำหรับส่งข้อความตัวอักษรธรรมดา
+     */
+    private function replyText($replyToken, $text)
+    {
+        return Http::withHeaders([
+            'Authorization' => 'Bearer ' . env('LINE_CHANNEL_ACCESS_TOKEN'),
+        ])->post('https://api.line.me/v2/bot/message/reply', [
+            'replyToken' => $replyToken,
+            'messages' => [['type' => 'text', 'text' => $text]]
         ]);
     }
 }

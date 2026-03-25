@@ -55,7 +55,6 @@ class KpPurchaseTransaction extends Model
 
     public function details()
     {
-        // ตรวจสอบชื่อ FK ใน DB ให้ตรงกับ parameter ที่ 2
         return $this->hasMany(KpPurchaseTransactionDetail::class, 'kp_purchase_trans_id', 'id');
     }
 

@@ -44,7 +44,13 @@ class AuthenticatedSessionController extends Controller
                 return redirect()->intended(route('kp_mobile.create', absolute: false));
             }else if($user->hasRole('Staff')){
                 return redirect()->intended(route('staff_accessmenu', absolute: false));
+            }else if($user->hasRole('Super Admin')){
+                return redirect()->intended(route('admin.org_selector', absolute: false));
             }
+        }
+
+        if($user->hasRole('Super Admin')){
+            return redirect()->intended(route('admin.org_selector', absolute: false));
         }
 
         return redirect()->intended(route('accessmenu', absolute: false));

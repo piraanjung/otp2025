@@ -18,17 +18,37 @@ class KpPurchaseTransactionDetail extends Model
     protected $table = 'kp_purchase_transactions_details';
 
     protected $fillable = [
-        'kp_purchase_trans_id',         // เชื่อมไปหา Header (ซึ่งมี org_id_fk อยู่แล้ว)
-        'kp_recycle_item_id',
-        'kp_units_idfk',                    // <--- เพิ่มตัวนี้ (สำคัญ! เพราะ Controller ส่งมา)
-        'kp_tbank_items_pricepoint_id',
-        'carbon_saved',                 // ✅ [เพิ่มใหม่] คาร์บอนที่ลดได้เฉพาะรายการนี้ (kgCO2e)
-        'amount_in_units',
-        'price_per_unit',
-        'amount',
-        'points',
-        'comment',
+        'org_id_fk',
+        'kp_u_trans_no',
+        'kp_user_w_pref_id_fk',
+        'machine_id_fk',
+        'transaction_date',
+        'total_weight',
+        'total_amount',
+        'total_points',
+        'total_carbon_saved',
+        'status',
+        'cash_back',
+        'recorder_id',
+        'created_at',
+        'updated_at',
+        'kiosk_id_fk',
+        'deleted'
+
+
+
+        // 'kp_purchase_trans_id',         // เชื่อมไปหา Header (ซึ่งมี org_id_fk อยู่แล้ว)
+        // 'kp_recycle_item_id',
+        // 'kp_units_idfk',                    // <--- เพิ่มตัวนี้ (สำคัญ! เพราะ Controller ส่งมา)
+        // 'kp_tbank_items_pricepoint_id',
+        // 'carbon_saved',                 // ✅ [เพิ่มใหม่] คาร์บอนที่ลดได้เฉพาะรายการนี้ (kgCO2e)
+        // 'amount_in_units',
+        // 'price_per_unit',
+        // 'amount',
+        // 'points',
+        // 'comment',
     ];
+
 
     protected $casts = [
         'amount_in_units' => 'decimal:2',

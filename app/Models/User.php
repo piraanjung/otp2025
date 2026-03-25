@@ -44,6 +44,7 @@ class User extends Authenticatable
         "password",
         "id_card",
         "line_id",
+        'line_user_id',
         "image",
         "phone",
         'age',

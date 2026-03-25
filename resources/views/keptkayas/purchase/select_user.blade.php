@@ -44,11 +44,6 @@
     }
 </style>
 
-@if(auth()->user()->hasRole('access waste bank mobile'))
-    dd
-@else
-    ddd
-@endif
 
     {{-- [MOBILE ONLY] Header Bar --}}
     <div class="d-md-none d-flex align-items-center justify-content-between mb-2 pb-2 border-bottom">
@@ -294,8 +289,8 @@
                     html5QrCode.start({ facingMode: "environment" }, config,
                         (decodedText, decodedResult) => {
                             let code = decodedText.trim();
-                            if(code.includes("-")) { code = code.split("-")[0]; }
-
+                            if(code.includes("-")) { code = code.split("-")[1]; }
+                            console.log('c',code)
                             // ใส่ค่าลงในช่องค้นหาหลัก และ hidden field
                             if(searchInput) searchInput.value = code;
                             if(hiddenUsernameInput) hiddenUsernameInput.value = code;

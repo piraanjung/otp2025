@@ -353,12 +353,11 @@ class   LineLiffController extends Controller
             ]);
 
             // 4. สร้างบัญชีธนาคารขยะเปียก (เงินชาวบ้าน)
-            // FoodWasteAccount::create([
-            //     'user_id' => $user->id,
-            //     'balance' => 0,
-            //     'total_weight_kg' => 0,
-            // ]);
-
+            KpUserWastePreference::create([
+                'user_id'       => $user->id,
+                'is_waste_bank' => 1,
+                'status'        => 'active'
+            ]);
             // 5. สร้างสิทธิ์ขยะรายปี (เงินเทศบาล)
             // ตั้งค่าเริ่มต้นเป็น 'waived' (ฟรี) ตามที่คุณต้องการ
             $date = now();

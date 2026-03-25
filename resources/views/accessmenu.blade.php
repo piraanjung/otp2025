@@ -269,10 +269,10 @@
             <hr style="margin-bottom: 3px;margin-top: 3px;">
             <form action="{{ route('logout') }}">
                 @csrf
-            <input type="submit" value="ออกจากระบบ">
+            <input type="submit" class="btn btn-info" value="ออกจากระบบ">
 
             </form>
-            <div id="org_addr">พัฒนาชุมชน เชื่อมใจ ให้ใกล้กัน</div>
+            {{-- <div id="org_addr">พัฒนาชุมชน เชื่อมใจ ให้ใกล้กัน</div> --}}
         </div>
     </div>
     <div id="org" class="icon-box wow fadeInUp" data-wow-delay="0.4s">

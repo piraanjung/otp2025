@@ -33,6 +33,7 @@ Route::post('/testpost', function(Request $request){
     ]);
 });
 
+
 Route::get('/kiosk/index', [KioskController::class, 'index']);
 Route::post('/kiosk/upload', [KioskController::class, 'upload']);
 Route::get('/kiosk/activate', [KioskController::class, 'activateKiosk']);
@@ -80,8 +81,10 @@ Route::post('/line/fine_line_id', [LineController::class, 'fine_line_id']);
 Route::get('/line/user_qrcode', [LineController::class, 'user_qrcode']);
 Route::post('/line/update_user_by_phone', [LineController::class, 'update_user_by_phone']);
 Route::post('/line/user_line_register', [LineController::class, 'user_line_register']);
+Route::post('/line/webhook', [LineController::class, 'handleWebhook']);
+Route::get('/line/reply/{lineUserId}/{replyToken}', [LineController::class, 'replyWithLastReceipt']);
+Route::get('/line/buildFlexReceipt/{transaction}', [LineController::class, 'buildFlexReceipt']);
 
-// Route::get('/line/dashboard/{user_waste_pref_id}/{db_conn}', [LineController::class, 'dashboard']);
 
 Route::get('/sensor_data', [IoTBoxDataController::class, 'store']);
 
