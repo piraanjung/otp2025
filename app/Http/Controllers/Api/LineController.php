@@ -248,7 +248,6 @@ class LineController extends Controller
      */
     public function replyWithLastReceipt($lineId, $replyToken)
     {
-        return $this->replyText($replyToken, "บักแอโร่ยังไม่พบประวัติการขายขยะของคุณครับ" . $lineId);
 
         $transaction = KpPurchaseTransaction::whereHas('userWastePreference.user', function ($q) use ($lineId) {
             $q->where('line_id', $lineId);
