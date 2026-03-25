@@ -257,9 +257,9 @@ class LineController extends Controller
             ->first();
         if (!$transaction) {
             return $this->replyText($replyToken, "บักแอโร่ยังไม่พบประวัติการขายขยะของคุณครับ" . $lineId);
-        } else
+        }
 
-            $flexData = $this->buildFlexReceipt($transaction);
+        $flexData = $this->buildFlexReceipt($transaction);
 
         $response = Http::withHeaders([
             'Authorization' => 'Bearer ' . env('LINE_CHANNEL_ACCESS_TOKEN'),
