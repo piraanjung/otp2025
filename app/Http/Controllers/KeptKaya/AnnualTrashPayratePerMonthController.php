@@ -9,7 +9,7 @@ use Illuminate\Http\Request;
 use App\Models\Keptkaya\KpUsergroupPayratePerMonth;
 use App\Models\Keptkaya\KpUsergroup;
 use App\Models\Admin\BudgetYear;
-use App\Models\KeptKaya\AnnualTrashPayratePerMonth;
+use App\Models\AnnualTrash\AnnualTrashPayratePerMonth;
 
 class AnnualTrashPayratePerMonthController extends Controller
 {

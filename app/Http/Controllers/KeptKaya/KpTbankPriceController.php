@@ -217,4 +217,95 @@ class KpTbankPriceController extends Controller
             return back()->with('error', "เกิดข้อผิดพลาดรุนแรง: " . $e->getMessage());
         }
     }
+
+   public function bulkEdit()
+{
+    // Eager load 'prices' พร้อมเงื่อนไข status = 'active'
+    $items = KpTbankItems::with(['prices' => function($query) {
+        $query->where('status', 'active');
+    }, 'unitBank', 'unitKiosk'])->orderBy('kp_itemsname', 'asc')->get();
+
+    return view('keptkayas.tbank.prices.bulk_edit', compact('items'));
+}
+
+public function bulkUpdate(Request $request)
+{
+    $itemsData = $request->input('items', []);
+
+    // ใช้ DB Transaction เพื่อป้องกันข้อมูลบันทึกไม่ครบหากเกิด Error
+    return DB::transaction(function () use ($itemsData) {
+        foreach ($itemsData as $id => $data) {
+            $item = KpTbankItems::find($id);
+            if (!$item) continue;
+
+            // 1. อัปเดตสถานะการเปิด/ปิด ของตัวสินค้าขยะในตารางหลัก
+            $item->update(['status' => $data['status']]);
+
+            // 2. จัดการราคาฝั่ง Bank (ส่งค่า Dealer, Member, และ Point)
+            $this->updatePriceRecord(
+                $item,
+                $item->unit_bank_idfk,
+                $data['dealer_bank'],
+                $data['member_bank'],
+                $data['point_bank']
+            );
+
+            // 3. จัดการราคาฝั่ง Kiosk (ถ้าขยะชิ้นนี้รองรับ Kiosk)
+            if ($item->unit_kiosk_idfk) {
+                $this->updatePriceRecord(
+                    $item,
+                    $item->unit_kiosk_idfk,
+                    $data['dealer_kiosk'],
+                    $data['member_kiosk'],
+                    $data['point_kiosk']
+                );
+            }
+        }
+
+        return redirect()->back()->with('success', 'บันทึกประวัติราคาและแต้มใหม่เรียบร้อยแล้ว');
+    });
+}
+
+/**
+ * ฟังก์ชันช่วยตรวจสอบและบันทึกราคาใหม่หากมีการเปลี่ยนแปลง
+ */
+private function updatePriceRecord($item, $unitId, $newDealerPrice, $newMemberPrice, $newPoint)
+{
+    // ค้นหาราคาปัจจุบันที่ยัง Active อยู่ของหน่วยนั้นๆ
+    $current = KpTbankItemsPriceAndPoint::where('kp_items_idfk', $item->id)
+                ->where('kp_units_idfk', $unitId)
+                ->where('status', 'active')
+                ->first();
+
+    // เช็คว่าราคา Dealer, Member หรือ Point มีการเปลี่ยนแปลงหรือไม่
+    $isChanged = !$current ||
+                 (float)$current->price_from_dealer != (float)$newDealerPrice ||
+                 (float)$current->price_for_member != (float)$newMemberPrice ||
+                 (int)$current->point != (int)$newPoint;
+
+    if ($isChanged) {
+        // A. ปิดประวัติราคาเดิม (Update status เป็น inactive และลงวันที่สิ้นสุด)
+        KpTbankItemsPriceAndPoint::where('kp_items_idfk', $item->id)
+            ->where('kp_units_idfk', $unitId)
+            ->where('status', 'active')
+            ->update([
+                'status' => 'inactive',
+                'end_date' => now()->toDateString()
+            ]);
+
+        // B. สร้างประวัติราคาชุดใหม่ (Insert ใหม่เพื่อเก็บประวัติ)
+        KpTbankItemsPriceAndPoint::create([
+            'kp_items_idfk'     => $item->id,
+            'price_from_dealer' => $newDealerPrice, // ราคาร้านรับซื้อ
+            'price_for_member'  => $newMemberPrice,  // ราคารับซื้อจากสมาชิก
+            'point'             => $newPoint,
+            'kp_units_idfk'     => $unitId,
+            'type'              => 'tbank',
+            'status'            => 'active',
+            'effective_date'    => now()->toDateString(),
+            'recorder_id'       => Auth::id(),
+            'org_id_fk'         => $item->org_id_fk
+        ]);
+    }
+}
 }

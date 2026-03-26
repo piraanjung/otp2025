@@ -6,7 +6,6 @@ use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
 
 // เปลี่ยนชื่อ Model ที่ Import ตรงนี้
-use App\Models\AnnualTrash\KpUsergroupPayratePerMonth;
 use App\Models\Keptkaya\KpUsergroup;
 use App\Models\Admin\BudgetYear;
 use App\Models\AnnualTrash\AnnualTrashPayratePerMonth;

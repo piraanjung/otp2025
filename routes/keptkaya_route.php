@@ -18,9 +18,6 @@ use App\Http\Controllers\KeptKaya\KpTbankItemsController;
 use App\Http\Controllers\KeptKaya\KpTbankItemsGroupsController;
 use App\Http\Controllers\KeptKaya\KpTbankUnitsController;
 use App\Http\Controllers\KeptKaya\UserWasteController;
-use App\Http\Controllers\KeptKaya\WasteBinController;
-use App\Http\Controllers\KeptKaya\WasteBinPayratePerMonthController;
-use App\Http\Controllers\KeptKaya\WasteBinSubscriptionController;
 use App\Http\Controllers\KpMemberShopController;
 use App\Http\Controllers\KpShopProductController;
 use Illuminate\Support\Facades\Route;
@@ -85,15 +82,15 @@ Route::middleware(['auth'])->prefix('keptkayas')->name('keptkayas.')->group(func
     });
 
     Route::prefix('/emission-factors')->name('emission.')->group(function () {
-    Route::get('/', [EmissionFactorController::class, 'index'])->name('index');
-    Route::get('/create', [EmissionFactorController::class, 'create'])->name('create');
-    Route::post('/', [EmissionFactorController::class, 'store'])->name('store');
-    Route::get('/{id}/edit', [EmissionFactorController::class, 'edit'])->name('edit');
-    Route::put('/{id}', [EmissionFactorController::class, 'update'])->name('update');
-    Route::delete('/{id}', [EmissionFactorController::class, 'destroy'])->name('destroy');
-    Route::get('/export', [EmissionFactorController::class, 'export'])->name('export');
-    Route::post('/import', [EmissionFactorController::class, 'import'])->name('import');
-});
+        Route::get('/', [EmissionFactorController::class, 'index'])->name('index');
+        Route::get('/create', [EmissionFactorController::class, 'create'])->name('create');
+        Route::post('/', [EmissionFactorController::class, 'store'])->name('store');
+        Route::get('/{id}/edit', [EmissionFactorController::class, 'edit'])->name('edit');
+        Route::put('/{id}', [EmissionFactorController::class, 'update'])->name('update');
+        Route::delete('/{id}', [EmissionFactorController::class, 'destroy'])->name('destroy');
+        Route::get('/export', [EmissionFactorController::class, 'export'])->name('export');
+        Route::post('/import', [EmissionFactorController::class, 'import'])->name('import');
+    });
 
     Route::resource('annual_batch', AnnualBatchController::class);
 
@@ -129,7 +126,7 @@ Route::middleware(['auth'])->prefix('keptkayas')->name('keptkayas.')->group(func
         Route::delete('/users/{transaction}', [KpSellController::class, 'destroy'])->name('destroy');
     });
 
-    Route::resource('bins',BinsController::class);
+    Route::resource('bins', BinsController::class);
 
     // 8. Waste Bins Specifics
     Route::prefix('/{w_user}/waste-bins')->name('waste_bins.')->group(function () {
@@ -169,7 +166,9 @@ Route::middleware(['auth'])->prefix('keptkayas')->name('keptkayas.')->group(func
         Route::resource('cart', CartController::class);
 
         Route::get('prices/export', [KpTbankPriceController::class, 'export'])->name('prices.export');
-         Route::post('prices/import', [KpTbankPriceController::class, 'import'])->name('prices.import');
+        Route::post('prices/import', [KpTbankPriceController::class, 'import'])->name('prices.import');
+        Route::get('/prices/bulk-edit', [KpTbankPriceController::class, 'bulkEdit'])->name('prices.bulk_edit');
+        Route::post('/prices/bulk-update', [KpTbankPriceController::class, 'bulkUpdate'])->name('prices.bulk_update');
         Route::resource('prices', KpTbankPriceController::class);
 
 
@@ -183,7 +182,18 @@ Route::middleware(['auth'])->prefix('keptkayas')->name('keptkayas.')->group(func
             Route::get('{id}/restore', [KpTbankItemsController::class, 'restore'])->name('restore');
             Route::delete('{id}/force-delete', [KpTbankItemsController::class, 'forceDelete'])->name('forceDelete');
 
-            Route::resource('', KpTbankItemsController::class);
+            Route::controller(KpTbankItemsController::class)->group(function () {
+                Route::get('/', 'index')->name('index');
+                Route::get('/create', 'create')->name('create');
+                Route::post('/', 'store')->name('store');
+                Route::get('/{id}', 'show')->name('show');
+                Route::get('/{id}/edit', 'edit')->name('edit');
+                Route::put('/{id}', 'update')->name('update');
+                Route::delete('/{id}', 'destroy')->name('destroy');
+                Route::post('/{id}/restore', 'restore')->name('restore'); // ✅ เพิ่มตัวนี้เข้าไป
+            });
+
+
             Route::get('export', [KpTbankItemsController::class, 'exportTemplate'])->name('export');
             Route::post('import', [KpTbankItemsController::class, 'import'])->name('import');
 

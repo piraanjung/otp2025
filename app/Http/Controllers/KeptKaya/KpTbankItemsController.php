@@ -362,4 +362,6 @@ class KpTbankItemsController extends Controller
         return redirect()->route('keptkayas.tbank.items.index')
             ->with('success', 'จับคู่ค่าคาร์บอน (EF) เรียบร้อยแล้ว');
     }
+
+    
 }
