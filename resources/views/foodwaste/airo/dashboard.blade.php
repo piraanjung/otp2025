@@ -166,8 +166,11 @@
                         </div>
                         <img id="meal_preview" class="preview-img img-fluid w-100 mt-2">
                     </label>
-                    <input type="file" id="meal_photo" name="meal_photo" class="d-none" accept="image/*"
-                        capture="camera" required onchange="previewImage(this, 'meal_preview', 'meal_placeholder')">
+                    {{-- <input type="file" id="meal_photo" name="meal_photo" class="d-none" accept="image/*"
+                        capture="camera" required onchange="previewImage(this, 'meal_preview', 'meal_placeholder')"> --}}
+                        <input type="file" id="meal_photo" name="meal_photo" class="d-none"
+       accept="image/*" capture="camera" required
+       onchange="handleImageUpload(this)">
                     <button type="submit"
                         class="btn btn-warning w-100 rounded-pill py-2 shadow-sm fw-bold">วิเคราะห์เมนูด้วย AI
                         ✨</button>
@@ -303,6 +306,69 @@
             });
             // ปล่อยให้ฟอร์มทำงานต่อส่งค่าไปที่ Controller
         });
+
+        async function handleImageUpload(input) {
+    const file = input.files[0];
+    if (!file) return;
+
+    // แสดง Preview ก่อน (แบบเดิม)
+    const reader = new FileReader();
+    reader.onload = (e) => {
+        document.getElementById('meal_preview').src = e.target.result;
+        document.getElementById('meal_placeholder').classList.add('d-none');
+    };
+    reader.readAsDataURL(file);
+
+    // --- ส่วนสำคัญ: ย่อขนาดรูปก่อน Submit ---
+    const compressedFile = await compressImage(file);
+
+    // สร้าง DataTransfer เพื่อเอาไฟล์ที่ย่อแล้วใส่กลับไปใน Input
+    const dataTransfer = new DataTransfer();
+    dataTransfer.items.add(compressedFile);
+    input.files = dataTransfer.files;
+}
+
+function compressImage(file) {
+    return new Promise((resolve) => {
+        const reader = new FileReader();
+        reader.readAsDataURL(file);
+        reader.onload = (event) => {
+            const img = new Image();
+            img.src = event.target.result;
+            img.onload = () => {
+                const canvas = document.createElement('canvas');
+                const MAX_WIDTH = 1024; // ย่อเหลือด้านกว้างไม่เกิน 1024px
+                let width = img.width;
+                let height = img.height;
+
+                if (width > MAX_WIDTH) {
+                    height *= MAX_WIDTH / width;
+                    width = MAX_WIDTH;
+                }
+
+                canvas.width = width;
+                canvas.height = height;
+                const ctx = canvas.getContext('2d');
+                ctx.drawImage(img, 0, 0, width, height);
+
+                canvas.toBlob((blob) => {
+                    const newFile = new File([blob], file.name, {
+                        type: 'image/jpeg',
+                        lastModified: Date.now(),
+                    });
+                    resolve(newFile);
+                }, 'image/jpeg', 0.7); // คุณภาพ 70% ชัดเพียงพอสำหรับ AI วิเคราะห์
+            };
+        };
+    });
+}
+
+// ผูกฟังก์ชันกับ Form Submission เพื่อแสดง Loading
+document.getElementById('mealForm').onsubmit = function() {
+    const btn = this.querySelector('button[type="submit"]');
+    btn.disabled = true;
+    btn.innerHTML = '<span class="spinner-border spinner-border-sm"></span> กำลังประมวลผล...';
+};
     </script>
 </body>
 

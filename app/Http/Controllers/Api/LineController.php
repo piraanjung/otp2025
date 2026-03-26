@@ -238,10 +238,78 @@ class LineController extends Controller
                 if (str_contains($userText, 'แต้ม')) {
                     $this->replyWithPoints($lineId, $replyToken);
                 }
+
+                if (str_contains($userText, 'ขายขยะด้วย QR Code')) {
+                    $this->replyWithUserQrCode($lineId, $replyToken);
+                }
             }
         }
         return response()->json(['status' => 'ok']);
     }
+
+    private function replyWithUserQrCode($lineId, $replyToken)
+{
+    // ค้นหา User จาก lineId ใน Database ของคุณ
+    // สมมติว่าตาราง users มีคอลัมน์ line_user_id
+    $user = User::where('line_id', $lineId)->first();
+
+    if (!$user) {
+        // ถ้าไม่พบ User ให้แจ้งเตือนให้เขาลงทะเบียนก่อน
+        return $this->replyTextMessage($replyToken, "ขออภัยครับ ไม่พบข้อมูลสมาชิกของคุณในระบบ กรุณาลงทะเบียนก่อนใช้งานครับ");
+    }
+
+    $qrContent = "USER-" . $user->id;
+    // สร้าง URL QR Code โดยใช้ Google Chart API
+    $qrUrl = "https://chart.googleapis.com/chart?cht=qr&chs=350x350&chl=" . urlencode($qrContent);
+
+    $flexData = [
+        "type" => "bubble",
+        "size" => "mega",
+        "header" => [
+            "type" => "box",
+            "layout" => "vertical",
+            "contents" => [
+                ["type" => "text", "text" => "QR Code ของคุณ", "weight" => "bold", "color" => "#ee2385", "size" => "sm"],
+                ["type" => "text", "text" => "สมาชิกธนาคารขยะ", "weight" => "bold", "size" => "xl", "margin" => "md", "color" => "#ffffff"]
+            ]
+        ],
+        "body" => [
+            "type" => "box",
+            "layout" => "vertical",
+            "contents" => [
+                [
+                    "type" => "text",
+                    "text" => "แสดง QR Code นี้ให้เจ้าหน้าที่สแกนเพื่อสะสมแต้มและขายขยะ",
+                    "size" => "xs",
+                    "color" => "#aaaaaa",
+                    "wrap" => true,
+                    "align" => "center"
+                ],
+                [
+                    "type" => "image",
+                    "url" => $qrUrl,
+                    "size" => "xl",
+                    "margin" => "xl",
+                    "aspectRatio" => "1:1"
+                ],
+                [
+                    "type" => "text",
+                    "text" => $qrContent, // โชว์ USER-ID
+                    "weight" => "bold",
+                    "size" => "lg",
+                    "align" => "center",
+                    "margin" => "xl",
+                    "color" => "#111111"
+                ]
+            ]
+        ],
+        "styles" => [
+            "header" => ["backgroundColor" => "#111111"]
+        ]
+    ];
+
+    $this->sendFlexMessage($replyToken, "QR Code สมาชิกของคุณ", $flexData);
+}
 
     /**
      * ค้นหาใบเสร็จล่าสุดและตอบกลับด้วย Flex Message (ฟรี)
