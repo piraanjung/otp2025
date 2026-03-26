@@ -28,12 +28,12 @@ class LineController extends Controller
         $provinces = Province::get(['id', 'province_name']);
         return view('lineliff.index', compact('provinces'));
     }
-    public function fine_line_id(Request $request)
+    public function find_line_id(Request $request)
     {
         $res = 0;
         $waste_pref_id = 0;
         //check
-        $user = User::where('line_id', $request->userId)
+  $user = User::where('line_id', $request->userId)
             ->with('wastePreference')
             ->first();
         if (collect($user)->isEmpty() || collect($user->wastePreference)->isEmpty()) {
@@ -269,7 +269,7 @@ class LineController extends Controller
             'messages' => [
                 [
                     'type' => 'flex',
-                    'altText' => 'ใบเสร็จล่าสุดจากบักแอโร่',
+                    'altText' => 'ใบเสร็จล่าสุดจากธนาคารขยะรีไซเคิล',
                     'contents' => $flexData
                 ]
             ]
@@ -282,110 +282,146 @@ class LineController extends Controller
 
 
     public function buildFlexReceipt($transaction)
-    {
-        $itemContents = [];
-        // $transaction = KpPurchaseTransaction::find(1);
-        // 1. วนลูปสร้างรายการสินค้าก่อน
-        foreach ($transaction->details as $detail) {
-            $itemContents[] = [
-                "type" => "box",
-                "layout" => "horizontal",
-                "contents" => [
-                    [
-                        "type" => "text",
-                        "text" => (string)($detail->item->kp_itemsname ?? 'ไม่ระบุชื่อ') . " (" . (float)$detail->amount . ")",
-                        "size" => "sm",
-                        "color" => "#555555",
-                        "flex" => 4,
-                        "wrap" => true
-                    ],
-                    [
-                        "type" => "text",
-                        "text" => number_format($detail->total_price, 2),
-                        "size" => "sm",
-                        "color" => "#111111",
-                        "align" => "end",
-                        "flex" => 2
-                    ]
-                ]
-            ];
-        }
+{
+    $itemContents = [];
 
-        // 2. ถ้าวนลูปเสร็จแล้วยังว่าง (ไม่มีสินค้าจริงๆ) ค่อยใส่ข้อความแจ้ง
-        if (empty($itemContents)) {
-            $itemContents[] = [
-                "type" => "text",
-                "text" => "ไม่มีรายการสินค้า",
-                "size" => "sm",
-                "color" => "#aaaaaa",
-                "align" => "center"
-            ];
-        }
+    // หมายเหตุ: อย่าลืมเอาบรรทัด find(1) ออกเมื่อใช้งานจริงนะครับ เพื่อให้ใช้ค่า $transaction ที่รับมาจาก Parameter
+    // $transaction = KpPurchaseTransaction::find(1);
 
-        return [
-            "type" => "bubble",
-            "header" => [
-                "type" => "box",
-                "layout" => "vertical",
-                "contents" => [
-                    ["type" => "text", "text" => "ใบเสร็จรับซื้อขยะ", "weight" => "bold", "color" => "#1DB446", "size" => "sm"],
-                    ["type" => "text", "text" => "บักแอโร่ (AiroBact Bin)", "weight" => "bold", "size" => "xl", "margin" => "md"],
-                    ["type" => "text", "text" => "วันเวลา: " . $transaction->created_at->format('d/m/Y H:i'), "size" => "xs", "color" => "#aaaaaa"]
-                ]
-            ],
-            "body" => [
-                "type" => "box",
-                "layout" => "vertical",
-                "contents" => [
-                    [
-                        "type" => "box",
-                        "layout" => "horizontal",
-                        "contents" => [
-                            ["type" => "text", "text" => "เลขที่", "size" => "xs", "color" => "#aaaaaa"],
-                            // 🌟 กันเหนียวด้วย (string) เพื่อไม่ให้เกิด Error invalid property เหมือนเมื่อกี้
-                            ["type" => "text", "text" => (string)($transaction->kp_u_trans_no ?? '-'), "size" => "xs", "color" => "#aaaaaa", "align" => "end"]
-                        ]
-                    ],
-                    ["type" => "separator", "margin" => "md"],
-                    ["type" => "box", "layout" => "vertical", "margin" => "md", "contents" => $itemContents],
-                    ["type" => "separator", "margin" => "md"],
-                    [
-                        "type" => "box",
-                        "layout" => "horizontal",
-                        "margin" => "md",
-                        "contents" => [
-                            ["type" => "text", "text" => "รวมเป็นเงิน", "weight" => "bold", "flex" => 0],
-                            ["type" => "text", "text" => number_format($transaction->total_amount, 2) . " บาท", "weight" => "bold", "align" => "end"]
-                        ]
-                    ],
-                    [
-                        "type" => "box",
-                        "layout" => "horizontal",
-                        "contents" => [
-                            ["type" => "text", "text" => "แต้มที่ได้รับ", "size" => "sm", "color" => "#1DB446"],
-                            ["type" => "text", "text" => "+ " . number_format($transaction->total_points) . " แต้ม", "size" => "sm", "color" => "#1DB446", "align" => "end", "weight" => "bold"]
-                        ]
-                    ],
-                    [
-                        "type" => "box",
-                        "layout" => "horizontal",
-                        "contents" => [
-                            ["type" => "text", "text" => "ลดคาร์บอนได้", "size" => "sm", "color" => "#333333"],
-                            ["type" => "text", "text" => number_format($transaction->total_carbon_saved, 4) . " kgCO2e", "size" => "sm", "align" => "end"]
+    foreach ($transaction->details as $detail) {
+        $itemContents[] = [
+            "type" => "box",
+            "layout" => "vertical",
+            "margin" => "lg", // เพิ่มระยะห่างระหว่างรายการขยะ
+            "spacing" => "sm",
+            "contents" => [
+                [
+                    "type" => "box",
+                    "layout" => "horizontal",
+                    "contents" => [
+                        [
+                            "type" => "text",
+                            "text" => (string)($detail->item->kp_itemsname ?? 'ขยะรีไซเคิล'),
+                            "size" => "md",
+                            "color" => "#555555",
+                            "flex" => 0,
+                            "weight" => "bold"
+                        ],
+                        [
+                            "type" => "text",
+                            "text" => number_format($detail->amount, 2) . " บาท", // เปลี่ยนเป็น $detail->amount
+                            "size" => "md",
+                            "color" => "#111111",
+                            "align" => "end",
+                            "weight" => "bold"
                         ]
                     ]
-                ]
-            ],
-
-            "footer" => [
-                "type" => "box",
-                "layout" => "vertical",
-                "contents" => [
-                    ["type" => "text", "text" => "ขอบคุณที่ช่วยลดขยะครับ!", "align" => "center", "color" => "#aaaaaa", "size" => "xs"]
+                ],
+                [
+                    "type" => "box",
+                    "layout" => "horizontal",
+                    "contents" => [
+                        [
+                            "type" => "text",
+                            // เปลี่ยนเป็น amount_in_units และ unit_short_name
+                            "text" => "(" . (float)$detail->amount_in_units . " " . ($detail->unit->unit_short_name ?? 'กก.') . " x " . number_format($detail->price_per_unit, 2) . " บาท)",
+                            "size" => "xs",
+                            "color" => "#555555",
+                            "flex" => 0,
+                            "style" => "italic",
+                            "wrap" => true,
+                        ],
+                        [
+                            "type" => "text",
+                            "text" => " ",
+                            "flex" => 1
+                        ]
+                    ]
                 ]
             ]
         ];
     }
+
+    if (empty($itemContents)) {
+        $itemContents[] = ["type" => "text", "text" => "ไม่พบรายการสินค้า", "size" => "sm", "color" => "#aaaaaa"];
+    }
+
+    return [
+        "type" => "bubble",
+        "header" => [
+            "type" => "box",
+            "layout" => "vertical",
+            "contents" => [
+                ["type" => "text", "text" => "ใบเสร็จรับเงิน", "weight" => "bold", "color" => "#1DB446", "size" => "xl"],
+                ["type" => "text", "text" => "ธนาคารขยะรีไซเคิล", "weight" => "bold", "size" => "xxl", "margin" => "md", "color" => "#ffffff"],
+                ["type" => "text", "text" => "ขอบคุณที่ร่วมเป็นส่วนหนึ่งในการรักษาสิ่งแวดล้อม", "size" => "xs", "color" => "#aaaaaa", "wrap" => true]
+            ]
+        ],
+        "body" => [
+            "type" => "box",
+            "layout" => "vertical",
+            "contents" => [
+                ["type" => "box", "layout" => "vertical", "contents" => $itemContents],
+                ["type" => "separator", "margin" => "xxl"],
+
+                // --- ส่วนสรุปยอด (เพิ่ม Margin เพื่อให้ไม่ติดกัน) ---
+                [
+                    "type" => "box",
+                    "layout" => "horizontal",
+                    "margin" => "xl", // ห่างจากเส้นคั่น
+                    "contents" => [
+                        ["type" => "text", "text" => "รวมเป็นเงิน", "size" => "sm", "color" => "#555555", "weight" => "bold"],
+                        ["type" => "text", "text" => number_format($transaction->total_amount, 2) . " บาท", "size" => "sm", "color" => "#111111", "align" => "end", "weight" => "bold"]
+                    ]
+                ],
+                [
+                    "type" => "box",
+                    "layout" => "horizontal",
+                    "margin" => "md", // เพิ่มช่องว่างแถวแต้ม
+                    "contents" => [
+                        ["type" => "text", "text" => "แต้มที่ได้รับ", "size" => "sm", "color" => "#555555", "weight" => "bold"],
+                        ["type" => "text", "text" => "+ " . number_format($transaction->total_points) . " แต้ม", "size" => "sm", "color" => "#111111", "align" => "end", "weight" => "bold"]
+                    ]
+                ],
+                [
+                    "type" => "box",
+                    "layout" => "horizontal",
+                    "margin" => "md", // เพิ่มช่องว่างแถวคาร์บอน
+                    "contents" => [
+                        ["type" => "text", "text" => "ลดคาร์บอนได้", "size" => "sm", "color" => "#1DB446", "weight" => "bold"],
+                        ["type" => "text", "text" => number_format($transaction->total_carbon_saved ?? 0, 4) . " kgCO2e", "size" => "sm", "color" => "#1DB446", "align" => "end", "weight" => "bold"]
+                    ]
+                ],
+
+                ["type" => "separator", "margin" => "xxl"],
+
+                [
+                    "type" => "box",
+                    "layout" => "horizontal",
+                    "margin" => "lg", // ดึงเลขที่ใบเสร็จให้ห่างออกมา
+                    "contents" => [
+                        ["type" => "text", "text" => "เลขที่ใบเสร็จ", "size" => "xs", "color" => "#aaaaaa", "flex" => 0],
+                        ["type" => "text", "text" => (string)($transaction->kp_u_trans_no ?? '-'), "color" => "#aaaaaa", "size" => "xs", "align" => "end"]
+                    ]
+                ]
+            ]
+        ],
+        "styles" => [
+            "header" => [
+                "separator" => true,
+                "backgroundColor" => "#111111",
+                "separatorColor" => "#111111"
+            ],
+            "body" => [
+                "separator" => true,
+                "separatorColor" => "#ee2385" // 🌟 เปลี่ยนเส้นคั่นระหว่าง Header และ Body เป็นสีชมพู
+            ],
+            "footer" => [
+                "separator" => true
+            ]
+        ]
+    ];
+}
 
     /**
      * Helper สำหรับส่งข้อความตัวอักษรธรรมดา

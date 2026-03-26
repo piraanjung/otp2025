@@ -77,7 +77,7 @@ Route::post('/device/update-status', [DeviceController::class, 'updateStatus']);
 
 Route::post('/ocr', [OcrController::class, 'readMeter']);
 Route::get('/line', [LineController::class, 'index'])->name('lineliff.index');
-Route::post('/line/fine_line_id', [LineController::class, 'fine_line_id']);
+Route::post('/line/find_line_id', [LineController::class, 'find_line_id']);
 Route::get('/line/user_qrcode', [LineController::class, 'user_qrcode']);
 Route::post('/line/update_user_by_phone', [LineController::class, 'update_user_by_phone']);
 Route::post('/line/user_line_register', [LineController::class, 'user_line_register']);

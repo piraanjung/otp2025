@@ -791,7 +791,12 @@
                         </div>
                         <hr>
                         <small class="text-muted">อัปเดตล่าสุดเมื่อ:
-                            {{ optional($annualTrash->last_checked_at)->format('d/m/Y') ?? 'กำลังตรวจสอบ' }}</small>
+                            @if($activeBatch && $activeBatch->last_checked_at)
+                                <span>เช็คเมื่อ:
+                                    {{ \Carbon\Carbon::parse($activeBatch->last_checked_at)->format('d/m/H:i') }}</span>
+                            @else
+                                <span>ยังไม่เคยมีการตรวจสอบ</span>
+                            @endif
                     </div>
                 </div>
             </div>
@@ -809,16 +814,17 @@
                                     stroke-width="12" stroke-dasharray="515" stroke-dashoffset="100"
                                     transform="rotate(-90,90,90)" />
                             </svg>
+
                             <div class="main__stat-detail">
                                 <strong class="main__stat-value">
-                                    {{ number_format($recycleAcc->balance ?? 0, 2) }}
+                                    {{ number_format($recycleTotalBalance ?? 0, 2) }}
                                 </strong>
                                 <span class="main__stat-unit">บาท (คงเหลือ)</span>
 
                                 <div class="my-1"></div>
 
                                 <strong class="main__stat-value">
-                                    {{ number_format($recycleAcc->points ?? 0) }}
+                                    {{ number_format($recycleTotalPoints ?? 0,2) }}
                                 </strong>
                                 <span class="main__stat-unit">แต้มสะสม</span>
                             </div>

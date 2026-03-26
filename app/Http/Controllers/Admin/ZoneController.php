@@ -7,19 +7,24 @@ use App\Models\Admin\Zone;
 use Illuminate\Http\Request;
 use App\Http\Controllers\Controller;
 use App\Models\Admin\Organization;
+use Illuminate\Support\Facades\Auth;
 
+use function PHPUnit\Framework\isEmpty;
 
 class ZoneController extends Controller
 {
     public function index(Request $request)
     {
+        $org_id = collect($request->org_id)->isEmpty() ? Auth::user()->org_id_fk : $request->org_id;
         // ดึง Org ทั้งหมดมาทำ Dropdown
-        $organizations = Organization::withoutGlobalScope('org')->get();
+        $organizations = Organization::withoutGlobalScope('org')
+        ->where('id', $org_id)
+        ->get();
 
         // ดึงข้อมูลโซน ถ้ามีการเลือก Org ให้กรองตามนั้น ถ้าไม่เลือกให้แสดงทั้งหมด (หรือว่างไว้ก่อน)
         $zones = Zone::withoutGlobalScope('org')->with('subzone')
-            ->when($request->org_id, function ($query) use ($request) {
-                return $query->where('org_id_fk', $request->org_id);
+            ->when($org_id, function ($query) use ($request, $org_id) {
+                return $query->where('org_id_fk', $org_id);
             })
             ->get();
 

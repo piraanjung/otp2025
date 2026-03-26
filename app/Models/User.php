@@ -119,7 +119,7 @@ class User extends Authenticatable
 
     public function wastePreference()
     {
-        return $this->hasOne(KpUserWastePreference::class);
+        return $this->hasOne(KpUserWastePreference::class, 'user_id', 'id');
     }
 
     public function AnnualTrashs()

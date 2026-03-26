@@ -1025,7 +1025,7 @@
                     }
 
                     // 1.ส่ง line user_id ไป check ก่อนว่าเป็น member ไหม
-                    $.post(`/api/line/fine_line_id`, {
+                    $.post(`/api/line/find_line_id`, {
                         userId: profile.userId,
                     }).then(function (data) {
                         console.log('dta', data);
@@ -1035,7 +1035,7 @@
                             // phone_div.classList.remove('hidden'); // ตรวจสอบว่าตัวแปร phone_div ประกาศไว้ที่ไหน
                         }
                         if (data.res == 1) {
-                            window.location.href = '/line/dashboard/' + data.waste_pref_id + '/' + data.org_id;
+                            window.location.href = '/line/dashboard/' + data.user_id + '/' + data.org_id;
                         }
                     });
                 }
