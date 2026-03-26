@@ -104,107 +104,92 @@ class KpPurchaseController extends Controller
 
 
     public function saveTransaction(Request $request)
-    {
-        // 1. ดึงข้อมูลจาก Session
-        $cart   = Session::get('purchase_cart', []);
-        $userId = Session::get('purchase_user_id');
+{
+    $cart   = Session::get('purchase_cart', []);
+    $userId = Session::get('purchase_user_id');
 
-        if (empty($cart) || !$userId) {
-            return redirect()->route('keptkayas.purchase.select_user')->with('error', 'ไม่พบรายการในรถเข็นหรือผู้ใช้งาน');
+    if (empty($cart) || !$userId) {
+        return redirect()->route('keptkayas.purchase.select_user')->with('error', 'ไม่พบรายการในรถเข็น');
+    }
+
+    return DB::transaction(function () use ($request, $cart, $userId) {
+        $userWastePref = KpUserWastePreference::where('user_id', $userId)->first();
+        $recorder = Auth::user();
+
+        // 1. คำนวณยอดรวมทั้งหมดเตรียมไว้ก่อน
+        $totalWeight = array_sum(array_column($cart, 'amount_in_units'));
+        $totalAmount = array_sum(array_column($cart, 'amount'));
+        $totalPoints = array_sum(array_column($cart, 'points'));
+        $isCashBack  = $request->has('cash_back') ? 1 : 0;
+
+        // 2. เจนเลขที่ธุรกรรม
+        $transNo = 'T-' . Carbon::now()->format('ymdHis') . str_pad($userWastePref->id, 4, '0', STR_PAD_LEFT) . strtoupper(Str::random(3));
+
+        // 3. บันทึก Header
+        $transaction = KpPurchaseTransaction::create([
+            'kp_u_trans_no'         => $transNo,
+            'org_id_fk'             => $recorder->org_id_fk, // เพิ่ม org_id ให้เรียบร้อย
+            'kp_user_w_pref_id_fk'  => $userWastePref->id,
+            'transaction_date'      => Carbon::now()->toDateString(),
+            'total_weight'          => $totalWeight,
+            'total_amount'          => $totalAmount,
+            'total_points'          => $totalPoints,
+            'recorder_id'           => $recorder->id,
+            'status'                => 1,
+            'cash_back'             => $isCashBack
+        ]);
+
+        $carbonSavedTotal = 0;
+
+        // 4. บันทึก Detail
+        foreach ($cart as $item) {
+            $itemModel = KpTbankItems::with('emissionFactor')->find($item['kp_tbank_item_id']);
+
+            // เช็คชื่อคอลัมน์ EF ให้ชัวร์ (ef_value หรือ carbon_value)
+            $ef = $itemModel->emissionFactor->ef_value ?? 0;
+            $carbonSaved = $item['amount_in_units'] * $ef;
+            $carbonSavedTotal += $carbonSaved;
+
+            KpPurchaseTransactionDetail::create([
+                'kp_purchase_trans_id' => $transaction->id,
+                'org_id_fk'            => $transaction->org_id_fk,
+                'kp_u_trans_no'        => $transaction->kp_u_trans_no,
+                'kp_recycle_item_id'   => $item['kp_tbank_item_id'],
+                'kp_units_idfk'        => $item['kp_units_idfk'],
+                'amount_in_units'      => $item['amount_in_units'],
+                'price_per_unit'       => $item['price_per_unit'],
+                'amount'               => $item['amount'],
+                'points'               => $item['points'],
+                'carbon_saved'         => $carbonSaved,
+                'recorder_id'          => $recorder->id
+            ]);
         }
 
-        // 2. ใช้ DB Transaction เพื่อความปลอดภัย
-        return DB::transaction(function () use ($request, $cart, $userId) {
+        // 5. อัปเดต Carbon รวม
+        $transaction->update(['total_carbon_saved' => $carbonSavedTotal]);
 
-            $userWastePref = KpUserWastePreference::where('user_id', $userId)->first();
-            $recorderId  = Auth::id();
+        // 6. อัปเดตสมุดบัญชีธนาคารขยะ (RecycleBankAccount)
+        $recycleAcc = RecycleBankAccount::firstOrCreate(
+            ['user_id' => $userId],
+            [
+                'account_no' => 'ACC-' . str_pad($userId, 6, '0', STR_PAD_LEFT),
+                'balance'    => 0,
+                'points'     => 0,
+                'status'     => 'active'
+            ]
+        );
 
-            // คำนวณยอดรวมจาก Cart
-            $totalWeight = array_sum(array_column($cart, 'amount_in_units'));
-            $totalAmount = array_sum(array_column($cart, 'amount'));
-            $totalPoints = array_sum(array_column($cart, 'points'));
-            $isCashBack = $request->has('cash_back') ? 1 : 0;
+        $recycleAcc->increment('points', $totalPoints);
+        if ($isCashBack == 0) {
+            $recycleAcc->increment('balance', $totalAmount);
+        }
 
-            // --- แก้ไขจุด Duplicate Entry ---
-            // ใช้ ymdHis (ถึงวินาที) + ID ผู้ขาย + สุ่มตัวอักษร 3 ตัว
-            $uniqueSuffix = strtoupper(Str::random(3));
-            $transNo = 'T-' . Carbon::now()->format('ymdHis') . str_pad($userWastePref->id, 4, '0', STR_PAD_LEFT) . $uniqueSuffix;
+        Session::forget(['purchase_cart', 'purchase_user_id']);
 
-            // 3. บันทึก Transaction (Header)
-            $transaction = KpPurchaseTransaction::create([
-                'kp_u_trans_no'             => $transNo,
-                'kp_user_w_pref_id_fk'      => $userWastePref->id,
-                'transaction_date'          => Carbon::now()->toDateString(),
-                'total_weight'              => $totalWeight,
-                'total_amount'              => $totalAmount,
-                'total_points'              => $totalPoints,
-                'recorder_id'               => $recorderId,
-                'status'                    => 1,
-                'cash_back'                 => $isCashBack
-            ]);
-
-            // 4. บันทึก Detail และคำนวณคาร์บอน
-            $carbonSavedTotal = 0;
-            foreach ($cart as $item) {
-                // ดึง Item เพื่อหาค่า Emission Factor (EF)
-                $itemModel = KpTbankItems::with('emissionFactor')->find($item['kp_tbank_item_id']);
-                $efValue = $itemModel->emissionFactor->ef_value ?? 0;
-
-                // คำนวณคาร์บอน: น้ำหนัก x EF
-                $weight = $item['amount_in_units'];
-                $carbonSaved = $weight * $efValue;
-                $carbonSavedTotal += $carbonSaved;
-
-                KpPurchaseTransactionDetail::create([
-                    'kp_purchase_trans_id'          => $transaction->id,
-                    'org_id_fk'                     => $transaction->org_id_fk, // เพิ่ม org_id ตามที่คุยกัน
-                    'kp_u_trans_no'                 => $transaction->kp_u_trans_no,
-                    'kp_recycle_item_id'            => $item['kp_tbank_item_id'],
-                    'kp_units_idfk'                 => $item['kp_units_idfk'],
-                    'kp_tbank_items_pricepoint_id'  => $item['kp_tbank_items_pricepoint_id'] ?? null,
-                    'amount_in_units'               => $item['amount_in_units'],
-                    'price_per_unit'                => $item['price_per_unit'],
-                    'amount'                        => $item['amount'],
-                    'points'                        => $item['points'],
-                    'carbon_saved'                  => $carbonSaved,
-                    'recorder_id'                   => $recorderId
-                ]);
-            }
-
-            // 5. อัปเดตคาร์บอนรวมกลับไปที่ Header
-            $transaction->update([
-                'total_carbon_saved' => $carbonSavedTotal
-            ]);
-
-            // 6. จัดการบัญชีแต้มและเงิน (RecycleBankAccount)
-            // ค้นหาบัญชีโดยใช้ user_id
-            $recycleAcc = RecycleBankAccount::where('user_id', $userId)->first();
-
-            if (!$recycleAcc) {
-                // ถ้ายังไม่มีบัญชี ให้สร้างใหม่
-                $recycleAcc = RecycleBankAccount::create([
-                    'user_id'    => $userId,
-                    'account_no' => 'ACC-' . str_pad($userId, 6, '0', STR_PAD_LEFT),
-                    'balance'    => 0,
-                    'points'     => 0,
-                    'status'     => 'active'
-                ]);
-            }
-
-            // คำนวณยอดเงินที่จะบวกเพิ่ม (ถ้ารับเงินสดบวก 0, ถ้าฝากบวก totalAmount)
-            $balanceToAdd = ($isCashBack == 1) ? 0 : $totalAmount;
-
-            // อัปเดตยอดเงินและแต้มสะสม
-            $recycleAcc->increment('balance', $balanceToAdd);
-            $recycleAcc->increment('points', $totalPoints);
-
-            // 7. ล้างตะกร้า
-            Session::forget('purchase_cart');
-            Session::forget('purchase_user_id');
-
-            return redirect()->route('keptkayas.purchase.receipt', $transaction->id)->with('success', 'บันทึกรายการเรียบร้อย');
-        });
-    }
+        return redirect()->route('keptkayas.purchase.receipt', $transaction->id)
+                         ->with('success', 'บันทึกสำเร็จ! คุณช่วยลดคาร์บอนได้ ' . number_format($carbonSavedTotal, 4) . ' kgCO2e');
+    });
+}
 
     public function showReceipt($transaction_id)
     {

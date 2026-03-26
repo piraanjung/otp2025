@@ -17,6 +17,7 @@ use App\Models\Tabwater\SequenceNumber;
 use App\Models\User;
 use App\Models\FoodWaste\FoodWasteLog;
 use App\Models\FoodWaste\FoodWasteUserPreference;
+use App\Models\KeptKaya\KpPurchaseTransactionDetail;
 use App\Models\RecycleBankAccount;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
@@ -47,10 +48,27 @@ class   LineLiffController extends Controller
         $foodWasteAcc = FoodWasteAccount::where('user_id', $userId)->first();
         $annualTrash = AnnualTrashSubscription::where('user_id', $userId)->first();
 
-        // 3. สถิติขยะเปียก (น้ำหนักรวม และ คาร์บอน)
-        // 🌟 ดึงน้ำหนักสะสมจากบัญชีขยะเปียกโดยตรง
+        // --- ส่วนที่ 3 (แก้ไขให้มีตัวแปรครบตามที่ compact ต้องการ) ---
+        // 1. น้ำหนักขยะเปียกสะสม (ดึงจากบัญชีโดยตรงตาม Logic เดิมที่คุณอยากได้)
         $totalWasteWeight = $foodWasteAcc ? $foodWasteAcc->total_weight_kg : 0;
-        $totalCarbonSaved = FoodWasteLog::where('user_id', $userId)->sum('carbon_saved_kg');
+
+        // 2. คาร์บอนขยะเปียก
+        $totalFoodWasteCarbon = FoodWasteLog::where('user_id', $userId)->sum('carbon_saved_kg');
+
+        // 3. คาร์บอนขยะรีไซเคิล
+        $totalRecycleCarbon = KpPurchaseTransactionDetail::whereHas('transaction.userWastePreference', function ($q) use ($userId) {
+            $q->where('user_id', $userId);
+        })
+            ->whereHas('transaction', function ($q) {
+                $q->where('status', 1);
+            })
+            ->sum('carbon_saved');
+
+        // 4. รวมคาร์บอนทั้งหมด (ตัวแปรหลักที่ใช้โชว์ใน Dashboard)
+        $totalCo2Saved = $totalFoodWasteCarbon + $totalRecycleCarbon;
+
+        // 5. ตัวแปรสำรอง (ถ้าใน Blade ยังมีการใช้ชื่อ $totalCarbonSaved อยู่)
+        $totalCarbonSaved = $totalCo2Saved;
 
         // 4. จัดการข้อมูล Batch (ล็อตปุ๋ยปัจจุบัน)
         $activeBatch = CompostBatches::where('user_id', $userId)
@@ -111,7 +129,8 @@ class   LineLiffController extends Controller
             'pendingIssuesCount',
             'annualTrash',
             'myIssues',
-            'issueTypes'
+            'issueTypes',
+            'totalCo2Saved'
         ));
     }
 

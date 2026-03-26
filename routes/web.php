@@ -8,6 +8,7 @@ use App\Http\Controllers\Admin\OrgAdminController;
 use App\Http\Controllers\Admin\PermissionController;
 use App\Http\Controllers\Admin\RoleController;
 use App\Http\Controllers\Admin\AdminSubzoneController;
+use App\Http\Controllers\Admin\AdminWithdrawController;
 use App\Http\Controllers\Admin\SuperAdminAuthController;
 use App\Http\Controllers\Admin\UserController;
 use App\Http\Controllers\Admin\ZoneController;
@@ -128,7 +129,7 @@ Route::get('/staff_accessmenu', [AccessMenusController::class, 'staff_accessmenu
 Route::get('/dashboard', [AccessMenusController::class, 'dashboard'])->middleware(['auth'])->name('dashboard');
 
 Route::get('/lineliff', [LineLiffController::class, 'index'])->name('lineliff.index');
-Route::get('/line/dashboard/{user_waste_pref_id}/{org_id}/{regis?}', [LineLiffController::class, 'dashboard']);
+Route::get('/line/dashboard/{user_waste_pref_id}/{org_id}/{regis?}', [LineLiffController::class, 'dashboard'])->name('lineliff.dashboard');
 Route::post('/line/fine_line_id', [LineLiffController::class, 'fine_line_id']);
 Route::post('/line/user_line_register', [LineLiffController::class, 'user_line_register']);
 Route::post('/line/update_user_by_phone', [LineLiffController::class, 'update_user_by_phone']);
@@ -182,7 +183,6 @@ Route::middleware(['auth', 'role:Admin|Super Admin'])->name('admin.')->prefix('a
     Route::post('/permissions/{permission}/roles', [PermissionController::class, 'assignRole'])->name('permissions.roles');
     Route::delete('/permissions/{permission}/roles/{role}', [PermissionController::class, 'removeRole'])->name('permissions.roles.remove');
     Route::resource('/permissions', PermissionController::class);
-
 
 
     //tabwater

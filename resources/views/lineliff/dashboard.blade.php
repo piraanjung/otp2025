@@ -824,7 +824,7 @@
                                 <div class="my-1"></div>
 
                                 <strong class="main__stat-value">
-                                    {{ number_format($recycleTotalPoints ?? 0,2) }}
+                                    {{ number_format($recycleTotalPoints ?? 0, 2) }}
                                 </strong>
                                 <span class="main__stat-unit">แต้มสะสม</span>
                             </div>
@@ -842,22 +842,11 @@
                             <i class="bi bi-qr-code icon" style="font-size: 1.5rem;"></i>
                         </div>
                         <div class="main__stat-detail">
-                            <strong class="main__stat-value" style="font-size: 1em;">QR Code</strong>
+                            <strong class="main__stat-value" style="font-size: 1em;">สร้าง QR Code ขายขยะ</strong>
                         </div>
                     </div>
 
-                    {{-- <a href="{{url('keptkayas/kiosk/noscreen/login')}}" class="main__stat-block">
-                        <div class="main__stat-graph">
-                            <svg class="ring" viewBox="0 0 60 60">
-                                <circle class="ring-track" cx="30" cy="30" r="26" fill="none" stroke="#e0e0e0"
-                                    stroke-width="6" />
-                            </svg>
-                            <i class="bi bi-camera icon" style="font-size: 1.5rem;"></i>
-                        </div>
-                        <div class="main__stat-detail">
-                            <strong class="main__stat-value" style="font-size: 1em;">ขายด้วยกล้อง</strong>
-                        </div>
-                    </a> --}}
+
                     <div class="main__stat-block" onclick="startScanKiosk()">
                         <div class="main__stat-graph">
                             <svg class="ring" viewBox="0 0 60 60">
@@ -896,6 +885,79 @@
                             <strong class="main__stat-value" style="font-size: 1em;">ราคา/คัดแยก</strong>
                         </div>
                     </a>
+                </div>
+
+                <div class="main__stat-blocks mt-2">
+                    <a href="{{ route('keptkayas.history', Auth::id()) }}" class="main__stat-block">
+                        <div class="main__stat-graph">
+                            <svg class="ring" viewBox="0 0 60 60">
+                                <circle class="ring-track" cx="30" cy="30" r="26" fill="none" stroke="#e0e0e0"
+                                    stroke-width="6" />
+                            </svg>
+                            <i class="bi bi-clock-history icon" style="font-size: 1.5rem; color: #6c757d;"></i>
+                        </div>
+                        <div class="main__stat-detail">
+                            <strong class="main__stat-value" style="font-size: 1em;">ประวัติรายการ</strong>
+                        </div>
+                    </a>
+
+                    <a href="{{ route('keptkayas.impact', Auth::id()) }}" class="main__stat-block">
+                        <div class="main__stat-graph">
+                            <svg class="ring" viewBox="0 0 60 60">
+                                <circle class="ring-track" cx="30" cy="30" r="26" fill="none" stroke="#e0e0e0"
+                                    stroke-width="6" />
+                            </svg>
+                            <i class="bi bi-tree-fill icon" style="font-size: 1.5rem; color: #198754;"></i>
+                        </div>
+                        <div class="main__stat-detail">
+                            <div class="mt-2 pt-2 border-top border-light opacity-75">
+                                <small class="d-block mb-1">🌍 คุณช่วยลดก๊าซเรือนกระจกแล้ว</small>
+                                <strong style="font-size: 1.2em;">{{ number_format($totalCo2Saved, 2) }}</strong>
+                                <span style="font-size: 0.8em;">kgCO2e</span>
+                            </div>
+                        </div>
+                    </a>
+
+                    {{-- <a href="{{ route('keptkayas.locations') }}" class="main__stat-block">
+                        <div class="main__stat-graph">
+                            <svg class="ring" viewBox="0 0 60 60">
+                                <circle class="ring-track" cx="30" cy="30" r="26" fill="none" stroke="#e0e0e0"
+                                    stroke-width="6" />
+                            </svg>
+                            <i class="bi bi-geo-alt-fill icon" style="font-size: 1.5rem; color: #dc3545;"></i>
+                        </div>
+                        <div class="main__stat-detail">
+                            <strong class="main__stat-value" style="font-size: 1em;">จุดรับขยะ</strong>
+                        </div>
+                    </a> --}}
+
+                    <a href="{{ route('keptkayas.withdraw.create', Auth::id()) }}" class="main__stat-block">
+                        <div class="main__stat-graph">
+                            <svg class="ring" viewBox="0 0 60 60">
+                                <circle class="ring-track" cx="30" cy="30" r="26" fill="none" stroke="#e0e0e0"
+                                    stroke-width="6" />
+                            </svg>
+                            <i class="bi bi-cash-stack icon" style="font-size: 1.5rem; color: #0d6efd;"></i>
+                        </div>
+                        <div class="main__stat-detail">
+                            <strong class="main__stat-value" style="font-size: 1em;">ถอน/โอนเงิน</strong>
+                        </div>
+                    </a>
+
+                    <a href="{{ route('keptkayas.transfer_points') }}" class="main__stat-block">
+                        <div class="main__stat-graph">
+                            <svg class="ring" viewBox="0 0 60 60">
+                                <circle class="ring-track" cx="30" cy="30" r="26" fill="none" stroke="#e0e0e0"
+                                    stroke-width="6" />
+                            </svg>
+                            <i class="bi bi-arrow-left-right icon" style="font-size: 1.5rem; color: #fd7e14;"></i>
+                        </div>
+                        <div class="main__stat-detail">
+                            <strong class="main__stat-value" style="font-size: 1em;">โอนแต้ม</strong>
+                        </div>
+                    </a>
+
+
                 </div>
             </div>
 

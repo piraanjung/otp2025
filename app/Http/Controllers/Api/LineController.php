@@ -260,7 +260,7 @@ class LineController extends Controller
 
     $qrContent = "USER-" . $user->id;
     // สร้าง URL QR Code โดยใช้ Google Chart API
-    $qrUrl = "https://chart.googleapis.com/chart?cht=qr&chs=350x350&chl=" . urlencode($qrContent);
+    $qrUrl = "https://api.qrserver.com/v1/create-qr-code/?size=500x500&data=" . urlencode($qrContent);
 
     $flexData = [
         "type" => "bubble",

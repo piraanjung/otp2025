@@ -24,9 +24,27 @@ use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\KeptKaya\AnnualReportController;
 use App\Http\Controllers\KeptKaya\AnnualTrashPayratePerMonthController;
 use App\Http\Controllers\KeptKaya\BinsController;
+use App\Http\Controllers\KeptKaya\FinanceController;
+use App\Http\Controllers\KeptKaya\HistoryController;
+use App\Http\Controllers\KeptKaya\ImpactController;
+use App\Http\Controllers\KeptKaya\LocationController;
+use App\Http\Controllers\KeptKaya\PointController;
+use App\Http\Controllers\KeptKaya\WithdrawController;
 use App\Http\Controllers\Kiosk\KioskController;
 use App\Models\AnnualTrash\AnnualTrash;
 use App\Models\AnnualTrash\AnnualTrashSubscription;
+
+Route::prefix('keptkayas')->name('keptkayas.')->group(function () {
+    Route::get('/history/{userId}', [HistoryController::class, 'index'])->name('history');
+    Route::get('/impact/{userId}', [ImpactController::class, 'index'])->name('impact');
+    Route::get('/locations', [LocationController::class, 'index'])->name('locations');
+    Route::get('/withdraw/create/{userId}', [WithdrawController::class, 'create'])->name('withdraw.create');
+    Route::post('/withdraw/store', [WithdrawController::class, 'storeRequest'])->name('withdraw.store');
+    Route::get('/withdraw/success/{id}', [WithdrawController::class, 'showSuccess'])->name('withdraw.success');
+
+    Route::get('/transfer-points', [PointController::class, 'create'])->name('transfer_points');
+Route::post('/transfer-points', [PointController::class, 'transfer'])->name('transfer_points.store');
+});
 
 Route::middleware(['auth'])->prefix('keptkayas')->name('keptkayas.')->group(function () {
     Route::resource('kiosks', KioskController::class);
