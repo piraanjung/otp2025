@@ -311,6 +311,27 @@ class LineController extends Controller
     $this->sendFlexMessage($replyToken, "QR Code สมาชิกของคุณ", $flexData);
 }
 
+private function sendFlexMessage($replyToken, $altText, $flexData)
+{
+    $httpClient = new \GuzzleHttp\Client();
+    $httpClient->post('https://api.line.me/v2/bot/message/reply', [
+        'headers' => [
+            'Content-Type' => 'application/json',
+            'Authorization' => 'Bearer ' . config('services.line.channel_token'),
+        ],
+        'json' => [
+            'replyToken' => $replyToken,
+            'messages' => [
+                [
+                    'type' => 'flex',
+                    'altText' => $altText,
+                    'contents' => $flexData
+                ]
+            ]
+        ]
+    ]);
+}
+
     /**
      * ค้นหาใบเสร็จล่าสุดและตอบกลับด้วย Flex Message (ฟรี)
      */
