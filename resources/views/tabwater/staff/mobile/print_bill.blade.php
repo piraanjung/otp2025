@@ -95,14 +95,14 @@
         </p>
         <div class="flex flex-col sm:flex-row justify-center gap-4 mb-1">
             <button id="connectButton" class="btn btn-primary">
-              
+
                 เชื่อมต่อเครื่องพิมพ์
             </button>
             <button id="printInvoiceButton" class="btn btn-primary w-full">
                 พิมพ์ใบแจ้งหนี้
             </button>
         </div>
-        
+
         <div id="status" class="status-message mb-2">
             สถานะ: ยังไม่ได้เชื่อมต่อ
         </div>
@@ -142,7 +142,35 @@
     const PRINTER_SERVICE_UUID = '000018f0-0000-1000-8000-00805f9b34fb';
     const PRINTER_CHARACTERISTIC_UUID = '00002af1-0000-1000-8000-00805f9b34fb';
 
-    // Printer specific settings
+    // Printer specific settings<?xml version="1.0" encoding="utf-8"?>
+    // <manifest xmlns:android="http://schemas.android.com/apk/res/android">
+    //     <uses-permission android:name="android.permission.BLUETOOTH" android:maxSdkVersion="30" />
+    //     <uses-permission android:name="android.permission.BLUETOOTH_ADMIN" android:maxSdkVersion="30" />
+    //     <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION" />
+    //     <uses-permission android:name="android.permission.BLUETOOTH_SCAN" android:usesPermissionFlags="neverForLocation" />
+    //     <uses-permission android:name="android.permission.BLUETOOTH_CONNECT" />
+    //     <uses-permission android:name="android.permission.INTERNET" />
+
+    //     <application android:allowBackup="true" android:icon="@mipmap/ic_launcher" android:label="@string/app_name" android:roundIcon="@mipmap/ic_launcher_round" android:supportsRtl="true" android:theme="@style/AppTheme">
+
+    //         <activity android:configChanges="orientation|keyboardHidden|keyboard|screenSize|locale|smallestScreenSize|screenLayout|uiMode|navigation|density" android:name=".MainActivity" android:label="@string/title_activity_main" android:theme="@style/AppTheme.NoActionBarLaunch" android:launchMode="singleTask" android:exported="true">
+
+    //             <intent-filter>
+    //                 <action android:name="android.intent.action.MAIN" />
+    //                 <category android:name="android.intent.category.LAUNCHER" />
+    //             </intent-filter>
+
+    //         </activity>
+
+    //         <provider android:name="androidx.core.content.FileProvider" android:authorities="${applicationId}.fileprovider" android:exported="false" android:grantUriPermissions="true">
+    //             <meta-data android:name="android.support.FILE_PROVIDER_PATHS" android:resource="@xml/file_paths"></meta-data>
+    //         </provider>
+    //     </application>
+
+    //     <!-- Permissions -->
+
+    // </manifest>
+
     const PRINTER_WIDTH_DOTS = 384;
     const FONT_SIZE = 24;
     const FONT_FAMILY = 'Sarabun, sans-serif';
@@ -172,7 +200,7 @@
     function getSavedPrinterId() {
         return localStorage.getItem('printerDeviceId');
     }
-    
+
     // **ส่วนที่แก้ไข: Function เชื่อมต่อเครื่องพิมพ์แบบปรับปรุงใหม่**
 async function connectToPrinter() {
     updateStatus('กำลังค้นหาเครื่องพิมพ์...');
@@ -184,7 +212,7 @@ async function connectToPrinter() {
 
         let bluetoothDevice;
         const savedDeviceId = getSavedPrinterId();
-        
+
         // ตรวจสอบว่า navigator.bluetooth.getDevices มีอยู่หรือไม่
         if (savedDeviceId ) {//&& navigator.bluetooth.getDevices
             alert('aaaaa='+savedDeviceId)
@@ -198,7 +226,7 @@ async function connectToPrinter() {
                 bluetoothDevice = null; // ตั้งค่าเป็น null เพื่อให้เข้าเงื่อนไข else
             }
         }
-        
+
         if (bluetoothDevice) {
             updateStatus('พบอุปกรณ์ที่เคยเชื่อมต่อ, กำลังเชื่อมต่ออัตโนมัติ...');
         } else {
@@ -209,7 +237,7 @@ async function connectToPrinter() {
                 optionalServices: []
             });
         }
-        
+
         // **ดำเนินการเชื่อมต่อต่อจากตรงนี้**
         updateStatus(`กำลังเชื่อมต่อกับ ${bluetoothDevice.name || 'อุปกรณ์ที่ไม่รู้จัก'}...`);
         const server = await bluetoothDevice.gatt.connect();
@@ -217,9 +245,9 @@ async function connectToPrinter() {
         printCharacteristic = await service.getCharacteristic(PRINTER_CHARACTERISTIC_UUID);
 
         updateStatus(`เชื่อมต่อสำเร็จกับ ${bluetoothDevice.name || 'อุปกรณ์ที่ไม่รู้จัก'}!`, 'success');
-        
+
         // บันทึก ID ของอุปกรณ์ที่เชื่อมต่อสำเร็จ
-        savePrinterId(bluetoothDevice); 
+        savePrinterId(bluetoothDevice);
 
     } catch (error) {
         updateStatus(`การเชื่อมต่อล้มเหลว: ${error.message}`, 'error');
@@ -346,7 +374,7 @@ async function connectToPrinter() {
 
         // **ส่วนที่ปรับปรุง: คำนวณความสูงทั้งหมดของ Canvas**
         let currentY = 10;
-        
+
         // ถ้ามีโลโก้ ให้เพิ่มความสูงสำหรับโลโก้
         if (logoImage.complete && logoImage.naturalWidth > 0) {
             const logoHeight = (logoImage.naturalHeight / logoImage.naturalWidth) * 120;
@@ -367,13 +395,13 @@ async function connectToPrinter() {
         currentY += lineHeight + 10; // ข้อมูลมิเตอร์
         currentY += lineHeight + 5; // ข้อมูลค่ารักษามิเตอร์
         currentY += lineHeight + 10; // ข้อมูลภาษี 7%
-        
+
         if(Object.keys(data.owe_infos).length > 0){
             currentY += pad + 5;
             currentY += lineHeight;
             currentY += Object.keys(data.owe_infos).length * lineHeight;
         }
-        
+
         currentY += pad + 10;
         currentY += lineHeight + pad + 10; // ยอดรวม
         currentY += lineHeight + 5; // โปรดชำระเงิน
@@ -402,7 +430,7 @@ async function connectToPrinter() {
             ctx.drawImage(logoImage, logoX, drawY, logoWidth, logoHeight);
             drawY += logoHeight + pad;
         }
-        
+
         // Company Name
         ctx.font = `bold ${largestFontSize}`;
         ctx.fillText(data.org_name, canvas.width / 2, drawY + lineHeight);
@@ -438,7 +466,7 @@ async function connectToPrinter() {
         ctx.fillText(`ที่อยู่:`, 10, drawY + lineHeight);
         ctx.fillText(data.user_address, 70, drawY + lineHeight);
         drawY += lineHeight + 10;
-        
+
         ctx.textAlign = 'left';
         ctx.font = `${smallFontSize}`;
         ctx.fillText('เลขใบแจ้งหนี้', 10, drawY + lineHeight);
@@ -499,7 +527,7 @@ async function connectToPrinter() {
         ctx.textAlign = 'right';
         ctx.fillText((data.vat).toFixed(2), canvas.width - 10, drawY + lineHeight);
         drawY += lineHeight+10;
-        
+
         if(Object.keys(data.owe_infos).length > 0){
             ctx.fillRect(0, drawY + pad, canvas.width, 1);
             drawY += pad + 5;
@@ -540,7 +568,7 @@ async function connectToPrinter() {
         const qrCodeY = drawY + lineHeight;
         ctx.drawImage(qrCodeCanvas, qrCodeX, qrCodeY);
         drawY += lineHeight + qrCodeSize;
-        
+
         // Footer
         ctx.font = smallFontSize;
         ctx.textAlign = 'center';

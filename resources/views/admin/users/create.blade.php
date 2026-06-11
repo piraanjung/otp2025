@@ -4,9 +4,22 @@
 
 @section('content')
     <div class="container-fluid py-4">
+        <div class="row mb-3">
+            <div class="col-12 text-end flex flex-row">
+                <button type="button" class="btn bg-gradient-success btn-sm" data-bs-toggle="modal"
+                    data-bs-target="#importUserModal">
+                    <i class="fas fa-file-excel me-2"></i> นำเข้าข้อมูลด้วย Excel
+                </button>
+                <a href="{{ route('admin.users.download_template') }}" class="btn bg-gradient-info btn-sm">
+                    <i class="fas fa-download me-2"></i> ดาวน์โหลดไฟล์ตัวอย่างสำหรับกรอกข้อมูล
+                </a>
+            </div>
+        </div>
+
+
         @if ($errors->any())
             <div class="alert alert-danger alert-dismissible fade show text-white mx-4" role="alert">
-                <span class="alert-text"><strong>เกิดข้อผิดพลาด!</strong> กรุณาตรวจสอบข้อมูลในช่องที่มีสีแดง</span>
+                <span class="alert-text"><strong>เกิดข้อผิดพลาด!</strong> กรุณาตรวจสอบข้อมูลในช่องที่มีสีแดง{{ $errors }}</span>
                 <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close">
                     <span aria-hidden="true">&times;</span>
                 </button>
@@ -34,8 +47,8 @@
                                 </div>
                                 <div class="col-md-6 mb-3">
                                     <label class="form-label text-sm">รหัสผ่าน (Password)</label>
-                                    <input type="password" class="form-control @error('password') is-invalid @enderror"
-                                        name="password" required>
+                                    <input type="text" class="form-control @error('password') is-invalid @enderror"
+                                        name="password" required >
                                 </div>
                                 <div class="col-md-3 mb-3">
                                     <label class="form-label text-sm">คำนำหน้า</label>
@@ -149,6 +162,46 @@
                 </div>
             </div>
         </form>
+    </div>
+
+
+    {{-- 📥 Modal สำหรับ Import User --}}
+    <div class="modal fade" id="importUserModal" tabindex="-1" role="dialog" aria-labelledby="importUserModalLabel"
+        aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered" role="document">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title fw-bold" id="importUserModalLabel">นำเข้าข้อมูลผู้ใช้งานจาก Excel</h5>
+                    <button type="button" class="btn-close text-dark" data-bs-dismiss="modal" aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                </div>
+                <form action="{{ route('admin.users.import') }}" method="POST" enctype="multipart/form-data">
+                    @csrf
+                    <div class="modal-body">
+                        <div class="text-center mb-4">
+                            <div class="icon icon-shape bg-gradient-info shadow text-center border-radius-md mb-3">
+                                <i class="fas fa-file-csv text-lg opacity-10" aria-hidden="true"></i>
+                            </div>
+                            <p class="text-sm">กรุณาอัปโหลดไฟล์ Excel ตามรูปแบบที่ระบบกำหนด</p>
+                            <a href="{{ asset('templates/user_import_template.xlsx') }}"
+                                class="btn btn-link text-info px-0">
+                                <i class="fas fa-download me-1"></i> ดาวน์โหลดไฟล์ตัวอย่าง (.xlsx)
+                            </a>
+                        </div>
+
+                        <div class="form-group">
+                            <label class="form-control-label">เลือกไฟล์ Excel</label>
+                            <input type="file" name="file" class="form-control" required accept=".xlsx, .xls">
+                        </div>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-link text-secondary" data-bs-dismiss="modal">ยกเลิก</button>
+                        <button type="submit" class="btn bg-gradient-success">เริ่มการนำเข้า</button>
+                    </div>
+                </form>
+            </div>
+        </div>
     </div>
 @endsection
 

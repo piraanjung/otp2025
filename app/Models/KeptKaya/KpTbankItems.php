@@ -26,13 +26,14 @@ class KpTbankItems extends Model
         'image',
         'deleted',
         'org_id_fk',
-        'ef_id_fk'
+        'ef_id_fk',
+        'deleted_at'
     ];
 
     // แนะนำให้ใส่ Casts เพื่อให้เวลาดึงข้อมูลมาใช้ Laravel เปลี่ยน Type ให้เลย
     protected $casts = [
         'favorite' => 'integer',
-        'deleted' => 'integer',
+        // 'deleted' => 'integer',
     ];
 
     // --- Relationships ---
@@ -64,7 +65,7 @@ class KpTbankItems extends Model
     // เรียกใช้ KpTbankItems::forKiosk()->get() เพื่อดึงรายการที่แสดงหน้าตู้ได้ทันที
     public function scopeForKiosk($query)
     {
-        return $query->whereNotNull('unit_kiosk')->where('status', 'active');
+        return $query->whereNotNull('unit_kiosk_idfk')->where('status', 'active');
     }
 
     public function unitBank()
@@ -76,5 +77,27 @@ class KpTbankItems extends Model
     public function unitKiosk()
     {
         return $this->belongsTo(KpTbankUnits::class, 'unit_kiosk_idfk', 'id');
+    }
+
+    // 🌟 เพิ่ม Relation ดึงราคาและแต้ม "ล่าสุด/ปัจจุบัน"
+    public function currentPriceAndPoint()
+    {
+        return $this->hasOne(KpTbankItemsPriceAndPoint::class, 'kp_items_idfk', 'id')
+                    ->where('status', 'active') // ดึงเฉพาะอันที่ Active
+                    ->whereDate('effective_date', '<=', now()) // ต้องถึงวันที่มีผลแล้ว
+                    // ->where(function($q) { ...เช็ค end_date เพิ่มเติมได้... })
+                    ->orderBy('effective_date', 'desc'); // เอาเรทล่าสุด
+    }
+
+    public function items_price_and_point_infos()
+    {
+        // กรณีที่ 1: ถ้า 1 รายการขยะมีหลายเรทราคา/หลายหน่วย (เช่น ขวดเล็ก ขวดใหญ่) ใช้ hasMany
+        // (เปลี่ยนชื่อคลาสโมเดลปลายทางให้ตรงกับที่มีอยู่ในโปรเจกต์ของคุณนะครับ เช่น KpTbankItemsPriceAndPoint หรือ KpTbankItemPrice)
+        return $this->hasMany(KpTbankItemsPriceAndPoint::class, 'kp_items_idfk', 'id');
+        
+        /* กรณีที่ 2: แต่ถ้าในระบบของคุณ 1 รายการขยะ ผูกกับราคาได้เพียงแค่เรทเดียวตายตัว 
+        ให้เปลี่ยนไปใช้ hasOne แทนแบบนี้ครับ:
+        return $this->hasOne(KpTbankItemsPriceAndPoint::class, 'item_id_fk', 'id');
+        */
     }
 }

@@ -194,7 +194,6 @@ Route::middleware(['auth', 'role:Admin|Super Admin'])->name('admin.')->prefix('a
         Route::post('store', [UserController::class, 'store'])->name('store');
         Route::post('users_search', [UserController::class, 'users_search'])->name('users_search');
         Route::put('{user_id}/update', [UserController::class, 'update'])->name('update');
-        Route::get('{user}', [UserController::class, 'show'])->name('show');
         Route::get('{user_id}/cancel', [UserController::class, 'cancel'])->name('cancel');
         Route::delete('{meter_id}/destroy', [UserController::class, 'destroy'])->name('destroy');
         Route::get('{user}/history', [UserController::class, 'history'])->name('history');
@@ -202,6 +201,9 @@ Route::middleware(['auth', 'role:Admin|Super Admin'])->name('admin.')->prefix('a
         Route::delete('{user}/roles/{role}', [UserController::class, 'removeRole'])->name('roles.remove');
         Route::get('{user_id}/permissions', [UserController::class, 'givePermission'])->name('permissions');
         Route::delete('{user}/permissions/{permission}', [UserController::class, 'revokePermission'])->name('permissions.revoke');
+        Route::post('import', [UserController::class, 'importUsers'])->name('import');
+        Route::get('download_template', [UserController::class, 'downloadUserTemplate'])->name('download_template');
+        Route::get('{user}/{action?}', [UserController::class, 'show'])->name('show');
     });
 
     Route::resource('/invoice_period', InvoicePeriodController::class);
@@ -262,7 +264,6 @@ Route::middleware(['auth', 'role:Admin|Super Admin'])->name('admin.')->prefix('a
         //     Route::post('/import-organizations', [SuperAdminSettingsController::class, 'importOrganizations'])->name('import.organizations');
         //     Route::get('/export-organizations', [SuperAdminSettingsController::class, 'exportOrganizations'])->name('export.organizations');
 
-        //     Route::post('/import-users', [SuperAdminSettingsController::class, 'importUsers'])->name('import.users');
         //     Route::get('/export-users', [SuperAdminSettingsController::class, 'exportUsers'])->name('export.users');
 
         //     // Routes สำหรับ Import/Export TwMeters

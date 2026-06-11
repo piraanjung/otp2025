@@ -4,6 +4,12 @@
 <div class="container py-4">
     <div class="card border-0 shadow-sm rounded-4 mb-4">
         <div class="card-body p-4">
+            @if (session('success'))
+                <div class="alert alert-success rounded-4 border-0 mb-4">{{ session('success') }}</div>
+            @endif
+            @if (session('error'))
+                <div class="alert alert-danger rounded-4 border-0 mb-4">{{ session('error') }}</div>
+            @endif
             <h4 class="fw-bold mb-4 text-primary"><i class="bi bi-arrow-left-right"></i> โอนแต้มสะสม</h4>
 
             <div class="bg-primary-subtle p-3 rounded-3 mb-4 text-center">

@@ -13,13 +13,15 @@ use Spatie\Permission\Models\Permission;
 
 class StaffController extends Controller
 {
-    /**
-     * Display a listing of the resource.
-     */
+    protected $staffRolesArray;
+    function __construct()
+    {
+        $this->staffRolesArray = ['Tabwater Staff', 'Tabwater Header', 'Admin', 'Recycle Bank Staff', 'Annual Fee Staff'];
+    }
     public function index(Request $request)
     {
         // รายการ Role ที่ถือว่าเป็น Staff
-        $staffRoles = ['Admin', 'Tabwater Staff', 'Tabwater Header', 'Finance Staff', 'finance header'];
+        $staffRoles = $this->staffRolesArray;
 
         // Get search and filter parameters
         $searchName = $request->input('search_name');
@@ -30,7 +32,7 @@ class StaffController extends Controller
         $isAjax = $request->input('ajax');
 
         $query = User::role($staffRoles)->with(['roles', 'permissions', 'staff.user'])
-        ->where('org_id_fk', Auth::user()->org_id_fk);
+            ->where('org_id_fk', Auth::user()->org_id_fk);
 
         // Apply filters
         if ($searchName) {
@@ -73,23 +75,25 @@ class StaffController extends Controller
         return view('keptkayas.staffs.index', compact('staffs', 'perPage'));
     }
 
-
-
     public function create()
     {
         // ดึงผู้ใช้งานที่ไม่มี role ที่เกี่ยวข้องกับ staff/super_admin
-        $usersToAssign = User::doesntHave('roles')
-            ->orWhereHas('roles', function ($query) {
-                $query->whereNotIn('name', ['Tabwater Staff', 'Tabwater Header', 'Admin', 'finance header', 'Super Admin']);
+        $usersToAssign = User::where('org_id_fk', Auth::user()->org_id_fk) // เงื่อนไขบังคับ: ต้องอยู่ Org เดียวกัน
+            ->whereDoesntHave('staff') // เงื่อนไข: ต้องยังไม่ถูกบันทึกอยู่ในตาราง staff (ใช้ความสัมพันธ์ 'staff')
+            ->where(function ($query) {
+                // เงื่อนไขกลุ่ม Role: ไม่มี Role เลย หรือ มีเฉพาะ Role 'User'
+                $query->doesntHave('roles')
+                    ->orWhereHas('roles', function ($q) {
+                        $q->where('name', 'User');
+                    });
             })
-            ->where('org_id_fk', Auth::user()->org_id_fk)
             ->get();
 
         // ดึง roles ที่สามารถ assign ได้
-        $assignableRoles = Role::whereIn('name', ['Tabwater Staff', 'Tabwater Header', 'tabwater header', 'finance staff', 'finance header'])->get();
+        $assignableRoles = Role::whereNotIn('name', ['Super Admin'])->get();
 
         $permissions = Permission::all();
-        $staffRoles = ['Tabwater Staff', 'Tabwater Header', 'Admin', 'finance staff', 'finance header'];
+        $staffRoles = ['Tabwater Staff', 'Tabwater Header', 'Admin', 'Recycle Bank Staff', 'Annual Fee Staff'];
         $roles = Role::whereIn('name', $staffRoles)->get();
         return view('keptkayas.staffs.create', compact('usersToAssign', 'assignableRoles', 'permissions', 'roles'));
     }
@@ -130,6 +134,7 @@ class StaffController extends Controller
         $staff = Staff::find($user->id);
         if (collect($staff)->isEmpty()) {
             $staff = new Staff();
+            $staff->id = $user->id;
             $staff->user_id = $user->id;
             $staff->status  = 'active';
             $staff->deleted    = '0';

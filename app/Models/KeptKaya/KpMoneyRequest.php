@@ -8,7 +8,7 @@ use Illuminate\Database\Eloquent\Model;
 class KpMoneyRequest extends Model
 {
     protected $fillable = [
-        'user_id', 'amount', 'verification_code', 'status',
+        'user_id', 'amount', 'verification_code', 'status', 'org_id_fk',
         'is_proxy', 'proxy_name', 'payout_date', 'admin_id', 'completed_at'
     ];
 

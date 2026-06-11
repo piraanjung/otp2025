@@ -3,7 +3,7 @@
 namespace App\Http\Controllers\KeptKaya;
 
 use App\Http\Controllers\Controller;
-use App\Models\KeptKaya\KpMoneyRequest;
+use App\Models\KpPointTransfer;
 use App\Models\RecycleBankAccount;
 use App\Models\User;
 use Illuminate\Http\Request;
@@ -39,25 +39,26 @@ class PointController extends Controller
         if ($receiver->id === $senderId) return back()->with('error', 'ไม่สามารถโอนให้ตัวเองได้');
 
         return DB::transaction(function () use ($senderId, $receiver, $amount, $request) {
-            // 2. เช็คแต้มผู้โอน (จากตาราง RecycleBankAccount ของคุณ)
             $senderAcc = RecycleBankAccount::where('user_id', $senderId)->first();
-            if ($senderAcc->points < $amount) return back()->with('error', 'แต้มของคุณไม่เพียงพอ');
+            if (! $senderAcc || ($senderAcc->points ?? 0) < $amount) {
+                return back()->with('error', 'แต้มของคุณไม่เพียงพอ');
+            }
 
-            // 3. หักแต้มผู้โอน - เพิ่มแต้มผู้รับ
             $senderAcc->decrement('points', $amount);
 
             $receiverAcc = RecycleBankAccount::firstOrCreate(['user_id' => $receiver->id]);
             $receiverAcc->increment('points', $amount);
 
-            // 4. บันทึกประวัติ
-            KpMoneyRequest::create([
+            KpPointTransfer::create([
                 'sender_id' => $senderId,
                 'receiver_id' => $receiver->id,
                 'amount' => $amount,
-                'note' => $request->note
+                'note' => $request->note,
             ]);
 
-            return redirect()->route('line.dashboard')->with('success', "โอนแต้มให้ {$receiver->name} สำเร็จ!");
+            $receiverDisplay = trim(($receiver->name ?? '') ?: (($receiver->firstname ?? '') . ' ' . ($receiver->lastname ?? '')));
+
+            return redirect()->route('keptkayas.transfer_points')->with('success', "โอนแต้มให้ {$receiverDisplay} สำเร็จ!");
         });
     }
 }

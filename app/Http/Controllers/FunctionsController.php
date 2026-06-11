@@ -11,6 +11,7 @@ use App\Models\KeptKaya\KpPurchaseShop;
 use App\Models\KeptKaya\KpUserWastePreference;
 use App\Models\KeptKaya\AnnualTrash;
 use App\Models\Admin\Tambon;
+use App\Models\AnnualTrash\AnnualTrash as ModelsAnnualTrash;
 use App\Models\FoodWaste\FoodAnnualTrash;
 use App\Models\KeptKaya\KpTbankItems;
 use App\Models\KeptKaya\KpTbankItemsGroups;
@@ -87,7 +88,7 @@ class FunctionsController extends Controller
     {
         $org  = Organization::getOrgName(Auth::user()->org_id_fk);
 
-        $AnnualTrash = AnnualTrash::get('bin_code')->last();
+        $AnnualTrash = ModelsAnnualTrash::get('bin_code')->last();
         $bin_code = collect($AnnualTrash)->isEmpty() ? 0 : $AnnualTrash->bin_code;
 
         if ($bin_code != 0) {

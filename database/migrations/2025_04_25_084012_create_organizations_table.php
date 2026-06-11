@@ -16,10 +16,9 @@ return new class extends Migration
 
             // หาก org_id_fk หมายถึง parent organization (องค์กรแม่)
             $table->string('org_code')->unique();
+            $table->foreignId('org_type_id')->nullable()->constrained('organization_types')->onDelete('set null');
 
-            $table->string('org_type_name')->nullable(); // ชื่อประเภทองค์กร
-                        $table->string('org_short_type_name')->nullable(); // ชื่อย่อประเภทองค์กร
-            $table->string('org_name'); // ชื่อองค์กรเต็ม 
+            $table->string('org_name'); // ชื่อองค์กรเต็ม
             $table->text('org_address')->nullable(); // ที่อยู่องค์กร
 
             // Foreign Keys สำหรับข้อมูลภูมิศาสตร์ (ต้องมั่นใจว่าตารางเหล่านี้ถูกสร้างก่อน)

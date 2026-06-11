@@ -11,7 +11,7 @@ return new class extends Migration
      */
     public function up()
 {
-    Schema::table('waste_logs', function (Blueprint $table) {
+    Schema::table('foodwaste_waste_logs', function (Blueprint $table) {
         // เพิ่มคอลัมน์สำหรับเก็บระดับความร้อน (อุ่น, ร้อน, เย็น)
         $table->string('temperature_feel')->nullable()->after('moisture');
     });
@@ -22,7 +22,7 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::table('waste_logs', function (Blueprint $table) {
+        Schema::table('foodwaste_waste_logs', function (Blueprint $table) {
             $table->removeColumn('temperature_feel');
         });
     }

@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Http\Controllers\keptkaya;
+namespace App\Http\Controllers\KeptKaya;
 
 use App\Http\Controllers\Controller;
 use App\Models\KeptKaya\KpPurchaseTransactionDetail;

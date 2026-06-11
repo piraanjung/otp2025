@@ -13,12 +13,13 @@ return new class extends Migration
     {
         Schema::create('kp_tbank_items_groups', function (Blueprint $table) {
             $table->id();
+            $table->foreignId('org_id_fk')->constrained('organizations')->onDelete('cascade');
             $table->string('kp_items_groupname');
             $table->enum('status', ['active','inactive'])->default('active');
             $table->enum('deleted', [0,1])->default('0');
             $table->timestamps();
 
-           
+
         });
     }
 

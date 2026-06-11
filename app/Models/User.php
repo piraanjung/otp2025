@@ -39,7 +39,6 @@ class User extends Authenticatable
         "prefix",
         "firstname",
         "lastname",
-        "name",
         "email",
         "password",
         "id_card",
@@ -188,7 +187,7 @@ class User extends Authenticatable
     }
 
     // เชื่อมกับบัญชีธนาคารขยะรีไซเคิล (1-to-1)
-    public function recycleAccount()
+    public function recycleBankAccount()
     {
         return $this->hasOne(RecycleBankAccount::class, 'user_id', 'id');
     }

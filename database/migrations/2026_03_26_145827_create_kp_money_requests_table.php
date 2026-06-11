@@ -14,6 +14,7 @@ return new class extends Migration
     Schema::create('kp_money_requests', function (Blueprint $table) {
         $table->id();
         $table->foreignId('user_id')->constrained('users')->onDelete('cascade');
+        $table->foreignId('org_id_fk')->constrained('organizations')->onDelete('cascade');
         $table->decimal('amount', 12, 2);
 
         // 🛡️ ระบบความปลอดภัย

@@ -26,14 +26,13 @@ class KpSellController extends Controller
     public function showSellForm()
     {
         // Fetch necessary data for the form
-        $recycleItems = (new KpTbankItems())->setConnection(session('db_conn'))->with(
+        $recycleItems = KpTbankItems::with(
             'items_price_and_point_infos.kp_units_info')
             ->whereHas('items_price_and_point_infos',)
             ->get(); // Load all items with their units
         $staffs = Staff::all(); // Get users with 'staff' role
         $shops =  KpPurchaseShop::where('status', 'active')->get();
-        $user = User::setLocalUser();
-        return view('keptkayas.sell.sell_form', compact('recycleItems', 'staffs', 'shops', 'user'));
+        return view('keptkayas.sell.sell_form', compact('recycleItems', 'staffs', 'shops'));
     }
 
     /**

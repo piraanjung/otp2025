@@ -13,8 +13,7 @@ class Organization extends Model
     protected $fillable = [
         'id',
         'org_code',
-        'org_type_name',
-        'org_short_type_name',
+        'org_type_id',
         'org_name',
         'org_address',
         'org_zone_id_fk',
@@ -63,6 +62,10 @@ class Organization extends Model
         return $this->belongsTo(Zone::class, 'org_zone_id_fk', 'id');
     }
 
+    public function orgType(){
+        return $this->belongsTo(OrganizationType::class, 'org_type_id', 'id');
+    }
+
     public static function getOrgName($org_id_fk)
     {
         $organization = Organization::where('id', $org_id_fk);
@@ -83,9 +86,9 @@ class Organization extends Model
             'org_zone_id'           => $connection->zones->id,
             'org_zone'              => $connection->zones->zone_name,
             'org_logo_img'          => $connection->org_logo_img,
-            'org_type_name'         => $connection->org_type_name,
+            'org_type_name'         => $connection->orgType->name,
             'org_name'              => $connection->org_name,
-            'org_short_type_name'   => $connection->org_short_type_name,
+            'org_short_type_name'   => $connection->orgType->code,
             'org_dept_name'         => $connection->org_dept_name,
             'lat'                   => $connection->lat,
             'long'                  => $connection->long

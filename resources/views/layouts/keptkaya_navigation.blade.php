@@ -1,5 +1,6 @@
 @php
     $infos_count = App\Http\Controllers\FunctionsController::keptkaya_nav_infos();
+
 @endphp
 <ul class="navbar-nav">
     <li class="nav-item">
@@ -223,7 +224,7 @@
             </li>
         {{-- @endif --}}
     @endif
-    @if (Session::get('keptkayatype') == 'recycle')
+    {{-- @if (Session::get('keptkayatype') == 'recycle') --}}
         @if(auth()->user()->can('access recycle bank') || auth()->user()->hasRole('Admin|Super Admin'))
             <li class="nav-item">
                 <a data-bs-toggle="collapse" href="#cart" class="nav-link active" aria-controls="cart" role="button"
@@ -386,7 +387,7 @@
                 </div>
             </li>
         @endif
-    @endif
+    {{-- @endif --}}
 
     <li class="nav-item">
         <a href="{{ route('logout') }}" class="nav-link active mt-4" style="border: 1px solid red">

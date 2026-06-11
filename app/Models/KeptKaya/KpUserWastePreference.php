@@ -15,16 +15,23 @@ class KpUserWastePreference extends Model
     protected $table = 'kp_user_waste_preferences';
 
     protected $fillable = [
+        'org_id_fk',
         'user_id',
         'is_annual_collection',
         'is_waste_bank',
+        "address",
+       "zone_id",
+       "subzone_id",
+       "tambon_code",
+       "district_code",
+       "province_code",
     ];
 
     // ✅ เพิ่มตรงนี้: บังคับให้เป็น boolean เพื่อความแม่นยำ
-    protected $casts = [
-        'is_annual_collection' => 'boolean',
-        'is_waste_bank' => 'boolean',
-    ];
+    // protected $casts = [
+    //     'is_annual_collection' => 'boolean',
+    //     'is_waste_bank' => 'boolean',
+    // ];
 
     public function user()
     {

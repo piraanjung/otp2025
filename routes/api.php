@@ -7,6 +7,7 @@ use App\Http\Controllers\Api\SubzoneController;
 use App\Http\Controllers\Api\ZoneController;
 use App\Http\Controllers\Api\UsersController;
 use App\Http\Controllers\Api\InvoiceController;
+use App\Http\Controllers\Api\KeptkayaController;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\Api\IoTBoxDataController;
@@ -33,6 +34,23 @@ Route::post('/testpost', function(Request $request){
     ]);
 });
 
+Route::get('/health-check', function () {
+    return response()->json([
+        'status' => 'online',
+        'message' => 'AiroBact Server is ready',
+        'timestamp' => now()
+    ], 200);
+});
+
+Route::get('/keptkaya/kp_items_recycle_info', [KeptkayaController::class, 'kp_items_recycle_info']);
+Route::get('/keptkaya/members', [KeptkayaController::class, 'members']);
+Route::post('/keptkaya/store_purchase', [KeptkayaController::class, 'store_purchase']);
+
+// =========================================================================
+// 🌿 [Branch: backend/feature-chunk-image-receiver]
+// เพิ่ม Route รองรับการทยอยอัปโหลดรูปภาพขยะทีละใบจากคิวเบื้องหลัง
+// =========================================================================
+Route::post('/kiosk/upload-item-image-chunk', [KioskController::class, 'uploadItemImageChunk']);
 
 Route::get('/kiosk/index', [KioskController::class, 'index']);
 Route::post('/kiosk/upload', [KioskController::class, 'upload']);
@@ -42,13 +60,13 @@ Route::get('/kiosk/object-detected', [KioskController::class, 'objectDetected'])
 Route::get('/kiosk/check-command', [KioskController::class, 'checkCommand']);
 Route::get('/kiosk/drop-object', [KioskController::class, 'dropObject']);
 Route::get('/kiosk/sleep', [KioskController::class, 'sleepMode']);
-Route::post('/kiosk/save-transaction', [KioskController::class, 'saveTransaction']);
+Route::post('/kiosk/submit-transaction', [KioskController::class, 'submitTransaction']);
+Route::get('/kiosk/get-rates', [KioskController::class, 'getRates']);
+Route::post('/kiosk/upload-offline-images', [KioskController::class, 'uploadOfflineImages']);
+Route::get('/kiosk/check-transaction/{kiosk_id}', [KioskController::class, 'checkTransactionStatus']);
 
-
-Route::post('/kiosk/wake-up', [WebKioskController::class, 'wakeUp']);
 Route::post('/kiosk/wake-up', [WebKioskController::class, 'wakeUp']);
 Route::post('/kiosk/match', [WebKioskController::class, 'matchKiosk']);
-Route::get('/kiosk/check-transaction/{kiosk_id}', [KioskController::class, 'checkTransactionStatus']);
 
 
 // Endpoint สำหรับ Frontend (Browser) เพื่อส่งคำสั่ง "Start" ไปยัง ESP8266
@@ -91,6 +109,12 @@ Route::get('/sensor_data', [IoTBoxDataController::class, 'store']);
 Route::middleware('auth:sanctum')->get('/user', function (Request $request) {
     return $request->user();
 });
+
+Route::prefix('users')->group(function () {
+    Route::get('/findUserByUserId/{userId}', [UsersController::class, 'findByUserId']);
+    Route::get('/findUserByPhone/{phone}', [UsersController::class, 'findByPhone']);
+});
+
 Route::middleware(['throttle:api'])->name('api.')->group(function () {
     Route::prefix('subzone')->group(function () {
         Route::get('/{zone_id}', [SubzoneController::class, 'subzone'])->name('subzone');
@@ -104,13 +128,14 @@ Route::middleware(['throttle:api'])->name('api.')->group(function () {
     Route::prefix('zone')->group(function () {
         Route::get('/', [ZoneController::class, 'index']);
         Route::delete('/delete/{id}', [ZoneController::class, 'delete'])->name('zone.delete');
-        Route::get('/getzone_and_subzone', [ZoneController::class, 'getZoneAndSubzone']);
+        Route::get('/getzoxne_and_subzone', [ZoneController::class, 'getZoneAndSubzone']);
         Route::get('/users_by_zone/{zone_id}', [ZoneController::class, 'users_by_zone']);
         Route::get('/undertakenZoneAndSubzone/{id}', [ZoneController::class, 'undertakenZoneAndSubzone']);
     });
 
     Route::prefix('users')->group(function () {
         Route::get('/', [UsersController::class, 'index']);
+        Route::get('/findUserByUserId/{userID}', [UsersController::class, 'findUserByUserId']);
         Route::get('/users', [UsersController::class, 'users']);
         Route::get('/user/{user_id}', [UsersController::class, 'user']);
         Route::get('/check_line_id/{id}', [UsersController::class, 'check_line_id']);
@@ -129,6 +154,7 @@ Route::middleware(['throttle:api'])->name('api.')->group(function () {
 
 
         Route::post('/authen', [UsersController::class, 'authen']);
+        Route::post('/staff_authen', [UsersController::class, 'staff_authen']);
     });
 
     Route::prefix('invoice')->group(function () {
@@ -167,7 +193,7 @@ Route::middleware(['throttle:api'])->name('api.')->group(function () {
 
     Route::get('/get_districts/{province_id}', [apiFunctionsController::class,'getDistricts']);
     Route::get('/get_tambons/{district_id}', [FunctionsController::class,'getTambons']);
-    Route::get('/get_org/{tambon_id}', [FunctionsController::class,'get OrgName']);
+    Route::get('/get_org/{tambon_id}', [FunctionsController::class,'getOrgName']);
 
     Route::post('/line/groupid-finder', function (Request $request) {
     $data = $request->json()->all();

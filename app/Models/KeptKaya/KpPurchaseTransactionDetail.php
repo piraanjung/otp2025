@@ -29,6 +29,7 @@ class KpPurchaseTransactionDetail extends Model
         'amount',
         'points',
         'carbon_saved',
+        'image_path'
     ];
 
 

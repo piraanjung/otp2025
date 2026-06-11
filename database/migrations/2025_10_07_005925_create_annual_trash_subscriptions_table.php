@@ -16,17 +16,16 @@ return new class extends Migration
             $table->id();
             $table->string('fiscal_year'); // ปีงบประมาณ เช่น 2569
             $table->foreignId('user_id')->constrained('users')->onDelete('cascade');
+
             // เชื่อมกับถังขยะ (อนุญาตให้เป็น NULL ได้ตอนเริ่มสมัคร)
             $table->foreignId('waste_bin_id')
                 ->nullable()
-                ->constrained('annual_trashs') // ตรวจสอบว่าตารางถังขยะชื่อนี้จริงๆ หรือไม่
-                ->onDelete('set null');
+                ->constrained('annual_trashs')
+                ->onDelete('cascade');
 
-            // เชื่อมกับอัตราค่าบริการ
-            $table->foreignId('payrate_permonth_id_fk')
-                ->nullable()
-                ->constrained('kp_waste_bin_payrate_permonth') // แก้ชื่อให้ตรงกับที่คุณส่งมาก่อนหน้า
-                ->onDelete('set null');
+            // 🛠️ แก้ไขจุดที่มีปัญหา: แยกการประกาศคอลัมน์ออกมาก่อน
+            // (หากตารางแม่ใช้ไอดีประเภท Integer ธรรมดา ให้เปลี่ยนจาก unsignedBigInteger เป็น unsignedInteger ให้ตรงกัน)
+            $table->unsignedBigInteger('payrate_permonth_id_fk')->nullable();
 
             $table->decimal('annual_fee', 10, 2); // ยอดรวมทั้งปี
             $table->decimal('month_fee', 10, 2);  // ยอดต่อเดือน
@@ -34,15 +33,16 @@ return new class extends Migration
             $table->string('status')->default('pending'); // pending, partially_paid, paid, overdue
             $table->timestamps();
 
-            // ป้องกันการสมัครซ้ำ: 1 ถัง ต่อ 1 ปีงบประมาณ (ถ้ามีถัง)
-            // หมายเหตุ: ถ้า waste_bin_id เป็น NULL จะไม่ติด Unique ตัวนี้ในบางฐานข้อมูล
-            // $table->unique(['waste_bin_id', 'fiscal_year']);
+            // 🛠️ แก้ไขจุดที่มีปัญหา: สั่งผูก Foreign Key แยกบรรทัดตามโครงสร้างมาตรฐาน
+            $table->foreign('payrate_permonth_id_fk')
+                ->references('id')
+                ->on('annual_trash_payrate_permonth')
+                ->onDelete('cascade');
         });
 
-        // 2. ตารางบันทึกการชำระเงิน (Payments)
+        // 2. ตารางบันทึกการชำระเงิน (Payments) คงโครงสร้างเดิมไว้ตามคำสั่งของคุณ
         Schema::create('annual_trash_payments', function (Blueprint $table) {
             $table->id();
-            // ต้องชี้ไปที่ annual_trash_subscriptions ให้ตรงกับชื่อตารางด้านบน
             $table->foreignId('wbs_id')
                 ->constrained('annual_trash_subscriptions')
                 ->onDelete('cascade');
@@ -57,7 +57,7 @@ return new class extends Migration
             $table->foreignId('staff_id')
                 ->nullable()
                 ->constrained('users')
-                ->onDelete('set null');
+                ->onDelete('cascade');
 
             $table->timestamps();
 
@@ -65,7 +65,6 @@ return new class extends Migration
             $table->unique(['wbs_id', 'pay_mon', 'pay_yr']);
         });
     }
-
     /**
      * Reverse the migrations.
      */

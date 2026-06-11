@@ -16,8 +16,9 @@ class PermissionsSeeder extends Seeder
     public function run()
     {
         $permissions =[
-             ['name' => 'access waste bank'],
-             ['name' => 'access annual collection'],
+             ['name' => 'access recycle bank'],
+             ['name' => 'access recycle bank mobile'],
+             ['name' => 'access annual fee'],
              ['name' => 'access tabwater'],
              ['name' => 'access tabwater mobile'],
         ];

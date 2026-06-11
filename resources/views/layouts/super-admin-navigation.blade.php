@@ -11,9 +11,9 @@
 <div class="collapse navbar-collapse  w-auto " id="sidenav-collapse-main">
     <ul class="navbar-nav">
         <li class="nav-item">
-            <a class="nav-link  active" href="">
+            <a class="nav-link  active" href="{{ route('admin.dashboard') }}">
                 <i class="fa-solid fa-house-laptop text-primary h3"></i>
-                <span class="nav-link-text ms-1">Dashboard</span>
+                <span class="nav-link-text ms-1">Dashboard ผู้บริหาร</span>
             </a>
         </li>
         <li class="nav-item">
@@ -68,7 +68,10 @@
                 </a>
             </li>
 
-            <li class="nav-item">
+            
+        @endif
+
+        <li class="nav-item">
                 <a class="nav-link  " href="{{ route('keptkayas.emission.index') }}">
                     <div
                         class="icon icon-shape icon-sm shadow border-radius-md bg-white text-center me-2 d-flex align-items-center justify-content-center">
@@ -88,16 +91,7 @@
                 </a>
             </li>
 
-            <li class="nav-item">
-                <a class="nav-link  " href="{{ route('admin.financial.index') }}">
-                    <div
-                        class="icon icon-shape icon-sm shadow border-radius-md bg-white text-center me-2 d-flex align-items-center justify-content-center">
-                        <i class="ni ni-circle-08 text-dark text-gradient text-lg opacity-10"></i></i>
-                    </div>
-                    <span class="nav-link-text ms-1">รายงาน สรุป ทางบัญชี</span>
-                </a>
-            </li>
-        @endif
+        
 
         <li class="nav-item">
             @if (auth()->user()->hasRole('Super Admin'))
@@ -238,6 +232,78 @@
                 </div>
             </li>
         @endif
+
+        <li class="nav-item mt-3">
+    <h6 class="ps-4 ms-2 text-uppercase text-xs font-weight-bolder opacity-6">ระบบธนาคารขยะ</h6>
+</li>
+
+<li class="nav-item">
+    <a data-bs-toggle="collapse" href="#bulkSalesMenu" class="nav-link" aria-controls="bulkSalesMenu" role="button" aria-expanded="false">
+        <div class="icon icon-shape icon-sm shadow border-radius-md bg-white text-center me-2 d-flex align-items-center justify-content-center">
+            <i class="fa-solid fa-truck-ramp-box text-dark"></i>
+        </div>
+        <span class="nav-link-text ms-1">การขายรวม (Bulk)</span>
+    </a>
+    <div class="collapse" id="bulkSalesMenu">
+        <ul class="nav ms-4 ps-3">
+            <li class="nav-item">
+                <a class="nav-link" href="{{ route('admin.bulk_sales.index') }}">
+                    <span class="sidenav-mini-icon"> BS </span>
+                    <span class="sidenav-normal"> ประวัติการขายใหญ่ </span>
+                </a>
+            </li>
+            <li class="nav-item">
+                <a class="nav-link" href="{{ route('admin.bulk_sales.create') }}">
+                    <span class="sidenav-mini-icon"> NB </span>
+                    <span class="sidenav-normal"> บันทึกขายขยะใหม่ </span>
+                </a>
+            </li>
+        </ul>
+    </div>
+</li>
+
+<li class="nav-item">
+    <a class="nav-link" href="{{ route('admin.welfare.dashboard') }}">
+        <div class="icon icon-shape icon-sm shadow border-radius-md bg-white text-center me-2 d-flex align-items-center justify-content-center">
+            <i class="fa-solid fa-hand-holding-heart text-danger"></i>
+        </div>
+        <span class="nav-link-text ms-1">กองทุนสวัสดิการ</span>
+    </a>
+</li>
+<li class="nav-item">
+        <a class="nav-link" href="{{ route('admin.welfare.config') }}">
+
+ <div class="icon icon-shape icon-sm shadow border-radius-md bg-white text-center me-2 d-flex align-items-center justify-content-center">
+            <i class="fa-solid fa-hand-holding-heart text-danger"></i>
+        </div>
+        <span class="sidenav-normal"> ตั้งค่าเกณฑ์สวัสดิการ </span>
+    </a>
+</li>
+
+<li class="nav-item">
+    <a data-bs-toggle="collapse" href="#withdrawMenu" class="nav-link" aria-controls="withdrawMenu" role="button" aria-expanded="false">
+        <div class="icon icon-shape icon-sm shadow border-radius-md bg-white text-center me-2 d-flex align-items-center justify-content-center">
+            <i class="fa-solid fa-money-bill-transfer text-success"></i>
+        </div>
+        <span class="nav-link-text ms-1">จัดการถอนเงิน</span>
+    </a>
+    <div class="collapse" id="withdrawMenu">
+        <ul class="nav ms-4 ps-3">
+            <li class="nav-item">
+                <a class="nav-link" href="{{ route('admin.withdraws.index') }}">
+                    <span class="sidenav-mini-icon"> WL </span>
+                    <span class="sidenav-normal"> รายการรอจ่ายเงิน </span>
+                </a>
+            </li>
+            <li class="nav-item">
+                <a class="nav-link" href="{{ route('admin.withdraws.summary') }}">
+                    <span class="sidenav-mini-icon"> WS </span>
+                    <span class="sidenav-normal"> สรุปยอดเบิกรายรอบ </span>
+                </a>
+            </li>
+        </ul>
+    </div>
+</li>
 
     </ul>
 </div>

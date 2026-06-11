@@ -11,7 +11,7 @@ return new class extends Migration
      */
     public function up()
 {
-    Schema::table('compost_batches', function (Blueprint $table) {
+    Schema::table('foodwaste_compost_batches', function (Blueprint $table) {
         // เพิ่มคอลัมน์ user_id ต่อท้าย id
         $table->foreignId('user_id')->after('id')->constrained()->onDelete('cascade');
     });
@@ -19,7 +19,7 @@ return new class extends Migration
 
 public function down()
 {
-    Schema::table('compost_batches', function (Blueprint $table) {
+    Schema::table('foodwaste_compost_batches', function (Blueprint $table) {
         $table->dropForeign(['user_id']);
         $table->dropColumn('user_id');
     });

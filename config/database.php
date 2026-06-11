@@ -15,7 +15,7 @@ return [
     |
     */
 
-    'default' => env('DB_CONNECTION', 'envsogo_hs1'),
+    'default' => env('DB_CONNECTION', 'envsogo_main'),
 
     /*
     |--------------------------------------------------------------------------
@@ -43,44 +43,7 @@ return [
             'foreign_key_constraints' => env('DB_FOREIGN_KEYS', true),
         ],
 
-        'envsogo_kp1' => [
-            'driver' => 'mysql',
-            'url' => env('DATABASE_URL'),
-            'host' => env('DB_HOST', '127.0.0.1'),
-            'port' => env('DB_PORT', '3306'),
-            'database' => env('DB_DATABASE', 'forge'),
-            'username' => env('DB_USERNAME', 'forge'),
-            'password' => env('DB_PASSWORD', ''),
-            'unix_socket' => env('DB_SOCKET', ''),
-            'charset' => 'utf8mb4',
-            'collation' => 'utf8mb4_unicode_ci',
-            'prefix' => '',
-            'prefix_indexes' => true,
-            'strict' => true,
-            'engine' => null,
-            'options' => extension_loaded('pdo_mysql') ? array_filter([
-                PDO::MYSQL_ATTR_SSL_CA => env('MYSQL_ATTR_SSL_CA'),
-            ]) : [],
-        ],
 
-        'envsogo_hs1' => [
-            'driver' => 'mysql',
-            'host' => env('DB_HOST_HS1', '127.0.0.1'),
-            'port' => env('DB_PORT_HS1', '3306'),
-            'database' => env('DB_DATABASE_HS1', 'forge'),
-            'username' => env('DB_USERNAME_HS1', 'forge'),
-            'password' => env('DB_PASSWORD_HS1', ''),
-            'unix_socket' => env('DB_SOCKET', ''),
-            'charset' => 'utf8mb4',
-            'collation' => 'utf8mb4_unicode_ci',
-            'prefix' => '',
-            'prefix_indexes' => true,
-            'strict' => true,
-            'engine' => null,
-            'options' => extension_loaded('pdo_mysql') ? array_filter([
-                PDO::MYSQL_ATTR_SSL_CA => env('MYSQL_ATTR_SSL_CA'),
-            ]) : [],
-        ],
 
         'envsogo_main' => [
             'driver' => 'mysql',
@@ -96,9 +59,6 @@ return [
             'prefix_indexes' => true,
             'strict' => true,
             'engine' => null,
-            'options' => extension_loaded('pdo_mysql') ? array_filter([
-                PDO::MYSQL_ATTR_SSL_CA => env('MYSQL_ATTR_SSL_CA'),
-            ]) : [],
         ],
 
         'pgsql' => [
@@ -142,7 +102,10 @@ return [
     |
     */
 
-    'migrations' => 'migrations',
+    'migrations' => [
+        'table' => 'migrations',
+        'update_date_on_publish' => true,
+    ],
 
     /*
     |--------------------------------------------------------------------------
@@ -161,7 +124,7 @@ return [
 
         'options' => [
             'cluster' => env('REDIS_CLUSTER', 'redis'),
-            'prefix' => env('REDIS_PREFIX', Str::slug(env('APP_NAME', 'laravel'), '_').'_database_'),
+            'prefix' => env('REDIS_PREFIX', Str::slug(env('APP_NAME', 'laravel'), '_') . '_database_'),
         ],
 
         'default' => [

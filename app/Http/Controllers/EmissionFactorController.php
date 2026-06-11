@@ -49,7 +49,7 @@ class EmissionFactorController extends Controller
 
         EmissionFactor::create($request->all());
 
-        return redirect()->route('admin.ef.index')->with('success', 'เพิ่มข้อมูล Emission Factor สำเร็จแล้ว');
+        return redirect()->route('keptkayas.emission.index')->with('success', 'เพิ่มข้อมูล Emission Factor สำเร็จแล้ว');
     }
 
     public function update(Request $request, $id)
@@ -73,7 +73,7 @@ class EmissionFactorController extends Controller
         $factor = EmissionFactor::findOrFail($id);
         $factor->update($request->all());
 
-        return redirect()->route('admin.ef.index')->with('success', 'อัปเดตข้อมูลสำเร็จแล้ว');
+        return redirect()->route('keptkayas.emission.index')->with('success', 'อัปเดตข้อมูลสำเร็จแล้ว');
     }
 
     // ดาวน์โหลดเทมเพลต

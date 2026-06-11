@@ -25,7 +25,7 @@ class KpTbankItemsController extends Controller
     {
         $kp_tbank_items = KpTbankItems::where('org_id_fk', Auth::user()->org_id_fk)
             ->orWhere('org_id_fk', null)
-            ->where('status', 'active')->paginate(10);
+            ->where('status', 'active')->paginate(100);
         return view('keptkayas.tbank.items.index', compact('kp_tbank_items'));
     }
 
@@ -215,7 +215,6 @@ class KpTbankItemsController extends Controller
         $request->validate([
             'file' => 'required|mimes:xlsx,xls,csv'
         ]);
-
         try {
             Excel::import(new KpTbankItemsImport, $request->file('file'));
 
@@ -228,6 +227,10 @@ class KpTbankItemsController extends Controller
     public function exportTemplate()
     {
         return Excel::download(new KpTbankItemsTemplateExport, 'template_items_import.xlsx');
+    }
+
+    public function show(){
+        return 'sws';
     }
 
     public function generateCode($group_id)
@@ -363,5 +366,5 @@ class KpTbankItemsController extends Controller
             ->with('success', 'จับคู่ค่าคาร์บอน (EF) เรียบร้อยแล้ว');
     }
 
-    
+
 }

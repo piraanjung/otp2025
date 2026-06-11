@@ -30,9 +30,10 @@ class AppServiceProvider extends ServiceProvider
      */
     public function boot()
     {
+        Schema::defaultStringLength(191);
         if (config('app.env') !== 'local') {
-        URL::forceScheme('https');
-    }
+            URL::forceScheme('https');
+        }
         Schema::defaultStringLength(191);
 
         // สั่งว่า ถ้ามีการเรียกใช้ View 'layouts.admin1' (หรือทุกหน้าที่มี layout นี้)

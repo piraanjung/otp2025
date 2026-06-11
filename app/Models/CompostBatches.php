@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use App\Models\FoodWaste\FoodWasteLog;
 use Illuminate\Database\Eloquent\Model;
 
 class CompostBatches extends Model
@@ -19,6 +20,6 @@ class CompostBatches extends Model
      public function wasteLogs()
     {
         // 1 ล็อต (Batch) มีรายการเทขยะได้หลายครั้ง (HasMany)
-        return $this->hasMany(WasteLog::class, 'batch_id');
+        return $this->hasMany(FoodWasteLog::class, 'batch_id');
     }
 }

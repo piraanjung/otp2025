@@ -36,12 +36,12 @@ class AuthenticatedSessionController extends Controller
             $userAgent
         );
         $request->session()->regenerate();
-         $user = User::find(Auth::id());
+        $user = User::find(Auth::id());
 
         if ($ismobile) {
             if(isset($request->kp_mobile_login)){
                 //ตู้รับซื้อขวด
-                return redirect()->intended(route('kp_mobile.create', absolute: false));
+                redirect()->intended(route('kp_mobile.create', absolute: false));
             }else if($user->hasRole('Staff')){
                 return redirect()->intended(route('staff_accessmenu', absolute: false));
             }else if($user->hasRole('Super Admin')){

@@ -115,7 +115,6 @@ class KpPurchaseController extends Controller
     return DB::transaction(function () use ($request, $cart, $userId) {
         $userWastePref = KpUserWastePreference::where('user_id', $userId)->first();
         $recorder = Auth::user();
-
         // 1. คำนวณยอดรวมทั้งหมดเตรียมไว้ก่อน
         $totalWeight = array_sum(array_column($cart, 'amount_in_units'));
         $totalAmount = array_sum(array_column($cart, 'amount'));
@@ -152,7 +151,7 @@ class KpPurchaseController extends Controller
 
             KpPurchaseTransactionDetail::create([
                 'kp_purchase_trans_id' => $transaction->id,
-                'org_id_fk'            => $transaction->org_id_fk,
+                'org_id_fk'            => $recorder->org_id_fk,
                 'kp_u_trans_no'        => $transaction->kp_u_trans_no,
                 'kp_recycle_item_id'   => $item['kp_tbank_item_id'],
                 'kp_units_idfk'        => $item['kp_units_idfk'],
@@ -202,13 +201,7 @@ class KpPurchaseController extends Controller
         return view('keptkayas.purchase.receipt', compact('transaction', 'orgInfos'));
     }
 
-    /**
-     * [ใหม่] บันทึกธุรกรรมการซื้อขยะโดยรับ Data จากตู้รับซื้อ (Machine/API)
-     * Data จะถูกส่งมาในรูปแบบ JSON Array ของ acceptedBottles
-     *
-     * @param  \Illuminate\Http\Request  $request
-     * @return \Illuminate\Http\JsonResponse
-     */
+   
     public function saveTransactionForMachine(Request $request)
     {
         // 1. Validation (ตรวจสอบความถูกต้องของข้อมูลพื้นฐาน)
@@ -453,8 +446,7 @@ class KpPurchaseController extends Controller
             ])
             ->get()->first();
 
-        $user = User::setLocalUser();
 
-        return view('keptkayas.purchase.history', compact('user', 'userHistory'));
+        return view('keptkayas.purchase.history', compact('userHistory'));
     }
 }

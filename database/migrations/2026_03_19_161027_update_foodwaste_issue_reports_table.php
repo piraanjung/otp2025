@@ -12,11 +12,11 @@ return new class extends Migration
     public function up(): void
     {
         Schema::table('foodwaste_issue_reports', function (Blueprint $table) {
-            $table->unsignedBigInteger('assigned_staff_id')->nullable()->after('id');
+            $table->unsignedBigInteger('assigned_staff_id')->after('id');
 
             // 2. เมื่อมีคอลัมน์แล้ว ถึงจะสั่งทำ Foreign Key ได้
             $table->foreign('assigned_staff_id')
-                ->references('user_id')
+                ->references('id')
                 ->on('staffs')
                 ->onDelete('cascade');
         });

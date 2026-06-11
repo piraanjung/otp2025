@@ -22,8 +22,5 @@
         "postcss-import": "^14.0.2",
         "pusher-js": "^8.4.0",
         "tailwindcss": "^3.0.18"
-    },
-    "dependencies": {
-        "react-native-inappbrowser-reborn": "^3.7.0"
     }
 }

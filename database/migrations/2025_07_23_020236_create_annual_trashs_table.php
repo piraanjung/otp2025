@@ -4,7 +4,7 @@ use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\Schema;
 
-class CreateWasteBinsTable extends Migration
+class CreateAnnualTrashsTable extends Migration
 {
     /**
      * Run the migrations.
@@ -34,6 +34,6 @@ class CreateWasteBinsTable extends Migration
      */
     public function down()
     {
-        Schema::dropIfExists('kp_waste_bins');
+        Schema::dropIfExists('annual_trashs');
     }
 }

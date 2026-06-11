@@ -16,6 +16,7 @@ class KpTbankItemsTemplateExport implements FromArray, WithHeadings, WithTitle
     public function headings(): array
     {
         return [
+            'org_id',
             'kp_itemscode',
             'kp_itemsname',
             'unit_bank_idfk',    // ใส่ ID ของหน่วย (เช่น 1 = กก.)
@@ -32,6 +33,7 @@ class KpTbankItemsTemplateExport implements FromArray, WithHeadings, WithTitle
         // ใส่ข้อมูลตัวอย่าง (Sample) ให้ผู้ใช้ดูเป็นแนวทาง
         return [
             [
+                '2',
                 'PET-001',
                 'ขวดน้ำใส (PET)',
                 '1',
@@ -42,6 +44,7 @@ class KpTbankItemsTemplateExport implements FromArray, WithHeadings, WithTitle
                 '1'
             ],
             [
+                '2',
                 'ALU-001',
                 'กระป๋องอลูมิเนียม',
                 '1',

@@ -11,7 +11,7 @@ return new class extends Migration
      */
     public function up(): void
     {
-       Schema::table('waste_logs', function (Blueprint $table) {
+       Schema::table('foodwaste_waste_logs', function (Blueprint $table) {
     // ข้อมูลจากชาวบ้าน (Estimated)
     $table->decimal('estimated_weight', 8, 2);
 

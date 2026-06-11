@@ -2,8 +2,10 @@
 
 namespace App\Http\Controllers\Admin;
 
+use App\Exports\UserTemplateExport;
 use App\Http\Controllers\Api\FunctionsController;
 use App\Http\Controllers\Controller;
+use App\Imports\UserImport;
 use App\Models\Admin\Organization;
 use App\Models\Admin\Subzone;
 use App\Models\AnnualTrash\AnnualTrashSubscription;
@@ -14,6 +16,7 @@ use App\Models\Admin\Zone;
 use App\Models\FoodWaste\FoodWasteAccount;
 use App\Models\AnnualTrash\AnnualTrashPayratePerMonth;
 use App\Models\FoodWaste\FoodWasteUserPreference;
+use App\Models\KeptKaya\KpUserWastePreference;
 use App\Models\RecycleBankAccount;
 use App\Models\Tabwater\TwUsersInfos;
 use Illuminate\Http\Request;
@@ -22,6 +25,7 @@ use Illuminate\Support\Facades\Hash;
 use Spatie\Permission\Models\Permission;
 use Spatie\Permission\Models\Role;
 use Illuminate\Support\Facades\DB;
+use Maatwebsite\Excel\Facades\Excel;
 
 class UserController extends Controller
 {
@@ -238,6 +242,13 @@ class UserController extends Controller
                 ]);
             }
 
+
+            new KpUserWastePreference([
+                'user_id' => $user->id,
+                'is_annual_collection' => $request->has('svc_annual_trash') ? 1 : 0,
+                'is_waste_bank' => $request->has('svc_recycle') ? 1 : 0,
+            ]);
+
             DB::commit();
             return redirect()->route('admin.users.index')->with('success', 'เพิ่มผู้ใช้งานและเปิดบริการเรียบร้อยแล้ว');
         } catch (\Exception $e) {
@@ -245,122 +256,6 @@ class UserController extends Controller
             return back()->withInput()->with('error', 'เกิดข้อผิดพลาด: ' . $e->getMessage());
         }
     }
-    // public function create()
-    // {
-    //     $meter_sq_number    = SequenceNumber::get();
-    //     $zones              = Zone::all();
-    //     $meter_types        = TwMeterType::all();
-    //     $usergroups         = Role::get(['id', 'name']);
-    //     $usernumber         = ''; //FunctionsController::createInvoiceNumberString($meter_sq_number[0]->user);
-    //     $username           = "user" . $meter_sq_number[0]->user;
-    //     $meternumber        = FunctionsController::createInvoiceNumberString($meter_sq_number[0]->tabmeter);
-    //     $password           = "user" . substr($usernumber, 3);
-    //     $factory_no         = "";
-    //     $orgInfos = Organization::getOrgName(Auth::user()->org_id_fk);
-
-    //     $as_tw_members = (new User())->setConnection('envsogo_super_admin')->where('as_tw_member', 0)
-    //         ->where('role_id', 3)
-    //         ->get();
-
-    //     return view('admin.users.create', compact('as_tw_members', 'orgInfos', 'usernumber', 'meternumber', 'factory_no', 'zones', 'usergroups', 'meter_types', 'username', 'password'));
-    // }
-    // public function store(Request $request)
-    // {
-
-    //     date_default_timezone_set('Asia/Bangkok');
-
-    //     // รับค่า string จาก textarea
-    //     $userIdsString = $request->input('user_id_lists');
-
-    //     // แปลง string ที่คั่นด้วย comma ให้เป็น array ของ User ID (ที่เป็น string)
-    //     $selectedUserIds = array_map('trim', explode(',', $userIdsString));
-
-    //     // ถ้าต้องการให้แน่ใจว่าเป็นตัวเลข
-    //     $selectedUserIds = array_filter($selectedUserIds, 'is_numeric');
-
-    //     if (!empty($selectedUserIds)) {
-    //         // ตอนนี้ $selectedUserIds เป็น Array ที่มี User ID ที่ถูกเลือก เช่น ['1', '5', '10']
-    //         // คุณสามารถนำไปประมวลผลต่อได้ เช่น
-    //         // User::whereIn('id', $selectedUserIds)->update(['status' => 'processed']);
-    //         $this->addUserAsTWmember($selectedUserIds);
-    //         return redirect()->route('admin.users.index')->with(['message' => 'บันทึกแล้ว', 'color' => 'success']);
-    //     }
-
-
-    //     $request->validate(
-    //         [
-    //             "prefix_select"     => 'required',
-    //             "firstname"         => 'required',
-    //             // "lastname"          => 'required',
-    //             "factory_no"        => 'required',
-    //             "gender"            => 'required|in:w,m',
-    //             "id_card"           => 'required',
-    //             "phone"             => 'required',
-    //             "address"           => 'required',
-    //             "metertype_id"      => 'required|integer',
-    //             "zone_id"           => 'required',
-    //             "undertake_zone_id" => 'required|integer',
-    //             "province_code"     => 'required|integer',
-    //             "username"          => 'required',
-    //             "password"          => 'required',
-    //         ],
-    //         [
-    //             "required"      => "ใส่ข้อมูล",
-    //             "in"            => "เลือกข้อมูล",
-    //             "integer"       => "เลือกข้อมูล",
-    //         ],
-
-    //     );
-    //     DB::beginTransaction();
-
-    //     try {
-    //         // ล็อค row นี้ไว้ ห้ามคนอื่นแย่ง update จนกว่าจะจบ transaction
-    //         $sequence = SequenceNumber::where('id', 1)->lockForUpdate()->first();
-
-    //         $newUserId = $sequence->user;
-    //         $newMeterId = $sequence->tabmeter;
-
-    //         // 1. Create User
-    //         $user = User::create([
-    //             "id"            => $newUserId,
-    //             "username"      => $request->username,
-    //             "password"      => Hash::make($request->password),
-    //             // ... field อื่นๆ
-    //             "status"        => 1,
-    //             "created_at"    => now(), // ใช้ now()
-    //             "updated_at"    => now(),
-    //         ]);
-
-    //         $user->assignRole("user");
-
-    //         // 2. Create User Meter Info
-    //         TwUsersInfos::create([
-    //             "meter_id"              => $newMeterId,
-    //             "user_id"               => $newUserId,
-    //             "meternumber"           => FunctionsController::createMeterNumberString($newMeterId),
-    //             // ... field อื่นๆ
-    //             "created_at"            => now(),
-    //             "updated_at"            => now(),
-    //         ]);
-
-    //         // 3. Update Sequence
-    //         $sequence->update([
-    //             'tabmeter' => $newMeterId + 1,
-    //             'user'     => $newUserId + 1
-    //         ]);
-
-    //         DB::commit(); // ยืนยันการบันทึกทั้งหมด
-
-    //         return redirect()->route('admin.users.index')
-    //             ->with(['message' => 'บันทึกแล้ว', 'color' => 'success']);
-    //     } catch (\Throwable $th) {
-    //         DB::rollBack(); // ยกเลิกทั้งหมดถ้ามี error จุดใดจุดหนึ่ง
-    //         Log::error($th->getMessage()); // เก็บ Log ไว้ดู
-
-    //         // ส่งกลับไปหน้าเดิมพร้อม error
-    //         return back()->withInput()->with(['message' => 'เกิดข้อผิดพลาด: ' . $th->getMessage(), 'color' => 'danger']);
-    //     }
-    // }
 
 
     public function edit($user_id, $addmeter = "")
@@ -508,103 +403,108 @@ class UserController extends Controller
     // }
 
     public function update(Request $request, $id)
-{
-    // 1. Validation (ยกเว้น unique ของตัวมันเอง)
-    $messages = [
-        'required' => 'กรุณากรอกข้อมูลในช่อง :attribute',
-        'unique'   => ':attribute นี้ถูกใช้งานแล้ว',
-        'confirmed' => 'การยืนยันรหัสผ่านไม่ตรงกัน',
-    ];
+    {
+        // 1. Validation (ยกเว้น unique ของตัวมันเอง)
+        $messages = [
+            'required' => 'กรุณากรอกข้อมูลในช่อง :attribute',
+            'unique'   => ':attribute นี้ถูกใช้งานแล้ว',
+            'confirmed' => 'การยืนยันรหัสผ่านไม่ตรงกัน',
+        ];
 
-    $request->validate([
-        'username'   => 'required|string|max:255|unique:users,username,' . $id,
-        'firstname'  => 'required|string|max:255',
-        'lastname'   => 'required|string|max:255',
-        'phone'      => 'required|unique:users,phone,' . $id,
-        'password'   => 'nullable|min:6|confirmed', // เปลี่ยนรหัสผ่านเฉพาะเมื่อมีการกรอกเท่านั้น
-        'zone_id'    => 'required|exists:kp_zones,id',
-        'subzone_id' => 'required|exists:kp_subzones,id',
-    ], $messages);
+        $request->validate([
+            'username'   => 'required|string|max:255|unique:users,username,' . $id,
+            'firstname'  => 'required|string|max:255',
+            'lastname'   => 'required|string|max:255',
+            'phone'      => 'required|unique:users,phone,' . $id,
+            'password'   => 'nullable|min:6|confirmed', // เปลี่ยนรหัสผ่านเฉพาะเมื่อมีการกรอกเท่านั้น
+            'zone_id'    => 'required|exists:kp_zones,id',
+            'subzone_id' => 'required|exists:kp_subzones,id',
+        ], $messages);
 
-    DB::beginTransaction();
-    try {
-        $user = User::findOrFail($id);
+        DB::beginTransaction();
+        try {
+            $user = User::findOrFail($id);
 
-        // 2. อัปเดตข้อมูลพื้นฐาน
-        $user->username = $request->username;
-        $user->firstname = $request->firstname;
-        $user->lastname = $request->lastname;
-        $user->phone = $request->phone;
-        $user->address = $request->address;
-        $user->zone_id = $request->zone_id;
-        $user->subzone_id = $request->subzone_id;
+            // 2. อัปเดตข้อมูลพื้นฐาน
+            $user->username = $request->username;
+            $user->firstname = $request->firstname;
+            $user->lastname = $request->lastname;
+            $user->phone = $request->phone;
+            $user->address = $request->address;
+            $user->zone_id = $request->zone_id;
+            $user->subzone_id = $request->subzone_id;
 
-        // ถ้ามีการกรอกรหัสผ่านใหม่เข้ามา
-        if ($request->filled('password')) {
-            $user->password = Hash::make($request->password);
+            // ถ้ามีการกรอกรหัสผ่านใหม่เข้ามา
+            if ($request->filled('password')) {
+                $user->password = Hash::make($request->password);
+            }
+
+            $user->save();
+
+            // 3. จัดการสิทธิ์บริการ (Service Logic)
+
+            // --- ธนาคารขยะรีไซเคิล ---
+            if ($request->has('svc_recycle')) {
+                // ใช้ firstOrCreate เพื่อไม่ให้สร้างซ้ำถ้ามีอยู่แล้ว
+                RecycleBankAccount::firstOrCreate(
+                    ['user_id' => $user->id],
+                    ['status' => 'active', 'balance' => 0]
+                );
+            }
+
+            // 4. บริการธนาคารขยะเปียก (AiroBact)
+            if ($request->has('svc_food_waste')) {
+                // 🌟 สำคัญ: ต้องสร้าง Preference ก่อน เพื่อป้องกัน Error ใน Dashboard
+                $preference = FoodWasteUserPreference::create([
+                    'user_id' => $user->id,
+                    'setup_status' => 'completed',
+                    'compost_bin_type' => 'AiroBact_Bin',
+                ]);
+
+                // สร้าง Account โดยผูกกับ User หรือ Preference (ตามโครงสร้าง DB ล่าสุดของคุณ)
+                FoodWasteAccount::create([
+                    'user_id' => $user->id,
+                    // 'fw_pref_id_fk' => $preference->id, // ถ้า DB ใช้ตัวนี้ให้เปิดบรรทัดนี้แทน
+                    'points_balance' => 0,
+                    'total_weight_kg' => 0,
+                ]);
+            }
+
+            // 5. บริการขยะรายปี
+            if ($request->has('svc_annual_trash')) {
+                $payRate = AnnualTrashPayratePerMonth::where('status', 1)->latest()->first();
+                $monthFee = $payRate ? $payRate->payrate_permonth : 20.00;
+
+                AnnualTrashSubscription::create([
+                    'user_id' => $user->id,
+                    'fiscal_year' => AnnualTrashSubscription::calculateFiscalYear(),
+                    'payrate_permonth_id_fk' => $payRate->id ?? null,
+                    'month_fee' => $monthFee,
+                    'annual_fee' => $monthFee * 12,
+                    'status' => 'active',
+                    'billing_status' => 'waived', // ให้สิทธิ์ฟรีเริ่มต้น
+                ]);
+            }
+
+
+            DB::commit();
+            return redirect()->route('admin.users.index')->with('success', 'อัปเดตข้อมูลและสิทธิ์บริการเรียบร้อยแล้ว');
+        } catch (\Exception $e) {
+            DB::rollBack();
+            return back()->withInput()->with('error', 'เกิดข้อผิดพลาด: ' . $e->getMessage());
         }
-
-        $user->save();
-
-        // 3. จัดการสิทธิ์บริการ (Service Logic)
-
-        // --- ธนาคารขยะรีไซเคิล ---
-        if ($request->has('svc_recycle')) {
-            // ใช้ firstOrCreate เพื่อไม่ให้สร้างซ้ำถ้ามีอยู่แล้ว
-            RecycleBankAccount::firstOrCreate(
-                ['user_id' => $user->id],
-                ['status' => 'active', 'balance' => 0]
-            );
-        }
-
-        // 4. บริการธนาคารขยะเปียก (AiroBact)
-        if ($request->has('svc_food_waste')) {
-            // 🌟 สำคัญ: ต้องสร้าง Preference ก่อน เพื่อป้องกัน Error ใน Dashboard
-            $preference = FoodWasteUserPreference::create([
-                'user_id' => $user->id,
-                'setup_status' => 'completed',
-                'compost_bin_type' => 'AiroBact_Bin',
-            ]);
-
-            // สร้าง Account โดยผูกกับ User หรือ Preference (ตามโครงสร้าง DB ล่าสุดของคุณ)
-            FoodWasteAccount::create([
-                'user_id' => $user->id,
-                // 'fw_pref_id_fk' => $preference->id, // ถ้า DB ใช้ตัวนี้ให้เปิดบรรทัดนี้แทน
-                'points_balance' => 0,
-                'total_weight_kg' => 0,
-            ]);
-        }
-
-        // 5. บริการขยะรายปี
-        if ($request->has('svc_annual_trash')) {
-            $payRate = AnnualTrashPayratePerMonth::where('status', 1)->latest()->first();
-            $monthFee = $payRate ? $payRate->payrate_permonth : 20.00;
-
-            AnnualTrashSubscription::create([
-                'user_id' => $user->id,
-                'fiscal_year' => AnnualTrashSubscription::calculateFiscalYear(),
-                'payrate_permonth_id_fk' => $payRate->id ?? null,
-                'month_fee' => $monthFee,
-                'annual_fee' => $monthFee * 12,
-                'status' => 'active',
-                'billing_status' => 'waived', // ให้สิทธิ์ฟรีเริ่มต้น
-            ]);
-        }
-
-
-        DB::commit();
-        return redirect()->route('admin.users.index')->with('success', 'อัปเดตข้อมูลและสิทธิ์บริการเรียบร้อยแล้ว');
-
-    } catch (\Exception $e) {
-        DB::rollBack();
-        return back()->withInput()->with('error', 'เกิดข้อผิดพลาด: ' . $e->getMessage());
     }
-}    public function show($function, $action)
+
+    // กำหนดค่าเริ่มต้นให้ $action เป็น null เพื่อป้องกัน Error เวลาส่งมาตัวเดียว
+    public function show($function, $action = null)
     {
         if ($function == 'store') {
             return $action . "Error";
         }
-        // return view('admin.users.role', compact('user', 'roles', 'permissions'));
+
+        // Logic ปกติสำหรับแสดง User ถ้าไม่ใช่เคส store
+        $user = User::find($function);
+        return view('admin.users.show', compact('user'));
     }
 
     public function history(User $user)
@@ -863,5 +763,26 @@ class UserController extends Controller
             DB::rollBack();
             return back()->with('error', 'เกิดข้อผิดพลาด: ' . $e->getMessage());
         }
+    }
+
+    public function importUsers(Request $request)
+    {
+        $request->validate([
+            'file' => 'required|mimes:xlsx,xls,csv'
+        ]);
+
+        try {
+        Excel::import(new UserImport, $request->file('file'));
+            return back()->with('success', 'นำเข้าข้อมูลผู้ใช้งานเรียบร้อยแล้ว');
+        } catch (\Exception $e) {
+            return back()->with('error', 'เกิดข้อผิดพลาด: ' . $e->getMessage());
+        }
+    }
+
+
+    public function downloadUserTemplate()
+    {
+        // ตั้งชื่อไฟล์ให้ชัดเจน
+        return Excel::download(new UserTemplateExport, 'template_import_users.xlsx');
     }
 }

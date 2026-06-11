@@ -2,6 +2,7 @@
 
 namespace App\Models\KeptKaya;
 
+use App\Models\AnnualTrash\AnnualTrashPayratePerMonth;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 

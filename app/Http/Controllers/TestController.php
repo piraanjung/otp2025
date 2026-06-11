@@ -25,6 +25,7 @@ class TestController extends Controller
 
     public function index()
     {
+        return view('test.index');
         //     $invPs = DB::connection('envsogo_kp1')->table('budget_year as b')
         //    ->where('b.id', 2)
         //    ->join('invoice_period as ip', 'ip.budgetyear_id', '=', 'b.id')

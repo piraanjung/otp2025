@@ -2,7 +2,6 @@
 
 namespace App\Models\AnnualTrash;
 
-use App\Models\KeptKaya\AnnualTrash;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 

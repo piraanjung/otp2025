@@ -11,15 +11,15 @@ return new class extends Migration
      */
     public function up()
 {
-    Schema::table('waste_logs', function (Blueprint $table) {
+    Schema::table('foodwaste_waste_logs', function (Blueprint $table) {
         // เพิ่ม batch_id เป็น Foreign Key และอนุญาตให้เป็น NULL ได้ (สำหรับขยะเก่าที่ยังไม่มีล็อต)
-        $table->foreignId('batch_id')->nullable()->after('id')->constrained('compost_batches')->onDelete('set null');
+        $table->foreignId('batch_id')->nullable()->after('id')->constrained('foodwaste_compost_batches')->onDelete('set null');
     });
 }
 
 public function down()
 {
-    Schema::table('waste_logs', function (Blueprint $table) {
+    Schema::table('foodwaste_waste_logs', function (Blueprint $table) {
         $table->dropForeign(['batch_id']);
         $table->dropColumn('batch_id');
     });

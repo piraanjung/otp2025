@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Admin;
 use App\Http\Controllers\Controller;
 use App\Models\Admin\Organization;
 use App\Models\Admin\OrganizationType;
+use App\Models\User;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 
@@ -34,13 +35,13 @@ public function setContext(Request $request)
     $user = Auth::user();
 
     // 🌟 อัปเดตข้อมูล Super Admin ให้กลายเป็น Context ของ Org นั้นๆ
-    $user->update([
+    User::where('id', $user->id)->update([
         'org_id_fk'     => $org->id,
-        'province_code' => $org->province_code,
-        'district_code' => $org->district_code,
-        'tambon_code'   => $org->tambon_code,
-        'zone_id'       => $org->zone_id,
-        'subzone_id'    => $org->subzone_id, // ถ้ามี
+        'province_code' => $org->org_province_id_fk,
+        'district_code' => $org->org_district_id_fk,
+        'tambon_code'   => $org->org_tambon_id_fk,
+        'zone_id'       => $org->org_zone_id_fk,
+        'subzone_id'    => $org->org_zone_id_fk, // ถ้ามี
     ]);
 
     // เก็บค่าใน Session เผื่อใช้ตรวจสอบเพิ่มเติม
