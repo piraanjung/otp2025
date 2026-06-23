@@ -9,7 +9,7 @@ class RecycleBankAccount extends Model
     protected $table = 'recycle_bank_accounts';
 
     protected $fillable = [
-        'user_id', 'account_no', 'balance', 'points', 'status'
+        'user_pref_id', 'account_no', 'balance', 'points', 'status'
     ];
 
     protected $casts = [

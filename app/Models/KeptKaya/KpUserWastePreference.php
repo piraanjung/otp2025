@@ -2,6 +2,7 @@
 
 namespace App\Models\KeptKaya;
 
+use App\Models\Admin\Organization;
 use App\Models\AnnualTrash\AnnualTrash;
 use App\Models\User;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
@@ -20,11 +21,11 @@ class KpUserWastePreference extends Model
         'is_annual_collection',
         'is_waste_bank',
         "address",
-       "zone_id",
-       "subzone_id",
-       "tambon_code",
-       "district_code",
-       "province_code",
+        "zone_id",
+        "subzone_id",
+        "tambon_code",
+        "district_code",
+        "province_code",
     ];
 
     // ✅ เพิ่มตรงนี้: บังคับให้เป็น boolean เพื่อความแม่นยำ
@@ -52,5 +53,9 @@ class KpUserWastePreference extends Model
     public function kp_account()
     {
         return $this->hasOne(KPAccounts::class, 'u_wpref_id_fk');
+    }
+    public function organization()
+    {
+        return $this->belongsTo(Organization::class, 'org_id_fk', 'id');
     }
 }

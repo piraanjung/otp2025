@@ -8,9 +8,11 @@ use App\Http\Controllers\Controller;
 use App\Models\KeptKaya\KpPurchaseTransaction;
 use App\Models\KeptKaya\KpPurchaseTransactionDetail;
 use App\Models\KeptKaya\KpTbankItems;
+use App\Models\RecycleBankAccount;
 use App\Models\User;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
+use Illuminate\Support\Facades\Session;
 
 class KeptkayaController extends Controller
 {
@@ -112,48 +114,79 @@ class KeptkayaController extends Controller
     public function store_purchase(Request $request)
     {
         // 🟢 เปิด Transaction ป้องกันข้อมูลบันทึกครึ่งๆ กลางๆ
-        DB::beginTransaction();
+         DB::beginTransaction();
         try {
             // 1. เจนเลขที่เอกสารอัตโนมัติ (ตัวอย่าง: REC-ปีเดือนวัน-รันนิ่ง)
             $dateSlug = Carbon::now()->format('Ymd');
             $lastTrans = KpPurchaseTransaction::whereDate('transaction_date', Carbon::today())->count();
             $runningNum = str_pad($lastTrans + 1, 4, '0', STR_PAD_LEFT);
             $transNo = "REC-" . $dateSlug . "-" . $runningNum;
-            $cash_back = true;
+
             // 2. 🟢 บันทึกตารางหลัก (Master: kp_purchase_transactions)
             $transaction = new KpPurchaseTransaction();
-            $transaction->org_id_fk = $request->org_id_fk;
-            $transaction->kp_u_trans_no = $transNo;
-            $transaction->kiosk_id_fk = $request->kiosk_id_fk ?? null;
-            $transaction->kp_user_w_pref_id_fk = $request->kp_user_w_pref_id_fk; // ไอดี Preference ของสมาชิก
-            $transaction->transaction_date = Carbon::now();
-            $transaction->total_weight = collect($request->cart_items)->sum('amount_in_units');
-            $transaction->total_amount = collect($request->cart_items)->sum('amount');
-            $transaction->total_points = collect($request->cart_items)->sum('points');
-            $transaction->status = 'completed'; 
-            $transaction->recorder_id = $request->recorder_id; // ไอดีสตาฟฟ์ผู้บันทึก
-            $transaction->cash_back = $cash_back == true ? collect($request->cart_items)->sum('amount') : 0; // ยอดเงินสดที่จ่ายคืน
-            $transaction->total_carbon_saved = $request->total_carbon_saved ?? 0.0000;
+            $transaction->org_id_fk             = $request->org_id_fk;
+            $transaction->kp_u_trans_no         = $transNo;
+            $transaction->kiosk_id_fk           = $request->kiosk_id_fk ?? null;
+            $transaction->kp_user_w_pref_id_fk  = $request->kp_user_w_pref_id_fk; // ไอดี Preference ของสมาชิก
+            $transaction->transaction_date      = Carbon::now();
+            $transaction->total_weight          = collect($request->cart_items)->sum('amount_in_units');
+            $transaction->total_amount          = collect($request->cart_items)->sum('amount');
+            $transaction->total_points          = collect($request->cart_items)->sum('points');
+            $transaction->status                = 'completed';
+            $transaction->recorder_id           = $request->recorder_id; // ไอดีสตาฟฟ์ผู้บันทึก
+            $transaction->cash_back             = $request->cashback == true ? 1 : 0; // ยอดเงินสดที่จ่ายคืน
+            $transaction->total_carbon_saved    = $request->total_carbon_saved ?? 0.0000;
             $transaction->save();
 
+            $carbonSavedTotal = 0;
             // 3. 🟢 วนลูปบันทึกตารางรายการย่อย (Detail: kp_purchase_transactions_details)
             if ($request->has('cart_items') && is_array($request->cart_items)) {
                 foreach ($request->cart_items as $item) {
+                    $itemModel = KpTbankItems::with('emissionFactor')->find($item['kp_recycle_item_id']);
+
+                    // เช็คชื่อคอลัมน์ EF ให้ชัวร์ (ef_value หรือ carbon_value)
+                    $ef                 = $itemModel->emissionFactor->ef_value ?? 0;
+                    $carbonSaved        = $item['amount_in_units'] * $ef;
+                    $carbonSavedTotal   += $carbonSaved;
+
                     $detail = new KpPurchaseTransactionDetail();
-                    $detail->org_id_fk = $request->org_id_fk;
-                    $detail->kp_purchase_trans_id = $transaction->id; // 👈 ผูกกับ ID บิลหลักที่เพิ่งได้มา
-                    $detail->kp_recycle_item_id = $item['kp_recycle_item_id'];
-                    $detail->kp_tbank_items_pricepoint_id = $item['kp_tbank_items_pricepoint_id'];
-                    $detail->recorder_id = $request->recorder_id;
-                    $detail->amount_in_units = $item['amount_in_units']; // น้ำหนักที่ชั่งได้
-                    $detail->kp_units_idfk = $item['kp_units_idfk'];
-                    $detail->price_per_unit = $item['price_per_unit'];
-                    $detail->amount = $item['amount'];
-                    $detail->points = $item['points'];
-                    $detail->carbon_saved = $item['carbon_saved'] ?? 0.0000;
+                    $detail->org_id_fk                      = $request->org_id_fk;
+                    $detail->kp_purchase_trans_id           = $transaction->id; // 👈 ผูกกับ ID บิลหลักที่เพิ่งได้มา
+                    $detail->kp_recycle_item_id             = $item['kp_recycle_item_id'];
+                    $detail->kp_tbank_items_pricepoint_id   = $item['kp_tbank_items_pricepoint_id'];
+                    $detail->recorder_id                    = $request->recorder_id;
+                    $detail->amount_in_units                = $item['amount_in_units']; // น้ำหนักที่ชั่งได้
+                    $detail->kp_units_idfk                  = $item['kp_units_idfk'];
+                    $detail->price_per_unit                 = $item['price_per_unit'];
+                    $detail->amount                         = $item['amount'];
+                    $detail->points                         = $item['points'];
+                    $detail->carbon_saved                   = $carbonSaved ?? 0.0000;
                     $detail->save();
                 }
             }
+
+            // 5. อัปเดต Carbon รวม
+            $transaction->update(['total_carbon_saved' => $carbonSavedTotal]);//
+
+            // 6. อัปเดตสมุดบัญชีธนาคารขยะ (RecycleBankAccount)
+            $recycleAcc = RecycleBankAccount::firstOrCreate(
+                ['user_pref_id' => $request->kp_user_w_pref_id_fk],
+                [
+                    'account_no' => 'ACC-' . str_pad($request->kp_user_w_pref_id_fk, 6, '0', STR_PAD_LEFT),
+                    'balance'    => 0,
+                    'points'     => 0,
+                    'status'     => 'active',
+                    'updated_at' => date('Y-m-d H:i:s')
+                ]
+            );
+
+            $recycleAcc->increment('points', collect($request->cart_items)->sum('points'));
+            if (!$request->cashback) {
+                $recycleAcc->increment('balance', collect($request->cart_items)->sum('amount'));
+            }
+
+            Session::forget(['purchase_cart', 'purchase_user_id']);
+
 
             // ถ้าทุกอย่างผ่านฉลุยให้เซฟลงฐานข้อมูลจริง
             DB::commit();
@@ -162,15 +195,14 @@ class KeptkayaController extends Controller
             return response()->json([
                 'code' => 200,
                 'message' => 'บันทึกข้อมูลสำเร็จ',
-                'data' => [
-                    'transaction_id' => $transaction->id,
-                    'receipt_no' => $transaction->kp_u_trans_no,
-                    'transaction_date' => $transaction->transaction_date->format('Y-m-d H:i:s'),
-                    'total_amount' => $transaction->total_amount,
-                    'total_points' => $transaction->total_points
+                'data'    => [
+                    'transaction_id'    => $transaction->id,
+                    'receipt_no'        => $transaction->kp_u_trans_no,
+                    'transaction_date'  => $transaction->transaction_date->format('Y-m-d H:i:s'),
+                    'total_amount'      => $transaction->total_amount,
+                    'total_points'      => $transaction->total_points
                 ]
             ], 200);
-
         } catch (\Exception $e) {
             DB::rollBack(); // พังตรงไหนให้ยกเลิกทั้งหมดทันที
             return response()->json([

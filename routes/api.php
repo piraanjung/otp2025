@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Controllers\Admin\OrgSelectorController;
 use App\Http\Controllers\Api\DeviceController;
 use App\Http\Controllers\Api\LineController;
 use App\Http\Controllers\Api\OwepaperController;
@@ -16,18 +17,19 @@ use App\Http\Controllers\Api\OcrController;
 use App\Http\Controllers\FunctionsController;
 use App\Http\Controllers\Api\FunctionsController as apiFunctionsController;
 use App\Http\Controllers\Api\KioskController;
+use App\Http\Controllers\Api\UnknownItemReviewController;
 use App\Http\Controllers\Kiosk\KioskController as WebKioskController;
 use App\Http\Controllers\ImageController;
 use App\Http\Controllers\KeptKaya\MachineController;
 use App\Http\Controllers\Kiosk\KioskApiController;
 use Illuminate\Support\Facades\Log;
 
-Route::get('/testget', function(){
+Route::get('/testget', function () {
     return response()->json([
         'testget' => 2222
     ]);
 });
-Route::post('/testpost', function(Request $request){
+Route::post('/testpost', function (Request $request) {
     $data = $request->json()->all();
     return response()->json([
         'sensor' => $request->sensor
@@ -46,7 +48,7 @@ Route::get('/keptkaya/kp_items_recycle_info', [KeptkayaController::class, 'kp_it
 Route::get('/keptkaya/members', [KeptkayaController::class, 'members']);
 Route::post('/keptkaya/store_purchase', [KeptkayaController::class, 'store_purchase']);
 
-// =========================================================================
+// =====================================================x====================
 // 🌿 [Branch: backend/feature-chunk-image-receiver]
 // เพิ่ม Route รองรับการทยอยอัปโหลดรูปภาพขยะทีละใบจากคิวเบื้องหลัง
 // =========================================================================
@@ -68,6 +70,11 @@ Route::get('/kiosk/check-transaction/{kiosk_id}', [KioskController::class, 'chec
 Route::post('/kiosk/wake-up', [WebKioskController::class, 'wakeUp']);
 Route::post('/kiosk/match', [WebKioskController::class, 'matchKiosk']);
 
+Route::prefix('kiosk/unknown-items')->group(function () {
+    Route::get('/pending', [UnknownItemReviewController::class, 'getPendingItems']);
+    Route::post('/{id}/warn', [UnknownItemReviewController::class, 'warnUser']);
+    Route::post('/{id}/verify', [UnknownItemReviewController::class, 'verifyAndMoveToDetail']);
+});
 
 // Endpoint สำหรับ Frontend (Browser) เพื่อส่งคำสั่ง "Start" ไปยัง ESP8266
 Route::post('/device/start-sale', [DeviceController::class, 'startSale']);
@@ -94,15 +101,34 @@ Route::post('/device/status-simulator', [DeviceController::class, 'updateSensorS
 Route::post('/device/update-status', [DeviceController::class, 'updateStatus']);
 
 Route::post('/ocr', [OcrController::class, 'readMeter']);
-Route::get('/line', [LineController::class, 'index'])->name('lineliff.index');
-Route::post('/line/find_line_id', [LineController::class, 'find_line_id']);
-Route::get('/line/user_qrcode', [LineController::class, 'user_qrcode']);
-Route::post('/line/update_user_by_phone', [LineController::class, 'update_user_by_phone']);
-Route::post('/line/user_line_register', [LineController::class, 'user_line_register']);
-Route::post('/line/webhook', [LineController::class, 'handleWebhook']);
-Route::get('/line/reply/{lineUserId}/{replyToken}', [LineController::class, 'replyWithLastReceipt']);
-Route::get('/line/buildFlexReceipt/{transaction}', [LineController::class, 'buildFlexReceipt']);
+// -------------------------------------------------------------
+// LINE LIFF - Authentications & Multi-Organization Mapping Routes
+// -------------------------------------------------------------
+Route::prefix('line')->group(function () {
+    // 1. เช็คสถานะเริ่มต้นว่า Line ID นี้เคยผูกกับระบบแล้วหรือยัง
+    Route::post('/check-user', [LineController::class, 'checkLineUser']);
 
+    // 2. ตรวจสอบยืนยันตัวตนหลัก (Step 1: เช็คเบอร์โทร / Step 2: เช็คเลขบัตรประชาชน + อัปเดตข้อมูล)
+    Route::post('/verify-user', [LineController::class, 'verifyUser']);
+
+    // 3. บันทึกองค์กรที่ผู้ใช้เลือกเข้าสู่ระบบใน Session หรือเก็บประวัติชั่วคราว
+    Route::post('/set-session-org', [LineController::class, 'setSessionOrg']);
+
+    Route::get('/', [LineController::class, 'index'])->name('lineliff.index');
+    Route::post('/find_line_id', [LineController::class, 'find_line_id']);
+    Route::post('/update_user_line_id', [LineController::class, 'find_line_id']);
+    Route::get('/user_qrcode', [LineController::class, 'user_qrcode']);
+    Route::post('/update_user_by_phone', [LineController::class, 'update_user_by_phone']);
+    Route::post('/user_line_register', [LineController::class, 'user_line_register']);
+    Route::post('/webhook', [LineController::class, 'handleWebhook']);
+    Route::get('/reply/{lineUserId}/{replyToken}', [LineController::class, 'replyWithLastReceipt']);
+    Route::get('/buildFlexReceipt/{transaction}', [LineController::class, 'buildFlexReceipt']);
+    Route::post('/findUserByPhone', [LineController::class, 'findUserByPhone']);
+
+    Route::get('/get_org_lists/{org_type}', [LineController::class,'getOrgLists']);
+    Route::get('/getzones/{tambon_id}', [LineController::class, 'getZones'])->name('getzones');
+
+});
 
 Route::get('/sensor_data', [IoTBoxDataController::class, 'store']);
 
@@ -122,7 +148,6 @@ Route::middleware(['throttle:api'])->name('api.')->group(function () {
         Route::get('/get_members_subzone_infos/{zone_id}', 'Api\SubzoneController@get_members_subzone_infos');
         Route::get('/get_members_last_inactive_invperiod/{zone_id}', 'Api\SubzoneController@get_members_last_inactive_invperiod');
         Route::get('/get_subzones_in_zone/{zone_id}', [SubzoneController::class, 'get_subzones_in_zone']);
-
     });
 
     Route::prefix('zone')->group(function () {
@@ -191,32 +216,32 @@ Route::middleware(['throttle:api'])->name('api.')->group(function () {
         Route::get('/testIndex', [OwepaperController::class, 'testIndex']);
     });
 
-    Route::get('/get_districts/{province_id}', [apiFunctionsController::class,'getDistricts']);
-    Route::get('/get_tambons/{district_id}', [FunctionsController::class,'getTambons']);
-    Route::get('/get_org/{tambon_id}', [FunctionsController::class,'getOrgName']);
+    Route::get('/get_districts/{province_id}', [apiFunctionsController::class, 'getDistricts']);
+    Route::get('/get_tambons/{district_id}', [FunctionsController::class, 'getTambons']);
+    Route::get('/get_org/{tambon_id}', [FunctionsController::class, 'getOrgName']);
 
     Route::post('/line/groupid-finder', function (Request $request) {
-    $data = $request->json()->all();
+        $data = $request->json()->all();
 
-    // ตรวจสอบว่า Event มาจาก 'group'
-    if (isset($data['events'][0]['source']['type']) && $data['events'][0]['source']['type'] === 'group') {
-        $groupId = $data['events'][0]['source']['groupId'];
+        // ตรวจสอบว่า Event มาจาก 'group'
+        if (isset($data['events'][0]['source']['type']) && $data['events'][0]['source']['type'] === 'group') {
+            $groupId = $data['events'][0]['source']['groupId'];
 
-        // **รหัส Group ID จะถูกบันทึกไว้ใน Log**
-        Log::alert("*********** [LINE GROUP ID FOUND] ***********");
-        Log::alert("Group ID: " . $groupId);
-        Log::alert("*********************************************");
+            // **รหัส Group ID จะถูกบันทึกไว้ใน Log**
+            Log::alert("*********** [LINE GROUP ID FOUND] ***********");
+            Log::alert("Group ID: " . $groupId);
+            Log::alert("*********************************************");
 
-        return response()->json(['status' => 'ID logged']);
-    }
-    return response()->json(['status' => 'Not a group event']);
-});
+            return response()->json(['status' => 'ID logged']);
+        }
+        return response()->json(['status' => 'Not a group event']);
+    });
 
-// Route สำหรับรับ Transaction Log (ใช้โดย User Smartphone)
-Route::post('/kiosk/upload-log', [KioskApiController::class, 'uploadTransactionLog'])->name('uploadTransactionLog');
+    // Route สำหรับรับ Transaction Log (ใช้โดย User Smartphone)
+    Route::post('/kiosk/upload-log', [KioskApiController::class, 'uploadTransactionLog'])->name('uploadTransactionLog');
 
-// Route สำหรับรับไฟล์ภาพ (ใช้โดย ESP32-CAM ช่วงกลางคืน)
-Route::post('/kiosk/upload-image', [KioskApiController::class, 'uploadImage'])->name('uploadImage');
+    // Route สำหรับรับไฟล์ภาพ (ใช้โดย ESP32-CAM ช่วงกลางคืน)
+    Route::post('/kiosk/upload-image', [KioskApiController::class, 'uploadImage'])->name('uploadImage');
 
     // Route::prefix('cutmeter')->group(function () {
     //     Route::get('/index/{zone_id?}/{subzone_id?}', [CutmeterController::class,'index']);

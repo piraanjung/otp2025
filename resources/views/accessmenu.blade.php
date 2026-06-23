@@ -328,7 +328,7 @@
 
 
         <div
-            class="bubble-container centralized green {{auth()->user()->can('access recycle bank') || auth()->user()->hasRole('Super Admin|Recycle Bank Staff') ? '' : 'a-disbled'}}">
+            class="bubble-container centralized green {{auth()->user()->can('access recycle bank') || auth()->user()->hasRole('Super Admin|Recycle Bank Staff| Admin') ? '' : 'a-disbled'}}">
             <a href="{{route('keptkayas.dashboard', 'recycle')}}">
                 <div class="bubble centralized">
                     <div class="inner centralized">

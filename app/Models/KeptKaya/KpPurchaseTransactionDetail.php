@@ -38,7 +38,7 @@ class KpPurchaseTransactionDetail extends Model
         'price_per_unit' => 'decimal:2',
         'amount' => 'decimal:2',
         'points' => 'integer',
-        'carbon_saved'    => 'decimal:4', // ✅ [เพิ่มใหม่] ทศนิยม 4 ตำแหน่งเพื่อความแม่นยำ
+        'carbon_saved'    => 'float:4', // ✅ [เพิ่มใหม่] ทศนิยม 4 ตำแหน่งเพื่อความแม่นยำ
     ];
 
     // Relationships

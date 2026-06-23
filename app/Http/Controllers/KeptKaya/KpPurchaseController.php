@@ -25,11 +25,6 @@ use Illuminate\Support\Str;
 
 class KpPurchaseController extends Controller
 {
-    /**
-     * Show a list of users to select for a new purchase transaction.
-     * แสดงหน้ารายการผู้ใช้งานเพื่อเลือกทำธุรกรรม
-     * @return \Illuminate\View\View
-     */
     public function select_user(Request $request)
     {
         // ล้างข้อมูลเก่าใน Session
@@ -95,12 +90,7 @@ class KpPurchaseController extends Controller
         return view('keptkayas.purchase.cart', compact('cart', 'user', 'seller'));
     }
 
-    /**
-     * Save the purchase cart as a new transaction in the database.
-     * บันทึกรายการในรถเข็นเป็นธุรกรรมใหม่
-     * @param \Illuminate\Http\Request $request
-     * @return \Illuminate\Http\RedirectResponse
-     */
+ 
 
 
     public function saveTransaction(Request $request)
@@ -423,10 +413,10 @@ class KpPurchaseController extends Controller
         foreach ($unitsAndPrices as $priceEntry) {
             // ดึงข้อมูลที่จำเป็นส่งกลับไป Frontend
             $data[] = [
-                'unit_id' => $priceEntry->kp_units_idfk,
-                'unit_name' => $priceEntry->kp_units_info->unitname,
-                'price_for_member' => $priceEntry->price_for_member,
-                'point' => $priceEntry->point,
+                'unit_id'           => $priceEntry->kp_units_idfk,
+                'unit_name'         => $priceEntry->kp_units_info->unitname,
+                'price_for_member'  => $priceEntry->price_for_member,
+                'point'             => $priceEntry->point,
             ];
         }
 

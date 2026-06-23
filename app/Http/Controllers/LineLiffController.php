@@ -32,19 +32,21 @@ class   LineLiffController extends Controller
     {
 
         $provinces = Province::all();
-        $orgs = Organization::with('provinces', 'districts', 'tambons')
-            ->get(['id', 'org_type_name', 'org_short_type_name', 'org_name', 'org_tambon_id_fk', 'org_district_id_fk', 'org_province_id_fk']);
+        $orgs = Organization::with('provinces', 'districts', 'tambons', 'orgType')
+            ->get(['id', 'org_type_id', 'org_name', 'org_tambon_id_fk', 'org_district_id_fk', 'org_province_id_fk']);
         return view('lineliff.index', compact('provinces', 'orgs'));
     }
 
-    public function dashboard($userId, $org_id)
+    public function dashboard($pref_id, $org_id)
     {
         // 1. ดึงข้อมูล User และ Login
+        $kpPref = KpUserWastePreference::find($pref_id);
+        $userId = $kpPref->user_id;
         $user = User::findOrFail($userId);
         Auth::login($user);
 
         // 2. ดึงข้อมูลบัญชี (New Schema)
-        $recycleAcc = RecycleBankAccount::where('user_id', $userId)->first();
+        $recycleAcc = RecycleBankAccount::where('user_pref_id', $kpPref->id)->first();
         $foodWasteAcc = FoodWasteAccount::where('user_id', $userId)->first();
         $annualTrash = AnnualTrashSubscription::where('user_id', $userId)->first();
 
@@ -134,103 +136,6 @@ class   LineLiffController extends Controller
         ));
     }
 
-    // public function dashboard($userId, $org_id)
-    // {
-
-    //     // 1. ดึงข้อมูล User และ Preference (ใช้ user_id เป็นตัวกรองหลัก)
-    //     $user = User::findOrFail($userId);
-    //     Auth::login($user);
-    //     // พยายามดึงข้อมูลการสมัครสมาชิกธนาคารขยะ
-    //     $userWastePref = KpUserWastePreference::where('user_id', $userId)->first();
-
-    //     // ดึงกระเป๋าเงิน (Account) ผ่านความสัมพันธ์จาก Preference
-    //     $account = $userWastePref ? $userWastePref->kp_account : null;
-
-    //     // --- 🌟 1. ดึงสถิติทั่วไป (ใช้ userId ตรงๆ) ---
-    //     $totalWasteWeight = FoodWasteLog::where('user_id', $userId)->sum('weight_kg');
-    //     $totalCarbonSaved = FoodWasteLog::where('user_id', $userId)->sum('carbon_saved_kg');
-
-    //     // --- 🌟 2. ดึงข้อมูลล็อตปัจจุบัน (Active Batch) ---
-    //     $activeBatch = CompostBatches::where('user_id', $userId)
-    //         ->where('status', 'filling')
-    //         ->latest()
-    //         ->first();
-
-
-    //     if ($activeBatch) {
-    //         $days = (int) now()->diffInDays($activeBatch->start_date);
-    //         $activeBatch->days_passed = ($days == 0) ? 1 : $days;
-    //         $activeBatch->total_weight = FoodWasteLog::where('batch_id', $activeBatch->id)->sum('weight_kg');
-    //         $isReadyToMove = $activeBatch->days_passed >= 7;
-    //         $activeBatch->is_ready = $isReadyToMove;
-
-    //         $lastLog = FoodWasteLog::where('batch_id', $activeBatch->id)->latest()->first();
-    //         $activeBatch->temp_status = $lastLog ? $lastLog->temperature_feel : 'ยังไม่มีข้อมูล';
-    //     }
-
-
-    //     // --- 🌟 3. ข้อมูลกราฟ (ดึงย้อนหลัง 7 วัน) ---
-    //     $weeklyStats = MealLog::where('user_id', $userId)
-    //         ->where('created_at', '>=', now()->subDays(6))
-    //         ->selectRaw('DATE(created_at) as date, SUM(total_calories) as daily_calories')
-    //         ->groupBy('date')
-    //         ->orderBy('date', 'ASC')
-    //         ->get();
-
-    //     // เตรียมข้อมูลส่งให้ Chart.js หรือ Library กราฟที่คุณใช้
-    //     $chartLabels = $weeklyStats->pluck('date')->map(function ($date) {
-    //         return \Carbon\Carbon::parse($date)->format('d/m'); // ปรับฟอร์แมตวันที่ให้สั้นลง
-    //     })->toArray();
-
-    //     $chartData = $weeklyStats->pluck('daily_calories')->toArray();
-
-    //     // --- 🌟 เช็คค่าว่าง (ป้องกันกราฟพังถ้า User ใหม่ยังไม่มีข้อมูล) ---
-    //     if (empty($chartLabels)) {
-    //         $chartLabels = [now()->format('d/m')];
-    //         $chartData = [0];
-    //     }
-    //     $targetCalories = $user->calculateTDEE();
-    //     $todayCalories = MealLog::where('user_id', $userId)
-    //         ->whereDate('created_at', now())
-    //         ->sum('total_calories');
-
-    //     // --- 🌟 4. ดึงแต้มและเงินจากตาราง Account จริง ---
-    //     $totalPoints = $account ? $account->points_balance : 0;
-    //     $totalBalance = $account ? $account->money_balance : 0.00;
-
-    //     // --- 🌟 5. ส่วนอื่นๆ ---
-    //     $qrcode = QrCode::size(300)->generate("USER-" . $userId);
-    //     $myIssues = FoodWasteIssueReport::where('user_id', $userId)->latest()->get();
-    //     $pendingIssuesCount = $myIssues->where('status', '!=', 'resolved')->count();
-
-    //     $userFoodWastePref = FoodWasteUserPreference::with('foodwaste_account')->where('user_id', $userId)
-    //         ->where('is_foodwaste_bank', '1')->first();
-
-
-    //     $foodWastePoints = 0;
-    //     if ($userFoodWastePref && $userFoodWastePref->foodwaste_account) {
-    //         $foodWastePoints = $userFoodWastePref->foodwaste_account->points_balance;
-    //     }
-    //     return view('lineliff.dashboard', compact(
-    //         'user',
-    //         'userWastePref',
-    //         'userFoodWastePref',
-    //         'foodWastePoints',
-    //         'account',
-    //         'qrcode',
-    //         'totalWasteWeight',
-    //         'totalCarbonSaved',
-    //         'pendingIssuesCount',
-    //         'activeBatch',
-    //         'myIssues',
-    //         'targetCalories',
-    //         'todayCalories',
-    //         'totalPoints',
-    //         'totalBalance',
-    //         'chartLabels',
-    //         'chartData' // 👈 เพิ่ม 2 ตัวนี้กลับเข้าไปใน compact
-    //     ));
-    // }
 
     public function handleLineLogin(Request $request)
     {
@@ -334,31 +239,30 @@ class   LineLiffController extends Controller
             'waste_pref_id' => $waste_pref_id
         ]);
     }
-
-
-
     public function user_line_register(Request $request)
     {
+        $request = $request->get('payload');
         // 1. เริ่มต้น Transaction (ถ้าพังจุดไหน จะยกเลิกทั้งหมด)
         DB::beginTransaction();
 
         try {
             // 2. สร้าง User หลัก
             $user = User::create([
-                'username'      => $request->org_id . $request->phoneNum,
-                'password'      => Hash::make($request->phoneNum),
-                'firstname'     => $request->firstname,
-                'lastname'      => $request->lastname,
-                'line_id'       => $request->line_user_id,
-                'image'         => $request->line_user_image,
-                'phone'         => $request->phoneNum,
-                'org_id_fk'     => $request->org_id,
-                'province_code' => $request->province_id,
-                'district_code' => $request->district_id,
-                'tambon_code'   => $request->tambon_id,
-                'zone_id'       => $request->zone_id,
-                'subzone_id'    => $request->subzone_id,
-                'address'       => $request->address,
+                'username'      => $request['org_id'] . $request['phoneNum'],
+                'password'      => Hash::make($request['phoneNum']),
+                'firstname'     => $request['firstname'],
+                'lastname'      => $request['lastname'],
+                'line_id'       => $request['line_user_id'],
+                'line_user_id'  => $request['line_user_id'],
+                'image'         => $request['line_user_image'],
+                'phone'         => $request['phoneNum'],
+                'org_id_fk'     => $request['org_id'],
+                'province_code' => $request['province_id'],
+                'district_code' => $request['district_id'],
+                'tambon_code'   => $request['tambon_id'],
+                'zone_id'       => $request['zone_id'],
+                'subzone_id'    => $request['subzone_id'],
+                'address'       => $request['address'],
             ]);
 
             // กำหนด Role พื้นฐาน
@@ -374,10 +278,17 @@ class   LineLiffController extends Controller
             ]);
 
             // 4. สร้างบัญชีธนาคารขยะเปียก (เงินชาวบ้าน)
-            KpUserWastePreference::create([
+            $kpref = KpUserWastePreference::create([
                 'user_id'       => $user->id,
                 'is_waste_bank' => 1,
-                'status'        => 'active'
+                'status'        => 'active',
+                'org_id_fk'     => $request['org_id'],
+                'province_code' => $request['province_id'],
+                'district_code' => $request['district_id'],
+                'tambon_code'   => $request['tambon_id'],
+                'zone_id'       => $request['zone_id'],
+                'subzone_id'    => $request['subzone_id'],
+                'address'       => $request['address'],
             ]);
             // 5. สร้างสิทธิ์ขยะรายปี (เงินเทศบาล)
             // ตั้งค่าเริ่มต้นเป็น 'waived' (ฟรี) ตามที่คุณต้องการ
@@ -408,6 +319,7 @@ class   LineLiffController extends Controller
                 'res' => 1,
                 'user_id' => $user->id,
                 'recycle_account_id' => $recycleAccount->id,
+                'kp_ref' => $kpref->id,
                 'msg' => 'ลงทะเบียนและเปิดบัญชีขยะเรียบร้อยแล้ว'
             ]);
         } catch (\Exception $e) {
@@ -449,83 +361,6 @@ class   LineLiffController extends Controller
         });
     }
 
-    // public function user_line_register(Request $request)
-    // {
-
-    //     // 1. เริ่ม Transaction ป้องกันข้อมูลไม่สมบูรณ์
-    //     DB::beginTransaction();
-
-    //     try {
-    //         // 2. สร้าง User
-    //         $user = User::create([
-    //             'username'      => $request->org_id . $request->phoneNum,
-    //             'password'      => Hash::make($request->phoneNum),
-    //             'firstname'     => $request->firstname,
-    //             'lastname'      => $request->lastname,
-    //             'line_id'       => $request->line_user_id,
-    //             'image'         => $request->line_user_image,
-    //             'phone'         => $request->phoneNum,
-    //             'age'           => 0,
-    //             'height'        => 0,
-    //             'weight'        => 0,
-    //             'tambon_code'   => $request->tambon_id,
-    //             'district_code' => $request->district_id,
-    //             'province_code' => $request->province_id,
-    //             'org_id_fk'     => $request->org_id,
-    //             'zone_id'       => $request->zone_id,
-    //             'address'       => $request->address,
-    //             'subzone_id'    => $request->subzone_id,
-    //             'created_at'    => now(), // ใช้ helper now() แทน date() ได้ครับ สั้นลง
-    //             'updated_at'    => now(),
-    //         ]);
-
-    //         // กำหนดสิทธิ์
-    //         $user->assignRole('User');
-
-    //         // 3. สร้างและเปิดบัญชี: ธนาคารขยะรีไซเคิล
-    //         $userWastPref = KpUserWastePreference::create([
-    //             'user_id'              => $user->id,
-    //             'is_annual_collection' => 0, // ปิดไว้ก่อน รอแอดมินมาอัปเดต
-    //             'is_waste_bank'        => 1, // เปิดอัตโนมัติ
-    //             'created_at'           => now(),
-    //             'updated_at'           => now(),
-    //         ]);
-
-    //         // เปิดบัญชีรีไซเคิล
-    //         (new KPAccounts())->registerAccount($userWastPref->id);
-
-    //         // 4. สร้างและเปิดบัญชี: ธนาคารขยะเปียก (เพิ่มเข้ามาใหม่)
-    //         $foodWastePref = FoodWasteUserPreference::create([
-    //             'user_id'           => $user->id,
-    //             'is_foodwaste_bank' => 1, // เปิดอัตโนมัติ
-    //             'created_at'        => now(),
-    //             'updated_at'        => now(),
-    //         ]);
-
-    //         // **หมายเหตุ:** ถ้าคุณมีคลาสสำหรับเปิดบัญชีขยะเปียกแยกต่างหาก เช่น FoodWasteAccounts
-    //         // ให้เอามาใส่ตรงนี้ได้เลยครับ เช่น:
-    //         // (new FoodWasteAccounts())->registerAccount($foodWastePref->id);
-
-
-    //         // 5. บันทึกข้อมูลทั้งหมดลงฐานข้อมูล
-    //         DB::commit();
-
-    //         return response()->json([
-    //             'res'           => 1,
-    //             'waste_pref_id' => $userWastPref->id
-    //         ]);
-    //     } catch (\Exception $e) {
-    //         // ถ้ามี Error ตรงไหนก็ตาม ระบบจะยกเลิกการสร้างข้อมูลในบล็อก try ทั้งหมด
-    //         DB::rollBack();
-
-    //         // เก็บ Log ไว้เผื่อดีบักปัญหา
-    //         Log::error('LINE Register Error: ' . $e->getMessage());
-
-    //         return response()->json([
-    //             'res' => 0,
-    //             'msg' => 'เกิดข้อผิดพลาดในการลงทะเบียน โปรดลองใหม่อีกครั้ง',
-    //             'error' => $e->getMessage() // ตอนนำขึ้นใช้จริง (Production) ควรเอาบรรทัดนี้ออกครับ
-    //         ]);
-    //     }
-    // }
+    
+    
 }

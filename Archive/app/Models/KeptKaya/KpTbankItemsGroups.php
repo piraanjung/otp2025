@@ -1,0 +1,22 @@
+<?php
+
+namespace App\Models\KeptKaya;
+
+use Illuminate\Database\Eloquent\Factories\HasFactory;
+use Illuminate\Database\Eloquent\Model;
+use App\Traits\BelongsToOrganization;
+class KpTbankItemsGroups extends Model
+{
+    use HasFactory; use BelongsToOrganization;
+    protected $table = 'kp_tbank_items_groups';
+    protected $primaryKey = 'id';
+
+    protected $fillable = [
+        'org_id_fk',
+        'kp_items_groupname',
+        'kp_items_group_code',
+        'sequence_num',
+        'status',
+        'deleted'	
+    ];
+}

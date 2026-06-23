@@ -129,7 +129,7 @@ Route::get('/staff_accessmenu', [AccessMenusController::class, 'staff_accessmenu
 Route::get('/dashboard', [AccessMenusController::class, 'dashboard'])->middleware(['auth'])->name('dashboard');
 
 Route::get('/lineliff', [LineLiffController::class, 'index'])->name('lineliff.index');
-Route::get('/line/dashboard/{user_waste_pref_id}/{org_id}/{regis?}', [LineLiffController::class, 'dashboard'])->name('lineliff.dashboard');
+Route::get('/line/dashboard/{pref_id}/{org_id}/{regis?}', [LineLiffController::class, 'dashboard'])->name('lineliff.dashboard');
 Route::post('/line/fine_line_id', [LineLiffController::class, 'fine_line_id']);
 Route::post('/line/user_line_register', [LineLiffController::class, 'user_line_register']);
 Route::post('/line/update_user_by_phone', [LineLiffController::class, 'update_user_by_phone']);
