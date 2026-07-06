@@ -15,6 +15,7 @@ use App\Models\KeptKaya\KpTbankItems;
 use App\Models\KeptKaya\KpTbankItemsPriceAndPoint;
 use App\Models\KeptKaya\KpTbankUnits;
 use App\Models\KeptKaya\KpUserWastePreference;
+use App\Models\Kiosk;
 use App\Models\RecycleBankAccount;
 use App\Models\User;
 use Illuminate\Support\Facades\DB;
@@ -142,16 +143,16 @@ class KioskController extends Controller
 
         return response()->json($rates);
     }
-    // =========================================================================
-    // 🌿 [Branch: backend/feature-sync-text-handler]
-    // ปรับปรุงการรับค่าข้อมูลขยะในโครงสร้าง Multipart FormData (Text Payload)
-    // =========================================================================
+
+
     public function submitTransaction(Request $request)
     {
         // 1. รับข้อมูลจาก Mobile App (สอดรับกับ FormData ที่ส่งมาจากตัวตู้ AIroBacT)
-        $userId      = $request->input('userId');
+        $userId      = 10; //$request->input('userId');
+
         $totalPoints = $request->input('totalPoints');
         $totalAmount = $request->input('totalPrice'); // หน้าบ้านใช้คีย์ 'totalPrice'
+        $machineId   = $request->input('machineId'); // เลขตู่ koisk
 
         // 🚨 [จุดแก้ไขสำคัญ] เนื่องจากหน้าบ้านทำ FormData แนบ JSON String ของตะกร้าขยะมาในฟิลด์ 'items'
         // เราต้องใช้ json_decode เพื่อแปลงข้อความ String กลับไปเป็นโครงสร้าง Array ใน PHP
@@ -166,9 +167,9 @@ class KioskController extends Controller
             ], 400);
         }
 
-        $resultData = DB::transaction(function () use ($userId, $items, $totalPoints, $totalAmount) {
+        $resultData = DB::transaction(function () use ($request, $userId, $items, $totalPoints, $totalAmount, $machineId) {
 
-            $userWastePref = KpUserWastePreference::where('user_id', $userId)->first();
+            $userWastePref = KpUserWastePreference::where('user_id', $userId)->get()->first();
             $user = User::find($userId);
 
             // ในโหมด Kiosk ให้ staff_id เป็น null
@@ -177,12 +178,14 @@ class KioskController extends Controller
 
             // 2. เจนเลขที่เอกสาร
             $transNo = 'Kiosk-' . now()->format('ymdHis') . strtoupper(Str::random(3));
+            $koisk = Kiosk::where('name', $machineId)->get('id')->first();
 
             // 3. บันทึก Header (KpPurchaseTransaction)
+            //statsus ต้องcheck ด้วยว่ารูปที่ส่งมาไม่มี unknow ถึงจะ complete			
             $transaction = KpPurchaseTransaction::create([
                 'kp_u_trans_no'         => $transNo,
                 'org_id_fk'             => $orgId,
-                'kiosk_id_fk'           => 1, // ระบุว่าเป็นตู้ที่เท่าไหร่
+                'kiosk_id_fk'           => $koisk->id, // ระบุว่าเป็นตู้ที่เท่าไหร่
                 'kp_user_w_pref_id_fk'  => $userWastePref->id,
                 'transaction_date'      => now(),
                 'total_weight'          => 0, // Kiosk ไม่ได้ชั่งน้ำหนัก แต่ใช้จำนวนชิ้น
@@ -191,7 +194,11 @@ class KioskController extends Controller
                 'recorder_id'           => $recorderId,
                 'status'                => 'complete',
                 'cash_back'             => 0, // Kiosk มักบันทึกเข้าสะสมแต้ม/เงิน ไม่ได้ทอนเงินสดทันที
-                'deleted'               => 0
+                'deleted'               => 0,
+                'created_at'            => date('Y-m-d H:i:s'),
+                'updated_at'            => date('Y-m-d H:i:s'),
+
+
             ]);
 
             $carbonTotal = 0;
@@ -199,23 +206,23 @@ class KioskController extends Controller
             foreach ($items as $cartItem) {
 
                 // 🎯 1. ดักจับกรณีหน้าบ้านส่งรหัส 0 หรือระบุว่าเป็นสิ่งแปลกปลอม
-                if (empty($cartItem['rateId']) || $cartItem['rateId'] == 0) {
-                    
+                if (empty($cartItem['rateId']) || $cartItem['rateId'] == 0 || $cartItem['prob'] <= 85) {
+
                     // 🚀 สั่งแยกบันทึกข้อมูลเข้าตารางสิ่งแปลกปลอมทันทีเพื่อทำ Ref รอตรวจสอบ
                     KpKioskUnknownItem::create([
                         'kp_purchase_trans_id' => $transaction->id,
                         'org_id_fk'            => $orgId,
-                        'kiosk_id_fk'          => 1, // ไอดีตู้
+                        'kiosk_id_fk'          => $koisk->id, // ไอดีตู้
                         'user_id_fk'           => $userId,
                         'detected_label'       => $cartItem['sLabel'] ?? 'UNKNOWN_OBJECT',
                         'confidence_score'     => $cartItem['confidence'] ?? 0,
-                        'image_path'           => null, // รอ Background Async Queue ส่งรูปมาอัปเดตพาร์ทภายหลัง
+                        'image_path'           => $this->uploadKioskImage($request), // รอ Background Async Queue ส่งรูปมาอัปเดตพาร์ทภายหลัง
                         'status'               => 'pending_review'
                     ]);
 
                     // บันทึก Log แจ้งเตือนระบบหลังบ้าน
                     Log::warning("⚠️ [AIroBacT Kiosk] ตรวจพบสิ่งแปลกปลอมรหัส 0 จาก User: {$userId}, Class: " . ($cartItem['sLabel'] ?? 'Unknown'));
-                    
+
                     continue; // ⚡ ข้ามลูปนี้ไปรายการถัดไปทันที ไม่ให้ไปลงตารางรายละเอียดหลัก
                 }
 
@@ -242,7 +249,7 @@ class KioskController extends Controller
                     ->where('unitname', 'ขวด')->where('status', 'active')
                     ->get(['id'])->first();
 
-               
+
 
                 KpPurchaseTransactionDetail::create([
                     'org_id_fk'                    => $orgId,
@@ -253,6 +260,7 @@ class KioskController extends Controller
                     'kp_units_idfk'                => $kp_units_idfk->id,
                     'price_per_unit'               => $cartItem['price'] ?? 0,
                     'amount'                       => 1,
+                    'image_path'                   => $this->uploadKioskImage($request),
                     // ดักจับตรวจสอบคะแนน หากความแม่นยำต่ำกว่า Threshold (80%) แต้มจะเป็น 0 ทันทีตามเงื่อนไขพี่
                     'points'                       => ($cartItem['confidence'] ?? 100) < 80 ? 0 : ($cartItem['point'] ?? 0),
                     'carbon_saved'                 => $carbonSaved,
@@ -283,19 +291,63 @@ class KioskController extends Controller
                 'trans_no' => $transNo
             ];
         });
-
         return response()->json($resultData);
     }
 
-    // =========================================================================
-    // 🌿 [Branch: backend/bugfix-public-move-handler]
-    // แก้ไขฟังก์ชันรับรูปภาพเบื้องหลัง เพื่อให้อัปเดต image_path เข้าตารางสิ่งแปลกปลอมออโต้
-    // =========================================================================
+    public function uploadKioskImage(Request $request)
+    {
+        // 🎯 1. ดึงค่า String รูปภาพ Base64 ที่ส่งมาจากหน้าตู้ (เปลี่ยนคีย์ 'image' ให้ตรงตามที่หน้าบ้านส่งมาได้ครับ)
+        $rawImageContent = $request->input('image_base64') ?? $request->getContent();
+
+        if (!empty($rawImageContent)) {
+
+            // 🎯 ดึงชื่อประเภทขยะสเตตัสที่ส่งมาจากตู้คีออส เช่น "unknown", "PET_150_WithCap"
+            $sLabel = strtolower($request->input('sLabel', 'unknown'));
+
+            // 🎯 [จุดวิกฤตคัดแยกโฟลเดอร์] ตรวจสอบเงื่อนไขคำว่า "unknown"
+            if (strpos($sLabel, 'unknown') !== false) {
+                // ถ้าระบบตรวจจับพบคำว่า unknown ให้ยัดเข้าโฟลเดอร์: public/kiosk_unknown_items
+                $subFolder = 'kiosk_unknown_items';
+            } else {
+                // ถ้าเป็นขวดประเภทปกติทั่วไป ให้ยัดเข้าโฟลเดอร์: public/kiosk_active_items
+                $subFolder = 'kiosk_active_items';
+            }
+
+            // 🎯 2. ตรวจสอบและสร้างโฟลเดอร์ปลายทางใน public หากยังไม่มีในระบบ
+            $destinationPath = public_path($subFolder);
+            if (!file_exists($destinationPath)) {
+                mkdir($destinationPath, 0777, true);
+            }
+
+            // กำหนดตั้งชื่อไฟล์ใหม่ตามรูปแบบประวัติ Transaction ดั้งเดิมของพี่ (เปลี่ยนเป็น .jpg หรือตามฟอร์แมตที่แปลงได้)
+            $filename = time() . '_' . uniqid() . '.jpg';
+
+            // 🎯 3. เข้าสู่กระบวนการถอดรหัสและล้างข้อความหัว Base64 (Clean Data)
+            if (strpos($rawImageContent, 'data:image') !== false || strlen($rawImageContent) > 1000) {
+                $imageData = preg_replace('#^data:image/\w+;base64,#', '', $rawImageContent);
+                $imageData = str_replace(' ', '+', $imageData);
+
+                // 🔥 [จุดแก้ไขไม้ตาย] เซฟข้อมูลลงในโฟลเดอร์ public ด้วยพาธที่ถูกต้องผ่าน public_path()
+                File::put($destinationPath . '/' . $filename, base64_decode($imageData));
+                $isSaved = true;
+            }
+
+            // รวมเส้นทาง Path เต็มเพื่อเซฟลงฐานข้อมูล ENVSOGO (เช่น kiosk_active_items/123_abc.jpg)
+            $savedPath = $subFolder . '/' . $filename;
+
+            // ... โค้ดส่วนการอัปเดตลงตาราง Database ของพี่คงเดิม ...
+
+            return $savedPath;
+        }
+
+        return '';
+    }
+
     public function uploadItemImageChunk(Request $request)
     {
         $transNo = $request->input('trans_no');
         $itemIndex = $request->input('item_index');
-        
+
         $fileName = 'trans_' . $transNo . '_item_' . $itemIndex . '_' . time() . '.jpg';
         $subFolder = 'waste_items/' . $transNo;
         $destinationPath = public_path($subFolder);
@@ -311,7 +363,7 @@ class KioskController extends Controller
             $file = $request->file('waste_image');
             $file->move($destinationPath, $fileName);
             $isSaved = true;
-        } 
+        }
         // 🎯 โหมดที่ 2: รับข้อมูลแบบ Base64 (Hybrid)
         else {
             $rawImageContent = $request->input('waste_image') ?? $request->getContent();

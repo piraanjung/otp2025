@@ -378,7 +378,7 @@ public function getZones($tambon_id)
                     $this->replyWithPoints($lineId, $replyToken);
                 }
 
-                if (str_contains($userText, 'ขายขยะด้วย QR Code')) {
+                if (str_contains($userText, 'สร้าง QR Code ขายขยะ')) {
                     $this->replyWithUserQrCode($lineId, $replyToken);
                 }
             }
@@ -397,7 +397,7 @@ public function getZones($tambon_id)
             return $this->replyTextMessage($replyToken, "ขออภัยครับ ไม่พบข้อมูลสมาชิกของคุณในระบบ กรุณาลงทะเบียนก่อนใช้งานครับ");
         }
 
-        $qrContent = "USER-" . $user->id;
+        $qrContent = "USER-" . $user->phone;
         // สร้าง URL QR Code โดยใช้ Google Chart API
         $qrUrl = "https://api.qrserver.com/v1/create-qr-code/?size=500x500&data=" . urlencode($qrContent);
 

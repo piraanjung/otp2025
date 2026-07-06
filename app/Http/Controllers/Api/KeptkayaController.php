@@ -162,7 +162,7 @@ class KeptkayaController extends Controller
                     $detail->points                         = $item['points'];
                     $detail->carbon_saved                   = $carbonSaved ?? 0.0000;
                     $detail->save();
-                }
+                }  
             }
 
             // 5. อัปเดต Carbon รวม

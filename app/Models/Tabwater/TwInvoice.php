@@ -36,7 +36,6 @@ class TwInvoice extends Model
         'status',
         'created_at',
         'updated_at',
-        'inv_no',
         'org_id_fk' // ต้องมี column นี้ใน DB ตามที่คุยกัน
     ];
 
