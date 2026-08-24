@@ -1,0 +1,85 @@
+name: Deploy to Hostinger (prod)
+
+on:
+  push:
+    branches: [prod]
+  workflow_dispatch:
+
+concurrency:
+  group: deploy-prod
+  cancel-in-progress: false
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      # ---------- Build PHP dependencies ----------
+      - name: Setup PHP
+        uses: shivammathur/setup-php@v2
+        with:
+          php-version: "8.2"
+          extensions: mbstring, bcmath, gd, intl, zip, pdo_mysql
+          coverage: none
+
+      - name: Cache Composer packages
+        uses: actions/cache@v4
+        with:
+          path: vendor
+          key: composer-${{ runner.os }}-${{ hashFiles('composer.lock') }}
+          restore-keys: composer-${{ runner.os }}-
+
+      - name: Install Composer dependencies
+        run: composer install --prefer-dist --no-dev --optimize-autoloader --no-interaction --no-progress
+
+      # ---------- Build front-end assets ----------
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: "20"
+          cache: npm
+
+      - name: Install npm dependencies
+        run: npm ci
+
+      - name: Build assets
+        run: npm run production
+
+      # ---------- Deploy via rsync over SSH ----------
+      - name: Setup SSH agent
+        uses: webfactory/ssh-agent@v0.9.0
+        with:
+          ssh-private-key: ${{ secrets.PIOS_SSH_PRIVATE_KEY }}
+
+      - name: Add host to known_hosts
+        run: |
+          mkdir -p ~/.ssh
+          ssh-keyscan -p "${{ secrets.PIOS_SSH_PORT }}" -H "${{ secrets.PIOS_SSH_HOST }}" >> ~/.ssh/known_hosts 2>/dev/null
+
+      - name: Deploy with rsync
+        run: |
+          rsync -avz --delete \
+            -e "ssh -p ${{ secrets.PIOS_SSH_PORT }}" \
+            --exclude='.git' \
+            --exclude='.github' \
+            --exclude='.env' \
+            --exclude='storage/' \
+            --exclude='node_modules' \
+            --exclude='tests' \
+            --exclude='repomix-output.xml' \
+            --exclude='.DS_Store' \
+            ./ "${{ secrets.PIOS_SSH_USER }}@${{ secrets.PIOS_SSH_HOST }}:${{ secrets.PIOS_DEPLOY_PATH }}"
+
+      # ---------- Post-deploy (no migration) ----------
+      - name: Post-deploy artisan cache
+        run: |
+          ssh -p "${{ secrets.PIOS_SSH_PORT }}" "${{ secrets.PIOS_SSH_USER }}@${{ secrets.PIOS_SSH_HOST }}" \
+            "cd '${{ secrets.PIOS_DEPLOY_PATH }}' && \
+             php artisan config:cache && \
+             php artisan route:cache && \
+             php artisan view:cache"
+          # เพิ่มบรรทัดนี้ต่อท้ายคำสั่งด้านบนถ้าต้องการรัน migration อัตโนมัติภายหลัง:
+          #  && php artisan migrate --force
