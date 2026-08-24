@@ -20,7 +20,7 @@ class OrgAdminController extends Controller
     {
         // ดึงเฉพาะ User ที่เป็น OrgAdmin พร้อมข้อมูล Organization
         // สมมติว่า Role ชื่อ 'OrgAdmin'
-        $admins = User::role('OrgAdmin')
+        $admins = User::role('Admin')
             ->with('org') // Eager load organization
             ->orderBy('created_at', 'desc')
             ->paginate(10);
@@ -54,6 +54,8 @@ class OrgAdminController extends Controller
 
         ]);
 
+
+
         try {
         DB::transaction(function () use ($request) {
             // 1. ดึง User เดิมมา
@@ -67,8 +69,8 @@ class OrgAdminController extends Controller
 
             // 3. Assign Role "OrgAdmin"
             // เช็คก่อนว่ามี Role นี้หรือยัง จะได้ไม่ซ้ำ
-            if (!$user->hasRole('OrgAdmin')) {
-                $user->assignRole('OrgAdmin');
+            if (!$user->hasRole('Admin')) {
+                $user->assignRole('Admin');
             }
 
             // 4. Update หรือ Create Staff Record

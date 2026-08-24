@@ -17,18 +17,14 @@ class AuthenticatedSessionController extends Controller
      */
     public function create()
     {
+    
         return view('auth.login');
     }
 
-    /**
-     * Handle an incoming authentication request.
-     *
-     * @param  \App\Http\Requests\Auth\LoginRequest  $request
-     * @return \Illuminate\Http\RedirectResponse
-     */
+   
     public function store(LoginRequest $request)
     {
-       
+        $login_staff = $request->input('login_staff');
         $request->authenticate();
         $userAgent = $_SERVER['HTTP_USER_AGENT'] ?? '';
         $ismobile = preg_match(
@@ -36,15 +32,20 @@ class AuthenticatedSessionController extends Controller
             $userAgent
         );
         $request->session()->regenerate();
-         $user = User::find(Auth::id());
-        
-        if ($ismobile) {
+        $user = User::find(Auth::id());
+        if ($ismobile || $login_staff == 1) {
             if(isset($request->kp_mobile_login)){
                 //ตู้รับซื้อขวด
-                return redirect()->intended(route('kp_mobile.create', absolute: false));
-            }else if($user->hasRole('User')){
+                redirect()->intended(route('kp_mobile.create', absolute: false));
+            }else if($user->hasRole('Staff') || $user->hasRole('Admin') || $login_staff == 1){
                 return redirect()->intended(route('staff_accessmenu', absolute: false));
+            }else if($user->hasRole('Super Admin')){
+                return redirect()->intended(route('admin.org_selector', absolute: false));
             }
+        }
+
+        if($user->hasRole('Super Admin')){
+            return redirect()->intended(route('admin.org_selector', absolute: false));
         }
 
         return redirect()->intended(route('accessmenu', absolute: false));
@@ -68,5 +69,5 @@ class AuthenticatedSessionController extends Controller
 
         return redirect('/');
     }
-    
+
 }

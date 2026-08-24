@@ -17,15 +17,18 @@ class KPAccounts extends Model
     use HasFactory;
 
     protected $table = 'kp_accounts';
-    
+
     // PK เป็น FK (1-to-1)
     protected $primaryKey = 'u_wpref_id_fk';
-    
+
     // ปิด incrementing เพราะ PK กำหนดเอง
-    public $incrementing = false; 
+    public $incrementing = false;
 
     protected $fillable = [
-        'u_wpref_id_fk', 'balance', 'points', 'status'
+        'u_wpref_id_fk',
+        'balance',
+        'points',
+        'status'
     ];
 
     protected $casts = [
@@ -33,7 +36,8 @@ class KPAccounts extends Model
         'points'  => 'integer'
     ];
 
-    public function userWastePreference(){
+    public function userWastePreference()
+    {
         return $this->belongsTo(KpUserWastePreference::class, 'u_wpref_id_fk', 'id');
     }
 
@@ -50,7 +54,7 @@ class KPAccounts extends Model
                 'status'     => 'active',
             ]
         );
-        
+
         return $account->wasRecentlyCreated;
     }
 

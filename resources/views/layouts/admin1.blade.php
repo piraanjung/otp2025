@@ -18,7 +18,7 @@
 
 <title>
 
-EnvSoGo::Tabwater
+{{-- PIoS::TABWATER(งานประปา) --}}
 
 </title>
 
@@ -370,7 +370,7 @@ target="_blank">
 
 <img src="{{ asset('logo/'.$orgInfos['org_logo_img']) }}" class="navbar-brand-img h-100" alt="main_logo">
 
-<span class="ms-1 font-weight-bold">งานประปา {{$orgInfos['org_short_type_name'].$orgInfos['org_name']}}</span>
+<span class="ms-1 font-weight-bold"> {{$orgInfos['org_short_type_name'].$orgInfos['org_name']}}</span>
 
 </a>
 
@@ -379,8 +379,14 @@ target="_blank">
 <hr class="horizontal dark mt-0">
 
 <div class="collapse navbar-collapse w-auto " id="sidenav-collapse-main">
+{{-- @role('Super Admin|Admin')
+    @include('layouts.super-admin-navigation')
+@else --}}
+    @include('layouts.admin1_navigation')
+{{-- @endrole --}}
 
-@include('layouts.admin1_navigation')
+
+
 
 </div>
 

@@ -14,7 +14,8 @@ return new class extends Migration
     public function up()
     {
         Schema::create('staffs', function (Blueprint $table) {
-            $table->foreignId('id')->constrained('users')->onDelete('cascade')
+            $table->id()->autoIncrement();
+            $table->foreignId('user_id')->constrained('users')->onDelete('cascade')
                 ->primary()->unique();
             $table->foreignId('org_id_fk')->constrained('organizations')->onDelete('cascade');
             $table->enum('status', ['active', 'inactive']);

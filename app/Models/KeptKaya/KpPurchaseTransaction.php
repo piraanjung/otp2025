@@ -7,15 +7,17 @@ use App\Models\User;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use App\Traits\BelongsToOrganization;
+
 class KpPurchaseTransaction extends Model
 {
-    use HasFactory; use BelongsToOrganization;
+    use HasFactory;
+    use BelongsToOrganization;
 
     protected $table = 'kp_purchase_transactions';
 
     protected $fillable = [
         'org_id_fk',
-        'kp_u_trans_no',// เลขที่เอกสาร (Unique String)
+        'kp_u_trans_no', // เลขที่เอกสาร (Unique String)
         'kiosk_id_fk',
         'kp_user_w_pref_id_fk', // ลูกค้า
         'machine_id_fk',        // (Optional) เครื่องชั่ง
@@ -53,11 +55,11 @@ class KpPurchaseTransaction extends Model
 
     public function details()
     {
-        // ตรวจสอบชื่อ FK ใน DB ให้ตรงกับ parameter ที่ 2
         return $this->hasMany(KpPurchaseTransactionDetail::class, 'kp_purchase_trans_id', 'id');
     }
 
-    public function org(){
+    public function org()
+    {
         return $this->belongsTo(Organization::class, 'org_id_fk');
     }
 }

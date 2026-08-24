@@ -9,7 +9,7 @@ use App\Models\Admin\Subzone;
 use App\Models\Admin\Tambon;
 use App\Models\Admin\Zone;
 use App\Models\KeptKaya\KpUserWastePreference;
-use App\Models\KeptKaya\WasteBin;
+use App\Models\KeptKaya\AnnualTrash;
 use App\Models\KeptKaya\AnnualCollectionPayment;
 use App\Models\Tabwater\TwMeterInfos;
 use App\Models\Tabwater\UndertakerSubzone;
@@ -19,7 +19,7 @@ use Illuminate\Notifications\Notifiable;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use App\Models\FoodWaste\FoodWasteUserPreference;
-use App\Models\FoodWaste\FoodWasteBin;
+use App\Models\FoodWaste\FoodAnnualTrash;
 
 class SuperUser extends Authenticatable
 {
@@ -118,9 +118,9 @@ class SuperUser extends Authenticatable
         return $this->hasOne(KpUserWastePreference::class);
     }
 
-    public function wasteBins()
+    public function AnnualTrashs()
     {
-        return $this->hasMany(WasteBin::class,'user_id');
+        return $this->hasMany(AnnualTrash::class, 'user_id');
     }
 
     public function annualCollectionPayments()
@@ -150,11 +150,8 @@ class SuperUser extends Authenticatable
         return $this->hasOne(FoodWasteUserPreference::class);
     }
 
-    public function foodwasteBins()
+    public function foodAnnualTrashs()
     {
-        return $this->hasMany(FoodWasteBin::class,'u_pref_id_fk');
+        return $this->hasMany(FoodAnnualTrash::class, 'u_pref_id_fk');
     }
-
-     
-    
 }

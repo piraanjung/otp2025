@@ -24,10 +24,9 @@ class SuperUserController extends Controller
 {
     public function index()
     {
-
-        // *** ขั้นตอนที่ 2: รัน Query ***
-        // ใช้ TwUsersInfo::with() โดยไม่ต้องเรียก setConnection() บนโมเดลหลัก
-        $users = User::where('org_id_fk', Auth::user()->org_id_fk)->get();
+        $users = User::where('org_id_fk', Auth::user()->org_id_fk)
+        // ->role('User')
+        ->get();
 
         // Query สำหรับ Zone Model ก็จะใช้ Default Connection ที่ถูกเปลี่ยนเช่นกัน
         $zones =  Zone::where('org_id_fk', Auth::user()->org_id_fk)->get();
@@ -35,11 +34,11 @@ class SuperUserController extends Controller
         $orgInfos = Organization::getOrgName(Auth::user()->org_id_fk);
 
         $user_deleted =  collect($users)->filter(function ($v) {
-            return $v->deleted == '1';
+            return $v->status == 'deleted';
         })->groupBy('user_id');
         $user_active =  collect($users)->filter(function ($v) {
             return $v->status == 'active';
-        })->groupBy('user_id');
+        })->groupBy('user_id')->values()->flatten();
 
         $usertype = "user";
         return view('admin.super_users.index', compact('orgInfos', 'users', 'usertype', 'zones', 'user_deleted', 'user_active'));
@@ -58,66 +57,44 @@ class SuperUserController extends Controller
     {
         $users = User::with('roles')
             ->get()->filter(
-                fn($user) => $user->roles->whereIn('name', ["admin", "tabwater man", "finance"])->toArray()
+                fn($user) => $user->roles->whereIn('name', ["Admin", "tabwater man", "finance"])->toArray()
             );
         $usertype = "staff";
         return view('admin.users.index', compact('users', 'usertype'));
     }
     public function create()
     {
-        ManagesTenantConnection::configConnection(session('db_conn'));
-        $meter_sq_number    =  SequenceNumber::get();
+        $meter_sq_number    =  SequenceNumber::get()->first();
+        $orgInfos = Organization::getOrgName(Auth::user()->org_id_fk);
+
         $zones              = Zone::all();
         $meter_types        = TwMeterType::all();
         $usergroups         = Role::get(['id', 'name']);
-        $usernumber         = FunctionsController::createInvoiceNumberString($meter_sq_number[0]->user);
-        $username           = "user" . $meter_sq_number[0]->user;
-        $meternumber        = FunctionsController::createInvoiceNumberString($meter_sq_number[0]->tabmeter);
+        $usernumber         = $orgInfos['org_code'].$meter_sq_number->user;
+        $username           = $orgInfos['org_code'].$meter_sq_number->user;
+        $meternumber        = '';
         $password           = "user" . substr($usernumber, 3);
         $factory_no         = "";
-        $orgInfos = Organization::getOrgName(Auth::user()->org_id_fk);
 
-        $as_tw_members = (new User())->setConnection('envsogo_super_admin')->where('as_tw_member', 0)
-            ->where('role_id', 3)
-            ->get();
 
-        return view('admin.users.create', compact('as_tw_members', 'orgInfos', 'usernumber', 'meternumber', 'factory_no', 'zones', 'usergroups', 'meter_types', 'username', 'password'));
+        return view('admin.users.create', compact('orgInfos', 'usernumber', 'meternumber', 'factory_no', 'zones', 'usergroups', 'meter_types', 'username', 'password'));
     }
     public function store(Request $request)
     {
 
         date_default_timezone_set('Asia/Bangkok');
 
-        // รับค่า string จาก textarea
-        $userIdsString = $request->input('user_id_lists');
-
-        // แปลง string ที่คั่นด้วย comma ให้เป็น array ของ User ID (ที่เป็น string)
-        $selectedUserIds = array_map('trim', explode(',', $userIdsString));
-
-        // ถ้าต้องการให้แน่ใจว่าเป็นตัวเลข
-        $selectedUserIds = array_filter($selectedUserIds, 'is_numeric');
-
-        if (!empty($selectedUserIds)) {
-            // ตอนนี้ $selectedUserIds เป็น Array ที่มี User ID ที่ถูกเลือก เช่น ['1', '5', '10']
-            // คุณสามารถนำไปประมวลผลต่อได้ เช่น
-            // User::whereIn('id', $selectedUserIds)->update(['status' => 'processed']);
-            $this->addUserAsTWmember($selectedUserIds);
-            return redirect()->route('admin.users.index')->with(['message' => 'บันทึกแล้ว', 'color' => 'success']);
-        }
-
-
         $request->validate(
             [
                 "prefix_select"     => 'required',
                 "firstname"         => 'required',
                 // "lastname"          => 'required',
-                "factory_no"        => 'required',
+                //"factory_no"        => 'required',
                 "gender"            => 'required|in:w,m',
                 "id_card"           => 'required',
                 "phone"             => 'required',
                 "address"           => 'required',
-                "metertype_id"      => 'required|integer',
-                "zone_id"           => 'required',
+                // "zone_id"           => 'required',
                 "undertake_zone_id" => 'required|integer',
                 "province_code"     => 'required|integer',
                 "username"          => 'required',
@@ -130,30 +107,28 @@ class SuperUserController extends Controller
             ],
 
         );
-        $number_sequence = SequenceNumber::where('id', 1)->get();
+        $number_sequence = SequenceNumber::get()->first();
         try {
 
             $user = User::create([
-                "id"            => $number_sequence[0]->user,
                 "username"      => $request->username,
                 "password"      => Hash::make($request->password),
                 "email"         => $request->email,
                 "prefix"        => $request->get('prefix_select') == "other" ? $request->get('prefix_text') : $request->get('prefix_select'),
                 "firstname"     => $request->get('firstname'),
                 "lastname"      => $request->get('lastname'),
-                'settings_id_fk' => 2,
-                'name'          => $request->get('firstname') . " " . $request->get('lastname'),
+                'org_id_fk' => Auth::user()->org_id_fk,
+                //'name'          => $request->get('firstname') . " " . $request->get('lastname'),
                 "id_card"       => $request->get('id_card'),
                 "phone"         => $request->get('phone'),
                 "gender"        => $request->get('gender'),
                 "address"       => $request->get('address'),
-                "zone_id"       => $request->get('zone_id'),
+                "zone_id"       => $request->get('undertake_zone_id'),
                 "subzone_id"    => $request->get('undertake_subzone_id'),
                 "tambon_code"   => $request->get('tambon_code'),
                 "district_code" => $request->get('district_code'),
                 "province_code" => $request->get('province_code'),
-                "role_id"       => 3,
-                "status"        => 1,
+                "status"        => 'active',
                 "created_at"    => date("Y-m-d H:i:s"),
                 "updated_at"    => date("Y-m-d H:i:s"),
             ]);
@@ -161,37 +136,11 @@ class SuperUserController extends Controller
             return $this->show('store', $th->getMessage());
         }
         //model_has_role table
-        $user->assignRole("user");
+        $user->assignRole("User");
 
-        //usermeterinfo table
-        try {
-            User::create([
-                "meter_id"              => $number_sequence[0]->tabmeter,
-                "user_id"               => $number_sequence[0]->user,
-                "submeter_name" => $request->get('submeter_name'),
-                "meternumber"           => FunctionsController::createMeterNumberString($number_sequence[0]->tabmeter),
-                "undertake_zone_id"     => $request->get('undertake_zone_id'),
-                "undertake_subzone_id"  => $request->get('undertake_subzone_id'),
-                "factory_no"            => $request->get('factory_no'),
-                "metertype_id"          => $request->get('metertype_id'),
-                "meter_address"         => $request->get('address'),
-                "acceptance_date"       => date('Y-m-d'),
-                "payment_id"            => 1,
-                "owe_count"             => 0,
-                "status"                => "active",
-                "recorder_id"           => Auth::id(),
-                "created_at"            => date("Y-m-d H:i:s"),
-                "updated_at"            => date("Y-m-d H:i:s"),
-            ]);
-        } catch (\Throwable $th) {
-            //throw $th;
-        }
+
         //sequnce number +
-        SequenceNumber::where('id', 1)->update([
-            'tabmeter' => $number_sequence[0]->tabmeter + 1,
-            'user'     => $number_sequence[0]->user + 1
-        ]);
-
+      return  $number_sequence->user = $number_sequence->user +1;
 
         return redirect()->route('admin.users.index')->with(['message' => 'บันทึกแล้ว', 'color' => 'success']);
     }

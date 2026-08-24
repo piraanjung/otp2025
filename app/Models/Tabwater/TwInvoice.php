@@ -33,10 +33,10 @@ class TwInvoice extends Model
         'acc_trans_id_fk',
         'currentmeter',
         'recorder_id',
+        'previous_balance',
         'status',
         'created_at',
         'updated_at',
-        'inv_no',
         'org_id_fk' // ต้องมี column นี้ใน DB ตามที่คุยกัน
     ];
 

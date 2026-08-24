@@ -1,4 +1,4 @@
-@extends('layouts.keptkaya')
+@extends('layouts.super-admin')
 
 @section('title_page', 'เพิ่มเจ้าหน้าที่ใหม่')
 
@@ -43,7 +43,7 @@
                             @error('user_id')<div class="invalid-feedback">{{ $message }}</div>@enderror
                         </div>
 
-                       
+
 
 
                         <div class="mb-3">
@@ -101,7 +101,7 @@
                             </select>
                             @error('status')<div class="invalid-feedback">{{ $message }}</div>@enderror
                         </div>
-                        
+
                         <div class="d-flex justify-content-end">
                             <button type="submit" class="btn bg-gradient-primary me-2">บันทึกเจ้าหน้าที่</button>
                             <a href="{{ route('keptkayas.staffs.index') }}" class="btn bg-gradient-secondary">ยกเลิก</a>

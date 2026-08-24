@@ -3,6 +3,7 @@
 namespace App\Models\Tabwater;
 
 use App\Models\Admin\ZonBlocks;
+use App\Models\Admin\Zone;
 use App\Models\Admin\Zones;
 use App\Models\Tabwater\TwMeterReading;
 use App\Models\User;
@@ -62,7 +63,7 @@ class TwUsersInfos extends Model
     // โซนที่รับผิดชอบ
     public function undertakeZone()
     {
-        return $this->belongsTo(Zones::class, 'undertake_zone_id');
+        return $this->belongsTo(Zone::class, 'undertake_zone_id');
     }
 
     // โซนย่อยที่รับผิดชอบ

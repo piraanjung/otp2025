@@ -8,6 +8,7 @@ use App\Models\KeptKaya\UserWastePreference;
 use App\Models\User;
 use App\Services\UserWasteStatusService;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
 
@@ -40,7 +41,8 @@ class UserFoodWasteController extends Controller
         $searchStatus = $request->input('search_status');
 
 
-        $query = User::with(['foodwastePreference', 'foodwasteBins']);
+        $query = User::with(['foodwastePreference', 'foodAnnualTrashs'])
+            ->where('org_id_fk', Auth::user()->org_id_fk);
 
         // Apply search filters
         $query->when($searchName, function ($q, $name) {
@@ -78,9 +80,9 @@ class UserFoodWasteController extends Controller
         }
     }
 
-  
 
-     public function foodwaste_bin_users(Request $request)
+
+    public function foodwaste_bin_users(Request $request)
     {
         // Get the 'per_page' value from the request, default to 10
         $perPage = $request->input('per_page', 10);
@@ -95,9 +97,9 @@ class UserFoodWasteController extends Controller
         $searchName = $request->input('search_name');
         $searchEmail = $request->input('search_email');
         $searchStatus = $request->input('search_status');
-     
 
-        $query = User::with(['foodwastePreference', 'foodwasteBins']);
+
+        $query = User::with(['foodwastePreference', 'foodAnnualTrashs']);
 
         // Apply search filters
         $query->when($searchName, function ($q, $name) {
@@ -116,8 +118,8 @@ class UserFoodWasteController extends Controller
             $q->where('status', $status);
         });
 
-      
-      
+
+
 
         // Check if it's an AJAX request for live search
         if ($request->ajax()) {
@@ -131,7 +133,7 @@ class UserFoodWasteController extends Controller
             } else {
                 $users = $query->paginate($perPage)->appends($request->query()); // Append search queries to pagination links
             }
-                // Pass all search parameters back to the view to pre-fill search fields
+            // Pass all search parameters back to the view to pre-fill search fields
             return view('foodwaste.w.users.waste_bin_users', compact('users', 'perPage', 'searchName', 'searchEmail', 'searchStatus'));
         }
     }
@@ -180,7 +182,7 @@ class UserFoodWasteController extends Controller
     // public function show(Request $request)
     // {
     //     return $request;
-    //     // $w_users->load('wasteBins', 'wastePreference'); // โหลดความสัมพันธ์
+    //     // $w_users->load('AnnualTrashs', 'wastePreference'); // โหลดความสัมพันธ์
     //     // return view('users.show', compact('user'));
     // }
 
@@ -221,7 +223,7 @@ class UserFoodWasteController extends Controller
     public function destroy(User $user)
     {
         DB::transaction(function () use ($user) {
-            $user->delete(); // จะลบ wastePreference และ wasteBins ด้วย cascade ถ้าตั้งค่าไว้ใน migration
+            $user->delete(); // จะลบ wastePreference และ AnnualTrashs ด้วย cascade ถ้าตั้งค่าไว้ใน migration
         });
 
         return redirect()->route('users.index')->with('success', 'User deleted successfully.');
@@ -239,7 +241,7 @@ class UserFoodWasteController extends Controller
         // ดึงหรือสร้าง UserWastePreference
         foreach ($request->get('waste') as $key => $waste) {
             $user = User::find($key);
-            $preference = $user->foodwastePreference()->firstOrCreate(['user_id' => $user->id, 'is_foodwaste_bank'=> $waste['is_foodwaste_bank']]);
+            $preference = $user->foodwastePreference()->firstOrCreate(['user_id' => $user->id, 'is_foodwaste_bank' => $waste['is_foodwaste_bank']]);
             // อัปเดตค่าตามที่ส่งมาจากฟอร์ม
 
             $preference->is_foodwaste_bank = isset($waste['is_foodwaste_bank']) ? $waste['is_foodwaste_bank'] : 0;

@@ -7,6 +7,11 @@
         <a href="{{ route('keptkayas.tbank.prices.create') }}" class="btn btn-primary">
             <i class="fa fa-plus-circle me-1"></i> เพิ่มราคาใหม่
         </a>
+
+         <a href="{{ route('keptkayas.tbank.prices.bulk_edit') }}" class="btn btn-primary">
+            <i class="fa fa-plus-circle me-1"></i> แก้ไขราคา
+        </a>
+
     </div>
 
     @if (session('success'))

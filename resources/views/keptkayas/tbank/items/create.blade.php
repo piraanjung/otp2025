@@ -4,230 +4,216 @@
 @section('page-topic', 'สร้างข้อมูลขยะรีไซเคิล')
 
 @section('content')
-  {{-- ... ส่วน Import/Export เดิม ... --}}
-  <div class="card card-info">
-    <form action="{{ route('keptkayas.tbank.items.store') }}" class="form-horizontal" method="post"
-      enctype="multipart/form-data">
-      @csrf
-      <div class="card-body" id="item-fields-container">
 
-        {{-- ======================================================= --}}
-        {{-- ส่วนนี้คือชุดฟอร์มที่เราจะทำซ้ำ (ITEM TEMPLATE) --}}
-        {{-- **สำคัญ:** ใช้ name ในรูปแบบ Array เช่น 'items[0][kp_itemsname]' --}}
-        {{-- ======================================================= --}}
-        <div class="item-form-group border p-3 mb-1 bg-light rounded" data-index="0">
-
-          <h5 class="mb-1">รายการที่ 1</h5>
-          <div class="row">
-            <div class="form-group  col-3">
-              <label class="col-form-label">ชื่อขยะรีไซเคิล</label>
-              <div class="">
-                <input type="text" class="form-control" name="items[0][kp_itemsname]" required>
-              </div>
+    {{-- 1. ส่วนสำหรับ Import Excel (คงเดิมไว้) --}}
+    <div class="row mb-4">
+        <div class="col-md-12">
+            <div class="card card-outline card-success shadow-sm">
+                <div class="card-header">
+                    <h3 class="card-title"><i class="fas fa-file-import"></i> นำเข้าข้อมูลด้วย Excel (Bulk Import)</h3>
+                </div>
+                <div class="card-body">
+                    <form action="{{ route('keptkayas.tbank.items.import') }}" method="POST" enctype="multipart/form-data">
+                        @csrf
+                        <div class="row align-items-center">
+                            <div class="col-md-6">
+                                <div class="input-group">
+                                    <div class="custom-file">
+                                        <input type="file" name="file" class="custom-file-input" id="excelFile"
+                                            accept=".xlsx, .xls, .csv" required>
+                                        <label class="custom-file-label" for="excelFile">เลือกไฟล์ Excel...</label>
+                                    </div>
+                                    <div class="input-group-append">
+                                        <button type="submit" class="btn btn-success"><i class="fas fa-upload"></i>
+                                            Import</button>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <a href="{{ route('keptkayas.tbank.items.export') }}" class="btn btn-outline-primary">
+                                    <i class="fas fa-download"></i> ดาวน์โหลดเทมเพลต EXCEL
+                                </a>
+                            </div>
+                        </div>
+                    </form>
+                </div>
             </div>
-
-            <div class="form-group  col-2">
-              <label class="col-form-label">ประเภทขยะรีไซเคิล</label>
-              <div class="">
-                <select name="items[0][kp_items_group_idfk]" class="form-control" required>
-                  <option value="">เลือก..</option>
-                  @foreach ($kp_items_groups as $kp_items_group)
-                    <option value="{{ $kp_items_group->id }}">{{ $kp_items_group->kp_items_groupname }}</option>
-                  @endforeach
-                </select>
-              </div>
-            </div>
-
-            <div class="form-group  col-2">
-              <label class="col-form-label">รหัส</label>
-              <div class="">
-                <input type="text" class="form-control" name="items[0][kp_itemscode]">
-              </div>
-            </div>
-
-            <div class="form-group  col-3">
-              <label class="col-form-label">รูปภาพ</label>
-              {{-- **หมายเหตุ:** การจัดการหลายไฟล์ในฟอร์มเดียวที่ใช้ Array Notation สำหรับ 'name' ต้องระวังในการประมวลผล
-              --}}
-              <div class="">
-                <input type="file" class="form-control" name="images[0]">
-              </div>
-            </div>
-            <div class="form-group  col-2">
-              <label class="col-form-label">&nbsp;</label>
-              <div class="">
-                <button type="button" class="btn btn-danger btn-sm  remove-item-btn"
-                  style="display: none;">ลบรายการนี้</button>
-              </div>
-            </div>
-          </div>
         </div>
-        {{-- END ITEM TEMPLATE --}}
+    </div>
 
-      </div>
-      <div class="card-footer d-flex justify-content-between">
-        <button type="button" id="add-item-btn" class="btn btn-primary">➕ เพิ่มรายการขยะ</button>
-        <button type="submit" class="btn btn-info">บันทึกทั้งหมด</button>
-      </div>
-    </form>
-  </div>
+    <hr>
 
+    {{-- 2. ส่วนสำหรับกรอกฟอร์มแบบ Dynamic --}}
+    <div class="card card-info shadow">
+        <div class="card-header">
+            <h3 class="card-title"><i class="fas fa-plus-circle"></i> เพิ่มรายการขยะใหม่ (กรอกข้อมูลเอง)</h3>
+        </div>
+        <form action="{{ route('keptkayas.tbank.items.store') }}" method="post" enctype="multipart/form-data">
+            @csrf
+            <div class="card-body" id="item-fields-container">
 
+                {{-- ITEM TEMPLATE --}}
+                <div class="item-form-group border p-4 mb-4 bg-white rounded shadow-sm" data-index="0">
+                    <div class="d-flex justify-content-between align-items-center mb-3">
+                        <h5 class="mb-0 text-info font-weight-bold"><i class="fas fa-box"></i> รายการที่ 1</h5>
+                        <button type="button" class="btn btn-outline-danger btn-sm remove-item-btn" style="display: none;">
+                            <i class="fas fa-trash-alt"></i> ลบรายการนี้
+                        </button>
+                    </div>
+
+                    <div class="row">
+                        <!-- ชื่อขยะ -->
+                        <div class="form-group col-md-4">
+                            <label>ชื่อขยะรีไซเคิล <span class="text-danger">*</span></label>
+                            <input type="text" class="form-control" name="items[0][kp_itemsname]"
+                                placeholder="เช่น ขวดน้ำ PET" required>
+                        </div>
+
+                        <!-- รหัสสินค้า -->
+                        <div class="form-group col-md-2">
+                            <label>รหัสสินค้า</label>
+                            <input type="text" class="form-control" name="items[0][kp_itemscode]" placeholder="PLA-001">
+                        </div>
+
+                        <!-- ประเภทขยะ -->
+                        <div class="form-group col-md-3">
+                            <label>ประเภทกลุ่มขยะ <span class="text-danger">*</span></label>
+                            <select name="items[0][kp_items_group_idfk]" class="form-control" required>
+                                <option value="">เลือกประเภท..</option>
+                                @foreach ($kp_items_groups as $group)
+                                    <option value="{{ $group->id }}">{{ $group->kp_items_groupname }}</option>
+                                @endforeach
+                            </select>
+                        </div>
+
+                        <!-- รูปภาพ -->
+                        <div class="form-group col-md-3">
+                            <label>รูปภาพประกอบ</label>
+                            <input type="file" class="form-control-file border p-1 bg-light rounded" name="images[0]">
+                        </div>
+
+                        <!-- หน่วยนับธนาคาร -->
+                        <div class="form-group col-md-3">
+                            <label>หน่วย (ธนาคาร/รับซื้อ) <span class="text-danger">*</span></label>
+                            <select name="items[0][unit_bank_idfk]" class="form-control" required>
+                                <option value="">เลือกหน่วย..</option>
+                                @if(isset($units))
+                                    @foreach ($units as $unit)
+                                        <option value="{{ $unit->id }}">{{ $unit->unitname }} ({{ $unit->unit_short_name }})</option>
+                                    @endforeach
+                                @endif
+                            </select>
+                        </div>
+
+                        <!-- หน่วยนับตู้ -->
+                        <div class="form-group col-md-3">
+                            <label>หน่วย (ตู้ Kiosk)</label>
+                            <select name="items[0][unit_kiosk_idfk]" class="form-control">
+                                <option value="">ไม่ใช้งานที่ตู้</option>
+                                  @if(isset($units))
+                                    @foreach ($units as $unit)
+                                        <option value="{{ $unit->id }}">{{ $unit->unitname }} ({{ $unit->unit_short_name }})
+                                        </option>
+                                    @endforeach
+                                 @endif
+                            </select>
+                        </div>
+
+                        <!-- ค่า EF (Emission Factor) -->
+                        <div class="form-group col-md-6">
+                            <label class="text-success font-weight-bold"><i class="fas fa-leaf"></i> จับคู่ค่าคาร์บอน
+                                (EF)</label>
+                            <select name="items[0][ef_id_fk]" class="form-control select2-dynamic">
+                                <option value="">-- ยังไม่ระบุค่า EF --</option>
+                                @foreach ($emissionFactors as $ef)
+                                    <option value="{{ $ef->id }}">{{ $ef->material_name }}
+                                        [{{ number_format($ef->ef_value, 4) }}]</option>
+                                @endforeach
+                            </select>
+                            <small class="text-muted">ใช้สำหรับคำนวณการลดก๊าซเรือนกระจก</small>
+                        </div>
+                    </div>
+                </div>
+                {{-- END ITEM TEMPLATE --}}
+
+            </div>
+            <div class="card-footer d-flex justify-content-between bg-light">
+                <button type="button" id="add-item-btn" class="btn btn-primary shadow-sm">
+                    <i class="fas fa-plus-circle"></i> เพิ่มรายการขยะอีกรายการ
+                </button>
+                <button type="submit" class="btn btn-info px-5 shadow">
+                    <i class="fas fa-save"></i> บันทึกข้อมูลทั้งหมดเข้าสู่ระบบ
+                </button>
+            </div>
+        </form>
+    </div>
 @endsection
+
 @section('script')
-  {{-- ======================================================= --}}
-  {{-- ต้องเพิ่ม JavaScript ในส่วนนี้หรือในไฟล์ภายนอก --}}
-  {{-- ======================================================= --}}
-  <script>
-    document.addEventListener('DOMContentLoaded', function () {
-      const container = document.getElementById('item-fields-container');
-      const addItemBtn = document.getElementById('add-item-btn');
-      // เก็บ HTML ของชุดฟอร์มแรกไว้เป็น template
-      const template = container.querySelector('.item-form-group').outerHTML;
-      let itemIndex = 1; // เริ่มที่ 1 เพราะ 0 ใช้กับรายการแรกแล้ว
+    <script>
+        $(document).ready(function () {
+            // ฟังก์ชันตั้งค่า Select2 สำหรับตัวที่เพิ่มใหม่
+            function initSelect2(element) {
+                // ถ้าคุณใช้ Select2 library ให้ปลดคอมเมนต์บรรทัดข้างล่าง
+                // $(element).find('.select2-dynamic').select2({ theme: 'bootstrap4', width: '100%' });
+            }
 
-      // แสดงปุ่มลบสำหรับรายการแรกเมื่อโหลดหน้า
-      container.querySelector('.item-form-group .remove-item-btn').style.display = 'block';
+            const container = document.getElementById('item-fields-container');
+            const addItemBtn = document.getElementById('add-item-btn');
+            let itemIndex = 1;
 
-      // ฟังก์ชันสำหรับปรับชื่อฟิลด์ให้ตรงกับ index
-      function updateFieldNames(newElement, index) {
-    newElement.setAttribute('data-index', index);
-    newElement.querySelector('h5').textContent = 'รายการที่ ' + (index + 1);
+            // Clone Template เก็บไว้
+            const template = container.querySelector('.item-form-group').cloneNode(true);
 
-    newElement.querySelectorAll('input, select').forEach(field => {
-        const oldName = field.getAttribute('name');
-        if (oldName) {
-            // ใช้ regex แทนที่ [0] ด้วย index ใหม่
-            const newName = oldName.replace(/\[0\]/, '[' + index + ']');
-            field.setAttribute('name', newName);
-            
-            // **ส่วนนี้จะครอบคลุมทั้ง items[...] และ images[...]**
-            // ถ้าชื่อเดิมคือ images[0] จะเป็น images[index]
-            // ถ้าชื่อเดิมคือ items[0][name] จะเป็น items[index][name]
-        }
-    });
-    // ... ส่วนการล้างค่าเดิม
-}
+            addItemBtn.addEventListener('click', function () {
+                const newNode = template.cloneNode(true);
 
-      addItemBtn.addEventListener('click', function () {
-        // 1. สร้าง element ใหม่จาก template
-        const newFormGroup = document.createElement('div');
-        newFormGroup.innerHTML = template;
+                newNode.setAttribute('data-index', itemIndex);
+                newNode.querySelector('h5').innerHTML = `<i class="fas fa-box"></i> รายการที่ ${itemIndex + 1}`;
+                newNode.querySelector('.remove-item-btn').style.display = 'block';
 
-        // 2. ลบ template attributes ออก
-        const clonedElement = newFormGroup.firstChild;
+                // ล้างค่าและเปลี่ยนชื่อ Name Array
+                newNode.querySelectorAll('input, select, textarea').forEach(field => {
+                    let name = field.getAttribute('name');
+                    if (name) {
+                        // เปลี่ยนชื่อจาก [0] เป็น [index ปัจจุบัน]
+                        field.setAttribute('name', name.replace(/\[\d+\]/, '[' + itemIndex + ']'));
+                    }
+                    if (field.tagName === 'SELECT') {
+                        field.selectedIndex = 0; // รีเซ็ต dropdown
+                    } else {
+                        field.value = ''; // ล้างค่า input
+                    }
+                });
 
-        // 3. ปรับชื่อฟิลด์และค่าเริ่มต้น
-        updateFieldNames(clonedElement, itemIndex);
+                container.appendChild(newNode);
+                initSelect2(newNode); // เรียกใช้ถ้ามี select2
+                itemIndex++;
+            });
 
-        // 4. ล้างค่าในฟิลด์ที่ถูกคัดลอกมา
-        clonedElement.querySelectorAll('input, select').forEach(field => {
-          if (field.type !== 'file') {
-            field.value = '';
-          } else {
-            field.value = null; // ล้าง input type="file"
-          }
+            // ลบรายการ
+            container.addEventListener('click', function (e) {
+                if (e.target.closest('.remove-item-btn')) {
+                    const group = e.target.closest('.item-form-group');
+                    group.remove();
+                    reIndexItems();
+                }
+            });
+
+            function reIndexItems() {
+                const groups = container.querySelectorAll('.item-form-group');
+                itemIndex = groups.length;
+                groups.forEach((group, idx) => {
+                    group.setAttribute('data-index', idx);
+                    group.querySelector('h5').innerHTML = `<i class="fas fa-box"></i> รายการที่ ${idx + 1}`;
+                    group.querySelectorAll('input, select').forEach(field => {
+                        let name = field.getAttribute('name');
+                        if (name) {
+                            field.setAttribute('name', name.replace(/\[\d+\]/g, '[' + idx + ']'));
+                        }
+                    });
+                });
+            }
         });
-
-        // 5. แสดงปุ่มลบ
-        clonedElement.querySelector('.remove-item-btn').style.display = 'block';
-
-        // 6. เพิ่มเข้า container
-        container.appendChild(clonedElement);
-        itemIndex++;
-      });
-
-      // Event listener สำหรับการลบรายการ
-      container.addEventListener('click', function (e) {
-        if (e.target.classList.contains('remove-item-btn')) {
-          const formGroup = e.target.closest('.item-form-group');
-          // ตรวจสอบว่าไม่ใช่รายการสุดท้าย (เพื่อป้องกันฟอร์มว่าง)
-          if (container.children.length > 1) {
-            formGroup.remove();
-          }
-        }
-      });
-    });
-  </script>
+    </script>
 @endsection
-{{-- @section('content')
-<div class="row mb-3">
-  <div class="col-md-6">
-    <a href="{{ route('keptkayas.tbank.items.export') }}" class="btn btn-success">Export Items to Excel</a>
-  </div>
-  <div class="col-md-6">
-    <form action="{{ route('keptkayas.tbank.items.import') }}" method="POST" enctype="multipart/form-data"
-      class="d-flex">
-      @csrf
-      <input type="file" name="file" class="form-control me-2" required>
-      <button type="submit" class="btn btn-primary">Import Items from Excel</button>
-    </form>
-  </div>
-</div>
-<div class="card card-info">
-
-  <!-- form start -->
-  <form action="{{ route('keptkayas.tbank.items.store') }}" class="form-horizontal" method="post"
-    enctype="multipart/form-data">
-    @csrf
-    <div class="card-body">
-
-      <div class="form-group row">
-        <label for="inputEmail3" class="col-sm-2 col-form-label">ชื่อขยะรีไซเคิล</label>
-        <div class="col-sm-10">
-          <input type="text" class="form-control" name="kp_itemsname">
-        </div>
-      </div>
-
-      <div class="form-group row">
-        <label for="inputEmail3" class="col-sm-2 col-form-label">ประเภทขยะรีไซเคิล</label>
-        <div class="col-sm-10">
-          <select name="kp_items_group_idfk" id="" class="form-control">
-            <option>เลือก..</option>
-            @foreach ($kp_items_groups as $kp_items_group)
-            <option value="{{ $kp_items_group->id }}">{{ $kp_items_group->kp_items_groupname }}</option>
-            @endforeach
-          </select>
-        </div>
-      </div>
-      <div class="form-group row">
-        <label for="inputEmail3" class="col-sm-2 col-form-label">รหัส</label>
-        <div class="col-sm-10">
-          <input type="text" class="form-control" name="kp_itemscode">
-        </div>
-        {{-- <div class="form-group row">
-          <label for="inputEmail3" class="col-sm-2 col-form-label">หน่วยนับ</label>
-          <div class="col-sm-10">
-            <select name="tbank_item_unit_idfk" id="" class="form-control">
-              <option>เลือก..</option>
-              @foreach ($tbank_item_units as $tbank_item_unit)
-              <option value="{{ $tbank_item_unit->id }}">{{ $tbank_item_unit->unitname }}</option>
-              @endforeach
-            </select>
-          </div>
-        </div>
-
-        <div class="form-group row">
-          <label for="inputEmail3" class="col-sm-2 col-form-label">รหัส</label>
-          <div class="col-sm-10">
-            <input type="text" class="form-control" name="kp_itemscode">
-          </div>
-        </div> --}
-
-        <div class="form-group row">
-          <label for="inputEmail3" class="col-sm-2 col-form-label">รูปภาพ</label>
-          <div class="col-sm-10">
-            <input type="file" class="form-control" name="image">
-          </div>
-        </div>
-
-
-      </div>
-      <!-- /.card-body -->
-      <div class="card-footer">
-        <button type="submit" class="btn btn-info float-right">บันทึก</button>
-      </div>
-      <!-- /.card-footer -->
-  </form>
-</div>
-@endsection --}}

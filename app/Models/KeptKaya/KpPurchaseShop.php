@@ -4,11 +4,11 @@
 
     use Illuminate\Database\Eloquent\Factories\HasFactory;
     use Illuminate\Database\Eloquent\Model;
-
+    use App\Traits\BelongsToOrganization;
     class KpPurchaseShop extends Model
     {
         use HasFactory;
-
+        use BelongsToOrganization;
         protected $table = 'kp_purchase_shops';
 
         protected $fillable = [
@@ -21,4 +21,3 @@
             'org_id_fk'
         ];
     }
-    

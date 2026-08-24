@@ -10,7 +10,7 @@ class Zone extends Model
 {
     use HasFactory;
     use BelongsToOrganization;
-    protected $fillable = ["zone_name","org_id_fk", "tambon_id", "location","status"];
+    protected $fillable = ["zone_name","org_id_fk", "tambon_id", "location","lat","long", "status"];
 
     public function subzone(){
         return $this->hasMany(Subzone::class, 'zone_id');

@@ -1,5 +1,8 @@
 @extends('layouts.foodwaste')
-
+@section('nav-header', 'สมาชิกถังขยะเปียก')
+@section('nav-current', 'เพิ่มถังขยะใหม่')
+@section('nav-wet-waste-users', 'active')
+@section('page-topic', 'เพิ่มถังขยะของ:'. $w_user->firstname." ". $w_user->lastname )
 @section('title_page', 'ถังขยะเปียก')
 
 @section('content')
@@ -9,7 +12,8 @@
             <div class="card mb-4">
                 <div class="card-header pb-0 d-flex justify-content-between align-items-center">
                     <h6>ถังขยะเปียก: {{ $w_user->firstname }} {{ $w_user->lastname }}</h6>
-                    <a href="{{ route('foodwaste.waste_bins.create', $w_user->id) }}" class="btn bg-gradient-primary btn-sm mb-0">เพิ่มถังขยะใหม่</a>
+
+                    <a href="{{ route('foodwaste.waste_bins.create', $w_user) }}" class="btn bg-gradient-primary btn-sm mb-0">เพิ่มถังขยะใหม่</a>
                 </div>
                 <div class="card-body px-0 pt-0 pb-2">
                     @if(session('success'))
@@ -89,7 +93,7 @@
                                         </form>
                                     </td> --}}
                                     <td class="align-middle">
-                                        <a href="{{ route('foodwaste.waste_bins.edit', $bin->id) }}" class="btn btn-link text-secondary font-weight-bold text-xs px-0 mb-0 me-2" data-toggle="tooltip" data-original-title="Edit bin">
+\                                        <a href="{{ route('foodwaste.waste_bins.edit', $bin) }}" class="btn btn-link text-secondary font-weight-bold text-xs px-0 mb-0 me-2" data-toggle="tooltip" data-original-title="Edit bin">
                                             <i class="fas fa-edit me-1"></i> แก้ไข
                                         </a>
                                         <form action="{{ route('foodwaste.waste_bins.edit', $bin->id) }}" method="POST" class="d-inline">

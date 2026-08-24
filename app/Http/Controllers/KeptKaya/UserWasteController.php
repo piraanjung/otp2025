@@ -3,6 +3,8 @@
 namespace App\Http\Controllers\KeptKaya;
 
 use App\Http\Controllers\Controller;
+use App\Models\Admin\Subzone;
+use App\Models\Admin\Zone;
 use App\Models\Keptkaya\KpUserGroup;
 use App\Models\KeptKaya\KpUserWastePreference;
 use App\Models\User;
@@ -22,13 +24,13 @@ class UserWasteController extends Controller
         $this->wasteStatusService = $wasteStatusService;
     }
 
-  
+
     /**
      * Display a listing of the resource.
      */
     public function index(Request $request)
     {
-
+        
         // Get the 'per_page' value from the request, default to 10
         $perPage = $request->input('per_page', 10);
 
@@ -46,10 +48,10 @@ class UserWasteController extends Controller
         $searchIsWasteBank = $request->input('search_is_waste_bank'); // 'true', 'false', 'any'
 
 
-        $query = User::with(['wastePreference', 'wasteBins'])
-                ->where('org_id_fk', Auth::user()->org_id_fk)
-               ->whereHas('wastePreference')
-                ->role('User');
+        $query = User::with(['wastePreference', 'AnnualTrashs'])
+            ->where('org_id_fk', Auth::user()->org_id_fk)
+            ->whereHas('wastePreference')
+            ->role('User');
 
         // Apply search filters
         $query->when($searchName, function ($q, $name) {
@@ -144,7 +146,7 @@ class UserWasteController extends Controller
         $searchIsWasteBank = $request->input('search_is_waste_bank'); // 'true', 'false', 'any'
 
 
-        $query = User::with(['wastePreference', 'wasteBins']);
+        $query = User::with(['wastePreference', 'AnnualTrashs']);
 
         // Apply search filters
         $query->when($searchName, function ($q, $name) {
@@ -295,7 +297,7 @@ class UserWasteController extends Controller
     // public function show(Request $request)
     // {
     //     return $request;
-    //     // $w_users->load('wasteBins', 'wastePreference'); // โหลดความสัมพันธ์
+    //     // $w_users->load('AnnualTrashs', 'wastePreference'); // โหลดความสัมพันธ์
     //     // return view('users.show', compact('user'));
     // }
 
@@ -305,7 +307,7 @@ class UserWasteController extends Controller
     public function edit(User $user)
     {
 
-        return view('keptkayas.users.edit', compact('user'));
+        return view('keptkayas.w.users.edit', compact('user'));
     }
 
     /**
@@ -337,7 +339,7 @@ class UserWasteController extends Controller
     public function destroy(User $user)
     {
         DB::transaction(function () use ($user) {
-            // $user->delete(); // จะลบ wastePreference และ wasteBins ด้วย cascade ถ้าตั้งค่าไว้ใน migration
+            // $user->delete(); // จะลบ wastePreference และ AnnualTrashs ด้วย cascade ถ้าตั้งค่าไว้ใน migration
         });
 
         return redirect()->route('keptkayas.users.index')->with('success', 'User deleted successfully.');
@@ -350,37 +352,37 @@ class UserWasteController extends Controller
     {
         $wasteData = $request->input('waste', []);
 
-    DB::transaction(function () use ($wasteData) {
-        foreach ($wasteData as $userId => $preferences) {
-            
-            // 1. เตรียมข้อมูล boolean (แปลงค่า 1/0 เป็น true/false)
-            $isAnnual = isset($preferences['is_annual_collection']) && $preferences['is_annual_collection'] == '1';
-            $isWasteBank = isset($preferences['is_waste_bank']) && $preferences['is_waste_bank'] == '1';
+        DB::transaction(function () use ($wasteData) {
+            foreach ($wasteData as $userId => $preferences) {
 
-            // 2. ดึง User มาตรวจสอบความถูกต้อง (Optional: ป้องกัน Data Integrity)
-            $user = User::with('wasteBins')->find($userId);
-            if (!$user) continue;
+                // 1. เตรียมข้อมูล boolean (แปลงค่า 1/0 เป็น true/false)
+                $isAnnual = isset($preferences['is_annual_collection']) && $preferences['is_annual_collection'] == '1';
+                $isWasteBank = isset($preferences['is_waste_bank']) && $preferences['is_waste_bank'] == '1';
 
-            // 🔴 Security Check: ถ้ามีถังขยะอยู่ ห้ามปิด Annual Collection
-            // (เป็นการ Re-validate ฝั่ง Server เผื่อคนแอบแก้ HTML)
-            if ($user->wasteBins->count() > 0) {
-                $isAnnual = true; // บังคับเปิดเสมอถ้ามีถังขยะ
+                // 2. ดึง User มาตรวจสอบความถูกต้อง (Optional: ป้องกัน Data Integrity)
+                $user = User::with('AnnualTrashs')->find($userId);
+                if (!$user) continue;
+
+                // 🔴 Security Check: ถ้ามีถังขยะอยู่ ห้ามปิด Annual Collection
+                // (เป็นการ Re-validate ฝั่ง Server เผื่อคนแอบแก้ HTML)
+                if ($user->AnnualTrashs->count() > 0) {
+                    $isAnnual = true; // บังคับเปิดเสมอถ้ามีถังขยะ
+                }
+
+                // 3. บันทึกหรืออัปเดตข้อมูลลง Model KpUserWastePreference
+                // ใช้ updateOrCreate เพื่อ: ถ้ามีแล้ว->อัปเดต, ถ้าไม่มี->สร้างใหม่
+                KpUserWastePreference::updateOrCreate(
+                    ['user_id' => $userId], // เงื่อนไขการค้นหา
+                    [
+                        'is_annual_collection' => $isAnnual,
+                        'is_waste_bank' => $isWasteBank,
+                    ]
+                );
             }
+        });
 
-            // 3. บันทึกหรืออัปเดตข้อมูลลง Model KpUserWastePreference
-            // ใช้ updateOrCreate เพื่อ: ถ้ามีแล้ว->อัปเดต, ถ้าไม่มี->สร้างใหม่
-            KpUserWastePreference::updateOrCreate(
-                ['user_id' => $userId], // เงื่อนไขการค้นหา
-                [
-                    'is_annual_collection' => $isAnnual,
-                    'is_waste_bank' => $isWasteBank,
-                ]
-            );
-        }
-    });
-
-    return redirect()->back()->with('success', 'บันทึกข้อมูลบริการเรียบร้อยแล้ว');
-}
+        return redirect()->back()->with('success', 'บันทึกข้อมูลบริการเรียบร้อยแล้ว');
+    }
 
     /**
      * แสดงหน้าสำหรับเลือกผู้ใช้ที่ยังไม่ได้เป็นสมาชิกบริการขยะ

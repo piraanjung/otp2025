@@ -1,8 +1,6 @@
 <?php
 
-use App\Http\Controllers\KeptKaya\Admin\ExcelController;
-use App\Http\Controllers\KeptKaya\Admin\IndexController;
-use App\Http\Controllers\KeptKaya\Admin\KpUserController;
+use App\Http\Controllers\EmissionFactorController;
 use App\Http\Controllers\KeptKaya\AnnualBatchController;
 use App\Http\Controllers\KeptKaya\BarcodeController;
 use App\Http\Controllers\KeptKaya\DashboardController;
@@ -12,38 +10,53 @@ use App\Http\Controllers\KeptKaya\KpUserGroupController;
 use App\Http\Controllers\KeptKaya\CartController;
 use App\Http\Controllers\KeptKaya\KorKor3Controller;
 use App\Http\Controllers\Keptkayas\KpRecycleClassifyController;
-use App\Http\Controllers\KeptKeptKayakaya\InvoicePeriodController;
 use App\Http\Controllers\KeptKaya\KpPurchaseController;
 use App\Http\Controllers\KeptKaya\KpBudgetYearController;
-use App\Http\Controllers\KeptKaya\KpPaymentController;
 use App\Http\Controllers\KeptKaya\KpSellController;
-use App\Http\Controllers\KeptKaya\KpUsergroupPayratePerMonthController;
-use App\Http\Controllers\KeptKaya\KpUserMonthlyStatusController;
 use App\Http\Controllers\KeptKaya\RecycleWasteStaffCotroller;
-use App\Http\Controllers\KeptKaya\SettingsController;
-use App\Http\Controllers\KeptKaya\KpSubzoneController;
 use App\Http\Controllers\KeptKaya\KpTbankItemsController;
 use App\Http\Controllers\KeptKaya\KpTbankItemsGroupsController;
 use App\Http\Controllers\KeptKaya\KpTbankUnitsController;
 use App\Http\Controllers\KeptKaya\UserWasteController;
-use App\Http\Controllers\KeptKaya\WasteBinController;
-use App\Http\Controllers\KeptKaya\WasteBinPayratePerMonthController;
-use App\Http\Controllers\KeptKaya\WasteBinSubscriptionController;
 use App\Http\Controllers\KpMemberShopController;
 use App\Http\Controllers\KpShopProductController;
-use App\Models\Admin\BudgetYear;
-use App\Models\User;
 use Illuminate\Support\Facades\Route;
-use Illuminate\Support\Facades\Auth;
-use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Session;
-use Firebase\JWT\Key;
-use Spatie\Permission\Models\Permission;
-use Spatie\Permission\Models\Role;
 use App\Http\Controllers\KeptKaya\AnnualReportController;
+use App\Http\Controllers\KeptKaya\AnnualTrashPayratePerMonthController;
+use App\Http\Controllers\KeptKaya\AnnualTrashController;
+use App\Http\Controllers\KeptKaya\AnnualTrashSubscriptionController;
+use App\Http\Controllers\KeptKaya\BinsController;
+use App\Http\Controllers\KeptKaya\HistoryController;
+use App\Http\Controllers\KeptKaya\ImpactController;
+use App\Http\Controllers\KeptKaya\LocationController;
+use App\Http\Controllers\KeptKaya\PointController;
+use App\Http\Controllers\keptkaya\RecycleBankController;
+use App\Http\Controllers\KeptKaya\WithdrawController;
 use App\Http\Controllers\Kiosk\KioskController;
 
+
+Route::prefix('keptkayas')->name('keptkayas.')->group(function () {
+Route::get('/unknown-review', function () {
+    return view('keptkayas.unknown_review');
+})->name('kiosk.unknown.review');
+
+
+
+    Route::get('/history/{pref_id}', [HistoryController::class, 'index'])->name('history');
+    Route::get('/impact/{pref_id}', [ImpactController::class, 'index'])->name('impact');
+    Route::get('/locations', [LocationController::class, 'index'])->name('locations');
+    Route::get('/withdraw/create/{pref_id}', [WithdrawController::class, 'create'])->name('withdraw.create');
+    Route::post('/withdraw/store', [WithdrawController::class, 'storeRequest'])->name('withdraw.store');
+    Route::get('/withdraw/success/{id}', [WithdrawController::class, 'showSuccess'])->name('withdraw.success');
+
+    Route::get('/transfer-points/{pref_id}', [PointController::class, 'create'])->name('transfer_points');
+    Route::post('/transfer-points', [PointController::class, 'transfer'])->name('transfer_points.store');
+});
+
 Route::middleware(['auth'])->prefix('keptkayas')->name('keptkayas.')->group(function () {
+    Route::get('/recycle-bank/members', [RecycleBankController::class, 'index'])->name('recycle-bank.members');
+Route::get('/recycle-bank/members/{id}/history', [RecycleBankController::class, 'history'])->name('recycle-bank.history');
+
     Route::resource('kiosks', KioskController::class);
     Route::get('/kiosks/noscreen/login', [KioskController::class, 'login'])->name('kiosks.noscreen.login');
     Route::post('/kiosks/noscreen/userMatchKiosk', [KioskController::class, 'userMatchKiosk']);
@@ -96,6 +109,17 @@ Route::middleware(['auth'])->prefix('keptkayas')->name('keptkayas.')->group(func
         });
     });
 
+    Route::prefix('/emission-factors')->name('emission.')->group(function () {
+        Route::get('/', [EmissionFactorController::class, 'index'])->name('index');
+        Route::get('/create', [EmissionFactorController::class, 'create'])->name('create');
+        Route::post('/', [EmissionFactorController::class, 'store'])->name('store');
+        Route::get('/{id}/edit', [EmissionFactorController::class, 'edit'])->name('edit');
+        Route::put('/{id}', [EmissionFactorController::class, 'update'])->name('update');
+        Route::delete('/{id}', [EmissionFactorController::class, 'destroy'])->name('destroy');
+        Route::get('/export', [EmissionFactorController::class, 'export'])->name('export');
+        Route::post('/import', [EmissionFactorController::class, 'import'])->name('import');
+    });
+
     Route::resource('annual_batch', AnnualBatchController::class);
 
     // 5. User & Waste Bin Management
@@ -119,6 +143,7 @@ Route::middleware(['auth'])->prefix('keptkayas')->name('keptkayas.')->group(func
         Route::get('show-receipt/{transaction}', [KpPurchaseController::class, 'showReceipt'])->name('show_receipt');
         Route::get('history/{kp_waste_pref_id}', [KpPurchaseController::class, 'showPurchaseHistory'])->name('history');
         Route::get('receipt/{transaction_id}', [KpPurchaseController::class, 'showReceipt'])->name('receipt');
+        Route::get('connect_bluethooth', [KpPurchaseController::class, 'connect_bluethooth'])->name('connect_bluethooth');
     });
 
     // 7. Sell System
@@ -130,53 +155,83 @@ Route::middleware(['auth'])->prefix('keptkayas')->name('keptkayas.')->group(func
         Route::delete('/users/{transaction}', [KpSellController::class, 'destroy'])->name('destroy');
     });
 
+    Route::resource('bins', BinsController::class);
+
     // 8. Waste Bins Specifics
     Route::prefix('/{w_user}/waste-bins')->name('waste_bins.')->group(function () {
-        Route::get('/', [WasteBinController::class, 'index'])->name('index');
-        Route::get('/create', [WasteBinController::class, 'create'])->name('create');
-        Route::post('/', [WasteBinController::class, 'store'])->name('store');
-        Route::get('/edit', [WasteBinController::class, 'edit'])->name('edit');
+        Route::get('/', [AnnualTrashController::class, 'index'])->name('index');
+        Route::get('/create', [AnnualTrashController::class, 'create'])->name('create');
+        Route::post('/', [AnnualTrashController::class, 'store'])->name('store');
+        Route::get('/edit', [AnnualTrashController::class, 'edit'])->name('edit');
     });
     // หมายเหตุ: Routes ข้างล่างนี้อยู่นอก prefix /{w_user}/waste-bins แต่อยู่ใน keptkayas group
-    Route::put('waste-bins/{waste_bin}', [WasteBinController::class, 'update'])->name('waste_bins.update');
-    Route::get('waste-bins/map', [WasteBinController::class, 'map'])->name('waste_bins.map');
-    Route::get('waste-bins/viewmap', [WasteBinController::class, 'viewmap'])->name('waste_bins.viewmap');
+    Route::put('waste-bins/{waste_bin}', [AnnualTrashController::class, 'update'])->name('waste_bins.update');
+    Route::get('waste-bins/map', [AnnualTrashController::class, 'map'])->name('waste_bins.map');
+    Route::get('waste-bins/viewmap', [AnnualTrashController::class, 'viewmap'])->name('waste_bins.viewmap');
 
     // 9. Annual Payments
     Route::prefix('annual-payments')->name('annual_payments.')->group(function () {
-        Route::get('/', [WasteBinSubscriptionController::class, 'index'])->name('index');
-        Route::get('/invoice', [WasteBinSubscriptionController::class, 'invoice'])->name('invoice');
-        Route::get('/{wasteBinSubscription}', [WasteBinSubscriptionController::class, 'show'])->name('show');
-        Route::get('print/{wasteBinSubscription}', [WasteBinSubscriptionController::class, 'print'])->name('print');
-        Route::get('printReceipt/{wasteBinSubscription}', [WasteBinSubscriptionController::class, 'printReceipt'])->name('printReceipt');
-        Route::post('/{wasteBinSubscription}/payments', [WasteBinSubscriptionController::class, 'storePayment'])->name('store_payment');
-        Route::post('print-selected-invoices', [WasteBinSubscriptionController::class, 'printSelectedInvoices'])->name('print_selected_invoices');
-        Route::post('/create-subscription', [WasteBinSubscriptionController::class, 'createSubscription'])->name('create_subscription');
-        Route::post('/history', [WasteBinSubscriptionController::class, 'history'])->name('history');
+        Route::get('/', [AnnualTrashSubscriptionController::class, 'index'])->name('index');
+        Route::get('/invoice', [AnnualTrashSubscriptionController::class, 'invoice'])->name('invoice');
+        Route::get('/{wasteBinSubscription}', [AnnualTrashSubscriptionController::class, 'show'])->name('show');
+        Route::get('print/{wasteBinSubscription}', [AnnualTrashSubscriptionController::class, 'printReceipt'])->name('print');
+        Route::get('printReceipt/{wasteBinSubscription}', [AnnualTrashSubscriptionController::class, 'printReceipt'])->name('printReceipt');
+        Route::post('/{wasteBinSubscription}/payments', [AnnualTrashSubscriptionController::class, 'storePayment'])->name('store_payment');
+        Route::post('print-selected-invoices', [AnnualTrashSubscriptionController::class, 'printSelectedInvoices'])->name('print_selected_invoices');
+        Route::post('/create-subscription', [AnnualTrashSubscriptionController::class, 'createSubscription'])->name('create_subscription');
+        Route::post('/history', [AnnualTrashSubscriptionController::class, 'history'])->name('history');
     });
 
     Route::resource('/kp_budgetyear', KpBudgetYearController::class);
-    Route::resource('wbin_payrate_per_months', WasteBinPayratePerMonthController::class);
+    Route::resource('wbin_payrate_per_months', AnnualTrashPayratePerMonthController::class);
 
     // 10. Tbank System
-    Route::prefix('tbank/')->name('tbank.')->group(function () {
-        Route::resource('/items_group', KpTbankItemsGroupsController::class);
-        Route::resource('/units', KpTbankUnitsController::class);
+    Route::prefix('/tbank/')->name('tbank.')->group(function () {
 
-        Route::get('/cart/cartLists/{user_id}', [CartController::class, 'cartLists'])->name('cart.cart_lists');
-        Route::get('/cart/add_to_cart/{id}/{amount}', [CartController::class, 'addToCart'])->name('cart.add_to_cart');
-        Route::resource('/cart', CartController::class);
+        Route::resource('items_group', KpTbankItemsGroupsController::class);
+        Route::resource('units', KpTbankUnitsController::class);
+
+        Route::get('cart/cartLists/{user_id}', [CartController::class, 'cartLists'])->name('cart.cart_lists');
+        Route::get('cart/add_to_cart/{id}/{amount}', [CartController::class, 'addToCart'])->name('cart.add_to_cart');
+        Route::resource('cart', CartController::class);
+
+        Route::get('prices/export', [KpTbankPriceController::class, 'export'])->name('prices.export');
+        Route::post('prices/import', [KpTbankPriceController::class, 'import'])->name('prices.import');
+        Route::get('/prices/bulk-edit', [KpTbankPriceController::class, 'bulkEdit'])->name('prices.bulk_edit');
+        Route::post('/prices/bulk-update', [KpTbankPriceController::class, 'bulkUpdate'])->name('prices.bulk_update');
         Route::resource('prices', KpTbankPriceController::class);
 
+
         Route::prefix('items/')->name('items.')->group(function () {
+
+            Route::get('export', [KpTbankItemsController::class, 'exportTemplate'])->name('export');
+            Route::post('import', [KpTbankItemsController::class, 'import'])->name('import');
+            
             Route::get('buyItems/{user_id?}', [KpTbankItemsController::class, 'buyItems'])->name('buy_items');
             Route::get('search_items/{itemscode}', [KpTbankItemsController::class, 'search_items'])->name('search_items');
             Route::get('set_items_pricepoint', [KpTbankItemsController::class, 'set_items_pricepoint'])->name('set_items_pricepoint');
             Route::get('generate-code/{group_id}', [KpTbankItemsController::class, 'generateCode'])->name('generate_code');
 
-            Route::resource('/', KpTbankItemsController::class);
-            Route::get('export', [KpTbankItemsController::class, 'export'])->name('export');
-            Route::post('import', [KpTbankItemsController::class, 'import'])->name('import');
+            Route::get('trash', [KpTbankItemsController::class, 'trash'])->name('trash');
+            Route::get('{id}/restore', [KpTbankItemsController::class, 'restore'])->name('restore');
+            Route::delete('{id}/force-delete', [KpTbankItemsController::class, 'forceDelete'])->name('forceDelete');
+
+            Route::controller(KpTbankItemsController::class)->group(function () {
+                Route::get('/', 'index')->name('index');
+                Route::get('/create', 'create')->name('create');
+                Route::post('/', 'store')->name('store');
+                Route::get('/{id}', 'show')->name('show');
+                Route::get('/{id}/edit', 'edit')->name('edit');
+                Route::put('/{id}', 'update')->name('update');
+                Route::delete('/{id}', 'destroy')->name('destroy');
+                Route::post('/{id}/restore', 'restore')->name('restore'); // ✅ เพิ่มตัวนี้เข้าไป
+            });
+
+
+
+
+            Route::get('pending-ef', [KpTbankItemsController::class, 'pendingEf'])->name('pendingEf');
+            Route::post('update-ef-bulk', [KpTbankItemsController::class, 'updateEfBulk'])->name('updateEfBulk');
         });
     });
 

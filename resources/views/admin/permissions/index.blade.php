@@ -1,6 +1,7 @@
 @extends('layouts.super-admin')
 
 @section('content')
+<a href="{{ route('admin.permissions.create') }}">crete</a>
     <div class="row">
         @foreach ($permissions as $key => $permission)
             <div class="col-lg-4">

@@ -59,7 +59,7 @@
                     </ul>
                 </div>
             </div>
-            <div class="col-lg-9 mt-lg-0">                
+            <div class="col-lg-9 mt-lg-0">
                 <div class="card" id="{{ $arrs[0]['id'] }}">
                     <div class="card-header">
                         <h5>{{ $arrs[0]['text'] }}</h5>
@@ -74,7 +74,7 @@
                                     <input type="file" class="form-control w-70" name="file" id="">
                                     <input type="submit" class="btn btn-success mt-2 d-flex mr-0 ml-auto d-lg-flex" value="import">
                                 </form>
-                            
+
                             </div>
                         </div>
                     </div>
@@ -162,11 +162,9 @@
                           <form action="{{ route('admin.excel.import_invoice_byzone')}}" enctype="multipart/form-data" method="post">
                             @csrf
                             <label class="label-control">Upload file excel ->import_invoice_byzone</label>
-                            
+
                             @php
-                                $conn = 'envsogo_'.strtolower(session('org_code'));
-                                $subzones = (new App\Models\Admin\Subzone())->setConnection($conn)
-                                    ->where('status', 'active')->get(['id', 'subzone_name']);
+                                $subzones = App\Models\Admin\Subzone::where('status', 'active')->get(['id', 'subzone_name']);
                             @endphp
 
                             <select name="subzone" class="form-control">
@@ -189,7 +187,7 @@
                           <form action="{{ route('admin.excel.import_invoice_old')}}" enctype="multipart/form-data" method="post">
                             @csrf
                             <label class="label-control">Upload file excel ->import_invoice old</label>
-                          
+
                             <select name="subzone" class="form-control">
                                 <option>เลือก..</option>
                              @foreach ($subzones as $key => $subzone)

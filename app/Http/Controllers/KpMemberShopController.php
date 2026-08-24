@@ -7,6 +7,7 @@ use App\Models\KeptKaya\KpShopCategory;
 use App\Models\KeptKaya\KpShopProduct;
 use App\Models\KeptKaya\KpShopOrder;
 use App\Models\KeptKaya\KpShopOrderDetail;
+use App\Models\KPBankAccount;
 use App\Models\User;
 use Carbon\Carbon;
 use Illuminate\Http\Request;
@@ -26,7 +27,7 @@ class KpMemberShopController extends Controller
         
         $request->session()->put('user_from_line', 1);
         // ManagesTenantConnection::configConnection(session('db_conn'));
-        $member = KPAccounts::with('userWastePreference', 'userWastePreference.user')
+        $member = KPBankAccount::with('userWastePreference', 'userWastePreference.user')
             ->where('u_wpref_id_fk', $user->wastePreference->id)->get()->first();
         $products = KpShopProduct::where('status', 'active')->paginate(12);
         $product_categorys = KpShopCategory::all();

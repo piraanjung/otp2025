@@ -22,6 +22,7 @@ return new class extends Migration
             $table->string('lastname')->nullable();
             $table->string('email')->unique()->nullable();
             $table->string('line_id')->nullable();
+            $table->string('line_user_id')->nullable()->comment('มาจาก Api');
             $table->string('id_card')->nullable();
             $table->string('phone')->nullable();
             $table->text('image')->nullable();

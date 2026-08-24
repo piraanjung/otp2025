@@ -1,5 +1,6 @@
 <ul class="navbar-nav">
 
+    
     <li class="nav-item">
         <a class="nav-link active mb-2 bg-warning @yield('nav-accessmenu')" href="{{ route('accessmenu') }}">
             <div class="icon icon-shape icon-sm bg-white shadow text-center border-radius-2xl padding4px">
@@ -35,7 +36,7 @@
             <span class="nav-link-text ms-1">Dashboard</span>
         </a>
     </li>
-    @role('Super Admin|Admin|Tabwater Staff')
+    {{-- @role('Super Admin|Admin|Tabwater Staff') --}}
     <li class="nav-item">
         <a data-bs-toggle="collapse" href="#invoices" class="nav-link active collapsed" aria-controls="invoices"
             role="button" aria-expanded="false">
@@ -71,12 +72,12 @@
                         <span class="sidenav-normal">ออกใบแจ้งหนี้ </span>
                     </a>
                 </li>
-                {{-- <li class="nav-item ">
+                <li class="nav-item ">
                     <a href="{{route('admin.owepaper.index')}}" class="nav-link @yield('owepaper')">
                         <span class="sidenav-mini-icon"> P </span>
                         <span class="sidenav-normal">ออกใบแจ้งเตือนค้างชำระหนี้ </span>
                     </a>
-                </li> --}}
+                </li>
 
 
                 <li class="nav-item  hidden">
@@ -200,7 +201,13 @@
                         <span class="sidenav-normal">สมุดจดเลขอ่านมาตรวัดน้ำ(ป.31)</span>
                     </a>
                 </li>
-
+                <li class="nav-item ">
+                    <a class="nav-link @yield('report-meter_record_history')"
+                        href="{{ route('reports.p17') }}">
+                        <span class="sidenav-mini-icon"> P </span>
+                        <span class="sidenav-normal">สมุด ledger(ป.17)</span>
+                    </a>
+                </li>
 
                 <li class="nav-item ">
                     <a class="nav-link @yield('report-water_used')" href="{{ route('reports.water_used') }}">
@@ -212,9 +219,9 @@
         </div>
     </li>
 
-    @endrole
+    {{-- @endrole --}}
 
-    @role('Super Admin|Admin')
+    @hasrole('Super Admin|Admin')
 
 
     <li class="nav-item">

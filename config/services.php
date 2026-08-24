@@ -29,5 +29,14 @@ return [
         'secret' => env('AWS_SECRET_ACCESS_KEY'),
         'region' => env('AWS_DEFAULT_REGION', 'us-east-1'),
     ],
+    'line' => [
+        'channel_token' => env('LINE_CHANNEL_ACCESS_TOKEN'),
+        'channel_secret' => env('LINE_CHANNEL_SECRET'),
+    ],
+     'line_staff' => [
+        'channel_token' => env('STAFF_LINE_CHANNEL_ACCESS_TOKEN'),
+        'channel_secret' => env('STAFF_LINE_CHANNEL_SECRET'),
+        'staff_group_id' => env('STAFF_LINE_GROUP_ID'),
+    ],
 
 ];

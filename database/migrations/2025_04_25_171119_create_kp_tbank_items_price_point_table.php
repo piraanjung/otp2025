@@ -13,6 +13,7 @@ return new class extends Migration
     {
         Schema::create('kp_tbank_items_pricepoint', function (Blueprint $table) {
             $table->id();
+            $table->foreignId('org_id_fk')->constrained('organizations')->onDelete('cascade');
             $table->unsignedBigInteger('kp_items_idfk');
             $table->float('price_from_dealer', 8,2);
             $table->float('price_for_member', 8,2);

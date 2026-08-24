@@ -1,4 +1,4 @@
-@if($user->can('access waste bank mobile'))
+@if(auth()->user()->can('access waste bank mobile'))
     @php $layout = 'layouts.keptkaya_mobile'; @endphp
 @else
     @php $layout = 'layouts.keptkaya'; @endphp
@@ -17,13 +17,13 @@
     @media (max-width: 767px) {
         .mobile-scroll-container {
             /* ความสูง = ความสูงหน้าจอ - (Header + Search Bar + Padding) */
-            height: calc(100vh - 280px); 
+            height: calc(100vh - 280px);
             overflow-y: auto;
             overflow-x: hidden;
             padding-bottom: 80px; /* เผื่อที่ด้านล่าง */
             -webkit-overflow-scrolling: touch; /* ให้เลื่อนลื่นๆ บน iOS */
         }
-        
+
         /* ซ่อน Scrollbar เดิมแต่ยังเลื่อนได้ (Optional) */
         .mobile-scroll-container::-webkit-scrollbar {
             width: 4px;
@@ -43,6 +43,7 @@
         }
     }
 </style>
+
 
     {{-- [MOBILE ONLY] Header Bar --}}
     <div class="d-md-none d-flex align-items-center justify-content-between mb-2 pb-2 border-bottom">
@@ -69,15 +70,15 @@
                         {{-- รวมช่องค้นหาให้ประหยัดที่บนมือถือ --}}
                         <div class="col-12">
                             <div class="input-group input-group-outline bg-white">
-                                <input type="text" name="keyword" class="form-control" 
-                                    placeholder="ชื่อ, สกุล หรือ รหัสสมาชิก..." 
+                                <input type="text" name="keyword" class="form-control"
+                                    placeholder="ชื่อ, สกุล หรือ รหัสสมาชิก..."
                                     value="{{ request('keyword') ?? request('name_search') ?? request('username_search') }}">
-                                
+
                                 {{-- ปุ่ม QR Code --}}
                                 <button class="btn btn-outline-primary mb-0 px-3 z-index-2" type="button" data-bs-toggle="modal" data-bs-target="#qrScannerModal">
                                     <i class="fas fa-qrcode text-lg"></i>
                                 </button>
-                                
+
                                 {{-- ปุ่ม Search --}}
                                 <button class="btn bg-gradient-primary mb-0 px-3 z-index-2" type="submit">
                                     <i class="fas fa-search"></i>
@@ -140,7 +141,7 @@
                                             <span class="badge badge-sm bg-gradient-success me-2">
                                                 {{ number_format($todayTransactions->sum('total_amount'), 2) }} ฿
                                             </span>
-                                            <a href="{{ route('keptkayas.purchase.receipt', $todayTransactions[0]->id) }}" 
+                                            <a href="{{ route('keptkayas.purchase.receipt', $todayTransactions[0]->id) }}"
                                                class="text-xs font-weight-bold text-primary" title="ดูใบเสร็จ">
                                                 <i class="fas fa-receipt"></i>
                                             </a>
@@ -150,11 +151,11 @@
                                     @endif
                                 </td>
                                 <td class="align-middle text-center">
-                                    <a href="{{ route('keptkayas.purchase.history', $member->wastePreference->id) }}" 
+                                    <a href="{{ route('keptkayas.purchase.history', $member->wastePreference->id) }}"
                                        class="btn btn-link text-secondary mb-0 px-2" title="ประวัติ">
                                         <i class="fas fa-history text-lg"></i>
                                     </a>
-                                    <a href="{{ route('keptkayas.purchase.start_purchase', $member->wastePreference->id) }}" 
+                                    <a href="{{ route('keptkayas.purchase.start_purchase', $member->wastePreference->id) }}"
                                        class="btn btn-sm bg-gradient-primary mb-0 ms-2 px-3">
                                         <i class="fas fa-cart-plus me-1"></i> รับซื้อ
                                     </a>
@@ -198,7 +199,7 @@
                                             {{ $member->firstname }} {{ $member->lastname }}
                                         </h6>
                                         <p class="text-xs text-secondary mb-0 text-truncate">
-                                            {{ $member->username }} 
+                                            {{ $member->username }}
                                             @if($member->address) | {{ Str::limit($member->address, 15) }} @endif
                                         </p>
                                     </div>
@@ -206,7 +207,7 @@
 
                                 {{-- Right: Action --}}
                                 <div>
-                                    <a href="{{ route('keptkayas.purchase.start_purchase', $member->wastePreference->id) }}" 
+                                    <a href="{{ route('keptkayas.purchase.start_purchase', $member->wastePreference->id) }}"
                                        class="btn btn-sm bg-gradient-primary mb-0 shadow-primary px-3">
                                        รับซื้อ
                                     </a>
@@ -270,11 +271,11 @@
     <script src="https://unpkg.com/html5-qrcode" type="text/javascript"></script>
     <script>
         document.addEventListener('DOMContentLoaded', function () {
-            
+
             // --- Logic เดิมของ QR Scanner ---
             const qrScannerModal = document.getElementById('qrScannerModal');
             // เนื่องจากเรารวม input search เป็นอันเดียว ให้แก้ ID ตรงนี้ให้ match
-            const searchInput = document.querySelector('input[name="keyword"]'); 
+            const searchInput = document.querySelector('input[name="keyword"]');
             const hiddenUsernameInput = document.getElementById('username_search_hidden');
             const userSearchForm = document.getElementById('user-search-form');
             let html5QrCode = null;
@@ -288,8 +289,8 @@
                     html5QrCode.start({ facingMode: "environment" }, config,
                         (decodedText, decodedResult) => {
                             let code = decodedText.trim();
-                            if(code.includes("-")) { code = code.split("-")[0]; }
-                            
+                            if(code.includes("-")) { code = code.split("-")[1]; }
+                            console.log('c',code)
                             // ใส่ค่าลงในช่องค้นหาหลัก และ hidden field
                             if(searchInput) searchInput.value = code;
                             if(hiddenUsernameInput) hiddenUsernameInput.value = code;

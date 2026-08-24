@@ -27,7 +27,7 @@
                         </div>
                     </div>
                     <div class="card-body px-0 pt-0 pb-2">
-                        @if(session('success'))
+                        {{-- @if(session('success'))
                             <div class="alert alert-success alert-dismissible fade show mx-3" role="alert">
                                 <span class="alert-text text-white"><strong>สำเร็จ!</strong> {{ session('success') }}</span>
                                 <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close">
@@ -43,7 +43,7 @@
                                     <span aria-hidden="true">&times;</span>
                                 </button>
                             </div>
-                        @endif
+                        @endif --}}
                         <div class="table-responsive p-0">
                             <table class="table align-items-center mb-0">
                                 <thead>
@@ -53,15 +53,19 @@
                                         <th
                                             class="text-uppercase text-secondary text-xxs font-weight-bolder opacity-7 ps-2">
                                             อีเมล</th>
-                                        <th
-                                            class="text-center text-uppercase text-secondary text-xxs font-weight-bolder opacity-7">
-                                            สถานะ</th>
+                                         <th
+                                            class="text-uppercase text-secondary text-xxs font-weight-bolder opacity-7 ps-2">
+                                            หน้าที่ (Roles)</th>
+
                                         <th
                                             class="text-center text-uppercase text-secondary text-xxs font-weight-bolder opacity-7">
                                             สิทธิ์เข้าถึงโมดูล</th>
-                                        <th class="text-secondary opacity-7">การจัดการ</th>
+                                            <th
+                                            class="text-center text-uppercase text-secondary text-xxs font-weight-bolder opacity-7">
+                                            สถานะ</th>
+                                        <th class="text-secondary opacity-7"></th>
                                     </tr>
-                                    {{-- Search row --}}
+
                                     <tr class="bg-gray-100">
                                         <th class="p-1">
                                             <input type="text" name="search_name" id="search_name"
@@ -69,9 +73,15 @@
                                                 value="{{ request('search_name') }}">
                                         </th>
                                         <th class="p-1">
-                                            {{-- Email search is handled by name search in controller for simplicity --}}
+                                            {{-- email --}}
                                         </th>
-                                        <th class="p-1">
+                                         <th class="p-1">
+                                            {{-- role --}}
+                                        </th>
+                                         <th class="p-1">
+                                            {{-- permission --}}
+                                        </th>
+                                        <th class="p-1 flex flex-sm-column">
                                             <select name="search_status" id="search_status"
                                                 class="form-select form-select-sm">
                                                 <option value="any" {{ request('search_status') == 'any' ? 'selected' : '' }}>
@@ -80,29 +90,11 @@
                                                 <option value="inactive" {{ request('search_status') == 'inactive' ? 'selected' : '' }}>Inactive</option>
                                                 <option value="suspended" {{ request('search_status') == 'suspended' ? 'selected' : '' }}>Suspended</option>
                                             </select>
-                                        </th>
-                                        <th class="p-1">
-                                            <div class="d-flex flex-column">
-                                                <select name="search_can_access_waste_bank"
-                                                    id="search_can_access_waste_bank"
-                                                    class="form-select form-select-sm mb-1">
-                                                    <option value="any" {{ request('search_can_access_waste_bank') == 'any' ? 'selected' : '' }}>ธนาคารขยะ: ทั้งหมด</option>
-                                                    <option value="true" {{ request('search_can_access_waste_bank') == 'true' ? 'selected' : '' }}>ธนาคารขยะ: ใช่</option>
-                                                    <option value="false" {{ request('search_can_access_waste_bank') == 'false' ? 'selected' : '' }}>ธนาคารขยะ: ไม่</option>
-                                                </select>
-                                                <select name="search_can_access_annual_collection"
-                                                    id="search_can_access_annual_collection"
-                                                    class="form-select form-select-sm">
-                                                    <option value="any" {{ request('search_can_access_annual_collection') == 'any' ? 'selected' : '' }}>เก็บรายปี: ทั้งหมด</option>
-                                                    <option value="true" {{ request('search_can_access_annual_collection') == 'true' ? 'selected' : '' }}>เก็บรายปี: ใช่</option>
-                                                    <option value="false" {{ request('search_can_access_annual_collection') == 'false' ? 'selected' : '' }}>เก็บรายปี: ไม่</option>
-                                                </select>
-                                            </div>
-                                        </th>
-                                        <th class="p-1 text-center">
-                                            <button type="button" id="applySearchBtn"
+                                             <button type="button" id="applySearchBtn"
                                                 class="btn btn-primary btn-sm mb-0">ค้นหา</button>
                                         </th>
+
+
                                     </tr>
                                 </thead>
                                 <tbody id="staffTableBody">

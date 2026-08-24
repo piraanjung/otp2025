@@ -1,352 +1,353 @@
-@extends('layouts.admin1')
+@extends('layouts.super-admin')
 
-@section('user-show', 'show')
-@section('nav-user', 'active')
-@section('nav-main')
-    <a href="{{ route('admin.users.index') }}"> ผู้ใช้น้ำประปา</a>
-@endsection
-@section('nav-header', 'ผู้ใช้งานระบบ')
-@section('nav-current', 'ข้อมูลผู้ใช้น้ำประปา')
+@section('nav-header', 'สมาชิก')
+@section('nav-current', 'ตารางสมาชิก')
+@section('page-topic', 'ตารางสมาชิก')
+@section('nav-keptkayas.users', 'active')
 
-@section('style')
-    {{-- DataTables CSS --}}
-    <link rel="stylesheet" href="https://cdn.datatables.net/1.13.6/css/dataTables.bootstrap5.min.css">
-    <link rel="stylesheet" href="https://cdn.datatables.net/buttons/2.4.2/css/buttons.bootstrap5.min.css">
-    <link rel="stylesheet" href="https://cdn.datatables.net/select/1.7.0/css/select.bootstrap5.min.css">
-
+{{-- เพิ่ม CDN SweetAlert2 สำหรับ Popup ยืนยันสวยๆ --}}
+@section('styles')
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
     <style>
-        /* Custom UI Improvements */
-        .table thead th {
-            padding: 0.75rem 1.5rem;
-            text-transform: uppercase;
-            letter-spacing: 0.5px;
-            border-bottom: 1px solid #e9ecef !important;
-        }
-        .table tbody td {
-            padding: 1rem 1.5rem;
-            vertical-align: middle;
-        }
-        .table-hover tbody tr:hover {
-            background-color: #f8f9fa;
-        }
-        
-        /* Highlight selected rows */
-        table.dataTable tbody tr.selected > * {
-            box-shadow: inset 0 0 0 9999px rgba(var(--bs-primary-rgb), 0.1) !important;
-            color: #344767 !important;
-        }
-        
-        /* Badges for Multiple Meters */
-        .meter-badge {
-            display: inline-block;
-            padding: 4px 8px;
-            margin-bottom: 2px;
-            background-color: #e9ecef;
-            border-radius: 4px;
-            font-size: 0.85em;
-            color: #344767;
-            text-decoration: none;
-            transition: all 0.2s;
-        }
-        .meter-badge:hover {
-            background-color: #cb0c9f; /* Theme primary color */
-            color: white;
-        }
-        .meter-badge.cancelled {
-            color: #a0a0a0;
-            text-decoration: line-through;
-        }
+        .form-check-input {
+        width: 1.25rem !important;
+        height: 1.25rem !important;
+        margin-top: 0.25em;
+        vertical-align: top;
+        background-color: #fff;
+        background-repeat: no-repeat;
+        background-position: center;
+        background-size: contain;
+        border: 1px solid rgba(0,0,0,.25) !important;
+        -webkit-appearance: checkbox !important; /* สำหรับบาง Browser ที่ซ่อนไว้ */
+        cursor: pointer;
+    }
 
-        /* Preloader */
-        .preloader-wrapper {
-            position: fixed;
-            top: 0; left: 0; width: 100%; height: 100%;
-            background-color: rgba(255, 255, 255, 0.9);
-            display: flex; flex-direction: column;
-            align-items: center; justify-content: center;
-            z-index: 9999;
-            transition: opacity 0.5s ease, visibility 0.5s ease;
-        }
-        .fade-out-animation {
-            opacity: 0;
-            visibility: hidden;
-        }
+    .form-check-input:checked {
+        background-color: #2dce89; /* สีเขียวตามสไตล์ Soft UI */
+        border-color: #2dce89;
+    }
 
-        /* DataTables Customization */
-        .dataTables_wrapper .dataTables_filter input {
-            border: 1px solid #d2d6da;
-            border-radius: 0.375rem;
-            padding: 0.375rem 0.75rem;
-        }
-        .dataTables_wrapper .dt-buttons .btn {
-            margin-bottom: 0;
-            border-radius: 0.375rem;
-        }
-        
-        /* Tab Customization */
-        .nav-tabs .nav-link {
-            border: none;
-            color: #67748e;
-            font-weight: 600;
-            padding: 1rem 1.5rem;
-            transition: all 0.3s;
-        }
-        .nav-tabs .nav-link.active {
-            color: #cb0c9f; /* Theme Color */
-            border-bottom: 3px solid #cb0c9f;
-            background: transparent;
-        }
+    /* ป้องกัน Row สลับกันมั่ว */
+    .table td {
+        vertical-align: middle !important;
+    }
     </style>
 @endsection
 
+
 @section('content')
-    <div class="preloader-wrapper">
-        <div class="spinner-border text-primary" role="status"></div>
-        <div class="mt-2 text-muted font-weight-bold">กำลังโหลดข้อมูล...</div>
-    </div>
-
-    <div class="card shadow-sm mb-4">
-        <div class="card-header pb-0 d-flex justify-content-between align-items-center bg-white">
-            <div>
-                <h5 class="mb-0 font-weight-bolder">ทะเบียนผู้ใช้น้ำประปา</h5>
-                <p class="text-sm mb-0 text-muted">จัดการข้อมูลผู้ใช้งานและมิเตอร์</p>
-            </div>
-            <div>
-                <a href="{{ route('admin.users.create') }}" class="btn bg-gradient-success btn-sm mb-0">
-                    <i class="fas fa-plus me-1"></i> เพิ่มผู้ใช้งานใหม่
-                </a>
-            </div>
+<div class="card shadow-sm border-0">
+    <div class="card-header bg-white">
+        <div class="d-flex justify-content-between align-items-center mb-3">
+            <h6 class="fw-bold mb-0"><i class="bi bi-people-fill"></i> จัดการสมาชิกและสิทธิ์บริการ</h6>
+            <button type="button" id="btnSaveBatch" class="btn btn-success btn-sm mb-0">บันทึกสิทธิ์ที่เลือก</button>
+            <a  href="{{ route('admin.users.create') }}"  class="btn btn-success btn-sm mb-0">เพิ่ม user</a>
         </div>
 
-        <div class="card-body px-0 pt-0 pb-2">
-            <div class="nav-wrapper position-relative end-0 px-4 pt-2">
-                <ul class="nav nav-tabs" id="userTabs" role="tablist">
-                    <li class="nav-item">
-                        <a class="nav-link active" id="active-tab" data-bs-toggle="tab" href="#active-content" role="tab" aria-controls="active" aria-selected="true">
-                            <i class="fas fa-check-circle text-success me-1"></i> ใช้งานปัจจุบัน
-                        </a>
-                    </li>
-                    <li class="nav-item">
-                        <a class="nav-link" id="deleted-tab" data-bs-toggle="tab" href="#deleted-content" role="tab" aria-controls="deleted" aria-selected="false">
-                            <i class="fas fa-trash-alt text-secondary me-1"></i> ยกเลิกแล้ว
-                        </a>
-                    </li>
-                </ul>
+        <form action="{{ route('admin.users.index') }}" method="GET" class="row g-2">
+            <div class="col-md-3">
+                <input type="text" name="search" class="form-control form-control-sm" placeholder="ค้นหา ชื่อ, ID, ที่อยู่..." value="{{ request('search') }}">
             </div>
-
-            <div class="tab-content p-4" id="userTabsContent">
-                
-                <div class="tab-pane fade show active" id="active-content" role="tabpanel" aria-labelledby="active-tab">
-                    <div class="table-responsive p-0">
-                        <table class="table table-hover align-items-center mb-0" id="example">
-                            <thead class="bg-light">
-                                <tr>
-                                    <th class="text-secondary text-xxs font-weight-bolder opacity-7">ID</th>
-                                    <th class="text-secondary text-xxs font-weight-bolder opacity-7">ชื่อ-นามสกุล</th>
-                                    <th class="text-secondary text-xxs font-weight-bolder opacity-7">Factory No.</th>
-                                    <th class="text-secondary text-xxs font-weight-bolder opacity-7">เลขมิเตอร์</th>
-                                    <th class="text-secondary text-xxs font-weight-bolder opacity-7">มิเตอร์ย่อย</th>
-                                    <th class="text-secondary text-xxs font-weight-bolder opacity-7">โซน/สาย</th>
-                                    <th class="text-secondary text-xxs font-weight-bolder opacity-7">หมู่</th>
-                                    <th class="text-secondary opacity-7"></th>
-                                </tr>
-                            </thead>
-                            <tbody>
-                                @foreach ($user_active as $u_active)
-                                    <tr>
-                                        <td><span class="text-secondary text-xs font-weight-bold">{{ $u_active[0]->user_id }}</span></td>
-                                        <td>
-                                            <div class="d-flex px-2 py-1">
-                                                <div class="d-flex flex-column justify-content-center">
-                                                    <h6 class="mb-0 text-sm">{{ $u_active[0]->user->prefix . $u_active[0]->user->firstname . ' ' . $u_active[0]->user->lastname }}</h6>
-                                                </div>
-                                            </div>
-                                        </td>
-                                        <td>
-                                            @foreach ($u_active as $item)
-                                                <div class="text-xs text-secondary mb-1">{{ $item['factory_no'] }}</div>
-                                            @endforeach
-                                        </td>
-                                        <td>
-                                            @foreach ($u_active as $item)
-                                                <a class="meter-badge" href="{{ route('admin.users.edit', ['user_id' => $item->meter_id]) }}" title="แก้ไขมิเตอร์">
-                                                    <i class="fas fa-tachometer-alt text-xs me-1"></i> {{ $item['meternumber'] }}
-                                                </a>
-                                                <br>
-                                            @endforeach
-                                        </td>
-                                        <td class="text-xs font-weight-bold text-secondary">{{ $u_active[0]->submeter_name }}</td>
-                                        <td class="text-xs font-weight-bold text-secondary">{{ $u_active[0]->undertake_zone->zone_name }}</td>
-                                        <td class="text-xs font-weight-bold text-secondary">{{ $u_active[0]->undertake_subzone->subzone_name }}</td>
-                                        <td class="align-middle">
-                                            <div class="dropstart">
-                                                <a href="javascript:;" class="text-secondary" data-bs-toggle="dropdown" aria-expanded="false">
-                                                    <i class="fas fa-ellipsis-v text-xs"></i>
-                                                </a>
-                                                <ul class="dropdown-menu px-2 py-3 ms-sm-n4 ms-n5">
-                                                    <li><a class="dropdown-item border-radius-md" href="{{ route('admin.users.edit', ['user_id' => $item->meter_id, 'addmeter' => 'addmeter']) }}">เพิ่มมิเตอร์ใหม่</a></li>
-                                                    <li><a class="dropdown-item border-radius-md" href="{{ route('usermeter_infos.edit_invoices', ['meter_id' => $item->meter_id]) }}">แก้ไขเลขมิเตอร์</a></li>
-                                                </ul>
-                                            </div>
-                                        </td>
-                                    </tr>
-                                @endforeach
-                            </tbody>
-                        </table>
-                    </div>
-                </div>
-
-                <div class="tab-pane fade" id="deleted-content" role="tabpanel" aria-labelledby="deleted-tab">
-                    <div class="table-responsive p-0">
-                        <table class="table table-hover align-items-center mb-0" id="example2" style="width:100%">
-                            <thead class="bg-light">
-                                <tr>
-                                    <th class="text-secondary text-xxs font-weight-bolder opacity-7">ID</th>
-                                    <th class="text-secondary text-xxs font-weight-bolder opacity-7">ชื่อ-นามสกุล</th>
-                                    <th class="text-secondary text-xxs font-weight-bolder opacity-7">Factory No.</th>
-                                    <th class="text-secondary text-xxs font-weight-bolder opacity-7">เลขมิเตอร์</th>
-                                    <th class="text-secondary text-xxs font-weight-bolder opacity-7">มิเตอร์ย่อย</th>
-                                    <th class="text-secondary text-xxs font-weight-bolder opacity-7">โซน/สาย</th>
-                                    <th class="text-secondary text-xxs font-weight-bolder opacity-7">หมู่</th>
-                                    <th class="text-secondary opacity-7"></th>
-                                </tr>
-                            </thead>
-                            <tbody>
-                                @foreach ($user_deleted as $user)
-                                    <tr>
-                                        <td><span class="text-secondary text-xs font-weight-bold">{{ $user[0]->user_id }}</span></td>
-                                        <td>
-                                            <h6 class="mb-0 text-sm text-secondary">{{ $user[0]->user->prefix . $user[0]->user->firstname . ' ' . $user[0]->user->lastname }}</h6>
-                                        </td>
-                                        <td>
-                                            @foreach ($user as $item)
-                                                <div class="text-xs text-secondary mb-1">{{ $item['factory_no'] }}</div>
-                                            @endforeach
-                                        </td>
-                                        <td>
-                                            @foreach ($user as $item)
-                                                @if($item->status == 'active')
-                                                    <a class="meter-badge" href="{{ route('admin.users.edit', ['user_id' => $item->meter_id]) }}">
-                                                        {{ $item['meternumber'] }}
-                                                    </a>
-                                                @else
-                                                    <span class="meter-badge cancelled" title="ยกเลิกการใช้งาน">
-                                                        {{ $item['meternumber'] }}
-                                                    </span>
-                                                @endif
-                                                <br>
-                                            @endforeach
-                                        </td>
-                                        <td class="text-xs text-secondary">{{ $user[0]->submeter_name }}</td>
-                                        <td class="text-xs text-secondary">{{ $user[0]->undertake_zone->zone_name }}</td>
-                                        <td class="text-xs text-secondary">{{ $user[0]->undertake_subzone->subzone_name }}</td>
-                                        <td class="align-middle">
-                                            <div class="dropstart">
-                                                <a href="javascript:;" class="text-secondary" data-bs-toggle="dropdown" aria-expanded="false">
-                                                    <i class="fas fa-ellipsis-v text-xs"></i>
-                                                </a>
-                                                <ul class="dropdown-menu px-2 py-3">
-                                                    <li><a class="dropdown-item border-radius-md" href="{{ route('admin.users.edit', ['user_id' => $item->meter_id, 'addmeter' => 'addmeter']) }}">เพิ่มมิเตอร์ใหม่</a></li>
-                                                </ul>
-                                            </div>
-                                        </td>
-                                    </tr>
-                                @endforeach
-                            </tbody>
-                        </table>
-                    </div>
-                </div>
-
+            <div class="col-md-2">
+                <select name="zone_id" class="form-select form-select-sm">
+                    <option value="">-- ทุกโซน --</option>
+                    @foreach($zones as $zone)
+                        <option value="{{ $zone->id }}" {{ request('zone_id') == $zone->id ? 'selected' : '' }}>{{ $zone->zone_name }}</option>
+                    @endforeach
+                </select>
             </div>
+            <div class="col-md-2">
+                <select name="service_filter" class="form-select form-select-sm">
+                    <option value="">-- บริการทั้งหมด --</option>
+                    <option value="recycle" {{ request('service_filter') == 'recycle' ? 'selected' : '' }}>ธนาคารขยะ</option>
+                    <option value="food_waste" {{ request('service_filter') == 'food_waste' ? 'selected' : '' }}>ขยะเปียก</option>
+                    <option value="annual_trash" {{ request('service_filter') == 'annual_trash' ? 'selected' : '' }}>ขยะรายปี</option>
+                </select>
+            </div>
+            <div class="col-md-2">
+                <button type="submit" class="btn btn-primary btn-sm w-100">ค้นหา</button>
+            </div>
+        </form>
+    </div>
+
+    <form id="mainBatchForm" action="{{ route('admin.users.update_service') }}" method="POST">
+        @csrf
+        <div class="table-responsive">
+            <table class="table align-items-center mb-0">
+                <thead class="bg-light">
+                    <tr>
+                        <th class="text-xs font-weight-bolder ps-4">ID</th>
+                        <th class="text-xs font-weight-bolder">ชื่อ-ที่อยู่</th>
+                        <th class="text-xs font-weight-bolder">โซน/ซอย</th>
+                        <th class="text-center text-xs font-weight-bolder">สถานะบริการ</th>
+                        <th class="text-center text-xs font-weight-bolder">จัดการ</th>
+                    </tr>
+                    <tr class="bg-gray-100" style="border-bottom: 2px solid #dee2e6;">
+                        <th colspan="3" class="text-end text-xxs font-weight-bolder py-2"></th>
+                        <th class="text-center py-2">
+                            <div class="d-flex justify-content-center gap-3">
+                                <div class="form-check mb-0">
+                                    <input class="form-check-input" type="checkbox" id="selectAllRecycle" title="เลือกธนาคารขยะทั้งหมด">
+                                    <span class="text-xxs">รีไซเคิล</span>
+                                </div>
+                                <div class="form-check mb-0">
+                                    <input class="form-check-input" type="checkbox" id="selectAllFood" title="เลือกขยะเปียกทั้งหมด">
+                                    <span class="text-xxs">ขยะเปียก</span>
+                                </div>
+                                <div class="form-check mb-0">
+                                    <input class="form-check-input" type="checkbox" id="selectAllAnnual" title="เลือกรายปีทั้งหมด">
+                                    <span class="text-xxs">รายปี</span>
+                                </div>
+                            </div>
+                        </th>
+                        <th></th>
+                    </tr>
+                </thead>
+                <tbody>
+    @foreach($users as $user)
+    <tr>
+        {{-- 1. ID --}}
+        <td class="ps-4 text-sm">{{ substr('0000', strlen($user->wastePreference->id)) .$user->wastePreference->id }}</td>
+
+        {{-- 2. ชื่อ-ที่อยู่ --}}
+        <td>
+            <div class="d-flex flex-column">
+                <h6 class="mb-0 text-sm">{{ $user->firstname }} {{ $user->lastname }}</h6>
+                <p class="text-xs text-secondary mb-0">{{ $user->wastePreference->address ?? '-' }}</p>
+            </div>
+        </td>
+
+        {{-- 3. โซน/ซอย --}}
+        <td>
+            <div class="text-xs">
+                <div><strong>โซน:</strong> {{ $user->wastePreference->user_pref_zone->zone_name ?? '-' }}</div>
+                <div class="text-muted"><strong>ซอย:</strong> {{ $user->wastePreference->user_pref_subzone->subzone_name ?? '-' }}</div>
+            </div>
+        </td>
+
+        {{-- 4. สถานะบริการ (จุดที่หายไป) --}}
+        <td class="align-middle text-center">
+            <div class="d-flex justify-content-center gap-3">
+                {{-- รีไซเคิล --}}
+                <div class="form-check mb-0">
+                    <input class="form-check-input chk-recycle" type="checkbox"
+                        name="services[{{$user->id}}][recycle]" value="1"
+                        {{ $user->wastePreference->kpBankAccount ? 'checked' : '' }}>
+                </div>
+                {{-- ขยะเปียก --}}
+                <div class="form-check mb-0">
+                    <input class="form-check-input chk-food" type="checkbox"
+                        name="services[{{$user->id}}][food_waste]" value="1"
+                        {{ $user->foodWasteAccount ? 'checked' : '' }}>
+                </div>
+                {{-- รายปี --}}
+                <div class="form-check mb-0">
+                    <input class="form-check-input chk-annual" type="checkbox"
+                        name="services[{{$user->id}}][annual_trash]" value="1"
+                        {{ $user->annualTrashSubscription ? 'checked' : '' }}>
+                </div>
+            </div>
+        </td>
+
+        {{-- 5. การจัดการ --}}
+        <td class="text-center">
+            <a href="{{ route('admin.users.edit', $user->id) }}" class="btn btn-link p-0 text-primary">
+                <i class="fas fa-edit"></i> แก้ไข
+            </a>
+        </td>
+    </tr>
+    @endforeach
+</tbody>
+            </table>
+        </div>
+    </form>
+
+    <div class="card-footer bg-white d-flex justify-content-between">
+        <div class="small text-muted">
+            แสดง {{ $users->firstItem() }} ถึง {{ $users->lastItem() }} จากทั้งหมด {{ $users->total() }} รายการ
+        </div>
+        <div>
+            {{ $users->appends(request()->query())->links('pagination::bootstrap-5') }}
         </div>
     </div>
+</div>
 @endsection
 
 @section('script')
-    <script src="https://code.jquery.com/jquery-3.7.0.js"></script>
-    <script src="https://cdn.datatables.net/1.13.6/js/jquery.dataTables.min.js"></script>
-    <script src="https://cdn.datatables.net/1.13.6/js/dataTables.bootstrap5.min.js"></script>
-    
-    <script src="https://cdn.datatables.net/buttons/2.4.2/js/dataTables.buttons.min.js"></script>
-    <script src="https://cdn.datatables.net/buttons/2.4.2/js/buttons.bootstrap5.min.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/pdfmake/0.1.53/pdfmake.min.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/pdfmake/0.1.53/vfs_fonts.js"></script>
-    <script src="https://cdn.datatables.net/buttons/2.4.2/js/buttons.html5.min.js"></script>
-    <script src="https://cdn.datatables.net/buttons/2.4.2/js/buttons.print.min.js"></script>
-    
-    <script src="https://cdn.datatables.net/select/1.7.0/js/dataTables.select.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
 
-    <script>
-        $(document).ready(function() {
-            let preloaderwrapper = document.querySelector('.preloader-wrapper');
+        // --- 1. SEARCH VARIABLES & ELEMENTS ---
+        const elements = {
+            searchName: document.getElementById('search_name'),
+            searchEmail: document.getElementById('search_email'),
+            searchStatus: document.getElementById('search_status'),
+            searchAnnual: document.getElementById('search_is_annual_collection'),
+            searchBank: document.getElementById('search_is_waste_bank'),
+            btnApply: document.getElementById('applySearchBtn'),
+            tableBody: document.getElementById('userTableBody'),
+            chkAllAnnual: document.getElementById('selectAllAnnualCollection'),
+            chkAllBank: document.getElementById('selectAllWasteBank'),
+            perPage: document.getElementById('per_page'),
+            btnSave: document.getElementById('btnSaveBatch'),
+            mainForm: document.getElementById('mainBatchForm')
+        };
 
-            // Common Config for both tables
-            const dtConfig = {
-                "sPaginationType": "full_numbers",
-                "lengthMenu": [[10, 25, 50, 150, -1], [10, 25, 50, 150, "All"]],
-                "dom": "<'row'<'col-sm-12 col-md-6'l><'col-sm-12 col-md-6'f>>" +
-                       "<'row'<'col-sm-12'tr>>" +
-                       "<'row'<'col-sm-12 col-md-5'i><'col-sm-12 col-md-7'p>>B", // Clean DOM layout
-                "language": {
-                    "search": "",
-                    "searchPlaceholder": "ค้นหาข้อมูล...",
-                    "paginate": {
-                        "first": '<i class="fas fa-angle-double-left"></i>',
-                        "last": '<i class="fas fa-angle-double-right"></i>',
-                        "next": '<i class="fas fa-angle-right"></i>',
-                        "previous": '<i class="fas fa-angle-left"></i>'
-                    }
-                },
-                "buttons": [
-                    {
-                        extend: 'excelHtml5',
-                        text: '<i class="fas fa-file-excel me-1"></i> Excel',
-                        className: 'btn btn-sm btn-outline-success mb-0',
-                        exportOptions: { rows: ['.selected'] }
-                    },
-                    {
-                        text: '<i class="fas fa-check-square me-1"></i> เลือกทั้งหมด',
-                        className: 'btn btn-sm btn-outline-primary mb-0 select-all-btn',
-                        action: function ( e, dt, node, config ) {
-                            dt.rows().select();
-                        }
-                    },
-                    {
-                        text: '<i class="fas fa-square me-1"></i> ยกเลิกเลือก',
-                        className: 'btn btn-sm btn-outline-secondary mb-0 deselect-all-btn',
-                        action: function ( e, dt, node, config ) {
-                            dt.rows().deselect();
-                        }
-                    }
-                ],
-                "select": {
-                    style: 'multi'
-                },
-                "deferRender": true,
-                "orderClasses": false,
-                "processing": true
-            };
+        // ตรวจสอบว่ามี Element ครบไหม
+        for (const [key, el] of Object.entries(elements)) {
+            if (!el && key !== 'tableBody') console.warn(`Element ${key} not found`);
+        }
 
-            // Initialize Tables
-            const table1 = $('#example').DataTable(dtConfig);
-            const table2 = $('#example2').DataTable(dtConfig);
+        // --- 2. LIVE SEARCH LOGIC ---
+        let searchTimeout;
+        const debounceDelay = 300;
 
-            // Styling adjustments after init
-            $('.dataTables_length select').addClass('form-select form-select-sm').css('width', 'auto').css('display', 'inline-block');
-            $('.dt-buttons').addClass('d-flex gap-2 mb-3 mt-2');
-            
-            // Fix Tab Display Issue: When switching tabs, adjust columns
-            $('button[data-bs-toggle="tab"], a[data-bs-toggle="tab"]').on('shown.bs.tab', function (e) {
-                table1.columns.adjust().draw();
-                table2.columns.adjust().draw();
+        function applyLiveSearch() {
+            clearTimeout(searchTimeout);
+            searchTimeout = setTimeout(() => {
+                const params = new URLSearchParams({
+                    search_name: elements.searchName.value,
+                    search_email: elements.searchEmail.value,
+                    search_status: elements.searchStatus.value,
+                    search_is_annual_collection: elements.searchAnnual.value,
+                    search_is_waste_bank: elements.searchBank.value,
+                    per_page: elements.perPage.value,
+                    ajax: '1'
+                });
+
+                fetch(`{{ route('keptkayas.users.index') }}?${params.toString()}`, {
+                    headers: { 'X-Requested-With': 'XMLHttpRequest' }
+                })
+                .then(res => res.text())
+                .then(html => {
+                    elements.tableBody.innerHTML = html;
+                    // Re-initialize tooltips if you use BS tooltips
+                    var tooltipTriggerList = [].slice.call(document.querySelectorAll('[data-bs-toggle="tooltip"]'))
+                    var tooltipList = tooltipTriggerList.map(function (tooltipTriggerEl) {
+                        return new bootstrap.Tooltip(tooltipTriggerEl)
+                    })
+                })
+                .catch(err => console.error('Search error:', err));
+            }, debounceDelay);
+        }
+
+        // Attach Search Events
+        [elements.searchName, elements.searchEmail].forEach(el => el && el.addEventListener('keyup', applyLiveSearch));
+        [elements.searchStatus, elements.searchAnnual, elements.searchBank, elements.perPage].forEach(el => el && el.addEventListener('change', applyLiveSearch));
+        if(elements.btnApply) elements.btnApply.addEventListener('click', applyLiveSearch);
+
+
+        // --- 3. SELECT ALL LOGIC (SAFE MODE) ---
+
+        // ฟังก์ชันเลือกทั้งหมด "เก็บรายปี" - จะไม่ยุ่งกับตัวที่ Disabled
+        if(elements.chkAllAnnual) {
+            elements.chkAllAnnual.addEventListener('change', function() {
+                const checkboxes = document.querySelectorAll('.annual-coll-checkbox:not(:disabled)'); // Select เฉพาะตัวที่แก้ได้
+                checkboxes.forEach(chk => chk.checked = this.checked);
             });
+        }
 
-            // Hide Preloader
-            setTimeout(() => {
-                preloaderwrapper.classList.add('fade-out-animation');
-                setTimeout(() => { preloaderwrapper.style.display = 'none'; }, 500);
-            }, 500);
+        // ฟังก์ชันเลือกทั้งหมด "ธนาคารขยะ"
+        if(elements.chkAllBank) {
+            elements.chkAllBank.addEventListener('change', function() {
+                const checkboxes = document.querySelectorAll('.waste-bank-checkbox:not(:disabled)');
+                checkboxes.forEach(chk => chk.checked = this.checked);
+            });
+        }
+
+        // --- 4. SAVE CONFIRMATION (SweetAlert2) ---
+        if(elements.btnSave && elements.mainForm) {
+            elements.btnSave.addEventListener('click', function(e) {
+                e.preventDefault();
+
+                Swal.fire({
+                    title: 'ยืนยันการบันทึก?',
+                    text: "ตรวจสอบความถูกต้องของบริการที่เลือกก่อนบันทึก",
+                    icon: 'question',
+                    showCancelButton: true,
+                    confirmButtonColor: '#3085d6',
+                    cancelButtonColor: '#d33',
+                    confirmButtonText: 'ยืนยัน, บันทึกเลย!',
+                    cancelButtonText: 'ยกเลิก'
+                }).then((result) => {
+                    if (result.isConfirmed) {
+                        elements.mainForm.submit();
+                    }
+                });
+            });
+        }
+
+        // Initialize Tooltips for the "Lock" icons
+        var tooltipTriggerList = [].slice.call(document.querySelectorAll('[data-bs-toggle="tooltip"]'))
+        var tooltipList = tooltipTriggerList.map(function (tooltipTriggerEl) {
+            return new bootstrap.Tooltip(tooltipTriggerEl)
+        })
+    });
+
+</script>
+   <script>
+    document.addEventListener('DOMContentLoaded', function() {
+
+        // --- 1. จัดการการเลือกทั้งหมด (Select All) ---
+        // ฟังก์ชันนี้จะทำงานเมื่อ ID ของ Checkbox ที่หัวตาราง ตรงกับที่ส่งเข้าไป
+        function setupSelectAll(triggerId, targetClass) {
+            const trigger = document.getElementById(triggerId);
+            if (trigger) {
+                trigger.addEventListener('change', function() {
+                    // เลือก Checkbox ใน tbody ที่มี class ตรงกัน และไม่ถูก disabled
+                    const checkboxes = document.querySelectorAll('tbody .' + targetClass + ':not(:disabled)');
+                    checkboxes.forEach(chk => {
+                        chk.checked = this.checked;
+                    });
+                });
+            }
+        }
+
+        // เรียกใช้ฟังก์ชันให้ตรงกับ ID ใน Header และ Class ใน Body
+        setupSelectAll('selectAllRecycle', 'chk-recycle');
+        setupSelectAll('selectAllFood', 'chk-food');
+        setupSelectAll('selectAllAnnual', 'chk-annual');
+
+
+        // --- 2. ยืนยันการบันทึกด้วย SweetAlert2 ---
+        const btnSave = document.getElementById('btnSaveBatch');
+        const mainForm = document.getElementById('mainBatchForm');
+
+        if (btnSave && mainForm) {
+            btnSave.addEventListener('click', function(e) {
+                e.preventDefault();
+
+                // ตรวจสอบว่า Swal โหลดมาหรือยัง
+                if (typeof Swal === 'undefined') {
+                    mainForm.submit(); // ถ้า Swal ไม่มา ให้ Submit แบบปกติไปเลย
+                    return;
+                }
+
+                Swal.fire({
+                    title: 'ยืนยันการบันทึกสิทธิ์?',
+                    text: "ระบบจะเปิด/ปิดบัญชีสมาชิกตามที่คุณเลือกในหน้านี้",
+                    icon: 'question',
+                    showCancelButton: true,
+                    confirmButtonColor: '#2dce89',
+                    cancelButtonColor: '#f5365c',
+                    confirmButtonText: 'ตกลง, บันทึกเลย',
+                    cancelButtonText: 'ยกเลิก',
+                    reverseButtons: true
+                }).then((result) => {
+                    if (result.isConfirmed) {
+                        mainForm.submit();
+                    }
+                });
+            });
+        }
+
+        // --- 3. เริ่มทำงาน Tooltips (ถ้ามี) ---
+        var tooltipTriggerList = [].slice.call(document.querySelectorAll('[data-bs-toggle="tooltip"]'))
+        var tooltipList = tooltipTriggerList.map(function (tooltipTriggerEl) {
+            return new bootstrap.Tooltip(tooltipTriggerEl)
         });
-    </script>
+    });
+</script>
 @endsection

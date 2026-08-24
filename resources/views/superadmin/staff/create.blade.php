@@ -1,4 +1,4 @@
-@extends('layouts.admin1')
+@extends('layouts.super-admin')
 
 @section('content')
 <div class="row ">
@@ -264,7 +264,7 @@
             <h1 class="card-title mb-0">Add New Staff Member</h1>
         </div>
         <div class="card-body">
-         
+
             <form action="{{ route('superadmin.staff.store') }}" method="POST">
                 @csrf
                 <div class="mb-3">

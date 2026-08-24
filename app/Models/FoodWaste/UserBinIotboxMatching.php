@@ -2,7 +2,7 @@
 
 namespace App\Models;
 
-use App\Models\FoodWaste\FoodwasteBin;
+use App\Models\FoodWaste\FoodAnnualTrash;
 use App\Models\FoodWaste\FoodWasteUserPreference;
 use App\Models\FoodWaste\FoodwastIotbox;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
@@ -27,10 +27,10 @@ class UserBinIotboxMatching extends Model
         return $this->belongsTo(FoodWasteUserPreference::class, 'fw_user_id_fk');
     }
 
-    // ความสัมพันธ์กับ FoodwasteBin
+    // ความสัมพันธ์กับ FoodAnnualTrash
     public function bin()
     {
-        return $this->belongsTo(FoodwasteBin::class, 'bin_id_fk');
+        return $this->belongsTo(FoodAnnualTrash::class, 'bin_id_fk');
     }
 
     // ความสัมพันธ์กับ FoodwastIotbox

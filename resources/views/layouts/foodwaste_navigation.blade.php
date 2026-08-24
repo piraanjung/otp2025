@@ -12,8 +12,20 @@
         </a>
 
     </li>
+     <li class="nav-item">
+        <a href="{{route('foodwaste.executive_dashboard')}}" class="nav-link active">
+            <div
+                class="icon icon-sm shadow-sm border-radius-md bg-yellow text-center d-flex align-items-center justify-content-center  me-2">
+                <i class="ni ni-compass-04" aria-hidden="true"></i>
+            </div>
+            <span class="nav-link-text ms-1">Executive Dashboard</span>
+        </a>
+
+    </li>
     <li class="nav-item">
-        <a class="nav-link  @yield('nav-dashboard')" href="{{route('foodwaste.dashboard')}}">
+        {{-- <a class="nav-link  @yield('nav-dashboard')" href="{{route('foodwaste.dashboard')}}"> --}}
+
+        <a class="nav-link  @yield('nav-dashboard')" href="{{route('foodwaste.admin.fw_bank.dashboard')}}">
             <div
                 class="icon icon-shape icon-sm shadow border-radius-md bg-white text-center me-2 d-flex align-items-center justify-content-center">
                 <svg width="12px" height="12px" viewBox="0 0 45 40" version="1.1" xmlns="http://www.w3.org/2000/svg"
@@ -35,7 +47,7 @@
                     </g>
                 </svg>
             </div>
-            <span class="nav-link-text ms-1">Dashboard</span>
+            <span class="nav-link-text ms-1">Dashboard ของธนาคารเศษอาหาร</span>
         </a>
     </li>
 
@@ -73,162 +85,64 @@
                                 class="icon icon-shape icon-sm shadow border-radius-md bg-white text-center me-2 d-flex align-items-center justify-content-center">
                                 <i class="fa fa-map-marked-alt text-danger text-gradient text-lg"></i>
                             </div>
-                            <span class="nav-link-text ms-1">แผนที่ถังขยะ</span>
+                            <span class="nav-link-text ms-1">แผนที่ถังขยะเปียก</span>
                         </a>
                     </li>
 
-                    {{-- <li class="nav-item  ">
-                        <a class="nav-link @yield('nav-payment')" href="{{route('keptkayas.annual_payments.index')}}">
+                     <li class="nav-item">
+                        <a class="nav-link" href="{{ route('foodwaste.admin.members_waste.index') }}">
+                            <div
+                                class="icon icon-shape icon-sm shadow border-radius-md bg-white text-center me-2 d-flex align-items-center justify-content-center">
+                                <i class="fa fa-map-marked-alt text-danger text-gradient text-lg"></i>
+                            </div>
+                            <span class="nav-link-text ms-1">ข้อมูลการทิ้งเศษอาหารของสมาชิก</span>
+                        </a>
+                    </li>
+
+
+                     <li class="nav-item">
+                         <a class="nav-link" href="{{ route('foodwaste.admin.local_foods.index') }}">
+                            <div
+                                class="icon icon-shape icon-sm shadow border-radius-md bg-white text-center me-2 d-flex align-items-center justify-content-center">
+                                <i class="fa fa-map-marked-alt text-danger text-gradient text-lg"></i>
+                            </div>
+                            <span class="nav-link-text ms-1">รายการอาหารท้องถิ่น</span>
+                        </a>
+                        {{-- <a class="nav-link" href="{{ route('foodwaste.meal_logs_confirm_dashboard') }}">
+                            <div
+                                class="icon icon-shape icon-sm shadow border-radius-md bg-white text-center me-2 d-flex align-items-center justify-content-center">
+                                <i class="fa fa-map-marked-alt text-danger text-gradient text-lg"></i>
+                            </div>
+                            <span class="nav-link-text ms-1">กำหนดค่าแคลลอรี่ อาหาร</span>
+                        </a> --}}
+                    </li>
+                     <li class="nav-item">
+                        <a class="nav-link" href="{{ route('foodwaste.admin.local_foods.review') }}">
+                            <div
+                                class="icon icon-shape icon-sm shadow border-radius-md bg-white text-center me-2 d-flex align-items-center justify-content-center">
+                                <i class="fa fa-map-marked-alt text-danger text-gradient text-lg"></i>
+                            </div>
+                            <span class="nav-link-text ms-1">กำหนดค่าแคลลอรี่ อาหาร</span>
+                            &nbsp;<span class="badge badge-primary">@yield('pendingFoods')</span>
+
+                        </a>
+                    </li>
+
+                    <li class="nav-item  ">
+                        <a class="nav-link @yield('nav-payment')" href="{{route('foodwaste.admin.issues.index')}}">
                             <div
                                 class="icon icon-shape icon-sm shadow border-radius-md bg-white text-center me-2 d-flex align-items-center justify-content-center">
                                 <i class="fa fa-trash text-danger text-gradient text-lg"></i>
                             </div>
-                            <span class="sidenav-normal">รับชำระค่าจัดเก็บถังขยะ </span>
-                        </a>
-                    </li> --}}
-                </ul>
-                <ul class="nav ms-4 ps-3">
-                    {{-- <li class="nav-item ">
-                        <form action="" name="myForm2" id="myForm2" method="post" class="mb-0">
-                            {{-- {{ route('user_payment_per_month.history') }} --}
-                            @csrf
-                            <button type="submit" class="nav-link @yield('nav-user_payment_per_month-history') border-0">
-                                <input type="hidden" value="nav" name="nav">
-                                <div
-                                    class="icon icon-shape icon-sm shadow border-radius-md bg-white text-center me-2 d-flex align-items-center justify-content-center">
-                                    <i class="fa fa-search text-danger text-gradient text-lg"></i>
-                                </div>
-                                <span class="sidenav-normal">ค้นหาใบเสร็จรับเงิน </span>
-                            </button>
-                        </form>
-                    </li> --}}
-                    {{-- <li class="nav-item ">
-                        <a class="nav-link @yield('nav-user_payment_per_month-table')" href="">
-                            {{-- {{ route('user_payment_per_month.table') }} --}
-                            <div
-                                class="icon icon-shape icon-sm shadow border-radius-md bg-white text-center me-2 d-flex align-items-center justify-content-center">
-                                <i class="fa fa-chart-bar text-danger text-gradient text-lg"></i>
-                            </div>
-                            <span class="sidenav-normal">ตารางการชำระเงิน (กค.3) </span>
-                        </a>
-                    </li> --}}
-
-
-                    {{-- <li class="nav-item ">
-                        <a class="nav-link @yield('nav-daily')" href="">
-                            <div
-                                class="icon icon-shape icon-sm shadow border-radius-md bg-white text-center me-2 d-flex align-items-center justify-content-center">
-                                <i class="fa fa-clipboard-list text-danger text-gradient text-lg"></i>
-                            </div>
-                            <span class="sidenav-normal">ตารางจัดเก็บค่าขยะประจำวัน </span>
-                        </a>
-                    </li> --}}
-
-                    {{-- <li class="nav-item ">
-                        <a class="nav-link @yield('nav-invoice')" href="">
-                            <div
-                                class="icon icon-shape icon-sm shadow border-radius-md bg-white text-center me-2 d-flex align-items-center justify-content-center">
-                                <i class="fa fa-file-invoice text-danger text-gradient text-lg"></i>
-                            </div>
-                            <span class="sidenav-normal">ออกใบแจ้งหนี้ </span>
-                        </a>
-                    </li> --}}
-                    {{-- <li class="nav-item @yield('nav-staff')">
-                        <a class="nav-link " href="{{route('keptkayas.kp_usergroup.index')}}">
-                            <div
-                                class="icon icon-shape icon-sm shadow border-radius-md bg-white text-center me-2 d-flex align-items-center justify-content-center">
-                                <i class="fa fa-users text-danger text-gradient text-lg"></i>
-                            </div>
-                            <span class="sidenav-normal"> กลุ่มผู้ใข้งาน </span>
-                        </a>
-                    </li> --}}
-                    <li class="nav-item @yield('nav-staff')">
-                        <a class="nav-link " href="{{route('foodwaste.users.foodwaste_bin_users')}}">
-                            <div
-                                class="icon icon-shape icon-sm shadow border-radius-md bg-white text-center me-2 d-flex align-items-center justify-content-center">
-                                <i class="fa fa-users text-danger text-gradient text-lg"></i>
-                            </div>
-                            <span class="sidenav-normal">สมาชิกธนาคารขยะเปียก </span>
+                            <span class="sidenav-normal">แจ้งเหตุถังขยะเปียก </span>
                         </a>
                     </li>
-
-                    {{-- <li class="nav-item  ">
-                        <a class="nav-link @yield('nav-cart')" href="{{ route('keptkayas.wbin_payrate_per_months.index') }}">
-                            <div
-                                class="icon icon-shape icon-sm shadow border-radius-md bg-white text-center me-2 d-flex align-items-center justify-content-center">
-                                <i class="fa fa-users text-danger text-gradient text-lg"></i>
-                            </div>
-                            <span class="sidenav-normal">กำหนดอัตราชำระต่อกลุ่มผู้ใข้งาน </span>
-                        </a>
-                    </li> --}}
-
                 </ul>
+
             </div>
         </li>
 
-    {{-- @can('access waste bank') --}}
-    {{-- @if (Session::get('keptkaya_type') == 'recycle') --}}
-    <li class="nav-item">
-        <a data-bs-toggle="collapse" href="#cart" class="nav-link active" aria-controls="cart" role="button"
-            aria-expanded="true">
-            <div
-                class="icon icon-shape icon-sm shadow border-radius-md bg-white text-center d-flex align-items-center justify-content-center  me-2">
-                <svg width="12px" height="12px" viewBox="0 0 42 42" version="1.1" xmlns="http://www.w3.org/2000/svg"
-                    xmlns:xlink="http://www.w3.org/1999/xlink">
-                    <title>office</title>
-                    <g stroke="none" stroke-width="1" fill="none" fill-rule="evenodd">
-                        <g transform="translate(-1869.000000, -293.000000)" fill="#FFFFFF" fill-rule="nonzero">
-                            <g transform="translate(1716.000000, 291.000000)">
-                                <g id="office" transform="translate(153.000000, 2.000000)">
-                                    <path class="color-background"
-                                        d="M12.25,17.5 L8.75,17.5 L8.75,1.75 C8.75,0.78225 9.53225,0 10.5,0 L31.5,0 C32.46775,0 33.25,0.78225 33.25,1.75 L33.25,12.25 L29.75,12.25 L29.75,3.5 L12.25,3.5 L12.25,17.5 Z"
-                                        opacity="0.6"></path>
-                                    <path class="color-background"
-                                        d="M40.25,14 L24.5,14 C23.53225,14 22.75,14.78225 22.75,15.75 L22.75,38.5 L19.25,38.5 L19.25,22.75 C19.25,21.78225 18.46775,21 17.5,21 L1.75,21 C0.78225,21 0,21.78225 0,22.75 L0,40.25 C0,41.21775 0.78225,42 1.75,42 L40.25,42 C41.21775,42 42,41.21775 42,40.25 L42,15.75 C42,14.78225 41.21775,14 40.25,14 Z M12.25,36.75 L7,36.75 L7,33.25 L12.25,33.25 L12.25,36.75 Z M12.25,29.75 L7,29.75 L7,26.25 L12.25,26.25 L12.25,29.75 Z M35,36.75 L29.75,36.75 L29.75,33.25 L35,33.25 L35,36.75 Z M35,29.75 L29.75,29.75 L29.75,26.25 L35,26.25 L35,29.75 Z M35,22.75 L29.75,22.75 L29.75,19.25 L35,19.25 L35,22.75 Z">
-                                    </path>
-                                </g>
-                            </g>
-                        </g>
-                    </g>
-                </svg>
-            </div>
-            <span class="nav-link-text ms-1">ธนาคารขยะรีไซเคิล</span>
-        </a>
-        <div class="collapse show" id="cart" style="">
-            <ul class="nav ms-4 ps-3">
-                <li class="nav-item  ">
-                    <a class="nav-link @yield('nav-cart')" href="{{ route('keptkayas.purchase.select_user') }}">
-                        <div
-                            class="icon icon-shape icon-sm shadow border-radius-md bg-white text-center me-2 d-flex align-items-center justify-content-center">
-                            <i class="fa fa-shopping-cart text-danger text-gradient text-lg"></i>
-                        </div>
-                        <span class="sidenav-normal">รับซื้อขยะรีไซเคิล </span>
-                    </a>
-                </li>
 
-                <li class="nav-item  ">
-                    <a class="nav-link @yield('nav-cart')" href="{{ route('keptkayas.sell.form') }}">
-                        <div
-                            class="icon icon-shape icon-sm shadow border-radius-md bg-white text-center me-2 d-flex align-items-center justify-content-center">
-                            <i class="fa fa-sd-card text-danger text-gradient text-lg"></i>
-                        </div>
-                        <span class="sidenav-normal">บันทึกข้อมูลการขายขยะรีไซเคิล</span>
-                    </a>
-                </li>
-                <li class="nav-item ">
-                    <a class="nav-link " href="{{route('keptkayas.sell.history')}}">
-                        <div
-                            class="icon icon-shape icon-sm shadow border-radius-md bg-white text-center me-2 d-flex align-items-center justify-content-center">
-                            <i class="fa fa-history text-danger text-gradient text-lg"></i>
-                        </div>
-                        <span class="sidenav-normal">ประวัติข้อมูลการขายขยะรีไซเคิล</span>
-                    </a>
-                </li>
-
-
-            </ul>
-        </div>
-    </li>
 
     <li class="nav-item">
         <a data-bs-toggle="collapse" href="#pagesExamples" class="nav-link active" aria-controls="pagesExamples"
@@ -241,6 +155,15 @@
         </a>
         <div class="collapse show" id="pagesExamples" style="">
             <ul class="nav ms-4 ps-3">
+                 <li class="nav-item @yield('nav-wet-waste-users')">
+                        <a class="nav-link" href="{{route('foodwaste.users.foodwaste_bin_users')}}">
+                            <div
+                                class="icon icon-shape icon-sm shadow border-radius-md bg-white text-center me-2 d-flex align-items-center justify-content-center">
+                                <i class="fa fa-users text-danger text-gradient text-lg"></i>
+                            </div>
+                            <span class="sidenav-normal">สมาชิกธนาคารขยะเปียก </span>
+                        </a>
+                    </li>
                 <li class="nav-item ">
                     <a class="nav-link " href="{{route('foodwaste.iotboxes.index')}}">
                         <div
@@ -248,7 +171,7 @@
                             <i class="fa fa-object-group text-danger text-gradient text-lg"></i>
                         </div>
                         <span class="sidenav-normal">กล่อง IoT</span>
-                         
+
                     </a>
                 </li>
                  <li class="nav-item ">
@@ -258,50 +181,54 @@
                             <i class="fa fa-object-group text-danger text-gradient text-lg"></i>
                         </div>
                         <span class="sidenav-normal">ถังขยะเปียก</span>
-                         
+
+                    </a>
+                </li>
+                <li class="nav-item ">
+                    <a class="nav-link " href="{{route('foodwaste.admin.issue_types.index')}}">
+                        <div
+                            class="icon icon-shape icon-sm shadow border-radius-md bg-white text-center me-2 d-flex align-items-center justify-content-center">
+                            <i class="fa fa-object-group text-danger text-gradient text-lg"></i>
+                        </div>
+                        <span class="sidenav-normal">ประเภทปัญหาขยะเปียก</span>
+
+                    </a>
+                </li>
+
+                 <li class="nav-item ">
+                    <a class="nav-link " href="{{route('foodwaste.admin.fw_rewards.index')}}">
+                        <div
+                            class="icon icon-shape icon-sm shadow border-radius-md bg-white text-center me-2 d-flex align-items-center justify-content-center">
+                            <i class="fa fa-object-group text-danger text-gradient text-lg"></i>
+                        </div>
+                        <span class="sidenav-normal">แต้มและเงินสะสม</span>
+
+                    </a>
+                </li>
+
+                 <li class="nav-item ">
+                    <a class="nav-link " href="{{ route('foodwaste.airo.dashboard','waste') }}">
+                        <div
+                            class="icon icon-shape icon-sm shadow border-radius-md bg-white text-center me-2 d-flex align-items-center justify-content-center">
+                            <i class="fa fa-object-group text-danger text-gradient text-lg"></i>
+                        </div>
+                        <span class="sidenav-normal">mobile->airo_dashboard</span>
+
                     </a>
                 </li>
             </ul>
 
         </div>
     </li>
-    {{-- @endif --}}
-    {{--@endcan --}}
-    {{-- @can('manage staff') --}}
-    {{-- <li class="nav-item">
-        <a data-bs-toggle="collapse" href="#pagesExamples" class="nav-link active" aria-controls="pagesExamples"
-            role="button" aria-expanded="true">
+
+     <li class="nav-item">
+        <a href="{{ route('logout') }}" class="nav-link active mt-4" style="border: 1px solid red">
             <div
-                class="icon icon-shape icon-sm shadow border-radius-md bg-white text-center d-flex align-items-center justify-content-center  me-2">
-                <i class="fa fa-user"></i>
+                class="fab fa-ubuntu icon-sm shadow border-radius-md bg-danger text-center d-flex align-items-center justify-content-center  me-2">
             </div>
-            <span class="nav-link-text ms-1">ผู้ใช้งานระบบ</span>
+            <span class="nav-link-text ms-1 text-danger">Log Out</span>
         </a>
-        <div class="collapse show" id="pagesExamples" style="">
-            <ul class="nav ms-4 ps-3">
-                <li class="nav-item @yield('nav-user')">
-                    <a class="nav-link nav-user" href="{{ route('keptkayas.users.index') }}">
-                        <span class="sidenav-mini-icon text-xs"> P </span>
-                        <span class="sidenav-normal">สมาชิก </span>
-                    </a>
-                </li>
-                <li class="nav-item @yield('nav-staff')">
-                    <a class="nav-link " href="{{route('keptkayas.staffs.index')}}">
-                        <span class="sidenav-mini-icon text-xs"> T </span>
-                        <span class="sidenav-normal"> เจ้าหน้าที่ </span>
-                    </a>
-                </li>
 
-
-                <li class="nav-item  ">
-                    <a class="nav-link @yield('nav-cart')" href="{{ route('keptkayas.kp_budgetyear.index') }}">
-                        <span class="sidenav-mini-icon"> P </span>
-                        <span class="sidenav-normal">ปีงบประมาณ </span>
-                    </a>
-                </li>
-
-        </div>
-    </li> --}}
-    {{-- @endcan --}}
+    </li>
 
 </ul>

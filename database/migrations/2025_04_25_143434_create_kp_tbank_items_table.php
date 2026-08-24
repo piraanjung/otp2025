@@ -16,17 +16,19 @@ return new class extends Migration
             $table->string('kp_itemscode');
             $table->string('kp_itemsname');
             $table->unsignedBigInteger('kp_items_group_idfk');
+            $table->unsignedBigInteger('org_id_fk');
             $table->integer('favorite')->default(0);
             $table->enum('status', ['active', 'inactive']);
             $table->string('image')->nullable();
             $table->tinyInteger('item_for_machine')->default(0)->comment('1 = เป็น item สำหรับตู้รับซื้อขยะ');
-            
+
             $table->enum('deleted', [0,1])->default('0');
             $table->timestamps();
 
             $table->foreign('kp_items_group_idfk')->references('id')->on('kp_tbank_items_groups')
                 ->onDelete('cascade')->onUpdate('cascade');
-
+            $table->foreign('org_id_fk')->references('id')->on('organizations')
+                ->onDelete('cascade')->onUpdate('cascade');
         });
     }
 

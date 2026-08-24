@@ -13,7 +13,7 @@
                     <h6 class="mb-0">เพิ่มสมาชิกธนาคารขยะ</h6>
                 </div>
                 <div class="card-body p-3">
-                    
+
                     <ul class="nav nav-pills nav-fill p-1" id="pills-tab" role="tablist">
                         <li class="nav-item" role="presentation">
                             <button class="nav-link active" id="pills-manual-tab" data-bs-toggle="pill" data-bs-target="#pills-manual" type="button" role="tab" aria-controls="pills-manual" aria-selected="true">
@@ -29,13 +29,13 @@
                     <hr class="mt-2 mb-4">
 
                     <div class="tab-content" id="pills-tabContent">
-                        
+
                         <div class="tab-pane fade show active" id="pills-manual" role="tabpanel" aria-labelledby="pills-manual-tab">
                             <form action="{{ route('keptkayas.users.store') }}" method="POST">
                                 @csrf
                                 {{-- Hidden field เพื่อระบุโหมดการบันทึก --}}
-                                <input type="hidden" name="mode" value="manual"> 
-                                
+                                <input type="hidden" name="mode" value="manual">
+
                                 {{-- โค้ดฟอร์มเดิมของคุณทั้งหมด --}}
                                 <div class="row">
                                     <div class="col-md-6">
@@ -148,7 +148,7 @@
                             <form action="{{ route('keptkayas.users.store') }}" method="POST">
                                 @csrf
                                 {{-- Hidden field เพื่อระบุโหมดการบันทึก --}}
-                                <input type="hidden" name="mode" value="batch_select"> 
+                                <input type="hidden" name="mode" value="batch_select">
 
                                 <p class="text-sm text-muted">เลือกผู้ใช้งานที่มี Role เป็น User และยังไม่ได้เป็นสมาชิกธนาคารขยะ เพื่อเพิ่มเป็นสมาชิก</p>
                                 <button type="submit" class="btn bg-gradient-success mb-4" id="batch-add-btn" disabled>
@@ -206,7 +206,7 @@
                                         </tbody>
                                     </table>
                                 </div>
-                               
+
                             </form>
                         </div>
                     </div>

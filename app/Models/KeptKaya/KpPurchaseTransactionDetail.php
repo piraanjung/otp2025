@@ -18,24 +18,27 @@ class KpPurchaseTransactionDetail extends Model
     protected $table = 'kp_purchase_transactions_details';
 
     protected $fillable = [
-        'kp_purchase_trans_id',         // เชื่อมไปหา Header (ซึ่งมี org_id_fk อยู่แล้ว)
+        'org_id_fk',
+        'kp_purchase_trans_id',
         'kp_recycle_item_id',
-        'kp_units_idfk',                    // <--- เพิ่มตัวนี้ (สำคัญ! เพราะ Controller ส่งมา)
         'kp_tbank_items_pricepoint_id',
-        'carbon_saved',                 // ✅ [เพิ่มใหม่] คาร์บอนที่ลดได้เฉพาะรายการนี้ (kgCO2e)
+        'recorder_id',
         'amount_in_units',
+        'kp_units_idfk',
         'price_per_unit',
         'amount',
         'points',
-        'comment',
+        'carbon_saved',
+        'image_path'
     ];
+
 
     protected $casts = [
         'amount_in_units' => 'decimal:2',
         'price_per_unit' => 'decimal:2',
         'amount' => 'decimal:2',
         'points' => 'integer',
-        'carbon_saved'    => 'decimal:4', // ✅ [เพิ่มใหม่] ทศนิยม 4 ตำแหน่งเพื่อความแม่นยำ
+        'carbon_saved'    => 'float:4', // ✅ [เพิ่มใหม่] ทศนิยม 4 ตำแหน่งเพื่อความแม่นยำ
     ];
 
     // Relationships
@@ -48,7 +51,7 @@ class KpPurchaseTransactionDetail extends Model
         return $this->belongsTo(KpTbankUnits::class, 'kp_tbank_items_units');
     }
 
-     public function transaction()
+    public function transaction()
     {
         return $this->belongsTo(KpPurchaseTransaction::class, 'kp_purchase_trans_id');
     }

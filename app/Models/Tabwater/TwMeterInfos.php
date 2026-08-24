@@ -14,8 +14,9 @@ class TwMeterInfos extends Model
     use HasFactory;
     use BelongsToOrganization;
 
-    public $primaryKey = 'meter_id';
+    // public $primaryKey = 'meter_id';
     protected $fillable = [
+        "id",
         "meter_id",
         "org_id_fk",
         "meter_address",
@@ -28,7 +29,6 @@ class TwMeterInfos extends Model
         "acceptance_date",
         "status",
         "payment_id",
-        "discounttype",
         "recorder_id",
         'cutmeter',
         'factory_no',

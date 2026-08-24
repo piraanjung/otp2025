@@ -15,7 +15,13 @@ return new class extends Migration
     {
         Schema::create('tw_cutmeter', function (Blueprint $table) {
             $table->id();
-            $table->foreignId('meter_id_fk')->constrained('tw_meter_infos')->onDelete('cascade');
+            $table->unsignedBigInteger('meter_id_fk');
+
+            // บรรทัดที่ 2: ผูกความสัมพันธ์ Foreign Key ให้กับคอลัมน์ที่สร้างด้านบน
+            $table->foreign('meter_id_fk')
+                ->references('meter_id') // ตรวจสอบตัวสะกดปลายทาง (เช่น meter_id หรือ id)
+                ->on('tw_meter_infos')
+                ->onDelete('cascade');
             $table->integer('owe_count')->default(0);
             $table->integer('warning_print')->default(0);
             $table->enum('status', ['pending', 'cutmeter', 'install', 'complete', 'cancel']);

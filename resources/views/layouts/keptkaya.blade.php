@@ -46,6 +46,7 @@
                 padding-right: 5px;
             }
         }
+
         .navbar-vertical.navbar-expand-xs .navbar-collapse {
             display: block;
             overflow: auto;
@@ -86,18 +87,20 @@
             padding-bottom: .417rem;
             padding-left: 0;
         }
+
         .ps-3 {
             padding-left: 0rem !important;
         }
-        .btn-group-sm>.btn i, .btn.btn-sm i {
+
+        .btn-group-sm>.btn i,
+        .btn.btn-sm i {
             font-size: 1rem
         }
 
-        .disabled{
+        .disabled {
             cursor: not-allowed;
             opacity: 0.1;
         }
-        
     </style>
     <script src="https://code.jquery.com/jquery-3.7.0.js"></script>
     <script src="https://cdn.datatables.net/1.13.6/js/jquery.dataTables.min.js"></script>
@@ -119,12 +122,10 @@
     <aside class="sidenav navbar navbar-vertical navbar-expand-xs border-0 border-radius-xl my-3 fixed-start ms-3 "
         id="sidenav-main">
         <div class="sidenav-header">
-            <i class="fas fa-times p-3 cursor-pointer text-secondary opacity-5 position-absolute end-0 top-0 d-none d-xl-none"
-                aria-hidden="true" id="iconSidenav"></i>
+           <i class="fas fa-times p-3 cursor-pointer text-secondary opacity-5 position-absolute end-0 top-0 d-xl-none" aria-hidden="true" id="iconSidenav"></i>
             <a class="navbar-brand m-0" href=" https://demos.creative-tim.com/soft-ui-dashboard/pages/dashboard.html "
                 target="_blank">
-                <img src="{{ asset('logo/ko_envsogo.png') }}" class="navbar-brand-img h-100"
-                    alt="main_logo">
+                <img src="{{ asset('logo/ko_envsogo.png') }}" class="navbar-brand-img h-100" alt="main_logo">
                 <span class="ms-1 font-weight-bold">Ensogo::Kept Kaya</span>
             </a>
         </div>
@@ -147,8 +148,8 @@
                     </ol>
                     <h6 class="text-white font-weight-bolder ms-2">@yield('nav-current')</h6>
                 </nav>
-                <div class="sidenav-toggler sidenav-toggler-inner d-xl-block d-none">
-                    <a href="javascript:;" class="nav-link text-white p-0">
+                <div class="sidenav-toggler sidenav-toggler-inner d-xl-none d-block">
+                    <a href="javascript:;" class="nav-link text-white p-0" id="iconNavbarSidenav">
                         <div class="sidenav-toggler-inner">
                             <i class="sidenav-toggler-line bg-white"></i>
                             <i class="sidenav-toggler-line bg-white"></i>
@@ -164,10 +165,10 @@
                         <li class="nav-item d-flex align-items-center">
                             <a href="#" class="nav-link text-white font-weight-bold px-0">
                                 <i class="fa fa-user me-sm-1" aria-hidden="true"></i>
-                                {{ Auth::user()->firstname." ".Auth::user()->lastname }}
+                                {{ Auth::user()->firstname . " " . Auth::user()->lastname }}
                             </a>
                         </li>
-                    
+
                     </ul>
                 </div>
             </div>
@@ -182,8 +183,8 @@
                 <div class="row gx-4">
                     <div class="col-auto">
                         <div class="avatar avatar-xl position-relative">
-                            <img src="{{asset('logo/'.App\Models\Admin\Organization::getOrgName(Auth::user()->org_id_fk)['org_logo_img'])}}" alt="profile_image"
-                                class="w-100 border-radius-lg shadow-sm">
+                            <img src="{{asset('logo/' . App\Models\Admin\Organization::getOrgName(Auth::user()->org_id_fk)['org_logo_img'])}}"
+                                alt="profile_image" class="w-100 border-radius-lg shadow-sm">
                         </div>
                     </div>
                     <div class="col-auto my-auto">

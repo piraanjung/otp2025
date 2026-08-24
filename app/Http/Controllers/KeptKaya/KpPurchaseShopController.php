@@ -16,7 +16,7 @@ class KpPurchaseShopController extends Controller
      */
     public function index()
     {
-        $user = User::setLocalUser();
+        $user = User::where('org_id_fk', Auth::user()->org_id_fk);
 
         $shops = KpPurchaseShop::where('org_id_fk', Auth::user()->org_id_fk)->paginate(20);
         return view('keptkayas.purchase_shops.index', compact('shops', 'user'));

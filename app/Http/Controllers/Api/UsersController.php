@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Api;
 use App\Http\Controllers\Api\FunctionsController;
 use App\Http\Controllers\Api\ZoneController;
 use App\Http\Controllers\Controller;
+use App\Models\KeptKaya\KpTbankItems;
 use App\Models\Tabwater\TwInvoice;
 use App\Models\Tabwater\TwInvoicePeriod;
 use App\Models\Tabwater\TwMeterInfos;
@@ -19,10 +20,10 @@ use PhpParser\Node\Expr\AssignOp\Concat;
 
 class UsersController extends Controller
 {
-    public function __construct()
-    {
-        Config::set('database.default', 'envsogo_hs1');
-    }
+    // public function __construct()
+    // {
+    //     Config::set('database.default', 'envsogo_hs1');
+    // }
     public function index()
     {
         return  $active_users = $this->usersInfos('all');
@@ -49,6 +50,45 @@ class UsersController extends Controller
             $date = explode(" ", $u->updated_at);
             $u->updated_at_th = date_format(date_create($date[0]), 'd-m-Y'); //$fn->engDateToThaiDateFormat($date[0]);
         }
+        return response()->json($user);
+    }
+
+    public function findByUserId($userId)
+    {
+        $user = User::find($userId);
+
+        if (!$user) {
+            return response()->json(['message' => 'ไม่พบรหัสสมาชิกนี้'], 404);
+        }
+
+        return response()->json([
+            'user_id' => $user->id,
+            'name' => $user->firstname . " " . $user->lastname,
+            'phone' => $user->phone
+        ], 200);
+    }
+
+    public function findByPhone($phone)
+    {
+        // ทำความสะอาดเบอร์ (ลบขีดออกถ้ามี)
+        $cleanPhone = str_replace('-', '', $phone);
+        $user = User::on('envsogo_main')->where('phone', $cleanPhone)->first();
+
+        if (!$user) {
+            return response()->json(['message' => 'ไม่พบเบอร์โทรศัพท์นี้'], 404);
+        }
+
+        return response()->json([
+            'user_id' => $user->id,
+            'name' => $user->firstname . " " . $user->lastname,
+            'phone' => $user->phone
+        ], 200);
+    }
+
+
+    public function findUserByUserId($userId)
+    {
+        $user = User::find($userId);
         return response()->json($user);
     }
 
@@ -154,7 +194,44 @@ class UsersController extends Controller
 
     public function staff_authen(Request $request)
     {
-        return response()->json($request);
+        $code = 200;
+        $result = [];
+        $username = ($request->has('username') ? $request->username : 0);
+        $passwords = ($request->has('passwords') ? $request->passwords : 0);
+
+        if ($username == '' || $username == '0' || $passwords == '' || $passwords == '0') {
+            $result = ['message' => 'ไม่พบผู้ใช้งาน'];
+            $code = 204;
+        } else {
+            $user = User::where('username', $username)->first();
+            if ($user && Hash::check($passwords, $user->password)) {
+
+                $user->remember_token = base64_encode(Str::random(40));
+                $user->save();
+                $user->logged = true;
+                // 2. ถ้าอยากรู้ว่า User มี Role อะไร หรืออยากส่งชื่อ Role กลับไปให้แอปฝั่ง Capacitor
+                // Spatie มีฟังก์ชัน getRoleNames() ให้ใช้ได้เลยครับ
+                $user->role_names = $user->getRoleNames(); // จะได้เป็น Array เช่น ["Staff", "Admin"]
+
+                if($user->hasRole('Recycle Bank Staff')){
+                    $user->org_member = User::where('org_id_fk', $user->org_id_fk)
+                        ->with(['wastePreference' => function($q){
+                            $q->select('id', 'user_id', 'address');
+                        }, 'wastePreference.kpBankAccount' => function($q){
+                            $q->select('id', 'user_pref_id', 'account_no');
+                        }
+                        ])
+                       ->whereHas('wastePreference.kpBankAccount') // 🎯 กรองเฉพาะคนที่มีบัญชี
+                        ->get(['firstname', 'lastname', 'id', 'address', 'zone_id', 'subzone_id', 'phone']);
+                    $user->items = KpTbankItems::where('org_id_fk', $user->org_id_fk)->get();
+
+                    return response()->json(['data' => $user, 'code' => 200]);
+                }
+            } else {
+            }
+        }
+
+        return response()->json(['data' => $result, 'code' => $code]);
     }
 
     public function authen(Request $request)

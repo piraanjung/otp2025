@@ -16,6 +16,7 @@ return new class extends Migration
         Schema::create('tw_meter_infos', function (Blueprint $table) {
             $table->unsignedBigInteger('meter_id')->primary();
             $table->foreignId('user_id')->constrained('users')->onDelete('cascade');
+            $table->foreignId('org_id_fk')->constrained('organization')->onDelete('cascade');
             $table->string('meternumber');
             $table->string('factory_no');
             $table->string('submeter_name')->nullable();
@@ -29,7 +30,6 @@ return new class extends Migration
             $table->enum('cutmeter', [1, 0])->default(0);
             $table->integer('inv_no_index')->default(0);
             $table->integer('payment_id')->default(0);
-            $table->integer('discounttype')->default(0);
             $table->integer('recorder_id');
             $table->integer('last_meter_recording')->default(0);
             $table->timestamps();
