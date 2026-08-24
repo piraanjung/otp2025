@@ -166,7 +166,8 @@ class UserMatchingAnnualTrashsController extends Controller
 
     public function viewmap()
     {
-        return view('foodwaste.dashboard_map');
+        $lat_long = Organization::where('id', Auth::user()->org_id_fk)->get(['lat', 'long']);
+        return view('foodwaste.dashboard_map', compact('lat_long'));
     }
 
     public function map()

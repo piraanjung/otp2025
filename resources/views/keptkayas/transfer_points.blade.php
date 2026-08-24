@@ -19,6 +19,7 @@
 
             <form action="{{ route('keptkayas.transfer_points.store') }}" method="POST">
                 @csrf
+                <input type="hidden" name="pref_id" value="{{ $pref_id }}">
                 <div class="mb-3">
                     <label class="form-label fw-bold">เบอร์โทรศัพท์ผู้รับ</label>
                     <input type="tel" name="receiver_phone" class="form-control form-control-lg rounded-pill" placeholder="08x-xxx-xxxx" required>

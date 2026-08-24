@@ -237,6 +237,7 @@ public function store(Request $request)
         ]);
     }
 
+    
     // กรองข้อมูล (Logic: ต้องมีการจดเลขมาจริงๆ หรือมีการใช้น้ำ)
     $items = collect($request->get('data'))->filter(function ($val) {
         // เช็คว่ามี key currentmeter และค่าไม่ว่าง
@@ -260,14 +261,14 @@ public function store(Request $request)
             // ---------------------------------------------------------
             // Update Or Create (ใส่ org_id_fk ไปด้วย)
             // ---------------------------------------------------------
+            
             $invoice = TwInvoice::updateOrCreate(
                 [
                     'meter_id_fk'   => $inv['meter_id'],
                     'inv_period_id_fk' => $inv_period_table->id,
-                    // 'org_id_fk'  => $org_id // *สำคัญ: ใส่ตรงนี้ด้วยถ้า 1 มิเตอร์ย้าย Org ได้ (แต่ปกติใส่แค่ create ก็พอ)
+                    'org_id_fk'  => $org_id // *สำคัญ: ใส่ตรงนี้ด้วยถ้า 1 มิเตอร์ย้าย Org ได้ (แต่ปกติใส่แค่ create ก็พอ)
                 ],
                 [
-                    'org_id_fk'     => $org_id, // ✅ บันทึก Org ID
                     'lastmeter'     => $last_meter,
                     'currentmeter'  => $curr_meter,
                     'water_used'    => $water_used,
@@ -279,37 +280,12 @@ public function store(Request $request)
                     'paid'          => $inv['paid'] ?? 0,
                     'vat'           => $inv['vat'] ?? 0,
                     'totalpaid'     => $inv['totalpaid'],
-                    
                     'status'        => 'invoice',
                     'recorder_id'   => Auth::id(),
                 ]
             );
 
-            // ---------------------------------------------------------
-            // Transaction Check
-            // ---------------------------------------------------------
-            // ใช้ firstOrCreate เพื่อลด query และ code สั้นลง
-            // if(empty($invoice->acc_trans_id_fk)) {
-            //      $transaction = TwAccTransactions::firstOrCreate(
-            //         [
-            //             'meter_id_fk' => $inv['meter_id'],
-            //             // อาจจะต้องผูกกับ Invoice ID หรือ Period หรือไม่? เช็ค logic เดิมดีๆครับ
-            //             // ปกติ Transaction มักจะผูกกับ Invoice ตัวต่อตัว
-            //         ], 
-            //         [
-            //             'org_id_fk' => $org_id, // ✅ อย่าลืม Org
-            //             'cashier'   => Auth::id(),
-            //             'created_at'=> now(),
-            //             'updated_at'=> now()
-            //         ]
-            //     );
-
-            //     // Update FK กลับไปที่ Invoice (ถ้าจำเป็น)
-            //     if ($invoice->acc_trans_id_fk != $transaction->id) {
-            //         $invoice->acc_trans_id_fk = $transaction->id;
-            //         $invoice->save();
-            //     }
-            // }
+           
         }
 
         // ถ้าทุกอย่างผ่าน ให้ Commit ลง Database จริง

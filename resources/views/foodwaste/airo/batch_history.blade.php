@@ -48,16 +48,22 @@
 <body>
 <div class="menu-backdrop" id="menuBackdrop"></div>
 
-    <button class="menu-trigger-btn" id="openMenuBtn">
+    {{-- <button class="menu-trigger-btn" id="openMenuBtn">
         <i class="bi bi-list"></i>
-    </button>
-        @include('foodwaste.airo._sidebar', ['userWastePref' => $waste_preference])
+    </button> --}}
+        {{-- @include('foodwaste.airo._sidebar', ['userWastePref' => $waste_preference]) --}}
+        {{-- <div class="d-flex align-items-center justify-content-between mb-4">
+            <a href="{{ url('line/dashboard/' . $waste_preference->user_id . '/' . Auth::user()->org_id_fk) }}"
+                class="btn btn-light rounded-circle shadow-sm"><i class="bi bi-chevron-left"></i></a>
+            <h4 class="text-success fw-bold mb-0">🌱 AiroBact Bin</h4>
+            <div style="width: 40px;"></div>
+        </div> --}}
 
 <div class="container py-4 app-container">
 
     <div class="d-flex align-items-center mb-4">
-        <a href="{{ url()->previous() }}" class="btn btn-light rounded-circle me-3"><i class="bi bi-chevron-left"></i></a>
-        <h4 class="fw-bold mb-0">📜 ประวัติล็อตปุ๋ยหมัก</h4>
+        <a href="{{ url()->previous() }}" class="btn btn-info rounded-circle shadow-sm"><i class="bi bi-chevron-left"></i></a>
+        &nbsp;&nbsp;&nbsp;<h4 class="fw-bold mb-0">📜 ประวัติล็อตปุ๋ยหมัก</h4>
     </div>
 
     @foreach($batches as $batch)

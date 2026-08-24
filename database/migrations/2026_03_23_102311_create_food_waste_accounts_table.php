@@ -14,6 +14,7 @@ return new class extends Migration
         Schema::create('food_waste_accounts', function (Blueprint $table) {
             $table->id();
             $table->foreignId('user_id')->constrained('users')->onDelete('cascade');
+            $table->foreignId('org_id_fk')->constrained('organizations')->onDelete('cascade');
             $table->decimal('points_balance', 12, 2)->default(0);
             $table->decimal('money_balance', 12, 2)->default(0);
             $table->float('total_weight_kg')->default(0); // น้ำหนักสะสมรวม

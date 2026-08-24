@@ -604,28 +604,28 @@
             </div>
 
             <div id="step-idcard" class="step-container">
-                <div class="alert alert-warning text-center small mb-4">
-                    <i class="bi bi-exclamation-triangle-fill"></i> ไม่พบข้อมูลบัญชีจากเบอร์โทรศัพท์ดังกล่าว
-                    (หากท่านเคยเปลี่ยนเบอร์โทรศัพท์ กรุณายืนยันด้วยเลขบัตรประชาชน)
+                <div class="alert alert-warning text-center  mb-4">
+                    <i class="bi bi-exclamation-triangle-fill"></i> ท่านยังไม่ได้ทำการลงทะเบียน
+                    ใช้งาน Line OA
                 </div>
                 <h5 class="fw-bold mb-3">กรอกเลขบัตรประชาชน</h5>
                 <form id="form-idcard">
                     <div class="mb-3">
                         <label for="input-idcard" class="form-label">เลขบัตรประจำตัวประชาชน</label>
-                        <input type="text" class="form-control form-control-lg text-center" id="input-idcard"
+                        <input type="text" class="form-control form-control-lg text-center" style="font-size: large; font-weight: bold;" id="input-idcard"
                             placeholder="เลข 13 หลัก" maxlength="13" required>
                     </div>
                     <button type="submit" class="btn btn-primary w-100 btn-lg">ค้นหาด้วยเลขบัตรประชาชน</button>
-                    <button type="button" onclick="goToStep('phone')"
-                        class="btn btn-link w-100 text-muted mt-2 btn-sm text-decoration-none">ย้อนกลับไปกรอกเบอร์โทร</button>
+                    {{-- <button type="button" onclick="goToStep('phone')"
+                        class="btn btn-link w-100 text-muted mt-2 btn-sm text-decoration-none">ย้อนกลับไปกรอกเบอร์โทร</button> --}}
                 </form>
             </div>
 
             <div id="step-select-org" class="step-container">
                 <h4 class="text-center mb-2 fw-bold text-success"><i class="bi bi-check-circle-fill"></i> ยืนยันตัวตนสำเร็จ
                 </h4>
-                <p class="text-muted text-center small mb-4">พบบัญชีของท่านในระบบ
-                    กรุณาเลือกองค์กรที่ต้องการเข้าใช้งานในสเตชั่นนี้</p>
+                <p class="text-muted text-center mb-4">พบบัญชีของท่านในระบบ
+                    กรุณาเลือกองค์กรที่ต้องการเข้าใช้งาน</p>
 
                 <div id="org-list-container" class="list-group mb-4">
                 </div>
@@ -633,6 +633,7 @@
 
             <div id="step-register-notice" class="step-container text-center py-3">
                 <div id="new_user_form">
+                    ลงทะเบียนผู้ใช้งานใหม่
                         <form id="registerForm">
 
                             {{-- 1. ชื่อ - นามสกุล (ย้ายมาไว้บนสุด เพื่อความชัดเจน) --}}
@@ -841,13 +842,17 @@
             try {
                 await liff.init({ liffId: "1656703539-5eopvjK9" }); // 👈 นำ LIFF ID จาก Line Developer Console มาใส่ตรงนี้
                 if (!liff.isLoggedIn()) {
+                                console.log('xx')
+
                     liff.login();
                     return;
                 }
 
                 profile = await liff.getProfile();
+                        console.log('profile',profile)
 
                 currentLineUserId = profile.userId;
+                console.log('currentLineUserId', currentLineUserId)
                 currentLineUserImage = profile.pictureUrl.replace("https://profile.line-scdn.net/", "")
 
                 // ส่งไปเช็คที่หลังบ้านก่อนเป็นอันดับแรกว่า Line ID นี้เคยผูกบัญชีไปหรือยัง
@@ -869,23 +874,29 @@
                     line_user_id: lineId
                 },
                 success: function (response) {
+                    console.log('res',response)
                     if (response.status === 'found') {
-                        console.log('response.organization_list', response.organization_list)
+                        console.log('response.organization_list', response)
                         // หากเคยลงทะเบียนและผูก Line ID ไว้แล้ว นำไปสเต็ปเลือกองค์กรเลย
                         if (Object.keys(response.organization_list).length > 1) {
 
                             renderOrganizationList(response.organization_list);
                             goToStep('select-org');
                         } else {
-                            prefId = response.organization_list[0].pref_id;
-                            org_name = response.organization_list[0].org_name;
+                            pref_id = response.organization_list[0].pref_id;
                             orgId = response.organization_list[0].id;
-                            selectOrganization(prefId, orgId, org_name)
+                            if(Object.keys(response.organization_list).length === 1){
+                                  window.location.href = "{{ url('/line/dashboard') }}/" + pref_id + "/" + orgId;
+
+                            }else{
+                                selectOrganization(userId, orgId, org_name)
+                            }
 
                         }
                     } else {
                         // เป็นผู้ใช้ที่เข้ามาครั้งแรกหรือยังไม่ได้ผูก Line ID -> ไปหน้าสเต็ปกรอกเบอร์
-                        goToStep('phone');
+                        console.log('phone')
+                        goToStep('idcard');
                     }
                 },
                 error: function () {
@@ -978,12 +989,12 @@
                 let buttonHtml = `
                     <button type="button" 
                         onclick="selectOrganization(${org.pref_id}, ${org.id}, '${org.org_name}')" 
-                        class="list-group-item list-group-item-action d-flex justify-content-between align-items-center py-3">
+                        class="btn btn-info btn-block mb-3">
                         <div>
-                            <i class="bi bi-building text-secondary me-2"></i>
-                            <span class="fw-bold">${org.org_name}</span>
+                            <i class="fa fa-circle-user"></i>
+                            <span class="fw-bold">${org.org_type}${org.org_name}</span>
                         </div>
-                        <i class="bi bi-chevron-right text-muted"></i>
+                        <i class="fa-solid fa-circle-arrow-right"></i>
                     </button>
                 `;
                 container.append(buttonHtml);
@@ -991,7 +1002,7 @@
         }
 
         // 2. ปรับฟังก์ชัน selectOrganization ให้รับค่า prefId และทำการ Redirect ไปยังตำแหน่งใหม่
-        function selectOrganization(prefId, orgId, orgName) {
+        function selectOrganization(userId, orgId, orgName) {
             Swal.fire({
                 title: 'ยืนยันการเข้าใช้งาน',
                 text: `คุณต้องการเข้าใช้งานระบบของ "${orgName}" ใช่หรือไม่?`,
@@ -1006,10 +1017,10 @@
                     $.post("{{ url('api/line/set-session-org') }}", {
                         _token: "{{ csrf_token() }}",
                         org_id: orgId,
-                        pref_id: prefId
+                        userId: userId
                     }).done(function (data) {
                         // 🚀 พารีไดเร็กต์ไปยังหน้า Dashboard พร้อมส่งค่า pref_id และ org_id ผ่าน URL ตามที่คุณต้องการ
-                        window.location.href = "{{ url('/line/dashboard') }}/" + prefId + "/" + orgId;
+                         window.location.href = "{{ url('/line/dashboard') }}/" + userId + "/" + orgId;
                     }).fail(function () {
                         Swal.fire('ผิดพลาด', 'ไม่สามารถบันทึกเซสชันได้', 'error');
                     });
@@ -1088,9 +1099,10 @@
                     _token: "{{ csrf_token() }}",
                     payload: payload,
                 });
+                console.log('res',response)
 
                 if (response.res == 1) {
-                    window.location.href = `/line/dashboard/${response.kp_ref}/${org_id_text.value}`;
+                     window.location.href = `/line/dashboard/${response.user_id}/${org_id_text.value}`;
                 } else {
                     // กรณีอื่นๆ
                 }

@@ -216,6 +216,7 @@ class PaymentController extends Controller
     $nextLastmeter = $twUserInfo->last_meter_recording;
 
     // 6. Loop Update Invoice (Link ไปหา Transaction)
+    
     foreach ($invoices as $inv) {
         $inv->status          = 'paid';
         $inv->acc_trans_id_fk = $accTrans->id; // **Key สำคัญ: ผูกบิลกับ Transaction**

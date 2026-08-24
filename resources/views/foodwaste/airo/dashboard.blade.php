@@ -11,7 +11,8 @@
     <style>
         /* --- CSS ของเดิมของคุณ --- */
         body {
-            background-color: #f4f7f6;
+            /* background-color: #f4f7f6; */
+            background: hsl(var(--hue), 10%, 85%);
             font-family: 'Nunito', sans-serif;
             overflow-x: hidden;
         }
@@ -54,7 +55,7 @@
         .menu-trigger-btn {
             position: fixed;
             top: 15px;
-            left: 15px;
+            left: 315px;
             z-index: 1030;
             width: 45px;
             height: 45px;
@@ -129,6 +130,107 @@
             color: white;
         }
     </style>
+    <style>
+        :root {
+            --hue: 184;
+            --bg-app: #d4dcdd;
+            --fg: hsl(var(--hue), 66%, 24%);
+            --primary: #22a6b3;
+            --nav-bg: #ffffff;
+            --gradient: linear-gradient(145deg, hsl(var(--hue), 10%, 85%), hsl(var(--hue), 10%, 100%));
+            font-size: 16px;
+        }
+
+        a {
+            text-decoration: none;
+            color: var(--fg);
+        }
+
+        /* --- MAGIC BOTTOM NAV --- */
+        .navigation {
+            position: fixed;
+            bottom: 20px;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 350px;
+            height: 70px;
+            background: #ffbe1b;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            border-radius: 15px;
+            z-index: 1000;
+        }
+
+        .navigation ul li.active a .icon {
+            transform: translateY(-22px);
+            color: #fff;
+        }
+
+        .navigation ul li a .icon {
+            font-size: 1.5em;
+            transition: 0.5s;
+            color: #444;
+        }
+
+        .icon {
+            position: absolute;
+            top: 30%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            width: 30%;
+            height: 30%;
+        }
+
+        .navigation ul {
+            display: flex;
+            width: 100%;
+            padding: 0;
+            margin: 0;
+            justify-content: space-around;
+            position: relative;
+        }
+
+        .navigation ul li {
+            list-style: none;
+            width: 70px;
+            height: 70px;
+            z-index: 10;
+        }
+
+        .navigation ul li a {
+            position: relative;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            width: 100%;
+            height: 100%;
+        }
+
+        .navigation ul li a .icon {
+            font-size: 1.5em;
+            transition: 0.5s;
+            color: #444;
+        }
+
+        .navigation ul li.active a .icon {
+            transform: translateY(-22px);
+            color: #fff;
+        }
+
+        .indicator {
+            position: absolute;
+            top: -30%;
+            width: 70px;
+            height: 70px;
+            background: var(--primary);
+            border-radius: 50%;
+            border: 6px solid var(--bg-app);
+            transition: 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+            z-index: 1;
+            left: 0;
+        }
+    </style>
     <script src="https://code.jquery.com/jquery-3.7.0.js"></script>
 
 </head>
@@ -140,7 +242,7 @@
         <i class="bi bi-list"></i>
     </button>
 
-    <div class="container py-3 app-container">
+    <div class="container py-3 pb-5 mb-5 app-container">
         @include('foodwaste.airo._sidebar', ['userWastePref' => $waste_preference])
         <div class="d-flex align-items-center justify-content-between mb-4">
             <a href="{{ url('line/dashboard/' . $userId . '/' . Auth::user()->org_id_fk) }}"
@@ -153,7 +255,7 @@
             <div class="alert alert-success rounded-4 shadow-sm border-0 mb-4">{{ session('success') }}</div>
         @endif
 
-        <div class="card shadow-sm mb-4">
+        {{-- <div class="card shadow-sm mb-4">
             <div class="card-body p-4">
                 <div class="section-title text-warning"><i class="bi bi-camera-fill"></i> 1. ถ่ายรูปมื้ออาหาร</div>
                 <form id="mealForm" action="{{ route('foodwaste.store_meal') }}" method="POST"
@@ -166,17 +268,17 @@
                         </div>
                         <img id="meal_preview" class="preview-img img-fluid w-100 mt-2">
                     </label>
+                    <input type="file" id="meal_photo" name="meal_photo" class="d-none" accept="image/*"
+                        capture="camera" required onchange="previewImage(this, 'meal_preview', 'meal_placeholder')">
+
                     {{-- <input type="file" id="meal_photo" name="meal_photo" class="d-none" accept="image/*"
-                        capture="camera" required onchange="previewImage(this, 'meal_preview', 'meal_placeholder')"> --}}
-                        <input type="file" id="meal_photo" name="meal_photo" class="d-none"
-       accept="image/*" capture="camera" required
-       onchange="handleImageUpload(this)">
+                        capture="camera" required onchange="handleImageUpload(this)"> --}
                     <button type="submit"
                         class="btn btn-warning w-100 rounded-pill py-2 shadow-sm fw-bold">วิเคราะห์เมนูด้วย AI
                         ✨</button>
                 </form>
             </div>
-        </div>
+        </div> --}}
 
         <div class="card shadow-sm mb-4 border-top border-success border-4">
             <div class="card-body p-4">
@@ -254,6 +356,77 @@
         </div>
     </div>
 
+    {{-- <div class="navigation">
+        <ul>
+            <li class="list active main_bottom_nav" data-id="recycle">
+                <a href="#"><span class="icon"><i class="bi bi-recycle"></i></span></a>
+                <div style="top: 70%;position: absolute;padding-left: 20px;">รีไซเคิล</div>
+            </li>
+            <li class="list main_bottom_nav" data-id="wet">
+                <a href="#"><span class="icon"><i class="bi bi-trash-fill"></i></span></a>
+                <div style="top: 70%;position: absolute;padding-left: 5px;">ขยะเปียก</div>
+
+            </li>
+            <li class="list main_bottom_nav" data-id="annual">
+                <a href="#"><span class="icon"><i class="bi bi-calendar-check"></i></span></a>
+                <div style="top: 70%;position: absolute;">ถังขยะรายปี</div>
+
+            </li>
+            <div class="indicator"></div>
+        </ul>
+    </div> --}}
+
+    <script>
+        $(document).ready(function () {
+            // Sidebar
+            $('#openMenuBtn').click(() => { $('#mainSidebar, #menuBackdrop').addClass('active'); });
+            $('#closeMenuBtn, #menuBackdrop').click(() => { $('#mainSidebar, #menuBackdrop').removeClass('active'); });
+
+            // Indicator Logic
+            function moveIndicator(target) {
+                const $indicator = $('.indicator');
+                const $target = $(target);
+                if (!$target.length) return;
+                const parentPos = $('.navigation ul').offset().left;
+                const btnPos = $target.offset().left;
+                const btnWidth = $target.outerWidth();
+                const targetX = (btnPos - parentPos) + (btnWidth / 1.5) - ($indicator.outerWidth() / 2);
+                $indicator.css('transform', `translateX(${targetX}px)`);
+            }
+
+            // Initial position
+            moveIndicator('.navigation .list.active');
+
+            // Global Click Logic (Sidebar & Bottom Nav)
+            $('.main_bottom_nav').click(function (e) {
+                e.preventDefault();
+                const id = $(this).data('id');
+
+                $('.list, .sidebar-link').removeClass('active');
+                $(`.main_bottom_nav[data-id="${id}"]`).addClass('active');
+
+                moveIndicator($(`.navigation .list[data-id="${id}"]`)[0]);
+
+                $('.kp').addClass('hidden');
+                // $('.div_' + id).removeClass('hidden').hide().fadeIn(400);
+
+                $('#mainSidebar, #menuBackdrop').removeClass('active');
+                if (navigator.vibrate) navigator.vibrate(40);
+
+                if (id === 'wet') {
+                    // รอให้ FadeIn เสร็จก่อนค่อยวาดกราฟ (ป้องกันกราฟ 0px)
+                    setTimeout(() => {
+                        if (typeof renderDashboardChart === 'function') {
+                            renderDashboardChart();
+                        }
+                    }, 400);
+                }
+            });
+        });
+
+
+    </script>
+
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
     <script>
         function previewImage(input, previewId, placeholderId) {
@@ -308,67 +481,67 @@
         });
 
         async function handleImageUpload(input) {
-    const file = input.files[0];
-    if (!file) return;
+            const file = input.files[0];
+            if (!file) return;
 
-    // แสดง Preview ก่อน (แบบเดิม)
-    const reader = new FileReader();
-    reader.onload = (e) => {
-        document.getElementById('meal_preview').src = e.target.result;
-        document.getElementById('meal_placeholder').classList.add('d-none');
-    };
-    reader.readAsDataURL(file);
-
-    // --- ส่วนสำคัญ: ย่อขนาดรูปก่อน Submit ---
-    const compressedFile = await compressImage(file);
-
-    // สร้าง DataTransfer เพื่อเอาไฟล์ที่ย่อแล้วใส่กลับไปใน Input
-    const dataTransfer = new DataTransfer();
-    dataTransfer.items.add(compressedFile);
-    input.files = dataTransfer.files;
-}
-
-function compressImage(file) {
-    return new Promise((resolve) => {
-        const reader = new FileReader();
-        reader.readAsDataURL(file);
-        reader.onload = (event) => {
-            const img = new Image();
-            img.src = event.target.result;
-            img.onload = () => {
-                const canvas = document.createElement('canvas');
-                const MAX_WIDTH = 1024; // ย่อเหลือด้านกว้างไม่เกิน 1024px
-                let width = img.width;
-                let height = img.height;
-
-                if (width > MAX_WIDTH) {
-                    height *= MAX_WIDTH / width;
-                    width = MAX_WIDTH;
-                }
-
-                canvas.width = width;
-                canvas.height = height;
-                const ctx = canvas.getContext('2d');
-                ctx.drawImage(img, 0, 0, width, height);
-
-                canvas.toBlob((blob) => {
-                    const newFile = new File([blob], file.name, {
-                        type: 'image/jpeg',
-                        lastModified: Date.now(),
-                    });
-                    resolve(newFile);
-                }, 'image/jpeg', 0.7); // คุณภาพ 70% ชัดเพียงพอสำหรับ AI วิเคราะห์
+            // แสดง Preview ก่อน (แบบเดิม)
+            const reader = new FileReader();
+            reader.onload = (e) => {
+                document.getElementById('meal_preview').src = e.target.result;
+                document.getElementById('meal_placeholder').classList.add('d-none');
             };
-        };
-    });
-}
+            reader.readAsDataURL(file);
 
-// ผูกฟังก์ชันกับ Form Submission เพื่อแสดง Loading
-document.getElementById('mealForm').onsubmit = function() {
-    const btn = this.querySelector('button[type="submit"]');
-    btn.disabled = true;
-    btn.innerHTML = '<span class="spinner-border spinner-border-sm"></span> กำลังประมวลผล...';
-};
+            // --- ส่วนสำคัญ: ย่อขนาดรูปก่อน Submit ---
+            const compressedFile = await compressImage(file);
+
+            // สร้าง DataTransfer เพื่อเอาไฟล์ที่ย่อแล้วใส่กลับไปใน Input
+            const dataTransfer = new DataTransfer();
+            dataTransfer.items.add(compressedFile);
+            input.files = dataTransfer.files;
+        }
+
+        function compressImage(file) {
+            return new Promise((resolve) => {
+                const reader = new FileReader();
+                reader.readAsDataURL(file);
+                reader.onload = (event) => {
+                    const img = new Image();
+                    img.src = event.target.result;
+                    img.onload = () => {
+                        const canvas = document.createElement('canvas');
+                        const MAX_WIDTH = 1024; // ย่อเหลือด้านกว้างไม่เกิน 1024px
+                        let width = img.width;
+                        let height = img.height;
+
+                        if (width > MAX_WIDTH) {
+                            height *= MAX_WIDTH / width;
+                            width = MAX_WIDTH;
+                        }
+
+                        canvas.width = width;
+                        canvas.height = height;
+                        const ctx = canvas.getContext('2d');
+                        ctx.drawImage(img, 0, 0, width, height);
+
+                        canvas.toBlob((blob) => {
+                            const newFile = new File([blob], file.name, {
+                                type: 'image/jpeg',
+                                lastModified: Date.now(),
+                            });
+                            resolve(newFile);
+                        }, 'image/jpeg', 0.7); // คุณภาพ 70% ชัดเพียงพอสำหรับ AI วิเคราะห์
+                    };
+                };
+            });
+        }
+
+        // ผูกฟังก์ชันกับ Form Submission เพื่อแสดง Loading
+        // document.getElementById('mealForm').onsubmit = function () {
+        //     const btn = this.querySelector('button[type="submit"]');
+        //     btn.disabled = true;
+        //     btn.innerHTML = '<span class="spinner-border spinner-border-sm"></span> กำลังประมวลผล...';
+        // };
     </script>
 </body>
 

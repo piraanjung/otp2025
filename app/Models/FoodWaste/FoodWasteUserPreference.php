@@ -2,6 +2,7 @@
 
 namespace App\Models\FoodWaste;
 
+use App\Models\Admin\Organization;
 use App\Models\KeptKaya\KPAccounts;
 use App\Models\KeptKaya\KpPurchaseTransaction;
 use App\Models\User;
@@ -18,7 +19,8 @@ class FoodWasteUserPreference extends Model
     protected $fillable = [
         'id',
         'user_id',
-        'is_foodwaste_bank'
+        'org_id_fk',
+        'status'
     ];
 
     protected $casts = [
@@ -28,6 +30,11 @@ class FoodWasteUserPreference extends Model
     public function user()
     {
         return $this->belongsTo(User::class);
+    }
+
+        public function organization()
+    {
+        return $this->belongsTo(Organization::class, 'org_id_fk');
     }
 
     public function foodwaste_bins()

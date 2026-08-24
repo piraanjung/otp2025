@@ -59,18 +59,38 @@ class LineController extends Controller
 
     public function checkLineUser(Request $request)
     {
+
         $lineUserId = $request->input('line_user_id');
 
         // ค้นหาผู้ใช้งานในตาราง users ด้วย line_id
-        $user = User::where('line_id', $lineUserId)->first();
 
-        if ($user) {
+        $user = User::where('line_id', $lineUserId)->with('wastePreference')->get()->first();
+        if(!$user){
+            return response()->json(['status' => 'not_found']);
+        }
+        if(collect($user->wastePreference)->isEmpty()){
+            KpUserWastePreference::create([
+                'user_id' => $user[0]->id,
+                'org_id_fk' => $user[0]->org_id_fk,
+                'is_waste_bank' => 1,
+                'is_annual_collection' => 0,
+                "address" => $user[0]->address,
+                "zone_id" => $user[0]->zone_id,
+                "subzone_id" => $user[0]->subzone_id,
+                "tambon_code" => $user[0]->tambon_code,
+                "district_code" => $user[0]->district_code,
+                "province_code" => $user[0]->province_code,
+            ]);
+        }
+        if (collect($user)->isNotEmpty()) {
             // ถ้าเจอ -> ดึงรายการองค์กรที่สังกัดทั้งหมดส่งกลับไป
+
             $organizationList = $this->getOrganizations($user->id);
             return response()->json([
-                'status' => 'found',
+                'status' => collect($organizationList)->isEmpty() ? 'not found' : 'found',
                 'organization_list' => $organizationList
             ]);
+            
         }
 
         // ถ้าไม่เจอ -> แจ้งให้หน้าบ้านเริ่มกรอกเบอร์โทรศัพท์ (Step 1)
@@ -139,9 +159,13 @@ class LineController extends Controller
 {
     return KpUserWastePreference::where('user_id', $userId)
         ->join('organizations', 'kp_user_waste_preferences.org_id_fk', '=', 'organizations.id')
+        ->join('organization_types',  'organization_types.id','=','organizations.org_type_id')
         ->select([
+
             'kp_user_waste_preferences.id as pref_id', // 👈 ดึง ID ของตาราง Preferences และตั้งชื่อ Alias ว่า pref_id
-            'organizations.id',                       // ID ขององค์กร (org_id)
+            'organizations.id',   
+            'organization_types.name as org_type',   
+            'kp_user_waste_preferences.user_id',
             'organizations.org_name'                  // ชื่อองค์กร
         ])
         ->get();

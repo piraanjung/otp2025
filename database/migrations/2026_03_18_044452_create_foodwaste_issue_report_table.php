@@ -18,6 +18,7 @@ return new class extends Migration
             $table->foreignId('user_id')->nullable()->constrained('users')->onDelete('set null');
             $table->foreignId('batch_id')->nullable()->constrained('foodwaste_compost_batches')->onDelete('set null');
             $table->foreignId('issue_type_id')->nullable()->constrained('foodwaste_issue_types')->onDelete('set null');
+            $table->foreignId('assigned_staff_id')->nullable()->constrained('staff')->onDelete('set null');
 
             $table->string('description')->nullable();
 

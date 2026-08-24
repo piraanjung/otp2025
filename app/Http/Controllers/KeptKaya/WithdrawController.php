@@ -4,7 +4,7 @@ namespace App\Http\Controllers\KeptKaya;
 
 use App\Http\Controllers\Controller;
 use App\Models\KeptKaya\KpMoneyRequest;
-use App\Models\RecycleBankAccount;
+use App\Models\KpBankAccount;
 use Carbon\Carbon;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth as FacadesAuth;
@@ -12,9 +12,9 @@ use Illuminate\Support\Facades\DB;
 
 class WithdrawController extends Controller
 {
-    public function create($userId)
+    public function create($pref_id)
     {
-        $account = RecycleBankAccount::where('user_id', $userId)->first();
+        $account = KpBankAccount::where('user_pref_id', $pref_id)->first();
 
         // คำนวณวันอังคารหน้า
         // ถ้าวันนี้เป็นวันจันทร์/อาทิตย์ ก็นัดอังคารนี้เลย
@@ -37,7 +37,7 @@ class WithdrawController extends Controller
 
         return DB::transaction(function () use ($request, $userId, $amount) {
             // 1. เช็คยอดเงินจริงในบัญชี
-            $account = RecycleBankAccount::where('user_id', $userId)->firstOrFail();
+            $account = KpBankAccount::where('user_id', $userId)->firstOrFail();
 
             if ($account->balance < $amount) {
                 return back()->with('error', 'ยอดเงินคงเหลือไม่เพียงพอ');

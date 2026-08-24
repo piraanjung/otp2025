@@ -287,7 +287,7 @@
 
         <div class="main-circle">
             <div class="inner centralized">
-                <img src="{{asset('logo/' . $orgInfos['org_logo_img'])}}" width="95%" height="95%">
+                <img src="{{asset('logo/' . $orgInfos['org_logo_img'])}}" width="100%" height="100%">
                 {{-- ระบบบริหารจัดการ --}}
             </div>
         </div>
@@ -351,9 +351,9 @@
 
         </div>
         <div
-            class="bubble-container centralized  blue-dark {{auth()->user()->can('access wet waste bank') || auth()->user()->hasRole('Super Admin') ? '' : 'a-disbled'}}">
+            class="bubble-container centralized  blue-dark {{auth()->user()->can('access food waste') || auth()->user()->hasRole('Super Admin') ? '' : 'a-disbled'}}">
             <a
-                href="{{auth()->user()->can('access wet waste bank') || auth()->user()->hasRole('Super Admin') ? route('foodwaste.executive_dashboard') : 'javascript:void(0)'}}">
+                href="{{auth()->user()->can('access food waste') || auth()->user()->hasRole('Super Admin') ? route('foodwaste.executive_dashboard') : 'javascript:void(0)'}}">
                 <div class="bubble centralized">
                     <div class="inner centralized">
                         ถังขยะเปียกจากครัวเรือน
@@ -371,10 +371,11 @@
                 </div>
             </a>
         </div>
+        {{-- {{dd(auth()->user()->guard_name) }} --}}
         <div
-            class="bubble-container centralized blue-light {{auth()->user()->can('access settings') || auth()->user()->hasRole('Super Admin|Admin') ? '' : 'a-disbled'}}">
+            class="bubble-container centralized blue-light {{auth()->user()->hasRole('Super Admin|Admin') ? '' : 'a-disbled'}}">
             <a
-                href="{{auth()->user()->can('access settings') || auth()->user()->hasRole('Super Admin|Admin') ? route('superadmin.dashboard') : 'javascript:void(0)'}}">
+                href="{{auth()->user()->hasRole('Super Admin|Admin') ? route('superadmin.dashboard') : 'javascript:void(0)'}}">
                 <div class="bubble centralized">
                     <div class="inner centralized">
                         ผู้ดูแลระบบ

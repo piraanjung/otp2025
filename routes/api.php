@@ -24,6 +24,7 @@ use App\Http\Controllers\KeptKaya\MachineController;
 use App\Http\Controllers\Kiosk\KioskApiController;
 use Illuminate\Support\Facades\Log;
 
+
 Route::get('/testget', function () {
     return response()->json([
         'testget' => 2222
@@ -45,7 +46,7 @@ Route::get('/health-check', function () {
 });
 
 Route::get('/keptkaya/kp_items_recycle_info', [KeptkayaController::class, 'kp_items_recycle_info']);
-Route::get('/keptkaya/members', [KeptkayaController::class, 'members']);
+Route::get('/keptkaya/members/{org_id}', [KeptkayaController::class, 'members']);
 Route::post('/keptkaya/store_purchase', [KeptkayaController::class, 'store_purchase']);
 
 // =====================================================x====================

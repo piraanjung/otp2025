@@ -9,6 +9,8 @@ class OrganizationType extends Model
 {
     protected $fillable = ['name', 'code', 'status'];
 
+    protected $table = 'organization_types';
+
     // ความสัมพันธ์: หนึ่งประเภทมีได้หลายหน่วยงาน
     public function organizations()
     {

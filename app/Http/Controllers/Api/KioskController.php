@@ -298,14 +298,13 @@ class KioskController extends Controller
     {
         // 🎯 1. ดึงค่า String รูปภาพ Base64 ที่ส่งมาจากหน้าตู้ (เปลี่ยนคีย์ 'image' ให้ตรงตามที่หน้าบ้านส่งมาได้ครับ)
         $rawImageContent = $request->input('image_base64') ?? $request->getContent();
-
         if (!empty($rawImageContent)) {
 
             // 🎯 ดึงชื่อประเภทขยะสเตตัสที่ส่งมาจากตู้คีออส เช่น "unknown", "PET_150_WithCap"
             $sLabel = strtolower($request->input('sLabel', 'unknown'));
 
             // 🎯 [จุดวิกฤตคัดแยกโฟลเดอร์] ตรวจสอบเงื่อนไขคำว่า "unknown"
-            if (strpos($sLabel, 'unknown') !== false) {
+            if ($sLabel !== false) {
                 // ถ้าระบบตรวจจับพบคำว่า unknown ให้ยัดเข้าโฟลเดอร์: public/kiosk_unknown_items
                 $subFolder = 'kiosk_unknown_items';
             } else {

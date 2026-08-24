@@ -3,7 +3,10 @@
 namespace App\Models\KeptKaya;
 
 use App\Models\Admin\Organization;
+use App\Models\Admin\Subzone;
+use App\Models\Admin\Zone;
 use App\Models\AnnualTrash\AnnualTrash;
+use App\Models\KPBankAccount;
 use App\Models\User;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
@@ -50,12 +53,23 @@ class KpUserWastePreference extends Model
         return $this->hasMany(KpPurchaseTransaction::class, 'kp_user_w_pref_id_fk', 'id');
     }
 
-    public function kp_account()
+     public function kpBankAccount()
     {
-        return $this->hasOne(KPAccounts::class, 'u_wpref_id_fk');
-    }
-    public function organization()
+        return $this->hasOne(KPBankAccount::class, 'user_pref_id', 'id');
+    }    public function organization()
     {
         return $this->belongsTo(Organization::class, 'org_id_fk', 'id');
     }
+
+     public function user_pref_zone()
+    {
+        return $this->belongsTo(Zone::class, 'zone_id', 'id');
+    }
+
+    public function user_pref_subzone()
+    {
+        return $this->belongsTo(Subzone::class, 'subzone_id', 'id');
+    }
+
+
 }

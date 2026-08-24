@@ -4,7 +4,7 @@ namespace App\Http\Controllers\KeptKaya;
 
 use App\Http\Controllers\Controller;
 use App\Models\KpPointTransfer;
-use App\Models\RecycleBankAccount;
+use App\Models\KpBankAccount;
 use App\Models\User;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
@@ -13,15 +13,14 @@ use Illuminate\Support\Facades\DB;
 class PointController extends Controller
 {
 
-    public function create()
+    public function create($pref_id)
     {
-        $userId = Auth::id();
 
         // ดึงยอดแต้มปัจจุบันมาโชว์ในหน้าโอน
-        $account = RecycleBankAccount::where('user_id', $userId)->first();
+        $account = KpBankAccount::where('user_pref_id', $pref_id)->first();
         $recycleTotalPoints = $account ? $account->points : 0;
 
-        return view('keptkayas.transfer_points', compact('recycleTotalPoints'));
+        return view('keptkayas.transfer_points', compact('recycleTotalPoints', 'pref_id'));
     }
     public function transfer(Request $request)
     {
@@ -39,14 +38,14 @@ class PointController extends Controller
         if ($receiver->id === $senderId) return back()->with('error', 'ไม่สามารถโอนให้ตัวเองได้');
 
         return DB::transaction(function () use ($senderId, $receiver, $amount, $request) {
-            $senderAcc = RecycleBankAccount::where('user_id', $senderId)->first();
+            $senderAcc = KpBankAccount::where('user_id', $senderId)->first();
             if (! $senderAcc || ($senderAcc->points ?? 0) < $amount) {
                 return back()->with('error', 'แต้มของคุณไม่เพียงพอ');
             }
 
             $senderAcc->decrement('points', $amount);
 
-            $receiverAcc = RecycleBankAccount::firstOrCreate(['user_id' => $receiver->id]);
+            $receiverAcc = KpBankAccount::firstOrCreate(['user_id' => $receiver->id]);
             $receiverAcc->increment('points', $amount);
 
             KpPointTransfer::create([

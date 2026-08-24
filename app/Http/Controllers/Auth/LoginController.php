@@ -32,6 +32,10 @@ class LoginController extends Controller
         return view('keptkayas.kp_mobile.login', ['machineId' => $machineId]);
     }
 
+    public function login_staff(Request $request){
+        return $request;
+    }
+
     public function login(Request $request)
     {
         // 1. ดึง Machine ID ที่ส่งมาจากฟอร์ม Hidden Field

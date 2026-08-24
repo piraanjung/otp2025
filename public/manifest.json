@@ -1,0 +1,20 @@
+{
+  "short_name": "PI-STAFF",
+  "name": "PI-STAFF",
+  "icons": [
+    {
+      "src": "logo/ko_envsogo.png",
+      "type": "image/png",
+      "sizes": "192x192"
+    },
+    {
+      "src": "logo/ko_envsogo.png",
+      "type": "image/png",
+      "sizes": "512x512"
+    }
+  ],
+  "start_url": "/login_staff",
+  "background_color": "#ffffff",
+  "theme_color": "#007bff",
+  "display": "browser"
+}

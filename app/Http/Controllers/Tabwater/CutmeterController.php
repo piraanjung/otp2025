@@ -7,13 +7,11 @@ use App\Http\Controllers\Api\CutmeterController as ApiCutmeterCtrl;
 use App\Http\Controllers\Api\FunctionsController;
 use App\Http\Controllers\Api\InvoiceController;
 use App\Http\Controllers\Api\UsersController as ApiUsersCtrl;
-use App\Models\Cutmeter;
-use App\Models\Invoice;
-use App\Models\InvoicePeriod;
-use App\Models\Setting;
+use App\Models\Admin\Zone;
+use App\Models\Tabwater\TwCutmeter;
+use App\Models\Tabwater\TwInvoice;
+use App\Models\Tabwater\TwUsersInfos;
 use App\Models\User;
-use App\Models\UserMerterInfo;
-use App\Models\Zone;
 use Illuminate\Http\Request;
 use Illuminate\Support\facades\DB;
 
@@ -25,7 +23,7 @@ class CutmeterController extends Controller
         $zone_id_selected = $subzone_id == "" ? 'all' : $subzone_id;
         $subzone_id_selected = 'all';
 
-        $cutmeters = UserMerterInfo::where('owe_count', '>=',2)
+        $cutmeters = TwUsersInfos::where('owe_count', '>=',2)
                 ->orWhere('cutmeter',1)
                 ->with(['cutmeter' => function($q){
                     return $q->select('id','meter_id_fk', 'owe_count', 'progress', 'warning_print', 'status')->whereIn('status', ['init', 'cutmeter', 'install']);
@@ -37,16 +35,16 @@ class CutmeterController extends Controller
 
     public function cutmeterProgress($id)
     {
-        $cutmeter  = Cutmeter::where('id', $id)->get()->first();
-        $lastmeter = Invoice::where('meter_id_fk', $cutmeter->meter_id_fk)->whereIn('status', ['owe', 'invoice','paid'])->get(['inv_id','lastmeter'])->last();
+        $cutmeter  = TwCutmeter::where('id', $id)->get()->first();
+        $lastmeter = TwInvoice::where('meter_id_fk', $cutmeter->meter_id_fk)->whereIn('status', ['owe', 'invoice','paid'])->get(['inv_id','lastmeter'])->last();
         $twmans    = User::where('role_id', 5)->get(['prefix', 'firstname', 'lastname', 'name','id']);
         return view('cutmeter.progress', compact('cutmeter', 'lastmeter','twmans'));
     }
 
     public function installMeterProgress($id){
-        $cutmeter                = Cutmeter::where('id', $id)->get()->first();
+        $cutmeter                = TwCutmeter::where('id', $id)->get()->first();
         $cutmeter->twmanArray    = json_decode($cutmeter->progress, true)[1]['undertaker'];
-        $lastmeter               = Invoice::where('meter_id_fk', $cutmeter->meter_id_fk)->whereIn('status', ['owe', 'invoice','paid'])->get(['inv_id','lastmeter'])->last();
+        $lastmeter               = TwInvoice::where('meter_id_fk', $cutmeter->meter_id_fk)->whereIn('status', ['owe', 'invoice','paid'])->get(['inv_id','lastmeter'])->last();
         $twmans                  = User::where('role_id', 5)->get(['prefix', 'firstname', 'lastname', 'name','id']);
         return view('cutmeter.install_meter', compact('cutmeter','twmans', 'lastmeter'));
     }
@@ -58,7 +56,7 @@ class CutmeterController extends Controller
             ->select('values')
             ->get();
         $tambon_infos = collect(json_decode($tambon_infos_db[0]->values, true))->toArray();
-        $user = UserMerterInfo::where('user_id', $user_id)
+        $user = TwUsersInfos::where('user_id', $user_id)
             ->where('deleted', 0)
             ->with([
                 'user_profile' => function ($query) {
@@ -94,7 +92,7 @@ class CutmeterController extends Controller
         foreach ($request->get('user_id') as $key => $on) {
             if ($on == 'on') {
                 //หาการใช้น้ำ 5 เดือนล่าสุด
-                $last5InvoiceByInvoicePeriod = Invoice::where('user_id', $key)
+                $last5InvoiceByInvoicePeriod = TwInvoice::where('user_id', $key)
                     ->whereIn('status', ['owe', 'invoice'])
                     ->with(
                         'invoice_period',
@@ -129,7 +127,7 @@ class CutmeterController extends Controller
 
 
     public function print_install_meter($cutmeter_id){
-        $cutmeter        = Cutmeter::where('id', $cutmeter_id)->first();
+        $cutmeter        = TwCutmeter::where('id', $cutmeter_id)->first();
         $undertaker_array = json_decode($cutmeter->progress, true)[1]['undertaker'];
         $twman = [];
         foreach($undertaker_array as $undertaker_id){
@@ -139,7 +137,7 @@ class CutmeterController extends Controller
         $cutmeterArr[] = [
                 "twman"             => $twman,
                 "head_twman"        => User::where('id', 88)->get(['prefix', 'id', 'firstname', 'lastname', 'name'])->first(),
-                "usermeterinfos"    => UserMerterInfo::where('meter_id', $cutmeter->meter_id_fk)->with([
+                "usermeterinfos"    => TwUsersInfos::where('meter_id', $cutmeter->meter_id_fk)->with([
                                 'user' => function ($query) {
                                     return $query->select('id','prefix', 'firstname', 'lastname', 'name', 'address', 'zone_id');
                                 }
@@ -157,7 +155,7 @@ class CutmeterController extends Controller
             ->select('values')
             ->get();
         $tambon_infos = collect(json_decode($tambon_infos_db[0]->values, true))->toArray();
-        $user = UserMerterInfo::where('user_id', $user_id)
+        $user = TwUsersInfos::where('user_id', $user_id)
             ->where('deleted', 0)
             ->with([
                 'user_profile' => function ($query) {
@@ -168,7 +166,7 @@ class CutmeterController extends Controller
             ])
             ->get(['user_id', 'meternumber', 'undertake_zone_id', 'undertake_subzone_id']);
 
-        $cutmeter_user_current_state = Cutmeter::where('user_id', $user_id)->where('pending', 1)->get(['status', 'twman_id']);
+        $cutmeter_user_current_state = TwCutmeter::where('user_id', $user_id)->where('pending', 1)->get(['status', 'twman_id']);
         $cutmeter_user_status = collect($cutmeter_user_current_state)->count() == 0 ? '' : $cutmeter_user_current_state[0]->status;
         $twman_appoint_json = collect($cutmeter_user_current_state)->count() == 0 ? 0 : \json_decode($cutmeter_user_current_state[0]->twman_id);
         $twman_appoint = $twman_appoint_json == 0 ? [(object) ['user_id' => ''], (object) ['user_id' => ''], (object) ['user_id' => '']] : $twman_appoint_json;
@@ -191,7 +189,7 @@ class CutmeterController extends Controller
         $owe_count_text = '';
 
         if ($cutmeter_user_status == '1') {
-            $check_owe_count = UserMerterInfo::where('user_id', $user_id)
+            $check_owe_count = TwUsersInfos::where('user_id', $user_id)
                 ->where('status', 'active')
                 ->where('deleted', 0)
                 ->where('cutmeter',)
@@ -205,7 +203,7 @@ class CutmeterController extends Controller
         return view('cutmeter.edit', compact('user', 'twman_appoint', 'cutmeter_status', 'cutmeter_user_status', 'tabwatermans', 'tambon_infos', 'cutmeter_user_status', 'show_submit_btn', 'owe_count_text'));
     }
 
-    public function update(REQUEST $request, Cutmeter $cutmeter)
+    public function update(REQUEST $request, TwCutmeter $cutmeter)
     {
         $twmanArray  = [];
         $progress_array =  json_decode($cutmeter->progress);
@@ -230,13 +228,13 @@ class CutmeterController extends Controller
             //update Usermeterinfo status = inactive
             $vatQuery = Setting::where('name', 'vat')->get('values');
             $vat_rate =  $vatQuery[0]->values/100;
-            $metertype = UserMerterInfo::where('meter_id',$cutmeter->meter_id_fk)->get('metertype_id')[0];
+            $metertype = TwUsersInfos::where('meter_id',$cutmeter->meter_id_fk)->get('metertype_id')[0];
 
             $water_used =  $request->get('currentmeter') - $request->get('lastmeter');
             $paid       = $water_used == 0 ? 10 : $water_used * $metertype->meter_type->price_per_unit;
             $vat        = $water_used == 0 ? $vat_rate*10 : $paid * $vat_rate;
             $inv_type   = $water_used == 0 ? 'r' : 'u';
-            Invoice::where('inv_id', $request->get('inv_id'))->update([
+            TwInvoice::where('inv_id', $request->get('inv_id'))->update([
                 'currentmeter' => $request->get('currentmeter'),
                 'water_used'   => $water_used,
                 'paid'         => $water_used == 0 ? 10 : $paid,
@@ -246,12 +244,12 @@ class CutmeterController extends Controller
                 'status'       => 'owe',
                 'updated_at'   => date('Y-m-d H:i:s')
             ]);
-            UserMerterInfo::where('meter_id', $cutmeter->meter_id_fk)->update(["cutmeter" => 1, "status" => "inactive" ,'updated_at' => date('Y-m-d H:i:s')   ]);
+            TwUsersInfos::where('meter_id', $cutmeter->meter_id_fk)->update(["cutmeter" => 1, "status" => "inactive" ,'updated_at' => date('Y-m-d H:i:s')   ]);
         }else if($request->status == 'complete') {
             //update Usermeterinfo status = active
             $water_used =  $request->get('currentmeter') - $request->get('lastmeter');
             $vat        = $water_used == 0 ? 0.7 : ($water_used * 8) * 0.07;
-            Invoice::where('inv_id', $request->get('inv_id'))->update([
+            TwInvoice::where('inv_id', $request->get('inv_id'))->update([
                 'currentmeter' => $request->get('currentmeter'),
                 'water_used'   => $water_used,
                 'paid'         => $water_used == 0 ? 10 : $water_used * 8,
@@ -259,7 +257,7 @@ class CutmeterController extends Controller
                 'totalpaid'    => ($water_used * 8) + $vat,
                 'updated_at'   => date('Y-m-d H:i:s')
             ]);
-            UserMerterInfo::where('meter_id', $cutmeter->meter_id_fk)->update([ "status" => "active", 'cutmeter' => '0' ,'updated_at' => date('Y-m-d H:i:s')  ]);
+            TwUsersInfos::where('meter_id', $cutmeter->meter_id_fk)->update([ "status" => "active", 'cutmeter' => '0' ,'updated_at' => date('Y-m-d H:i:s')  ]);
         }
         $this->printDisambledOrCompleteForHead($cutmeter);
         return redirect('cutmeter');
@@ -280,13 +278,13 @@ class CutmeterController extends Controller
         //     return $v['status'] == 'owe' || $v['status'] == 'invoice';
         // });
         // $status = 1;
-        // $cutmeteriInfos = Cutmeter::where('id', $cutmeter['id'])->get(); //$apiCutmeterCtrl->get_process_history($meter_id_fk, $last_inv_period->id);
+        // $cutmeteriInfos = TwCutmeter::where('id', $cutmeter['id'])->get(); //$apiCutmeterCtrl->get_process_history($meter_id_fk, $last_inv_period->id);
 
         // return view('cutmeter.print', compact('cutmeteriInfos', 'invoiceOweAndIvoiceStatus', 'user', 'status', 'headTwman', 'recorder'));
     }
 
     public static function cutmeterUserCount(){
-        $count = UserMerterInfo::where('status', '<>' ,'deleted')
+        $count = TwUsersInfos::where('status', '<>' ,'deleted')
         ->where('owe_count', '>=',2)->count();
         return $count;
     }

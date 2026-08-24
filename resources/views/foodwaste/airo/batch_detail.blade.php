@@ -75,7 +75,7 @@
         <div class="row g-2 mb-4">
             @foreach($batch->wasteLogs as $log)
                 <div class="col-4">
-                    <img src="{{ asset('storage/' . $log->photo_path) }}" class="gallery-img shadow-sm"
+                    <img src="{{ asset($log->photo_path) }}" class="gallery-img shadow-sm"
                         onclick="showImage(this.src)" data-bs-toggle="modal" data-bs-target="#imgModal">
                 </div>
             @endforeach

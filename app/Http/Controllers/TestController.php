@@ -5,12 +5,14 @@ namespace App\Http\Controllers;
 use App\Http\Controllers\Admin\UserController;
 use App\Http\Controllers\Api\FunctionsController;
 use App\Models\Admin\BudgetYear;
+use App\Models\Admin\Organization;
 use App\Models\Admin\Staff;
 use App\Models\Admin\UserProfile;
 use App\Models\QaAccTrans;
 use App\Models\QaInvoice;
 use App\Models\QaUser;
 use App\Models\QaUsermeterInfos;
+use App\Models\RecycleBankAccount;
 use App\Models\SequenceNumber;
 use App\Models\Tabwater\TwAccTransactions;
 use App\Models\Tabwater\TwInvoice;
@@ -31,6 +33,137 @@ class TestController extends Controller
 
     public function index()
     {
+$users =[
+    [	2	,	"นาง", "พัชราวลัย"	,	"คะปัญญา",	24	,	 136.00 	 , 'xx'		 ], 
+[	4,"นาง", "ประถม","ชื่นชุ่ม",	537	,	 96.00 	 , 'xx'		 ], 
+[	13,"นาง", "อุไร",	"ผาสีดา"	,	341	,	 44.00 	 , 'xx'		 ], 
+[	14,"นาง", "หนูเพียร",	"จันทาศรี",	262	,	 48.00 	 , 	 "กรรมการ" 	 ], 
+[	21,"นาง", "วนิดา",	"แสงสว่าง"	,	386	,	 28.00 	 , 'xx'		 ], 
+[	22,"นาง", "วรรณภา",	"ทุมลี"	,	458	,	 1,722.00 	 , 	 "กรรมการ" 	 ], 
+[	23,"นางสาว","จันทร์เพ็ญ"	,	"บุญตาท้าว"	,	160	,	 43.00 	 , 	 "กรรมการ" 	 ], 
+[	26,"นาง", "ทองศรี"	,	"สุขสวน"	,	171	,	 198.00 	 , 'xx'		 ], 
+[	28,"นาย","เทียม"	,	"ศรีจันทร์"	,	321	,	 94.00 	 , 'xx'		 ], 
+[	35,"นาง", "นงค์รักษ์"	,	"บัวระบัติ"	,	155	,	-60.00 	 , 'xx'		 ], 
+[	36,"นาง", "บุญมี"	,	"สุมังคะ",	25	,	 153.00 	 , 'xx'		 ], 
+[	44,"นาย","เสริมชัย"	,	"วานานวงศ์",	59	,	 64.00 	 , 	 "กรรมการ" 	 ], 
+[	45,"นาย","ทองอินทร์"	,	"ภูยอดเพชร",	258	,	 207.00 	 , 	 "กรรมการ" 	 ], 
+[	46,"นาย","เสนอ"	,	"โคตรบรม"	,	10	,	-16.00 	 , 'xx'		 ], 
+[	47,"นาง", "จินตนา",	"กองอุ่น"	,	87	,	 122.00 	 , 'xx'		 ], 
+[	49,"นาง", "กนกอร",	"เพ็ชรคำ"	,	150	,	 28.00 	 , 'xx'		 ], 
+[	51,"นาย","ไชยวัน"	,	"ทุมลี",	241	,	 1,720.00 	 , 	 "กรรมการ" 	 ], 
+[	55,"นาง", "อภิญญา",	"ธรรมพันธ์"	,	88	,	 349.00 	 , 'xx'		 ], 
+[	56,"นาง", "วิจิตร",	"ภูยอดเพชร",	502	,	 227.00 	 , 	 "กรรมการ" 	 ], 
+[	65,"นาย","พัชระ"	,	"คำศรี"	,	41	,	 788.00 	 , 'xx'		 ], 
+[	71,"นาง", "อินทรา",	"ศรีละวัลย์",	599	,	 55.00 	 , 'xx'		 ], 
+[	74,"นาย","ธีระยุทธิ์"	,	"บุญตาท้าว"	,	147	,	 181.00 	 , 'xx'		 ], 
+[	75,"นางสาว","รัตนาภรณ์"	,	"อุตวงษา",	31	,	 61.00 	 , 'xx'		 ], 
+[	86,"นาง", "ทัศนีย์"	,	"สุขสวน"	,	396	,	 182.00 	 , 'xx'		 ], 
+[	93,"นางสาว","ทัศนี"	,	"โคตรบรม",	219	,	 77.00 	 , 	 "กรรมการ" 	 ], 
+[	101,"นาง", "จันทร์หอม"	,	"ถาวรวยัคฆ์",	249	,	 24.00 	 , 'xx'		 ], 
+[	104,"นาง", "ดารณี"	,	"อรัญโชติ"	,	384	,	 301.00 	 , 'xx'		 ], 
+[	107,"นาง", "บัวผัน"	,	"สายคำภา",	254	,	 37.00 	 , 'xx'		 ], 
+[	117,"นาย","ประยงค์"	,	"คำศรี"	,	18	,	 142.00 	 , 'xx'		 ], 
+[	119,"นาย","ธวัชชัย"	,	"สายคำภา",	35	,	 43.00 	 , 'xx'		 ], 
+[	122,"นาย","ภูริวัจน์"	,	"วะลัยศรี"	,	198	,	 310.00 	 , 	 "กรรมการ" 	 ], 
+[	132,"นาย","มนูญ"	,	"กองโพธิ์ชัย"	,	442	,	 133.00 	 , 'xx'		 ], 
+[	135,"นาง", "อรัญญา",	"วานานวงค์"	,	480	,	 49.00 	 , 	 "กรรมการ" 	 ], 
+[	137,"นาย","เครื่อง"	,	"พรมพันธ์"	,	"ม.3"	,	 42.00 	 , 'xx'		 ], 
+[	138,"นาง", "ไสย"	,	"บุญตาท้าว"	,	303	,	 53.00 	 , 'xx'		 ], 
+[	143,"นาย","วีระศักดิ์"	,	"สุขสวน"	,	19	,	 192.00 	 , 'xx'		 ], 
+[	144,"นาย","วันชัย"	,	"สังข์แดง"	,	413	,	 130.00 	 , 'xx'		 ], 
+[	146,"นาง", "ดารุณี"	,	"ฮาบละคร",	223	,	 129.00 	 , 'xx'		 ], 
+[	148,"นาง", "บัวลอน"	,	"เดือยพิมย์",	28	,	 128.00 	 , 'xx'		 ], 
+];
+
+$i = 1;
+foreach($users as $user){
+    $pass = substr('0000', strlen($i)).$i++;
+     $_user = User::create([
+                'username'      => 'chk14'.$pass,
+                'password'      => Hash::make($pass),
+                'prefix'        => $user[1],
+                'gender'        => $user[1] == "นาย" ? 'm' : 'w',
+                'email'         => 'chk14'.$pass."@gmail.com",
+                'firstname'     => $user[2],
+                'lastname'      => $user[3],
+                'phone'         => '000000000',
+                'address'       => $user[4],
+                'zone_id'       => 35,
+                'subzone_id'    => 52,
+                'tambon_code'   => 470106,
+                'district_code' => 4701,
+                'province_code' => 47,
+                'org_id_fk'     => 4,
+                'status'        => 'active',
+            ]);
+
+            $_user->assignRole('User');
+            if(trim($user[6]) == "กรรมการ"){
+                Staff::create([
+                    'id' => $_user->id,
+                     'user_id' => $_user->id,
+                    'org_id_fk' =>4,
+                    'status' => 'active',
+                    'deleted' => "0",
+                    'created_at' => date('Y-m-d H:i:s'),
+                    'updated_at' => date('Y-m-d H:i:s'),
+                ]);
+                $_user->assignRole('Recycle Bank Staff');
+
+            }
+
+            // 3. เช็คและเปิดบริการตามที่ติ๊กมา
+            // ธนาคารขยะรีไซเคิล
+             $org = Organization::find(Auth::user()->org_id_fk);
+                $orgIdStr =  substr('000', strlen($org->id)).$org->id;
+                $userIdStr = substr('0000', strlen($_user->id)).$_user->id;
+                // 1. จัดการธนาคารขยะรีไซเคิล (recycle_)
+                    
+                    RecycleBankAccount::firstOrCreate(
+                        ['user_id' => $_user->id],
+                        [
+                            'org_id_fk'  => 4,
+                            'account_no' => 'RC-' .$org->org_code."-".$orgIdStr.$userIdStr,
+                            'balance'    => $user[5],
+                            'status'     => 'active'
+                        ]
+                );
+            
+}
+return 'xx';
+    $next = 0;
+  $a = TwInvoice::where('meter_id_fk', 343)
+         ->where('org_id_fk', 1)
+         ->get();
+        $aa  = collect($a)->groupBy('acc_trans_id_fk');
+        foreach($aa as $key => $_a){
+            $aC = collect($_a)->count();
+            if($aC== 1){
+                if($key == 0){
+
+                }else{
+                    $cashbookPage = 0;
+                }
+                
+            }elseif($aC >1 ){
+                $i = 0;
+                $sumcashbookPage = 0;
+                foreach($_a as $__a){
+                    $i++;
+                    if($aC == $i){
+                        $cashbookPage = $sumcashbookPage;
+                        $carriedForward = 0;
+                        $sumcashbookPage = 0;
+                        
+                    }else{
+                        $sumcashbookPage =+ $__a->totalpaid;
+                        $cashbookPage = $sumcashbookPage;
+                        $carriedForward = $sumcashbookPage;
+                    }
+                }
+            }
+        }
+    return ;
         set_time_limit(600);
 
         $org2 = User::where('org_id_fk', 2)->get();

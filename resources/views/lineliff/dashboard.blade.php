@@ -734,7 +734,6 @@
             </linearGradient>
         </defs>
     </svg>
-
     <button class="menu-trigger-btn" id="openMenuBtn"><i class="bi bi-list"></i></button>
     <div class="menu-backdrop" id="menuBackdrop"></div>
 
@@ -745,12 +744,23 @@
             <button class="close-sidebar-btn" id="closeMenuBtn">&times;</button>
         </div>
         <div class="sidebar-content navigation2">
+            @if ( auth()->user()->hasRole('Recycle Bank User') )
+
             <a href="#" class="sidebar-link active main_bottom_nav" data-id="recycle"><i class="bi bi-recycle"></i>
                 ธนาคารขยะรีไซเคิล</a>
+            @endif
+            
+            @if ( auth()->user()->hasRole('Food Waste User') )
+            
             <a href="#" class="sidebar-link main_bottom_nav" data-id="wet"><i class="bi bi-trash-fill"></i>
                 ธนาคารขยะเปียก</a>
+            @endif
+            
+            @if ( auth()->user()->hasRole('Annual Fee User') )
             <a href="#" class="sidebar-link main_bottom_nav" data-id="annual"><i class="bi bi-calendar-check"></i>
                 ค่าขยะรายปี</a>
+            @endif
+            
         </div>
     </div>
 
@@ -765,409 +775,468 @@
         </header>
 
         <main>
-            <div class="kp div_annual hidden">
-                @php
-                    // เปลี่ยนมาดึงจาก user_id ตรงๆ
-                    $transactions = App\Models\RecycleTransaction::where('user_id', $user->id)
-                        ->latest()->take(10)->get();
-                @endphp
-                <h3 class="mb-3 text-center"><i class="bi bi-calendar-check"></i> ค่าธรรมเนียมขยะรายปี</h3>
+            @if ( auth()->user()->hasRole('Annual Fee User') )
+                <div class="kp div_annual">
+                    @php
+                        // เปลี่ยนมาดึงจาก user_id ตรงๆ
+                        $transactions = App\Models\RecycleTransaction::where('user_id', $user->id)
+                            ->latest()->take(10)->get();
+                    @endphp
+                    <h3 class="mb-3 text-center"><i class="bi bi-calendar-check"></i> ค่าธรรมเนียมขยะรายปี</h3>
 
-                <div class="card shadow-sm border-0 mb-4" style="border-radius: 1.5rem;">
-                    <div class="card-body text-center p-4">
-                        <div class="mb-3">
-                            @if($annualTrash && $annualTrash->billing_status == 'waived')
-                                <div class="display-1 text-success"><i class="bi bi-check-circle-fill"></i></div>
-                                <h4 class="fw-bold text-success">ท่านได้รับสิทธิ์ "ยกเว้น" ค่าธรรมเนียม</h4>
-                                <p class="text-muted">ขอบคุณที่ช่วยคัดแยกขยะรีไซเคิลอย่างต่อเนื่อง</p>
-                                <span class="badge bg-success rounded-pill">สถานะ: ฟรี (สวัสดิการชุมชน)</span>
-                            @else
-                                <div class="display-1 text-warning"><i class="bi bi-exclamation-circle-fill"></i></div>
-                                <h4 class="fw-bold">สถานะ: รอการชำระ</h4>
-                                <p class="text-muted">ยอดค้างชำระปัจจุบัน:
-                                    ฿{{ number_format($annualTrash->current_debt ?? 0, 2) }}</p>
-                                <button class="btn btn-primary rounded-pill w-100">ชำระเงินออนไลน์</button>
-                            @endif
-                        </div>
-                        <hr>
-                        <small class="text-muted">อัปเดตล่าสุดเมื่อ:
-                            @if($activeBatch && $activeBatch->last_checked_at)
-                                <span>เช็คเมื่อ:
-                                    {{ \Carbon\Carbon::parse($activeBatch->last_checked_at)->format('d/m/H:i') }}</span>
-                            @else
-                                <span>ยังไม่เคยมีการตรวจสอบ</span>
-                            @endif
-                    </div>
-                </div>
-            </div>
-
-            <div class="kp div_recycle">
-                <h3 class="mb-3 text-center"><i class="bi bi-bank"></i> ธนาคารขยะรีไซเคิล</h3>
-
-                <div class="main__stat-blocks">
-                    <div class="main__stat-block main__stat-block--lg">
-                        <div class="main__stat-graph main__stat-graph--filled">
-                            <svg class="ring" viewBox="0 0 180 180">
-                                <circle class="ring-track" cx="90" cy="90" r="82" fill="none" stroke-width="12" />
-
-                                <circle class="ring-stroke" cx="90" cy="90" r="82" fill="none" stroke="url(#ring)"
-                                    stroke-width="12" stroke-dasharray="515" stroke-dashoffset="100"
-                                    transform="rotate(-90,90,90)" />
-                            </svg>
-
-                            <div class="main__stat-detail">
-                                <strong class="main__stat-value">
-                                    {{ number_format($recycleTotalBalance ?? 0, 2) }}
-                                </strong>
-                                <span class="main__stat-unit">บาท (คงเหลือ)</span>
-
-                                <div class="my-1"></div>
-
-                                <strong class="main__stat-value">
-                                    {{ number_format($recycleTotalPoints ?? 0, 2) }}
-                                </strong>
-                                <span class="main__stat-unit">แต้มสะสม</span>
+                    <div class="card shadow-sm border-0 mb-4" style="border-radius: 1.5rem;">
+                        <div class="card-body text-center p-4">
+                            <div class="mb-3">
+                                @if($annualTrash && $annualTrash->billing_status == 'waived')
+                                    <div class="display-1 text-success"><i class="bi bi-check-circle-fill"></i></div>
+                                    <h4 class="fw-bold text-success">ท่านได้รับสิทธิ์ "ยกเว้น" ค่าธรรมเนียม</h4>
+                                    <p class="text-muted">ขอบคุณที่ช่วยคัดแยกขยะรีไซเคิลอย่างต่อเนื่อง</p>
+                                    <span class="badge bg-success rounded-pill">สถานะ: ฟรี (สวัสดิการชุมชน)</span>
+                                @else
+                                    <div class="display-1 text-warning"><i class="bi bi-exclamation-circle-fill"></i></div>
+                                    <h4 class="fw-bold">สถานะ: รอการชำระ</h4>
+                                    <p class="text-muted">ยอดค้างชำระปัจจุบัน:
+                                        ฿{{ number_format($annualTrash->current_debt ?? 0, 2) }}</p>
+                                    <button class="btn btn-primary rounded-pill w-100">ชำระเงินออนไลน์</button>
+                                @endif
                             </div>
+                            <hr>
+                            <small class="text-muted">อัปเดตล่าสุดเมื่อ:
+                                @if($activeBatch && $activeBatch->last_checked_at)
+                                    <span>เช็คเมื่อ:
+                                        {{ \Carbon\Carbon::parse($activeBatch->last_checked_at)->format('d/m/H:i') }}</span>
+                                @else
+                                    <span>ยังไม่เคยมีการตรวจสอบ</span>
+                                @endif
                         </div>
                     </div>
                 </div>
+            @endif
 
-                <div class="main__stat-blocks">
-                    <div class="main__stat-block" data-bs-toggle="modal" data-bs-target="#qrcodeModal">
-                        <div class="main__stat-graph">
-                            <svg class="ring" viewBox="0 0 60 60">
-                                <circle class="ring-track" cx="30" cy="30" r="26" fill="none" stroke="#e0e0e0"
-                                    stroke-width="6" />
-                            </svg>
-                            <i class="bi bi-qr-code icon" style="font-size: 1.5rem;"></i>
-                        </div>
-                        <div class="main__stat-detail">
-                            <strong class="main__stat-value" style="font-size: 1em;">สร้าง QR Code ขายขยะ</strong>
-                        </div>
-                    </div>
+            @if ( auth()->user()->hasRole('Recycle Bank User') )
 
+                <div class="kp div_recycle">
+                    <h3 class="mb-3 text-center"><i class="bi bi-bank"></i> ธนาคารขยะรีไซเคิล</h3>
 
-                    <div class="main__stat-block" onclick="startScanKiosk()">
-                        <div class="main__stat-graph">
-                            <svg class="ring" viewBox="0 0 60 60">
-                                <circle class="ring-track" cx="30" cy="30" r="26" fill="none" stroke="#e0e0e0"
-                                    stroke-width="6" />
-                            </svg>
-                            <i class="bi bi-camera icon" style="font-size: 1.5rem;"></i>
-                        </div>
-                        <div class="main__stat-detail">
-                            <strong class="main__stat-value" style="font-size: 1em;">สแกนตู้ Kiosk</strong>
-                        </div>
-                    </div>
+                    <div class="main__stat-blocks">
+                        <div class="main__stat-block main__stat-block--lg">
+                            <div class="main__stat-graph main__stat-graph--filled">
+                                <svg class="ring" viewBox="0 0 180 180">
+                                    <circle class="ring-track" cx="90" cy="90" r="82" fill="none" stroke-width="12" />
 
-                    <a href="{{route('keptkayas.shop.index')}}" class="main__stat-block">
-                        <div class="main__stat-graph">
-                            <svg class="ring" viewBox="0 0 60 60">
-                                <circle class="ring-track" cx="30" cy="30" r="26" fill="none" stroke="#e0e0e0"
-                                    stroke-width="6" />
-                            </svg>
-                            <i class="bi bi-cart icon" style="font-size: 1.5rem;"></i>
-                        </div>
-                        <div class="main__stat-detail">
-                            <strong class="main__stat-value" style="font-size: 1em;">ร้านค้า</strong>
-                        </div>
-                    </a>
+                                    <circle class="ring-stroke" cx="90" cy="90" r="82" fill="none" stroke="url(#ring)"
+                                        stroke-width="12" stroke-dasharray="515" stroke-dashoffset="100"
+                                        transform="rotate(-90,90,90)" />
+                                </svg>
 
-                    <a href="{{ route('keptkayas.recycle_classify') }}" class="main__stat-block">
-                        <div class="main__stat-graph">
-                            <svg class="ring" viewBox="0 0 60 60">
-                                <circle class="ring-track" cx="30" cy="30" r="26" fill="none" stroke="#e0e0e0"
-                                    stroke-width="6" />
-                            </svg>
-                            <i class="bi bi-tags icon" style="font-size: 1.5rem;"></i>
-                        </div>
-                        <div class="main__stat-detail">
-                            <strong class="main__stat-value" style="font-size: 1em;">ราคา/คัดแยก</strong>
-                        </div>
-                    </a>
-                </div>
+                                <div class="main__stat-detail">
+                                    <strong class="main__stat-value">
+                                        {{ number_format($recycleTotalBalance ?? 0, 2) }}
+                                    </strong>
+                                    <span class="main__stat-unit">บาท (คงเหลือ)</span>
 
-                <div class="main__stat-blocks mt-2">
-                    <a href="{{ route('keptkayas.history', Auth::id()) }}" class="main__stat-block">
-                        <div class="main__stat-graph">
-                            <svg class="ring" viewBox="0 0 60 60">
-                                <circle class="ring-track" cx="30" cy="30" r="26" fill="none" stroke="#e0e0e0"
-                                    stroke-width="6" />
-                            </svg>
-                            <i class="bi bi-clock-history icon" style="font-size: 1.5rem; color: #6c757d;"></i>
-                        </div>
-                        <div class="main__stat-detail">
-                            <strong class="main__stat-value" style="font-size: 1em;">ประวัติรายการ</strong>
-                        </div>
-                    </a>
+                                    <div class="my-1"></div>
 
-                    <a href="{{ route('keptkayas.impact', Auth::id()) }}" class="main__stat-block">
-                        <div class="main__stat-graph">
-                            <svg class="ring" viewBox="0 0 60 60">
-                                <circle class="ring-track" cx="30" cy="30" r="26" fill="none" stroke="#e0e0e0"
-                                    stroke-width="6" />
-                            </svg>
-                            <i class="bi bi-tree-fill icon" style="font-size: 1.5rem; color: #198754;"></i>
-                        </div>
-                        <div class="main__stat-detail">
-                            <div class="mt-2 pt-2 border-top border-light opacity-75">
-                                <small class="d-block mb-1">🌍 คุณช่วยลดก๊าซเรือนกระจกแล้ว</small>
-                                <strong style="font-size: 1.2em;">{{ number_format($totalCo2Saved, 2) }}</strong>
-                                <span style="font-size: 0.8em;">kgCO2e</span>
-                            </div>
-                        </div>
-                    </a>
-
-                    {{-- <a href="{{ route('keptkayas.locations') }}" class="main__stat-block">
-                        <div class="main__stat-graph">
-                            <svg class="ring" viewBox="0 0 60 60">
-                                <circle class="ring-track" cx="30" cy="30" r="26" fill="none" stroke="#e0e0e0"
-                                    stroke-width="6" />
-                            </svg>
-                            <i class="bi bi-geo-alt-fill icon" style="font-size: 1.5rem; color: #dc3545;"></i>
-                        </div>
-                        <div class="main__stat-detail">
-                            <strong class="main__stat-value" style="font-size: 1em;">จุดรับขยะ</strong>
-                        </div>
-                    </a> --}}
-
-                    <a href="{{ route('keptkayas.withdraw.create', Auth::id()) }}" class="main__stat-block">
-                        <div class="main__stat-graph">
-                            <svg class="ring" viewBox="0 0 60 60">
-                                <circle class="ring-track" cx="30" cy="30" r="26" fill="none" stroke="#e0e0e0"
-                                    stroke-width="6" />
-                            </svg>
-                            <i class="bi bi-cash-stack icon" style="font-size: 1.5rem; color: #0d6efd;"></i>
-                        </div>
-                        <div class="main__stat-detail">
-                            <strong class="main__stat-value" style="font-size: 1em;">ถอน/โอนเงิน</strong>
-                        </div>
-                    </a>
-
-                    <a href="{{ route('keptkayas.transfer_points') }}" class="main__stat-block">
-                        <div class="main__stat-graph">
-                            <svg class="ring" viewBox="0 0 60 60">
-                                <circle class="ring-track" cx="30" cy="30" r="26" fill="none" stroke="#e0e0e0"
-                                    stroke-width="6" />
-                            </svg>
-                            <i class="bi bi-arrow-left-right icon" style="font-size: 1.5rem; color: #fd7e14;"></i>
-                        </div>
-                        <div class="main__stat-detail">
-                            <strong class="main__stat-value" style="font-size: 1em;">โอนแต้ม</strong>
-                        </div>
-                    </a>
-
-
-                </div>
-            </div>
-
-            <div class="kp div_wet hidden">
-                <h3 class="mb-3 text-center"><i class="bi bi-trash"></i> ธนาคารขยะเปียก</h3>
-
-                @if(isset($activeBatch) && $activeBatch)
-                    <div class="card shadow-sm mb-4 border-0"
-                        style="background: linear-gradient(135deg, #11998e, #38ef7d); color: white; border-radius: 1.5em;">
-                        <div class="card-body p-3">
-                            <div class="d-flex justify-content-between align-items-center mb-2">
-                                <span class="badge bg-white text-success rounded-pill px-3 small">ล็อต:
-                                    {{ $activeBatch->batch_code }}</span>
-                                <small style="font-size: 0.7rem;"><i class="bi bi-calendar3"></i> เริ่ม:
-                                    {{ $activeBatch->start_date->format('d M y') }}</small>
-                            </div>
-                            <div class="row text-center mt-2">
-                                <div class="col-4 border-end border-white-50">
-                                    <h4 class="fw-bold mb-0">{{ $activeBatch->days_passed }}</h4>
-                                    <small style="font-size: 0.6rem;">วัน</small>
-                                </div>
-                                <div class="col-4 border-end border-white-50">
-                                    <h4 class="fw-bold mb-0">{{ number_format($activeBatch->total_weight ?? 0, 2) }}</h4>
-                                    <small style="font-size: 0.6rem;">กก. รวม</small>
-                                </div>
-                                <div class="col-4">
-                                    <h4 class="fw-bold mb-0" style="font-size: 0.9rem;">
-                                        {{ $activeBatch->temp_status ?? '-' }}
-                                    </h4>
-                                    <small style="font-size: 0.6rem;">ความร้อน</small>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                @endif
-
-                <div class="main__stat-blocks">
-                    <div class="main__stat-block main__stat-block--lg">
-                        <div class="main__stat-graph main__stat-graph--filled">
-                            <svg class="ring" viewBox="0 0 180 180">
-                                <circle class="ring-track" cx="90" cy="90" r="82" fill="none"
-                                    stroke="rgba(0,255,255,0.2)" stroke-width="12" />
-                                <circle class="ring-stroke" cx="90" cy="90" r="82" fill="none" stroke="#fff"
-                                    stroke-width="12" stroke-dasharray="515" stroke-dashoffset="150"
-                                    transform="rotate(-90,90,90)" />
-                            </svg>
-                            <div class="main__stat-detail">
-                                <strong class="main__stat-value">{{ number_format($totalCarbonSaved, 2) }}</strong>
-                                <span class="main__stat-unit">kgCO2e (คาร์บอน)</span>
-                                <div class="my-1"></div>
-                                <strong
-                                    class="main__stat-value">{{  number_format($activeBatch->total_weight ?? 0, 2) }}</strong>
-                                <span class="main__stat-unit">กก. (ขยะสะสม)</span>
-                            </div>
-                        </div>
-                        <div class="main__stat-blocks mb-4">
-                            <div class="main__stat-block" data-bs-toggle="modal" data-bs-target="#pointsInfoModal"
-                                style="cursor: pointer;">
-                                <div class="main__stat-graph" style="max-width: 60px;">
-                                    <svg class="ring" viewBox="0 0 60 60">
-                                        <circle class="ring-track" cx="30" cy="30" r="26" fill="none" stroke="#e0e0e0"
-                                            stroke-width="6" />
-                                        <circle class="ring-stroke" cx="30" cy="30" r="26" fill="none" stroke="#ffc107"
-                                            stroke-width="6" stroke-dasharray="163" stroke-dashoffset="40"
-                                            transform="rotate(-90,30,30)" />
-                                    </svg>
-                                    <i class="bi bi-star-fill icon"
-                                        style="font-size: 1.2rem; color: #ffc107; top: 50%;"></i>
-                                </div>
-                                <div class="main__stat-detail"
-                                    style="position: relative; inset: auto; margin-top: 10px;">
-                                    <strong class="main__stat-value text-warning" style="font-size: 1.4em;">
-                                        {{ number_format($foodWasteTotalPoints ?? 0) }}
+                                    <strong class="main__stat-value">
+                                        {{ number_format($recycleTotalPoints ?? 0, 2) }}
                                     </strong>
                                     <span class="main__stat-unit">แต้มสะสม</span>
                                 </div>
                             </div>
-
-                            <div class="main__stat-block">
-                                <div class="main__stat-graph" style="max-width: 60px;">
-                                    <svg class="ring" viewBox="0 0 60 60">
-                                        <circle class="ring-track" cx="30" cy="30" r="26" fill="none" stroke="#e0e0e0"
-                                            stroke-width="6" />
-                                        <circle class="ring-stroke" cx="30" cy="30" r="26" fill="none" stroke="#28a745"
-                                            stroke-width="6" stroke-dasharray="163" stroke-dashoffset="80"
-                                            transform="rotate(-90,30,30)" />
-                                    </svg>
-                                    <i class="bi bi-wallet2 icon"
-                                        style="font-size: 1.2rem; color: #28a745; top: 50%;"></i>
+                                <div style="font-weight: bold ;font-size: 1.2em;">
+                                    ลดก๊าซเรือนกระจก
+                                        <span style="font-size: 1.4em;">
+                                            {{ $totalRecycleCarbon}}
+                                        </span>
+                                        <span style="font-size: 0.8em;">kgCO2e</span>
                                 </div>
-                                <div class="main__stat-detail"
-                                    style="position: relative; inset: auto; margin-top: 10px;">
-                                    <strong class="main__stat-value text-success" style="font-size: 1.4em;">
-                                        ฿{{ number_format($totalBalance ?? 0, 2) }}
-                                    </strong>
-                                    <span class="main__stat-unit">เงินในกระเป๋า</span>
+                                <div style="font-weight: bold ;font-size: 1.2em;">
+                                    เทียบปลูกต้นไม้
+                                        <span style="font-size: 1.4em;">
+                                            {{ $treesByRecycleCarbon}}
+                                        </span>
+                                        <span style="font-size: 0.8em;">ต้น</span>
+                                </div>
+                                
+                        </div>
+                    </div>
+
+                    <div class="main__stat-blocks">
+                        <div class="main__stat-block" data-bs-toggle="modal" data-bs-target="#qrcodeModal">
+                            <div class="main__stat-graph">
+                                <svg class="ring" viewBox="0 0 60 60">
+                                    <circle class="ring-track" cx="30" cy="30" r="26" fill="none" stroke="#e0e0e0"
+                                        stroke-width="6" />
+                                </svg>
+                                <i class="bi bi-qr-code icon" style="font-size: 1.5rem;"></i>
+                            </div>
+                            <div class="main__stat-detail">
+                                <strong class="main__stat-value" style="font-size: 1em;">สร้าง QR Code <div>ขายขยะ</div></strong>
+                            </div>
+                        </div>
+
+
+                        <div class="main__stat-block" onclick="startScanKiosk()">
+                            <div class="main__stat-graph">
+                                <svg class="ring" viewBox="0 0 60 60">
+                                    <circle class="ring-track" cx="30" cy="30" r="26" fill="none" stroke="#e0e0e0"
+                                        stroke-width="6" />
+                                </svg>
+                                <i class="bi bi-camera icon" style="font-size: 1.5rem;"></i>
+                            </div>
+                            <div class="main__stat-detail">
+                                <strong class="main__stat-value" style="font-size: 1em;">สแกนตู้ Kiosk</strong>
+                            </div>
+                        </div>
+
+                        <a href="{{route('keptkayas.shop.index')}}" class="main__stat-block">
+                            <div class="main__stat-graph">
+                                <svg class="ring" viewBox="0 0 60 60">
+                                    <circle class="ring-track" cx="30" cy="30" r="26" fill="none" stroke="#e0e0e0"
+                                        stroke-width="6" />
+                                </svg>
+                                <i class="bi bi-cart icon" style="font-size: 1.5rem;"></i>
+                            </div>
+                            <div class="main__stat-detail">
+                                <strong class="main__stat-value" style="font-size: 1em;">ร้านค้า</strong>
+                            </div>
+                        </a>
+
+                        <a href="{{ route('keptkayas.recycle_classify') }}" class="main__stat-block">
+                            <div class="main__stat-graph">
+                                <svg class="ring" viewBox="0 0 60 60">
+                                    <circle class="ring-track" cx="30" cy="30" r="26" fill="none" stroke="#e0e0e0"
+                                        stroke-width="6" />
+                                </svg>
+                                <i class="bi bi-tags icon" style="font-size: 1.5rem;"></i>
+                            </div>
+                            <div class="main__stat-detail">
+                                <strong class="main__stat-value" style="font-size: 1em;">ราคา/คัดแยก</strong>
+                            </div>
+                        </a>
+                    </div>
+
+                    <div class="main__stat-blocks mt-2">
+                        <a href="{{ route('keptkayas.history', $pref_id) }}" class="main__stat-block">
+                            <div class="main__stat-graph">
+                                <svg class="ring" viewBox="0 0 60 60">
+                                    <circle class="ring-track" cx="30" cy="30" r="26" fill="none" stroke="#e0e0e0"
+                                        stroke-width="6" />
+                                </svg>
+                                <i class="bi bi-clock-history icon" style="font-size: 1.5rem; color: #6c757d;"></i>
+                            </div>
+                            <div class="main__stat-detail">
+                                <strong class="main__stat-value" style="font-size: 1em;">ประวัติการ<div>ขายขยะ</div></strong>
+                            </div>
+                        </a>
+
+                        <a href="{{ route('keptkayas.impact', $pref_id) }}" class="main__stat-block">
+                            <div class="main__stat-graph">
+                                <svg class="ring" viewBox="0 0 60 60">
+                                    <circle class="ring-track" cx="30" cy="30" r="26" fill="none" stroke="#e0e0e0"
+                                        stroke-width="6" />
+                                </svg>
+                                <i class="bi bi-tree-fill icon" style="font-size: 1.5rem; color: #198754;"></i>
+                            </div>
+                            <div class="main__stat-detail">
+                                <strong class="main__stat-value" style="font-size: 1em;"> ลดก๊าซ<div>เรือนกระจก</div></strong>
+
+                              
+                            </div>
+                        </a>
+
+                        {{-- <a href="{{ route('keptkayas.locations') }}" class="main__stat-block">
+                            <div class="main__stat-graph">
+                                <svg class="ring" viewBox="0 0 60 60">
+                                    <circle class="ring-track" cx="30" cy="30" r="26" fill="none" stroke="#e0e0e0"
+                                        stroke-width="6" />
+                                </svg>
+                                <i class="bi bi-geo-alt-fill icon" style="font-size: 1.5rem; color: #dc3545;"></i>
+                            </div>
+                            <div class="main__stat-detail">
+                                <strong class="main__stat-value" style="font-size: 1em;">จุดรับขยะ</strong>
+                            </div>
+                        </a> --}}
+
+                        <a href="{{ route('keptkayas.withdraw.create', $pref_id) }}" class="main__stat-block">
+                            <div class="main__stat-graph">
+                                <svg class="ring" viewBox="0 0 60 60">
+                                    <circle class="ring-track" cx="30" cy="30" r="26" fill="none" stroke="#e0e0e0"
+                                        stroke-width="6" />
+                                </svg>
+                                <i class="bi bi-cash-stack icon" style="font-size: 1.5rem; color: #0d6efd;"></i>
+                            </div>
+                            <div class="main__stat-detail">
+                                <strong class="main__stat-value" style="font-size: 1em;">ถอน/โอนเงิน</strong>
+                            </div>
+                        </a>
+
+                        <a href="{{ route('keptkayas.transfer_points', $pref_id) }}" class="main__stat-block">
+                            <div class="main__stat-graph">
+                                <svg class="ring" viewBox="0 0 60 60">
+                                    <circle class="ring-track" cx="30" cy="30" r="26" fill="none" stroke="#e0e0e0"
+                                        stroke-width="6" />
+                                </svg>
+                                <i class="bi bi-arrow-left-right icon" style="font-size: 1.5rem; color: #fd7e14;"></i>
+                            </div>
+                            <div class="main__stat-detail">
+                                <strong class="main__stat-value" style="font-size: 1em;">โอนแต้ม</strong>
+                            </div>
+                        </a>
+
+
+                    </div>
+                </div>
+            @endif
+
+            @if ( auth()->user()->hasRole('Recycle Bank User') )
+                <div class="kp div_wet hidden">
+                    <h3 class="mb-3 text-center"><i class="bi bi-trash"></i> ธนาคารขยะเปียก</h3>
+
+                    @if(isset($activeBatch) && $activeBatch)
+                        <div class="card shadow-sm mb-4 border-0"
+                            style="background: linear-gradient(135deg, #11998e, #38ef7d); color: white; border-radius: 1.5em;">
+                            <div class="card-body p-3">
+                                <div class="d-flex justify-content-between align-items-center mb-2">
+                                    <span class="badge bg-white text-success rounded-pill px-3 small">ล็อต:
+                                        {{ $activeBatch->batch_code }}</span>
+                                    <small style="font-size: 0.7rem;"><i class="bi bi-calendar3"></i> เริ่ม:
+                                        {{ $activeBatch->start_date->format('d M y') }}</small>
+                                </div>
+                                <div class="row text-center mt-2">
+                                    <div class="col-4 border-end border-white-50">
+                                        <h4 class="fw-bold mb-0">{{ $activeBatch->days_passed }}</h4>
+                                        <small style="font-size: 0.6rem;">วัน</small>
+                                    </div>
+                                    <div class="col-4 border-end border-white-50">
+                                        <h4 class="fw-bold mb-0">{{ number_format($activeBatch->total_weight ?? 0, 2) }}</h4>
+                                        <small style="font-size: 0.6rem;">กก. รวม</small>
+                                    </div>
+                                    <div class="col-4">
+                                        <h4 class="fw-bold mb-0" style="font-size: 0.9rem;">
+                                            {{ $activeBatch->temp_status ?? '-' }}
+                                        </h4>
+                                        <small style="font-size: 0.6rem;">ความร้อน</small>
+                                    </div>
                                 </div>
                             </div>
                         </div>
-                    </div>
-
-
-                </div>
-
-                <div class="main__stat-block main__stat-block--lg mb-4">
-                    <button type="button" class="btn btn-sm shadow-none position-absolute"
-                        style="top: 10px; right: 10px; z-index: 10; border-radius: 50%; width: 32px; height: 32px; background: rgba(255,255,255,0.8); display: flex; align-items: center; justify-content: center;"
-                        data-bs-toggle="modal" data-bs-target="#userMetricsModal">
-                        <i class="bi bi-gear-fill text-success"></i>
-                    </button>
-                    <h6 class="fw-bold mb-3"><i class="bi bi-activity text-success"></i> พลังงานที่ได้รับ 7 วันล่าสุด
-                    </h6>
-                    <div class="chart-container" style="position: relative; height:180px; width:100%;">
-                        <canvas id="calorieDashboardChart"></canvas>
-
-                    </div>
-                    @if(!Auth::user()->weight)
-                        <small class="text-muted"
-                            style="font-size: 0.7rem;">*ตั้งค่าข้อมูลส่วนตัวเพื่อคำนวณความต้องการพลังงาน</small>
                     @endif
 
+                    <div class="main__stat-blocks">
+                        <div class="main__stat-block main__stat-block--lg">
+                            <div class="main__stat-graph main__stat-graph--filled">
+                                <svg class="ring" viewBox="0 0 180 180">
+                                    <circle class="ring-track" cx="90" cy="90" r="82" fill="none"
+                                        stroke="rgba(0,255,255,0.2)" stroke-width="12" />
+                                    <circle class="ring-stroke" cx="90" cy="90" r="82" fill="none" stroke="#fff"
+                                        stroke-width="12" stroke-dasharray="515" stroke-dashoffset="150"
+                                        transform="rotate(-90,90,90)" />
+                                </svg>
+                                <div class="main__stat-detail">
+                                    <strong class="main__stat-value">{{ number_format($totalCarbonSaved, 2) }}</strong>
+                                    <span class="main__stat-unit">kgCO2e (คาร์บอน)</span>
+                                    <div class="my-1"></div>
+                                    <strong
+                                        class="main__stat-value">{{  number_format($activeBatch->total_weight ?? 0, 2) }}</strong>
+                                    <span class="main__stat-unit">กก. (ขยะสะสม)</span>
+                                </div>
+                            </div>
+                            <div class="main__stat-blocks mb-4">
+                                <div class="main__stat-block" data-bs-toggle="modal" data-bs-target="#pointsInfoModal"
+                                    style="cursor: pointer;">
+                                    <div class="main__stat-graph" style="max-width: 60px;">
+                                        <svg class="ring" viewBox="0 0 60 60">
+                                            <circle class="ring-track" cx="30" cy="30" r="26" fill="none" stroke="#e0e0e0"
+                                                stroke-width="6" />
+                                            <circle class="ring-stroke" cx="30" cy="30" r="26" fill="none" stroke="#ffc107"
+                                                stroke-width="6" stroke-dasharray="163" stroke-dashoffset="40"
+                                                transform="rotate(-90,30,30)" />
+                                        </svg>
+                                        <i class="bi bi-star-fill icon"
+                                            style="font-size: 1.2rem; color: #ffc107; top: 50%;"></i>
+                                    </div>
+                                    <div class="main__stat-detail"
+                                        style="position: relative; inset: auto; margin-top: 10px;">
+                                        <strong class="main__stat-value text-warning" style="font-size: 1.4em;">
+                                            {{ number_format($foodWasteTotalPoints ?? 0) }}
+                                        </strong>
+                                        <span class="main__stat-unit">แต้มสะสม</span>
+                                    </div>
+                                </div>
 
-                </div>
+                                <div class="main__stat-block">
+                                    <div class="main__stat-graph" style="max-width: 60px;">
+                                        <svg class="ring" viewBox="0 0 60 60">
+                                            <circle class="ring-track" cx="30" cy="30" r="26" fill="none" stroke="#e0e0e0"
+                                                stroke-width="6" />
+                                            <circle class="ring-stroke" cx="30" cy="30" r="26" fill="none" stroke="#28a745"
+                                                stroke-width="6" stroke-dasharray="163" stroke-dashoffset="80"
+                                                transform="rotate(-90,30,30)" />
+                                        </svg>
+                                        <i class="bi bi-wallet2 icon"
+                                            style="font-size: 1.2rem; color: #28a745; top: 50%;"></i>
+                                    </div>
+                                    <div class="main__stat-detail"
+                                        style="position: relative; inset: auto; margin-top: 10px;">
+                                        <strong class="main__stat-value text-success" style="font-size: 1.4em;">
+                                            ฿{{ number_format($totalBalance ?? 0, 2) }}
+                                        </strong>
+                                        <span class="main__stat-unit">เงินในกระเป๋า</span>
+                                    </div>
+                                </div>
+                            </div>
 
-
-                <div class="main__stat-blocks">
-
-                    <div class="main__stat-block position-relative" data-bs-toggle="modal"
-                        data-bs-target="#issueListModal">
-                        <div class="main__stat-graph">
-                            <svg class="ring" viewBox="0 0 60 60">
-                                <circle class="ring-track" cx="30" cy="30" r="26" fill="none" stroke="#e0e0e0"
-                                    stroke-width="6" />
-                            </svg>
-                            <i class="bi bi-exclamation-triangle icon" style="font-size: 1.5rem; color: orange;"></i>
-
-                            @if($pendingIssuesCount > 0)
-                                <span class="position-absolute translate-middle badge rounded-pill bg-danger"
-                                    style="top: 15px; right: 15px; font-size: 0.7rem; border: 2px solid white;">
-                                    {{ $pendingIssuesCount }}
-                                </span>
-                            @endif
+                            <div style="font-weight: bold ;font-size: 1.2em;">
+                                    ลดก๊าซเรือนกระจก
+                                        <span style="font-size: 1.4em;">
+                                            {{ $totalFoodWasteCarbon}}
+                                        </span>
+                                        <span style="font-size: 0.8em;">kgCO2e</span>
+                                </div>
+                                <div style="font-weight: bold ;font-size: 1.2em;">
+                                    เทียบปลูกต้นไม้
+                                        <span style="font-size: 1.4em;">
+                                            {{ $treesByFoodWasteCarbon}}
+                                        </span>
+                                        <span style="font-size: 0.8em;">ต้น</span>
+                                </div>
                         </div>
-                        <div class="main__stat-detail">
-                            <strong class="main__stat-value" style="font-size: 0.85em;">ติดตาม / แจ้ง<div>ปัญหาถังหมัก
-                                </div></strong>
-                        </div>
+                        
+
                     </div>
 
-                    <a href="{{route('foodwaste.airo.dashboard', 'cal')}}" class="main__stat-block text-center">
-                        <div class="main__stat-graph">
-                            <svg class="ring" viewBox="0 0 60 60">
-                                <circle class="ring-track" cx="30" cy="30" r="26" fill="none" stroke="#e0e0e0"
-                                    stroke-width="6" />
-                            </svg>
-                            <i class="bi bi-camera-fill icon" style="font-size: 1.5rem;"></i>
-                        </div>
-                        <div class="main__stat-detail">
-                            <strong class="main__stat-value" style="font-size: 0.9em;">บันทึก<div>การหมักประจำวัน</div>
-                            </strong>
-                        </div>
-                    </a>
+                    <div class="main__stat-block main__stat-block--lg mb-4">
+                        <button type="button" class="btn btn-sm shadow-none position-absolute"
+                            style="top: 10px; right: 10px; z-index: 10; border-radius: 50%; width: 32px; height: 32px; background: rgba(255,255,255,0.8); display: flex; align-items: center; justify-content: center;"
+                            data-bs-toggle="modal" data-bs-target="#userMetricsModal">
+                            <i class="bi bi-gear-fill text-success"></i>
+                        </button>
+                        <h6 class="fw-bold mb-3"><i class="bi bi-activity text-success"></i> พลังงานที่ได้รับ 7 วันล่าสุด
+                        </h6>
+                        <div class="chart-container" style="position: relative; height:180px; width:100%;">
+                            <canvas id="calorieDashboardChart"></canvas>
 
-                    <a href="{{ route('foodwaste.airo.batch_history') }}" class="main__stat-block text-center">
-                        <div class="main__stat-graph">
-                            <svg class="ring" viewBox="0 0 60 60">
-                                <circle class="ring-track" cx="30" cy="30" r="26" fill="none" stroke="#e0e0e0"
-                                    stroke-width="6" />
-                            </svg>
-                            <i class="bi bi-journal-text icon" style="font-size: 1.5rem;"></i>
                         </div>
-                        <div class="main__stat-detail">
-                            <strong class="main__stat-value" style="font-size: 0.9em;">ดูประวัติ<div>ปุ๋ยแต่ละล็อต</div>
-                            </strong>
-                        </div>
-                    </a>
+                        @if(!Auth::user()->weight)
+                            <small class="text-muted"
+                                style="font-size: 0.7rem;">*ตั้งค่าข้อมูลส่วนตัวเพื่อคำนวณความต้องการพลังงาน</small>
+                        @endif
 
-                    <a href="{{route('foodwaste.airo.how_to')}}" class="main__stat-block text-center">
-                        <div class="main__stat-graph">
-                            <svg class="ring" viewBox="0 0 60 60">
-                                <circle class="ring-track" cx="30" cy="30" r="26" fill="none" stroke="#e0e0e0"
-                                    stroke-width="6" />
-                            </svg>
-                            <i class="bi bi-book icon" style="font-size: 1.5rem;"></i>
+
+                    </div>
+
+
+                    <div class="main__stat-blocks">
+
+                        <div class="main__stat-block position-relative" data-bs-toggle="modal"
+                            data-bs-target="#issueListModal">
+                            <div class="main__stat-graph">
+                                <svg class="ring" viewBox="0 0 60 60">
+                                    <circle class="ring-track" cx="30" cy="30" r="26" fill="none" stroke="#e0e0e0"
+                                        stroke-width="6" />
+                                </svg>
+                                <i class="bi bi-exclamation-triangle icon" style="font-size: 1.5rem; color: orange;"></i>
+
+                                @if($pendingIssuesCount > 0)
+                                    <span class="position-absolute translate-middle badge rounded-pill bg-danger"
+                                        style="top: 15px; right: 15px; font-size: 0.7rem; border: 2px solid white;">
+                                        {{ $pendingIssuesCount }}
+                                    </span>
+                                @endif
+                            </div>
+                            <div class="main__stat-detail">
+                                <strong class="main__stat-value" style="font-size: 0.85em;">ติดตาม / แจ้ง<div>ปัญหาถังหมัก
+                                    </div></strong>
+                            </div>
                         </div>
-                        <div class="main__stat-detail">
-                            <strong class="main__stat-value" style="font-size: 0.9em;">วิธีจัดการ</strong>
-                        </div>
-                    </a>
+
+                        <a href="{{route('foodwaste.airo.dashboard', 'cal')}}" class="main__stat-block text-center">
+                            <div class="main__stat-graph">
+                                <svg class="ring" viewBox="0 0 60 60">
+                                    <circle class="ring-track" cx="30" cy="30" r="26" fill="none" stroke="#e0e0e0"
+                                        stroke-width="6" />
+                                </svg>
+                                <i class="bi bi-camera-fill icon" style="font-size: 1.5rem;"></i>
+                            </div>
+                            <div class="main__stat-detail">
+                                <strong class="main__stat-value" style="font-size: 0.9em;">บันทึก<div>การหมักประจำวัน</div>
+                                </strong>
+                            </div>
+                        </a>
+
+                        <a href="{{ route('foodwaste.airo.batch_history') }}" class="main__stat-block text-center">
+                            <div class="main__stat-graph">
+                                <svg class="ring" viewBox="0 0 60 60">
+                                    <circle class="ring-track" cx="30" cy="30" r="26" fill="none" stroke="#e0e0e0"
+                                        stroke-width="6" />
+                                </svg>
+                                <i class="bi bi-journal-text icon" style="font-size: 1.5rem;"></i>
+                            </div>
+                            <div class="main__stat-detail">
+                                <strong class="main__stat-value" style="font-size: 0.9em;">ดูประวัติ<div>ปุ๋ยแต่ละล็อต</div>
+                                </strong>
+                            </div>
+                        </a>
+
+                        <a href="{{route('foodwaste.airo.how_to')}}" class="main__stat-block text-center">
+                            <div class="main__stat-graph">
+                                <svg class="ring" viewBox="0 0 60 60">
+                                    <circle class="ring-track" cx="30" cy="30" r="26" fill="none" stroke="#e0e0e0"
+                                        stroke-width="6" />
+                                </svg>
+                                <i class="bi bi-book icon" style="font-size: 1.5rem;"></i>
+                            </div>
+                            <div class="main__stat-detail">
+                                <strong class="main__stat-value" style="font-size: 0.9em;">วิธีจัดการ</strong>
+                            </div>
+                        </a>
+                    </div>
                 </div>
-            </div>
+            @endif
+
+            @if ( auth()->user()->hasRole('Tabwater User') )
+                <div class="div_tabwater">
+                    @include('lineliff/_tabwater')
+                </div>
+            @endif
+
         </main>
     </div>
 
     <div class="navigation">
         <ul>
+            @if ( auth()->user()->hasRole('Recycle Bank User') )
+
             <li class="list active main_bottom_nav" data-id="recycle">
                 <a href="#"><span class="icon"><i class="bi bi-recycle"></i></span></a>
                 <div style="top: 70%;position: absolute;padding-left: 20px;">รีไซเคิล</div>
             </li>
+            @endif 
+
+            @if ( auth()->user()->hasRole('Recycle Bank User') )
+
             <li class="list main_bottom_nav" data-id="wet">
                 <a href="#"><span class="icon"><i class="bi bi-trash-fill"></i></span></a>
                 <div style="top: 70%;position: absolute;padding-left: 5px;">ขยะเปียก</div>
 
             </li>
+            @endif 
+
+            @if ( auth()->user()->hasRole('Annual Bin User') )
+
             <li class="list main_bottom_nav" data-id="annual">
                 <a href="#"><span class="icon"><i class="bi bi-calendar-check"></i></span></a>
                 <div style="top: 70%;position: absolute;">ถังขยะรายปี</div>
-
             </li>
+            @endif 
+            @if ( auth()->user()->hasRole('Tabwater User') )
+                
+             <li class="list main_bottom_nav active" data-id="tabwater">
+                <a href="#"><span class="icon"><i class="bi bi-calendar-check"></i></span></a>
+                <div style="top: 70%;position: absolute;">ประปา</div>
+            </li>
+             @endif 
             <div class="indicator"></div>
         </ul>
     </div>

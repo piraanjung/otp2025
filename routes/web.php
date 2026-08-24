@@ -13,6 +13,7 @@ use App\Http\Controllers\Admin\SuperAdminAuthController;
 use App\Http\Controllers\Admin\UserController;
 use App\Http\Controllers\Admin\ZoneController;
 use App\Http\Controllers\Api\KioskController;
+use App\Http\Controllers\Auth\LoginController;
 use App\Http\Controllers\EmissionFactorController;
 use App\Http\Controllers\ImageController;
 use App\Http\Controllers\Inventory\InvCategoryController;
@@ -47,6 +48,7 @@ use App\Http\Controllers\Tabwater\NotifyController;
 use App\Http\Controllers\Tabwater\TwManMobileController;
 use App\Http\Controllers\Tabwater\TwPricingTypeController;
 use App\Http\Controllers\Tabwater\UndertakerSubzoneController;
+use App\Http\Controllers\Tabwater\WaterLedgerController;
 use App\Models\User;
 use Illuminate\Support\Facades\Artisan;
 
@@ -86,6 +88,17 @@ Route::get('/kiosk-app', function () {
 Route::get('/liff', function () {
     return view('liff');
 });
+
+Route::get('/login_staff', function () {
+    Auth::logout();
+    return view('auth.login_staff');
+});
+
+Route::get('acc', function () {
+    Auth::logout();
+    return view('staff_accessmenu');
+});
+
 Route::get('/logout', function () {
     Auth::logout();
     Session()->invalidate();
@@ -100,11 +113,20 @@ Route::get('/logout', function () {
         $userAgent
     );
     if ($ismobile) {
-        return redirect()->route('login');
+        return redirect()->route('login_staff');
     }
     return redirect('/');
 });
 
+Route::get('/logout_staff', function () {
+    Auth::logout();
+    Session()->invalidate();
+    Session()->regenerateToken();
+    Session()->flush();
+
+        return view('auth/login_staff');
+    
+});
 Route::get('/upload-form', function () {
     return view('upload');
 });
@@ -144,6 +166,22 @@ Route::prefix('staffs')->name('keptkayas.staffs.')->group(function () {
     Route::get('/{staff}/edit', [StaffController::class, 'edit'])->name('edit');
     Route::put('/{staff}', [StaffController::class, 'update'])->name('update');
     Route::delete('/{staff}', [StaffController::class, 'destroy'])->name('destroy');
+
+    // Route สำหรับกดรับงาน (รองรับ Model Binding ผ่าน id ของ $notify)
+});
+
+Route::middleware(['auth'])->prefix('staff')->name('staff.')->group(function () {
+    // 1. หน้า Dashboard แสดงรายการงานทั้งหมดของ Staff
+    Route::get('/dashboard', [StaffController::class, 'dashboard'])->name('dashboard');
+
+    // 2. กดรับงานจาก LINE / หน้าเว็บ (implicit binding)
+    Route::get('/job/{notify}/accept', [StaffController::class, 'acceptJob'])->name('job.accept');
+
+    // 3. ดูรายละเอียดงานเฉพาะชิ้น (Detail Page)
+    Route::get('/job/{notify}', [StaffController::class, 'showJob'])->name('job.show');
+
+    // 4. บันทึกปิดงาน (Complete) เมื่อซ่อมเสร็จแล้ว
+    Route::post('/job/{notify}/complete', [StaffController::class, 'completeJob'])->name('job.complete');
 });
 
 Route::prefix('zones')->name('zones.')->group(function () {
@@ -299,6 +337,8 @@ Route::middleware(['auth', 'role:Admin|finance|Super Admin'])->group(function ()
 
     Route::prefix('reports/')->name('reports.')->group(function () {
         Route::post('export', [ReportsController::class, 'export'])->name('export');
+        Route::get('p17', [WaterLedgerController::class, 'p17Report'])->name('p17');
+        Route::get('p17/export', [WaterLedgerController::class, 'exportP17Excel'])->name('p17.export');
         Route::get('owe', [ReportsController::class, 'owe'])->name('owe');
         Route::get('ledger', [ReportsController::class, 'ledger'])->name('ledger');
         Route::get('water_used/{from?}', [ReportsController::class, 'water_used'])->name('water_used');

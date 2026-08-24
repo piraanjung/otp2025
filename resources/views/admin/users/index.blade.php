@@ -76,53 +76,53 @@
         <div class="table-responsive">
             <table class="table align-items-center mb-0">
                 <thead class="bg-light">
-<tr>
-        <th class="text-xs font-weight-bolder ps-4">ID</th>
-        <th class="text-xs font-weight-bolder">ชื่อ-ที่อยู่</th>
-        <th class="text-xs font-weight-bolder">โซน/ซอย</th>
-        <th class="text-center text-xs font-weight-bolder">สถานะบริการ</th>
-        <th class="text-center text-xs font-weight-bolder">จัดการ</th>
-    </tr>
-    <tr class="bg-gray-100" style="border-bottom: 2px solid #dee2e6;">
-        <th colspan="3" class="text-end text-xxs font-weight-bolder py-2"></th>
-        <th class="text-center py-2">
-            <div class="d-flex justify-content-center gap-3">
-                <div class="form-check mb-0">
-                    <input class="form-check-input" type="checkbox" id="selectAllRecycle" title="เลือกธนาคารขยะทั้งหมด">
-                    <span class="text-xxs">รีไซเคิล</span>
-                </div>
-                <div class="form-check mb-0">
-                    <input class="form-check-input" type="checkbox" id="selectAllFood" title="เลือกขยะเปียกทั้งหมด">
-                    <span class="text-xxs">ขยะเปียก</span>
-                </div>
-                <div class="form-check mb-0">
-                    <input class="form-check-input" type="checkbox" id="selectAllAnnual" title="เลือกรายปีทั้งหมด">
-                    <span class="text-xxs">รายปี</span>
-                </div>
-            </div>
-        </th>
-        <th></th>
-    </tr>
+                    <tr>
+                        <th class="text-xs font-weight-bolder ps-4">ID</th>
+                        <th class="text-xs font-weight-bolder">ชื่อ-ที่อยู่</th>
+                        <th class="text-xs font-weight-bolder">โซน/ซอย</th>
+                        <th class="text-center text-xs font-weight-bolder">สถานะบริการ</th>
+                        <th class="text-center text-xs font-weight-bolder">จัดการ</th>
+                    </tr>
+                    <tr class="bg-gray-100" style="border-bottom: 2px solid #dee2e6;">
+                        <th colspan="3" class="text-end text-xxs font-weight-bolder py-2"></th>
+                        <th class="text-center py-2">
+                            <div class="d-flex justify-content-center gap-3">
+                                <div class="form-check mb-0">
+                                    <input class="form-check-input" type="checkbox" id="selectAllRecycle" title="เลือกธนาคารขยะทั้งหมด">
+                                    <span class="text-xxs">รีไซเคิล</span>
+                                </div>
+                                <div class="form-check mb-0">
+                                    <input class="form-check-input" type="checkbox" id="selectAllFood" title="เลือกขยะเปียกทั้งหมด">
+                                    <span class="text-xxs">ขยะเปียก</span>
+                                </div>
+                                <div class="form-check mb-0">
+                                    <input class="form-check-input" type="checkbox" id="selectAllAnnual" title="เลือกรายปีทั้งหมด">
+                                    <span class="text-xxs">รายปี</span>
+                                </div>
+                            </div>
+                        </th>
+                        <th></th>
+                    </tr>
                 </thead>
                 <tbody>
     @foreach($users as $user)
     <tr>
         {{-- 1. ID --}}
-        <td class="ps-4 text-sm">{{ $user->id }}</td>
+        <td class="ps-4 text-sm">{{ substr('0000', strlen($user->wastePreference->id)) .$user->wastePreference->id }}</td>
 
         {{-- 2. ชื่อ-ที่อยู่ --}}
         <td>
             <div class="d-flex flex-column">
                 <h6 class="mb-0 text-sm">{{ $user->firstname }} {{ $user->lastname }}</h6>
-                <p class="text-xs text-secondary mb-0">{{ $user->address ?? '-' }}</p>
+                <p class="text-xs text-secondary mb-0">{{ $user->wastePreference->address ?? '-' }}</p>
             </div>
         </td>
 
         {{-- 3. โซน/ซอย --}}
         <td>
             <div class="text-xs">
-                <div><strong>โซน:</strong> {{ $user->user_zone->zone_name ?? '-' }}</div>
-                <div class="text-muted"><strong>ซอย:</strong> {{ $user->user_subzone->subzone_name ?? '-' }}</div>
+                <div><strong>โซน:</strong> {{ $user->wastePreference->user_pref_zone->zone_name ?? '-' }}</div>
+                <div class="text-muted"><strong>ซอย:</strong> {{ $user->wastePreference->user_pref_subzone->subzone_name ?? '-' }}</div>
             </div>
         </td>
 
@@ -133,7 +133,7 @@
                 <div class="form-check mb-0">
                     <input class="form-check-input chk-recycle" type="checkbox"
                         name="services[{{$user->id}}][recycle]" value="1"
-                        {{ $user->recycleAccount ? 'checked' : '' }}>
+                        {{ $user->wastePreference->kpBankAccount ? 'checked' : '' }}>
                 </div>
                 {{-- ขยะเปียก --}}
                 <div class="form-check mb-0">

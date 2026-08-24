@@ -60,6 +60,7 @@ class BinsController extends Controller
         DB::beginTransaction();
 
         try {
+        
             // 2. หาเลขถังล่าสุดอิงจากคอลัมน์ bin_code ในตาราง foodwaste_bin_stocks
             $latestBin = FoodAnnualTrashStocks::where('bin_code', 'like', $prefix . '%')
                 ->orderBy('bin_code', 'desc')

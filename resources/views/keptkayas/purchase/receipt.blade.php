@@ -1,4 +1,4 @@
-<!DOCTYPE html>
+{{-- <!DOCTYPE html>
 <html lang="th">
 
 <head>
@@ -11,9 +11,12 @@
     <link href="https://fonts.googleapis.com/css2?family=Sarabun:wght@300;400;500;600;700&display=swap" rel="stylesheet">
     <link href="https://fonts.googleapis.com/icon?family=Material+Icons+Round" rel="stylesheet">
 
-    <script src="https://html2canvas.hertzen.com/dist/html2canvas.min.js"></script>
+    <script src="https://html2canvas.hertzen.com/dist/html2canvas.min.js"></script> --}}
 
-    <style>
+
+@extends('layouts.keptkaya')
+@section('style')
+     <style>
         :root {
             --primary-color: #4f46e5; /* Indigo */
             --bg-color: #f3f4f6;
@@ -116,9 +119,9 @@
             gap: 8px;
         }
     </style>
-</head>
-
-<body>
+@endsection
+   
+@section('content')
 
     <nav class="app-bar py-3 px-3 mb-4">
         <div class="container d-flex align-items-center">
@@ -233,7 +236,11 @@
 
     <canvas id="canvas" style="display: none;"></canvas>
 
-    <script>
+   
+@endsection
+
+@section('script')
+     <script>
         // --- Configuration Constants ---
         const PRINTER_SERVICE_UUID = '000018f0-0000-1000-8000-00805f9b34fb';
         const PRINTER_CHARACTERISTIC_UUID = '00002af1-0000-1000-8000-00805f9b34fb';
@@ -416,5 +423,4 @@
         // Initialize
         connectButton.addEventListener('click', connectToPrinter);
     </script>
-</body>
-</html>
+@endsection

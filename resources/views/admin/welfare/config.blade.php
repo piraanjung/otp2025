@@ -1,4 +1,4 @@
-@extends('layouts.super-admin')
+@extends('layouts.keptkaya')
 
 @section('content')
 <div class="container-fluid py-4">

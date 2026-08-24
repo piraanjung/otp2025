@@ -8,7 +8,7 @@ use App\Http\Controllers\Controller;
 use App\Models\KeptKaya\KpPurchaseTransaction;
 use App\Models\KeptKaya\KpPurchaseTransactionDetail;
 use App\Models\KeptKaya\KpTbankItems;
-use App\Models\RecycleBankAccount;
+use App\Models\KpBankAccount;
 use App\Models\User;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
@@ -33,6 +33,7 @@ class KeptkayaController extends Controller
                 ->where('kp_tbank_items.status', 'active')
                 ->where('grp.status', 'active')
                 ->where('prc.status', 'active')
+                ->where('prc.type', 'tbank')
 
                 // กรองช่วงเวลาวันที่ของราคารีไซเคิลปัจจุบันให้ถูกต้อง
                 ->where('prc.effective_date', '<=', $today)
@@ -48,9 +49,12 @@ class KeptkayaController extends Controller
                     'kp_tbank_items.kp_items_group_idfk as group_id',
                     'grp.kp_items_groupname as group_name',
                     'unt.unitname as unitname',
+                    'prc.id as prc_pnt_id',
                     'prc.price_for_member as price',
                     'prc.price_from_dealer as price_dealer',
-                    'prc.point as point'
+                    'prc.point as point',
+                    'prc.type',
+
                 ])
                 ->get();
 
@@ -67,15 +71,21 @@ class KeptkayaController extends Controller
         }
     }
 
-    public function members(Request $request)
+    public function members($org_id)
     {
         try {
             $today = Carbon::today()->toDateString(); // วันที่ปัจจุบัน (YYYY-MM-DD)
 
             // ดึงรายชื่อ User ทั้งหมด (ระบบจะกรอง org_id_fk อัตโนมัติด้วย Trait BelongsToOrganization)
-            $members = User::with('wastePreference') // ดึงข้อมูล preference พ่วงไปด้วยเพื่อเอา ID คีย์นอก
-                ->whereHas('wastePreference')
-                ->get()
+            $members =  User::where('org_id_fk', $org_id)
+                        ->with(['wastePreference' => function($q){
+                            $q->select('id', 'user_id', 'address');
+                        }, 'wastePreference.kpBankAccount' => function($q){
+                            $q->select('id', 'user_pref_id', 'account_no');
+                        }
+                        ])
+                       ->whereHas('wastePreference.kpBankAccount') // 🎯 กรองเฉพาะคนที่มีบัญชี
+                        ->get(['firstname', 'lastname', 'id', 'address', 'zone_id', 'subzone_id', 'phone'])
                 ->map(function ($member) use ($today) {
 
                     $hasTransactionToday = false;
@@ -168,8 +178,8 @@ class KeptkayaController extends Controller
             // 5. อัปเดต Carbon รวม
             $transaction->update(['total_carbon_saved' => $carbonSavedTotal]);//
 
-            // 6. อัปเดตสมุดบัญชีธนาคารขยะ (RecycleBankAccount)
-            $recycleAcc = RecycleBankAccount::firstOrCreate(
+            // 6. อัปเดตสมุดบัญชีธนาคารขยะ (KpBankAccount)
+            $recycleAcc = KpBankAccount::firstOrCreate(
                 ['user_pref_id' => $request->kp_user_w_pref_id_fk],
                 [
                     'account_no' => 'ACC-' . str_pad($request->kp_user_w_pref_id_fk, 6, '0', STR_PAD_LEFT),

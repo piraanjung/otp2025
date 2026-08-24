@@ -17,8 +17,9 @@ use App\Models\Tabwater\SequenceNumber;
 use App\Models\User;
 use App\Models\FoodWaste\FoodWasteLog;
 use App\Models\FoodWaste\FoodWasteUserPreference;
+use App\Models\KeptKaya\KpPurchaseTransaction;
 use App\Models\KeptKaya\KpPurchaseTransactionDetail;
-use App\Models\RecycleBankAccount;
+use App\Models\KpBankAccount;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
@@ -30,23 +31,24 @@ class   LineLiffController extends Controller
 {
     public function index()
     {
-
         $provinces = Province::all();
         $orgs = Organization::with('provinces', 'districts', 'tambons', 'orgType')
             ->get(['id', 'org_type_id', 'org_name', 'org_tambon_id_fk', 'org_district_id_fk', 'org_province_id_fk']);
         return view('lineliff.index', compact('provinces', 'orgs'));
     }
 
-    public function dashboard($pref_id, $org_id)
+    public function dashboard(Request $request, $pref_id, $org_id)
     {
         // 1. ดึงข้อมูล User และ Login
-        $kpPref = KpUserWastePreference::find($pref_id);
-        $userId = $kpPref->user_id;
+
+        $pref = KpUserWastePreference::findOrFail($pref_id);
+        $request->session()->put('pref_id_mobile', $pref_id);
+
+        $userId = $pref->user_id;
         $user = User::findOrFail($userId);
         Auth::login($user);
-
         // 2. ดึงข้อมูลบัญชี (New Schema)
-        $recycleAcc = RecycleBankAccount::where('user_pref_id', $kpPref->id)->first();
+        $recycleAcc = KpBankAccount::where('user_pref_id', $pref->id)->first();
         $foodWasteAcc = FoodWasteAccount::where('user_id', $userId)->first();
         $annualTrash = AnnualTrashSubscription::where('user_id', $userId)->first();
 
@@ -56,21 +58,20 @@ class   LineLiffController extends Controller
 
         // 2. คาร์บอนขยะเปียก
         $totalFoodWasteCarbon = FoodWasteLog::where('user_id', $userId)->sum('carbon_saved_kg');
-
+        $treesByFoodWasteCarbon = number_format( $totalFoodWasteCarbon > 0 ? ($totalFoodWasteCarbon / 12) : 0, 2);
         // 3. คาร์บอนขยะรีไซเคิล
-        $totalRecycleCarbon = KpPurchaseTransactionDetail::whereHas('transaction.userWastePreference', function ($q) use ($userId) {
-            $q->where('user_id', $userId);
-        })
-            ->whereHas('transaction', function ($q) {
-                $q->where('status', 1);
-            })
-            ->sum('carbon_saved');
+        $transaction = KpPurchaseTransaction::where('kp_user_w_pref_id_fk', $pref_id)
+            ->with('details')
+            ->get()->first();
+        $totalRecycleCarbon = collect($transaction->details)->sum('carbon_saved');
+        // ต้นไม้ 1 ต้น ดูดซับ CO2 ได้ประมาณ 12 kg/ปี
+        $treesByRecycleCarbon = number_format( $totalRecycleCarbon > 0 ? ($totalRecycleCarbon / 12) : 0, 2);
 
         // 4. รวมคาร์บอนทั้งหมด (ตัวแปรหลักที่ใช้โชว์ใน Dashboard)
         $totalCo2Saved = $totalFoodWasteCarbon + $totalRecycleCarbon;
 
         // 5. ตัวแปรสำรอง (ถ้าใน Blade ยังมีการใช้ชื่อ $totalCarbonSaved อยู่)
-        $totalCarbonSaved = $totalCo2Saved;
+        $totalCarbonSaved = number_format($totalCo2Saved, 4);
 
         // 4. จัดการข้อมูล Batch (ล็อตปุ๋ยปัจจุบัน)
         $activeBatch = CompostBatches::where('user_id', $userId)
@@ -106,7 +107,7 @@ class   LineLiffController extends Controller
         // ดึงแต้มจาก FoodWasteAccount (ขยะเปียก)
         $foodWasteTotalPoints = $foodWasteAcc ? $foodWasteAcc->points_balance : 0;
 
-        // ดึงเงินจาก RecycleBankAccount (เงินจากการขายขยะรีไซเคิล)
+        // ดึงเงินจาก KpBankAccount (เงินจากการขายขยะรีไซเคิล)
         $recycleTotalBalance = $recycleAcc ? $recycleAcc->balance : 0.00;
         $recycleTotalPoints = $recycleAcc ? $recycleAcc->points : 0.00;
 
@@ -117,6 +118,7 @@ class   LineLiffController extends Controller
         $issueTypes = FoodWasteIssueType::where('is_active', 1)->get();
         return view('lineliff.dashboard', compact(
             'user',
+            'pref_id',
             'totalWasteWeight',
             'totalCarbonSaved',
             'activeBatch',
@@ -132,7 +134,11 @@ class   LineLiffController extends Controller
             'annualTrash',
             'myIssues',
             'issueTypes',
-            'totalCo2Saved'
+            'totalCo2Saved',
+            'treesByRecycleCarbon',
+            'totalRecycleCarbon',
+            'totalFoodWasteCarbon',
+            'treesByFoodWasteCarbon'
         ));
     }
 
@@ -267,17 +273,18 @@ class   LineLiffController extends Controller
 
             // กำหนด Role พื้นฐาน
             $user->assignRole('User');
-
+            $account_no = substr('0000', strlen($user->org->id)) . $user->org->id . substr('0000', strlen($user->id)) . $user->id;
             // 3. สร้างบัญชีธนาคารขยะรีไซเคิล (เงินชาวบ้าน)
-            $recycleAccount = RecycleBankAccount::create([
+            $recycleAccount = KpBankAccount::create([
                 'user_id'    => $user->id,
-                'account_no' => 'RC-' . strtoupper(uniqid()), // หรือสร้างตาม Format ที่คุณต้องการ
+                'account_no' => 'RC-' . $account_no, // หรือสร้างตาม Format ที่คุณต้องการ
                 'balance'    => 0,
                 'points'     => 0,
+                'org_id_fk'     => $request['org_id'],
                 'status'     => 'active',
             ]);
 
-            // 4. สร้างบัญชีธนาคารขยะเปียก (เงินชาวบ้าน)
+            // 4. สร้างบัญชีธนาคารขยะรีไซเคิล (เงินชาวบ้าน)
             $kpref = KpUserWastePreference::create([
                 'user_id'       => $user->id,
                 'is_waste_bank' => 1,
@@ -290,6 +297,13 @@ class   LineLiffController extends Controller
                 'subzone_id'    => $request['subzone_id'],
                 'address'       => $request['address'],
             ]);
+
+            FoodWasteUserPreference::create([
+                'user_id'       => $user->id,
+                'org_id_fk'     => $request['org_id'],
+                'status'        => 1,
+            ]);
+
             // 5. สร้างสิทธิ์ขยะรายปี (เงินเทศบาล)
             // ตั้งค่าเริ่มต้นเป็น 'waived' (ฟรี) ตามที่คุณต้องการ
             $date = now();
@@ -301,15 +315,15 @@ class   LineLiffController extends Controller
             $monthFee = $payRate ? $payRate->payrate_permonth : 20.00;
 
             // 3. บันทึกข้อมูลพร้อมฟิลด์ที่บังคับทั้งหมด
-            AnnualTrashSubscription::create([
-                'user_id'        => $user->id,
-                'fiscal_year'    => $fiscalYear,      // 🌟 ส่งค่าปีงบประมาณ (แก้ Error 1364)
-                'month_fee'      => $monthFee,        // 🌟 ส่งค่าธรรมเนียมต่อเดือน
-                'annual_fee'     => $monthFee * 12,   // 🌟 ส่งค่าธรรมเนียมรวมปี
-                'billing_status' => 'waived',
-                'waive_reason'   => 'new_member',
-                'current_debt'   => 0,
-            ]);
+            // AnnualTrashSubscription::create([
+            //     'user_id'        => $user->id,
+            //     'fiscal_year'    => $fiscalYear,      // 🌟 ส่งค่าปีงบประมาณ (แก้ Error 1364)
+            //     'month_fee'      => $monthFee,        // 🌟 ส่งค่าธรรมเนียมต่อเดือน
+            //     'annual_fee'     => $monthFee * 12,   // 🌟 ส่งค่าธรรมเนียมรวมปี
+            //     'billing_status' => 'waived',
+            //     'waive_reason'   => 'new_member',
+            //     'current_debt'   => 0,
+            // ]);
 
 
             // หากทุกอย่างสำเร็จ ยืนยันการบันทึก
@@ -360,7 +374,4 @@ class   LineLiffController extends Controller
             return back()->with('success', 'ยินดีด้วย! คุณเปิดบัญชีธนาคารขยะเปียกสำเร็จ');
         });
     }
-
-    
-    
 }

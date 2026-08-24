@@ -33,6 +33,7 @@ class TwInvoice extends Model
         'acc_trans_id_fk',
         'currentmeter',
         'recorder_id',
+        'previous_balance',
         'status',
         'created_at',
         'updated_at',

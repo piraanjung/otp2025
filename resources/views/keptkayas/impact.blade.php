@@ -11,7 +11,7 @@
         <div class="card-body p-4 text-center position-relative">
             <div class="opacity-25 position-absolute top-0 end-0 m-2"><i class="bi bi-tree" style="font-size: 5rem;"></i></div>
             <p class="mb-1 opacity-75">คุณช่วยลดก๊าซเรือนกระจกสะสม</p>
-            <h1 class="display-4 fw-bold mb-0">{{ number_format($totalCo2Saved, 2) }}</h1>
+            <h1 class="display-4 fw-bold mb-0">{{ number_format($totalCo2Saved, 4) }}</h1>
             <p class="fs-5 mb-0">kgCO2e (กิโลกรัมคาร์บอน)</p>
         </div>
     </div>
@@ -84,7 +84,7 @@
     </div>
 </div>
  <div class="text-center mt-4">
-<a href="{{ url('line/dashboard/'.Auth::id().'/'.Auth::user()->org_id_fk) }}"
+<a href="{{ url('line/dashboard/'.$pref_id.'/'.Auth::user()->org_id_fk) }}"
    class="btn btn-outline-secondary">
    กลับหน้าหลัก
 </a>

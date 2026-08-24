@@ -23,6 +23,6 @@ class FoodAnnualTrashStocks extends Model
 
     public function foodwaste_bin()
     {
-        return $this->hasOne(FoodAnnualTrash::class, 'bin_code_fk');
+        return $this->hasOne(FoodAnnualTrash::class, 'bin_code');
     }
 }

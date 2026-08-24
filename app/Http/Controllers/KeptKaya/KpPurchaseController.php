@@ -13,7 +13,7 @@ use App\Models\KeptKaya\KpTbankItemsPriceAndPoint;
 use App\Models\KeptKaya\KpTbankUnits;
 use App\Models\KeptKaya\KpUserWastePreference;
 use App\Models\KeptKaya\Machine;
-use App\Models\RecycleBankAccount;
+use App\Models\KpBankAccount;
 use App\Models\User;
 use Carbon\Carbon;
 use Illuminate\Http\Request;
@@ -158,7 +158,7 @@ class KpPurchaseController extends Controller
         $transaction->update(['total_carbon_saved' => $carbonSavedTotal]);
 
         // 6. อัปเดตสมุดบัญชีธนาคารขยะ (RecycleBankAccount)
-        $recycleAcc = RecycleBankAccount::firstOrCreate(
+        $recycleAcc = KpBankAccount::firstOrCreate(
             ['user_id' => $userId],
             [
                 'account_no' => 'ACC-' . str_pad($userId, 6, '0', STR_PAD_LEFT),
@@ -179,7 +179,15 @@ class KpPurchaseController extends Controller
                          ->with('success', 'บันทึกสำเร็จ! คุณช่วยลดคาร์บอนได้ ' . number_format($carbonSavedTotal, 4) . ' kgCO2e');
     });
 }
+    public function connect_bluethooth(){
+        $transaction = KpPurchaseTransaction::where('id', 6)
+            ->with('userWastePreference.user', 'details.item', 'details.pricePoint.kp_units_info')
+            ->get()->first();
+        $orgInfos = Organization::getOrgName(Auth::user()->org_id_fk);
 
+        return view('keptkayas.purchase.connect_bluethooth',compact('transaction', 'orgInfos'));
+
+    }
     public function showReceipt($transaction_id)
     {
         $transaction = KpPurchaseTransaction::where('id', $transaction_id)

@@ -35,9 +35,16 @@ class TwNotifies extends Model
     /**
      * ความสัมพันธ์: ดึงข้อมูล Staff ผู้รับงาน (สมมติว่า Staff ก็คือ User Model)
      */
-    public function staff()
+    public function staffs()
     {
-        return $this->belongsTo(User::class, 'staff_id');
+        return $this->belongsToMany(
+            User::class,            // Model ปลายทาง (Staff/User)
+            'tw_notify_staff',      // ชื่อตาราง Pivot (ตามภาพ)
+            'notify_id',            // FK ใน pivot table ที่ชี้มาหา tw_notifies.id
+            'user_id'               // FK ใน pivot table ที่ชี้ไปหา users.id
+        )
+        ->withPivot('staff_status')
+        ->withTimestamps();
     }
 
     public function assignedStaff()

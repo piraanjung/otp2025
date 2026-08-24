@@ -7,6 +7,7 @@ use App\Models\Tabwater\TwNotifies;
 use App\Models\User;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\DB;
 use Spatie\Permission\Models\Role;
 use Illuminate\Validation\Rule;
 use Spatie\Permission\Models\Permission;
@@ -16,7 +17,8 @@ class StaffController extends Controller
     protected $staffRolesArray;
     function __construct()
     {
-        $this->staffRolesArray = ['Tabwater Staff', 'Tabwater Header', 'Admin', 'Recycle Bank Staff', 'Annual Fee Staff'];
+        $this->staffRolesArray = ['Tabwater Staff', 'Tabwater Header', 'Admin', 'Recycle Bank Staff', 
+        'Annual Fee Staff', 'Food Waste Staff'];
     }
     public function index(Request $request)
     {
@@ -168,7 +170,8 @@ class StaffController extends Controller
             'tabwater staff',
             'tabwater header',
             'finance staff',
-            'finance header'
+            'finance header',
+            'Food Waste Staff'
         ])->get();
 
         // ดึง Permissions ทั้งหมด
@@ -227,34 +230,86 @@ class StaffController extends Controller
         return redirect()->route('keptkayas.staffs.index')->with('success', 'ลบบทบาทเจ้าหน้าที่ออกจากผู้ใช้งานเรียบร้อยแล้ว');
     }
 
+    public function dashboard()
+    {
+        $notifies = TwNotifies::with(['user', 'staffs'])
+            ->orderBy('created_at', 'desc')
+            ->get();
+
+        $pendingCount  = $notifies->where('status', 'pending')->count();
+        $workingCount  = $notifies->where('status', 'processing')->count();
+        $completeCount = $notifies->where('status', 'complete')->count();
+        $totalCount    = $notifies->count();
+
+        return view('staff.dashboard', compact(
+            'notifies', 'pendingCount', 'workingCount', 'completeCount', 'totalCount'
+        ));
+    }
+
+    // --- 2. ฟังก์ชันกดรับงาน ---
     public function acceptJob(TwNotifies $notify)
     {
         $staffUser = User::find(Auth::id());
 
-        // 1. ตรวจสอบสิทธิ์และสถานะงานโดยรวม (เช่น ไม่ควรรับงานที่ถูกยกเลิกแล้ว)
+        // ตรวจสอบว่างานถูกยกเลิกไปแล้วหรือยัง
         if ($notify->status === 'cancel') {
-            return back()->with('error', 'งานนี้ถูกยกเลิกแล้ว');
+            return redirect()->route('staff.dashboard')->with('error', 'งานนี้ถูกยกเลิกแล้ว');
+        }
+        // ตรวจสอบว่างานนี้มี Staff ท่านอื่นรับไปทำแล้วหรือยัง (ถ้า status เป็น processing หรือ complete แล้ว)
+        if ($notify->status !== 'pending' && !$notify->staffs->contains($staffUser->id)) {
+            return redirect()->route('staff.dashboard')->with('warning', 'งานนี้มีเจ้าหน้าที่ท่านอื่นรับดำเนินการไปแล้ว');
         }
 
-        // 2. รับงาน: เพิ่มรายการในตาราง Pivot (notify_staff)
+        DB::beginTransaction();
         try {
-            // ใช้เมธอด attach() เพื่อสร้างความสัมพันธ์ Many-to-Many
-            $staffUser->acceptedNotifies()->attach($notify->id, [
-                'staff_status' => 'working' // ตั้งสถานะเฉพาะของ Staff คนนี้
+            // ผูก Staff กับ Job ผ่าน Pivot Table (ถ้ายังไม่เคยผูก)
+            if (!$notify->staffs->contains($staffUser->id)) {
+                $staffUser->acceptedNotifies()->attach($notify->id, [
+                    'staff_status' => 'working',
+                    'created_at'   => now(),
+                    'updated_at'   => now(),
+                ]);
+            }
+
+            // อัปเดตสถานะหลักของงานเป็น 'processing' และใส่ staff_id คนแรกที่รับงาน
+            if ($notify->status === 'pending') {
+                $notify->update([
+                    'status'   => 'processing',
+                    'staff_id' => $staffUser->id,
+                ]);
+            }
+
+            DB::commit();
+            return redirect()->route('staff.dashboard')->with('success', "คุณได้รับงาน #{$notify->id} เรียบร้อยแล้ว");
+
+        } catch (\Exception $e) {
+            DB::rollBack();
+            return redirect()->route('staff.dashboard')->with('error', 'เกิดข้อผิดพลาดในการรับงาน: ' . $e->getMessage());
+        }
+    }
+
+    // --- 3. ฟังก์ชันบันทึกปิดงาน (Complete Job) ---
+    public function completeJob(Request $request, TwNotifies $notify)
+    {
+        $request->validate([
+            'remark' => 'nullable|string|max:500',
+        ]);
+
+        try {
+            $notify->update([
+                'status' => 'complete',
+                'description' => $notify->description . ($request->remark ? "\n[บันทึกการซ่อม]: " . $request->remark : ''),
             ]);
 
-            // 3. **อัปเดตสถานะหลักของงาน:** //    ถ้าสถานะหลักยังเป็น 'pending' ให้เปลี่ยนเป็น 'processing'
-            if ($notify->status === 'pending') {
-                $notify->update(['status' => 'processing']);
-            }
+            // อัปเดตสถานะใน Pivot Table
+            DB::table('notify_staff')
+                ->where('tw_notify_id', $notify->id)
+                ->where('user_id', Auth::id())
+                ->update(['staff_status' => 'complete', 'updated_at' => now()]);
 
-            return redirect()->route('staff.dashboard')->with('success', "คุณได้รับงาน #{$notify->id} เพื่อดำเนินการแล้ว");
-        } catch (\Illuminate\Database\QueryException $e) {
-            // ตรวจจับ Primary Key Conflict (กรณี Staff คนนี้เคยรับงานนี้ไปแล้ว)
-            if ($e->getCode() == 23000) {
-                return back()->with('warning', 'คุณเคยรับงานนี้ไปแล้ว!');
-            }
-            return back()->with('error', 'เกิดข้อผิดพลาดในการรับงาน');
+            return redirect()->route('staff.dashboard')->with('success', "บันทึกปิดงาน #{$notify->id} สำเร็จแล้ว");
+        } catch (\Exception $e) {
+            return back()->with('error', 'ไม่สามารถบันทึกปิดงานได้');
         }
     }
 }

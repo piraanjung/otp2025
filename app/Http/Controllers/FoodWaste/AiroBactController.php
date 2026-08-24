@@ -18,6 +18,8 @@ use Carbon\Carbon;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Session;
+use Intervention\Image\Drivers\Gd\Driver;
+use Intervention\Image\ImageManager;
 
 class AiroBactController extends Controller
 {
@@ -43,17 +45,18 @@ class AiroBactController extends Controller
         $chartData = $weeklyStats->pluck('daily_calories')->toArray();
 
         // 🌟 ดึงมื้อล่าสุด (ที่ยังไม่ได้ลงถัง)
-        $latestEntry = MealLog::where('user_id', $userId)
-            ->where('created_at', '>=', now()->subHours(3))
-            ->where('status', '<>', 'binned') // 🌟 เพิ่มบรรทัดนี้: กรองเอาเฉพาะที่ยังไม่ลงถัง
-            ->latest()
-            ->first();
+        $latestEntry = [];
+        // $latestEntry = MealLog::where('user_id', $userId)
+        //     ->where('created_at', '>=', now()->subHours(3))
+        //     ->where('status', '<>', 'binned') // 🌟 เพิ่มบรรทัดนี้: กรองเอาเฉพาะที่ยังไม่ลงถัง
+        //     ->latest()
+        //     ->first();
 
         $latestMeals = collect();
-        if ($latestEntry) {
-            // ดึงรายการอาหารทั้งหมดในมื้อนั้นมาโชว์
-            $latestMeals = MealItem::where('meal_log_id', $latestEntry->id)->get();
-        }
+        // if ($latestEntry) {
+        //     // ดึงรายการอาหารทั้งหมดในมื้อนั้นมาโชว์
+        //     $latestMeals = MealItem::where('meal_log_id', $latestEntry->id)->get();
+        // }
 
         $targetCalories = 0;
 
@@ -68,9 +71,9 @@ class AiroBactController extends Controller
             $targetCalories = $bmr * 1.2; // สมมติกิจกรรมน้อย (Sedentary)
         }
 
-        $todayCalories = MealLog::where('user_id', Auth::id())
-            ->whereDate('created_at', now())
-            ->sum('total_calories');
+        // $todayCalories = MealLog::where('user_id', Auth::id())
+        //     ->whereDate('created_at', now())
+        //     ->sum('total_calories');
 
         Session::put('type', $type);
         $waste_preference = User::where('id', $userId)->with('foodwastePreference')->get()->first();
@@ -93,19 +96,41 @@ class AiroBactController extends Controller
     // ---------------------------------------------------
     public function storeWaste(Request $request)
     {
+
         $request->validate([
             'weight_kg' => 'required|numeric',
             'waste_photo' => 'required|image'
         ]);
 
         // --- ส่วนจัดการไฟล์รูปภาพ (เหมือนเดิมของคุณ) ---
-        $destinationPath = public_path('wastes');
+        $destinationPath = public_path('food_wastes');
         if (!file_exists($destinationPath)) {
             mkdir($destinationPath, 0755, true);
         }
         $fileName = time() . '_' . $request->file('waste_photo')->getClientOriginalName();
-        $request->file('waste_photo')->move($destinationPath, $fileName);
-        $path = 'wastes/' . $fileName;
+
+        // --- เริ่มส่วนที่แก้ไขโดยใช้ Intervention Image ตรงๆ ---
+        $file = $request->file('waste_photo');
+        $filePath = $destinationPath . '/' . $fileName;
+
+        // สร้าง Manager ขึ้นมาใช้งาน (แนะนำให้ประกาศไว้ด้านบนสุดของไฟล์หรือจุดเริ่มต้นฟังก์ชัน)
+        $manager = new ImageManager(new Driver());
+
+        // อ่านไฟล์ภาพจากปาธชั่วคราว
+        $image = $manager->read($file->getRealPath());
+
+        // วนลูปปรับคุณภาพจนกว่าขนาดไฟล์จะไม่เกิน 300KB
+        $quality = 90;
+        do {
+            $encoded = $image->toJpeg($quality);
+            $quality -= 5;
+        } while (strlen($encoded) > 307200 && $quality > 10);
+
+        // บันทึกไฟล์ภาพ
+        file_put_contents($filePath, $encoded);
+        // --- สิ้นสุดส่วนที่แก้ไข ---
+
+        $path = 'food_wastes/' . $fileName;
 
         // --- ส่วนคำนวณ Carbon และจัดการ Batch (เหมือนเดิมของคุณ) ---
         $carbonSaved = $this->calculateCarbonCredit($request->weight_kg);

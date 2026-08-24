@@ -4,6 +4,7 @@ namespace App\Http\Controllers\KeptKaya;
 
 use App\Http\Controllers\Controller;
 use App\Models\KeptKaya\KpPurchaseTransactionDetail;
+use App\Models\KpBankAccount;
 use App\Models\User;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
@@ -14,11 +15,12 @@ class DashboardController extends Controller
 
     public function index(Request $request, $keptkayatype = '')
     {
+
         $request->session()->forget('keptkayatype');
 
         // 0. ดึง Org ID ของผู้ใช้ปัจจุบัน
         $orgId = Auth::user()->org_id_fk;
-
+ 
         // 1. ดึงข้อมูลภาพรวม (ต้องส่ง $orgId เข้าไปใน Method นี้ด้วย)
         $schoolStats = $this->getCarbonSummary($orgId);
 
@@ -46,6 +48,12 @@ class DashboardController extends Controller
             'total_money' => \App\Models\KeptKaya\KpPurchaseTransaction::where('org_id_fk', $orgId)->sum('total_amount'),
             'total_points' => \App\Models\KeptKaya\KpPurchaseTransaction::where('org_id_fk', $orgId)->sum('total_points')
         ];
+        if($economicStats['total_money'] == 0 && $economicStats['total_points'] == 0){
+            $economicStats = [
+                'total_money' => KpBankAccount::where('org_id_fk', $orgId)->sum('balance'),
+                'total_points' => KpBankAccount::where('org_id_fk', $orgId)->sum('points'),
+            ];
+        }
 
         // 5. 🕒 Recent Activity (รายการล่าสุดใน Org)
         $recentActivities = \App\Models\KeptKaya\KpPurchaseTransaction::where('org_id_fk', $orgId) // <-- เพิ่มบรรทัดนี้
@@ -59,7 +67,9 @@ class DashboardController extends Controller
 
         // กรองจำนวนสมาชิกเฉพาะใน Org
         $totalMembers = User::where('org_id_fk', $orgId)
-        ->whereHas('wastePreference')
+        ->whereHas('wastePreference', function($q) use ($orgId){
+            $q->where('org_id_fk', $orgId);
+        })
         ->count();
 
         $request->session()->put('keptkayatype', $keptkayatype);

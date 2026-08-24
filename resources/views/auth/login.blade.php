@@ -72,6 +72,7 @@
                         {{ __('Forgot your password?') }}
                     </a>
                 @endif --}}
+                <input type="hidden" name="login_staff" value="0">
 
                 <x-button class="ml-3">
                     {{ __('Log in') }}

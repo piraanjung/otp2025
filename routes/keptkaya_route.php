@@ -30,6 +30,7 @@ use App\Http\Controllers\KeptKaya\HistoryController;
 use App\Http\Controllers\KeptKaya\ImpactController;
 use App\Http\Controllers\KeptKaya\LocationController;
 use App\Http\Controllers\KeptKaya\PointController;
+use App\Http\Controllers\keptkaya\RecycleBankController;
 use App\Http\Controllers\KeptKaya\WithdrawController;
 use App\Http\Controllers\Kiosk\KioskController;
 
@@ -41,18 +42,20 @@ Route::get('/unknown-review', function () {
 
 
 
-    Route::get('/history/{userId}', [HistoryController::class, 'index'])->name('history');
-    Route::get('/impact/{userId}', [ImpactController::class, 'index'])->name('impact');
+    Route::get('/history/{pref_id}', [HistoryController::class, 'index'])->name('history');
+    Route::get('/impact/{pref_id}', [ImpactController::class, 'index'])->name('impact');
     Route::get('/locations', [LocationController::class, 'index'])->name('locations');
-    Route::get('/withdraw/create/{userId}', [WithdrawController::class, 'create'])->name('withdraw.create');
+    Route::get('/withdraw/create/{pref_id}', [WithdrawController::class, 'create'])->name('withdraw.create');
     Route::post('/withdraw/store', [WithdrawController::class, 'storeRequest'])->name('withdraw.store');
     Route::get('/withdraw/success/{id}', [WithdrawController::class, 'showSuccess'])->name('withdraw.success');
 
-    Route::get('/transfer-points', [PointController::class, 'create'])->name('transfer_points');
+    Route::get('/transfer-points/{pref_id}', [PointController::class, 'create'])->name('transfer_points');
     Route::post('/transfer-points', [PointController::class, 'transfer'])->name('transfer_points.store');
 });
 
 Route::middleware(['auth'])->prefix('keptkayas')->name('keptkayas.')->group(function () {
+    Route::get('/recycle-bank/members', [RecycleBankController::class, 'index'])->name('recycle-bank.members');
+Route::get('/recycle-bank/members/{id}/history', [RecycleBankController::class, 'history'])->name('recycle-bank.history');
 
     Route::resource('kiosks', KioskController::class);
     Route::get('/kiosks/noscreen/login', [KioskController::class, 'login'])->name('kiosks.noscreen.login');
@@ -140,6 +143,7 @@ Route::middleware(['auth'])->prefix('keptkayas')->name('keptkayas.')->group(func
         Route::get('show-receipt/{transaction}', [KpPurchaseController::class, 'showReceipt'])->name('show_receipt');
         Route::get('history/{kp_waste_pref_id}', [KpPurchaseController::class, 'showPurchaseHistory'])->name('history');
         Route::get('receipt/{transaction_id}', [KpPurchaseController::class, 'showReceipt'])->name('receipt');
+        Route::get('connect_bluethooth', [KpPurchaseController::class, 'connect_bluethooth'])->name('connect_bluethooth');
     });
 
     // 7. Sell System

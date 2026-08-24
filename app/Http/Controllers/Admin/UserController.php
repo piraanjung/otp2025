@@ -17,7 +17,7 @@ use App\Models\FoodWaste\FoodWasteAccount;
 use App\Models\AnnualTrash\AnnualTrashPayratePerMonth;
 use App\Models\FoodWaste\FoodWasteUserPreference;
 use App\Models\KeptKaya\KpUserWastePreference;
-use App\Models\RecycleBankAccount;
+use App\Models\KpBankAccount;
 use App\Models\Tabwater\TwUsersInfos;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
@@ -34,10 +34,17 @@ class UserController extends Controller
         $perPage = $request->get('per_page', 20);
 
         // ใช้ with() เพื่อป้องกัน N+1 Query (โหลดข้อมูลบัญชีมาพร้อมกันเลย)
-        $query = User::with(['recycleAccount', 'foodWasteAccount', 'annualTrashSubscription'])
-            ->where('org_id_fk', Auth::user()->org_id_fk);
+        
+        $query = User::with(['wastePreference.kpBankAccount', 'foodWasteAccount', 'annualTrashSubscription'])
+            ->whereHas('wastePreference', function($q){
+                $q->where('org_id_fk',Auth::user()->org_id_fk );
+            })
+            ->where('org_id_fk', Auth::user()->org_id_fk)
+            ->whereDoesntHave('roles', function ($q) {
+                $q->where('name', 'Super Admin');
+            });
 
-        if ($request->filled('search')) {
+            if ($request->filled('search')) {
             $search = $request->search;
             $query->where(function ($q) use ($search) {
                 $q->where('firstname', 'like', "%$search%")
@@ -46,6 +53,7 @@ class UserController extends Controller
                     ->orWhere('address', 'like', "%$search%");
             });
         }
+
 
         // --- 🌟 Filter ตามโซน (Zone / Subzone) ---
         if ($request->filled('zone_id')) {
@@ -58,11 +66,10 @@ class UserController extends Controller
         // --- 🌟 Filter ตามสถานะบริการ (Service Status) ---
         if ($request->filled('service_filter')) {
             $filter = $request->service_filter;
-            if ($filter == 'recycle') $query->has('recycleAccount');
+            if ($filter == 'recycle') $query->has('kpBankAccount');
             if ($filter == 'food_waste') $query->has('foodWasteAccount');
             if ($filter == 'annual_trash') $query->has('annualTrashSubscription');
         }
-
         $users = ($perPage == 'all') ? $query->get() : $query->paginate($perPage);
 
         // ดึงข้อมูล Zone สำหรับตัวเลือก Filter
@@ -70,44 +77,207 @@ class UserController extends Controller
 
         return view('admin.users.index', compact('users', 'perPage', 'zones'));
     }
-    // public function index()
-    // {
-    //     // 1. สร้าง Base Query ไว้ก่อน (ยังไม่ get)
-    //     $query = TwMeterInfos::with([
-    //         'tw_invoices' => function ($q) {
-    //             return $q->select('meter_id_fk', 'status');
-    //         },
-    //         'user' => function ($q) {
-    //             return $q->select('id', 'prefix', 'firstname', 'lastname', 'status');
-    //         }
-    //     ])
-    //         ->whereHas('user', function ($q) {
-    //             return $q->where('org_id_fk', Auth::user()->org_id_fk);
-    //         });
 
-    //     // 2. ดึงเฉพาะ Active โดยสั่ง SQL (เร็วกว่า filter ใน PHP)
-    //     // ใช้ clone $query เพื่อไม่ให้กระทบ query หลัก
-    //     $user_active = (clone $query)
-    //         ->where('status', 'active')
-    //         // ->where('deleted', '!=', '1') // (Option) กันเหนียวถ้า active แต่ deleted=1
-    //         ->get()
-    //         ->groupBy('user_id');
+    protected function _index(){
+        $arr = [
+        ['Panthita51103@gmail.com','กลุ่มงานพยาบาล','งานการพยาบาลผู้ป่วยใน'],
+        ['atcharawadeeritthikhan@gmail.com','กลุ่มงานพยาบาล','งานผู้ป่วยนอก'],
+        ['padak_2526@hotmail.com','กลุ่มงานบริการด้านปฐมภูมิและองค์รวม','งานสุขภาพจิตและยาเสพติด'],
+        ['Auraporn0611@gmail.com','กลุ่มงานบริหารทั่วไป','งานพัสดุ'],
+        ['Jirakan2532n@gmail.com','กลุ่มงานพยาบาล','งานอุบัติเหตุฉุกเฉิน'],
+        ['aemt65-23@scphub.ac.th','กลุ่มงานพยาบาล','งานอุบัติเหตุฉุกเฉิน'],
+        ['bbb_@hotmail.com','กลุ่มงานบริหารทั่วไป','งานการเงิน'],
+        ['kimmy.it4@gmail.com','กลุ่มงานประกันสุขภาพยุทธศาสตร์และสารสนเทศทางการแพทย์','งานเวชระเบียน'],
+        ['ddd_@hotmail.com','กลุ่มงานการแพทย์แผนไทยและการแพทย์ทางเลือก','แพทย์แผนจีน'],
+        ['janji.wit1988@gmail.com','กลุ่มงานบริหารทั่วไป','งานโภชนศาสตร์'],
+        ['mery.ssbd@gmail.com','กลุ่มงานประกันสุขภาพยุทธศาสตร์และสารสนเทศทางการแพทย์','งานศูนย์ประกันสุขภาพ'],
+        ['kkk_@hotmail.com','กลุ่มงานบริการด้านปฐมภูมิและองค์รวม','งานเวชปฏิบัติครอบครัว'],
+        ['ad_@hotmali.com','กลุ่มงานพยาบาล','งานการพยาบาลผู้ป่วยใน'],
+        ['po_@hotmail.com','กลุ่มงานพยาบาล','งานอุบัติเหตุฉุกเฉิน'],
+        ['kittiyafc55@gmail.com','กลุ่มงานเภสัชกรรมและคุ้มครองผู้บริโภค','ฝ่ายเภสัชกรรมชุมชน'],
+        ['poopheprimphan@gmail.com','กลุ่มงานบริหารทั่วไป','งานทำความสะอาด'],
+        ['ph_ir@hotmail.com','กลุ่มงานบริหารทั่วไป','งานรักษาความปลอดภัย'],
+        ['Chonthichafon123@gmail.com','กลุ่มงานทันตกรรม','ฝ่ายทันตสาธารณสุข'],
+        ['chalisac245@gmail.com','กลุ่มงานทันตกรรม','ฝ่ายทันตสาธารณสุข'],
+        ['tongyz1234@gmail.com','กลุ่มงานบริหารทั่วไป','งานซ่อมบำรุง'],
+        ['si_@hotmail.com','กลุ่มงานบริหารทั่วไป','งานรักษาความปลอดภัย'],
+        ['golfmike_seed@hotmail.com','กลุ่มงานเทคนิคการแพทย์','งานเทคนิคการแพทย์'],
+        ['ngunlasomni@gmail.com','กลุ่มงานบริหารทั่วไป','งานภูมิทัศน์'],
+        ['wanlayaneejantarangsee@gmail.com','กลุ่มงานพยาบาล','งานการพยาบาลผู้คลอดเเละทารกเเรกเกิด'],
+        ['sup_@hotmail.com','กลุ่มงานพยาบาล','งานอุบัติเหตุฉุกเฉิน'],
+        ['palmmy.4529@gmail.com','กลุ่มงานพยาบาล','งานอุบัติเหตุฉุกเฉิน'],
+        ['ko_@hotmail.com','กลุ่มงานพยาบาล','งานอุบัติเหตุฉุกเฉิน'],
+        ['ilada19.pan@gmail.com','กลุ่มงานประกันสุขภาพยุทธศาสตร์และสารสนเทศทางการแพทย์','งานศูนย์ประกันสุขภาพ'],
+        ['niraporn.747@gmail.com','กลุ่มงานบริการด้านปฐมภูมิและองค์รวม','สุขาภิบาลและป้องกันโรค'],
+        ['jittrayuy88888@gmail.com','กลุ่มงานพยาบาล','บริหารกลุ่มการพยาบาล'],
+        ['itsaree76z@gmail.com','กลุ่มงานประกันสุขภาพยุทธศาสตร์และสารสนเทศทางการแพทย์','งานศูนย์ประกันสุขภาพ'],
+        ['na_@hotmail.com','กลุ่มงานรังสีวิทยา','งานรังสี'],
+        ['oa_@hotmail.com','กลุ่มงานบริหารทั่วไป','งานรักษาความปลอดภัย'],
+        ['narumon_19_35@hotmail.com','กลุ่มงานบริหารทั่วไป','งานพัสดุ'],
+        ['aewwiwan@gmail.com','กลุ่มงานบริหารทั่วไป','งานการเงิน'],
+        ['tawann1502@gmail.com','กลุ่มงานพยาบาล','งานผู้ป่วยนอก'],
+        ['t.audio@hotmail.com','กลุ่มงานบริหารทั่วไป','งานซ่อมบำรุง'],
+        ['nadthapat_@hotmail.com','กลุ่มงานเภสัชกรรมและคุ้มครองผู้บริโภค','ฝ่ายเภสัชกรรมชุมชน'],
+        ['armnatta2@gmail.com','กลุ่มงานบริการด้านปฐมภูมิและองค์รวม','งานสุขภาพจิตและยาเสพติด'],
+        ['Penprasinghan@gmail.com','กลุ่มงานพยาบาล','งานอุบัติเหตุฉุกเฉิน'],
+        ['nngkhnuchphrhmngxy@gmail.com','กลุ่มงานเวชศาสตร์ฟื้นฟู','ฝ่ายเวชกรรมฟื้นฟู'],
+        ['so_@hotmail.com','กลุ่มงานบริหารทั่วไป','งานภูมิทัศน์'],
+        ['Buakhai2521@gmail.com','กลุ่มงานการแพทย์แผนไทยและการแพทย์ทางเลือก','งานแพทย์แผนไทย'],
+        ['kemmawat@hotmail.com','กลุ่มงานบริหารทั่วไป','งานยานพาหนะ'],
+        ['pjpj40831@gmail.com','กลุ่มงานบริหารทั่วไป','งานซักฟอก'],
+        ['soraya.muntee@gmail.com','กลุ่มงานบริหารทั่วไป','งานพัสดุ'],
+        ['ji@hotmail.com','กลุ่มงานทันตกรรม','ฝ่ายทันตสาธารณสุข'],
+        ['botaongoi@gmail.com','กลุ่มงานประกันสุขภาพยุทธศาสตร์และสารสนเทศทางการแพทย์','งานเวชระเบียน'],
+        ['she_@hotmail.com','กลุ่มงานทันตกรรม','ฝ่ายทันตสาธารณสุข'],
+        ['praneet_k@hotmail.com','กลุ่มงานบริหารทั่วไป','งานซ่อมบำรุง'],
+        ['nu_@hotmail.com','กลุ่มงานโภชนศาสตร์','งานโภชนศาสตร์'],
+        ['Tanayod2211@gmail.com','กลุ่มงานบริหารทั่วไป','งานยานพาหนะ'],
+        ['Riaw_La@gmail.com','กลุ่มงานบริหารทั่วไป','งานยานพาหนะ'],
+        ['ru_ng@hotmail.com','กลุ่มงานบริหารทั่วไป','งานยานพาหนะ'],
+        ['wiirat1234@gmail.com','กลุ่มงานประกันสุขภาพยุทธศาสตร์และสารสนเทศทางการแพทย์','งานเวชระเบียน'],
+        ['narubeth12@gmail.com','กลุ่มงานประกันสุขภาพยุทธศาสตร์และสารสนเทศทางการแพทย์','งานเวชระเบียน'],
+        ['montira4248@gmail.com','กลุ่มงานประกันสุขภาพยุทธศาสตร์และสารสนเทศทางการแพทย์','งานศูนย์ประกันสุขภาพ'],
+        ['arsa1970000@gmail.com','กลุ่มงานเทคนิคการแพทย์','งานเทคนิคการแพทย์'],
+        ['chamaiporn_@hotmail.com','กลุ่มงานพยาบาล','งานอุบัติเหตุฉุกเฉิน'],
+        ['ch_@hotmail.com','กลุ่มงานพยาบาล','งานการพยาบาลหน่วยควบคุมการติดเชื้อและงานจ่ายกลาง'],
+        ['lawongkerdkan@gmail.com','กลุ่มงานพยาบาล','งานอุบัติเหตุฉุกเฉิน'],
+        ['pata_@hotmail.com','กลุ่มงานพยาบาล','งานการพยาบาลหน่วยควบคุมการติดเชื้อและงานจ่ายกลาง'],
+        ['su_wa@hotmail.com','กลุ่มงานพยาบาล','งานการพยาบาลหน่วยควบคุมการติดเชื้อและงานจ่ายกลาง'],
+        ['sa1470500@gmail.com','กลุ่มงานบริหารทั่วไป','งานการเงิน'],
+        ['sirikan.udorn@gmail.com','กลุ่มงานเภสัชกรรมและคุ้มครองผู้บริโภค','ฝ่ายเภสัชกรรมชุมชน'],
+        ['june19jjune@gmail.com','กลุ่มงานบริหารทั่วไป','งานธุรการ'],
+        ['sang_Jun@hotmail.com','กลุ่มงานพยาบาล','งานอุบัติเหตุฉุกเฉิน'],
+        ['thipph_ha@hotmail.com','กลุ่มงานบริการด้านปฐมภูมิและองค์รวม','งานเวชปฏิบัติครอบครัว'],
+        ['siyanun301@gmail.com','กลุ่มงานพยาบาล','งานการพยาบาลผู้ป่วยใน'],
+        ['taksapornchantima@gmail.com','กลุ่มงานบริการด้านปฐมภูมิและองค์รวม','งานเวชปฏิบัติครอบครัว'],
+        ['kraaew@gmail.com','กลุ่มงานการแพทย์แผนไทยและการแพทย์ทางเลือก','งานแพทย์แผนไทย'],
+        ['jureeratjuryry@gmail.com','กลุ่มงานพยาบาล','งานอุบัติเหตุฉุกเฉิน'],
+        ['pimwara29@gmail.com','กลุ่มงานบริหารทั่วไป','งานบริหารงานทั่วไป'],
+        ['pirin.jija@gmail.com','กลุ่มงานเทคนิคการแพทย์','งานเทคนิคการแพทย์'],
+        ['yonrada21@hotmail.com','กลุ่มงานเวชศาสตร์ฟื้นฟู','ฝ่ายเวชกรรมฟื้นฟู'],
+        ['fonfun1928@gmail.com','กลุ่มงานทันตกรรม','ฝ่ายทันตสาธารณสุข'],
+        ['wachiraphorn.phl@gmail.com','กลุ่มงานบริการด้านปฐมภูมิและองค์รวม','งานเวชปฏิบัติครอบครัว'],
+        ['phonpk1999@gmail.com','กลุ่มงานพยาบาล','งานอุบัติเหตุฉุกเฉิน'],
+        ['runchiya@hotmail.com','กลุ่มงานพยาบาล','งานการพยาบาลผู้คลอดเเละทารกเเรกเกิด'],
+        ['jan@hotmail.com','กลุ่มงานพยาบาล','งานการพยาบาลผู้คลอดเเละทารกเเรกเกิด'],
+        ['kwang_der@hotmail.com','กลุ่มงานพยาบาล','งานการพยาบาลผู้คลอดเเละทารกเเรกเกิด'],
+        ['pongrakth15@gmail.com','กลุ่มงานพยาบาล','งานการพยาบาลผู้คลอดเเละทารกเเรกเกิด'],
+        ['hongtong.chan@gmail.com','กลุ่มงานบริการด้านปฐมภูมิและองค์รวม','งานสุขภาพจิตและยาเสพติด'],
+        ['tairajpo@hotmail.com','กลุ่มงานบริการด้านปฐมภูมิและองค์รวม','งานเวชปฏิบัติครอบครัว'],
+        ['suwimon19951995@gmail.com','กลุ่มงานพยาบาล','งานอุบัติเหตุฉุกเฉิน'],
+        ['Jutharmas@gmail.com','กลุ่มงานพยาบาล','งานผู้ป่วยนอก'],
+        ['th_@hotmail.com','กลุ่มงานพยาบาล','งานอุบัติเหตุฉุกเฉิน'],
+        ['Atchii.puy@gmail.com','กลุ่มงานพยาบาล','งานอุบัติเหตุฉุกเฉิน'],
+        ['yyy_ao@hotmail.com','กลุ่มงานพยาบาล','งานอุบัติเหตุฉุกเฉิน'],
+        ['throngkeawmaneekan@gmail.com','กลุ่มงานพยาบาล','งานผู้ป่วยนอก'],
+        ['sumalinee@hotmail.com','กลุ่มงานพยาบาล','บริหารกลุ่มการพยาบาล'],
+        ['smallnurse111@gmail.com','กลุ่มงานพยาบาล','งานผู้ป่วยนอก'],
+        ['n@hotmail.com','กลุ่มงานเภสัชกรรมและคุ้มครองผู้บริโภค','ฝ่ายเภสัชกรรมชุมชน'],
+        ['Preeyanutkham2532@gmail.com','กลุ่มงานเภสัชกรรมและคุ้มครองผู้บริโภค','ฝ่ายเภสัชกรรมชุมชน'],
+        ['pawa_@hotmail.com','กลุ่มงานเภสัชกรรมและคุ้มครองผู้บริโภค','ฝ่ายเภสัชกรรมชุมชน'],
+        ['dtida.rx@gmail.com','กลุ่มงานเภสัชกรรมและคุ้มครองผู้บริโภค','ฝ่ายเภสัชกรรมชุมชน'],
+        ['spore.feelgood@gmail.com','กลุ่มงานเภสัชกรรมและคุ้มครองผู้บริโภค','ฝ่ายเภสัชกรรมชุมชน'],
+        ['withit.n@ku.th','กลุ่มงานเภสัชกรรมและคุ้มครองผู้บริโภค','ฝ่ายเภสัชกรรมชุมชน'],
+        ['siraboocha@gmail.com','กลุ่มงานเภสัชกรรมและคุ้มครองผู้บริโภค','ฝ่ายเภสัชกรรมชุมชน'],
+        ['samart.bu@kkumail.com','กลุ่มงานเทคนิคการแพทย์','งานเทคนิคการแพทย์'],
+        ['khaekhai08@gmail.com','กลุ่มงานเทคนิคการแพทย์','งานเทคนิคการแพทย์'],
+        ['aaa_aaa@hotmail.com','กลุ่มงานรังสีวิทยา','งานรังสี'],
+        ['num.nanbo@gmail.com','กลุ่มงานการแพทย์แผนไทยและการแพทย์ทางเลือก','งานแพทย์แผนไทย'],
+        ['katsukipai16@gmail.com','กลุ่มงานเวชศาสตร์ฟื้นฟู','ฝ่ายเวชกรรมฟื้นฟู'],
+        ['khuanchewa.pp@gmail.com','กลุ่มงานบริการด้านปฐมภูมิและองค์รวม','งานเวชปฏิบัติครอบครัว'],
+        ['keattisk23@gmail.com','กลุ่มงานบริการด้านปฐมภูมิและองค์รวม','สุขาภิบาลและป้องกันโรค'],
+        ['suangsuda.boocha@gmail.com','กลุ่มงานประกันสุขภาพยุทธศาสตร์และสารสนเทศทางการแพทย์','งานศูนย์ประกันสุขภาพ'],
+        ['no@hotmail.com','กลุ่มงานบริหารทั่วไป','งานการเงิน'],
+        ['win_aon@hotmail.com','กลุ่มงานบริหารทั่วไป','งานบริหารงานทั่วไป'],
+        ['kittikawin0023@gmail.com','กลุ่มงานทันตกรรม','ฝ่ายทันตสาธารณสุข'],
+        ['Suda.tipnaruk@gmail.com','กลุ่มงานทันตกรรม','ฝ่ายทันตสาธารณสุข'],
+        ['panassaya@hotmail.com','กลุ่มงานทันตกรรม','ฝ่ายทันตสาธารณสุข'],
+        ['้high_fire@windowslive.com','กลุ่มงานทันตกรรม','ฝ่ายทันตสาธารณสุข'],
+        ['su_@hotmail.com','กลุ่มงานพยาบาล','งานการพยาบาลผู้ป่วยใน'],
+        ['pjpj73370@gmail.com','กลุ่มงานบริหารทั่วไป','งานทำความสะอาด'],
+        ['gggg_@hotmail.com','กลุ่มงานโภชนศาสตร์','งานโภชนศาสตร์'],
+        ['chairat102523@gmail.com','กลุ่มงานพยาบาล','งานผู้ป่วยนอก'],
+        ['Panapong861kp@gmail.com','กลุ่มงานพยาบาล','งานผู้ป่วยนอก'],
+        ['tiraphon.4@gmail.com','กลุ่มงานพยาบาล','งานผู้ป่วยนอก'],
+        ['diraklitthintongkhob@gmail.com','กลุ่มงานพยาบาล','งานผู้ป่วยนอก'],
+        ['suris_@hotmail.com','กลุ่มงานพยาบาล','งานผู้ป่วยนอก'],
+        ['kulthidaphichaykha2@gmail.com','กลุ่มงานพยาบาล','งานการพยาบาลผู้คลอดเเละทารกเเรกเกิด'],
+        ['pa_@hotmail.com','กลุ่มงานพยาบาล','งานการพยาบาลผู้ป่วยใน'],
+        ['tutsanee1993@gmail.com','กลุ่มงานพยาบาล','งานการพยาบาลผู้ป่วยใน'],
+        ['waraphon@hotmail.com','กลุ่มงานพยาบาล','งานการพยาบาลผู้ป่วยใน'],
+        ['maneegorn53@gmail.com','กลุ่มงานพยาบาล','งานการพยาบาลผู้ป่วยใน'],
+        ['Panadda2647@gmail.com','กลุ่มงานพยาบาล','งานผู้ป่วยนอก'],
+        ['mukda4696@gmail.com','กลุ่มงานพยาบาล','งานการพยาบาลผู้ป่วยใน'],
+        ['cha_@hotmail.com','กลุ่มงานพยาบาล','งานการพยาบาลผู้ป่วยใน'],
+        ['maneerat@hotmail.com','กลุ่มงานพยาบาล','งานการพยาบาลผู้ป่วยใน'],
+        ['Ebeeve07052538@gmail.com','กลุ่มงานพยาบาล','งานการพยาบาลผู้ป่วยใน'],
+        ['dewpawinee77@gmail.com','กลุ่มงานพยาบาล','งานการพยาบาลผู้ป่วยใน'],
+        ['sanhawat@hotmail.com','กลุ่มงานการแพทย์','การแพทย์'],
+        ['rabot.tha@gmail.com','กลุ่มงานการแพทย์','การแพทย์'],
+        ['thi@hotmail.com','กลุ่มงานการแพทย์','การแพทย์'],
+        ['rinradabam.p11@gmail.com','กลุ่มงานการแพทย์','การแพทย์'],
+        ['dekdorn@gmail.com','กลุ่มงานประกันสุขภาพยุทธศาสตร์และสารสนเทศทางการแพทย์','สารสนเทศทางการแพทย์'],
+        ['wichetpong159@hotmail.com','กลุ่มงานประกันสุขภาพยุทธศาสตร์และสารสนเทศทางการแพทย์','สารสนเทศทางการแพทย์'],
 
-    //     // 3. ดึงเฉพาะ Deleted โดยสั่ง SQL
-    //     $user_deleted = (clone $query)
-    //         ->where('status', 'deleted')
-    //         ->get()
-    //         ->groupBy('user_id');
 
-    //     // Query Zone (เหมือนเดิม)
-    //     $zones = Zone::all();
-    //     $orgInfos = Organization::getOrgName(Auth::user()->org_id_fk);
+        ];
 
-    //     $usertype = "user";
+         DB::statement('SET FOREIGN_KEY_CHECKS=0;');
+                KpUserWastePreference::truncate();
+                KpBankAccount::truncate();
+                DB::statement('SET FOREIGN_KEY_CHECKS=1;');
+            foreach($arr as $a){
 
-    //     // ไม่ต้องส่ง $users ก้อนใหญ่ไป ส่งแค่ที่แยกแล้วไป
-    //     return view('admin.users.index', compact('orgInfos', 'usertype', 'zones', 'user_deleted', 'user_active'));
-    // }
+                $user = User::where('email', $a[0])->get()->first();
+               
+                $user_pref = KpUserWastePreference::create([
+                    'user_id' => $user->id,
+                    'org_id_fk' => 2,
+                    'zone_id' => $user->zone_id,
+                    'subzone_id' => $user->subzone_id
+                ]);
+
+                $orgIdStr =  substr('000', strlen('2')) . '2';
+                $userIdStr = substr('0000', strlen($user->id)) . $user->id;
+                $user_prefStr = substr('0000', strlen($user_pref->id)) . $user_pref->id;
+
+                // 1. จัดการธนาคารขยะรีไซเคิล (recycle_)
+
+                KpBankAccount::firstOrCreate(
+                        ['user_pref_id' => $user_pref->id],
+                        [
+                            'account_no' => 'RC-' . $orgIdStr . "-" . $userIdStr . $user_prefStr,
+                            'status' => 'active',
+                            'org_id_fk' => Auth::user()->org_id_fk
+                        ],
+                    );
+                $user->assignRole('Recycle Bank User');
+            
+                // $zone = Zone::where('zone_name', $a[1])->get(['id']);
+                // $subzone = Subzone::where('subzone_name', $a[2])->get(['id']);
+                // if(collect($zone)->isEmpty()){
+                //     return 'zone->'.$a[1];
+                // }
+                // $subzone_id = 0;
+                // if(collect($subzone)->isEmpty()){
+                //     $sz = Subzone::create([
+                //         'zone_id' => $zone[0]->id,
+                //         'subzone_name' => $a[2],
+                //         'status' => 'active'
+                //     ]);
+
+                //     $subzone_id = $sz->id;
+                //     //return 'zone->id'.$zone[0]->id .' ==> '.$a[2];
+                // }else{
+                //             $subzone_id = $subzone[0]->id;
+
+                // }
+                // $user->zone_id  = $zone[0]->id;
+                // $user->subzone_id  = $subzone_id;
+                // $user->save();
+            }
+            return 'xxx';
+    }
 
     public function users_search(Request $request)
     {
@@ -203,7 +373,7 @@ class UserController extends Controller
             // 3. เช็คและเปิดบริการตามที่ติ๊กมา
             // ธนาคารขยะรีไซเคิล
             if ($request->has('svc_recycle')) {
-                RecycleBankAccount::create([
+                KpBankAccount::create([
                     'user_id'    => $user->id,
                     'account_no' => 'RC-' . strtoupper(uniqid()),
                     'balance'    => 0,
@@ -266,7 +436,7 @@ class UserController extends Controller
             ->with([
                 'user_zone',
                 'user_subzone',
-                'recycleAccount',
+                'recycleBankAccount',
                 'foodWasteAccount',
                 'annualTrashSubscription'
             ])
@@ -446,7 +616,7 @@ class UserController extends Controller
             // --- ธนาคารขยะรีไซเคิล ---
             if ($request->has('svc_recycle')) {
                 // ใช้ firstOrCreate เพื่อไม่ให้สร้างซ้ำถ้ามีอยู่แล้ว
-                RecycleBankAccount::firstOrCreate(
+                KpBankAccount::firstOrCreate(
                     ['user_id' => $user->id],
                     ['status' => 'active', 'balance' => 0]
                 );
@@ -721,27 +891,42 @@ class UserController extends Controller
     public function updateService(Request $request)
     {
         $services = $request->input('services', []);
-
         DB::beginTransaction();
         try {
             foreach ($services as $userId => $data) {
                 $user = User::find($userId);
+        
                 if (!$user) continue;
-
+                $org = Organization::find(Auth::user()->org_id_fk);
+                $orgIdStr =  substr('000', strlen($org->id)) . $org->id;
+                $userIdStr = substr('0000', strlen($user->id)) . $user->id;
                 // 1. จัดการธนาคารขยะรีไซเคิล (recycle_)
                 if (isset($data['recycle']) && $data['recycle'] == "1") {
-                    RecycleBankAccount::firstOrCreate(
+
+                    KpBankAccount::firstOrCreate(
                         ['user_id' => $user->id],
-                        ['account_no' => 'RC-' . strtoupper(uniqid()), 'status' => 'active']
+                        [
+                            'account_no' => 'RC-' . $org->org_code . "-" . $orgIdStr . $userIdStr,
+                            'status' => 'active',
+                            'org_id_fk' => Auth::user()->org_id_fk
+                        ],
                     );
+                $user->assignRole('Recycle Bank User');
+
+                
+
                 } else {
                     // หากยกเลิกติ๊ก อาจจะเลือกปิดสถานะ แทนการลบข้อมูล
-                    $user->recycleAccount()->update(['status' => 'inactive']);
+                    $user->kpBankAccount()->update(['status' => 'inactive']);
                 }
 
                 // 2. จัดการธนาคารขยะเปียก (food_waste_)
                 if (isset($data['food_waste']) && $data['food_waste'] == "1") {
-                    FoodWasteAccount::firstOrCreate(['user_id' => $user->id]);
+                    FoodWasteAccount::firstOrCreate([
+                        'user_id' => $user->id,
+                        'org_id_fk' => Auth::user()->org_id_fk,
+                        'last_contributed_at' => date('Y-m-d H:i:s')
+                    ]);
                 } else {
                     $user->foodWasteAccount()->delete();
                 }
@@ -772,7 +957,7 @@ class UserController extends Controller
         ]);
 
         try {
-        Excel::import(new UserImport, $request->file('file'));
+            Excel::import(new UserImport, $request->file('file'));
             return back()->with('success', 'นำเข้าข้อมูลผู้ใช้งานเรียบร้อยแล้ว');
         } catch (\Exception $e) {
             return back()->with('error', 'เกิดข้อผิดพลาด: ' . $e->getMessage());

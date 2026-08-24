@@ -379,11 +379,11 @@ target="_blank">
 <hr class="horizontal dark mt-0">
 
 <div class="collapse navbar-collapse w-auto " id="sidenav-collapse-main">
-@role('Super Admin|Admin')
+{{-- @role('Super Admin|Admin')
     @include('layouts.super-admin-navigation')
-@else
+@else --}}
     @include('layouts.admin1_navigation')
-@endrole
+{{-- @endrole --}}
 
 
 

@@ -13,6 +13,7 @@ class Staff extends Model
     protected $primaryKey = 'user_id';
 
     protected $fillable = [
+        'id',
         'user_id',
         'org_id_fk',
         'status',
@@ -24,4 +25,5 @@ class Staff extends Model
     function user(){
         return $this->belongsTo(User::class, 'user_id', 'id');
     }
+    
 }

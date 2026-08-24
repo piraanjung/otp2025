@@ -3,6 +3,8 @@
 namespace App\Http\Controllers\KeptKaya;
 
 use App\Http\Controllers\Controller;
+use App\Models\Admin\Subzone;
+use App\Models\Admin\Zone;
 use App\Models\Keptkaya\KpUserGroup;
 use App\Models\KeptKaya\KpUserWastePreference;
 use App\Models\User;
@@ -28,6 +30,7 @@ class UserWasteController extends Controller
      */
     public function index(Request $request)
     {
+        
         // Get the 'per_page' value from the request, default to 10
         $perPage = $request->input('per_page', 10);
 

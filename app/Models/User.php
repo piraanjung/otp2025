@@ -25,6 +25,7 @@ use App\Models\FoodWaste\FoodWasteUserPreference;
 use App\Models\FoodWaste\FoodAnnualTrash;
 use App\Models\FoodWaste\FoodWasteAccount;
 use App\Models\FoodWaste\FoodWasteLog;
+use App\Models\KeptKaya\KpPurchaseTransaction;
 use App\Models\Tabwater\TwNotifies;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany; // <--- สำคัญ: ตรวจสอบว่ามีการ use นี้หรือไม่
 
@@ -187,9 +188,9 @@ class User extends Authenticatable
     }
 
     // เชื่อมกับบัญชีธนาคารขยะรีไซเคิล (1-to-1)
-    public function recycleBankAccount()
+    public function kpBankAccount()
     {
-        return $this->hasOne(RecycleBankAccount::class, 'user_id', 'id');
+        return $this->hasOne(KpBankAccount::class, 'user_id', 'id');
     }
 
     // เชื่อมกับบัญชีขยะเปียก (1-to-1)
@@ -209,4 +210,28 @@ class User extends Authenticatable
     {
         return $this->hasMany(RecycleTransaction::class, 'user_id', 'id');
     }
+
+    public function assignedNotifies()
+{
+    return $this->belongsToMany(
+        TwNotifies::class,
+        'tw_notify_staff',
+        'user_id',          // FK ใน pivot table ที่ชี้มาหา users.id
+        'notify_id'         // FK ใน pivot table ที่ชี้ไปหา tw_notifies.id
+    )
+    ->withPivot('staff_status')
+    ->withTimestamps();
+}
+
+public function purchaseTransactions()
+{
+    return $this->hasManyThrough(
+        KpPurchaseTransaction::class,
+        KpUserWastePreference::class,
+        'user_id',              // FK บน KpUserWastePreference
+        'kp_user_w_pref_id_fk', // FK บน KpPurchaseTransaction
+        'id',                   // PK บน User
+        'id'                    // PK บน KpUserWastePreference
+    );
+}
 }

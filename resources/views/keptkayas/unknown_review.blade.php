@@ -13,9 +13,12 @@
 @endsection
     
 @section('content')
-    
 
 <div class="container-fluid py-4">
+    dd
+    <img src="{{ asset('kiosk_unknown_items/1783266154_6a4a7b6aac380.jpg') }}" alt="">    
+    <img src="{{ asset('kiosk_unknown_items/milkbottle.png') }}" alt="">    
+
     <div class="d-flex justify-content-between align-items-center mb-4">
         <div>
             <h2 class="fw-bold text-dark mb-1">🤖 Workspace ตรวจสอบสิ่งแปลกปลอม</h2>
@@ -137,7 +140,7 @@
                 html += `
                     <tr>
                         <td class="ps-4">
-                            <img src="${imgSrc}" class="table-img" onclick="previewImage('${imgSrc}')" title="ส่องดูขยะใบเต็ม">
+                            <img src="${imgSrc}'" class="table-img" onclick="previewImage('${imgSrc}')" title="ส่องดูขยะใบเต็ม">
                         </td>
                         <td class="fw-medium text-dark">#${item.kp_purchase_trans_id}</td>
                         <td><span class="badge bg-secondary-subtle text-secondary" style="font-size: 0.85rem;">${item.user_id_fk}</span></td>

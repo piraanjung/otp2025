@@ -4,6 +4,7 @@ namespace App\Http\Controllers\FoodWaste;
 use App\Http\Controllers\Controller;
 use App\Models\Admin\Staff;
 use App\Models\FoodWaste\FoodWasteIssueReport;
+use App\Models\FoodWaste\FoodWasteIssueType;
 use Illuminate\Http\Request;
 
 class AdminIssueController extends Controller
@@ -12,7 +13,7 @@ class AdminIssueController extends Controller
     public function index()
     {
         // ดึงข้อมูลแจ้งปัญหา เรียงสถานะ pending ขึ้นก่อน และตามด้วยเวลา
-        $issues = FoodWasteIssueReport::with('user') // ดึงข้อมูล user ที่แจ้งมาด้วย
+        $issues = FoodWasteIssueReport::with('user', 'issueType') // ดึงข้อมูล user ที่แจ้งมาด้วย
             ->orderByRaw("FIELD(status, 'pending', 'in_progress', 'resolved')")
             ->orderBy('created_at', 'desc')
             ->get();

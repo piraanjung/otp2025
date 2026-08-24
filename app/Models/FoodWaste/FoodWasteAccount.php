@@ -9,8 +9,10 @@ use Illuminate\Database\Eloquent\Model;
 class FoodWasteAccount extends Model {
 
     
+    protected $table = 'food_waste_accounts';
    protected $fillable = [
         'user_id',
+        'org_id_fk',
         'points_balance',            // แต้มสะสมจากขยะเปียก
         'money_balance',             // เงินสะสม (ถ้ามี)
         'total_weight_kg',           // น้ำหนักรวมที่ส่งมา (กิโลกรัม)

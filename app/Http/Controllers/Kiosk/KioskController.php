@@ -32,7 +32,8 @@ class KioskController extends Controller
 
     public function create()
     {
-        return view('kiosk.create');
+        $org = Auth::user()->org;
+        return view('kiosk.create', compact('org'));
     }
 
     public function store(Request $request)

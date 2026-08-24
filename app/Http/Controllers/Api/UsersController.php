@@ -204,11 +204,7 @@ class UsersController extends Controller
             $code = 204;
         } else {
             $user = User::where('username', $username)->first();
-
             if ($user && Hash::check($passwords, $user->password)) {
-
-
-
 
                 $user->remember_token = base64_encode(Str::random(40));
                 $user->save();
@@ -216,9 +212,16 @@ class UsersController extends Controller
                 // 2. ถ้าอยากรู้ว่า User มี Role อะไร หรืออยากส่งชื่อ Role กลับไปให้แอปฝั่ง Capacitor
                 // Spatie มีฟังก์ชัน getRoleNames() ให้ใช้ได้เลยครับ
                 $user->role_names = $user->getRoleNames(); // จะได้เป็น Array เช่น ["Staff", "Admin"]
+
                 if($user->hasRole('Recycle Bank Staff')){
                     $user->org_member = User::where('org_id_fk', $user->org_id_fk)
-                    //    ->whereHas('recycleBankAccount') // 🎯 กรองเฉพาะคนที่มีบัญชี
+                        ->with(['wastePreference' => function($q){
+                            $q->select('id', 'user_id', 'address');
+                        }, 'wastePreference.kpBankAccount' => function($q){
+                            $q->select('id', 'user_pref_id', 'account_no');
+                        }
+                        ])
+                       ->whereHas('wastePreference.kpBankAccount') // 🎯 กรองเฉพาะคนที่มีบัญชี
                         ->get(['firstname', 'lastname', 'id', 'address', 'zone_id', 'subzone_id', 'phone']);
                     $user->items = KpTbankItems::where('org_id_fk', $user->org_id_fk)->get();
 
