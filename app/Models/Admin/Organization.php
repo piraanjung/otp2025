@@ -66,6 +66,13 @@ class Organization extends Model
         return $this->belongsTo(OrganizationType::class, 'org_type_id', 'id');
     }
 
+    /**
+ * Get organization database name.
+ * 
+ * @param int|string|array $org_id_fk
+ * @return mixed
+ */
+
     public static function getOrgName($org_id_fk)
     {
         $organization = Organization::where('id', $org_id_fk);
@@ -85,6 +92,7 @@ class Organization extends Model
             'org_tambon'            => $connection->tambons->tambon_name,
             'org_zone_id'           => $connection->zones->id,
             'org_zone'              => $connection->zones->zone_name,
+            'org_phone'             => $connection->org_phone,
             'org_logo_img'          => $connection->org_logo_img,
             'org_type_name'         => $connection->orgType->name,
             'org_name'              => $connection->org_name,
@@ -95,6 +103,12 @@ class Organization extends Model
         ];
     }
 
+    /** 
+ * Get organization database name.
+ * 
+ * @param int|string $org_id_code
+ * @return mixed
+ */
     public static function getOrgDatabase($org_id_code)
     {
         $organization = (new Organization())->setConnection('envsogo_main')->where('org_code', $org_id_code)

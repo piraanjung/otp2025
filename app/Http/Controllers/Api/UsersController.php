@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Api;
 use App\Http\Controllers\Api\FunctionsController;
 use App\Http\Controllers\Api\ZoneController;
 use App\Http\Controllers\Controller;
+use App\Models\Admin\Organization;
 use App\Models\KeptKaya\KpTbankItems;
 use App\Models\Tabwater\TwInvoice;
 use App\Models\Tabwater\TwInvoicePeriod;
@@ -224,7 +225,7 @@ class UsersController extends Controller
                        ->whereHas('wastePreference.kpBankAccount') // 🎯 กรองเฉพาะคนที่มีบัญชี
                         ->get(['firstname', 'lastname', 'id', 'address', 'zone_id', 'subzone_id', 'phone']);
                     $user->items = KpTbankItems::where('org_id_fk', $user->org_id_fk)->get();
-
+                    $user->org = Organization::getOrgName($user->org_id_fk);
                     return response()->json(['data' => $user, 'code' => 200]);
                 }
             } else {
