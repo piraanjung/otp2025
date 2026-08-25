@@ -68,13 +68,41 @@ jobs:
             --exclude='.DS_Store' \
             ./ "${{ secrets.PIOS_SSH_USER }}@${{ secrets.PIOS_SSH_HOST }}:${{ secrets.PIOS_DEPLOY_PATH }}"
 
-      # ---------- Post-deploy (migrate + cache) ----------
-      - name: Post-deploy artisan migrate & cache
+      # ---------- Post-deploy: each stage is its own step so the
+      #            GitHub Actions log shows exactly which one fails ----------
+      - name: "Post-deploy › 1. Prepare storage directories"
         run: |
           ssh -p "${{ secrets.PIOS_SSH_PORT }}" -o StrictHostKeyChecking=accept-new "${{ secrets.PIOS_SSH_USER }}@${{ secrets.PIOS_SSH_HOST }}" \
             "cd '${{ secrets.PIOS_DEPLOY_PATH }}' && \
              mkdir -p storage/framework/cache/data storage/framework/sessions storage/framework/views storage/logs bootstrap/cache && \
-             php artisan migrate --force && \
-             php artisan config:cache && \
-             php artisan route:cache && \
+             echo '✔ storage directories ready'"
+
+      - name: "Post-deploy › 2. Clear stale caches"
+        run: |
+          ssh -p "${{ secrets.PIOS_SSH_PORT }}" -o StrictHostKeyChecking=accept-new "${{ secrets.PIOS_SSH_USER }}@${{ secrets.PIOS_SSH_HOST }}" \
+            "cd '${{ secrets.PIOS_DEPLOY_PATH }}' && \
+             php artisan optimize:clear"
+
+      - name: "Post-deploy › 3. Database migrations"
+        run: |
+          ssh -p "${{ secrets.PIOS_SSH_PORT }}" -o StrictHostKeyChecking=accept-new "${{ secrets.PIOS_SSH_USER }}@${{ secrets.PIOS_SSH_HOST }}" \
+            "cd '${{ secrets.PIOS_DEPLOY_PATH }}' && \
+             php artisan migrate --force --no-interaction"
+
+      - name: "Post-deploy › 4. Cache config"
+        run: |
+          ssh -p "${{ secrets.PIOS_SSH_PORT }}" -o StrictHostKeyChecking=accept-new "${{ secrets.PIOS_SSH_USER }}@${{ secrets.PIOS_SSH_HOST }}" \
+            "cd '${{ secrets.PIOS_DEPLOY_PATH }}' && \
+             php artisan config:cache"
+
+      - name: "Post-deploy › 5. Cache routes"
+        run: |
+          ssh -p "${{ secrets.PIOS_SSH_PORT }}" -o StrictHostKeyChecking=accept-new "${{ secrets.PIOS_SSH_USER }}@${{ secrets.PIOS_SSH_HOST }}" \
+            "cd '${{ secrets.PIOS_DEPLOY_PATH }}' && \
+             php artisan route:cache"
+
+      - name: "Post-deploy › 6. Cache views"
+        run: |
+          ssh -p "${{ secrets.PIOS_SSH_PORT }}" -o StrictHostKeyChecking=accept-new "${{ secrets.PIOS_SSH_USER }}@${{ secrets.PIOS_SSH_HOST }}" \
+            "cd '${{ secrets.PIOS_DEPLOY_PATH }}' && \
              php artisan view:cache"

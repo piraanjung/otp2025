@@ -10,7 +10,7 @@ return new class extends Migration
      * Run the migrations.
      */
     public function up() {
-    Schema::create('foodwaste_meal_items', function (Blueprint $table) {
+    Schema::create('meal_items', function (Blueprint $table) {
         $table->id();
         $table->foreignId('meal_log_id')->constrained('foodwast_meal_logs')->onDelete('cascade');
         $table->string('menu_name');
