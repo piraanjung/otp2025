@@ -224,7 +224,7 @@ Route::get('/recycle-bank/members/{id}/history', [RecycleBankController::class, 
                 Route::get('/{id}/edit', 'edit')->name('edit');
                 Route::put('/{id}', 'update')->name('update');
                 Route::delete('/{id}', 'destroy')->name('destroy');
-                Route::post('/{id}/restore', 'restore')->name('restore'); // ✅ เพิ่มตัวนี้เข้าไป
+                // restore is already defined above as a GET route (items.restore); removed duplicate name.
             });
 
 

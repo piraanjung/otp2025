@@ -137,7 +137,8 @@ Route::post('/upload-and-convert', [SqlToJsonController::class, 'uploadAndProces
 Route::resource('/test', TestController::class);
 
 
-Auth::routes();
+// Auth::routes() removed: auth routes are provided by Breeze in routes/auth.php.
+// Keeping both caused duplicate route names (e.g. password.request) that break route:cache.
 
 Route::group(['middleware' => ['auth', 'role:Admin|Super Admin']], function () {
     Route::resource('org-admins', OrgAdminController::class);
