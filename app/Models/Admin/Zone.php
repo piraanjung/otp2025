@@ -26,14 +26,24 @@ class Zone extends Model
                 $q->where('status', 'active');
              }])->get();
              if($type == 'array'){
-                return collect($org_subzones)->map(function($_subzone){
-                    return $_subzone->subzone[0];
-                });
+                return collect($org_subzones)
+                    ->filter(function($_subzone){
+                        return $_subzone->subzone->isNotEmpty();
+                    })
+                    ->map(function($_subzone){
+                        return $_subzone->subzone->first();
+                    })
+                    ->values();
             }
             //id
-             return collect($org_subzones)->map(function($_subzone){
-                return ['id' =>$_subzone->subzone[0]->id];
-             });
+             return collect($org_subzones)
+                ->filter(function($_subzone){
+                    return $_subzone->subzone->isNotEmpty();
+                })
+                ->map(function($_subzone){
+                    return ['id' => $_subzone->subzone->first()->id];
+                })
+                ->values();
     }
 
 }
