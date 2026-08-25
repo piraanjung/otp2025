@@ -68,14 +68,13 @@ jobs:
             --exclude='.DS_Store' \
             ./ "${{ secrets.PIOS_SSH_USER }}@${{ secrets.PIOS_SSH_HOST }}:${{ secrets.PIOS_DEPLOY_PATH }}"
 
-      # ---------- Post-deploy (no migration) ----------
-      - name: Post-deploy artisan cache
+      # ---------- Post-deploy (migrate + cache) ----------
+      - name: Post-deploy artisan migrate & cache
         run: |
           ssh -p "${{ secrets.PIOS_SSH_PORT }}" -o StrictHostKeyChecking=accept-new "${{ secrets.PIOS_SSH_USER }}@${{ secrets.PIOS_SSH_HOST }}" \
             "cd '${{ secrets.PIOS_DEPLOY_PATH }}' && \
              mkdir -p storage/framework/cache/data storage/framework/sessions storage/framework/views storage/logs bootstrap/cache && \
+             php artisan migrate --force && \
              php artisan config:cache && \
              php artisan route:cache && \
              php artisan view:cache"
-          # เพิ่มบรรทัดนี้ต่อท้ายคำสั่งด้านบนถ้าต้องการรัน migration อัตโนมัติภายหลัง:
-          #  && php artisan migrate --force
