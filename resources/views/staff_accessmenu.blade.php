@@ -366,8 +366,8 @@
 
 
         /* =========================================================================
-                                           🟢 CSS สำหรับ Branch: feature/mobile-animated-login
-                                           ========================================================================= */
+                                                           🟢 CSS สำหรับ Branch: feature/mobile-animated-login
+                                                           ========================================================================= */
 
         /* พื้นหลังไล่เฉดสีนุ่มนวลแบบแอปมือถือสมัยใหม่ */
         .mobile-login-wrapper {
@@ -547,8 +547,8 @@
         }
 
         /* =========================================================================
-                                           🟢 CSS สำหรับ Branch: feature/sidebar-toggle-menu
-                                           ========================================================================= */
+                                                           🟢 CSS สำหรับ Branch: feature/sidebar-toggle-menu
+                                                           ========================================================================= */
 
         .mobile-sidebar-wrapper {
             position: fixed;
@@ -731,8 +731,8 @@
         }
 
         /* =========================================================================
-                                           🟢 CSS สำหรับหน้าต่างคีย์น้ำหนักเด้งจากด้านล่าง (Bottom Sheet Modal)
-                                           ========================================================================= */
+                                                           🟢 CSS สำหรับหน้าต่างคีย์น้ำหนักเด้งจากด้านล่าง (Bottom Sheet Modal)
+                                                           ========================================================================= */
         .weight-modal-container {
             position: fixed;
             top: 0;
@@ -828,8 +828,8 @@
 
 
         /* =========================================================================
-                                           🟢 CSS สำหรับกล่องแจ้งเตือนความสำเร็จแบบหายวับอัตโนมัติ (Success Toast)
-                                           ========================================================================= */
+                                                           🟢 CSS สำหรับกล่องแจ้งเตือนความสำเร็จแบบหายวับอัตโนมัติ (Success Toast)
+                                                           ========================================================================= */
         .success-toast-overlay {
             position: fixed;
             top: 50%;
@@ -892,11 +892,97 @@
             border-radius: 50%;
             margin: 0 auto;
         }
+
+
     </style>
+    <style>
+            #card-reciept {
+                font-size: 1.5rem !important
+                    /* border-bottom: #000000 1px solid */
+            }
+
+            #card-reciept #org div {
+                text-align: right;
+                padding-right: 7px
+            }
+
+            #org_address {
+                position: absolute;
+                margin-top: 4.5rem;
+                text-align: right;
+                padding-right: 0
+            }
+
+            #org_address div {
+                font-size: 1.3rem;
+                line-height: 22px
+            }
+
+            #card-reciept p {
+                font-size: 1.6rem;
+                font-weight: bold;
+                text-align: center;
+                margin-top: 1.5rem;
+            }
+
+            #member_info,
+            #card-reciept p {
+                border-bottom: #000000 1px solid;
+                margin-bottom: 10px
+            }
+
+            #member_info {
+                /* margin-bottom: 10px */
+            }
+
+            .header {
+                text-align: right;
+                font-weight: bold;
+                font-size: 1.25rem
+            }
+
+            .info,
+            .info div {
+                font-size: 1.3rem
+            }
+
+            thead td {
+                font-size: 1.3rem;
+                text-align: center
+            }
+
+            tbody td {
+                font-size: 1.3rem;
+                /* border: 1px solid; */
+                text-align: center;
+                padding-top: 5px
+                
+            }
+            #card-reciept .amount{
+                text-align: right;
+                font-size: 1.3rem;
+                vertical-align: top
+            }
+        </style>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/css/bootstrap.min.css"
+        integrity="sha384-sRIl4kxILFvY47J16cr9ZwB07vP4J8+LH7qKQnuqkuIAvNWLzeN8tE5YBujZqJLB" crossorigin="anonymous">
 @endsection
 
 @section('content')
-    <canvas id="receiptCanvas" width="384" height="400" style="display:block;border:1px solid"></canvas>
+    <div id="card-reciept" style="width: 384px; 
+            background: #ffffff; 
+            color: #000000;
+            font-size:1.4rem !important
+            ">
+        
+        
+
+    </div>
+    {{-- <canvas id="receiptCanvas" width="384" height="400" style="display:block;border:1px solid"></canvas> --}}
+    {{-- <button type="button" id="btnPrintTest"
+        style="background: #17a2b8; font-weight: bold; padding: 14px; border-radius: 6px;">
+        ⚡ ทดสอบการพิมพ์ (Test Print)
+    </button> --}}
     <div class="app-header">
         <div style="display: flex; align-items: center; gap: 12px;">
             <button type="button" id="btnOpenSidebar" onclick="toggleSidebar(true)"
@@ -1242,10 +1328,9 @@
                     <button id="connectButton" class="btn btn-custom-secondary col-4">
                         <span>🔄 ค้นหา & เชื่อมต่ออุปกรณ์</span>
                     </button>
-                    <button id="printImageButton" disabled onclick="printReceipt()"
-                        class="btn btn-custom-primary col-8 shadow-sm">
-                        <span class="material-icons-round">print</span>
-                        <span id="printBtnText">พิมพ์ใบเสร็จ</span>
+                    <button id="printImageButton" onclick="printReceipt()" class="btn btn-custom-primary col-8 shadow-sm">
+                        <span class="material-icons-round">print2</span>
+                        <span id="printBtnText">พิมพ์ใบเสร็จ2</span>
                     </button>
                 </div>
                 <div class="row justify-content-center mb-4">
@@ -1357,7 +1442,96 @@
         //  เริ่มต้นระบบเมื่อหน้าจอ (DOM) โหลดพร้อมใช้งาน
         // -------------------------------------------------------------------------
         document.addEventListener("DOMContentLoaded", () => {
-            drawReceipt()
+            $('#card-reciept').html(
+                `<div class="row">
+                <div class="col-5">
+                    <img src="{{ asset('logo/chiangkreu_sakonnakhon.png') }}" width="100%" alt="">
+                </div>
+                <div class="col-7" id="org">
+                    <div style="font-size: 1.5rem;">เทศบาลตำบล</div>
+                    <div style="font-size: 2rem; margin-top: -10px;">เชียงเครือ</div>
+
+                </div>
+                <div class="text-right" id="org_address">
+                    <div>109 หมู่ 14 ต.เชียงเครือ</div>
+                    <div>อ.เมืองสกลนคร จ.สกลนคร</div>
+                    <div>โทร.042-4345433</div>
+                </div>
+            </div>
+
+            <p>ธนาคารขยะรีไซเคิล</p>
+            <div id="member_info">
+                <div class="row">
+                    <div class="col-3 header">ชื่อ-สกุล:</div>
+                    <div class="col-9">สมชาย รักสะอาด</div>
+                    <div class="col-3 header">ที่อยู่:</div>
+                    <div class="col-9 info">
+                        <div>109 หมู่ 14 ต.เชียงเครือ</div>
+                        <div>อ.เมืองสกลนคร จ.สกลนคร</div>
+                    </div>
+                    <div class="col-3 header">รหัส:</div>
+                    <div class="col-9 info">001122122</div>
+                </div>
+            </div>
+
+            <div id="reciept_info" style="margin-bottom:10px">
+                <div class="row">
+                    <div class="col-4 header">วันที่:</div>
+                    <div class="col-8">10/07/2569</div>
+                    <div class="col-4 header">เลขใบเสร็จ:</div>
+                    <div class="col-8 info">Bill12333353</div>
+                </div>
+
+
+            </div>
+            <table border="0" width="100%">
+                <thead>
+                    <tr>
+                        <td width="60%"></td>
+                        <td width="15%">แต้ม</td>
+                        <td width="25%">บาท</td>
+                    </tr>
+                </thead>
+                <tbody>
+                    @for ($i = 0; $i < 2; $i++)
+
+                        <tr>
+
+                            <td style="text-align: left; font-size: 1.5rem;line-height: 22px;">
+                                -ขวดพลาสติกใส 
+                                <div style="font-size: 1rem; padding-left: 10px; ">
+                                    <span style="font-size: 1.4rem;">3 กก.   </span>
+                                    <span style="margin-left:10px">(5 บาท, 10 แต้ม):กก.</span>
+                                </div>
+                            </td>
+                            <td class="amount">4,444</td>
+                            <td class="amount">7,777.77</td>
+                        </tr>
+                    @endfor
+                    
+                </tbody>
+                
+            </table>
+            <hr style="color: #000000;opacity:1; margin-left: 20px;" width="90%">
+            <table width="100%">
+                    <tbody>
+                         <tr>
+
+                            <td style="text-align: left; font-size: 1.5rem;font-weight:bold" width="60%">
+                                รวมรับเงิน/แต้มสะสม
+                            </td>
+                            <td width="15%" style="line-height: 22px; font-weight:bold" class="amount">4,444 <div style="font-size: 1rem;text-align: right">แต้ม</div></td>
+                            <td width="25%" style="line-height: 22px; font-weight:bold" class="amount">4,444.77 <div style="font-size: 1rem;text-align: right">บาท</div></td>
+                        </tr>
+
+                    </tbody>
+                </table>
+            <hr style="opacity:1;">
+
+            <div style="margin-bottom:3rem; margin-top:rem;text-align:center;font-size:1.4rem; font-weight:bold">
+                 ขอบคุณที่ร่วมลดโลกร้อน
+            </div>`
+            )
             // ดึงองค์ประกอบจากหน้า HTML หลังโหลดครบ
             const loginScreen = document.getElementById('loginScreen');
             const mainScreen = document.getElementById('mainScreen');
@@ -1595,7 +1769,7 @@
                 const itemsToPrint = purchaseCart.length > 0 ? purchaseCart : [
                     { item_name: "ขวดพลาสติกใส (PET)", amount_in_units: 5.5, unit_name: "กก.", amount: 24.75, points: 10, pointsum: 55 },
                     { item_name: "กระดาษลัง", amount_in_units: 10.0, unit_name: "กก.", amount: 75.00, points: 20, pointsum: 200 },
-                    { item_name: "ขวดเบียร์ลีโอ", amount_in_units: 10.0, unit_name: "ลัง.", amount: 75.00 ,points: 20, pointsum: 200 },
+                    { item_name: "ขวดเบียร์ลีโอ", amount_in_units: 10.0, unit_name: "ลัง.", amount: 75.00, points: 20, pointsum: 200 },
                     // { item_name: "กระดาษลัง", amount_in_units: 10.0, unit_name: "กก.", amount: 75.00 },
                 ];
                 let expandHCanvas = 550 + (40 * itemsToPrint.length)
@@ -1951,17 +2125,17 @@
                 const card = document.createElement('div');
                 card.className = 'member-card';
                 card.innerHTML = `
-                                                    <div class="member-info">
-                                                        <p style="font-weight: bold; font-size: 16px; margin: 0 0 5px 0;">${member.firstname} ${member.lastname}</p>
-                                                        <p style="margin: 0 0 5px 0; font-size: 14px; color: #555;">📞 เบอร์โทร: ${member.phone || 'ไม่มีข้อมูล'}</p>
-                                                        <p style="margin: 0;"><span class="badge-account" style="background: #e6f0fa; color: #007bff; padding: 3px 8px; border-radius: 4px; font-size: 12px;">เลขบัญชี: ${account ? account : 'ไม่มีบัญชี'}</span></p>
-                                                    </div>
-                                                    <div>
-                                                        <button class="btn-deposit" onclick="selectMemberToDeposit(${member.id})" style="background: #28a745; color: white; border: none; padding: 8px 15px; border-radius: 4px; cursor: pointer; font-weight: bold;">
-                                                            💰 รับซื้อขยะรีไซเคิล
-                                                        </button>
-                                                    </div>
-                                                `;
+                                                                    <div class="member-info">
+                                                                        <p style="font-weight: bold; font-size: 16px; margin: 0 0 5px 0;">${member.firstname} ${member.lastname}</p>
+                                                                        <p style="margin: 0 0 5px 0; font-size: 14px; color: #555;">📞 เบอร์โทร: ${member.phone || 'ไม่มีข้อมูล'}</p>
+                                                                        <p style="margin: 0;"><span class="badge-account" style="background: #e6f0fa; color: #007bff; padding: 3px 8px; border-radius: 4px; font-size: 12px;">เลขบัญชี: ${account ? account : 'ไม่มีบัญชี'}</span></p>
+                                                                    </div>
+                                                                    <div>
+                                                                        <button class="btn-deposit" onclick="selectMemberToDeposit(${member.id})" style="background: #28a745; color: white; border: none; padding: 8px 15px; border-radius: 4px; cursor: pointer; font-weight: bold;">
+                                                                            💰 รับซื้อขยะรีไซเคิล
+                                                                        </button>
+                                                                    </div>
+                                                                `;
                 container.appendChild(card);
             });
         }
@@ -2193,49 +2367,16 @@
                 // else if (g.name.includes("โลหะ")) icon = "🛠️";
 
                 filterDiv.innerHTML = `
-                                                    <button type="button" class="btn btn-outline-dark rounded-circle" style="width: 60px; height: 60px; border-radius:50%; border:1px solid #ccc; background:#fff; font-size:20px;text-align:center">
-                                                        ${icon}
-                                                    </button>
-                                                    <small class="mt-1 text-muted fw-bold " style="font-size: 15px; margin-top:5px; color:green; font-weight:bold;text-align:center">${g.name}</small>
-                                                `;
+                                                                    <button type="button" class="btn btn-outline-dark rounded-circle" style="width: 60px; height: 60px; border-radius:50%; border:1px solid #ccc; background:#fff; font-size:20px;text-align:center">
+                                                                        ${icon}
+                                                                    </button>
+                                                                    <small class="mt-1 text-muted fw-bold " style="font-size: 15px; margin-top:5px; color:green; font-weight:bold;text-align:center">${g.name}</small>
+                                                                `;
                 container.appendChild(filterDiv);
             });
         }
 
-        // function triggerFilter(groupId, element) {
-        //     document.querySelectorAll('.filter-item button').forEach(b => {
-        //         b.style.background = "#fff"; b.style.color = "#000"; b.style.borderColor = "#ccc";
-        //     });
-        //     document.querySelectorAll('.filter-item small').forEach(s => s.style.color = "#6c757d");
-
-        //     const targetBtn = element.querySelector('button');
-        //     const targetTxt = element.querySelector('small');
-        //     if (targetBtn && targetTxt) {
-        //         targetBtn.style.background = "#212529"; targetBtn.style.color = "#fff";
-        //         targetTxt.style.color = "#212529";
-        //     }
-
-        //     const subContainer = document.getElementById('item-buttons-container');
-        //     if (!subContainer) return;
-        //     subContainer.innerHTML = "";
-
-        //     console.log('rawItemsData', rawItemsData)
-
-        //     const filteredItems = rawItemsData.filter(item => item.group_id === groupId);
-        //     filteredItems.forEach(opt => {
-        //         const gridCol = document.createElement('div');
-        //         gridCol.className = 'trash-item-card-compact';
-        //         gridCol.id = `card-${opt.kp_itemscode}`;
-        //         gridCol.onclick = () => selectTrashItem(opt.kp_itemscode);
-        //         gridCol.innerHTML = `
-        //                     <div class="item-title">${opt.kp_itemsname}</div>
-        //                     <div class="item-price">${opt.price} บ./กก.</div>
-        //                 `;
-        //         subContainer.appendChild(gridCol);
-
-        //     });
-        // }
-
+       
         function triggerFilter(groupId, element) {
             document.querySelectorAll('.filter-item button').forEach(b => {
                 b.style.background = "#fff"; b.style.color = "#000"; b.style.borderColor = "#ccc";
@@ -2262,9 +2403,9 @@
                 gridCol.id = `card-${opt.kp_itemscode}`;
                 gridCol.onclick = () => selectTrashItem(opt.kp_itemscode);
                 gridCol.innerHTML = `
-                                        <div class="item-title">${opt.kp_itemsname}</div>
-                                        <div class="item-price">${opt.price} บาท./${opt.unitname}</div>
-                                    `;
+                                                        <div class="item-title">${opt.kp_itemsname}</div>
+                                                        <div class="item-price">${opt.price} บาท./${opt.unitname}</div>
+                                                    `;
                 subContainer.appendChild(gridCol);
 
             });
@@ -2326,34 +2467,7 @@
             }
         }
 
-        // function selectTrashItem(itemCode) {
-        //     document.querySelectorAll('#item-buttons-container div').forEach(d => {
-        //         d.style.borderColor = "#e3e6f0"; d.style.background = "#fff";
-        //     });
-        //     const activeCard = document.getElementById(`card-${itemCode}`);
-        //     if (activeCard) {
-        //         activeCard.style.borderColor = "#28a745";
-        //         activeCard.style.background = "#eafaf1";
-        //     }
-
-        //     const trash = rawItemsData.find(item => item.kp_itemscode === itemCode);
-        //     if (trash) {
-        //         currentSelectedTrash = trash;
-        //         console.log('currentSelectedTrash', trash)
-        //         openWeightModal(trash.kp_itemsname);
-
-        //         const mockupUnits = [
-        //             { id: 1, unitname: "กิโลกรัม" },
-        //             { id: 2, unitname: "ขวด" }
-        //         ];
-        //         renderUnitButtons(trash.units || mockupUnits);
-        //         const amountInput = document.getElementById('amount_in_units');
-        //         if (amountInput) {
-        //             amountInput.value = "";
-        //             amountInput.focus();
-        //         }
-        //     }
-        // }
+       
 
         function renderUnitButtons(unitsArray) {
             const container = document.getElementById('unit-buttons-container');
@@ -2466,7 +2580,7 @@
 
             let grandTotal = 0;
             let pointTotal = 0;
-            
+
             purchaseCart.forEach(c => grandTotal += c.amount);
 
             const cartBtn = document.createElement('button');
@@ -2488,40 +2602,40 @@
             let tableRows = "";
             purchaseCart.forEach((item, index) => {
                 tableRows += `
-                                                    <tr style="border-bottom:1px solid #eee; height:50px;">
-                                                        <td style="padding:5px;"><b>${item.item_name}</b><br><small style="color:#888;">${item.price_per_unit.toFixed(2)} บ./หน่วย</small></td>
-                                                        <td style="text-align:right; padding:5px;">${item.amount_in_units.toFixed(2)} ${item.unit_name}</td>
-                                                        <td style="text-align:right; padding:5px; color:#28a745; font-weight:bold;">${item.amount.toFixed(2)} บ.</td>
-                                                        <td style="text-align:center; padding:5px;"><button onclick="removeFromCart(${index})" style="background:none; border:none; color:#dc3545; font-size:18px; cursor:pointer;">🗑️</button></td>
-                                                    </tr>
-                                                `;
+                                                                    <tr style="border-bottom:1px solid #eee; height:50px;">
+                                                                        <td style="padding:5px;"><b>${item.item_name}</b><br><small style="color:#888;">${item.price_per_unit.toFixed(2)} บ./หน่วย</small></td>
+                                                                        <td style="text-align:right; padding:5px;">${item.amount_in_units.toFixed(2)} ${item.unit_name}</td>
+                                                                        <td style="text-align:right; padding:5px; color:#28a745; font-weight:bold;">${item.amount.toFixed(2)} บ.</td>
+                                                                        <td style="text-align:center; padding:5px;"><button onclick="removeFromCart(${index})" style="background:none; border:none; color:#dc3545; font-size:18px; cursor:pointer;">🗑️</button></td>
+                                                                    </tr>
+                                                                `;
             });
 
             modal.innerHTML = `
-                                                <div style="background:#fff; width:100%; max-width:500px; border-radius:15px; padding:20px; box-shadow:0 10px 25px rgba(0,0,0,0.1); position:relative; font-family:sans-serif;">
-                                                    <h4 style="margin-top:0; font-weight:bold; color:#333;">🛒 รายการในตะกร้า</h4>
-                                                    <div style="max-height:250px; overflow-y:auto; margin-bottom:15px;">
-                                                        <table style="width:100%; border-collapse:collapse; font-size:14px;">
-                                                            <thead>
-                                                                <tr style="background:#f8f9fa; height:35px; text-align:left; color:#6c757d;">
-                                                                    <th>สินค้า</th><th style="text-align:right;">จำนวน</th><th style="text-align:right;">รวม (บาท)</th><th style="text-align:center;">ลบ</th>
-                                                                </tr>
-                                                            </thead>
-                                                            <tbody>${tableRows}</tbody>
-                                                        </table>
-                                                    </div>
-                                                    <div style="display:flex; justify-content:space-between; align-items:center; background:#f8f9fa; padding:15px; border-radius:10px; margin-bottom:15px;">
-                                                        <span>ยอดสุทธิรวม:</span>
-                                                        <span style="font-size:22px; font-weight:bold; color:#28a745;">${grandTotal.toFixed(2)} บาท</span>
-                                                        <input type="checkbox" id="cashback" name="cashback" style="width:30px; height:30px">จ่ายเงินสด
-                                                    </div>
-                                                    <div style="display:flex; gap:10px;">
-                                                        <button onclick="document.getElementById('customCartModal').remove()" style="flex:1; padding:12px; border-radius:8px; border:1px solid #ccc; background:#ccc; font-weight:bold; cursor:pointer;">ปิดหน้าต่าง</button>
-                                                        <button onclick="submitFinalPurchase(0)" style="flex:2; padding:12px; border-radius:8px; border:none; background:#28a745; color:#fff; font-weight:bold; font-size:16px; cursor:pointer;">📝 ยืนยันบันทึก</button>
-                                                        <button onclick="submitFinalPurchase(1)" style="flex:2; padding:12px; border-radius:8px; border:none; background:#28a745; color:#fff; font-weight:bold; font-size:16px; cursor:pointer;">📝 ยืนยันบันทึก & ปริ้นบิล</button>
-                                                    </div>
-                                                </div>
-                                            `;
+                                                                <div style="background:#fff; width:100%; max-width:500px; border-radius:15px; padding:20px; box-shadow:0 10px 25px rgba(0,0,0,0.1); position:relative; font-family:sans-serif;">
+                                                                    <h4 style="margin-top:0; font-weight:bold; color:#333;">🛒 รายการในตะกร้า</h4>
+                                                                    <div style="max-height:250px; overflow-y:auto; margin-bottom:15px;">
+                                                                        <table style="width:100%; border-collapse:collapse; font-size:14px;">
+                                                                            <thead>
+                                                                                <tr style="background:#f8f9fa; height:35px; text-align:left; color:#6c757d;">
+                                                                                    <th>สินค้า</th><th style="text-align:right;">จำนวน</th><th style="text-align:right;">รวม (บาท)</th><th style="text-align:center;">ลบ</th>
+                                                                                </tr>
+                                                                            </thead>
+                                                                            <tbody>${tableRows}</tbody>
+                                                                        </table>
+                                                                    </div>
+                                                                    <div style="display:flex; justify-content:space-between; align-items:center; background:#f8f9fa; padding:15px; border-radius:10px; margin-bottom:15px;">
+                                                                        <span>ยอดสุทธิรวม:</span>
+                                                                        <span style="font-size:22px; font-weight:bold; color:#28a745;">${grandTotal.toFixed(2)} บาท</span>
+                                                                        <input type="checkbox" id="cashback" name="cashback" style="width:30px; height:30px">จ่ายเงินสด
+                                                                    </div>
+                                                                    <div style="display:flex; gap:10px;">
+                                                                        <button onclick="document.getElementById('customCartModal').remove()" style="flex:1; padding:12px; border-radius:8px; border:1px solid #ccc; background:#ccc; font-weight:bold; cursor:pointer;">ปิดหน้าต่าง</button>
+                                                                        <button onclick="submitFinalPurchase(0)" style="flex:2; padding:12px; border-radius:8px; border:none; background:#28a745; color:#fff; font-weight:bold; font-size:16px; cursor:pointer;">📝 ยืนยันบันทึก</button>
+                                                                        <button onclick="submitFinalPurchase(1)" style="flex:2; padding:12px; border-radius:8px; border:none; background:#28a745; color:#fff; font-weight:bold; font-size:16px; cursor:pointer;">📝 ยืนยันบันทึก & ปริ้นบิล</button>
+                                                                    </div>
+                                                                </div>
+                                                            `;
             document.body.appendChild(modal);
         }
 
@@ -2595,8 +2709,98 @@
                 const resData = await response.json();
 
                 if (resData.code === 200) {
-                    alert(`🎉 บันทึกสำเร็จ! เลขที่บิล: ${resData.data.receipt_no}`);
 
+                    alert(`🎉 บันทึกสำเร็จ! เลขที่บิล: ${resData.data.receipt_no}`);
+                    $('#card-reciept').html(
+                        `<div class="row">
+                <div class="col-5">
+                    <img src="{{ asset('logo/chiangkreu_sakonnakhon.png') }}" width="100%" alt="">
+                </div>
+                <div class="col-7" id="org">
+                    <div style="font-size: 1.5rem;">เทศบาลตำบล</div>
+                    <div style="font-size: 2rem; margin-top: -10px;">เชียงเครือ</div>
+
+                </div>
+                <div class="text-right" id="org_address">
+                    <div>109 หมู่ 14 ต.เชียงเครือ</div>
+                    <div>อ.เมืองสกลนคร จ.สกลนคร</div>
+                    <div>โทร.042-4345433</div>
+                </div>
+            </div>
+
+            <p>ธนาคารขยะรีไซเคิล</p>
+            <div id="member_info">
+                <div class="row">
+                    <div class="col-3 header">ชื่อ-สกุล:</div>
+                    <div class="col-9">สมชาย รักสะอาด</div>
+                    <div class="col-3 header">ที่อยู่:</div>
+                    <div class="col-9 info">
+                        <div>109 หมู่ 14 ต.เชียงเครือ</div>
+                        <div>อ.เมืองสกลนคร จ.สกลนคร</div>
+                    </div>
+                    <div class="col-3 header">รหัส:</div>
+                    <div class="col-9 info">001122122</div>
+                </div>
+            </div>
+
+            <div id="reciept_info" style="margin-bottom:10px">
+                <div class="row">
+                    <div class="col-4 header">วันที่:</div>
+                    <div class="col-8">10/07/2569</div>
+                    <div class="col-4 header">เลขใบเสร็จ:</div>
+                    <div class="col-8 info">Bill12333353</div>
+                </div>
+
+
+            </div>
+            <table border="0" width="100%">
+                <thead>
+                    <tr>
+                        <td width="60%"></td>
+                        <td width="15%">แต้ม</td>
+                        <td width="25%">บาท</td>
+                    </tr>
+                </thead>
+                <tbody>
+                    @for ($i = 0; $i < 2; $i++)
+
+                        <tr>
+
+                            <td style="text-align: left; font-size: 1.5rem;line-height: 22px;">
+                                -ขวดพลาสติกใส 
+                                <div style="font-size: 1rem; padding-left: 10px; ">
+                                    <span style="font-size: 1.4rem;">3 กก.   </span>
+                                    <span style="margin-left:10px">(5 บาท, 10 แต้ม):กก.</span>
+                                </div>
+                            </td>
+                            <td class="amount">4,444</td>
+                            <td class="amount">7,777.77</td>
+                        </tr>
+                    @endfor
+                    
+                </tbody>
+                
+            </table>
+            <hr style="color: #000000;opacity:1; margin-left: 20px;" width="90%">
+            <table width="100%">
+                    <tbody>
+                         <tr>
+
+                            <td style="text-align: left; font-size: 1.5rem;font-weight:bold" width="60%">
+                                รวมรับเงิน/แต้มสะสม
+                            </td>
+                            <td width="15%" style="line-height: 22px; font-weight:bold" class="amount">4,444 <div style="font-size: 1rem;text-align: right">แต้ม</div></td>
+                            <td width="25%" style="line-height: 22px; font-weight:bold" class="amount">4,444.77 <div style="font-size: 1rem;text-align: right">บาท</div></td>
+                        </tr>
+
+                    </tbody>
+                </table>
+            <hr style="opacity:1;">
+
+            <div style="margin-bottom:3rem; margin-top:rem;text-align:center;font-size:1.4rem; font-weight:bold">
+                 ขอบคุณที่ร่วมลดโลกร้อน
+            </div>`
+                    )
                     // 🟢 จุดสำคัญ: เอาข้อมูลตัวจริงจาก Server (resData.data) ส่งไปสั่งพิมพ์ใบเสร็จบลูทูธ
                     if (typeof printReceipt === "function" && print_bill === 1) {
                         printReceipt(resData.data, purchaseCart);
@@ -2976,10 +3180,18 @@
         }
 
         async function printReceipt() {
-            console.log('xx')
             if (!printCharacteristic) {
-                console.log('!printCharacteristic')
+                console.log('!printCharacteristic');
                 updateStatus('กรุณาเชื่อมต่อก่อนพิมพ์', 'error');
+                return;
+            }
+
+            // 🟢 ประกาศตัวแปรดึง DOM Elements ให้ครบถ้วนตรงนี้
+            const printButton = document.getElementById('printImageButton');
+            const printBtnText = document.getElementById('printBtnText');
+
+            if (!printBtnText || !printButton) {
+                console.error('ไม่พบปุ่มพิมพ์หรือข้อความปุ่มใน DOM');
                 return;
             }
 
@@ -2989,7 +3201,11 @@
 
             try {
                 // 1. HTML to Canvas
-                const receiptElement = document.getElementById('receipt-card');
+                const receiptElement = document.getElementById('card-reciept');
+                if (!receiptElement) {
+                    throw new Error('ไม่พบ Element #receipt-card ในหน้าเว็บ');
+                }
+
                 const canvas = await html2canvas(receiptElement, {
                     scale: 2,
                     useCORS: true,
@@ -2997,19 +3213,24 @@
                 });
 
                 // 2. Resize
-                const printerWidth = 384;
+                const printerWidth = 384; // 58mm thermal printer (384 dots)
                 const scaleFactor = printerWidth / canvas.width;
-                const printerHeight = canvas.height * scaleFactor;
+                const printerHeight = Math.floor(canvas.height * scaleFactor);
 
                 const printCanvas = document.createElement('canvas');
                 printCanvas.width = printerWidth;
                 printCanvas.height = printerHeight;
                 const ctx = printCanvas.getContext('2d');
+
+                // เทสีขาวป้องกันภาพพื้นหลังโปร่งใสกลายเป็นสีดำ
+                ctx.fillStyle = '#ffffff';
+                ctx.fillRect(0, 0, printerWidth, printerHeight);
                 ctx.drawImage(canvas, 0, 0, printerWidth, printerHeight);
 
-                // 3. Bitmap & Command
+                // 3. Bitmap & Command (GS v 0)
                 const bitmapData = getMonochromeBitmapData(ctx, printerWidth, printerHeight);
                 const bytesPerRow = Math.ceil(printerWidth / 8);
+
                 const command = new Uint8Array([
                     0x1D, 0x76, 0x30, 0x00,
                     bytesPerRow & 0xFF, (bytesPerRow >> 8) & 0xFF,
@@ -3021,25 +3242,26 @@
                 dataToSend.set(bitmapData, command.length);
 
                 // 4. Send Chunks
-                const CHUNK_SIZE = 256;
+                const CHUNK_SIZE = 194;
                 for (let i = 0; i < dataToSend.length; i += CHUNK_SIZE) {
                     const chunk = dataToSend.slice(i, i + CHUNK_SIZE);
                     await printCharacteristic.writeValueWithoutResponse(chunk);
-                    await new Promise(r => setTimeout(r, 40));
+                    await new Promise(r => setTimeout(r, 20));
                 }
 
-                // Feed Lines
+                // Feed Lines (0x0A = Line Feed)
                 await printCharacteristic.writeValueWithoutResponse(new Uint8Array([0x0A, 0x0A, 0x0A]));
                 updateStatus('พิมพ์เสร็จสิ้น', 'success');
 
             } catch (error) {
-                updateStatus(`Error: ${error.message}`, 'error');
+                // ป้องกันกรณี error.message ไม่มีค่า
+                const errorMsg = error.message || error;
+                updateStatus(`Error: ${errorMsg}`, 'error');
             } finally {
                 printButton.disabled = false;
                 printBtnText.textContent = originalText;
             }
         }
-
         // Initialize
         connectButton.addEventListener('click', connectToPrinter);
     </script>
