@@ -1,0 +1,108 @@
+name: Deploy to Hostinger (prod)
+
+on:
+  push:
+    branches: [prod]
+  workflow_dispatch:
+
+concurrency:
+  group: deploy-prod
+  cancel-in-progress: false
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      # ---------- Build PHP dependencies ----------
+      - name: Setup PHP
+        uses: shivammathur/setup-php@v2
+        with:
+          php-version: "8.2"
+          extensions: mbstring, bcmath, gd, intl, zip, pdo_mysql
+          coverage: none
+
+      - name: Cache Composer packages
+        uses: actions/cache@v4
+        with:
+          path: vendor
+          key: composer-${{ runner.os }}-${{ hashFiles('composer.lock') }}
+          restore-keys: composer-${{ runner.os }}-
+
+      - name: Install Composer dependencies
+        run: composer install --prefer-dist --no-dev --optimize-autoloader --no-interaction --no-progress
+
+      # ---------- Build front-end assets ----------
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: "20"
+          cache: npm
+
+      - name: Install npm dependencies
+        run: npm ci
+
+      - name: Build assets
+        run: npm run production
+
+      # ---------- Deploy via rsync over SSH ----------
+      - name: Setup SSH agent
+        uses: webfactory/ssh-agent@v0.9.0
+        with:
+          ssh-private-key: ${{ secrets.PIOS_SSH_PRIVATE_KEY }}
+
+      - name: Deploy with rsync
+        run: |
+          rsync -avz --delete \
+            -e "ssh -p ${{ secrets.PIOS_SSH_PORT }} -o StrictHostKeyChecking=accept-new" \
+            --exclude='.git' \
+            --exclude='.github' \
+            --exclude='.env' \
+            --exclude='storage/' \
+            --exclude='node_modules' \
+            --exclude='tests' \
+            --exclude='repomix-output.xml' \
+            --exclude='.DS_Store' \
+            ./ "${{ secrets.PIOS_SSH_USER }}@${{ secrets.PIOS_SSH_HOST }}:${{ secrets.PIOS_DEPLOY_PATH }}"
+
+      # ---------- Post-deploy: each stage is its own step so the
+      #            GitHub Actions log shows exactly which one fails ----------
+      - name: "Post-deploy › 1. Prepare storage directories"
+        run: |
+          ssh -p "${{ secrets.PIOS_SSH_PORT }}" -o StrictHostKeyChecking=accept-new "${{ secrets.PIOS_SSH_USER }}@${{ secrets.PIOS_SSH_HOST }}" \
+            "cd '${{ secrets.PIOS_DEPLOY_PATH }}' && \
+             mkdir -p storage/framework/cache/data storage/framework/sessions storage/framework/views storage/logs bootstrap/cache && \
+             echo '✔ storage directories ready'"
+
+      - name: "Post-deploy › 2. Clear stale caches"
+        run: |
+          ssh -p "${{ secrets.PIOS_SSH_PORT }}" -o StrictHostKeyChecking=accept-new "${{ secrets.PIOS_SSH_USER }}@${{ secrets.PIOS_SSH_HOST }}" \
+            "cd '${{ secrets.PIOS_DEPLOY_PATH }}' && \
+             php artisan optimize:clear"
+
+      - name: "Post-deploy › 3. Database migrations"
+        run: |
+          ssh -p "${{ secrets.PIOS_SSH_PORT }}" -o StrictHostKeyChecking=accept-new "${{ secrets.PIOS_SSH_USER }}@${{ secrets.PIOS_SSH_HOST }}" \
+            "cd '${{ secrets.PIOS_DEPLOY_PATH }}' && \
+             php artisan migrate --force --no-interaction"
+
+      - name: "Post-deploy › 4. Cache config"
+        run: |
+          ssh -p "${{ secrets.PIOS_SSH_PORT }}" -o StrictHostKeyChecking=accept-new "${{ secrets.PIOS_SSH_USER }}@${{ secrets.PIOS_SSH_HOST }}" \
+            "cd '${{ secrets.PIOS_DEPLOY_PATH }}' && \
+             php artisan config:cache"
+
+      - name: "Post-deploy › 5. Cache routes"
+        run: |
+          ssh -p "${{ secrets.PIOS_SSH_PORT }}" -o StrictHostKeyChecking=accept-new "${{ secrets.PIOS_SSH_USER }}@${{ secrets.PIOS_SSH_HOST }}" \
+            "cd '${{ secrets.PIOS_DEPLOY_PATH }}' && \
+             php artisan route:cache"
+
+      - name: "Post-deploy › 6. Cache views"
+        run: |
+          ssh -p "${{ secrets.PIOS_SSH_PORT }}" -o StrictHostKeyChecking=accept-new "${{ secrets.PIOS_SSH_USER }}@${{ secrets.PIOS_SSH_HOST }}" \
+            "cd '${{ secrets.PIOS_DEPLOY_PATH }}' && \
+             php artisan view:cache"

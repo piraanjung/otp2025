@@ -115,7 +115,7 @@ Route::prefix('line')->group(function () {
     // 3. บันทึกองค์กรที่ผู้ใช้เลือกเข้าสู่ระบบใน Session หรือเก็บประวัติชั่วคราว
     Route::post('/set-session-org', [LineController::class, 'setSessionOrg']);
 
-    Route::get('/', [LineController::class, 'index'])->name('lineliff.index');
+    Route::get('/', [LineController::class, 'index'])->name('line.index');
     Route::post('/find_line_id', [LineController::class, 'find_line_id']);
     Route::post('/update_user_line_id', [LineController::class, 'find_line_id']);
     Route::get('/user_qrcode', [LineController::class, 'user_qrcode']);

@@ -137,7 +137,8 @@ Route::post('/upload-and-convert', [SqlToJsonController::class, 'uploadAndProces
 Route::resource('/test', TestController::class);
 
 
-Auth::routes();
+// Auth::routes() removed: auth routes are provided by Breeze in routes/auth.php.
+// Keeping both caused duplicate route names (e.g. password.request) that break route:cache.
 
 Route::group(['middleware' => ['auth', 'role:Admin|Super Admin']], function () {
     Route::resource('org-admins', OrgAdminController::class);
@@ -323,7 +324,6 @@ Route::middleware(['auth', 'role:Admin|finance|Super Admin'])->group(function ()
     Route::prefix('payment/')->name('payment.')->group(function () {
         Route::get('paymenthistory/{inv_period}/{subzone_id}', [PaymentController::class, 'paymenthistory'])->name('paymenthistory');
         Route::match(['get', 'post'], 'search', [PaymentController::class, 'search'])->name('search');
-        Route::delete('acc_trans_id_fk/destroy', [PaymentController::class, 'destroy'])->name('destroy');
         Route::post('index_search_by_suzone', [PaymentController::class, 'index_search_by_suzone'])->name('index_search_by_suzone');
         Route::get('receipt_print/{account_id_fk?}/{payments?}', [PaymentController::class, 'receipt_print'])->name('receipt_print');
         Route::get('receipt_print_history/{account_id_fk?}', [PaymentController::class, 'receipt_print_history'])->name('receipt_print_history');

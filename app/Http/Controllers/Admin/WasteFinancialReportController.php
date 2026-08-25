@@ -2,7 +2,7 @@
 namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
-use App\Models\AnnualTrashSubscription;
+use App\Models\AnnualTrash\AnnualTrashSubscription;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 
@@ -14,16 +14,16 @@ class WasteFinancialReportController extends Controller
         $year = $request->get('year', now()->year);
 
         // 1. สรุปจำนวนคนตามสถานะ
-        $statusSummary = AnnualTrashSubscription::select('billing_status', DB::raw('count(*) as total'))
-            ->groupBy('billing_status')
+        $statusSummary = AnnualTrashSubscription::select('status', DB::raw('count(*) as total'))
+            ->groupBy('status')
             ->get();
 
         // 2. คำนวณยอดเงินรวม (ที่ควรจะเก็บได้)
-        $totalPotentialIncome = AnnualTrashSubscription::sum('monthly_fee');
+        $totalPotentialIncome = AnnualTrashSubscription::sum('month_fee');
 
         // 3. คำนวณมูลค่า "สวัสดิการ" ที่เทศบาลลดหย่อนให้ประชาชน (Waived)
-        $totalWaivedValue = AnnualTrashSubscription::where('billing_status', 'waived')
-            ->sum('monthly_fee');
+        $totalWaivedValue = AnnualTrashSubscription::where('status', 'waived')
+            ->sum('month_fee');
 
         // 4. คำนวณยอดเงินที่ต้องเก็บจริง (Pending + Paid)
         $expectedCash = $totalPotentialIncome - $totalWaivedValue;
