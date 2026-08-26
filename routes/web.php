@@ -143,7 +143,8 @@ Route::get('/upload-form', function () {
 Route::post('/upload-and-convert', [SqlToJsonController::class, 'uploadAndProcess']);
 
 
-Route::resource('/test', TestController::class);
+// Route::resource('/test', TestController::class);
+Route::get('/test/textSendLineMessage', [TestController::class,'textSendLineMessage']);
 
 
 // Auth::routes() removed: auth routes are provided by Breeze in routes/auth.php.

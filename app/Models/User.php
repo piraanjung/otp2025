@@ -154,7 +154,7 @@ class User extends Authenticatable
 
     public function acceptedNotifies(): BelongsToMany // <--- ตรวจสอบการประกาศ Type Hint
     {
-        return $this->belongsToMany(TwNotifies::class, 'notify_staff', 'user_id', 'notify_id')
+        return $this->belongsToMany(TwNotifies::class, 'tw_notify_staff', 'user_id', 'notify_id')
             ->withPivot('staff_status')
             ->withTimestamps();
     }
