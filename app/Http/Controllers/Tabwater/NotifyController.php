@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Tabwater;
 
 use App\Http\Controllers\Controller;
 use App\Models\Admin\Organization;
+use App\Models\Admin\Staff;
 use App\Models\IssueType;
 use App\Models\SystemModule;
 use App\Models\Tabwater\TwNotifies;
@@ -182,6 +183,9 @@ class NotifyController extends Controller
             ]);
 
             DB::commit();
+            //  ส่ง Text Message แจ้งเตือน 1-on-1 ไปหาหัวหน้างานประจำ System Type นั้นๆ
+            $this->sendHeadNotificationText($notify);
+
             session()->forget('selected_org_id');
             return redirect()->route('tabwater.notify.success', $notify->id)
                 ->with('success', 'บันทึกข้อมูลการแจ้งเหตุเรียบร้อยแล้ว');
@@ -192,6 +196,52 @@ class NotifyController extends Controller
                 ->with('error', 'เกิดข้อผิดพลาดในการบันทึกข้อมูล: ' . $e->getMessage());
         }
     }
+
+   protected function sendHeadNotificationText(TwNotifies $notify)
+{
+    $channelToken = config('services.line_staff.channel_token');
+
+    // ค้นหา Staff ที่:
+    // 1. สังกัด org_id_fk เดียวกัน
+    // 2. สถานะ Staff ปกติ (เช่น status == 'active' หรือ != 'inactive')
+    // 3. มี User relationship ที่มี Role 'head_tap_water' และมี line_user_id
+    $headStaff = Staff::where('org_id_fk', $notify->org_id_fk)
+        ->where('status', 'active') // ปรับค่า status ตามระบบของคุณ
+        ->whereHas('user', function ($query) {
+            $query->role('head_tap_water') // เช็ก Role ใน Model User
+                  ->whereNotNull('line_user_id');
+        })
+        ->with('user') // Eager load Relation user เพื่อลด Query
+        ->first();
+
+    // หากไม่พบข้อมูล
+    if (!$headStaff || !$headStaff->user || empty($headStaff->user->line_user_id)) {
+        Log::warning("ไม่พบหัวหน้างานประปา (Staff) ที่มี LINE ID สำหรับ Org ID: {$notify->org_id_fk}");
+        return;
+    }
+
+    // ดึง line_user_id ของหัวหน้าจาก Relationship user
+    $headUserId = $headStaff->user->line_user_id;
+
+    // 2. ข้อความสั้นเพื่อให้หัวหน้าก๊อปปี้ง่ายที่สุด
+    $triggerText = "งานเข้า " . $notify->id;
+    
+    $messageText = "🚨 **มีแจ้งเหตุใหม่ (#{$notify->id})**\n"
+                 . "องค์กร: " . ($notify->organization->name ?? '-') . "\n"
+                 . "ประเภท: " . $notify->issue_type . "\n"
+                 . "---------------------------\n"
+                 . "📌 **กรุณาก๊อปปี้ข้อความด้านล่างนี้ วางลงในกลุ่มงาน:**\n\n"
+                 . $triggerText;
+
+    // 3. ส่ง 1-on-1 หาหัวหน้า
+    Http::withHeaders([
+        'Authorization' => "Bearer {$channelToken}",
+        'Content-Type'  => 'application/json',
+    ])->post('https://api.line.me/v2/bot/message/push', [
+        'to'       => $headUserId,
+        'messages' => [['type' => 'text', 'text' => $messageText]],
+    ]);
+}
 
     /**
      * Summary of success

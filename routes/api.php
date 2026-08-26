@@ -121,13 +121,13 @@ Route::prefix('line')->group(function () {
     Route::get('/user_qrcode', [LineController::class, 'user_qrcode']);
     Route::post('/update_user_by_phone', [LineController::class, 'update_user_by_phone']);
     Route::post('/user_line_register', [LineController::class, 'user_line_register']);
-    Route::post('/webhook', [LineController::class, 'handleWebhook']);
+    Route::post('/webhook', [LineController::class, 'handle']);
     Route::get('/reply/{lineUserId}/{replyToken}', [LineController::class, 'replyWithLastReceipt']);
     Route::get('/buildFlexReceipt/{transaction}', [LineController::class, 'buildFlexReceipt']);
     Route::post('/findUserByPhone', [LineController::class, 'findUserByPhone']);
-
     Route::get('/get_org_lists/{org_type}', [LineController::class,'getOrgLists']);
     Route::get('/getzones/{tambon_id}', [LineController::class, 'getZones'])->name('getzones');
+    Route::get('/xx', [LineController::class, 'buildStaffFlexMessage'])->name('buildStaffFlexMessage');
 
 });
 

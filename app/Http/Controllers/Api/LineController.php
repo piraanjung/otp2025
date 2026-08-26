@@ -12,6 +12,7 @@ use App\Models\KeptKaya\KpPurchaseTransaction;
 use App\Models\KeptKaya\KpUserWastePreference;
 use App\Models\SuperUser;
 use App\Models\Tabwater\SequenceNumber;
+use App\Models\Tabwater\TwNotifies;
 use App\Models\User;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
@@ -381,35 +382,45 @@ public function getZones($tambon_id)
 
     // app/Http/Controllers/Api/LineController.php
 
-    public function handleWebhook(Request $request)
+    public function handle(Request $request)
     {
-        Log::info('LINE Webhook Data: ', $request->all());
         $events = $request->input('events', []);
 
         foreach ($events as $event) {
+            // ดักจับเหตุการณ์ที่เป็นการส่งข้อความตัวหนังสือ (Text Message)
             if ($event['type'] === 'message' && $event['message']['type'] === 'text') {
-                $replyToken = $event['replyToken'];
-                $userText = trim($event['message']['text']);
-                $lineId = $event['source']['userId'];
+                
+                $userMessage = trim($event['message']['text']);
+                $replyToken  = $event['replyToken'];
 
-                // เงื่อนไข: ถ้าพิมพ์ว่า "ใบเสร็จ"
-                if (str_contains($userText, 'ใบเสร็จ')) {
-                    $this->replyWithLastReceipt($lineId, $replyToken);
-                }
+                // ใช้ Regex ดักคำสั่ง เช่น "งานเข้า 1042" หรือ "งานเข้า#1042"
+                if (preg_match('/^งานเข้า\s*#?(\d+)$/u', $userMessage, $matches)) {
+                    $notifyId = $matches[1];
 
-                // เงื่อนไข: ถ้าพิมพ์ว่า "แต้ม" (แถมให้)
-                if (str_contains($userText, 'แต้ม')) {
-                    $this->replyWithPoints($lineId, $replyToken);
-                }
+                    // ค้นหาข้อมูลการแจ้งเหตุใน DB
+                    $notify = TwNotifies::find($notifyId);
 
-                if (str_contains($userText, 'สร้าง QR Code ขายขยะ')) {
-                    $this->replyWithUserQrCode($lineId, $replyToken);
+                    if ($notify) {
+                        // 1. สร้างโครงสร้าง Flex Message
+                        $flexPayload = $this->buildStaffFlexMessage($notify);
+
+                        // 2. ส่ง Reply Message กลับไปที่กลุ่ม (ใช้ Reply API ฟรี)
+                        $this->sendReplyMessage($replyToken, $flexPayload);
+                    }
                 }
             }
         }
-        return response()->json(['status' => 'ok']);
+
+        return response()->json(['status' => 'ok'], 200);
     }
 
+ 
+
+    /**
+     * Summary of replyWithUserQrCode
+     * @param mixed $lineId
+     * @param mixed $replyToken
+     */
     private function replyWithUserQrCode($lineId, $replyToken)
     {
         // ค้นหา User จาก lineId ใน Database ของคุณ
@@ -474,6 +485,13 @@ public function getZones($tambon_id)
         $this->sendFlexMessage($replyToken, "QR Code สมาชิกของคุณ", $flexData);
     }
 
+    /**
+     * Summary of sendFlexMessage
+     * @param mixed $replyToken
+     * @param mixed $altText
+     * @param mixed $flexData
+     * @return void
+     */
     private function sendFlexMessage($replyToken, $altText, $flexData)
     {
         $httpClient = new \GuzzleHttp\Client();
@@ -496,7 +514,10 @@ public function getZones($tambon_id)
     }
 
     /**
-     * ค้นหาใบเสร็จล่าสุดและตอบกลับด้วย Flex Message (ฟรี)
+     * Summary of replyWithLastReceipt
+     * @param mixed $lineId
+     * @param mixed $replyToken
+     * @return \Illuminate\Http\Client\Response
      */
     public function replyWithLastReceipt($lineId, $replyToken)
     {
@@ -532,7 +553,11 @@ public function getZones($tambon_id)
         }
     }
 
-
+    /**
+     * Summary of buildFlexReceipt
+     * @param mixed $transaction
+     * @return array{body: array, header: array, styles: array, type: string}
+     */
     public function buildFlexReceipt($transaction)
     {
         $itemContents = [];
@@ -676,7 +701,10 @@ public function getZones($tambon_id)
     }
 
     /**
-     * Helper สำหรับส่งข้อความตัวอักษรธรรมดา
+     * Summary of replyText
+     * @param mixed $replyToken
+     * @param mixed $text
+     * @return \Illuminate\Http\Client\Response
      */
     private function replyText($replyToken, $text)
     {
@@ -687,4 +715,135 @@ public function getZones($tambon_id)
             'messages' => [['type' => 'text', 'text' => $text]]
         ]);
     }
+
+    /**
+     * Summary of buildStaffFlexMessage
+     * @param TwNotifies $notify
+     * @return array{altText: string, contents: array, type: string}
+     */
+    private function buildStaffFlexMessage(TwNotifies $notify)
+    {
+        $notify = TwNotifies::find(1);
+
+        // $notify = TwNotifies::where('id', 1)
+        // ->with('issueType')
+        // ->get()->first();
+        // แกะรูปภาพแรกจาก JSON photo_path
+        $imageUrl = 'https://via.placeholder.com/600x400?text=No+Image';
+        if (!empty($notify->photo_path)) {
+            $photos = is_array($notify->photo_path) 
+                ? $notify->photo_path 
+                : json_decode($notify->photo_path, true);
+
+            if (!empty($photos[0])) {
+                $imageUrl = asset($photos[0]);
+            }
+        }
+
+        // แปลงประเภทงานเป็นภาษาไทย
+       
+        $typeName = $notify->issueType->name;
+        // $typeName = $typeNames[$notify->issue_type] ?? $notify->issue_type;
+
+        // ลิงก์สำหรับช่างกดรับงาน และ ลิงก์แผนที่นำทาง
+        $acceptJobUrl  = route('staff.job.accept', ['notify' => $notify->id]);
+        $googleMapsUrl = "https://www.google.com/maps?q={$notify->latitude},{$notify->longitude}";
+
+        return [
+            'type' => 'flex',
+            'altText' => "🚨 แจ้งเหตุงานประปา (#{$notify->id})",
+            'contents' => [
+                'type' => 'bubble',
+                'hero' => [
+                    'type' => 'image',
+                    'url' => $imageUrl,
+                    'size' => 'full',
+                    'aspectRatio' => '20:13',
+                    'aspectMode' => 'cover',
+                ],
+                'body' => [
+                    'type' => 'box',
+                    'layout' => 'vertical',
+                    'contents' => [
+                        [
+                            'type' => 'text',
+                            'text' => "🚨 แจ้งเหตุใหม่ (#{$notify->id})",
+                            'weight' => 'bold',
+                            'size' => 'lg',
+                            'color' => '#1DB446',
+                        ],
+                        [
+                            'type' => 'box',
+                            'layout' => 'vertical',
+                            'margin' => 'md',
+                            'spacing' => 'xs',
+                            'contents' => [
+                                [
+                                    'type' => 'text',
+                                    'text' => "ประเภท: {$typeName}",
+                                    'size' => 'sm',
+                                    'color' => '#555555',
+                                    'weight' => 'bold',
+                                ],
+                                [
+                                    'type' => 'text',
+                                    'text' => "สถานะ: รอดำเนินการ",
+                                    'size' => 'xs',
+                                    'color' => '#ff9900',
+                                ],
+                            ],
+                        ],
+                    ],
+                ],
+                'footer' => [
+                    'type' => 'box',
+                    'layout' => 'vertical',
+                    'spacing' => 'sm',
+                    'contents' => [
+                        [
+                            'type' => 'button',
+                            'style' => 'primary',
+                            'height' => 'sm',
+                            'action' => [
+                                'type' => 'uri',
+                                'label' => '🛠️ กดรับงานนี้',
+                                'uri' => $acceptJobUrl,
+                            ],
+                            'color' => '#0D6EFD',
+                        ],
+                        [
+                            'type' => 'button',
+                            'style' => 'secondary',
+                            'height' => 'sm',
+                            'action' => [
+                                'type' => 'uri',
+                                'label' => '🗺️ เปิดแผนที่นำทาง',
+                                'uri' => $googleMapsUrl,
+                            ],
+                        ],
+                    ],
+                ],
+            ],
+        ];
+    }
+
+    /**
+     * Summary of sendReplyMessage
+     * @param mixed $replyToken
+     * @param mixed $flexPayload
+     * @return void
+     */
+    private function sendReplyMessage($replyToken, $flexPayload)
+    {
+        $channelToken = config('services.line_staff.channel_token');
+
+        Http::withHeaders([
+            'Authorization' => "Bearer {$channelToken}",
+            'Content-Type'  => 'application/json',
+        ])->post('https://api.line.me/v2/bot/message/reply', [
+            'replyToken' => $replyToken,
+            'messages'   => [$flexPayload],
+        ]);
+    }
 }
+

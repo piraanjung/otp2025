@@ -2,6 +2,7 @@
 
 namespace App\Models\Tabwater;
 
+use App\Models\IssueType;
 use App\Models\User;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
@@ -52,6 +53,9 @@ class TwNotifies extends Model
         return $this->belongsTo(User::class, 'user_id');
     }
 
+    public function issueType(){
+        return $this->belongsTo(IssueType::class, 'issue_type', 'id');
+    }
     /**
      * ความสัมพันธ์: ดึงข้อมูล Staff ผู้รับงาน (สมมติว่า Staff ก็คือ User Model)
      */
@@ -69,7 +73,7 @@ class TwNotifies extends Model
 
     public function assignedStaff()
     {
-        return $this->belongsToMany(User::class, 'notify_staff', 'notify_id', 'user_id')
+        return $this->belongsToMany(User::class, 'tw_notify_staff', 'notify_id', 'user_id')
             ->withPivot('staff_status') // ดึงสถานะเฉพาะของ Staff ต่องานนั้นมาด้วย
             ->withTimestamps();
     }
