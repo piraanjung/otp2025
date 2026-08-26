@@ -38,14 +38,20 @@ return [
         'public' => [
             'driver' => 'local',
             'root' => storage_path('app/public'),
-            'url' => env('APP_URL').'/storage',
+            'url' => env('APP_URL') . '/storage',
+            'visibility' => 'public',
+        ],
+        'direct_public' => [
+            'driver' => 'local',
+            'root' => public_path('uploads'),
+            'url' => env('APP_URL') . '/uploads',
             'visibility' => 'public',
         ],
         'keptkaya_public' => [
             'driver' => 'local',
             // 'root' ชี้ตรงไปที่ public/keptkaya/items
             'root' => public_path('keptkaya/items'),
-            'url' => env('APP_URL').'/keptkaya/items',
+            'url' => env('APP_URL') . '/keptkaya/items',
             'visibility' => 'public',
         ],
 

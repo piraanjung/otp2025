@@ -37,6 +37,8 @@ class Organization extends Model
         'org_database',
         'cutmeter_count',
         'vat',
+        'lat',
+        'long'
     ];
 
     protected $casts = [

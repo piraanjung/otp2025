@@ -34,6 +34,22 @@
             <form action="{{ route('tabwater.notify.store') }}" method="POST" enctype="multipart/form-data">
                 @csrf
 
+                <div class="row mb-3">
+                    <div class="col-md-6 mb-2 mb-md-0">
+                        <label for="reporter_phone" class="form-label">เบอร์โทรศัพท์ผู้แจ้ง <span
+                                class="text-danger">*</span></label>
+                        <input type="tel" name="reporter_phone" id="reporter_phone" class="form-control"
+                            placeholder="กรอกเบอร์โทร 10 หลัก" maxlength="10" required>
+                        <div id="member-status-text" class="form-text"></div>
+                    </div>
+                    <div class="col-md-6">
+                        <label for="reporter_name" class="form-label">ชื่อ-นามสกุล ผู้แจ้ง <span
+                                class="text-danger">*</span></label>
+                        <input type="text" name="reporter_name" id="reporter_name" class="form-control"
+                            placeholder="กรอกชื่อ-นามสกุล" required>
+                    </div>
+                </div>
+
                 <div class="mb-3">
                     <label for="issue_type" class="form-label">ประเภทปัญหา</label>
                     <select name="issue_type" id="issue_type" class="form-select" required>
@@ -96,37 +112,38 @@
 
                 <button type="submit" class="btn btn-primary w-100 btn-lg">แจ้งเหตุ</button>
             </form>
-            <div class="modal fade" id="gpsModal" data-bs-backdrop="static" data-bs-keyboard="false" tabindex="-1" aria-labelledby="gpsModalLabel" aria-hidden="true">
-  <div class="modal-dialog modal-dialog-centered">
-    <div class="modal-content">
-      <div class="modal-header bg-warning">
-        <h5 class="modal-title" id="gpsModalLabel">⚠️ ไม่พบตำแหน่งของคุณ</h5>
-      </div>
-      <div class="modal-body text-center">
-        <p class="mb-3" style="font-size: 1.1rem;">
-            ระบบไม่สามารถระบุพิกัดปัจจุบันได้ <br>
-            <strong>กรุณาเปิด GPS (Location Service)</strong> <br>
-            แล้วกดปุ่ม "ลองใหม่"
-        </p>
-        <p class="text-muted small">
-            *หากคุณกด "Block" หรือ "ไม่อนุญาต" ไปก่อนหน้านี้ <br>
-            กรุณาไปที่การตั้งค่า Browser เพื่อ Reset Permission
-        </p>
-      </div>
-      <div class="modal-footer">
-        <button type="button" class="btn btn-primary w-100" onclick="getLocation()">
-            🔄 ลองใหม่ (Retry)
-        </button>
-      </div>
-    </div>
-  </div>
-</div>
+            <div class="modal fade" id="gpsModal" data-bs-backdrop="static" data-bs-keyboard="false" tabindex="-1"
+                aria-labelledby="gpsModalLabel" aria-hidden="true">
+                <div class="modal-dialog modal-dialog-centered">
+                    <div class="modal-content">
+                        <div class="modal-header bg-warning">
+                            <h5 class="modal-title" id="gpsModalLabel">⚠️ ไม่พบตำแหน่งของคุณ</h5>
+                        </div>
+                        <div class="modal-body text-center">
+                            <p class="mb-3" style="font-size: 1.1rem;">
+                                ระบบไม่สามารถระบุพิกัดปัจจุบันได้ <br>
+                                <strong>กรุณาเปิด GPS (Location Service)</strong> <br>
+                                แล้วกดปุ่ม "ลองใหม่"
+                            </p>
+                            <p class="text-muted small">
+                                *หากคุณกด "Block" หรือ "ไม่อนุญาต" ไปก่อนหน้านี้ <br>
+                                กรุณาไปที่การตั้งค่า Browser เพื่อ Reset Permission
+                            </p>
+                        </div>
+                        <div class="modal-footer">
+                            <button type="button" class="btn btn-primary w-100" onclick="getLocation()">
+                                🔄 ลองใหม่ (Retry)
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
         </div>
     </div>
     </div>
 @endsection
 @section('script')
-<script src="https://cdn.jsdelivr.net/npm/browser-image-compression@2.0.2/dist/browser-image-compression.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/browser-image-compression@2.0.2/dist/browser-image-compression.js"></script>
     <script async defer
         src="https://maps.googleapis.com/maps/api/js?key=AIzaSyA-5AlIGzLhFXErl2STRT6GacX0616iW2o&callback=initMap"></script>
     <script>
@@ -136,8 +153,7 @@
         // ฟังก์ชันเริ่มทำงานแผนที่
         function initMap() {
             // 1. พิกัดเริ่มต้น (เช่น กรุงเทพฯ) กรณีหาตำแหน่งไม่ได้
-            const defaultLocation = { lat: {{ $orgInfos['lat'] }}, lng: {{ $orgInfos['long'] }} };
-
+            const defaultLocation = { lat: 13.756331, lng: 100.501845 };
             map = new google.maps.Map(document.getElementById("map"), {
                 zoom: 15,
                 center: defaultLocation,
@@ -205,70 +221,70 @@
             });
         });
 
-async function handleFileSelect(input) { // **เพิ่ม async ที่นี่**
-    // 1. เคลียร์ค่าของ input อีกตัวที่ไม่ถูกเลือกก่อน 
-    if (input.id === 'cameraInput') {
-        document.getElementById('galleryInput').value = '';
-    } else {
-        document.getElementById('cameraInput').value = '';
-    }
+        async function handleFileSelect(input) { // **เพิ่ม async ที่นี่**
+            // 1. เคลียร์ค่าของ input อีกตัวที่ไม่ถูกเลือกก่อน 
+            if (input.id === 'cameraInput') {
+                document.getElementById('galleryInput').value = '';
+            } else {
+                document.getElementById('cameraInput').value = '';
+            }
 
-    if (!input.files || input.files.length === 0) {
-        $('#preview').hide().attr('src', '#'); 
-        return;
-    }
+            if (!input.files || input.files.length === 0) {
+                $('#preview').hide().attr('src', '#');
+                return;
+            }
 
-    const originalFile = input.files[0];
-    
-    // **ตัวเลือกการลดขนาดภาพ**
-    const options = {
-        maxSizeMB: 0.5, 
-        maxWidthOrHeight: 1024, 
-        useWebWorker: true,
-        onProgress: (progress) => {
-            console.log('Compression progress:', progress);
-        },
-    };
+            const originalFile = input.files[0];
 
-    try {
-       let compressedFile = await imageCompression(originalFile, options);
-        console.log('Compressed 1 size:', compressedFile.size / 1024, 'KB');
+            // **ตัวเลือกการลดขนาดภาพ**
+            const options = {
+                maxSizeMB: 0.5,
+                maxWidthOrHeight: 1024,
+                useWebWorker: true,
+                onProgress: (progress) => {
+                    console.log('Compression progress:', progress);
+                },
+            };
 
-        // **ถ้าขนาดไฟล์ยังใหญ่เกินเป้าหมายมาก**
-        // if (compressedFile.size > (options.maxSizeMB * 1024 ) * 1.5) { // ตรวจสอบว่าใหญ่เกิน 150% ของเป้าหมายหรือไม่
-        //     console.warn('Compressing again...');
-        //     // 2. บีบอัดครั้งที่ 2 (ใช้ไฟล์ที่บีบอัดแล้วเป็น Input)
-        //     compressedFile = await imageCompression(compressedFile, options);
-        //     console.log('Compressed 2 size:', compressedFile.size / 1024, 'KB');
-        // }
-        // const compressedFile = await imageCompression(originalFile, options); // ได้ Blob Object
-        // console.log('Compressed file size:', compressedFile.size / 1024, 'KB');
-        
-        // **การแก้ไขปัญหา TypeError: แปลง Blob เป็น File Object**
-        const compressedImageFile = new File(
-            [compressedFile], 
-            originalFile.name,
-            { type: compressedFile.type, lastModified: Date.now() }
-        );
+            try {
+                let compressedFile = await imageCompression(originalFile, options);
+                console.log('Compressed 1 size:', compressedFile.size / 1024, 'KB');
 
-        // สร้าง DataTransfer เพื่อนำไฟล์ที่ถูกลดขนาดไปใส่ใน Input
-        const dataTransfer = new DataTransfer();
-        dataTransfer.items.add(compressedImageFile); 
-        input.files = dataTransfer.files; 
+                // **ถ้าขนาดไฟล์ยังใหญ่เกินเป้าหมายมาก**
+                // if (compressedFile.size > (options.maxSizeMB * 1024 ) * 1.5) { // ตรวจสอบว่าใหญ่เกิน 150% ของเป้าหมายหรือไม่
+                //     console.warn('Compressing again...');
+                //     // 2. บีบอัดครั้งที่ 2 (ใช้ไฟล์ที่บีบอัดแล้วเป็น Input)
+                //     compressedFile = await imageCompression(compressedFile, options);
+                //     console.log('Compressed 2 size:', compressedFile.size / 1024, 'KB');
+                // }
+                // const compressedFile = await imageCompression(originalFile, options); // ได้ Blob Object
+                // console.log('Compressed file size:', compressedFile.size / 1024, 'KB');
 
-        // 2. แสดงรูปตัวอย่างจากไฟล์ที่ลดขนาดแล้ว
-        var reader = new FileReader();
-        reader.onload = function (e) {
-            $('#preview').attr('src', e.target.result).show();
+                // **การแก้ไขปัญหา TypeError: แปลง Blob เป็น File Object**
+                const compressedImageFile = new File(
+                    [compressedFile],
+                    originalFile.name,
+                    { type: compressedFile.type, lastModified: Date.now() }
+                );
+
+                // สร้าง DataTransfer เพื่อนำไฟล์ที่ถูกลดขนาดไปใส่ใน Input
+                const dataTransfer = new DataTransfer();
+                dataTransfer.items.add(compressedImageFile);
+                input.files = dataTransfer.files;
+
+                // 2. แสดงรูปตัวอย่างจากไฟล์ที่ลดขนาดแล้ว
+                var reader = new FileReader();
+                reader.onload = function (e) {
+                    $('#preview').attr('src', e.target.result).show();
+                }
+                reader.readAsDataURL(compressedImageFile); // ใช้ File Object ที่แก้ไขแล้ว
+
+            } catch (error) {
+                console.error('Image compression failed:', error);
+                alert('เกิดข้อผิดพลาดในการลดขนาดรูปภาพ: ' + error.message);
+                $('#preview').hide().attr('src', '#');
+                input.value = '';
+            }
         }
-        reader.readAsDataURL(compressedImageFile); // ใช้ File Object ที่แก้ไขแล้ว
-        
-    } catch (error) {
-        console.error('Image compression failed:', error);
-        alert('เกิดข้อผิดพลาดในการลดขนาดรูปภาพ: ' + error.message);
-        $('#preview').hide().attr('src', '#');
-        input.value = ''; 
-    }
-}
     </script>
 @endsection

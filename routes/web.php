@@ -118,6 +118,15 @@ Route::get('/logout', function () {
     return redirect('/');
 });
 
+Route::prefix('tabwater/notify')->name('tabwater.notify.')->group(function () {
+    Route::get('/', [NotifyController::class, 'index'])->name('index');
+    Route::post('/', [NotifyController::class, 'store'])->name('store');
+    Route::get('/check-member', [NotifyController::class, 'checkMember'])->name('check_member');
+    Route::get('/success/{id}', [NotifyController::class, 'success'])->name('success');
+    Route::get('/create', [NotifyController::class, 'create'])->name('create');     // <-- เพิ่มบรรทัดนี้ (หน้าฟอร์มกรอกแจ้งเหตุ)    Route::post('/check-phone', [NotifyController::class, 'checkPhone'])->name('check-phone');
+    Route::post('/check-line-user', [NotifyController::class, 'checkLineUser'])->name('check-line-user');
+});
+
 Route::get('/logout_staff', function () {
     Auth::logout();
     Session()->invalidate();
@@ -197,10 +206,7 @@ Route::prefix('tabwater/staff/mobile/')->name('tabwater.staff.mobile.')->group(f
     Route::resource('/', StaffMobileController::class);
 });
 
-Route::prefix('tabwater/notify')->name('tabwater.notify.')->group(function () {
-    Route::get('/', [NotifyController::class, 'index'])->name('index');
-    Route::post('/', [NotifyController::class, 'store'])->name('store');
-});
+
 
 Route::get('twmanmobile', [TwManMobileController::class, 'index'])->name('twmanmobile');
 Route::get('twmanmobile/main', [TwManMobileController::class, 'main'])->name('twmanmobile.main');
