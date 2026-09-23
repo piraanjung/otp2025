@@ -22,6 +22,8 @@ use App\Http\Controllers\Kiosk\KioskController as WebKioskController;
 use App\Http\Controllers\ImageController;
 use App\Http\Controllers\KeptKaya\MachineController;
 use App\Http\Controllers\Kiosk\KioskApiController;
+use App\Http\Controllers\Tabwater\UndertakerSubzoneController;
+use App\Http\Controllers\Tabwater\UserMeterInfosController;
 use Illuminate\Support\Facades\Log;
 
 
@@ -181,6 +183,14 @@ Route::middleware(['throttle:api'])->name('api.')->group(function () {
 
         Route::post('/authen', [UsersController::class, 'authen']);
         Route::post('/staff_authen', [UsersController::class, 'staff_authen']);
+        Route::post('/staff_login_core', [UsersController::class, 'staff_login_core']);
+    });
+
+    Route::prefix('staff/tabwater')->group(function () {
+        Route::post('/staff/service-data', [UndertakerSubzoneController::class, 'get_service_dashboard_data']);   
+        Route::post('/members', [UserMeterInfosController::class, 'get_subzone_members']);
+        Route::post('/meter-records', [UserMeterInfosController::class, 'meter_records']);
+        
     });
 
     Route::prefix('invoice')->group(function () {
@@ -244,17 +254,6 @@ Route::middleware(['throttle:api'])->name('api.')->group(function () {
     // Route สำหรับรับไฟล์ภาพ (ใช้โดย ESP32-CAM ช่วงกลางคืน)
     Route::post('/kiosk/upload-image', [KioskApiController::class, 'uploadImage'])->name('uploadImage');
 
-    // Route::prefix('cutmeter')->group(function () {
-    //     Route::get('/index/{zone_id?}/{subzone_id?}', [CutmeterController::class,'index']);
-    //     Route::get('/owe', 'Api\CutmeterController@owe');
-    //     Route::get('/get_reciepting', 'Api\CutmeterController@get_reciepting');
-    //     Route::get('/user_owe_infos/{user_id}', 'Api\CutmeterController@user_owe_infos');
-    //     Route::get('/get_cutmeter_history/{user_id}', 'Api\CutmeterController@get_cutmeter_history');
-    //     Route::get('/get_process_history/{user_id}/{inv_period_id}', 'Api\CutmeterController@get_process_history');
-    //     Route::get('/count', 'Api\CutmeterController@count');
-    //     Route::get('/test', 'Api\CutmeterController@test');
-    //     Route::get('/getOweOver3CountDivideBySubzone', 'Api\CutmeterController@getOweOver3CountDivideBySubzone');
-
-    // });
+    
 
 });

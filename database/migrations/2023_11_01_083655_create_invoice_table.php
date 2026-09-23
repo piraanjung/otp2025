@@ -17,14 +17,16 @@ return new class extends Migration
                 $table->id();
                 $table->unsignedBigInteger('meter_id_fk');
                 $table->unsignedBigInteger('inv_period_id_fk');
-                $table->float('lastmeter', 8,2);
-                $table->float('currentmeter', 8,2);
-                $table->float('water_used', 8,2);
+                $table->decimal('lastmeter', 8,2);
+                $table->decimal('currentmeter', 8,2);
+                $table->decimal('water_used', 8,2);
                 $table->enum('inv_type', ['r', 'u'])->comment('r =รักษามิเตอร์, u=ใช้น้ำ');
-                $table->float('paid', 8,2);
-                $table->float('reserve_meter', 6,2);
-                $table->float('vat', 8,2);
-                $table->float('totalpaid', 8,2)->commet('paid+vat');
+                $table->decimal('paid', 8,2);
+                $table->decimal('reserve_meter', 6,2);
+                $table->decimal('vat', 8,2);
+                $table->decimal('totalpaid', 8,2)->commet('paid+vat');
+                $table->decimal('previous_balance', 8,2)->commet('ยอดค้างชำระทบต้น');
+                
                 $table->enum('status', ['init','invoice', 'paid', 'owe', 'deleted']);
                 $table->unsignedBigInteger('acc_trans_id_fk')->nullable();
                 $table->string('comment')->nullable();

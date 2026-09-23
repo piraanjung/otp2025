@@ -5,13 +5,12 @@ namespace App\Http\Controllers\Api;
 use App\Models\Admin\BudgetYear;
 use App\Http\Controllers\Api\FunctionsController;
 use App\Http\Controllers\Controller;
-use App\Models\Admin\ManagesTenantConnection;
 use App\Models\Tabwater\TwAccTransactions;
 use App\Models\Tabwater\TwInvoice;
-use App\Models\Tabwater\TwInvoiceHistoty;
 use App\Models\Tabwater\TwInvoicePeriod;
 use App\Models\Admin\Subzone;
-use App\Models\Tabwater\TwUsersInfo;
+use App\Models\Tabwater\TwInvoiceHistory;
+use App\Models\Tabwater\TwUsersInfos;
 use Carbon\Carbon;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
@@ -79,6 +78,12 @@ class InvoiceController extends Controller
         return ['data' => $projects, 'draw' => $request->input('draw')];
     }
 
+    /**
+     * Summary of get_user_invoice
+     * @param mixed $meter_id
+     * @param mixed $status
+     * @return \Illuminate\Http\JsonResponse
+    */
     public function get_user_invoice($meter_id, $status = '')
     {
         $invoices = TwInvoice::where('meter_id_fk', $meter_id)
@@ -135,7 +140,6 @@ class InvoiceController extends Controller
             'meter_id_fk',
             'inv_period_id_fk',
             'reserve_meter',
-            'inv_no',
             'lastmeter',
             'currentmeter',
             'water_used',
@@ -150,7 +154,12 @@ class InvoiceController extends Controller
 
         return response()->json(collect($invoices)->flatten());
     }
-
+    /**
+     * Summary of get_invoice_and_invoice_history
+     * @param mixed $meter_id
+     * @param mixed $status
+     * @return \Illuminate\Http\JsonResponse
+     */
     public function get_invoice_and_invoice_history($meter_id, $status = "")
     {
         $invoice = TwInvoice::where('meter_id_fk', $meter_id)
@@ -202,7 +211,7 @@ class InvoiceController extends Controller
 
         $invoice = $invoice->orderBy('inv_period_id_fk', 'desc')->get();
 
-        $invoice_history = TwInvoiceHistoty::where('meter_id_fk', $meter_id)
+        $invoice_history = TwInvoiceHistory::where('meter_id_fk', $meter_id)
             ->with([
                 'tw_meter_infos' => function ($query) {
                     $query->select('meter_id', 'user_id', 'meternumber', 'undertake_zone_id', 'undertake_subzone_id', 'metertype_id');
@@ -267,6 +276,11 @@ class InvoiceController extends Controller
         return response()->json($invoice);
     }
 
+    /**
+     * Summary of getInvoiceByInvoiceId
+     * @param mixed $inv_id
+     * @return \Illuminate\Http\JsonResponse
+     */
     public function getInvoiceByInvoiceId($inv_id)
     {
         $invoice = TwInvoice::where('id', $inv_id)
@@ -299,10 +313,15 @@ class InvoiceController extends Controller
         return response()->json(collect($invoice));
     }
 
+    /**
+     * Summary of invoice_history_current_budget_year
+     * @param mixed $user_id
+     * @return \Illuminate\Database\Eloquent\Collection<int, TwUsersInfos>|\Illuminate\Support\Collection<int, \stdClass>
+     */
     public function invoice_history_current_budget_year($user_id)
     {
         $apiInvoiceCtrl = new InvoiceController();
-        $user = TwUsersInfo::where('user_id', $user_id)
+        $user = TwUsersInfos::where('user_id', $user_id)
             ->with('user_profile', 'invoice_by_user_id', 'invoice.invoice_period')
             ->get();
         $fn = new FunctionsController;

@@ -63,13 +63,15 @@ class TwMeterInfos extends Model
 
     public function tw_invoices()
     {
-        return $this->hasMany(TwInvoice::class, 'meter_id_fk', 'meter_id');
+        return $this->hasMany(TwInvoice::class, 'meter_id_fk', 'id');
     }
 
 
     public function invoice_currrent_inv_period()
     {
-        return $this->hasMany(TwInvoice::class, 'meter_id_fk', 'id');
+        return $this->hasOne(TwInvoice::class, 'meter_id_fk', 'id')
+                ->where('status', 'init')
+                ->latestOfMany();
     }
 
     public function tw_invoice_history()

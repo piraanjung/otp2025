@@ -310,10 +310,47 @@
 
                     <div class="job-body">
                         <!-- ภาพถ่ายสถานที่เกิดเหตุ -->
-                        <img src="{{ $notify->photo_path ? asset($notify->photo_path) : 'https://via.placeholder.com/150?text=No+Photo' }}" 
-                             class="job-photo" 
-                             alt="ภาพถ่ายจุดเกิดเหตุ"
-                             onclick="viewFullImage('{{ $notify->photo_path ? asset($notify->photo_path) : '' }}')">
+                       @php
+                            // 1. แปลง JSON String ให้เป็น PHP Array (ถ้า Model ยังไม่ได้ใส่ $casts)
+                            $photos = is_array($notify->photo_path) 
+                                ? $notify->photo_path 
+                                : json_decode($notify->photo_path, true);
+                        @endphp
+
+                        <div class="mb-3">
+                            <label class="form-label fw-bold text-muted mb-2">
+                                <i class="bi bi-images me-1"></i> ภาพถ่ายจุดเกิดเหตุ 
+                                @if(!empty($photos))
+                                    <span class="badge bg-secondary rounded-pill ms-1">{{ count($photos) }} รูป</span>
+                                @endif
+                            </label>
+
+                            @if(!empty($photos) && count($photos) > 0)
+                                <!-- แสดงรูปทั้งหมดแบบ Grid Gallery -->
+                                <div class="row g-2">
+                                    @foreach($photos as $index => $photo)
+                                        @php 
+                                            $photoUrl = asset( $photo); 
+                                        @endphp
+                                        <div class="col-4 col-md-3">
+                                            <div class="position-relative ratio ratio-1x1 border rounded overflow-hidden shadow-sm">
+                                                <img src="{{ $photoUrl }}" 
+                                                    class="img-fluid object-fit-cover cursor-pointer job-photo" 
+                                                    alt="ภาพจุดเกิดเหตุรูปที่ {{ $index + 1 }}"
+                                                    style="cursor: pointer;"
+                                                    onclick="viewFullImage('{{ $photoUrl }}')">
+                                            </div>
+                                        </div>
+                                    @endforeach
+                                </div>
+                            @else
+                                <!-- กรณีไม่มีการแนบรูปเข้ามา -->
+                                <div class="text-center p-3 bg-light rounded border text-muted">
+                                    <i class="bi bi-image fs-4 d-block mb-1"></i>
+                                    <small>ไม่มีภาพถ่ายประกอบการแจ้งเหตุ</small>
+                                </div>
+                            @endif
+                        </div>
 
                         <div class="job-details">
                             <div class="job-title">
@@ -382,12 +419,27 @@
         </div>
 
     </div>
+    <!-- Modal สำหรับดูรูปขนาดใหญ่ -->
+<div class="modal fade" id="imagePreviewModal" tabindex="-1" aria-hidden="true" style="background: rgba(0,0,0,0.8);">
+  <div class="modal-dialog modal-dialog-centered modal-lg">
+    <div class="modal-content bg-transparent border-0">
+      <div class="modal-header border-0 pb-0">
+        <button type="button" class="btn-close btn-close-white ms-auto" onclick="closeImagePreview()"></button>
+      </div>
+      <div class="modal-body text-center pt-0">
+        <img id="previewImageTarget" src="" class="img-fluid rounded shadow" style="max-height: 80vh;" alt="ภาพขยาย">
+      </div>
+    </div>
+  </div>
+</div>
 @endsection
 
 @section('script')
     <script>
+
+        
         // ฟังก์ชันคัดกรองงานตามแท็บที่กด
-        function filterJobs(status, btnElement) {
+         window.filterJobs = function(status, btnElement) {
             // ปรับสถานะปุ่ม Active
             document.querySelectorAll('.tab-item').forEach(btn => btn.classList.remove('active'));
             btnElement.classList.add('active');
@@ -404,41 +456,50 @@
             });
         }
 
-        // ฟังก์ชันดูรูปใหญ่แบบป๊อปอัป
-        function viewFullImage(src) {
-            if (!src) return;
-            const modalHtml = `
-                <div id="imgModal" onclick="this.remove()" style="position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.85); z-index:99999; display:flex; align-items:center; justify-content:center; padding:20px;">
-                    <img src="${src}" style="max-width:100%; max-height:90vh; border-radius:10px; box-shadow:0 0 20px rgba(255,255,255,0.2);">
-                </div>
-            `;
-            document.body.insertAdjacentHTML('beforeend', modalHtml);
-        }
+        
 
         // ฟังก์ชันสำหรับกดปิดงาน (สามารถเพิ่ม AJAX ยิงเปลี่ยนสถานะเป็น complete ได้)
-        function completeJob(notifyId) {
-    const remark = prompt("กรุณาระบุรายละเอียดการซ่อมแซม/แก้ปัญหา (ถ้ามี):");
-    if (remark !== null) {
-        // สร้าง Dynamic Form เพื่อส่ง POST ไปยัง Route complete
-        const form = document.createElement('form');
-        form.method = 'POST';
-        form.action = `/staff/job/${notifyId}/complete`;
+        window.completeJob = function(notifyId) {
+            const remark = prompt("กรุณาระบุรายละเอียดการซ่อมแซม/แก้ปัญหา (ถ้ามี):");
+            if (remark !== null) {
+                // สร้าง Dynamic Form เพื่อส่ง POST ไปยัง Route complete
+                const form = document.createElement('form');
+                form.method = 'POST';
+                form.action = `/staff/job/${notifyId}/complete`;
 
-        const csrfInput = document.createElement('input');
-        csrfInput.type = 'hidden';
-        csrfInput.name = '_token';
-        csrfInput.value = '{{ csrf_token() }}';
-        form.appendChild(csrfInput);
+                const csrfInput = document.createElement('input');
+                csrfInput.type = 'hidden';
+                csrfInput.name = '_token';
+                csrfInput.value = '{{ csrf_token() }}';
+                form.appendChild(csrfInput);
 
-        const remarkInput = document.createElement('input');
-        remarkInput.type = 'hidden';
-        remarkInput.name = 'remark';
-        remarkInput.value = remark;
-        form.appendChild(remarkInput);
+                const remarkInput = document.createElement('input');
+                remarkInput.type = 'hidden';
+                remarkInput.name = 'remark';
+                remarkInput.value = remark;
+                form.appendChild(remarkInput);
 
-        document.body.appendChild(form);
-        form.submit();
-    }
-}
-    </script>
+                document.body.appendChild(form);
+                form.submit();
+            }
+        }
+   
+        // ฟังก์ชันดูรูปใหญ่แบบป๊อปอัป
+        viewFullImage = function(url) {
+            if (!url) return;
+            const modalEl = document.getElementById('imagePreviewModal');
+            const targetImg = document.getElementById('previewImageTarget');
+            if (modalEl && targetImg) {
+                targetImg.src = url;
+                modalEl.classList.add('show');
+                modalEl.style.display = 'block';
+            }
+        };
+        window.closeImagePreview = function() {
+            const modalEl = document.getElementById('imagePreviewModal');
+            modalEl.classList.remove('show');
+            modalEl.style.display = 'none';
+            document.getElementById('previewImageTarget').src = '';
+        }
+   </script>
 @endsection

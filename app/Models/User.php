@@ -58,6 +58,7 @@ class User extends Authenticatable
         "district_code",
         "province_code",
         "status",
+        'old_id'
     ];
 
 
@@ -137,9 +138,10 @@ class User extends Authenticatable
     {
         return $this->hasMany(AnnualTrashPayment::class);
     }
-    public function staff()
+    public function staffs()
     {
-        return $this->hasOne(Staff::class);
+        // User 1 คน มีสิทธิ์ Staff ได้หลายองค์กร (ผูกผ่าน user_id)
+        return $this->hasMany(Staff::class, 'user_id', 'id');
     }
 
     public function foodwastePreference()
