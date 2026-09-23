@@ -6,6 +6,7 @@ use App\Http\Controllers\Api\FunctionsController;
 use App\Http\Controllers\Api\ZoneController;
 use App\Http\Controllers\Controller;
 use App\Models\Admin\Organization;
+use App\Models\Admin\Staff;
 use App\Models\KeptKaya\KpTbankItems;
 use App\Models\Tabwater\TwInvoice;
 use App\Models\Tabwater\TwInvoicePeriod;
@@ -193,6 +194,45 @@ class UsersController extends Controller
         return response()->json($request);
     }
 
+    public function staff_login_core(Request $request)
+    {
+        $username = $request->input('username', '');
+        $passwords = $request->input('passwords', '');
+
+        if (empty($username) || empty($passwords)) {
+            return response()->json(['code' => 400, 'message' => 'กรุณากรอกชื่อผู้ใช้และรหัสผ่าน'], 400);
+        }
+
+        $user = User::where('username', $username)->first();
+
+        if (!$user || !Hash::check($passwords, $user->password)) {
+            return response()->json(['code' => 401, 'message' => 'ชื่อผู้ใช้ หรือ รหัสผ่าน ไม่ถูกต้อง'], 401);
+        }
+
+        // 🟢 ดึง Staff ทุก Org พร้อม Join ข้อมูลองค์กรด้วยฟิลด์จริง (org_name, org_logo_img)
+        $staffRecords = Staff::where('user_id', $user->id)
+            ->where('deleted', '0')
+            ->with('organization:id,org_name,org_logo_img')
+            ->get();
+
+        if ($staffRecords->isEmpty()) {
+            return response()->json(['code' => 403, 'message' => 'ผู้ใช้งานนี้ไม่มีสิทธิ์เป็นเจ้าหน้าที่ (Staff)'], 403);
+        }
+
+        $user->remember_token = base64_encode(Str::random(40));
+        $user->save();
+        $user->logged = true;
+
+        // ส่งรายการ Staff profiles ที่มีข้อมูลองค์กรติดไปด้วย
+        $user->staff_profiles = $staffRecords;
+
+        return response()->json([
+            'code' => 200,
+            'message' => 'เข้าสู่ระบบสำเร็จ',
+            'data' => $user
+        ], 200);
+    }
+
     public function staff_authen(Request $request)
     {
         $code = 200;
@@ -214,15 +254,17 @@ class UsersController extends Controller
                 // Spatie มีฟังก์ชัน getRoleNames() ให้ใช้ได้เลยครับ
                 $user->role_names = $user->getRoleNames(); // จะได้เป็น Array เช่น ["Staff", "Admin"]
 
-                if($user->hasRole('Recycle Bank Staff')){
+                if ($user->hasRole('Recycle Bank Staff')) {
                     $user->org_member = User::where('org_id_fk', $user->org_id_fk)
-                        ->with(['wastePreference' => function($q){
-                            $q->select('id', 'user_id', 'address');
-                        }, 'wastePreference.kpBankAccount' => function($q){
-                            $q->select('id', 'user_pref_id', 'account_no');
-                        }
+                        ->with([
+                            'wastePreference' => function ($q) {
+                                $q->select('id', 'user_id', 'address');
+                            },
+                            'wastePreference.kpBankAccount' => function ($q) {
+                                $q->select('id', 'user_pref_id', 'account_no');
+                            }
                         ])
-                       ->whereHas('wastePreference.kpBankAccount') // 🎯 กรองเฉพาะคนที่มีบัญชี
+                        ->whereHas('wastePreference.kpBankAccount') // 🎯 กรองเฉพาะคนที่มีบัญชี
                         ->get(['firstname', 'lastname', 'id', 'address', 'zone_id', 'subzone_id', 'phone']);
                     $user->items = KpTbankItems::where('org_id_fk', $user->org_id_fk)->get();
                     $user->org = Organization::getOrgName($user->org_id_fk);

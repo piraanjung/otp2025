@@ -26,6 +26,7 @@ use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Http;
+use Illuminate\Support\Str;
 use Spatie\Permission\Models\Permission;
 use Spatie\Permission\Models\Role;
 
@@ -57,6 +58,93 @@ class TestController extends Controller
 
     public function index()
     {
+     
+    $users = User::all();
+    foreach($users as $user){
+        $user->assignRole('User');
+        $user->assignRole('Tabwater User');
+       
+    }
+    $staffs = User::whereHas('staffs')->get();
+    foreach($staffs as $staff){
+        $staff->assignRole('Staff');
+        $isTwman = collect([$staff->username])->contains(function ($value) {
+            return Str::contains(strtolower($value), 'twman');
+        });
+        if($isTwman == 1){
+            $staff->assignRole('Tabwater Staff');
+        }else{
+            $staff->assignRole('Admin');
+            if($staff->username == "ssadmin1"){
+                $staff->assignRole('Tabwater Header');
+                
+            }
+
+        }
+
+    }
+    
+return 'ss';
+    // ->table('users as u')
+    // ->leftJoin('user_meter_infos as umi', 'umi.user_id', '=', 'u.id')
+    // ->leftJoin('invoice as iv', 'iv.meter_id_fk', '=', 'umi.meter_id')
+    // ->whereIn('iv.status', ['invoice', 'init', 'owe']) // 🟢 แยก String ใน Array ให้ถูกต้อง
+    // ->select(
+    //     'u.id',
+    //     'u.line_id',
+    //     'u.role_id',
+    //     'u.status as user_status',
+    //     'umi.meter_id',
+    //     'umi.status as umi_status',
+    //     'iv.inv_id',
+    //     'iv.status as invoice_status' // 🟢 ใส่ alias เพื่อไม่ให้ทับกับ u.status
+    // )
+    // ->get();
+
+    // return  collect($users)->filter(function ($value) {
+    //              if($value->role_id == 2  || $value->role_id == 5 ){
+    //                 return $value;
+    //             }
+    //     })->count();
+    return [
+        'overAllUsers' => collect($users)->count(),
+        'user_role_staff' =>  collect($users)->filter(function ($value) {
+                 if($value->role_id == 2  || $value->role_id == 5 ){
+                    return $value;
+                }
+        })->count(),
+    ];
+         $users = User::on('qa')
+    ->with(['usermeterinfosx.invoice' => function ($invQuery) {
+        $invQuery->where('status', 'owe');
+   }])
+    // ->where(function ($query) {
+    //     // เงื่อนไขที่ 1: role_id เป็น 2 หรือ 5
+    //     $query->whereIn('role_id', [2, 5])
+
+    //     // เงื่อนไขที่ 2: หรือมีข้อมูลใน usermeterinfos
+    //     ->orWhereHas('usermeterinfos', function ($q) {
+    //         $q->where(function ($meterQuery) {
+    //             // Case 2.1: สถานะ Active
+    //             $meterQuery->where('status', 'active')
+
+    //             // Case 2.2: สถานะ Inactive แต่ต้องมียอดค้างชำระ (owe)
+    //             ->orWhere(function ($inactiveQuery) {
+    //                 $inactiveQuery->where('status', 'inactive')
+    //                     ->whereHas('invoice', function ($invQuery) {
+    //                         $invQuery->where('status', 'owe');
+    //                     });
+    //             });
+    //         });
+    //     });
+    // })
+    ->get();
+        return $oldMeterInfo = DB::connection('qa')
+            ->table('users')
+            ->select('id')
+            ->where('status', '0')
+            ->get();
+        return 'ss';
         $users = [
             [2,    "นาง", "พัชราวลัย",    "คะปัญญา",    24,     136.00, 'xx'],
             [4, "นาง", "ประถม", "ชื่นชุ่ม",    537,     96.00, 'xx'],

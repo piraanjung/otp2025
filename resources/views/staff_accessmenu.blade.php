@@ -1,8 +1,12 @@
 @extends('layouts.keptkaya_mobile2')
 
 @section('style')
-<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/sweetalert2@11/dist/sweetalert2.min.css">
-    <style>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/sweetalert2@11/dist/sweetalert2.min.css">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Google+Sans:ital,opsz,wght@0,17..18,400..700;1,17..18,400..700&family=Kanit:ital,wght@0,100;0,200;0,300;0,400;0,500;0,600;0,700;0,800;0,900;1,100;1,200;1,300;1,400;1,500;1,600;1,700;1,800;1,900&display=swap" rel="stylesheet">    <style>
         body {
             font-family: sans-serif;
             padding: 20px;
@@ -231,7 +235,7 @@
             gap: 8px;
         }
 
-        #searchMemberInput {
+        #searchMemberRecycleInput {
             flex: 1;
             padding: 10px;
             border: 1px solid #ccc;
@@ -367,8 +371,8 @@
 
 
         /* =========================================================================
-                                                                   🟢 CSS สำหรับ Branch: feature/mobile-animated-login
-                                                                   ========================================================================= */
+                                                                               🟢 CSS สำหรับ Branch: feature/mobile-animated-login
+                                                                               ========================================================================= */
 
         /* พื้นหลังไล่เฉดสีนุ่มนวลแบบแอปมือถือสมัยใหม่ */
         .mobile-login-wrapper {
@@ -548,8 +552,8 @@
         }
 
         /* =========================================================================
-            🟢 CSS สำหรับ Branch: feature/sidebar-toggle-menu
-            ========================================================================= */
+                        🟢 CSS สำหรับ Branch: feature/sidebar-toggle-menu
+                        ========================================================================= */
 
         .mobile-sidebar-wrapper {
             position: fixed;
@@ -732,8 +736,8 @@
         }
 
         /* =========================================================================
-                                                                   🟢 CSS สำหรับหน้าต่างคีย์น้ำหนักเด้งจากด้านล่าง (Bottom Sheet Modal)
-                                                                   ========================================================================= */
+                                                                               🟢 CSS สำหรับหน้าต่างคีย์น้ำหนักเด้งจากด้านล่าง (Bottom Sheet Modal)
+        ========================================================================= */
         .weight-modal-container {
             position: fixed;
             top: 0;
@@ -829,8 +833,8 @@
 
 
         /* =========================================================================
-            🟢 CSS สำหรับกล่องแจ้งเตือนความสำเร็จแบบหายวับอัตโนมัติ (Success Toast)
-            ========================================================================= */
+                        🟢 CSS สำหรับกล่องแจ้งเตือนความสำเร็จแบบหายวับอัตโนมัติ (Success Toast)
+                        ========================================================================= */
         .success-toast-overlay {
             position: fixed;
             top: 50%;
@@ -969,15 +973,15 @@
     </style>
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/css/bootstrap.min.css"
         integrity="sha384-sRIl4kxILFvY47J16cr9ZwB07vP4J8+LH7qKQnuqkuIAvNWLzeN8tE5YBujZqJLB" crossorigin="anonymous">
+
+    <script>
+        window.ASSET_URL = "{{ asset('') }}";
+    </script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/cropperjs/1.5.13/cropper.min.css" />
 @endsection
 
 @section('content')
 
-    {{-- <canvas id="receiptCanvas" width="384" height="400" style="display:block;border:1px solid"></canvas> --}}
-    {{-- <button type="button" id="btnPrintTest"
-        style="background: #17a2b8; font-weight: bold; padding: 14px; border-radius: 6px;">
-        ⚡ ทดสอบการพิมพ์ (Test Print)
-    </button> --}}
     <div class="app-header hidden">
         <div style="display: flex; align-items: center; gap: 12px;">
             <button type="button" id="btnOpenSidebar" onclick="toggleSidebar(true)"
@@ -1028,40 +1032,10 @@
         </div>
     </div>
 
-    <div id="loginScreen" class="mobile-login-wrapper">
-        <div class="login-brand-area">
-            <div class="brand-logo">♻️</div>
-            <h1>ธนาคารขยะรีไซเคิล</h1>
-            <p>KeptKaya Staff Application</p>
-        </div>
-
-        <div class="mobile-login-card">
-            <h2>ยินดีต้อนรับ</h2>
-            <p class="subtitle">กรุณาเข้าสู่ระบบเพื่อปฏิบัติงาน</p>
-
-            <div id="loginError" class="error-banner" style="display: none;"></div>
-
-            <form id="loginForm" autocomplete="off">
-                <div class="floating-group">
-                    <input type="text" id="username" placeholder=" " value="katsukipai16@gmail.com" required>
-                    <label for="username">👤 ชื่อผู้ใช้งาน / รหัสเจ้าหน้าที่</label>
-                    <span class="input-highlight"></span>
-                </div>
-
-                <div class="floating-group">
-                    <input type="password" id="password" placeholder=" " value="0910642922" required>
-                    <label for="password">🔒 รหัสผ่านความปลอดภัย</label>
-                    <span class="input-highlight"></span>
-                </div>
-
-                <button type="submit" id="btnLogin" class="btn-mobile-login">
-                    🔓 เข้าสู่ระบบ
-                </button>
-            </form>
-        </div>
-
-
+    <div id="loginScreen" class="is-hidden">
+        @include('staff.includes.screen_login')
     </div>
+    @include('staff.includes.screen_select_org')
 
     <div id="mainScreen" class="is-hidden">
         <div class="container">
@@ -1104,7 +1078,7 @@
         <div class="container">
             <div class="card" style="padding: 12px;">
                 <div class="search-wrapper">
-                    <input type="text" id="searchMemberInput" placeholder="🔍 ค้นหาชื่อ, นามสกุล หรือเบอร์โทร..."
+                    <input type="text" id="searchMemberRecycleInput" placeholder="🔍 ค้นหาชื่อ, นามสกุล หรือเบอร์โทร..."
                         oninput="filterMembers()">
                     <button id="btnScanQR" class="btn-scan">📷 สแกน QR</button>
                 </div>
@@ -1350,8 +1324,8 @@
 
                 <div class="menu-item card-organic" onclick="navigateTo('water-tabwater-record')">
                     <div class="menu-icon">🍂</div>
-                    <div class="menu-title">จุดมิเตอร์ประปา</div>
-                    <div class="menu-desc">จุดมิเตอร์ประปา</div>
+                    <div class="menu-title">จดมิเตอร์ประปา</div>
+                    <div class="menu-desc">จดมิเตอร์ประปา</div>
                 </div>
 
                 <div class="menu-item card-water" onclick="navigateTo('water-equipment-control')">
@@ -1370,6 +1344,13 @@
         </div>
     </div>
 
+    <div id="waterRecordScreen" class="is-hidden">
+        @include('staff.includes.screen_water_record')
+    </div>
+
+    <div id="waterMembersListScreen" class="is-hidden">
+        @include('staff.includes.screen_water_members_list')
+    </div>
 
     <div id="successToast" class="success-toast-overlay">
         <div class="toast-icon">✅</div>
@@ -1383,13 +1364,34 @@
             style="margin-top: 15px; padding: 10px 20px; background: #ff4d4d; color: #fff; border: none; border-radius: 5px; cursor: pointer;">ปิดกล้อง</button>
     </div>
 
-    <div id="card-reciept" style="width: 384px; 
-                    background: #ffffff; 
-                    color: #000000;
-                    font-size:1.4rem !important;
-                    ">
+    <!-- Modal สำหรับแสดงหน้า Dashboard/Staff -->
+    <div class="modal fade" id="staffDashboardModal" tabindex="-1" aria-labelledby="staffDashboardModalLabel"
+        aria-hidden="true">
+        <div class="modal-dialog modal-xl modal-dialog-scrollable">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="staffDashboardModalLabel">ระบบจัดการงาน Staff</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <!-- ส่วนที่จะเอา HTML จาก Server มาใส่ -->
+                <div class="modal-body" id="modal-staff-content">
+                    <div class="text-center py-5">
+                        <div class="spinner-border text-primary" role="status"></div>
+                        <p class="mt-2 text-muted">กำลังโหลดข้อมูล...</p>
+                    </div>
+                </div>
+            </div>
+        </div>
     </div>
 
+    <div id="card-reciept" style="width: 384px; 
+                                background: #ffffff; 
+                                color: #000000;
+                                font-size:1.4rem !important;
+                                ">
+    </div>
+
+<div id="qrcode_info"></div>
 
 @endsection
 
@@ -1398,15 +1400,18 @@
     <script src="https://unpkg.com/html5-qrcode"></script>
     <script src="https://code.jquery.com/jquery-4.0.0.slim.js"
         integrity="sha256-M+GjhMBfXikM1izMplICCTscIj5hzPCp6uDzaypxtgg=" crossorigin="anonymous"></script>
-        <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    <!-- แนะนำให้วางไว้ในส่วน <head> หรือก่อนปิด </body> -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+    <!-- โหลด Tesseract.js ผ่าน CDN (หรือโหลดมาเก็บไว้ใน public/js ของ Laravel) -->
+<script src="https://cdn.jsdelivr.net/npm/tesseract.js@5/dist/tesseract.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/cropperjs/1.5.13/cropper.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
     <script>
-        // =========================================================================
-        //  PIOS Staffs Application - Core Logic (app.js)
-        // =========================================================================
+
         let BluetoothSerial = null;
         let allMembers = [];                 // เก็บรายชื่อสมาชิกทั้งหมดที่ดึงมาจาก Laravel
-        const API_BASE_URL = " https://b520-1-46-64-210.ngrok-free.app/api";
-        // const API_BASE_URL = " https://qa.envsogo.site/api";
+        const API_BASE_URL = "https://4a58-1-47-150-24.ngrok-free.app/api";
 
         let rawItemsData = [];               // เก็บรายการขยะทั้งหมด (kp_tbank_items)
         let currentSelectedTrash = null;     // เก็บขยะชิ้นปัจจุบันที่เจ้าหน้าที่เลือกอยู่
@@ -1415,574 +1420,106 @@
         let currentActiveMember = null;      // เก็บข้อมูลสมาชิกที่กำลังทำรายการฝากขยะอยู่
         const sidebar = document.getElementById('appSidebar');
         let staffInfo;
-        // -------------------------------------------------------------------------
-        //  เริ่มต้นระบบเมื่อหน้าจอ (DOM) โหลดพร้อมใช้งาน
-        // -------------------------------------------------------------------------
-        document.addEventListener("DOMContentLoaded", () => {
 
-            // ดึงองค์ประกอบจากหน้า HTML หลังโหลดครบ
-            const loginScreen = document.getElementById('loginScreen');
-            const mainScreen = document.getElementById('mainScreen');
-            const loginForm = document.getElementById('loginForm');
-            const loginError = document.getElementById('loginError');
-            const staffNameSpan = document.getElementById('staffName');
-            document.getElementById('connectionStatusBadge').innerHTML = 'x';
+        //bluethooth.js
+        let bluetoothDevice;
+        let printCharacteristic;
+        let isRecorded = false  
 
-            // ตรวจสอบสถานะการล็อกอินเดิม (Auto Login)
-            const savedToken = localStorage.getItem("staff_token");
-            const savedName = localStorage.getItem("staff_name");
-            const savedStaffID = localStorage.getItem("staff_id");
-            const savedMembers = localStorage.getItem("all_members_data");
-            const savedCart = localStorage.getItem("current_purchase_cart");
+        {!! file_get_contents(resource_path('views/staff/includes/screen_login.js')) !!}
+        {!! file_get_contents(resource_path('views/staff/includes/screen_water_record.js')) !!}
+        // {!! file_get_contents(resource_path('views/staff/includes/screen_water_members_list.js')) !!}
+        {!! file_get_contents(resource_path('views/staff/includes/navigate_to.js')) !!}
+        {!! file_get_contents(resource_path('views/staff/includes/bluethooth.js')) !!}
+        {!! file_get_contents(resource_path('views/staff/includes/modals.js')) !!}
 
 
-            if (savedToken && savedName) {
-                //     if (savedMembers) {
-                //         allMembers = JSON.parse(savedMembers); // ดึงข้อมูลสมาชิกเก่าคืนมา
-                //     }
-                //     if (savedCart) {
-                //         purchaseCart = JSON.parse(savedCart); // ดึงข้อมูลตะกร้าเก่าค้างไว้คืนมา
-                //     }
-                // showMainScreen(savedName);
-                // renderFloatingCart(); // วาดตะกร้าลอยที่มีข้อมูลค้างอยู่ทันที
+
+
+
+        viewFullImage = function (url) {
+            if (!url) return;
+            const modalEl = document.getElementById('imagePreviewModal');
+            const targetImg = document.getElementById('previewImageTarget');
+            if (modalEl && targetImg) {
+                targetImg.src = url;
+                modalEl.classList.add('show');
+                modalEl.style.display = 'block';
             }
+        };
 
-            // ฟังก์ชันสลับหน้าจอไปหน้าหลักของ Staff
-            function showMainScreen(name) {
-                loginScreen.classList.add('is-hidden');
-                mainScreen.classList.remove('is-hidden');
-                if (staffNameSpan) staffNameSpan.innerText = name;
-                updateGlobalPrinterStatus();
-            }
+    // ฟังก์ชันช่วยโหลด Script QRCode อัตโนมัติกรณีที่ยังไม่มีในระบบ
+function loadQRCodeScript() {
+    return new Promise((resolve, reject) => {
+        if (typeof QRCode !== 'undefined') {
+            resolve();
+            return;
+        }
+        const script = document.createElement('script');
+        script.src = "https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js";
+        script.onload = () => resolve();
+        script.onerror = () => reject(new Error("ไม่สามารถโหลดไลบรารี QRCode ได้"));
+        document.head.appendChild(script);
+    });
+}
 
-            // 🔒 ฟังก์ชันเมื่อกดส่งฟอร์ม Login เพื่อต่อ API Laravel
-            if (loginForm) {
-                loginForm.addEventListener('submit', async (e) => {
-                    console.log('loginform()')
+// ฟังก์ชันแปลงข้อความชำระเงินเป็น Base64 Image
+async function generateQRBase64(text) {
+    // 1. รอให้มั่นใจว่าไลบรารี QRCode โหลดเสร็จแล้ว
+    await loadQRCodeScript();
 
-                    e.preventDefault();
+    return new Promise((resolve) => {
+        let tempDiv = document.createElement("div");
 
-                    const username = document.getElementById('username').value;
-                    const password = document.getElementById('password').value;
-                    const btnSubmit = document.getElementById('btnLogin');
-
-                    if (loginError) loginError.style.display = "none";
-                    btnSubmit.disabled = true;
-                    btnSubmit.innerText = "กำลังตรวจสอบข้อมูล...";
-
-                    try {
-                        // 🟢 เคลียร์ข้อมูลขยะค้างเก่าในเครื่องของคนก่อนหน้าก่อนเริ่มล็อกอินใหม่
-                        localStorage.removeItem("staff_token");
-                        localStorage.removeItem("staff_name");
-                        localStorage.removeItem("staff_id");
-
-                        const response = await fetch(`${API_BASE_URL}/users/staff_authen`, {
-                            method: 'POST',
-                            headers: {
-                                'Content-Type': 'application/json',
-                                'Accept': 'application/json',
-                                'ngrok-skip-browser-warning': 'true'
-                            },
-                            body: JSON.stringify({
-                                username: username,
-                                passwords: password,
-                            })
-                        });
-
-                        // เช็คว่า response ตอบกลับมาสำเร็จหรือไม่ (Status 200-299)
-                        console.log('HTTP Status:', response.status);
-
-                        const resData = await response.json(); // 🟢 เพิ่ม await ตรงนี้
-                        console.log('resData จากเซิร์ฟเวอร์:', resData);
-
-                        // 📦 โครงโค้ดในท่อน Login ของ app.js หลังดึงข้อมูลสำเร็จ
-                        if (resData.code === 200 && resData.data && resData.data.logged === true) {
-                            $('.app-header').removeClass('hidden')
-                            staffInfo = resData.data;
-                            const fullName = `${staffInfo.prefix || ''}${staffInfo.firstname} ${staffInfo.lastname}`;
-
-                            localStorage.setItem("staff_token", staffInfo.remember_token);
-                            localStorage.setItem("staff_name", fullName);
-                            localStorage.setItem("staff_id", staffInfo.id)
-                            localStorage.setItem("staff_org_id", staffInfo.org_id_fk || '');
-
-                            showMainScreen(fullName);
-
-                            // 🟢 เติมบรรทัดนี้: ให้แอปวิ่งไปดูดรายชื่อสมาชิกจาก API มาเตรียมทันทีที่เข้าหน้าหลัก
-                            loadMembersFromServer();
-
-
-                        } else {
-                            if (loginError) {
-                                loginError.innerText = resData.message || "ชื่อผู้ใช้หรือรหัสผ่านไม่ถูกต้อง หรือไม่มีสิทธิ์เข้าใช้งาน";
-                                loginError.style.display = "block";
-                            }
-                        }
-                    } catch (error) {
-                        if (loginError) {
-                            loginError.innerText = "เกิดข้อผิดพลาด: ไม่สามารถเชื่อมต่อกับฐานข้อมูลระบบ PIOS ได้";
-                            loginError.style.display = "block";
-                        }
-                        console.error("API Connection Error:", error);
-                    } finally {
-                        btnSubmit.disabled = false;
-                        btnSubmit.innerText = "🔓 เข้าสู่ระบบ";
-                    }
-                });
-            }
-
-            // 🔒 ระบบออกจากระบบ (Logout)
-            const btnLogout = document.getElementById('btnLogout');
-            if (btnLogout) {
-                btnLogout.addEventListener('click', () => {
-                    localStorage.clear(); // ล้างข้อมูลทั้งหมดในเครื่องออก
-                    allMembers = [];
-                    purchaseCart = [];
-                    currentActiveMember = null;
-                    mainScreen.classList.add('is-hidden');
-                    loginScreen.classList.remove('is-hidden');
-                    sidebar.classList.remove('is-open');
-
-                    if (loginForm) loginForm.reset();
-                    renderFloatingCart();
-
-                    document.location.href = 'acc'
-                });
-            }
+        new QRCode(tempDiv, {
+            text: text,
+            width: 150,
+            height: 150,
+            correctLevel: QRCode.CorrectLevel.M
         });
 
-        // -------------------------------------------------------------------------
-        //  โมดูลระบบเชื่อมต่อเครื่องพิมพ์บลูทูธ (Bluetooth LE เท่านั้น ไม่ใช้ระบบเก่า)
-        // -------------------------------------------------------------------------
-        function checkBluetoothStatus() {
-            const statusText = document.getElementById('status');
-            if (!statusText) return;
-
-            const BleClient = window.Capacitor?.Plugins?.BluetoothLe;
-            if (BleClient) {
-                statusText.innerText = "💻 โหมดจำลองบน Browser (คอมพิวเตอร์)";
-                statusText.style.color = "#858796";
+        // หน่วงเวลาเล็กน้อยให้ DOM เรนเดอร์รูปภาพเสร็จ
+        setTimeout(() => {
+            let img = tempDiv.querySelector("img");
+            if (img && img.src) {
+                resolve(img.src);
             } else {
-                const isConnected = localStorage.getItem('is_printer_connected') === 'true';
-                const printerName = localStorage.getItem('connected_printer_name') || 'เครื่องพิมพ์';
-                if (isConnected) {
-                    statusText.innerText = `🟢 เชื่อมต่ออยู่กับ: ${printerName}`;
-                    statusText.style.color = "green";
-                } else {
-                    // statusText.innerText = "🔴 พร้อมเชื่อมต่อ (เปิดบลูทูธเครื่องพิมพ์ไว้เลย)";
-                    statusText.style.color = "#dc3545";
-                }
+                let canvas = tempDiv.querySelector("canvas");
+                resolve(canvas ? canvas.toDataURL("image/png") : "");
             }
-        }
+        }, 50);
+    });
+}
+
+async function buildReceiptHtml() {
+    let user_id = 11;
+    let meter_id = String(user_id).padStart(18, '0');
+    let net_paid = 263.60;
+    let amount_formatted = net_paid.toFixed(2).replace(".", "");
+
+    let payment_str = `|099400035262000\n${meter_id}\n${inv_id}\n${amount_formatted}`;
+
+    // 🟢 เปลี่ยน text (payment_str) ให้กลายเป็นรูป QR Code (Base64)
+    let qrImageBase64 = await generateQRBase64(payment_str);
+
+
+    // ใส่ qrImageBase64 ลงในแท็ก <img> แทนการแสดง text ดิบ
+   // let text = generateWaterBillHTML2()
+    $('#qrcode').html( `
+    <div id="receipt-area" class="receipt-container">
+        <!-- รายการค่าน้ำประปา / รายละเอียดต่างๆ -->
+        ...
+        
+        <!-- ส่วนแสดง QR Code -->
+        <div class="text-center my-2">
+            <img src="${qrImageBase64}" style="width: 180px; height: 180px;" alt="QR Code">
+            <div style="font-size: 10px;">Ref1: ${meter_id}</div>
+            <div style="font-size: 10px;">Ref2: ${inv_id}</div>
+        </div>
+    </div>
+    `);
+}
 
-        // 🔄 ระบบสั่งค้นหา & เชื่อมต่ออุปกรณ์ด้วย Capacitor BLE
-        const btnConnect = document.getElementById('btnConnect');
-        if (btnConnect) {
-            btnConnect.addEventListener('click', async () => {
-                const statusText = document.getElementById('status');
-                const BleClient = window.Capacitor?.Plugins?.BluetoothLe;
-
-                if (!BleClient) {
-                    alert("ระบบตรวจไม่พบปลั๊กอิน Capacitor Bluetooth LE (เปิดบนคอมพิวเตอร์จะทดสอบปุ่มนี้ไม่ได้)");
-                    return;
-                }
-
-                try {
-                    if (statusText) statusText.innerText = "กำลังตรวจสอบสิทธิ์บลูทูธ...";
-
-                    // 🟢 เรียกขอเปิดใช้งานบลูทูธและสิทธิ์ค้นหาอุปกรณ์ (แมทช์กับสิทธิ์ Android 12)
-                    await BleClient.initialize();
-
-                    if (statusText) statusText.innerText = "กำลังสแกนหาอุปกรณ์บลูทูธรอบตัว...";
-
-                    // 🟢 เปิดหน้าป๊อปอัปให้เจ้าหน้าที่ทำการเลือกจับคู่เครื่องพิมพ์ใบเสร็จ
-                    const device = await BleClient.requestDevice();
-
-                    if (!device) {
-                        if (statusText) statusText.innerText = "ยกเลิกการเลือกอุปกรณ์";
-                        return;
-                    }
-
-                    if (statusText) statusText.innerText = `กำลังเชื่อมต่อเข้ากับ: ${device.name || 'Thermal Printer'}...`;
-
-                    // 🟢 เชื่อมต่อสัญญาณโดยตรง
-                    await BleClient.connect({ deviceId: device.deviceId });
-
-                    localStorage.setItem('printer_id', device.deviceId);
-                    localStorage.setItem('connected_printer_name', device.name || 'Thermal Printer');
-                    localStorage.setItem('is_printer_connected', 'true');
-
-                    if (statusText) {
-                        statusText.innerText = `🟢 เชื่อมต่อสำเร็จกับ: ${device.name || 'Thermal Printer'}`;
-                        statusText.style.color = "green";
-                    }
-                    updateGlobalPrinterStatus();
-                    alert(`✅ เชื่อมต่อกับเครื่องพิมพ์สำเร็จ!`);
-
-                    // วาดใบเสร็จตัวอย่างอัปเดตลง Canvas ทันที
-                    drawReceipt();
-
-                } catch (error) {
-                    if (statusText) {
-                        statusText.innerText = "❌ การเชื่อมต่อล้มเหลว";
-                        statusText.style.color = "red";
-                    }
-                    console.error(error);
-                    alert("เกิดข้อผิดพลาดในการเชื่อมต่อ: " + error.message);
-                }
-            });
-        }
-
-        // 🖼️ ฟังก์ชันสำหรับวาดรูปหน้าตาใบเสร็จสลิปจำลองลง Canvas
-        function drawReceipt() {
-            const canvas = document.getElementById('receiptCanvas');
-            if (!canvas) return;
-            const ctx = canvas.getContext('2d');
-
-            // 1. สร้าง Image Object สำหรับ Logo
-            const logo = new Image();
-            logo.src = "{{ asset('logo/chiangkreu_sakonnakhon_gray.png') }}"; // 👈 เปลี่ยนเป็น Path หรือ URL ของรูปโลโก้ของคุณ
-
-            // 2. เมื่อรูปภาพโหลดเสร็จแล้วค่อยเริ่มวาด Canvas
-            logo.onload = () => {
-                // ล้าง Canvas และลงสีพื้นหลัง
-                ctx.fillStyle = '#FFFFFF';
-                ctx.fillRect(0, 0, canvas.width, canvas.height);
-                ctx.fillStyle = '#000000';
-
-                // ตรวจสอบว่ามีของในตะกร้าไหม ถ้าไม่มีให้ใส่ข้อมูลจำลองเพื่อพรีวิว/ทดสอบพิมพ์
-                const itemsToPrint = purchaseCart.length > 0 ? purchaseCart : [
-                    { item_name: "ขวดพลาสติกใส (PET)", amount_in_units: 5.5, unit_name: "กก.", amount: 24.75, points: 10, pointsum: 55 },
-                    { item_name: "กระดาษลัง", amount_in_units: 10.0, unit_name: "กก.", amount: 75.00, points: 20, pointsum: 200 },
-                    { item_name: "ขวดเบียร์ลีโอ", amount_in_units: 10.0, unit_name: "ลัง.", amount: 75.00, points: 20, pointsum: 200 },
-                    // { item_name: "กระดาษลัง", amount_in_units: 10.0, unit_name: "กก.", amount: 75.00 },
-                ];
-                let expandHCanvas = 550 + (40 * itemsToPrint.length)
-                $('#receiptCanvas').attr('height', expandHCanvas)
-
-                // ----------------------------------------------------
-                // 3. วาดโลโก้ลง Canvas (ปรับตำแหน่ง X, Y และ ขนาด W, H ตามต้องการ)
-                // ctx.drawImage(image, x, y, width, height)
-                const logoWidth = 170;   // กว้าง 60px
-                const logoHeight = 150;  // สูง 60px
-                const logoX = 0;//(canvas.width - logoWidth) / 2; // จัดให้อยู่ตรงกลาง (162)
-                const logoY = 15;       // วาดเริ่มที่ Y = 15
-
-                ctx.drawImage(logo, logoX, logoY, logoWidth, logoHeight);
-                // ----------------------------------------------------
-                let xExis = (canvas.width + logoWidth - 40) / 2;
-                let yExis = 0;
-                ctx.font = 'bold 20px Arial';
-                ctx.textAlign = 'right';
-                ctx.fillText('เทศบาลตำบล', canvas.width - 20, logoHeight / 4);
-
-                yExis += logoHeight / 2;
-                ctx.font = 'bold 28px Arial';
-                ctx.textAlign = 'right';
-                ctx.fillText('เชียงเครือ', canvas.width - 20, yExis);
-
-                yExis += 20;
-                let rage = 20
-                ctx.font = '16px Arial';
-                ctx.textAlign = 'right';
-                ctx.lineWidth = 2;
-                ctx.beginPath(); ctx.moveTo(logoWidth - 22, yExis); ctx.lineTo(canvas.width - 20, yExis); ctx.stroke();
-
-                ctx.fillText('109 หมู่ 14 ต.เชียงเครือ', canvas.width - 20, yExis + (rage * 1));
-                ctx.fillText('อ.เมืองสกลนคร จ.สกลนคร', canvas.width - 20, yExis + (rage * 2));
-                ctx.fillText('โทร.042-4345433', canvas.width - 20, yExis + (rage * 3));
-
-                // ปรับตำแหน่ง Y ของข้อความหัวข้อให้ขยับลงมาต่อจากโลโก้
-                ctx.font = 'bold 24px Arial';
-                ctx.textAlign = 'center';
-                ctx.fillText('ธนาคารขยะรีไซเคิล', canvas.width / 2, yExis + (rage * 5));
-
-                ctx.lineWidth = 2;
-                ctx.beginPath(); ctx.moveTo(20, yExis + (rage * 5 + 10));
-                ctx.lineTo(canvas.width - 20, yExis + (rage * 5 + 10)); ctx.stroke();
-
-                rage += 3;
-                ctx.font = 'bold 18px Arial';
-                ctx.textAlign = 'left';
-                const memberName = currentActiveMember ? `${currentActiveMember.firstname} ${currentActiveMember.lastname}` : "นายสมชาย ใจดี (ทดสอบ)";
-                ctx.fillText(`สมาชิก:`, 20, yExis + (rage * 6));
-
-                ctx.font = ' 18px Arial';
-                ctx.textAlign = 'left';
-                ctx.fillText(`${memberName}`, 90, yExis + (rage * 6));
-
-
-                ctx.font = 'bold 18px Arial';
-                ctx.textAlign = 'left';
-                ctx.fillText('ที่อยู่:', 40, yExis + (rage * 7));
-
-                ctx.font = '16px Arial';
-                ctx.textAlign = 'left';
-                ctx.fillText(`109 หมู่ 14 ต.เชียงเครือ`, 90, yExis + (rage * 7));
-                ctx.textAlign = 'left'
-
-                ctx.fillText(`อ.เมืองสกลนคร จ.สกลนคร 47000`, 90, yExis + (rage * 8));
-
-                ctx.lineWidth = 2;
-                ctx.beginPath(); ctx.moveTo(20, yExis + (rage * 9 - 10));
-                ctx.lineTo(canvas.width - 20, yExis + (rage * 9 - 10)); ctx.stroke();
-
-
-                const today = new Date().toLocaleDateString('th-TH');
-                ctx.font = 'bold 18px Arial';
-                ctx.fillText(`วันที่:`, 20, yExis + (rage * 10));
-
-                ctx.font = '16px Arial';
-                ctx.fillText(`${today}`, 70, yExis + (rage * 10));
-                ctx.font = 'bold 18px Arial';
-                ctx.fillText(`ใบเสร็จเลขที่:`, 20, yExis + (rage * 11));
-                ctx.font = '16px Arial';
-                ctx.fillText(`0333-333-333`, 130, yExis + (rage * 11));
-
-                let startY = yExis + rage * 13;
-                let grandTotal = 0;
-                let pointTotal = 0;
-
-                ctx.font = '16px Arial';
-                ctx.textAlign = 'left';
-                ctx.fillText(`แต้ม`, 250, startY - 20);
-                ctx.fillText(`บาท`, 333, startY - 20);
-
-
-                itemsToPrint.forEach(item => {
-                    // 1. วาดชื่อสินค้า (ชิดซ้ายที่ X = 20)
-                    ctx.font = '16px Arial';
-                    ctx.textAlign = 'left';
-                    ctx.fillText(`- ${item.item_name}`, 20, startY);
-
-                    // 2. วาดจำนวน + หน่วย (กำหนดพิกัด X คงที่ เช่น X = 170 และ X = 210)
-                    ctx.textAlign = 'right';
-                    ctx.font = 'bold 17px Arial';
-                    ctx.fillText(`${item.amount_in_units}`, 210, startY);
-                    ctx.textAlign = 'left';
-                    ctx.font = '15px Arial';
-                    ctx.fillText(`${item.unit_name}`, 215, startY);
-
-                    // วาดรายละเอียดราคา/แต้มย่อย (บรรทัดล่าง)
-                    ctx.font = '14px Arial';
-                    ctx.fillText(`( 5 บาท:กก. / ${item.points} แต้ม:กก.)`, 40, startY + 20);
-
-                    // 3. วาดรวมแต้ม และ รวมเงิน (ชิดขวาตามพิกัดเดิม)
-                    ctx.textAlign = 'right';
-                    ctx.font = '16px Arial';
-                    ctx.fillText(`${item.pointsum}`, 280, startY);
-                    ctx.fillText(`${item.amount.toFixed(2)}`, 364, startY);
-
-                    grandTotal += item.amount;
-                    pointTotal += item.pointsum;
-                    startY += 40;
-                });
-
-                ctx.beginPath(); ctx.moveTo(20, startY); ctx.lineTo(364, startY); ctx.stroke();
-                startY += 40;
-
-                ctx.font = 'bold 18px Arial';
-                ctx.textAlign = 'left';
-                ctx.fillText('รวมรับเงิน/แต้ม สะสม:', 20, startY);
-                ctx.textAlign = 'right';
-                ctx.fillText(`${pointTotal} `, 280, startY);
-                ctx.fillText(`${grandTotal.toFixed(2)} `, 364, startY);
-
-                ctx.font = 'bold 14px Arial';
-                ctx.textAlign = 'left';
-                ctx.fillText(`แต้ม`, 250, startY + 20);
-                ctx.fillText(`บาท`, 334, startY + 20);
-
-
-                startY += 50;
-                ctx.font = '14px Arial';
-                ctx.textAlign = 'center';
-                ctx.fillText('ขอบคุณที่ร่วมลดโลกร้อนกับ อบต.', 192, startY);
-                ctx.fillText('--- ใบเสร็จระบบพิมพ์กราฟิก ---', 192, startY + 25);
-            };
-
-            // กรณีรูปโหลดไม่ผ่าน สามารถวาดส่วนอื่นต่อได้เพื่อไม่ให้ระบบค้าง
-            logo.onerror = () => {
-                console.error("ไม่สามารถโหลดภาพ Logo ได้");
-            };
-        }
-
-        // ⚡ ฟังก์ชันสำหรับส่งข้อมูลรูปกราฟิกออกไปยังหัวพิมพ์ความร้อน (ใช้ร่วมกันทั้งปุ่มเทสและบิลจริง)
-        async function sendCanvasToPrinter() {
-            const BleClient = window.Capacitor?.Plugins?.BluetoothLe;
-            const deviceId = localStorage.getItem('printer_id');
-
-            if (!BleClient || !deviceId) {
-                throw new Error("ยังไม่ได้เชื่อมต่อเครื่องพิมพ์บลูทูธ กรุณากดปุ่มเชื่อมต่ออุปกรณ์ก่อนครับ");
-            }
-
-            // 🟢 ตรวจสอบตัวแปรที่ดึงมาจากสคริปต์ออฟไลน์ใน index.html
-            const EncoderClass = window.ReceiptPrinterEncoder;
-
-            if (!EncoderClass) {
-                throw new Error("ระบบหาโมดูลแปลงรูปภาพ (ReceiptPrinterEncoder) ไม่เจอ กรุณาตรวจสอบการใส่แท็ก script ใน index.html");
-            }
-
-            const canvas = document.getElementById('receiptCanvas');
-            if (!canvas) {
-                throw new Error("ไม่พบหน้าจอ Canvas (#receiptCanvas)");
-            }
-            const ctx = canvas.getContext('2d');
-
-            // 🟢 1. คำนวณหาค่าความสูงใหม่ที่ใกล้เคียงที่สุดและหารด้วย 8 ลงตัวพอดี (Multiple of 8)
-            const exactHeight = canvas.height;
-            const adjustedHeight = Math.ceil(exactHeight / 8) * 8; // ปัดขึ้นให้หาร 8 ลงตัวเสมอล้างพัง
-
-            let imageData;
-
-            // 🟢 2. เช็คว่าถ้าความสูงเดิมหาร 8 ไม่ลงตัว ให้สร้างแผ่นภาพสำรองที่ปัดเศษแล้ว เพื่อไม่ให้ภาพยืดหรือพัง
-            if (exactHeight !== adjustedHeight) {
-                // สร้าง Canvas ชั่วคราวขนาดที่ถอดรหัสผ่านชัวร์ 100%
-                const tempCanvas = document.createElement('canvas');
-                tempCanvas.width = canvas.width;
-                tempCanvas.height = adjustedHeight;
-                const tempCtx = tempCanvas.getContext('2d');
-
-                // เทสีพื้นหลังเป็นสีขาว (เพื่อไม่ให้ส่วนที่ขยายออกไปกลายเป็นสีดำปื้น)
-                tempCtx.fillStyle = '#FFFFFF';
-                tempCtx.fillRect(0, 0, tempCanvas.width, tempCanvas.height);
-
-                // วาดใบเสร็จตัวจริงของคุณพี่ทับลงไป
-                tempCtx.drawImage(canvas, 0, 0);
-                imageData = tempCtx.getImageData(0, 0, tempCanvas.width, tempCanvas.height);
-            } else {
-                // ถ้าหาร 8 ลงตัวอยู่แล้ว ดึงค่าตรงๆ ไปใช้ได้เลยครับ
-                imageData = ctx.getImageData(0, 0, canvas.width, canvas.height);
-            }
-
-            // 🟢 3. เรียกใช้งาน Object ตัวใหม่ตามปกติ (ส่งภาพที่ปรับขนาดความสูงแมทช์ชิ่งเรียบร้อยแล้ว)
-            const encoder = new EncoderClass({
-                language: 'esc-pos'
-            });
-
-            // แยกสั่งงานทีละคำสั่ง ห้ามเขียนต่อท้ายแบบเดิมครับ
-            encoder.image(imageData, canvas.width, imageData.height, 'threshold');
-            encoder.newline(4);
-
-            // บรรทัดสุดท้ายให้ดึงรหัสฐานสองออกมาเก็บในตัวแปร binaryCommands
-            const binaryCommands = encoder.encode();
-
-            // ค้นหา Service และส่งสัญญาณบลูทูธความเร็วต่ำ
-            const result = await BleClient.getServices({ deviceId: deviceId });
-            const servicesList = result.services || [];
-            let targetServiceUuid = null;
-            let targetCharacteristicUuid = null;
-
-            // 🟢 ลูปค้นหาพอร์ตออโต้แบบคัดกรอง (ข้ามพอร์ตระบบ 1800 ที่ทำให้แอปเอ๋อ)
-            for (const s of servicesList) {
-                if (!s.characteristics) continue;
-
-                const sUUID = s.uuid.toLowerCase();
-                if (sUUID.includes("1800") || sUUID.includes("1801") || sUUID.includes("180a")) {
-                    continue; // ข้ามไปพอร์ตถัดไป
-                }
-
-                for (const c of s.characteristics) {
-                    if (c.properties.writeWithoutResponse || c.properties.write) {
-                        targetServiceUuid = s.uuid;
-                        targetCharacteristicUuid = c.uuid;
-                        break;
-                    }
-                }
-                if (targetServiceUuid) break;
-            }
-
-            // แผนสำรองสุดท้าย
-            if (!targetServiceUuid || !targetCharacteristicUuid) {
-                targetServiceUuid = "0000ffe0-0000-1000-8000-00805f9b34fb";
-                targetCharacteristicUuid = "0000ffe1-0000-1000-8000-00805f9b34fb";
-            }
-
-            console.log("พบพอร์ตจริงของเครื่องพิมพ์คือ Service:", targetServiceUuid, "Char:", targetCharacteristicUuid);
-
-            // 6. ส่งข้อมูลภาพที่หั่นเป็น Chunk ละ 512 บายต์ ออกไปทางบลูทูธความเร็วต่ำ (BLE)
-            const CHUNK_SIZE = 64;
-
-            for (let i = 0; i < binaryCommands.length; i += CHUNK_SIZE) {
-                const chunk = binaryCommands.slice(i, i + CHUNK_SIZE);
-
-                // แปลงอาร์เรย์ตัวเลขก้อนใหญ่ให้กลายเป็น Hex String
-                let hexString = '';
-                for (let j = 0; j < chunk.length; j++) {
-                    const hex = chunk[j].toString(16).padStart(2, '0');
-                    hexString += hex;
-                }
-
-                try {
-                    await BleClient.writeWithoutResponse({
-                        deviceId: deviceId,
-                        service: targetServiceUuid,
-                        characteristic: targetCharacteristicUuid,
-                        value: hexString
-                    });
-                } catch (writeError) {
-                    console.error("จุดที่พังตอนยิงข้อมูล:", writeError);
-                    throw new Error("ยิงข้อมูลเข้าหัวพิมพ์ไม่สำเร็จ: " + writeError.message);
-                }
-
-                // 🟢 2. ลดเวลาหน่วงเหลือแค่ 5ms เพื่อให้เครื่องพิมพ์ทำงานได้ต่อเนื่องแบบรวดเร็ว
-                // (ถ้าพิมพ์แล้วตัวหนังสือขาด ให้พี่ลองขยับเพิ่มเป็น 10 หรือ 15 ดูนะครับ แต่ 5 คือเร็วสะใจสุด)
-                await new Promise(resolve => setTimeout(resolve, 2));
-            }
-        }
-
-        // ⚡ ดักจับเหตุการณ์เมื่อจิ้มปุ่ม "ทดสอบการพิมพ์ (Test Print)"
-        const btnPrintTest = document.getElementById('btnPrintTest');
-        if (btnPrintTest) {
-            btnPrintTest.addEventListener('click', async () => {
-                try {
-                    await sendCanvasToPrinter();
-                    alert("✅ ส่งข้อมูลทดสอบระบบหัวพิมพ์เรียบร้อยแล้ว!");
-                } catch (error) {
-                    console.error("Test print failed:", error);
-                    alert("❌ พิมพ์ทดสอบล้มเหลว: " + error.message + "\nกรุณาตรวจสอบว่าเปิดบลูทูธและต่อเครื่องพิมพ์แล้ว");
-                }
-            });
-        }
-
-        // =========================================================================
-        //  โมดูลระบบนำทาง และ ค้นหาสมาชิก (Recycle Module)
-        // =========================================================================
-        function navigateTo(moduleName) {
-            if (moduleName === 'recycle') {
-                document.getElementById('mainScreen').classList.add('is-hidden');
-                document.getElementById('recycleScreen').classList.remove('is-hidden');
-                document.getElementById('searchMemberInput').value = "";
-                loadMembersFromServer();
-                renderMemberList(allMembers);
-            }
-            else if (moduleName === 'settings') {
-                document.getElementById('mainScreen').classList.add('is-hidden');
-                document.getElementById('depositScreen').classList.add('is-hidden');
-                document.getElementById('settingsScreen').classList.remove('is-hidden');
-
-                checkBluetoothStatus();
-            }
-            else if (moduleName === 'water') {
-                document.getElementById('mainScreen').classList.add('is-hidden');
-                document.getElementById('waterScreen').classList.remove('is-hidden');
-                checkBluetoothStatus();
-            }
-            // else if (moduleName === 'water-cutmeter') {
-            //    document.location.href= 'cutmeter'
-            // }
-            else if (moduleName === 'main') {
-                document.getElementById('mainScreen').classList.remove('is-hidden');
-                document.getElementById('waterScreen').classList.add('is-hidden');
-                document.getElementById('settingsScreen').classList.add('is-hidden');
-                document.getElementById('recycleScreen').classList.add('is-hidden');
-
-                checkBluetoothStatus();
-            }
-
-
-            updateGlobalPrinterStatus();
-        }
 
         function backToMenu() {
             document.getElementById('recycleScreen').classList.add('is-hidden');
@@ -2012,23 +1549,23 @@
                 const card = document.createElement('div');
                 card.className = 'member-card';
                 card.innerHTML = `
-                    <div class="member-info">
-                        <p style="font-weight: bold; font-size: 16px; margin: 0 0 5px 0;">${member.firstname} ${member.lastname}</p>
-                        <p style="margin: 0 0 5px 0; font-size: 14px; color: #555;">📞 เบอร์โทร: ${member.phone || 'ไม่มีข้อมูล'}</p>
-                        <p style="margin: 0;"><span class="badge-account" style="background: #e6f0fa; color: #007bff; padding: 3px 8px; border-radius: 4px; font-size: 12px;">เลขบัญชี: ${account ? account : 'ไม่มีบัญชี'}</span></p>
-                    </div>
-                    <div>
-                        <button class="btn-deposit" onclick="selectMemberToDeposit(${member.id})" style="background: #28a745; color: white; border: none; padding: 8px 15px; border-radius: 4px; cursor: pointer; font-weight: bold;">
-                            💰 รับซื้อขยะรีไซเคิล
-                        </button>
-                    </div>
-                `;
+                                <div class="member-info">
+                                    <p style="font-weight: bold; font-size: 16px; margin: 0 0 5px 0;">${member.firstname} ${member.lastname}</p>
+                                    <p style="margin: 0 0 5px 0; font-size: 14px; color: #555;">📞 เบอร์โทร: ${member.phone || 'ไม่มีข้อมูล'}</p>
+                                    <p style="margin: 0;"><span class="badge-account" style="background: #e6f0fa; color: #007bff; padding: 3px 8px; border-radius: 4px; font-size: 12px;">เลขบัญชี: ${account ? account : 'ไม่มีบัญชี'}</span></p>
+                                </div>
+                                <div>
+                                    <button class="btn-deposit" onclick="selectMemberToDeposit(${member.id})" style="background: #28a745; color: white; border: none; padding: 8px 15px; border-radius: 4px; cursor: pointer; font-weight: bold;">
+                                        💰 รับซื้อขยะรีไซเคิล
+                                    </button>
+                                </div>
+                            `;
                 container.appendChild(card);
             });
         }
 
         function filterMembers() {
-            const searchText = document.getElementById('searchMemberInput').value.toLowerCase();
+            const searchText = document.getElementById('searchMemberRecycleInput').value.toLowerCase();
             const filtered = allMembers.filter(member => {
                 const fullName = `${member.firstname} ${member.lastname}`.toLowerCase();
                 const phone = (member.phone || "").toLowerCase();
@@ -2040,10 +1577,11 @@
         // 🟢 เพิ่มฟังก์ชันนี้ต่อท้ายตัวแปรโกลบอลด้านบนของ app.js
         async function loadMembersFromServer() {
             console.log('loadMembersFromServer')
+            let org_id_fk = localStorage.getItem('staff_org_id')
             try {
                 // console.log("กำลังดึงรายชื่อสมาชิกทั้งหมดจากระบบ Keptkaya..." + API_BASE_URL);
 
-                const response = await fetch(`${API_BASE_URL}/keptkaya/members/${staffInfo.org_id_fk}`, {
+                const response = await fetch(`${API_BASE_URL}/keptkaya/members/${org_id_fk}`, {
                     method: "GET",
                     headers: {
                         "Content-Type": "application/json",
@@ -2092,7 +1630,7 @@
                             const { barcodes } = await BarcodeScanning.scan();
                             if (barcodes.length > 0) {
                                 const scannedValue = barcodes[0].rawValue;
-                                document.getElementById('searchMemberInput').value = scannedValue;
+                                document.getElementById('searchMemberRecycleInput').value = scannedValue;
                                 filterMembers();
                             }
                         } else {
@@ -2121,7 +1659,7 @@
                             scanConfig,
                             (decodedText, decodedResult) => {
                                 // เมื่อสแกนสำเร็จ
-                                document.getElementById('searchMemberInput').value = decodedText;
+                                document.getElementById('searchMemberRecycleInput').value = decodedText;
                                 filterMembers();
                                 stopWebScanner();
                             },
@@ -2186,7 +1724,7 @@
                             "ngrok-skip-browser-warning": "true"
                         }
                     });
-                    console.log('res', response)
+                    console.log('resxx', response)
                     // 🟢 3. ตรวจสอบว่า Server ตอบกลับมาสำเร็จไหม (Status 200-299)
                     if (!response.ok) {
                         throw new Error(`Server ตอบกลับผิดพลาด: ${response.status}`);
@@ -2254,11 +1792,11 @@
                 // else if (g.name.includes("โลหะ")) icon = "🛠️";
 
                 filterDiv.innerHTML = `
-                        <button type="button" class="btn btn-outline-dark rounded-circle" style="width: 60px; height: 60px; border-radius:50%; border:1px solid #ccc; background:#fff; font-size:20px;text-align:center">
-                            ${icon}
-                        </button>
-                        <small class="mt-1 text-muted fw-bold " style="font-size: 15px; margin-top:5px; color:green; font-weight:bold;text-align:center">${g.name}</small>
-                    `;
+                                    <button type="button" class="btn btn-outline-dark rounded-circle" style="width: 60px; height: 60px; border-radius:50%; border:1px solid #ccc; background:#fff; font-size:20px;text-align:center">
+                                        ${icon}
+                                    </button>
+                                    <small class="mt-1 text-muted fw-bold " style="font-size: 15px; margin-top:5px; color:green; font-weight:bold;text-align:center">${g.name}</small>
+                                `;
                 container.appendChild(filterDiv);
             });
         }
@@ -2290,9 +1828,9 @@
                 gridCol.id = `card-${opt.kp_itemscode}`;
                 gridCol.onclick = () => selectTrashItem(opt.kp_itemscode);
                 gridCol.innerHTML = `
-                                                                <div class="item-title">${opt.kp_itemsname}</div>
-                                                                <div class="item-price">${opt.price} บาท./${opt.unitname}</div>
-                                                            `;
+                                                                            <div class="item-title">${opt.kp_itemsname}</div>
+                                                                            <div class="item-price">${opt.price} บาท./${opt.unitname}</div>
+                                                                        `;
                 subContainer.appendChild(gridCol);
 
             });
@@ -2489,41 +2027,41 @@
             let tableRows = "";
             purchaseCart.forEach((item, index) => {
                 tableRows += `
-                    <tr style="border-bottom:1px solid #eee; height:50px;">
-                        <td style="padding:5px;"><b>${item.item_name}</b><br><small style="color:#888;">${item.price_per_unit.toFixed(2)} บ./${item.unit_short_name}</small></td>
-                        <td style="text-align:right; padding:5px;">${item.amount_in_units.toFixed(2)} ${item.unit_short_name}</td>
-                        <td style="text-align:right; padding:5px; color:#28a745; font-weight:bold;">${item.amount.toFixed(2)} บ.</td>
-                        <td style="text-align:center; padding:5px;"><button onclick="removeFromCart(${index})" style="background:none; border:none; color:#dc3545; font-size:18px; cursor:pointer;">🗑️</button></td>
-                    </tr>
-                `;
+                                <tr style="border-bottom:1px solid #eee; height:50px;">
+                                    <td style="padding:5px;"><b>${item.item_name}</b><br><small style="color:#888;">${item.price_per_unit.toFixed(2)} บ./${item.unit_short_name}</small></td>
+                                    <td style="text-align:right; padding:5px;">${item.amount_in_units.toFixed(2)} ${item.unit_short_name}</td>
+                                    <td style="text-align:right; padding:5px; color:#28a745; font-weight:bold;">${item.amount.toFixed(2)} บ.</td>
+                                    <td style="text-align:center; padding:5px;"><button onclick="removeFromCart(${index})" style="background:none; border:none; color:#dc3545; font-size:18px; cursor:pointer;">🗑️</button></td>
+                                </tr>
+                            `;
             });
 
             modal.innerHTML = `
-                                                                        <div style="background:#fff; width:100%; max-width:500px; border-radius:15px; padding:20px; box-shadow:0 10px 25px rgba(0,0,0,0.1); position:relative; font-family:sans-serif;">
-                                                                            <h4 style="margin-top:0; font-weight:bold; color:#333;">🛒 รายการในตะกร้า</h4>
-                                                                            <div style="max-height:250px; overflow-y:auto; margin-bottom:15px;">
-                                                                                <table style="width:100%; border-collapse:collapse; font-size:14px;">
-                                                                                    <thead>
-                                                                                        <tr style="background:#f8f9fa; height:35px; text-align:left; color:#6c757d;">
-                                                                                            <th>สินค้า</th><th style="text-align:right;">จำนวน</th><th style="text-align:right;">รวม (บาท)</th><th style="text-align:center;">ลบ</th>
-                                                                                        </tr>
-                                                                                    </thead>
-                                                                                    <tbody>${tableRows}</tbody>
-                                                                                </table>
-                                                                            </div>
-                                                                            <div style="display:flex; justify-content:space-between; align-items:center; background:#f8f9fa; padding:15px; border-radius:10px; margin-bottom:15px;">
-                                                                                <span>ยอดสุทธิรวม:</span>
-                                                                                <span style="font-size:22px; font-weight:bold; color:#28a745;">${grandTotal.toFixed(2)} บาท</span>
-                                                                                <input type="checkbox" id="cashback" name="cashback" style="width:30px; height:30px">จ่ายเงินสด
-                                                                            </div>
-                                                                            <div style="display:flex; gap:10px;">
-                                                                                <button onclick="document.getElementById('customCartModal').remove()" style="flex:1; padding:12px; border-radius:8px; border:1px solid #ccc; background:#ccc; font-weight:bold; cursor:pointer;">ปิดหน้าต่าง</button>
-                                                                                <button onclick="submitFinalPurchase(0)" style="flex:2; padding:12px; border-radius:8px; border:none; background:#28a745; color:#fff; font-weight:bold; font-size:16px; cursor:pointer;">📝 ยืนยันบันทึก</button>
-                                                                                <button onclick="submitFinalPurchase(1)" id="submit_and_print"  
-                                                                                    style="flex:2; padding:12px; border-radius:8px; border:none; background:#28a745; color:#fff; font-weight:bold; font-size:16px; cursor:pointer;">📝 ยืนยันบันทึก & ปริ้นบิล</button>
-                                                                            </div>
-                                                                        </div>
-                                                                    `;
+                                                                                    <div style="background:#fff; width:100%; max-width:500px; border-radius:15px; padding:20px; box-shadow:0 10px 25px rgba(0,0,0,0.1); position:relative; font-family:sans-serif;">
+                                                                                        <h4 style="margin-top:0; font-weight:bold; color:#333;">🛒 รายการในตะกร้า</h4>
+                                                                                        <div style="max-height:250px; overflow-y:auto; margin-bottom:15px;">
+                                                                                            <table style="width:100%; border-collapse:collapse; font-size:14px;">
+                                                                                                <thead>
+                                                                                                    <tr style="background:#f8f9fa; height:35px; text-align:left; color:#6c757d;">
+                                                                                                        <th>สินค้า</th><th style="text-align:right;">จำนวน</th><th style="text-align:right;">รวม (บาท)</th><th style="text-align:center;">ลบ</th>
+                                                                                                    </tr>
+                                                                                                </thead>
+                                                                                                <tbody>${tableRows}</tbody>
+                                                                                            </table>
+                                                                                        </div>
+                                                                                        <div style="display:flex; justify-content:space-between; align-items:center; background:#f8f9fa; padding:15px; border-radius:10px; margin-bottom:15px;">
+                                                                                            <span>ยอดสุทธิรวม:</span>
+                                                                                            <span style="font-size:22px; font-weight:bold; color:#28a745;">${grandTotal.toFixed(2)} บาท</span>
+                                                                                            <input type="checkbox" id="cashback" name="cashback" style="width:30px; height:30px">จ่ายเงินสด
+                                                                                        </div>
+                                                                                        <div style="display:flex; gap:10px;">
+                                                                                            <button onclick="document.getElementById('customCartModal').remove()" style="flex:1; padding:12px; border-radius:8px; border:1px solid #ccc; background:#ccc; font-weight:bold; cursor:pointer;">ปิดหน้าต่าง</button>
+                                                                                            <button onclick="submitFinalPurchase(0)" style="flex:2; padding:12px; border-radius:8px; border:none; background:#28a745; color:#fff; font-weight:bold; font-size:16px; cursor:pointer;">📝 ยืนยันบันทึก</button>
+                                                                                            <button onclick="submitFinalPurchase(1)" id="submit_and_print"  
+                                                                                                style="flex:2; padding:12px; border-radius:8px; border:none; background:#28a745; color:#fff; font-weight:bold; font-size:16px; cursor:pointer;">📝 ยืนยันบันทึก & ปริ้นบิล</button>
+                                                                                        </div>
+                                                                                    </div>
+                                                                                `;
             document.body.appendChild(modal);
         }
 
@@ -2550,39 +2088,7 @@
                 return;
             }
 
-            if (!printCharacteristic) {
-                document.getElementById('customCartModal').remove();
-
-                Swal.fire({
-                    title: 'ยังไม่ได้เชื่อมต่อเครื่องพิมพ์!',
-                    text: 'กรุณากดเชื่อมต่อเครื่องพิมพ์บลูทูธก่อนทำการบันทึกและพิมพ์บิล',
-                    icon: 'warning',
-                    showCancelButton: true,
-                    confirmButtonColor: '#17a2b8',
-                    cancelButtonColor: '#6c757d',
-                    confirmButtonText: '🔄 เชื่อมต่อเครื่องพิมพ์ตอนนี้',
-                    cancelButtonText: 'ยกเลิก'
-                }).then(async (result) => {
-                    if (result.isConfirmed) {
-                        // เรียกใช้ฟังก์ชันเชื่อมต่อ Bluetooth โดยตรงโดยไม่ต้องเปลี่ยนหน้า
-                        try {
-                            await connectToPrinter();
-                        } catch (err) {
-                            console.error("Connection error:", err);
-                        }
-                    }
-                });
-                return
-            }
-            Swal.fire({
-        title: 'กำลังบันทึกข้อมูล...',
-        text: 'กรุณารอสักครู่ ห้ามปิดหน้าต่างนี้',
-        allowOutsideClick: false,
-        allowEscapeKey: false,
-        didOpen: () => {
-            Swal.showLoading();
-        }
-    });
+            BluethoothConnectedModal('recycle');
             // คำนวณยอดรวมสุทธิจากตะกร้าแอป
             const totalWeight = purchaseCart.reduce((sum, item) => sum + parseFloat(item.amount_in_units), 0);
             const totalAmount = purchaseCart.reduce((sum, item) => sum + parseFloat(item.amount), 0);
@@ -2634,53 +2140,53 @@
 
                     let recieptText =
                         `<div class="row">
-                                <div class="col-5">
-                                    <img src="{{ asset('logo/${staffInfo.org.org_logo_img}') }}" width="100%" alt="">
-                                </div>
-                                <div class="col-7" id="org">
-                                    <div style="font-size: 1.5rem;">${staffInfo.org.org_type_name}</div>
-                                    <div style="font-size: 2rem; margin-top: -10px;">${staffInfo.org.org_name}</div>
+                            <div class="col-5">
+                                <img src="{{ asset('logo/${staffInfo.org.org_logo_img}') }}" width="100%" alt="">
+                            </div>
+                            <div class="col-7" id="org">
+                                <div style="font-size: 1.5rem;">${staffInfo.org.org_type_name}</div>
+                                <div style="font-size: 2rem; margin-top: -10px;">${staffInfo.org.org_name}</div>
 
-                                </div>
-                                <div class="text-right" id="org_address">
-                                    <div>${staffInfo.org.org_address} หมู่ ${staffInfo.org.org_zone} ต.${staffInfo.org.org_tambon}</div>
+                            </div>
+                            <div class="text-right" id="org_address">
+                                <div>${staffInfo.org.org_address} หมู่ ${staffInfo.org.org_zone} ต.${staffInfo.org.org_tambon}</div>
+                                <div>อ.${staffInfo.org.org_district} จ.${staffInfo.org.org_province}</div>
+                                <div>โทร.${staffInfo.org.org_phone}</div>
+                            </div>
+                        </div>
+
+                        <p>ธนาคารขยะรีไซเคิล</p>
+                        <div id="member_info">
+                            <div class="row">
+                                <div class="col-3 header">ชื่อ-สกุล:</div>
+                                <div class="col-9">${currentActiveMember.firstname} ${currentActiveMember.lastname}</div>
+                                <div class="col-3 header">ที่อยู่:</div>
+                                <div class="col-9 info">
+                                    <div>${currentActiveMember.address} หมู่ ${currentActiveMember.waste_preference.user_pref_zone.zone_name} ต.${staffInfo.org.org_tambon}</div>
                                     <div>อ.${staffInfo.org.org_district} จ.${staffInfo.org.org_province}</div>
-                                    <div>โทร.${staffInfo.org.org_phone}</div>
                                 </div>
+                                <div class="col-3 header">รหัส:</div>
+                                <div class="col-9 info">${currentActiveMember.waste_preference.id}</div>
                             </div>
+                        </div>
 
-                            <p>ธนาคารขยะรีไซเคิล</p>
-                            <div id="member_info">
-                                <div class="row">
-                                    <div class="col-3 header">ชื่อ-สกุล:</div>
-                                    <div class="col-9">${currentActiveMember.firstname} ${currentActiveMember.lastname}</div>
-                                    <div class="col-3 header">ที่อยู่:</div>
-                                    <div class="col-9 info">
-                                        <div>${currentActiveMember.address} หมู่ ${currentActiveMember.waste_preference.user_pref_zone.zone_name} ต.${staffInfo.org.org_tambon}</div>
-                                        <div>อ.${staffInfo.org.org_district} จ.${staffInfo.org.org_province}</div>
-                                    </div>
-                                    <div class="col-3 header">รหัส:</div>
-                                    <div class="col-9 info">${currentActiveMember.waste_preference.id}</div>
-                                </div>
+                        <div id="reciept_info" style="margin-bottom:10px">
+                            <div class="row">
+                                <div class="col-4 header">วันที่:</div>
+                                <div class="col-8">${resData.data.transaction_date}</div>
+                                <div class="col-4 header">เลขใบเสร็จ:</div>
+                                <div class="col-8 info">${resData.data.receipt_no}</div>
                             </div>
-
-                            <div id="reciept_info" style="margin-bottom:10px">
-                                <div class="row">
-                                    <div class="col-4 header">วันที่:</div>
-                                    <div class="col-8">${resData.data.transaction_date}</div>
-                                    <div class="col-4 header">เลขใบเสร็จ:</div>
-                                    <div class="col-8 info">${resData.data.receipt_no}</div>
-                                </div>
-                            </div>
-                            <table border="0" width="100%">
-                                <thead>
-                                    <tr>
-                                        <td width="60%"></td>
-                                        <td width="15%">แต้ม</td>
-                                        <td width="25%">บาท</td>
-                                    </tr>
-                                </thead>
-                                <tbody>`;
+                        </div>
+                        <table border="0" width="100%">
+                            <thead>
+                                <tr>
+                                    <td width="60%"></td>
+                                    <td width="15%">แต้ม</td>
+                                    <td width="25%">บาท</td>
+                                </tr>
+                            </thead>
+                            <tbody>`;
 
 
                     let totalAmount = 0;
@@ -2689,45 +2195,45 @@
                     purchaseCart.forEach(v => {
                         let _points = v.point * v.amount_in_units;
                         recieptText += `
-                                    <tr>
-                                        <td style="text-align: left; font-size: 1.5rem;line-height: 22px;">
-                                            -${v.item_name} 
-                                            <div style="font-size: 1rem; padding-left: 10px; ">
-                                                <span style="font-size: 1.4rem;">${v.amount_in_units} ${v.unit_short_name}   </span>
-                                                <span style="margin-left:10px">(${v.price_per_unit} บาท, ${v.point} แต้ม):${v.unit_short_name}</span>
-                                            </div>
-                                        </td>
-                                        <td class="amount">${_points}</td>
-                                        <td class="amount">${v.amount.toFixed(2)}</td>
-                                    </tr>
+                                                <tr>
+                                                    <td style="text-align: left; font-size: 1.5rem;line-height: 22px;">
+                                                        -${v.item_name} 
+                                                        <div style="font-size: 1rem; padding-left: 10px; ">
+                                                            <span style="font-size: 1.4rem;">${v.amount_in_units} ${v.unit_short_name}   </span>
+                                                            <span style="margin-left:10px">(${v.price_per_unit} บาท, ${v.point} แต้ม):${v.unit_short_name}</span>
+                                                        </div>
+                                                    </td>
+                                                    <td class="amount">${_points}</td>
+                                                    <td class="amount">${v.amount.toFixed(2)}</td>
+                                                </tr>
 
-                                    `;
+                                                `;
                         totalAmount += v.amount;
                         totalPoint += _points
                     })
 
                     recieptText += `    
-                                </tbody>
-                            </table>
-                            <hr style="color: #000000;opacity:1; margin-left: 20px;" width="90%">
-                            <table width="100%">
-                                    <tbody>
-                                        <tr>
+                                            </tbody>
+                                        </table>
+                                        <hr style="color: #000000;opacity:1; margin-left: 20px;" width="90%">
+                                        <table width="100%">
+                                                <tbody>
+                                                    <tr>
 
-                                            <td style="text-align: left; font-size: 1.5rem;font-weight:bold" width="60%">
-                                                รวมรับเงิน/แต้มสะสม
-                                            </td>
-                                            <td width="15%" style="line-height: 22px; font-weight:bold" class="amount">${totalPoint} <div style="font-size: 1rem;text-align: right">แต้ม</div></td>
-                                            <td width="25%" style="line-height: 22px; font-weight:bold" class="amount">${totalAmount.toFixed(2)} <div style="font-size: 1rem;text-align: right">บาท</div></td>
-                                        </tr>
+                                                        <td style="text-align: left; font-size: 1.5rem;font-weight:bold" width="60%">
+                                                            รวมรับเงิน/แต้มสะสม
+                                                        </td>
+                                                        <td width="15%" style="line-height: 22px; font-weight:bold" class="amount">${totalPoint} <div style="font-size: 1rem;text-align: right">แต้ม</div></td>
+                                                        <td width="25%" style="line-height: 22px; font-weight:bold" class="amount">${totalAmount.toFixed(2)} <div style="font-size: 1rem;text-align: right">บาท</div></td>
+                                                    </tr>
 
-                                    </tbody>
-                                </table>
-                            <hr style="opacity:1;">
+                                                </tbody>
+                                            </table>
+                                        <hr style="opacity:1;">
 
-                            <div style="margin-bottom:3rem; margin-top:rem;text-align:center;font-size:1.4rem; font-weight:bold">
-                                ขอบคุณที่ร่วมลดโลกร้อน
-                            </div>`;
+                                        <div style="margin-bottom:3rem; margin-top:rem;text-align:center;font-size:1.4rem; font-weight:bold">
+                                            ขอบคุณที่ร่วมลดโลกร้อน
+                                        </div>`;
 
 
                     $('#card-reciept').html(recieptText)
@@ -2987,221 +2493,11 @@
 
         //📌 สั่งให้ระบบล้างไพ่ทันทีที่หน้าจอเว็บแอปถูกโหลดขึ้นมา (DOM Loaded)
         document.addEventListener("DOMContentLoaded", () => {
-            initializeAppSession();
+         generateWaterBillHTML2('s')
+           printReceipt();
+            // initializeAppSession();
         });
     </script>
 
 
-
-    <script>
-        // --- Configuration Constants ---
-        const PRINTER_SERVICE_UUID = '000018f0-0000-1000-8000-00805f9b34fb';
-        const PRINTER_CHARACTERISTIC_UUID = '00002af1-0000-1000-8000-00805f9b34fb';
-        const LAST_USED_DEVICE_ID_KEY = 'lastUsedBluetoothDeviceId';
-
-        // --- UI Elements ---
-        const statusText = document.getElementById('status-text');
-        const statusCard = document.getElementById('status-card');
-        const connectButton = document.getElementById('connectButton');
-        const printButton = document.getElementById('printImageButton');
-        const printBtnText = document.getElementById('printBtnText');
-
-        let bluetoothDevice;
-        let printCharacteristic;
-
-        // --- Helper: UI Updates ---
-        function updateStatus(message, type = 'info') {
-            console.log('mes', message)
-            statusText.textContent = message;
-
-            // Reset Classes
-            statusCard.className = 'status-badge border';
-            const icon = statusCard.querySelector('.material-icons-round');
-
-            if (type === 'success') {
-                statusCard.classList.add('bg-success', 'bg-opacity-10', 'text-success', 'border-success');
-                icon.textContent = 'check_circle';
-                icon.classList.replace('text-primary', 'text-success');
-
-                // Update Buttons
-                connectButton.classList.add('text-success', 'border-success');
-                // connectButton.innerHTML = '<span class="material-icons-round">bluetooth_connected</span><span>เชื่อมต่อแล้ว</span>';
-                const isConnected = localStorage.getItem('is_printer_connected') === 'true';
-                const printerName = localStorage.getItem('connected_printer_name') || 'เครื่องพิมพ์';
-
-                statusText.innerText = `🟢 เชื่อมต่ออยู่กับ: ${printerName}`;
-                statusText.style.color = "green";
-
-                printButton.disabled = false;
-
-            } else if (type === 'error') {
-                statusCard.classList.add('bg-danger', 'bg-opacity-10', 'text-danger', 'border-danger');
-                icon.textContent = 'error';
-                icon.classList.replace('text-primary', 'text-danger');
-            } else {
-                // Info / Loading
-
-                statusCard.classList.add('bg-light', 'text-secondary');
-                icon.textContent = 'info';
-                icon.classList.replace('text-danger', 'text-primary');
-                icon.classList.replace('text-success', 'text-primary');
-            }
-        }
-
-        // --- Bluetooth Logic ---
-        async function connectToPrinter() {
-            updateStatus('กำลังค้นหาเครื่องพิมพ์...', 'info');
-
-            if (!navigator.bluetooth) {
-                updateStatus('Browser ไม่รองรับ Bluetooth (ใช้ Chrome Android)', 'error');
-                return;
-            }
-
-            try {
-                let selectedDevice = null;
-                const lastDeviceId = localStorage.getItem(LAST_USED_DEVICE_ID_KEY);
-
-                if (lastDeviceId) {
-                    try {
-                        const devices = await navigator.bluetooth.getDevices();
-                        selectedDevice = devices.find(d => d.id === lastDeviceId);
-                    } catch (e) { }
-                }
-
-                if (!selectedDevice) {
-                    selectedDevice = await navigator.bluetooth.requestDevice({
-                        filters: [{ services: [PRINTER_SERVICE_UUID] }],
-                        optionalServices: []
-                    });
-                    localStorage.setItem(LAST_USED_DEVICE_ID_KEY, selectedDevice.id);
-                }
-
-                bluetoothDevice = selectedDevice;
-                bluetoothDevice.addEventListener('gattserverdisconnected', onDisconnected);
-
-                const server = await bluetoothDevice.gatt.connect();
-                const service = await server.getPrimaryService(PRINTER_SERVICE_UUID);
-                printCharacteristic = await service.getCharacteristic(PRINTER_CHARACTERISTIC_UUID);
-
-                updateStatus(`เชื่อมต่อ ${bluetoothDevice.name} สำเร็จ`, 'success');
-                updateGlobalPrinterStatus()
-
-            } catch (error) {
-                updateStatus(`เชื่อมต่อไม่สำเร็จ: ${error.message}`, 'error');
-            }
-        }
-
-        function onDisconnected() {
-            updateStatus('เครื่องพิมพ์หลุดการเชื่อมต่อ', 'error');
-            printButton.disabled = true;
-            connectButton.innerHTML = '<span class="material-icons-round">bluetooth</span><span>เชื่อมต่อ</span>';
-            connectButton.classList.remove('text-success', 'border-success');
-        }
-
-        // --- Printing Logic ---
-        function getMonochromeBitmapData(ctx, width, height) {
-            const imageData = ctx.getImageData(0, 0, width, height);
-            const data = imageData.data;
-            const bitmap = new Uint8Array(Math.ceil(width / 8) * height);
-
-            for (let y = 0; y < height; y++) {
-                for (let x = 0; x < width; x++) {
-                    const i = (y * width + x) * 4;
-                    const avg = (data[i] + data[i + 1] + data[i + 2]) / 3;
-                    if (avg < 128) {
-                        const byteIndex = y * Math.ceil(width / 8) + Math.floor(x / 8);
-                        const bitIndex = 7 - (x % 8);
-                        bitmap[byteIndex] |= (1 << bitIndex);
-                    }
-                }
-            }
-            return bitmap;
-        }
-
-        async function printReceipt() {
-            if (!printCharacteristic) {
-                console.log('!printCharacteristic');
-                updateStatus('กรุณาเชื่อมต่อก่อนพิมพ์', 'error');
-                return;
-            }
-
-            // 🟢 ประกาศตัวแปรดึง DOM Elements ให้ครบถ้วนตรงนี้
-            const printButton = document.getElementById('printImageButton');
-            const printBtnText = document.getElementById('printBtnText');
-
-            if (!printBtnText || !printButton) {
-                console.error('ไม่พบปุ่มพิมพ์หรือข้อความปุ่มใน DOM');
-                return;
-            }
-
-            const originalText = printBtnText.textContent;
-            printButton.disabled = true;
-            printBtnText.textContent = 'กำลังส่งข้อมูล...';
-
-            try {
-                // 1. HTML to Canvas
-                const receiptElement = document.getElementById('card-reciept');
-                if (!receiptElement) {
-                    throw new Error('ไม่พบ Element #receipt-card ในหน้าเว็บ');
-                }
-
-                const canvas = await html2canvas(receiptElement, {
-                    scale: 2,
-                    useCORS: true,
-                    backgroundColor: '#ffffff'
-                });
-
-                // 2. Resize
-                const printerWidth = 384; // 58mm thermal printer (384 dots)
-                const scaleFactor = printerWidth / canvas.width;
-                const printerHeight = Math.floor(canvas.height * scaleFactor);
-
-                const printCanvas = document.createElement('canvas');
-                printCanvas.width = printerWidth;
-                printCanvas.height = printerHeight;
-                const ctx = printCanvas.getContext('2d');
-
-                // เทสีขาวป้องกันภาพพื้นหลังโปร่งใสกลายเป็นสีดำ
-                ctx.fillStyle = '#ffffff';
-                ctx.fillRect(0, 0, printerWidth, printerHeight);
-                ctx.drawImage(canvas, 0, 0, printerWidth, printerHeight);
-
-                // 3. Bitmap & Command (GS v 0)
-                const bitmapData = getMonochromeBitmapData(ctx, printerWidth, printerHeight);
-                const bytesPerRow = Math.ceil(printerWidth / 8);
-
-                const command = new Uint8Array([
-                    0x1D, 0x76, 0x30, 0x00,
-                    bytesPerRow & 0xFF, (bytesPerRow >> 8) & 0xFF,
-                    printerHeight & 0xFF, (printerHeight >> 8) & 0xFF
-                ]);
-
-                const dataToSend = new Uint8Array(command.length + bitmapData.length);
-                dataToSend.set(command, 0);
-                dataToSend.set(bitmapData, command.length);
-
-                // 4. Send Chunks
-                const CHUNK_SIZE = 170;
-                for (let i = 0; i < dataToSend.length; i += CHUNK_SIZE) {
-                    const chunk = dataToSend.slice(i, i + CHUNK_SIZE);
-                    await printCharacteristic.writeValueWithoutResponse(chunk);
-                    await new Promise(r => setTimeout(r, 20));
-                }
-
-                // Feed Lines (0x0A = Line Feed)
-                await printCharacteristic.writeValueWithoutResponse(new Uint8Array([0x0A, 0x0A, 0x0A]));
-                updateStatus('พิมพ์เสร็จสิ้น', 'success');
-
-            } catch (error) {
-                // ป้องกันกรณี error.message ไม่มีค่า
-                const errorMsg = error.message || error;
-                updateStatus(`Error: ${errorMsg}`, 'error');
-            } finally {
-                printButton.disabled = false;
-                printBtnText.textContent = originalText;
-            }
-        }
-        // Initialize
-        connectButton.addEventListener('click', connectToPrinter);
-    </script>
 @endsection

@@ -2,6 +2,7 @@
 
 namespace App\Models\Tabwater;
 
+use App\Models\Admin\Subzone;
 use App\Models\Admin\ZonBlocks;
 use App\Models\Admin\Zone;
 use App\Models\Admin\Zones;
@@ -69,7 +70,7 @@ class TwUsersInfos extends Model
     // โซนย่อยที่รับผิดชอบ
     public function undertakeZoneBlock()
     {
-        return $this->belongsTo(ZonBlocks::class, 'undertake_zone_block_id'); // Assuming SubZone is the correct model
+        return $this->belongsTo(Subzone::class, 'undertake_zone_block_id'); // Assuming SubZone is the correct model
     }
 
     // ประเภทมิเตอร์

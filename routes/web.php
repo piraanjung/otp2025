@@ -143,7 +143,7 @@ Route::get('/upload-form', function () {
 Route::post('/upload-and-convert', [SqlToJsonController::class, 'uploadAndProcess']);
 
 
-// Route::resource('/test', TestController::class);
+Route::resource('/test', TestController::class);
 Route::get('/test/textSendLineMessage', [TestController::class,'textSendLineMessage']);
 
 

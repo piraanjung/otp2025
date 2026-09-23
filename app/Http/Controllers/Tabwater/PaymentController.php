@@ -21,6 +21,7 @@ use App\Models\Tabwater\TwAccTransactions;
 use App\Models\Tabwater\TwCutmeter;
 use App\Models\Tabwater\TwInvoiceHistoty;
 use App\Models\Tabwater\TwInvoice;
+use App\Models\Tabwater\TwInvoiceHistory;
 
 class PaymentController extends Controller
 {
@@ -200,6 +201,7 @@ class PaymentController extends Controller
     // 4. สร้าง Transaction (ใบเสร็จรับเงิน Header) เพียง 1 รายการ
     $accTrans = new TwAccTransactions();
     // $accTrans->inv_id_fk = ...; // **ไม่ต้องใส่** เพราะ 1 Transaction มีหลาย Inv ให้ไปดูที่ลูกแทน
+    $accTrans->meter_id_fk       = $meter_id;
     $accTrans->vatsum            = $sum_vat;
     $accTrans->reserve_meter_sum = $sum_reserve;
     $accTrans->paidsum           = $sum_paid;
@@ -220,7 +222,7 @@ class PaymentController extends Controller
     foreach ($invoices as $inv) {
         $inv->status          = 'paid';
         $inv->acc_trans_id_fk = $accTrans->id; // **Key สำคัญ: ผูกบิลกับ Transaction**
-        $inv->inv_no          = $receipt_running_no; // เลขที่ใบเสร็จเดียวกันทั้งชุด
+       //  $inv->inv_no          = $receipt_running_no; // เลขที่ใบเสร็จเดียวกันทั้งชุด
         $inv->updated_at      = now();
         $inv->save();
 
@@ -286,10 +288,15 @@ class PaymentController extends Controller
     // 9. ส่งไปพิมพ์ใบเสร็จ (ส่ง Transaction ID ไปเลย แม่นยำกว่า)
     return $this->receipt_print_by_trans($accTrans->id);
 }
-
-// สร้าง function ใหม่ หรือปรับแก้ receipt_print เดิมให้รับ trans_id
+/**
+ * Summary of receipt_print_by_trans
+ * @param mixed $acc_trans_id
+ * @return \Illuminate\Contracts\View\View
+ */
 private function receipt_print_by_trans($acc_trans_id)
 {
+    // สร้าง function ใหม่ หรือปรับแก้ receipt_print เดิมให้รับ trans_id
+
     // ดึง Invoices โดยอ้างอิงจาก Transaction ID เดียว (จะได้บิลทั้งหมดที่เพิ่งจ่าย)
     $invoicesPaidForPrint = TwInvoice::where('acc_trans_id_fk', $acc_trans_id)
         ->with([
@@ -402,14 +409,13 @@ private function receipt_print_by_trans($acc_trans_id)
 
     public function receipt_print_multi(REQUEST $request, $inv_id = 0, $from_blade = 'payment.index')
     {
-
         $receipt_id = $account_id_fk;
         if ($request->session()->has('account_id_fk')) {
             $receipt_id = $request->session()->get('account_id_fk');
         }
 
         //ดึงมาจาก  invoice_history_table  เพราะทำการย้าย data status paid ไปเก็บไว้ตอน  payment.stor
-        $invoicesPaidForPrint = TwInvoiceHistoty::where('acc_trans_id_fk', $receipt_id)
+        $invoicesPaidForPrint = TwInvoiceHistory::where('acc_trans_id_fk', $receipt_id)
             ->where('status', 'paid')
             ->with([
                 'invoice_period' => function ($query) {
@@ -489,7 +495,7 @@ private function receipt_print_by_trans($acc_trans_id)
             ])
             ->get(['inv_period_id_fk', 'meter_id_fk', 'inv_no', 'lastmeter', 'currentmeter', 'status', 'acc_trans_id_fk', 'recorder_id', 'updated_at', 'created_at']);
 
-        $invoiceHistoryTable = TwInvoiceHistoty::where('acc_trans_id_fk', $receipt_id)
+        $invoiceHistoryTable = TwInvoiceHistory::where('acc_trans_id_fk', $receipt_id)
             ->with([
                 'invoice_period' => function ($query) {
                     return $query->select('id', 'inv_p_name');
