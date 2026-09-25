@@ -487,6 +487,11 @@ public function adminCancel($refNo)
     // 1. ดึงเฉพาะ id แรกของแต่ละ ref_no ที่ไม่ซ้ำกัน เพื่อใช้ทำ Pagination
     $subQuery = InvTransaction::where('org_id_fk', $user->org_id_fk);
 
+    // ➕ กรองตามสถานะ (รับค่ามาจาก Dashboard เช่น PENDING, APPROVED, REJECTED)
+    if ($request->has('status') && $request->status != '') {
+        $subQuery->where('status', $request->status);
+    }
+
     // Filter ค้นหา (ใส่เงื่อนไขใน Subquery ด้วยเพื่อให้ Pagination นับจำนวนถูกต้องตามการค้นหา)
     if ($request->has('search') && $request->search != '') {
         $searchTerm = $request->search;
@@ -515,8 +520,9 @@ public function adminCancel($refNo)
     $transactions = InvTransaction::whereIn('id', $subQuery)
         ->with(['item', 'user', 'detail', 'approver_user'])
         ->orderBy('transaction_date', 'desc')
-        ->paginate(20);
+        ->paginate(20)
+        ->withQueryString(); // 👈 สำคัญมาก! เพื่อคงค่า Query ทั้ง status, search และ date ไว้ตอนเปลี่ยนหน้า
 
-        return view('inventory.inv_history', compact('transactions'));
-    }
+    return view('inventory.inv_history', compact('transactions'));
+}
 }

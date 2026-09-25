@@ -13,12 +13,17 @@ class InvCategory extends Model
     protected $table = 'inv_categories';
 
     protected $fillable = [
-        'org_id_fk', 'name'
+        'org_id_fk', 'name','approval_workflow_id'
     ];
 
     // ✅ เชื่อมกลับไปหา Organization เดิม
     public function organization() {
         return $this->belongsTo(Organization::class, 'org_id_fk', 'id');
+    }
+
+    public function workflow()
+    {
+        return $this->belongsTo(ApprovalWorkflow::class, 'approval_workflow_id');
     }
 
     public function items() { return $this->hasMany(InvItem::class, 'inv_category_id_fk'); }

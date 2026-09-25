@@ -12,37 +12,37 @@
             <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
         </div>
     @endif
-<div class="row mb-4 align-items-center">
-    <div class="col-md-2">
-        <a href="{{ route('inventory.items.create') }}" class="btn btn-primary btn-material">
-            <i class="material-icons-round align-middle">add</i> เพิ่มพัสดุใหม่
-        </a>
+    <div class="row mb-4 align-items-center">
+        <div class="col-md-2">
+            <a href="{{ route('inventory.items.create') }}" class="btn btn-primary btn-material">
+                <i class="material-icons-round align-middle">add</i> เพิ่มพัสดุใหม่
+            </a>
+        </div>
+        <div class="col-md-2">
+            <a href="{{ route('inventory.withdraw.create_multiple') }}" class="btn btn-warning btn-material">
+                <i class="material-icons-round align-middle">add</i> เบิกพัสดุ
+            </a>
+        </div>
+        <div class="col-md-8">
+            <form action="{{ route('inventory.items.index') }}" method="GET">
+                <div class="input-group shadow-sm">
+                    <input type="text" name="search" class="form-control border-0"
+                        placeholder="ค้นหาชื่อพัสดุ, รหัส, หรือ CAS No..." value="{{ request('search') }}">
+
+                    <button class="btn btn-white border-0 bg-white" type="submit">
+                        <i class="material-icons-round text-primary">search</i>
+                    </button>
+
+                    @if(request('search'))
+                        <a href="{{ route('inventory.items.index') }}" class="btn btn-light border-start text-danger"
+                            title="ล้างค่าค้นหา">
+                            <i class="material-icons-round">close</i>
+                        </a>
+                    @endif
+                </div>
+            </form>
+        </div>
     </div>
-<div class="col-md-2">
-        <a href="{{ route('inventory.withdraw.create_multiple') }}" class="btn btn-warning btn-material">
-            <i class="material-icons-round align-middle">add</i> เบิกพัสดุ
-        </a>
-    </div>
-    <div class="col-md-8">
-        <form action="{{ route('inventory.items.index') }}" method="GET">
-            <div class="input-group shadow-sm">
-                <input type="text" name="search" class="form-control border-0" 
-                       placeholder="ค้นหาชื่อพัสดุ, รหัส, หรือ CAS No..." 
-                       value="{{ request('search') }}">
-                
-                <button class="btn btn-white border-0 bg-white" type="submit">
-                    <i class="material-icons-round text-primary">search</i>
-                </button>
-                
-                @if(request('search'))
-                    <a href="{{ route('inventory.items.index') }}" class="btn btn-light border-start text-danger" title="ล้างค่าค้นหา">
-                        <i class="material-icons-round">close</i>
-                    </a>
-                @endif
-            </div>
-        </form>
-    </div>
-</div>
     <div class="card p-4">
         <div class="d-flex justify-content-between align-items-center mb-4">
             <h5 class="fw-bold text-secondary m-0">รายการสินค้าในสต็อก</h5>
@@ -60,6 +60,7 @@
                         <th>หมวดหมู่</th>
                         <th class="text-center">คุณสมบัติ</th>
                         <th class="text-center">คงเหลือ</th>
+                        <th>ล็อตและการรับเข้า / วันหมดอายุ</th>
                         <th class="text-end">จัดการ</th>
                     </tr>
                 </thead>
@@ -68,8 +69,8 @@
                         <tr>
                             <td>
                                 @if($item->image_path)
-                                    <img src="{{ asset($item->image_path) }}" class="rounded shadow-sm" width="50"
-                                        height="50" style="object-fit: cover;">
+                                    <img src="{{ asset($item->image_path) }}" class="rounded shadow-sm" width="50" height="50"
+                                        style="object-fit: cover;">
                                 @else
                                     <div class="bg-light rounded d-flex align-items-center justify-content-center text-muted"
                                         style="width: 50px; height: 50px;">
@@ -98,38 +99,72 @@
                                     </span>
                                 @endif
                             </td>
-                            <td>
+                            <td class="text-center">
                                 <span class="fw-bold text-success fs-5">
-                                    {{ $item->details->sum('current_qty') }}
+                                    {{ $item->details->count() }}
                                 </span>
                                 {{ $item->unit }}
 
-                                @if($item->pending_qty > 0)
+                                @if(isset($item->pending_qty) && $item->pending_qty > 0)
                                     <div class="small text-warning mt-1" data-bs-toggle="tooltip" title="มีการขอเบิก รออนุมัติ">
                                         <i class="material-icons-round fs-6 align-text-bottom">hourglass_empty</i>
                                         รออนุมัติ: {{ number_format($item->pending_qty) }}
                                     </div>
                                 @endif
                             </td>
+                            <td>
+                                <!-- แสดงรายการล็อต (เรียงจากล่าสุดไปเก่าสุด) -->
+                            <td>
+                                <div style="">
+                                    @forelse($item->details->groupBy('received_date') as $receiveDate => $detailsInBatch)
+
+                                        <div class="small mb-2 border-bottom pb-1">
+                                            <!-- วันที่รับเข้า และ จำนวนคงเหลือในล็อตนี้ -->
+                                            <div class="d-flex justify-content-between align-items-center">
+                                                <span class="fw-semibold text-dark">
+                                                    <i class="material-icons-round fs-6 align-middle text-success">event</i>
+                                                    รับเมื่อ: {{ \Carbon\Carbon::parse($receiveDate)->format('d/m/Y') }}
+                                                </span>
+                                                <span class="badge bg-success rounded-pill">
+                                                    เหลือ {{ $detailsInBatch->count() }} {{ $item->unit }}
+                                                </span>
+                                            </div>
+
+                                            <!-- วันหมดอายุของล็อตนี้ (ถ้ามี) -->
+                                            @php
+                                                $expireDate = $detailsInBatch->first()->expire_date;
+                                            @endphp
+                                            @if($expireDate)
+                                                <div class="text-danger ms-3">
+                                                    <small>หมดอายุ: {{ \Carbon\Carbon::parse($expireDate)->format('d/m/Y') }}</small>
+                                                </div>
+                                            @else
+                                                <div class="text-muted ms-3">
+                                                    <small>- ไม่มีวันหมดอายุ -</small>
+                                                </div>
+                                            @endif
+                                        </div>
+                                    @empty
+                                        <span class="text-muted small">ไม่มีล็อต Active</span>
+                                    @endforelse
+                                </div>
+                            </td>
+                            </td>
                             <td class="text-end">
                                 <a href="{{ route('inventory.stock.receive', $item->id) }}"
                                     class="btn btn-sm btn-outline-success rounded-circle me-1" title="เติมสต็อก/เพิ่มขวด">
                                     <i class="material-icons-round fs-6">add_box</i>
                                 </a>
-                                {{-- <a href="{{ route('inventory.withdraw.form', $item->id) }}"
-                                    class="btn btn-sm btn-outline-primary rounded-circle me-1" title="เบิกพัสดุ">
-                                    <i class="material-icons-round fs-6">shopping_cart</i>
-                                </a> --}}
 
                                 <a href="{{ route('inventory.items.edit', $item->id) }}"
-                                 class="btn btn-sm btn-outline-secondary rounded-circle" title="แก้ไข">
+                                    class="btn btn-sm btn-outline-secondary rounded-circle" title="แก้ไข">
                                     <i class="material-icons-round fs-6">edit</i>
                                 </a>
                             </td>
                         </tr>
                     @empty
                         <tr>
-                            <td colspan="6" class="text-center py-5 text-muted">
+                            <td colspan="7" class="text-center py-5 text-muted">
                                 <i class="material-icons-round display-4 opacity-25">inventory_2</i>
                                 <p>ยังไม่มีรายการพัสดุ</p>
                             </td>

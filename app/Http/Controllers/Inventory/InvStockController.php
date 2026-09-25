@@ -5,6 +5,7 @@ use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
 use App\Models\InvItem;
 use App\Models\InvItemDetail;
+use Carbon\Carbon;
 use Illuminate\Support\Facades\Auth;
 
 class InvStockController extends Controller
@@ -20,7 +21,7 @@ class InvStockController extends Controller
             abort(403); 
         }
 
-        return view('inventory.inv_stock_receive', compact('item'));
+        return view('inventory.stock.receive', compact('item'));
     }
 
     // 2. บันทึกข้อมูล (หัวใจสำคัญ ❤️)
@@ -35,7 +36,6 @@ class InvStockController extends Controller
         ]);
 
         $item = InvItem::findOrFail($request->inv_item_id_fk);
-        $user = Auth::user();
 
         // --- LOOP สร้างทีละขวด ---
         // ถ้าUser กรอกว่ารับมา 5 ขวด ระบบจะวนลูปสร้าง 5 record
@@ -62,4 +62,22 @@ class InvStockController extends Controller
         return redirect()->route('inventory.items.index')
             ->with('success', "เพิ่มสต็อก {$item->name} จำนวน {$request->amount} ขวด เรียบร้อยแล้ว!");
     }
+
+    public function expiringStock()
+{
+    $user = Auth::user();
+    $orgId = $user->org_id_fk;
+
+    // ดึงข้อมูลจากตารางย่อย (InvItemDetail) เฉพาะที่ Active และใกล้หมดอายุใน 30 วัน
+    $items = InvItemDetail::whereHas('item', function($q) use ($orgId) {
+            $q->where('org_id_fk', $orgId);
+        })
+        ->where('status', 'ACTIVE')
+        ->whereDate('expire_date', '<=', Carbon::now()->addDays(30))
+        ->orderBy('expire_date', 'asc') 
+        ->with(['item.category']) // 👈 เอา .unit ออก เหลือไว้แค่ category
+        ->paginate(15);
+
+    return view('inventory.stock.expiring', compact('items'));
+}
 }

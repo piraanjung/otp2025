@@ -11,6 +11,7 @@ use App\Http\Controllers\Admin\AdminSubzoneController;
 use App\Http\Controllers\Admin\AdminWithdrawController;
 use App\Http\Controllers\Admin\SuperAdminAuthController;
 use App\Http\Controllers\Admin\UserController;
+use App\Http\Controllers\Admin\WorkflowController;
 use App\Http\Controllers\Admin\ZoneController;
 use App\Http\Controllers\Api\KioskController;
 use App\Http\Controllers\Auth\LoginController;
@@ -229,6 +230,7 @@ Route::middleware(['auth', 'role:Admin|Super Admin'])->name('admin.')->prefix('a
     Route::delete('/permissions/{permission}/roles/{role}', [PermissionController::class, 'removeRole'])->name('permissions.roles.remove');
     Route::resource('/permissions', PermissionController::class);
 
+    Route::resource('workflows', WorkflowController::class);
 
     //tabwater
     Route::prefix('users/')->name('users.')->group(function () {
@@ -380,9 +382,6 @@ Route::group(['middleware' => ['role:Admin|tabwater|Super Admin']], function () 
     });
 });
 
-
-
-
 Route::prefix('superadmin')->name('superadmin.')->group(function () {
     Route::get('/login', [SuperAdminAuthController::class, 'showLoginForm'])->name('login');
     Route::post('/login', [SuperAdminAuthController::class, 'login'])->name('login.post');
@@ -407,47 +406,54 @@ Route::prefix('admin/ef')->group(function () {
 });
 
 Route::middleware(['auth'])->prefix('inventory')->name('inventory.')->group(function () {
-
-    // หน้า Dashboard รวม (ที่เราทำไป Phase 1)
     Route::get('/dashboard', [InvDashboardController::class, 'index'])->name('dashboard');
 
     // Route สำหรับจัดการพัสดุ (Items)
-    Route::get('/items/index', [InvItemController::class, 'index'])->name('items.index');
-    Route::get('/items/create', [InvItemController::class, 'create'])->name('items.create');
-    Route::get('/items/{id}/edit', [InvItemController::class, 'edit'])->name('items.edit');
-    Route::put('/items/{id}', [InvItemController::class, 'update'])->name('items.update');
-    Route::get('/items/iframe', [InvItemController::class, 'iframeIndex'])->name('items.iframe');
-    Route::post('/items/store', [InvItemController::class, 'store'])->name('items.store');
+    Route::prefix('items')->name('items.')->group(function () {
+        Route::get('/index', [InvItemController::class, 'index'])->name('index');
+        Route::get('/create', [InvItemController::class, 'create'])->name('create');
+        Route::get('/{id}/edit', [InvItemController::class, 'edit'])->name('edit');
+        Route::put('/{id}', [InvItemController::class, 'update'])->name('update');
+        Route::get('/iframe', [InvItemController::class, 'iframeIndex'])->name('iframe');
+        Route::post('/store', [InvItemController::class, 'store'])->name('store');
+    });
 
-    Route::get('/stock/receive/{id}', [InvStockController::class, 'receiveForm'])->name('stock.receive');
-    Route::get('download-template', [InvItemController::class, 'downloadTemplate'])->name('items.template');
+    Route::prefix('stock')->name('stock.')->group(function () {
+        Route::get('/receive/{id}', [InvStockController::class, 'receiveForm'])->name('receive');
+        Route::get('/expiring', [InvStockController::class, 'expiringStock'])->name('expiring');
+        Route::post('/receive', [InvStockController::class, 'storeReceive'])->name('store_receive');
+    });
 
+    Route::prefix('/withdraw')->name('withdraw.')->group(function () {
+       
+        // หน้าจอเลือกพัสดุหลายรายการ (แนวทางตะกร้าสินค้า)
+        Route::get('/multiple', [InvTransactionController::class, 'createMultipleWithdraw'])->name('create_multiple');
+        // Route::get('/ref/{refNo}', [InvTransactionController::class, 'showByRef'])->name('show_ref');
+        Route::get('/withdraw_print/{refNo}', [InvTransactionController::class, 'showByRef'])->name('show_ref');
+        // ฟังก์ชันบันทึกการเบิกหลายรายการ
+        Route::post('/multiple/store', [InvTransactionController::class, 'storeMultipleWithdraw'])->name('store_multiple');
+        // ปุ่มกดอนุมัติ
+        Route::post('/{id}/approve', [InvTransactionController::class, 'approve'])->name('approve');
+        Route::post('/dispense/{refNo}', [InvTransactionController::class, 'dispense'])->name('dispense');
+        // หน้าฟอร์มให้เจ้าหน้าที่พัสดุตรวจสอบ/แก้ไขจำนวน/ยกเลิกรายการ ก่อนตัดสต็อก
+        Route::get('/dispense-form/{refNo}', [InvTransactionController::class, 'dispenseForm'])->name('dispense_form');
+
+        // บันทึกการจ่ายพัสดุจริงและตัดสต็อก
+        Route::post('/dispense-process/{refNo}', [InvTransactionController::class, 'dispenseProcess'])->name('dispense_process');
+         Route::get('/{item_id}', [InvTransactionController::class, 'withdrawForm'])->name('form');
+        Route::post('/', [InvTransactionController::class, 'storeWithdraw'])->name('store');
+        Route::get('/{id}/show', [InvTransactionController::class, 'show'])->name('show');
+    });
+   
     // Route สำหรับ process การ import
     Route::post('import', [InvItemController::class, 'import'])->name('items.import');
-    // ฟังก์ชันบันทึกการรับของ
-    Route::post('/stock/receive', [InvStockController::class, 'storeReceive'])->name('stock.store_receive');
-    Route::get('/stock/withdraw/{item_id}', [InvTransactionController::class, 'withdrawForm'])->name('withdraw.form');
-    Route::post('/stock/withdraw', [InvTransactionController::class, 'storeWithdraw'])->name('withdraw.store');
+    Route::get('download-template', [InvItemController::class, 'downloadTemplate'])->name('items.template');
     Route::resource('units', InvUnitController::class)->only(['index', 'store', 'destroy']);
-    Route::resource('categories', InvCategoryController::class)->only(['index', 'store', 'destroy']);
+    Route::resource('categories', InvCategoryController::class)->only(['index', 'store', 'destroy', 'edit', 'update']);
     Route::get('/history', [InvTransactionController::class, 'history'])->name('history');
     Route::resource('hazards', InvHazardLevelController::class)->only(['index', 'store', 'destroy']);
     // ดูใบเบิก
-    Route::get('/withdraw/{id}/show', [InvTransactionController::class, 'show'])->name('withdraw.show');
-    // หน้าจอเลือกพัสดุหลายรายการ (แนวทางตะกร้าสินค้า)
-    Route::get('/withdraw/multiple', [InvTransactionController::class, 'createMultipleWithdraw'])->name('withdraw.create_multiple');
-    Route::get('/withdraw/ref/{refNo}', [InvTransactionController::class, 'showByRef'])->name('withdraw.show_ref');
-    Route::get('/withdraw/withdraw_print/{refNo}', [InvTransactionController::class, 'showByRef'])->name('withdraw.show_ref');
-    // ฟังก์ชันบันทึกการเบิกหลายรายการ
-    Route::post('/withdraw/multiple/store', [InvTransactionController::class, 'storeMultipleWithdraw'])->name('withdraw.store_multiple');
-    // ปุ่มกดอนุมัติ
-    Route::post('/withdraw/{id}/approve', [InvTransactionController::class, 'approve'])->name('withdraw.approve');
-    Route::post('/withdraw/dispense/{refNo}', [InvTransactionController::class, 'dispense'])->name('withdraw.dispense');
-    // หน้าฟอร์มให้เจ้าหน้าที่พัสดุตรวจสอบ/แก้ไขจำนวน/ยกเลิกรายการ ก่อนตัดสต็อก
-Route::get('/withdraw/dispense-form/{refNo}', [InvTransactionController::class, 'dispenseForm'])->name('withdraw.dispense_form');
 
-// บันทึกการจ่ายพัสดุจริงและตัดสต็อก
-Route::post('/withdraw/dispense-process/{refNo}', [InvTransactionController::class, 'dispenseProcess'])->name('withdraw.dispense_process');
 });
 
 require __DIR__ . '/auth.php';

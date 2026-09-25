@@ -9,7 +9,9 @@ use Illuminate\Http\Request;
 use App\Models\InvItem;
 use App\Models\InvCategory;
 use App\Models\InvHazardLevel;
+use App\Models\InvItemDetail;
 use App\Models\InvUnit;
+use Carbon\Carbon;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\File;
 use Maatwebsite\Excel\Facades\Excel;
@@ -17,42 +19,51 @@ use Maatwebsite\Excel\Facades\Excel;
 class InvItemController extends Controller
 {
     // 1. หน้าแสดงรายการพัสดุ (Dashboard ย่อย)
-    public function index(Request $request) // ✅ รับ Request เข้ามา
-    {
-        $user = Auth::user();
+public function index(Request $request) 
+{
+    $user = Auth::user();
 
-        // 1. เริ่มต้น Query
-        $query = InvItem::where('org_id_fk', $user->org_id_fk)
-            ->with(['category', 'details']); // Eager Load เพื่อลด Query
+    // 1. เริ่มต้น Query พร้อมจัดเรียงรายละเอียดล็อต (details) ด้านใน
+    $query = InvItem::where('org_id_fk', $user->org_id_fk)
+        ->with(['category', 'details' => function($q) {
+            // เรียงลำดับล็อตจาก "ล่าสุด ไปหา เก่าสุด" (ตามวันที่รับเข้า/สร้าง)
+            $q->where('status', 'ACTIVE')
+              ->orderBy('received_date', 'desc'); 
+        }]);
 
-        // 2. ถ้ามีการพิมพ์ค้นหา (Search)
-        if ($request->filled('search')) {
-            $search = $request->search;
-
-            // ใช้ Where Group (...) เพื่อไม่ให้ตีกับ org_id
-            $query->where(function ($q) use ($search) {
-                $q->where('name', 'like', '%' . $search . '%')      // ค้นจากชื่อพัสดุ
-                    ->orWhere('code', 'like', '%' . $search . '%')    // ค้นจากรหัส
-                    ->orWhere('cas_number', 'like', '%' . $search . '%') // ค้นจาก CAS No.
-
-                    // ✅ วิธีที่ถูกต้องในการค้นหาข้ามตาราง (Category)
-                    ->orWhereHas('category', function ($subQuery) use ($search) {
-                        $subQuery->where('name', 'like', '%' . $search . '%');
-                    });
-            });
-        }
-
-        // 3. ดึงข้อมูล + Pagination (คงค่า search ไว้ตอนเปลี่ยนหน้า)
-        $items = $query->orderBy('created_at', 'desc')
-            ->paginate(10)
-            ->withQueryString(); // ✅ สำคัญ! เพื่อให้กดหน้า 2 แล้วค่าค้นหาไม่หาย
-
-        // ส่งข้อมูลไปที่หน้า View (ต้องส่ง categories, units ไปด้วยถ้าหน้า index มี Popup เพิ่มของ)
-        $categories = InvCategory::where('org_id_fk', $user->org_id_fk)->get();
-        $units = InvUnit::where('org_id_fk', $user->org_id_fk)->get();
-
-        return view('inventory.items.index', compact('items', 'categories', 'units'));
+        // ➕ 1.1 ถ้ามีการคลิกมาจากหน้า Dashboard (filter=expiring)
+    if ($request->get('filter') === 'expiring') {
+        $query->whereHas('details', function ($q) {
+            $q->where('status', 'ACTIVE')
+              ->whereDate('expire_date', '<=', Carbon::now()->addDays(30));
+        });
     }
+
+    // 2. ถ้ามีการพิมพ์ค้นหา (Search)
+    if ($request->filled('search')) {
+        $search = $request->search;
+        $query->where(function ($q) use ($search) {
+            $q->where('name', 'like', '%' . $search . '%')
+                ->orWhere('code', 'like', '%' . $search . '%')
+                ->orWhere('cas_number', 'like', '%' . $search . '%')
+                ->orWhereHas('category', function ($subQuery) use ($search) {
+                    $subQuery->where('name', 'like', '%' . $search . '%');
+                });
+        });
+    }
+
+    // 3. ดึงข้อมูล + Pagination
+  // return $aa =   $query->orderBy('created_at', 'desc')->get();
+
+    $items = $query->orderBy('created_at', 'desc')
+        ->paginate(10)
+        ->withQueryString();
+
+    $categories = InvCategory::where('org_id_fk', $user->org_id_fk)->get();
+    $units = InvUnit::where('org_id_fk', $user->org_id_fk)->get();
+
+    return view('inventory.items.index', compact('items', 'categories', 'units'));
+}
     public function iframeIndex(Request $request)
     {
         // ใช้ Logic การดึงข้อมูลและ Search แบบเดิมของคุณทั้งหมดที่นี่

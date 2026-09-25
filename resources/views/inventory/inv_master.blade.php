@@ -122,6 +122,11 @@
                     </a>
                 </li>
 
+                <li class="nav-item">
+                    <a href="{{ route('admin.workflows.index') }}" class="nav-link text-dark">
+                        <i class="material-icons-round align-middle me-2 text-secondary">straighten</i> จัดการสายการอนุมัติ
+                    </a>
+                </li>
 
             </ul>
         </div>

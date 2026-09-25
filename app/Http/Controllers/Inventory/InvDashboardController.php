@@ -14,51 +14,55 @@ use Carbon\Carbon;
 class InvDashboardController extends Controller
 {
     public function index()
-    {
-        $user = Auth::user();
-        $orgId = $user->org_id_fk;
+{
+    $user = Auth::user();
+    $orgId = $user->org_id_fk;
 
-        // 1. ตัวเลขสรุป (Cards)
-        $totalItems = InvItem::where('org_id_fk', $orgId)->count(); // จำนวน SKU ทั้งหมด
+    // 1. ตัวเลขสรุป (Cards)
+    $totalItems = InvItem::where('org_id_fk', $orgId)->count();
 
-        $totalBottles = InvItemDetail::whereHas('item', function($q) use ($orgId) {
-            $q->where('org_id_fk', $orgId);
-        })->where('status', 'ACTIVE')->count(); // จำนวนขวดที่มีของ
+    $totalBottles = InvItemDetail::whereHas('item', function($q) use ($orgId) {
+        $q->where('org_id_fk', $orgId);
+    })->where('status', 'ACTIVE')->count();
 
-        // ของใกล้หมดอายุใน 30 วัน
-        $expiringSoon = InvItemDetail::whereHas('item', function($q) use ($orgId) {
-            $q->where('org_id_fk', $orgId);
-        })
-        ->where('status', 'ACTIVE')
-        ->whereDate('expire_date', '<=', Carbon::now()->addDays(30))
-        ->count();
+    $expiringSoon = InvItemDetail::whereHas('item', function($q) use ($orgId) {
+        $q->where('org_id_fk', $orgId);
+    })
+    ->where('status', 'ACTIVE')
+    ->whereDate('expire_date', '<=', Carbon::now()->addDays(30))
+    ->count();
 
-        // 2. รายการเคลื่อนไหวล่าสุด 5 รายการ (Recent Activity)
-        $recentTransactions = InvTransaction::where('org_id_fk', $orgId)
-                                            ->with(['item', 'user'])
-                                            ->latest('transaction_date')
-                                            ->take(5)
-                                            ->get();
+    // ➕ นับจำนวนตามสถานะการเบิกจ่าย
+    $pendingCount = InvTransaction::where('org_id_fk', $orgId)->where('status', 'PENDING')->count();
+    $approvedCount = InvTransaction::where('org_id_fk', $orgId)->where('status', 'APPROVED')->count();
+    $rejectedCount = InvTransaction::where('org_id_fk', $orgId)->where('status', 'REJECTED')->count();
 
-        // 3. ข้อมูลกราฟ (แยกตามหมวดหมู่)
-        // ดึงข้อมูลว่าแต่ละหมวดหมู่ มีพัสดุกี่รายการ
-        $chartData = InvItem::where('org_id_fk', $orgId)
-            ->select('inv_category_id_fk', DB::raw('count(*) as total'))
-            ->groupBy('inv_category_id_fk')
-            ->with('category')
-            ->get();
+    // 2. รายการเคลื่อนไหวล่าสุด 5 รายการ
+    $recentTransactions = InvTransaction::where('org_id_fk', $orgId)
+                                        ->with(['item', 'user'])
+                                        ->latest('transaction_date')
+                                        ->take(5)
+                                        ->get();
 
-        // จัด Format ส่งให้ Chart.js (แยกชื่อหมวดหมู่ กับ ตัวเลข)
-        $labels = [];
-        $data = [];
-        foreach ($chartData as $row) {
-            $labels[] = $row->category->name ?? 'Uncategorized';
-            $data[] = $row->total;
-        }
+    // 3. ข้อมูลกราฟ (แยกตามหมวดหมู่)
+    $chartData = InvItem::where('org_id_fk', $orgId)
+        ->select('inv_category_id_fk', DB::raw('count(*) as total'))
+        ->groupBy('inv_category_id_fk')
+        ->with('category')
+        ->get();
 
-        return view('inventory.inv_dashboard', compact(
-            'totalItems', 'totalBottles', 'expiringSoon',
-            'recentTransactions', 'labels', 'data'
-        ));
+    $labels = [];
+    $data = [];
+    foreach ($chartData as $row) {
+        $labels[] = $row->category->name ?? 'Uncategorized';
+        $data[] = $row->total;
     }
+
+    // ➕ ส่งตัวแปรทั้งหมดไปที่ View
+    return view('inventory.inv_dashboard', compact(
+        'totalItems', 'totalBottles', 'expiringSoon',
+        'pendingCount', 'approvedCount', 'rejectedCount',
+        'recentTransactions', 'labels', 'data'
+    ));
+}
 }
