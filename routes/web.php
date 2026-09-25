@@ -133,8 +133,7 @@ Route::get('/logout_staff', function () {
     Session()->regenerateToken();
     Session()->flush();
 
-        return view('auth/login_staff');
-    
+    return view('auth/login_staff');
 });
 Route::get('/upload-form', function () {
     return view('upload');
@@ -144,7 +143,7 @@ Route::post('/upload-and-convert', [SqlToJsonController::class, 'uploadAndProces
 
 
 Route::resource('/test', TestController::class);
-Route::get('/test/textSendLineMessage', [TestController::class,'textSendLineMessage']);
+Route::get('/test/textSendLineMessage', [TestController::class, 'textSendLineMessage']);
 
 
 // Auth::routes() removed: auth routes are provided by Breeze in routes/auth.php.
@@ -413,9 +412,12 @@ Route::middleware(['auth'])->prefix('inventory')->name('inventory.')->group(func
     Route::get('/dashboard', [InvDashboardController::class, 'index'])->name('dashboard');
 
     // Route สำหรับจัดการพัสดุ (Items)
-    Route::get('/items', [InvItemController::class, 'index'])->name('items.index');
+    Route::get('/items/index', [InvItemController::class, 'index'])->name('items.index');
     Route::get('/items/create', [InvItemController::class, 'create'])->name('items.create');
-    Route::post('/items', [InvItemController::class, 'store'])->name('items.store');
+    Route::get('/items/{id}/edit', [InvItemController::class, 'edit'])->name('items.edit');
+    Route::put('/items/{id}', [InvItemController::class, 'update'])->name('items.update');
+    Route::get('/items/iframe', [InvItemController::class, 'iframeIndex'])->name('items.iframe');
+    Route::post('/items/store', [InvItemController::class, 'store'])->name('items.store');
 
     Route::get('/stock/receive/{id}', [InvStockController::class, 'receiveForm'])->name('stock.receive');
     Route::get('download-template', [InvItemController::class, 'downloadTemplate'])->name('items.template');
@@ -431,10 +433,21 @@ Route::middleware(['auth'])->prefix('inventory')->name('inventory.')->group(func
     Route::get('/history', [InvTransactionController::class, 'history'])->name('history');
     Route::resource('hazards', InvHazardLevelController::class)->only(['index', 'store', 'destroy']);
     // ดูใบเบิก
-    Route::get('/withdraw/{id}/slip', [InvTransactionController::class, 'show'])->name('withdraw.show');
-
+    Route::get('/withdraw/{id}/show', [InvTransactionController::class, 'show'])->name('withdraw.show');
+    // หน้าจอเลือกพัสดุหลายรายการ (แนวทางตะกร้าสินค้า)
+    Route::get('/withdraw/multiple', [InvTransactionController::class, 'createMultipleWithdraw'])->name('withdraw.create_multiple');
+    Route::get('/withdraw/ref/{refNo}', [InvTransactionController::class, 'showByRef'])->name('withdraw.show_ref');
+    Route::get('/withdraw/withdraw_print/{refNo}', [InvTransactionController::class, 'showByRef'])->name('withdraw.show_ref');
+    // ฟังก์ชันบันทึกการเบิกหลายรายการ
+    Route::post('/withdraw/multiple/store', [InvTransactionController::class, 'storeMultipleWithdraw'])->name('withdraw.store_multiple');
     // ปุ่มกดอนุมัติ
     Route::post('/withdraw/{id}/approve', [InvTransactionController::class, 'approve'])->name('withdraw.approve');
+    Route::post('/withdraw/dispense/{refNo}', [InvTransactionController::class, 'dispense'])->name('withdraw.dispense');
+    // หน้าฟอร์มให้เจ้าหน้าที่พัสดุตรวจสอบ/แก้ไขจำนวน/ยกเลิกรายการ ก่อนตัดสต็อก
+Route::get('/withdraw/dispense-form/{refNo}', [InvTransactionController::class, 'dispenseForm'])->name('withdraw.dispense_form');
+
+// บันทึกการจ่ายพัสดุจริงและตัดสต็อก
+Route::post('/withdraw/dispense-process/{refNo}', [InvTransactionController::class, 'dispenseProcess'])->name('withdraw.dispense_process');
 });
 
 require __DIR__ . '/auth.php';

@@ -16,6 +16,13 @@ function navigateTo(moduleName) {
 
         checkBluetoothStatus();
     }
+    else if (moduleName === 'inventory') {
+        document.getElementById('mainScreen').classList.add('is-hidden');
+        document.getElementById('depositScreen').classList.add('is-hidden');
+        document.getElementById('settingsScreen').classList.add('is-hidden');
+        document.getElementById('inventoryScreen').classList.remove('is-hidden');
+
+    }
     else if (moduleName === 'water') {
         document.getElementById('mainScreen').classList.add('is-hidden');
         document.getElementById('waterScreen').classList.remove('is-hidden');

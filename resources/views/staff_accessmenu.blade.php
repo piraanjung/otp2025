@@ -982,7 +982,7 @@
 
 @section('content')
 
-    <div class="app-header hidden">
+    <div class="app-header">
         <div style="display: flex; align-items: center; gap: 12px;">
             <button type="button" id="btnOpenSidebar" onclick="toggleSidebar(true)"
                 style="background: transparent; border: none; color: white; font-size: 24px; cursor: pointer; padding: 0 5px; width: auto; margin: 0;">
@@ -1032,7 +1032,7 @@
         </div>
     </div>
 
-    <div id="loginScreen" class="is-hidden">
+    <div id="loginScreen" class="">
         @include('staff.includes.screen_login')
     </div>
     @include('staff.includes.screen_select_org')
@@ -1064,6 +1064,13 @@
                     <div class="menu-icon">🖨️</div>
                     <div class="menu-title">ตั้งค่าเครื่องพิมพ์</div>
                     <div class="menu-desc">เชื่อมต่อ Bluetooth Thermal Printer</div>
+                </div>
+
+                <div class="menu-item card-inventory" onclick="navigateTo('inventory')">
+                    <div class="menu-icon">🖨️</div>
+                    <div class="fa fa-bible"></div>
+                    <div class="menu-title">ยืม/คืน พัสดุ</div>
+                    <div class="menu-desc">ยืม/คืน พัสดุ</div>
                 </div>
             </div>
         </div>
@@ -1335,11 +1342,7 @@
                 </div>
 
 
-                <div class="menu-item card-settings" onclick="navigateTo('settings-store')">
-                    <div class="menu-icon">🖨️</div>
-                    <div class="menu-title">ยืม/คืน พัสดุงานประปา</div>
-                    <div class="menu-desc">ยืม/คืน พัสดุงานประปา</div>
-                </div>
+                
             </div>
         </div>
     </div>
@@ -1350,6 +1353,12 @@
 
     <div id="waterMembersListScreen" class="is-hidden">
         @include('staff.includes.screen_water_members_list')
+    </div>
+    <div id="inventoryScreen" class="is-hidden">
+        <iframe src="{{ route('inventory.items.iframe') }}" 
+            style="width: 100%; height: 600px; border: none;" 
+            id="inventoryIframe">
+    </iframe>
     </div>
 
     <div id="successToast" class="success-toast-overlay">
@@ -1391,7 +1400,7 @@
                                 ">
     </div>
 
-<div id="qrcode_info"></div>
+{{-- <div id="qrcode_info"></div> --}}
 
 @endsection
 
@@ -1411,7 +1420,7 @@
 
         let BluetoothSerial = null;
         let allMembers = [];                 // เก็บรายชื่อสมาชิกทั้งหมดที่ดึงมาจาก Laravel
-        const API_BASE_URL = "https://4a58-1-47-150-24.ngrok-free.app/api";
+        const API_BASE_URL = "https://8d74-1-47-53-190.ngrok-free.app/api";
 
         let rawItemsData = [];               // เก็บรายการขยะทั้งหมด (kp_tbank_items)
         let currentSelectedTrash = null;     // เก็บขยะชิ้นปัจจุบันที่เจ้าหน้าที่เลือกอยู่

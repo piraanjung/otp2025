@@ -41,6 +41,13 @@ class InvTransaction extends Model
         return $this->belongsTo(User::class, 'user_id_fk', 'id');
     }
 
+    public function approver_user()
+    {
+        // หมายเหตุ: หากในตาราง inv_transactions ของคุณใช้ชื่อฟิลด์เก็บไอดีผู้อนุมัติว่า 'approved_by' 
+        // ให้ใช้ 'approved_by' แต่ถ้าใช้ชื่ออื่น (เช่น 'approver_id') ให้เปลี่ยนตามฐานข้อมูลจริงครับ
+        return $this->belongsTo(User::class, 'approved_by', 'id');
+    }
+
     public function detail() {
         return $this->belongsTo(InvItemDetail::class, 'inv_item_detail_id_fk', 'id');
     }

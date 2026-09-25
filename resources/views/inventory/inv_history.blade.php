@@ -42,80 +42,115 @@
         </thead>
         <tbody>
             @forelse($transactions as $trans)
-            <tr>
-                <td>
-                    <div class="fw-bold text-dark">{{ \Carbon\Carbon::parse($trans->created_at)->format('d/m/Y') }}</div>
-                    <small class="text-muted">{{ \Carbon\Carbon::parse($trans->created_at)->format('H:i') }} น.</small>
-                    
-                    @if($trans->ref_no)
-                        <div class="mt-1">
-                            <span class="badge bg-light text-secondary border">
-                                <i class="material-icons-round fs-6 align-text-bottom" style="font-size: 10px;">receipt</i>
-                                {{ $trans->ref_no }}
-                            </span>
-                        </div>
-                    @endif
-                </td>
+<tr>
+    <!-- คอลัมน์ วันที่/เลขที่ -->
+    <td>
+        <div class="fw-bold text-dark">{{ \Carbon\Carbon::parse($trans->created_at)->format('d/m/Y') }}</div>
+        <small class="text-muted">{{ \Carbon\Carbon::parse($trans->created_at)->format('H:i') }} น.</small>
+        
+        @if($trans->ref_no)
+            <div class="mt-1">
+                <span class="badge bg-light text-secondary border">
+                    <i class="material-icons-round fs-6 align-text-bottom" style="font-size: 10px;">receipt</i>
+                    {{ $trans->ref_no }}
+                </span>
+            </div>
+        @endif
+    </td>
 
-                <td>
-                    <span class="fw-bold text-primary">{{ $trans->item->name }}</span>
-                    @if($trans->item->code)
-                        <br><small class="text-muted">{{ $trans->item->code }}</small>
-                    @endif
-                    @if($trans->detail)
-                        <br><span class="badge bg-light text-dark border">Lot: {{ $trans->detail->lot_number }}</span>
-                    @endif
-                </td>
+    <!-- 🔍 คอลัมน์ พัสดุ (แก้ไขตรงนี้ให้ดึงทุกรายการที่มี ref_no เดียวกันมาแสดง) -->
+    <td>
+        @php
+            // ดึงรายการพัสดุทั้งหมดที่อยู่ในใบเบิกเลขที่ (ref_no) นี้
+            $groupItems = $trans->ref_no 
+                ? \App\Models\InvTransaction::where('ref_no', $trans->ref_no)->with(['item', 'detail'])->get() 
+                : collect([$trans]);
+        @endphp
 
-                <td>
-                    <div class="mb-1">
-                        <span class="text-dark fw-bold"><i class="material-icons-round fs-6 align-middle text-muted">person</i> {{ $trans->requester_name }}</span>
-                    </div>
-                    <small class="text-muted fst-italic d-block text-truncate" style="max-width: 150px;">
-                        "{{ $trans->purpose }}"
-                    </small>
-                </td>
+        @foreach($groupItems as $idx => $gItem)
+            <div class="{{ $idx > 0 ? 'mt-2 pt-2 border-top' : '' }}">
+                <span class="fw-bold text-primary">{{ $gItem->item->name ?? '-' }}</span>
+                @if($gItem->item->code ?? false)
+                    <small class="text-muted">({{ $gItem->item->code }})</small>
+                @endif
+                @if($gItem->detail ?? false)
+                    <br><span class="badge bg-light text-dark border" style="font-size: 11px;">Lot: {{ $gItem->detail->lot_number }}</span>
+                @endif
+            </div>
+        @endforeach
+    </td>
 
-                <td class="text-center">
-                    @if($trans->status == 'PENDING')
-                        <span class="badge rounded-pill bg-warning text-dark">
-                            <i class="material-icons-round align-middle" style="font-size:12px;">hourglass_empty</i> รออนุมัติ
-                        </span>
-                    @elseif($trans->status == 'APPROVED')
-                        <span class="badge rounded-pill bg-success">
-                            <i class="material-icons-round align-middle" style="font-size:12px;">check_circle</i> อนุมัติแล้ว
-                        </span>
-                        <div class="small text-muted mt-1" style="font-size: 10px;">
-                            โดย {{ $trans->approver_user->name ?? '-' }}
-                        </div>
-                    @else
-                        <span class="badge bg-secondary">{{ $trans->status }}</span>
-                    @endif
-                </td>
+    <!-- คอลัมน์ ผู้เบิก/ผู้ทำรายการ -->
+    <td>
+        <div class="mb-1">
+            <span class="text-dark fw-bold"><i class="material-icons-round fs-6 align-middle text-muted">person</i> {{ $trans->requester_name }}</span>
+        </div>
+        <small class="text-muted fst-italic d-block text-truncate" style="max-width: 150px;">
+            "{{ $trans->purpose }}"
+        </small>
+    </td>
 
-                <td class="text-end">
-                    <h6 class="m-0 fw-bold {{ $trans->status == 'APPROVED' ? 'text-danger' : 'text-secondary' }}">
-                        {{ number_format($trans->quantity) }}
-                    </h6>
-                    <small class="text-muted">{{ $trans->item->unit }}</small>
-                </td>
+    <!-- คอลัมน์ สถานะ -->
+    <td class="text-center">
+        @if($trans->status == 'PENDING')
+            <span class="badge rounded-pill bg-warning text-dark">
+                <i class="material-icons-round align-middle" style="font-size:12px;">hourglass_empty</i> รออนุมัติ
+            </span>
+        @elseif($trans->status == 'APPROVED')
+            <span class="badge rounded-pill bg-success">
+                <i class="material-icons-round align-middle" style="font-size:12px;">check_circle</i> อนุมัติแล้ว
+            </span>
+        @else
+            <span class="badge bg-secondary">{{ $trans->status }}</span>
+        @endif
+    </td>
 
-                <td class="text-center">
-                    <a href="{{ route('inventory.withdraw.show', $trans->id) }}" 
-                       class="btn btn-sm btn-outline-primary shadow-sm"
-                       data-bs-toggle="tooltip" title="ดูรายละเอียด/อนุมัติ">
-                        <i class="material-icons-round fs-6">visibility</i>
-                    </a>
-                </td>
-            </tr>
-            @empty
-            <tr>
-                <td colspan="6" class="text-center py-5 text-muted">
-                    <i class="material-icons-round display-4 opacity-25">history</i>
-                    <p>ไม่พบประวัติการทำรายการ</p>
-                </td>
-            </tr>
-            @endforelse
+    <!-- 📊 คอลัมน์ จำนวน (แสดงผลรวมหรือแสดงแยกตามรายการ) -->
+    <td class="text-end">
+        @foreach($groupItems as $idx => $gItem)
+            <div class="{{ $idx > 0 ? 'mt-2 pt-2 border-top' : '' }}">
+                <h6 class="m-0 fw-bold {{ $gItem->status == 'APPROVED' ? 'text-danger' : 'text-secondary' }}">
+                    {{ number_format($gItem->quantity) }}
+                </h6>
+                <small class="text-muted">{{ $gItem->item->unit ?? 'หน่วย' }}</small>
+            </div>
+        @endforeach
+    </td>
+
+    <!-- คอลัมน์ จัดการ (กดแล้ววิ่งไปหน้า Print/Show แบบกลุ่ม ref_no) -->
+<td class="text-center">
+    @if($trans->ref_no)
+        <a href="{{ route('inventory.withdraw.show_ref', $trans->ref_no) }}" 
+           class="btn btn-sm btn-outline-primary shadow-sm"
+           data-bs-toggle="tooltip" title="ดูรายละเอียดใบเบิกทั้งหมด">
+            <i class="material-icons-round fs-6">visibility</i>
+        </a>
+
+        {{-- เพิ่มปุ่มให้เจ้าหน้าที่พัสดุกด "จ่ายพัสดุ" เมื่อสถานะเป็น APPROVED แล้ว --}}
+        @if($trans->status == 'APPROVED')
+            <a href="{{ route('inventory.withdraw.dispense_form', $trans->ref_no) }}" 
+               class="btn btn-sm btn-success shadow-sm ms-1"
+               data-bs-toggle="tooltip" title="บันทึกจ่ายพัสดุและตัดสต็อก">
+                <i class="material-icons-round fs-6">local_shipping</i>
+            </a>
+        @endif
+    @else
+        <a href="{{ route('inventory.withdraw.show', $trans->id) }}" 
+           class="btn btn-sm btn-outline-primary shadow-sm"
+           data-bs-toggle="tooltip" title="ดูรายละเอียด">
+            <i class="material-icons-round fs-6">visibility</i>
+        </a>
+    @endif
+</td>
+</tr>
+@empty
+<tr>
+    <td colspan="6" class="text-center py-5 text-muted">
+        <i class="material-icons-round display-4 opacity-25">history</i>
+        <p>ไม่พบประวัติการทำรายการ</p>
+    </td>
+</tr>
+@endforelse
         </tbody>
     </table>
 </div>

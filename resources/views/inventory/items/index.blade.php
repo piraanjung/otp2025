@@ -13,12 +13,16 @@
         </div>
     @endif
 <div class="row mb-4 align-items-center">
-    <div class="col-md-4">
+    <div class="col-md-2">
         <a href="{{ route('inventory.items.create') }}" class="btn btn-primary btn-material">
             <i class="material-icons-round align-middle">add</i> เพิ่มพัสดุใหม่
         </a>
     </div>
-
+<div class="col-md-2">
+        <a href="{{ route('inventory.withdraw.create_multiple') }}" class="btn btn-warning btn-material">
+            <i class="material-icons-round align-middle">add</i> เบิกพัสดุ
+        </a>
+    </div>
     <div class="col-md-8">
         <form action="{{ route('inventory.items.index') }}" method="GET">
             <div class="input-group shadow-sm">
@@ -64,7 +68,7 @@
                         <tr>
                             <td>
                                 @if($item->image_path)
-                                    <img src="{{ asset('storage/' . $item->image_path) }}" class="rounded shadow-sm" width="50"
+                                    <img src="{{ asset($item->image_path) }}" class="rounded shadow-sm" width="50"
                                         height="50" style="object-fit: cover;">
                                 @else
                                     <div class="bg-light rounded d-flex align-items-center justify-content-center text-muted"
@@ -96,7 +100,7 @@
                             </td>
                             <td>
                                 <span class="fw-bold text-success fs-5">
-                                    {{ $item->details->sum('quantity') }}
+                                    {{ $item->details->sum('current_qty') }}
                                 </span>
                                 {{ $item->unit }}
 
@@ -112,14 +116,15 @@
                                     class="btn btn-sm btn-outline-success rounded-circle me-1" title="เติมสต็อก/เพิ่มขวด">
                                     <i class="material-icons-round fs-6">add_box</i>
                                 </a>
-                                <a href="{{ route('inventory.withdraw.form', $item->id) }}"
+                                {{-- <a href="{{ route('inventory.withdraw.form', $item->id) }}"
                                     class="btn btn-sm btn-outline-primary rounded-circle me-1" title="เบิกพัสดุ">
                                     <i class="material-icons-round fs-6">shopping_cart</i>
-                                </a>
+                                </a> --}}
 
-                                <button class="btn btn-sm btn-outline-secondary rounded-circle" title="แก้ไข">
+                                <a href="{{ route('inventory.items.edit', $item->id) }}"
+                                 class="btn btn-sm btn-outline-secondary rounded-circle" title="แก้ไข">
                                     <i class="material-icons-round fs-6">edit</i>
-                                </button>
+                                </a>
                             </td>
                         </tr>
                     @empty

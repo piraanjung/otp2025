@@ -32,23 +32,23 @@ class InvItem extends Model
     {
         return $this->hasMany(InvItemDetail::class, 'inv_item_id_fk', 'id');
     }
+
     public function hazards()
     {
         return $this->belongsToMany(InvHazardLevel::class, 'inv_item_hazard', 'inv_item_id', 'inv_hazard_level_id');
     }
 
-    // 2. ฟังก์ชันพิเศษ: นับจำนวนขวดที่ยังมีของอยู่ (Active)
-    public function getActiveBottlesCountAttribute()
+    // 2. ปรับชื่อ Accessor นับจำนวนรายการ/ล็อตที่ยังใช้งานอยู่ (เปลี่ยนจาก Bottles เป็น Items/Details)
+    public function getActiveDetailsCountAttribute()
     {
         return $this->details()->where('status', 'ACTIVE')->count();
     }
 
-    // 3. ฟังก์ชันพิเศษ: รวมปริมาณคงเหลือทั้งหมด (Total Volume)
+    // 3. รวมปริมาณคงเหลือทั้งหมด (อันเดิมดีอยู่แล้ว ใช้ต่อได้เลยครับ)
     public function getTotalStockAttribute()
     {
         return $this->details()->where('status', 'ACTIVE')->sum('current_qty');
     }
-
     public function transactions()
     {
         return $this->hasMany(InvTransaction::class, 'inv_item_id_fk');

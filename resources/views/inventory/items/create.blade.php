@@ -76,11 +76,17 @@
                         <div class="col-md-3">
                             <div class="form-floating">
                                 <input type="number" class="form-control" id="min_stock" name="min_stock" placeholder="0"
-                                    min="0" value="0">
+                                    min="0">
                                 <label for="min_stock">แจ้งเตือนเมื่อต่ำกว่า</label>
                             </div>
                         </div>
+                        <div class="col-md-12">
+                            <div class="form-floating">
+                            <textarea name="inv_description" class="form-control" id="inv_description"></textarea>
+                                <label for="category">คำอธิบายเพิ่มเติม</label>
 
+                            </div>
+                        </div>
                         <div class="col-md-12 mt-3">
                             <div class="d-flex gap-4 p-3 bg-light rounded border">
                                 <div class="form-check form-switch">
