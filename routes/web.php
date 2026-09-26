@@ -10,6 +10,7 @@ use App\Http\Controllers\Admin\RoleController;
 use App\Http\Controllers\Admin\AdminSubzoneController;
 use App\Http\Controllers\Admin\AdminWithdrawController;
 use App\Http\Controllers\Admin\SuperAdminAuthController;
+use App\Http\Controllers\Admin\SupplierController;
 use App\Http\Controllers\Admin\UserController;
 use App\Http\Controllers\Admin\WorkflowController;
 use App\Http\Controllers\Admin\ZoneController;
@@ -21,6 +22,7 @@ use App\Http\Controllers\Inventory\InvCategoryController;
 use App\Http\Controllers\Inventory\InvDashboardController;
 use App\Http\Controllers\Inventory\InvHazardLevelController;
 use App\Http\Controllers\Inventory\InvItemController;
+use App\Http\Controllers\Inventory\InvLocationController;
 use App\Http\Controllers\Inventory\InvStockController;
 use App\Http\Controllers\Inventory\InvTransactionController;
 use App\Http\Controllers\Inventory\InvUnitController;
@@ -328,6 +330,7 @@ Route::middleware(['auth', 'role:Admin|Super Admin'])->name('admin.')->prefix('a
 });
 
 
+
 Route::middleware(['auth', 'role:Admin|finance|Super Admin'])->group(function () {
     Route::prefix('payment/')->name('payment.')->group(function () {
         Route::get('paymenthistory/{inv_period}/{subzone_id}', [PaymentController::class, 'paymenthistory'])->name('paymenthistory');
@@ -405,6 +408,14 @@ Route::prefix('admin/ef')->group(function () {
     Route::delete('/{emissionFactor}', [EmissionFactorController::class, 'destroy'])->name('ef.destroy');
 });
 
+Route::middleware(['auth'])->name('admin.')->prefix('admin')->group(function () { 
+    Route::get('/suppliers', [SupplierController::class, 'index'])->name('suppliers.index');
+    Route::post('/suppliers', [SupplierController::class, 'store'])->name('suppliers.store');
+    Route::get('/suppliers/{id}/edit', [SupplierController::class, 'edit'])->name('suppliers.edit'); // เพิ่มอันนี้
+    Route::put('/suppliers/{id}', [SupplierController::class, 'update'])->name('suppliers.update'); // เพิ่มอันนี้
+    Route::delete('/suppliers/{id}', [SupplierController::class, 'destroy'])->name('suppliers.destroy');
+});
+
 Route::middleware(['auth'])->prefix('inventory')->name('inventory.')->group(function () {
     Route::get('/dashboard', [InvDashboardController::class, 'index'])->name('dashboard');
 
@@ -422,6 +433,13 @@ Route::middleware(['auth'])->prefix('inventory')->name('inventory.')->group(func
         Route::get('/receive/{id}', [InvStockController::class, 'receiveForm'])->name('receive');
         Route::get('/expiring', [InvStockController::class, 'expiringStock'])->name('expiring');
         Route::post('/receive', [InvStockController::class, 'storeReceive'])->name('store_receive');
+    });
+
+    Route::prefix('locations')->name('locations.')->group(function () {
+        Route::get('/index', [InvLocationController::class, 'index'])->name('index');
+        Route::post('/store', [InvLocationController::class, 'store'])->name('store');
+        Route::delete('destroy/{loc_id}', [InvLocationController::class, 'destroy'])->name('destroy');
+
     });
 
     Route::prefix('/withdraw')->name('withdraw.')->group(function () {

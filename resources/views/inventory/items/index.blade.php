@@ -13,11 +13,11 @@
         </div>
     @endif
     <div class="row mb-4 align-items-center">
-        <div class="col-md-2">
+        {{-- <div class="col-md-2">
             <a href="{{ route('inventory.items.create') }}" class="btn btn-primary btn-material">
                 <i class="material-icons-round align-middle">add</i> เพิ่มพัสดุใหม่
             </a>
-        </div>
+        </div> --}}
         <div class="col-md-2">
             <a href="{{ route('inventory.withdraw.create_multiple') }}" class="btn btn-warning btn-material">
                 <i class="material-icons-round align-middle">add</i> เบิกพัสดุ
@@ -60,7 +60,7 @@
                         <th>หมวดหมู่</th>
                         <th class="text-center">คุณสมบัติ</th>
                         <th class="text-center">คงเหลือ</th>
-                        <th>ล็อตและการรับเข้า / วันหมดอายุ</th>
+                        <th>การรับเข้า</th>
                         <th class="text-end">จัดการ</th>
                     </tr>
                 </thead>
@@ -150,15 +150,15 @@
                                 </div>
                             </td>
                             </td>
-                            <td class="text-end">
+                            <td class="text-end d-flex flex-row">
                                 <a href="{{ route('inventory.stock.receive', $item->id) }}"
-                                    class="btn btn-sm btn-outline-success rounded-circle me-1" title="เติมสต็อก/เพิ่มขวด">
-                                    <i class="material-icons-round fs-6">add_box</i>
+                                    class="btn btn-sm btn-success" title="เติมสต็อก/เพิ่มขวด">
+                                    เติมสต็อก
                                 </a>
 
                                 <a href="{{ route('inventory.items.edit', $item->id) }}"
-                                    class="btn btn-sm btn-outline-secondary rounded-circle" title="แก้ไข">
-                                    <i class="material-icons-round fs-6">edit</i>
+                                    class="btn btn-sm btn-outline-secondary" title="แก้ไข">
+                                    แก้ไข
                                 </a>
                             </td>
                         </tr>

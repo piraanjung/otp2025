@@ -4,74 +4,165 @@
 @section('header_title', 'รับพัสดุ/สารเคมีเข้าคลัง')
 
 @section('content')
-<div class="row justify-content-center">
-    <div class="col-md-8">
-        
-        <div class="card mb-3 border-0 shadow-sm bg-primary text-white">
-            <div class="card-body d-flex align-items-center">
-                <div class="bg-white text-primary p-3 rounded-circle me-3">
-                    <i class="material-icons-round fs-3">inventory_2</i>
-                </div>
-                <div>
-                    <small class="text-white-50">กำลังทำรายการเพิ่มสต็อกให้กับ:</small>
-                    <h4 class="mb-0 fw-bold">{{ $item->name }}</h4>
-                    <span class="badge bg-white text-primary mt-1">{{ $item->code ?? 'No Code' }}</span>
-                    <span class="badge bg-info text-dark mt-1">{{ $item->category->name ?? '-' }}</span>
+    <div class="row justify-content-center">
+        <div class="col-md-8">
+
+            <div class="card mb-3 border-0 shadow-sm bg-primary text-white">
+                <div class="card-body d-flex align-items-center">
+                    <div class="bg-white text-primary p-3 rounded-circle me-3">
+                        <i class="material-icons-round fs-3">inventory_2</i>
+                    </div>
+                    <div>
+                        <small class="text-white-50">กำลังทำรายการเพิ่มสต็อกให้กับ:</small>
+                        <h4 class="mb-0 fw-bold">{{ $item->name }}</h4>
+                        <span class="badge bg-white text-primary mt-1">{{ $item->code ?? 'No Code' }}</span>
+                        <span class="badge bg-info text-dark mt-1">{{ $item->category->name ?? '-' }}</span>
+                    </div>
                 </div>
             </div>
-        </div>
 
-        <form action="{{ route('inventory.stock.store_receive') }}" method="POST">
-            @csrf
-            <input type="hidden" name="inv_item_id_fk" value="{{ $item->id }}">
+            <form action="{{ route('inventory.stock.store_receive') }}" method="POST">
+                @csrf
+                <input type="hidden" name="inv_item_id_fk" value="{{ $item->id }}">
 
-            <div class="card p-4">
-                <h5 class="text-primary fw-bold mb-4">
-                    <i class="material-icons-round align-middle">add_shopping_cart</i> ข้อมูลล็อตการรับ
-                </h5>
+                <div class="card p-4">
+                    <h5 class="text-primary fw-bold mb-4">
+                        <i class="material-icons-round align-middle">add_shopping_cart</i> ข้อมูลล็อตการรับ
+                    </h5>
 
-                <div class="row g-3">
-                    <div class="col-md-6">
-                        <div class="form-floating">
-                            <input type="text" class="form-control" name="lot_number" placeholder="Lot No.">
-                            <label>Lot Number / Batch No.</label>
+                    <div class="row g-3">
+                        <!-- เลขที่ล็อต -->
+                        <div class="col-md-4">
+                            <div class="form-floating">
+                                <input type="text" class="form-control" name="lot_number" placeholder="Lot No.">
+                                <label>Lot Number / Batch No. (ถ้ามี)</label>
+                            </div>
                         </div>
-                    </div>
-                    
-                    <div class="col-md-6">
-                        <div class="form-floating">
-                            <input type="date" class="form-control" name="expire_date">
-                            <label>วันหมดอายุ (ถ้ามี)</label>
+
+                        <!-- วันหมดอายุ -->
+                        <div class="col-md-4">
+                            <div class="form-floating">
+                                <input type="date" class="form-control" name="expire_date">
+                                <label>วันหมดอายุ (ถ้ามี)</label>
+                            </div>
                         </div>
-                    </div>
 
-                    <div class="col-12"><hr></div>
-
-                    <div class="col-md-6">
-                        <label class="form-label fw-bold text-secondary">ขนาดบรรจุ (ต่อขวด/กล่อง)</label>
-                        <div class="input-group">
-                            <input type="number" step="0.01" class="form-control" id="qty_per_unit" name="quantity_per_unit" 
-                                   placeholder="เช่น 1000" required>
-                            <span class="input-group-text bg-light">{{ $item->unit }}</span>
+                        <!-- เพิ่มใหม่: เลขที่ใบส่งของ / ใบกำกับภาษี -->
+                        <div class="col-md-4">
+                            <div class="form-floating">
+                                <input type="text" class="form-control" name="reference_doc"
+                                    placeholder="เช่น INV-2026-001">
+                                <label>เลขที่ใบส่งของ / บิล / PO (ถ้ามี)</label>
+                            </div>
                         </div>
-                        <div class="form-text">ปริมาณที่มีใน 1 ขวด</div>
-                    </div>
 
-                    <div class="col-md-6">
-                        <label class="form-label fw-bold text-secondary">จำนวนที่รับ (ขวด/กล่อง)</label>
-                        <input type="number" class="form-control" id="amount" name="amount" 
-                               placeholder="เช่น 5" required min="1">
-                        <div class="form-text">จำนวนขวดที่ได้รับมาจริง</div>
+                        <!-- เพิ่มใหม่: ร้านค้า / ผู้จำหน่าย (Supplier) -->
+                        <div class="col-md-6">
+    <label class="form-label fw-bold text-secondary">ร้านค้า / ผู้จำหน่าย (Supplier)</label>
+    <div class="input-group">
+        <select name="supplier_id_fk" class="form-select" required>
+            <option value="">-- เลือกผู้จำหน่าย / ร้านค้า --</option>
+            @foreach($suppliers as $sup)
+                <option value="{{ $sup->id }}">{{ $sup->name }}</option>
+            @endforeach
+        </select>
+        <a href="{{ route('admin.suppliers.index') }}" target="_blank" class="btn btn-outline-secondary" title="เพิ่มร้านค้าใหม่">
+            <i class="material-icons-round align-middle">add</i>
+        </a>
+    </div>
+    <div class="form-text">เลือกจากรายชื่อร้านค้า หรือกดปุ่ม + เพื่อเพิ่มร้านใหม่</div>
+</div>
+
+                        <!-- ผู้รับของ (ดึงชื่อคน Login อัตโนมัติ หรือให้พิมพ์แก้ได้) -->
+                        <div class="col-md-6">
+                            <div class="form-floating">
+                                <input type="text" class="form-control" name="receiver_name"
+                                    value="{{ Auth::user()->name }}" readonly>
+                                <label>ผู้รับพัสดุ / ผู้ตรวจรับ</label>
+                            </div>
+                        </div>
+
+                        <div class="col-12">
+                            <hr>
+                        </div>
+
+
+                        <!-- จำนวนที่รับมา -->
+                        <div class="col-md-6">
+                            <label class="form-label fw-bold text-secondary">จำนวนบรรจุภัณฑ์ที่รับเข้ามา</label>
+                            <div class="input-group">
+                                <input type="number" step="0.01" class="form-control" id="receive_amount"
+                                    name="receive_amount" placeholder="เช่น 10" value="1" required min="0.01">
+
+                                <!-- ใส่ id="package_unit_select" เพื่อให้ JS มาดึงชื่อหน่วยไปใช้ -->
+                                <select name="package_unit_id" id="package_unit_select" class="form-select"
+                                    style="max-width: 140px;" required>
+                                    <option value="">-- เลือกหน่วย --</option>
+                                    @foreach($units as $unit)
+                                        <option value="{{ $unit->id }}">{{ $unit->name }}</option>
+                                    @endforeach
+                                </select>
+                            </div>
+                            <div class="form-text">เช่น รับมา 10 (ลัง/กล่อง/แพ็ค)</div>
+                        </div>
+
+                        <!-- จำนวนย่อยต่อ 1 บรรจุภัณฑ์ -->
+                        <div class="col-md-6">
+                            <label class="form-label fw-bold text-secondary">จำนวนย่อยต่อ 1 บรรจุภัณฑ์</label>
+                            <div class="input-group">
+                                <input type="number" step="0.01" class="form-control" id="conversion_rate"
+                                    name="conversion_rate" placeholder="เช่น 12" value="1" required min="0.01">
+                                <span class="input-group-text bg-light fw-bold text-primary">{{ $item->unit }}</span>
+                            </div>
+                            <div class="form-text">เช่น 1 ลัง มี 12 {{ $item->unit }} (ถ้าเป็นชิ้นเดี่ยวให้ใส่ 1)</div>
+                        </div>
+
+                        <!-- ราคาต่อ 1 บรรจุภัณฑ์ใหญ่ -->
+                        <div class="col-md-6">
+                            <label class="form-label fw-bold text-secondary">ราคาซื้อต่อ 1 บรรจุภัณฑ์</label>
+                            <div class="input-group">
+                                <input type="number" step="0.01" class="form-control" id="unit_price" name="unit_price"
+                                    placeholder="เช่น 1200" value="0" required min="0">
+                                <!-- เปลี่ยนข้อความตรงนี้ให้สะท้อนตามหน่วยที่เลือก (ผ่าน JS) -->
+                                <span class="input-group-text bg-light" id="unit_label_text">บาท / หน่วย</span>
+                            </div>
+                            <div class="form-text">ราคาตามบิลต่อหน่วยใหญ่</div>
+                        </div>
+
+                        <!-- แสดงราคารวมสุทธิ (คำนวณอัตโนมัติ) -->
+                        <div class="col-md-6">
+                            <label class="form-label fw-bold text-secondary">ราคารวมสุทธิทั้งหมด</label>
+                            <div class="input-group">
+                                <input type="text" class="form-control bg-light fw-bold text-success"
+                                    id="total_price_display" value="0.00" readonly>
+                                <span class="input-group-text bg-light">บาท</span>
+                            </div>
+                            <div class="form-text">คำนวณจาก (จำนวนบรรจุภัณฑ์ × ราคาต่อหน่วย)</div>
+                        </div>
+
                     </div>
 
                     <div class="col-12 mt-3">
-                        <div class="alert alert-info d-flex align-items-center">
-                            <i class="material-icons-round me-2">functions</i>
+                        <label class="form-label fw-bold">พื้นที่จัดเก็บ (Location)</label>
+                        <select name="location_id_fk" class="form-select" required>
+                            <option value="">-- เลือกพื้นที่จัดเก็บของหน่วยงาน --</option>
+                            @foreach($locations as $loc)
+                                <option value="{{ $loc->id }}">{{ $loc->name }} @if($loc->description) ({{ $loc->description }})
+                                @endif</option>
+                            @endforeach
+                        </select>
+                        <div class="form-text">หากยังไม่มีสถานที่ สามารถไปเพิ่มได้ที่เมนูจัดการพื้นที่จัดเก็บ</div>
+                    </div>
+
+                    <!-- สรุปผลลัพธ์คำนวณ Realtime -->
+                    <div class="col-12 mt-3">
+                        <div class="alert alert-success d-flex align-items-center">
+                            <i class="material-icons-round me-2">check_circle</i>
                             <div>
-                                สรุปยอดรับเข้า: 
-                                <span id="total-calc" class="fw-bold fs-5">0</span> 
-                                {{ $item->unit }} 
-                                (แยกเป็น <span id="bottle-calc">0</span> รายการ)
+                                สรุปยอดเข้าคลังสุทธิ:
+                                <span id="total-result" class="fw-bold fs-4">1</span>
+                                {{ $item->unit }}
+                                <span class="text-muted small">(คำนวณจาก จำนวนรับ × อัตราส่วน)</span>
                             </div>
                         </div>
                     </div>
@@ -83,31 +174,48 @@
                         <i class="material-icons-round align-middle">save_alt</i> ยืนยันรับเข้าสต็อก
                     </button>
                 </div>
-            </div>
-        </form>
+            </form>
+        </div>
     </div>
-</div>
 @endsection
 
 @section('scripts')
-<script>
-    $(document).ready(function() {
-        // ฟังก์ชันคำนวณยอดรวม Realtime
-        function calculateTotal() {
-            let perUnit = parseFloat($('#qty_per_unit').val()) || 0;
-            let amount = parseInt($('#amount').val()) || 0;
-            
-            let total = perUnit * amount;
-            
-            // ใส่ลูกน้ำ (Comma) ให้ตัวเลขสวยงาม
-            $('#total-calc').text(total.toLocaleString());
-            $('#bottle-calc').text(amount);
-        }
+    <script>
+        $(document).ready(function () {
+            // ฟังก์ชันอัปเดตข้อความหน่วยที่ป้ายราคา
+            function updateUnitLabel() {
+                let selectedOption = $('#package_unit_select option:selected');
+                let unitName = selectedOption.val() ? selectedOption.text() : 'หน่วย';
+                $('#unit_label_text').text('บาท / ' + unitName);
+            }
 
-        // ดักจับ Event เวลา User พิมพ์ตัวเลข
-        $('#qty_per_unit, #amount').on('input', function() {
-            calculateTotal();
+            // ฟังก์ชันคำนวณสต็อกและราคา
+            function calculateStock() {
+                let receive = parseFloat($('#receive_amount').val()) || 0;
+                let rate = parseFloat($('#conversion_rate').val()) || 0;
+                let unitPrice = parseFloat($('#unit_price').val()) || 0;
+
+                // คำนวณยอดหน่วยย่อยสุทธิ
+                let totalQty = receive * rate;
+                $('#total-result').text(totalQty.toLocaleString());
+
+                // คำนวณราคารวมสุทธิ
+                let totalPrice = receive * unitPrice;
+                $('#total_price_display').val(totalPrice.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 }));
+            }
+
+            // เมื่อเปลี่ยน Dropdown หน่วยใหญ่ ให้เปลี่ยนป้ายข้อความทันที
+            $('#package_unit_select').on('change', function () {
+                updateUnitLabel();
+            });
+
+            // เมื่อมีการกรอกข้อมูลตัวเลข ให้คำนวณใหม่
+            $('#receive_amount, #conversion_rate, #unit_price').on('input', function () {
+                calculateStock();
+            });
+
+            // เรียกทำงานครั้งแรกเผื่อกรณีโหลดหน้าแล้วมีค่าค้างอยู่
+            updateUnitLabel();
         });
-    });
-</script>
+    </script>
 @endsection
