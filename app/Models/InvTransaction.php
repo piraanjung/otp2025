@@ -15,6 +15,7 @@ class InvTransaction extends Model
     protected $fillable = [
         'org_id_fk',
         'user_id_fk',
+        'ref_no',
         'requester_name',
         'approver_name',
         'inv_item_id_fk',

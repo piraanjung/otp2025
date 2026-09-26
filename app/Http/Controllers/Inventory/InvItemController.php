@@ -2,14 +2,12 @@
 
 namespace App\Http\Controllers\Inventory;
 
-use App\Exports\InvItemTemplateExport;
 use App\Http\Controllers\Controller;
 use App\Imports\InvItemImport;
 use Illuminate\Http\Request;
 use App\Models\InvItem;
 use App\Models\InvCategory;
 use App\Models\InvHazardLevel;
-use App\Models\InvItemDetail;
 use App\Models\InvUnit;
 use Carbon\Carbon;
 use Illuminate\Support\Facades\Auth;
@@ -19,51 +17,51 @@ use Maatwebsite\Excel\Facades\Excel;
 class InvItemController extends Controller
 {
     // 1. หน้าแสดงรายการพัสดุ (Dashboard ย่อย)
-public function index(Request $request) 
-{
-    $user = Auth::user();
+    public function index(Request $request)
+    {
+        $user = Auth::user();
 
-    // 1. เริ่มต้น Query พร้อมจัดเรียงรายละเอียดล็อต (details) ด้านใน
-    $query = InvItem::where('org_id_fk', $user->org_id_fk)
-        ->with(['category', 'details' => function($q) {
-            // เรียงลำดับล็อตจาก "ล่าสุด ไปหา เก่าสุด" (ตามวันที่รับเข้า/สร้าง)
-            $q->where('status', 'ACTIVE')
-              ->orderBy('received_date', 'desc'); 
-        }]);
+        // 1. เริ่มต้น Query พร้อมจัดเรียงรายละเอียดล็อต (details) ด้านใน
+        $query = InvItem::where('org_id_fk', $user->org_id_fk)
+            ->with(['category', 'details' => function ($q) {
+                // เรียงลำดับล็อตจาก "ล่าสุด ไปหา เก่าสุด" (ตามวันที่รับเข้า/สร้าง)
+                $q->where('status', 'ACTIVE')
+                    ->orderBy('received_date', 'asc');
+            }]);
 
         // ➕ 1.1 ถ้ามีการคลิกมาจากหน้า Dashboard (filter=expiring)
-    if ($request->get('filter') === 'expiring') {
-        $query->whereHas('details', function ($q) {
-            $q->where('status', 'ACTIVE')
-              ->whereDate('expire_date', '<=', Carbon::now()->addDays(30));
-        });
+        if ($request->get('filter') === 'expiring') {
+            $query->whereHas('details', function ($q) {
+                $q->where('status', 'ACTIVE')
+                    ->whereDate('expire_date', '<=', Carbon::now()->addDays(30));
+            });
+        }
+
+        // 2. ถ้ามีการพิมพ์ค้นหา (Search)
+        if ($request->filled('search')) {
+            $search = $request->search;
+            $query->where(function ($q) use ($search) {
+                $q->where('name', 'like', '%' . $search . '%')
+                    ->orWhere('code', 'like', '%' . $search . '%')
+                    ->orWhere('cas_number', 'like', '%' . $search . '%')
+                    ->orWhereHas('category', function ($subQuery) use ($search) {
+                        $subQuery->where('name', 'like', '%' . $search . '%');
+                    });
+            });
+        }
+
+        // 3. ดึงข้อมูล + Pagination
+        // return $aa =   $query->orderBy('created_at', 'desc')->get();
+
+        $items = $query->orderBy('created_at', 'desc')
+            ->paginate(10)
+            ->withQueryString();
+
+        $categories = InvCategory::where('org_id_fk', $user->org_id_fk)->get();
+        $units = InvUnit::where('org_id_fk', $user->org_id_fk)->get();
+
+        return view('inventory.items.index', compact('items', 'categories', 'units'));
     }
-
-    // 2. ถ้ามีการพิมพ์ค้นหา (Search)
-    if ($request->filled('search')) {
-        $search = $request->search;
-        $query->where(function ($q) use ($search) {
-            $q->where('name', 'like', '%' . $search . '%')
-                ->orWhere('code', 'like', '%' . $search . '%')
-                ->orWhere('cas_number', 'like', '%' . $search . '%')
-                ->orWhereHas('category', function ($subQuery) use ($search) {
-                    $subQuery->where('name', 'like', '%' . $search . '%');
-                });
-        });
-    }
-
-    // 3. ดึงข้อมูล + Pagination
-  // return $aa =   $query->orderBy('created_at', 'desc')->get();
-
-    $items = $query->orderBy('created_at', 'desc')
-        ->paginate(10)
-        ->withQueryString();
-
-    $categories = InvCategory::where('org_id_fk', $user->org_id_fk)->get();
-    $units = InvUnit::where('org_id_fk', $user->org_id_fk)->get();
-
-    return view('inventory.items.index', compact('items', 'categories', 'units'));
-}
     public function iframeIndex(Request $request)
     {
         // ใช้ Logic การดึงข้อมูลและ Search แบบเดิมของคุณทั้งหมดที่นี่
@@ -136,7 +134,7 @@ public function index(Request $request)
         // 3.2 จัดการอัปโหลดรูปภาพ (ถ้ามี)
         $imagePath = null;
         if ($request->hasFile('image')) {
-        
+
             // 3.2 ตั้งชื่อไฟล์ใหม่ไม่ให้ซ้ำกัน (เช่น ใช้ timestamp + สุ่มตัวเลข)
             $file = $request->file('image');
             $filename = time() . '_' . uniqid() . '.' . $file->getClientOriginalExtension();

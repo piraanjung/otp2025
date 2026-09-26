@@ -14,11 +14,16 @@ class InvItemDetail extends Model
     protected $fillable = [
         'inv_item_id_fk',
         'lot_number',
+        'reference_doc',
+        'supplier_id_fk',
         'serial_number',
         'initial_qty',
         'current_qty',
+        'conversion_rate',
         'expire_date',
         'received_date',
+        'received_by',
+        'location_id_fk',
         'status'
     ];
 

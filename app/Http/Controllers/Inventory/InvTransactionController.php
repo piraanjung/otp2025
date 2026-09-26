@@ -5,10 +5,13 @@ use App\Http\Controllers\Controller;
 
 use App\Models\Admin\Organization;
 use App\Models\Admin\Staff;
+use App\Models\ApprovalWorkflowStep;
+use App\Models\InvCategory;
 use Illuminate\Http\Request;
 use App\Models\InvItem;
 use App\Models\InvItemDetail;
 use App\Models\InvTransaction;
+use App\Models\InvTransactionApprovals;
 use App\Models\User;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
@@ -81,13 +84,43 @@ public function storeMultipleWithdraw(Request $request)
         'requester_name' => 'required',
     ]);
 
+   
     DB::beginTransaction();
     try {
         // สร้างเลขที่ใบเบิกกลาง (Ref No) สำหรับการเบิกชุดนี้
         $date = now()->format('Ymd');
         $count = InvTransaction::whereDate('created_at', today())->count() + 1;
         $refNo = 'WD-MULTI-' . $date . '-' . str_pad($count, 4, '0', STR_PAD_LEFT);
-        
+
+
+
+         foreach ($request->items as $cartItem) {
+            $current_step_id = 0;
+
+            $item = InvItem::find($cartItem['item_id']);
+            $approval_workflow = InvCategory::where('id', $item->inv_category_id_fk)
+            ->with('workflow','workflow.steps')
+            ->get()->first();
+            foreach($approval_workflow->workflow->steps as $step){
+                $approverId = 0;
+                if($step->step_order == 1){
+                    $approverId = Auth::id();
+                    $current_step_id = $step->id;
+                }else{
+                   $approverId = $step->specific_user_id != "" ? $step->specific_user_id : User::Role($step->role_name)->get('id')->pluck('id')[0];
+                }
+                InvTransactionApprovals::create([
+                    'ref_no' => $refNo,
+                    'step_order' => $step->step_order,
+                    'approver_id' => $approverId,
+                    'status' => $step->step_order == 1 ? 'APPROVED' : 'PENDING',
+                    'action_at' =>  now(),
+                    'created_at' => now(),
+                    'updated_at' => now(),
+                ]);
+            }
+        }
+
         $firstTransactionId = null;
 
         // 2. วนลูปทีละชนิดพัสดุที่ผู้ใช้เลือกมาในตะกร้า
@@ -96,12 +129,12 @@ public function storeMultipleWithdraw(Request $request)
             $requestedQty = $cartItem['qty'];
 
             // ดึงล็อตสินค้าของ Item นี้ (เรียงตาม FIFO หรือวันหมดอายุตามที่คุณต้องการ)
-            $availableBottles = InvItemDetail::where('inv_item_id_fk', $itemId)
+            $availableItems = InvItemDetail::where('inv_item_id_fk', $itemId)
                 ->where('current_qty', '>', 0)
                 ->orderBy('expire_date', 'asc') // เรียงจากล็อตหมดอายุก่อน
                 ->get();
 
-            $totalStock = $availableBottles->sum('current_qty');
+            $totalStock = $availableItems->sum('current_qty');
             if ($requestedQty > $totalStock) {
                 throw new \Exception("พัสดุบางรายการมีจำนวนไม่พอจ่าย (เกินสต็อกคงเหลือ)");
             }
@@ -109,38 +142,41 @@ public function storeMultipleWithdraw(Request $request)
             $remainingQtyToSubtract = $requestedQty;
 
             // ตัดสต็อกตามล็อตย่อยของสินค้านั้นๆ
-            foreach ($availableBottles as $bottle) {
+            foreach ($availableItems as $item) {
                 if ($remainingQtyToSubtract <= 0) break;
 
-                $qtyToDeduct = min($remainingQtyToSubtract, $bottle->current_qty);
+                $qtyToDeduct = min($remainingQtyToSubtract, $item->current_qty);
 
                 // บันทึก Log Transaction
                 $transaction = InvTransaction::create([
                     'org_id_fk' => Auth::user()->org_id_fk ?? 1,
                     'user_id_fk' => Auth::id(),
                     'inv_item_id_fk' => $itemId,
-                    'inv_item_detail_id_fk' => $bottle->id,
+                    'inv_item_detail_id_fk' => $item->id,
                     'quantity' => $qtyToDeduct,
                     'purpose' => $request->purpose,
                     'ref_no' => $refNo,
                     'status' => 'PENDING',
                     'requester_name' => $request->requester_name,
-                    'transaction_date' => now()
+                    'transaction_date' => now(),
+                    'current_step' => $current_step_id
                 ]);
+                														
+
+
 
                 if (!$firstTransactionId) {
                     $firstTransactionId = $transaction->id;
                 }
-
                 // ตัดสต็อกจริง
-                $bottle->current_qty -= $qtyToDeduct;
-                if ($bottle->current_qty <= 0) {
-                    $bottle->current_qty = 0;
-                    $bottle->status = 'EMPTY';
-                }
-                $bottle->save();
+                // $item->current_qty -= $qtyToDeduct;
+                // if ($item->current_qty <= 0) {
+                //     $item->current_qty = 0;
+                //     $item->status = 'EMPTY';
+                // }
+                // $item->save();
 
-                $remainingQtyToSubtract -= $qtyToDeduct;
+                // $remainingQtyToSubtract -= $qtyToDeduct;
             }
         }
 

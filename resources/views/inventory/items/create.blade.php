@@ -23,17 +23,19 @@
                             <div class="position-relative d-inline-block">
                                 <img id="preview-image"
                                     src="data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSIxNTAiIGhlaWdodD0iMTUwIiB2aWV3Qm94PSIwIDAgMTUwIDE1MCI+PHJlY3Qgd2lkdGg9IjE1MCIgaGVpZ2h0PSIxNTAiIGZpbGw9IiNlZWVlZWUiLz48dGV4dCB4PSI1MCUiIHk9IjUwJSIgZG9taW5hbnQtYmFzZWxpbmU9Im1pZGRsZSIgdGV4dC1hbmNob3I9Im1pZGRsZSIgZm9udC1mYW1pbHk9InNhbnMtc2VyaWYiIGZvbnQtc2l6ZT0iMjAiIGZpbGw9IiM5OTk5OTkiPlVwbG9hZDwvdGV4dD48L3N2Zz4="
-                                    class="rounded-circle shadow-sm border" width="120" height="120"
+                                    class=" shadow-sm border" width="130" height="130"
                                     style="object-fit: cover;">
                                 <label for="image"
                                     class="position-absolute bottom-0 end-0 bg-primary text-white rounded-circle p-2 shadow"
                                     style="cursor: pointer;">
                                     <i class="material-icons-round fs-6">camera_alt</i>
                                 </label>
+                                <!-- เพิ่ม ID หรือใช้ script จัดการ -->
                                 <input type="file" name="image" id="image" class="d-none" accept="image/*"
-                                    onchange="previewFile()">
+                                    onchange="compressAndPreviewImage(event)">
                             </div>
                         </div>
+                        <div class="form-text mt-1 text-center" id="image-size-info"></div>
 
                         <div class="col-md-8">
                             <div class="form-floating">
@@ -82,7 +84,7 @@
                         </div>
                         <div class="col-md-12">
                             <div class="form-floating">
-                            <textarea name="inv_description" class="form-control" id="inv_description"></textarea>
+                                <textarea name="inv_description" class="form-control" id="inv_description"></textarea>
                                 <label for="category">คำอธิบายเพิ่มเติม</label>
 
                             </div>
@@ -159,45 +161,124 @@
     </div>
 
     <div class="modal fade" id="importModal" tabindex="-1">
-    <div class="modal-dialog">
-        <form action="{{ route('inventory.items.import') }}" method="POST" enctype="multipart/form-data">
-            @csrf
-            <div class="modal-content">
-                <div class="modal-header">
-                    <h5 class="modal-title fw-bold"><i class="material-icons-round align-middle text-success">table_view</i> นำเข้าข้อมูลพัสดุ</h5>
-                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
-                </div>
-                <div class="modal-body">
-                    <div class="alert alert-info d-flex align-items-center">
-                        <i class="material-icons-round me-2">info</i>
-                        <small>กรุณาใช้ไฟล์ Template เพื่อความถูกต้องของข้อมูล</small>
+        <div class="modal-dialog">
+            <form action="{{ route('inventory.items.import') }}" method="POST" enctype="multipart/form-data">
+                @csrf
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h5 class="modal-title fw-bold"><i
+                                class="material-icons-round align-middle text-success">table_view</i> นำเข้าข้อมูลพัสดุ</h5>
+                        <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
                     </div>
+                    <div class="modal-body">
+                        <div class="alert alert-info d-flex align-items-center">
+                            <i class="material-icons-round me-2">info</i>
+                            <small>กรุณาใช้ไฟล์ Template เพื่อความถูกต้องของข้อมูล</small>
+                        </div>
 
-                    <div class="mb-3">
-                        <label class="form-label">เลือกไฟล์ Excel (.xlsx, .xls)</label>
-                        <input type="file" name="file" class="form-control" required accept=".xlsx, .xls, .csv">
-                    </div>
+                        <div class="mb-3">
+                            <label class="form-label">เลือกไฟล์ Excel (.xlsx, .xls)</label>
+                            <input type="file" name="file" class="form-control" required accept=".xlsx, .xls, .csv">
+                        </div>
 
-                    <div class="text-end">
-                        <a href="{{ route('inventory.items.template') }}" class="text-decoration-none text-muted" target="_blank">
-                            <i class="material-icons-round align-middle fs-6">download</i> ดาวน์โหลด Template
-                        </a>
+                        <div class="text-end">
+                            <a href="{{ route('inventory.items.template') }}" class="text-decoration-none text-muted"
+                                target="_blank">
+                                <i class="material-icons-round align-middle fs-6">download</i> ดาวน์โหลด Template
+                            </a>
+                        </div>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-light" data-bs-dismiss="modal">ยกเลิก</button>
+                        <button type="submit" class="btn btn-success">ยืนยันการนำเข้า</button>
                     </div>
                 </div>
-                <div class="modal-footer">
-                    <button type="button" class="btn btn-light" data-bs-dismiss="modal">ยกเลิก</button>
-                    <button type="submit" class="btn btn-success">ยืนยันการนำเข้า</button>
-                </div>
-            </div>
-        </form>
+            </form>
+        </div>
     </div>
-</div>
 @endsection
 
 @section('scripts')
     <script>
+        // --- 1. ฟังก์ชันบีบอัดและพรีวิวรูปภาพ ---
+        function compressAndPreviewImage(event) {
+            const file = event.target.files[0];
+            if (!file) return;
+
+            // เช็คเบื้องต้นว่าเป็นรูปภาพไหม
+            if (!file.type.match(/image.*/)) {
+                alert('กรุณาเลือกไฟล์รูปภาพเท่านั้น');
+                return;
+            }
+
+            const reader = new FileReader();
+            reader.onload = function (e) {
+                const img = new Image();
+                img.src = e.target.result;
+
+                img.onload = function () {
+                    const canvas = document.createElement('canvas');
+                    let width = img.width;
+                    let height = img.height;
+
+                    // กำหนดขนาด Max Width/Height เพื่อลดพิกเซลที่ไม่จำเป็น (ไม่ให้เกิน 800x800 พิกเซล)
+                    const MAX_WIDTH = 800;
+                    const MAX_HEIGHT = 800;
+
+                    if (width > height) {
+                        if (width > MAX_WIDTH) {
+                            height = Math.round((height * MAX_WIDTH) / width);
+                            width = MAX_WIDTH;
+                        }
+                    } else {
+                        if (height > MAX_HEIGHT) {
+                            width = Math.round((width * MAX_HEIGHT) / height);
+                            height = MAX_HEIGHT;
+                        }
+                    }
+
+                    canvas.width = width;
+                    canvas.height = height;
+
+                    const ctx = canvas.getContext('2d');
+                    ctx.drawImage(img, 0, 0, width, height);
+
+                    // เริ่มต้นบีบอัดไฟล์ (ปรับค่า quality ลดลงเรื่อยๆ จนกว่าจะได้ขนาด < 300 KB)
+                    let quality = 0.9;
+                    let dataUrl = canvas.toDataURL('image/jpeg', quality);
+
+                    // คำนวณขนาด Base64 เป็น KB (ขนาด Base64 จะใหญ่กว่าไฟล์จริงประมาณ 33% ดังนั้นเผื่อพื้นที่ไว้)
+                    while (dataUrl.length > 300 * 1024 * 1.33 && quality > 0.1) {
+                        quality -= 0.1;
+                        dataUrl = canvas.toDataURL('image/jpeg', quality);
+                    }
+
+                    // แสดงรูปพรีวิว
+                    document.getElementById('preview-image').src = dataUrl;
+
+                    // แปลง DataURL กลับเป็น File Object เพื่อยัดใส่ Input เสมือนว่าผู้ใช้อัปโหลดไฟล์ใหม่ที่บีบอัดแล้ว
+                    canvas.toBlob(function (blob) {
+                        const compressedFile = new File([blob], file.name, {
+                            type: 'image/jpeg',
+                            lastModified: Date.now()
+                        });
+
+                        // เอาไฟล์ที่บีบอัดแล้วยัดกลับเข้าไปใน input[type="file"] ผ่าน DataTransfer
+                        const dataTransfer = new DataTransfer();
+                        dataTransfer.items.add(compressedFile);
+                        document.getElementById('image').files = dataTransfer.files;
+
+                        // คำนวณขนาดจริงเป็น KB เพื่อแสดงผลบอกผู้ใช้ (จุดที่แก้ไข: เปลี่ยนเป็น innerHTML ถูกต้องแล้ว)
+                        const sizeInKB = (blob.size / 1024).toFixed(2);
+                        document.getElementById('image-size-info').innerHTML = `ขนาดรูปภาพหลังบีบอัด: <span class="text-success fw-bold">${sizeInKB} KB</span>`;
+                    }, 'image/jpeg', quality);
+                }
+            }
+            reader.readAsDataURL(file);
+        }
+
+        // --- 2. ฟังก์ชันจัดการส่วนฟอร์มสารเคมี (เมื่อ DOM พร้อม) ---
         $(document).ready(function () {
-            // --- ส่วนที่ 1: จัดการการแสดงผลส่วนสารเคมี ---
             const $chemicalCheckbox = $('#is_chemical');
             const $chemicalSection = $('#chemical-section');
 
@@ -210,28 +291,13 @@
                 }
             }
 
-            // 1.1 เรียกทำงานทันทีตอนโหลดหน้า (เผื่อกรณี Edit หรือ Validation Error แล้วย้อนกลับมา)
+            // 2.1 เรียกทำงานทันทีตอนโหลดหน้า (เผื่อกรณี Edit หรือ Validation Error แล้วย้อนกลับมา)
             toggleChemicalSection();
 
-            // 1.2 เรียกทำงานเมื่อมีการติ๊กถูก/เอาออก
+            // 2.2 เรียกทำงานเมื่อมีการติ๊กถูก/เอาออก
             $chemicalCheckbox.on('change', function () {
                 toggleChemicalSection();
             });
-
-            // --- ส่วนที่ 2: ฟังก์ชัน Preview รูปภาพ ---
-            window.previewFile = function () {
-                const preview = document.querySelector('#preview-image');
-                const file = document.querySelector('#image').files[0];
-                const reader = new FileReader();
-
-                reader.addEventListener("load", function () {
-                    preview.src = reader.result;
-                }, false);
-
-                if (file) {
-                    reader.readAsDataURL(file);
-                }
-            }
         });
     </script>
 @endsection

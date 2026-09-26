@@ -58,7 +58,7 @@
                                 </td>
                                 <td>
                                     @if($cat->workflow)
-                                        <span class="badge bg-info text-dark">{{ $cat->workflow->name }}</span>
+                                        <span class="btn btn-sm btn-outline-info text-dark">{{ $cat->workflow->name }}</span>
                                     @else
                                         <span class="text-muted small">- ยังไม่กำหนด -</span>
                                     @endif
@@ -68,7 +68,7 @@
                                         {{ $cat->items->count() }} รายการ
                                     </span>
                                 </td>
-                                <td class="text-end flex">
+                                <td class="text-end d-flex flex-row">
                                     <a href="{{ route('inventory.categories.edit', $cat->id) }}"
                                         class="btn btn-sm btn-outline-warning rounded-circle me-1" title="แก้ไข">
                                         <i class="material-icons-round fs-6">edit</i>

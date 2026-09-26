@@ -14,19 +14,7 @@ use Illuminate\Support\Facades\Auth;
 
 class InvStockController extends Controller
 {
-    // 1. เปิดหน้าฟอร์มรับของ
-    // public function receiveForm($id)
-    // {
-    //     // ดึงข้อมูลสินค้าแม่ (Catalog) มาแสดง
-    //     $item = InvItem::findOrFail($id);
 
-    //     // ตรวจสอบสิทธิ์ (คนละ Org ห้ามยุ่ง)
-    //     if($item->org_id_fk != Auth::user()->org_id_fk){
-    //         abort(403); 
-    //     }
-
-    //     return view('inventory.stock.receive', compact('item'));
-    // }
     public function receiveForm($itemId)
 {
     $user = Auth::user();
@@ -49,53 +37,49 @@ class InvStockController extends Controller
 
     // 2. บันทึกข้อมูล (หัวใจสำคัญ ❤️)
     public function storeReceive(Request $request)
-    {
-        $request->validate([
-            'inv_item_id_fk'   => 'required|exists:inv_items,id',
-            'receive_amount'   => 'required|numeric|min:0.01',     // จำนวนที่รับเข้ามา (เช่น 1 กล่อง หรือ 10 เส้น)
-            'conversion_rate'  => 'required|numeric|min:0.01',     // อัตราส่วน (เช่น 1 กล่องมี 12 ชิ้น)
-            'location_id_fk'   => 'required|exists:inv_locations,id', // พื้นที่จัดเก็บ
-            'lot_number'       => 'nullable|string',
-            'expire_date'      => 'nullable|date',
-        ]);
+{
+    $request->validate([
+        'inv_item_id_fk'   => 'required|exists:inv_items,id',
+        'receive_amount'   => 'required|numeric|min:0.01',     
+        'conversion_rate'  => 'required|numeric|min:0.01',     
+        'location_id_fk'   => 'required|exists:inv_locations,id', 
+        'supplier_id_fk'   => 'required|exists:suppliers,id',
+        'lot_number'       => 'nullable|string',
+        'reference_doc'    => 'nullable|string',
+        'expire_date'      => 'nullable|date',
+    ]);
 
-        $user = Auth::user();
-        $item = InvItem::where('org_id_fk', $user->org_id_fk)->findOrFail($request->inv_item_id_fk);
+    $user = Auth::user();
+    $item = InvItem::where('org_id_fk', $user->org_id_fk)->findOrFail($request->inv_item_id_fk);
 
-        // คำนวณจำนวนรอบที่จะต้องวนลูปสร้าง Record
-        // เช่น รับมา 2 กล่อง กล่องละ 12 ชิ้น -> สร้าง 24 Record ในตาราง detail
-        $receiveAmount = $request->receive_amount;
-        $conversionRate = $request->conversion_rate;
+    $receiveAmount = $request->receive_amount;     // เช่น รับมา 10 กล่อง
+    $conversionRate = $request->conversion_rate;   // กล่องละ 1,000 ชิ้น
+    
+    // คำนวณจำนวนชิ้นสุทธิทั้งหมด (10 * 1000 = 10,000 ชิ้น)
+    $totalQty = $receiveAmount * $conversionRate;
 
-        // ปริมาณต่อ 1 หน่วยย่อยที่ถูกกระจายลงแต่ละชิ้น (เช่น ถ้าซื้อมาเป็นแพ็ค 12 ชิ้น ตัวย่อยแต่ละชิ้นจะมีค่าเท่ากับ 1 หรือถ้าเป็นขวดใหญ่มีปริมาณ 1000 มล. ค่านี้คือ 1000)
-        // ตรงนี้ขึ้นอยู่กับว่าคุณต้องการให้ 1 แถวใน DB แทน 1 หน่วยย่อยหรือไม่
-        $qtyPerPiece = $conversionRate;
-        $totalRecords = (int) $receiveAmount; // สมมติวนลูปตามจำนวนหน่วยที่รับ (หรือถ้าต้องการสร้างตามจำนวนชิ้นสุทธิ ให้ปรับตรงนี้ได้ครับ)
+    // บันทึกแค่แถวเดียวจบ! ไม่ต้องวนลูป
+    InvItemDetail::create([
+        'inv_item_id_fk'   => $item->id,
+        'org_id_fk'        => $user->org_id_fk,
+        'lot_number'       => $request->lot_number,
+        'reference_doc'    => $request->reference_doc,
+        'supplier_id_fk'   => $request->supplier_id_fk,
+        // เก็บยอดรวมทั้งหมดไว้ในแถวนี้
+        'initial_qty'      => $totalQty,
+        'current_qty'      => $totalQty, // จะค่อยๆ ถูกตัดลดลงเวลาเบิก (เช่น เบิกทีละ 5 ชิ้น)
 
-        // --- LOOP สร้างตามจำนวนที่รับ ---
-        for ($i = 0; $i < $totalRecords; $i++) {
-            \App\Models\InvItemDetail::create([
-                'inv_item_id_fk'   => $item->id,
-                'org_id_fk'        => $user->org_id_fk,
-                'lot_number'       => $request->lot_number,
+        'conversion_rate'  => $conversionRate,
+        'location_id_fk'   => $request->location_id_fk,
+        'expire_date'      => $request->expire_date,
+        'received_date'    => now(),
+        'received_by'    => Auth::id(),
+        'status'           => 'ACTIVE'
+    ]);
 
-                // ปริมาณตั้งต้น และ ปริมาณคงเหลือต่อชิ้น
-                'initial_qty'      => $qtyPerPiece,
-                'current_qty'      => $qtyPerPiece,
-
-                'conversion_rate'  => $conversionRate,
-                'location_id_fk'   => $request->location_id_fk, // บันทึกพิกัดจัดเก็บ
-                'expire_date'      => $request->expire_date,
-                'received_date'    => now(),
-                'status'           => 'ACTIVE'
-            ]);
-        }
-
-        $totalQtyCalculated = $receiveAmount * $conversionRate;
-
-        return redirect()->route('inventory.items.index')
-            ->with('success', "เพิ่มสต็อก {$item->name} จำนวนรวม {$totalQtyCalculated} {$item->unit} เรียบร้อยแล้ว!");
-    }
+    return redirect()->route('inventory.items.index')
+        ->with('success', "เพิ่มสต็อก {$item->name} จำนวนรวม {$totalQty} {$item->unit} เรียบร้อยแล้ว!");
+}
 
     public function expiringStock()
     {

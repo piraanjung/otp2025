@@ -58,26 +58,27 @@
 
                         <!-- เพิ่มใหม่: ร้านค้า / ผู้จำหน่าย (Supplier) -->
                         <div class="col-md-6">
-    <label class="form-label fw-bold text-secondary">ร้านค้า / ผู้จำหน่าย (Supplier)</label>
-    <div class="input-group">
-        <select name="supplier_id_fk" class="form-select" required>
-            <option value="">-- เลือกผู้จำหน่าย / ร้านค้า --</option>
-            @foreach($suppliers as $sup)
-                <option value="{{ $sup->id }}">{{ $sup->name }}</option>
-            @endforeach
-        </select>
-        <a href="{{ route('admin.suppliers.index') }}" target="_blank" class="btn btn-outline-secondary" title="เพิ่มร้านค้าใหม่">
-            <i class="material-icons-round align-middle">add</i>
-        </a>
-    </div>
-    <div class="form-text">เลือกจากรายชื่อร้านค้า หรือกดปุ่ม + เพื่อเพิ่มร้านใหม่</div>
-</div>
+                            <div class="form-floating input-group">
+                                <select name="supplier_id_fk" class="form-select" required>
+                                    <option value="">-- เลือกผู้จำหน่าย / ร้านค้า --</option>
+                                    @foreach($suppliers as $sup)
+                                        <option value="{{ $sup->id }}">{{ $sup->name }}</option>
+                                    @endforeach
+                                </select>
+                                <a href="{{ route('admin.suppliers.index') }}" target="_blank"
+                                    class="btn btn-outline-secondary" title="เพิ่มร้านค้าใหม่">
+                                    <i class="material-icons-round align-middle">add</i>
+                                </a>
+                                <label class="form-label text-secondary">ร้านค้า / ผู้จำหน่าย (Supplier)</label>
+
+                            </div>
+                        </div>
 
                         <!-- ผู้รับของ (ดึงชื่อคน Login อัตโนมัติ หรือให้พิมพ์แก้ได้) -->
                         <div class="col-md-6">
                             <div class="form-floating">
                                 <input type="text" class="form-control" name="receiver_name"
-                                    value="{{ Auth::user()->name }}" readonly>
+                                    value="{{ Auth::user()->firstname." ".Auth::user()->lastname }}" readonly>
                                 <label>ผู้รับพัสดุ / ผู้ตรวจรับ</label>
                             </div>
                         </div>
@@ -89,6 +90,8 @@
 
                         <!-- จำนวนที่รับมา -->
                         <div class="col-md-6">
+                            
+
                             <label class="form-label fw-bold text-secondary">จำนวนบรรจุภัณฑ์ที่รับเข้ามา</label>
                             <div class="input-group">
                                 <input type="number" step="0.01" class="form-control" id="receive_amount"
@@ -103,18 +106,20 @@
                                     @endforeach
                                 </select>
                             </div>
-                            <div class="form-text">เช่น รับมา 10 (ลัง/กล่อง/แพ็ค)</div>
                         </div>
 
                         <!-- จำนวนย่อยต่อ 1 บรรจุภัณฑ์ -->
-                        <div class="col-md-6">
-                            <label class="form-label fw-bold text-secondary">จำนวนย่อยต่อ 1 บรรจุภัณฑ์</label>
+                        <div class="col-md-2">
+                            <label class="form-label fw-bold text-secondary">&nbsp;</label>
+                            <div class="form-label fw-bold fs-4 text-secondary text-center unit_per_pcs_text">มี</div>
+                        </div>
+                        <div class="col-md-4">
+                            <label class="form-label fw-bold text-secondary">&nbsp;</label>
                             <div class="input-group">
                                 <input type="number" step="0.01" class="form-control" id="conversion_rate"
                                     name="conversion_rate" placeholder="เช่น 12" value="1" required min="0.01">
                                 <span class="input-group-text bg-light fw-bold text-primary">{{ $item->unit }}</span>
                             </div>
-                            <div class="form-text">เช่น 1 ลัง มี 12 {{ $item->unit }} (ถ้าเป็นชิ้นเดี่ยวให้ใส่ 1)</div>
                         </div>
 
                         <!-- ราคาต่อ 1 บรรจุภัณฑ์ใหญ่ -->
@@ -187,6 +192,8 @@
                 let selectedOption = $('#package_unit_select option:selected');
                 let unitName = selectedOption.val() ? selectedOption.text() : 'หน่วย';
                 $('#unit_label_text').text('บาท / ' + unitName);
+                $('.unit_per_pcs_text').text('1 ' + unitName +' มี');
+                
             }
 
             // ฟังก์ชันคำนวณสต็อกและราคา

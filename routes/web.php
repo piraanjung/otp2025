@@ -446,7 +446,6 @@ Route::middleware(['auth'])->prefix('inventory')->name('inventory.')->group(func
        
         // หน้าจอเลือกพัสดุหลายรายการ (แนวทางตะกร้าสินค้า)
         Route::get('/multiple', [InvTransactionController::class, 'createMultipleWithdraw'])->name('create_multiple');
-        // Route::get('/ref/{refNo}', [InvTransactionController::class, 'showByRef'])->name('show_ref');
         Route::get('/withdraw_print/{refNo}', [InvTransactionController::class, 'showByRef'])->name('show_ref');
         // ฟังก์ชันบันทึกการเบิกหลายรายการ
         Route::post('/multiple/store', [InvTransactionController::class, 'storeMultipleWithdraw'])->name('store_multiple');
