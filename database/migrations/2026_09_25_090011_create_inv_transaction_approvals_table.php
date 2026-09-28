@@ -11,6 +11,8 @@ return new class extends Migration
         Schema::create('inv_transaction_approvals', function (Blueprint $table) {
             $table->id();
             $table->string('ref_no'); // เชื่อมโยงกับใบเบิก
+            $table->foreignId('approval_workflow_id')->constrained('inv_transaction_approvals');
+            
             $table->integer('step_order')->default(1); // ลำดับขั้นการอนุมัติ (1, 2, 3...)
             $table->unsignedBigInteger('approver_id'); // ผู้ออนุมัติ (User ID)
             $table->enum('status', ['PENDING', 'APPROVED', 'REJECTED'])->default('PENDING');

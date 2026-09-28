@@ -79,10 +79,17 @@
             padding: 15px 30px;
         }
     </style>
+    @yield('style')
 </head>
 
 <body>
-
+@if(session('error'))
+        <div class="alert alert-danger alert-dismissible fade show shadow-sm mb-4" role="alert">
+            <i class="material-icons-round align-middle me-1">error</i> 
+            <strong>เกิดข้อผิดพลาด!</strong> {{ session('error') }}
+            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+        </div>
+    @endif
     <div class="container-fluid">
         <div class="row">
             <div class="col-md-2 sidebar p-3 d-none d-md-block">

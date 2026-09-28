@@ -39,7 +39,7 @@ class InvDashboardController extends Controller
 
     // 2. รายการเคลื่อนไหวล่าสุด 5 รายการ
     $recentTransactions = InvTransaction::where('org_id_fk', $orgId)
-                                        ->with(['item', 'user'])
+                                        ->with(['item', 'requester'])
                                         ->latest('transaction_date')
                                         ->take(5)
                                         ->get();

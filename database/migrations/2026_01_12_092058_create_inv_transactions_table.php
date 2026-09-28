@@ -20,19 +20,18 @@ return new class extends Migration
         $table->unsignedBigInteger('org_id_fk');
         
         // User คนเบิก (ผูกกับตาราง users ปกติ)
-        $table->unsignedBigInteger('user_id_fk'); 
-        
+        $table->unsignedBigInteger('requester_id_fk')->on('users')->onDelete('cascade');
+        $table->unsignedBigInteger('approve_workflow_id_fk')->on('approval_workflows')->onDelete('cascade');
+          
         // พัสดุที่เบิก
-        $table->unsignedBigInteger('inv_item_id_fk');
         $table->foreign('inv_item_id_fk')->references('id')->on('inv_items');
-
+        
         $table->integer('quantity'); 
         $table->string('purpose')->nullable(); 
         
         // --- Workflow ---
         $table->enum('status', ['PENDING', 'APPROVED', 'REJECTED', 'COMPLETED', 'RETURNED'])->default('PENDING');
         $table->integer('current_step')->default(1);
-        $table->unsignedBigInteger('approved_by_user_id_fk')->nullable(); 
         
         $table->timestamp('transaction_date')->useCurrent();
         $table->timestamps();

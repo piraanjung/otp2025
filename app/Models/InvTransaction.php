@@ -14,18 +14,15 @@ class InvTransaction extends Model
 
     protected $fillable = [
         'org_id_fk',
-        'user_id_fk',
+        'requester_id_fk',
         'ref_no',
-        'requester_name',
-        'approver_name',
         'inv_item_id_fk',
-        'inv_item_detail_id_fk',
         'quantity',
         'purpose',
         'status',
         'current_step',
-        'approved_by_user_id_fk',
         'transaction_date',
+        'approve_workflow_id_fk'
         
     ];
 
@@ -38,8 +35,8 @@ class InvTransaction extends Model
         return $this->belongsTo(InvItem::class, 'inv_item_id_fk', 'id');
     }
 
-    public function user() {
-        return $this->belongsTo(User::class, 'user_id_fk', 'id');
+    public function requester() {
+        return $this->belongsTo(User::class, 'requester_id_fk', 'id');
     }
 
     public function approver_user()
@@ -50,6 +47,10 @@ class InvTransaction extends Model
     }
 
     public function detail() {
-        return $this->belongsTo(InvItemDetail::class, 'inv_item_detail_id_fk', 'id');
+        return $this->belongsTo(InvItemDetail::class, 'inv_item_id_fk', 'inv_item_id_fk');
+    }
+
+    public function approve_workflow(){
+        return $this->belongsTo(ApprovalWorkflow::class, 'approve_workflow_id_fk');
     }
 }

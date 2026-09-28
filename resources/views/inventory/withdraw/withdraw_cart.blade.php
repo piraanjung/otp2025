@@ -108,7 +108,7 @@
                         @endforeach
                     </select>
                     <input type="text" id="requester_text" class="form-control mb-2" placeholder="ระบุชื่อ-นามสกุล" style="display: none;" oninput="syncRequesterName()">
-                    <input type="hidden" name="requester_name" id="final_requester_name" value="{{ Auth::user()->firstname ." ".Auth::user()->lastname }}">
+                    <input type="hidden" name="requester_id" id="final_requester_name" value="{{ Auth::user()->firstname ." ".Auth::user()->lastname }}">
                 </div>
 
                 <div class="text-end mt-3">

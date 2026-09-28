@@ -442,6 +442,11 @@ Route::middleware(['auth'])->prefix('inventory')->name('inventory.')->group(func
 
     });
 
+    Route::get('/transactions/pending', [InvTransactionController::class, 'pendingIssueList'])->name('transactions.pending');
+    
+    // กดยืนยันจ่ายของ (ตัดสต็อกข้ามล็อต FIFO)
+    Route::post('/transactions/{refNo}/issue', [InvTransactionController::class, 'issueItems'])->name('transactions.issue');
+
     Route::prefix('/withdraw')->name('withdraw.')->group(function () {
        
         // หน้าจอเลือกพัสดุหลายรายการ (แนวทางตะกร้าสินค้า)
@@ -450,16 +455,19 @@ Route::middleware(['auth'])->prefix('inventory')->name('inventory.')->group(func
         // ฟังก์ชันบันทึกการเบิกหลายรายการ
         Route::post('/multiple/store', [InvTransactionController::class, 'storeMultipleWithdraw'])->name('store_multiple');
         // ปุ่มกดอนุมัติ
-        Route::post('/{id}/approve', [InvTransactionController::class, 'approve'])->name('approve');
         Route::post('/dispense/{refNo}', [InvTransactionController::class, 'dispense'])->name('dispense');
         // หน้าฟอร์มให้เจ้าหน้าที่พัสดุตรวจสอบ/แก้ไขจำนวน/ยกเลิกรายการ ก่อนตัดสต็อก
         Route::get('/dispense-form/{refNo}', [InvTransactionController::class, 'dispenseForm'])->name('dispense_form');
 
         // บันทึกการจ่ายพัสดุจริงและตัดสต็อก
         Route::post('/dispense-process/{refNo}', [InvTransactionController::class, 'dispenseProcess'])->name('dispense_process');
-         Route::get('/{item_id}', [InvTransactionController::class, 'withdrawForm'])->name('form');
+        Route::get('/{item_id}', [InvTransactionController::class, 'withdrawForm'])->name('form');
         Route::post('/', [InvTransactionController::class, 'storeWithdraw'])->name('store');
         Route::get('/{id}/show', [InvTransactionController::class, 'show'])->name('show');
+        Route::post('/{refNo}/approve', [InvTransactionController::class, 'approveStep'])->name('step.approve');
+        Route::post('/{refNo}/reject', [InvTransactionController::class, 'rejectStep'])->name('step.reject');
+        Route::post('/{id}/approve', [InvTransactionController::class, 'approve'])->name('approve');
+
     });
    
     // Route สำหรับ process การ import

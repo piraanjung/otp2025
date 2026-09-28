@@ -146,9 +146,9 @@
                                         <div class="d-flex align-items-center">
                                             <div class="bg-secondary text-white rounded-circle me-2 d-flex justify-content-center align-items-center"
                                                 style="width: 25px; height: 25px; font-size: 10px;">
-                                                {{ substr(optional($trans->user)->name, 0, 1) }}
+                                                {{ substr(optional($trans->requester)->fisrtname, 0, 1) }}
                                             </div>
-                                            <small>{{ optional($trans->user)->name }}</small>
+                                            <small>{{ optional($trans->requester)->fisrtname }}</small>
                                         </div>
                                     </td>
                                     <td>
