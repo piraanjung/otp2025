@@ -2,6 +2,7 @@
 
 namespace App\Models\Tabwater;
 
+use App\Models\IssueType;
 use App\Models\User;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
@@ -14,16 +15,34 @@ class TwNotifies extends Model
      * กำหนดฟิลด์ที่อนุญาตให้ Mass Assignment ได้
      */
     protected $fillable = [
-        'user_id',          // ID ของผู้แจ้งเหตุ (ผู้ใช้งานทั่วไป)
-        'staff_id',         // ID ของ Staff ผู้รับงาน (จะเป็น null ตอนแรก)
-        'issue_type',
+        'user_id',
+        'org_id_fk',
+        'reporter_name',
+        'reporter_phone',
+        'issue_type_id',
         'description',
         'latitude',
         'longitude',
         'photo_path',
-        'status',           // สถานะของงาน (pending, processing, complete, cancel)
+        'status',
     ];
 
+    protected $casts = [
+        'photo_path' => 'array',
+    ];
+
+    // ความสัมพันธ์แบบ Many-to-Many กับ User (Staff) ผ่านตาราง tw_notify_staff
+    public function staffs()
+    {
+        return $this->belongsToMany(User::class, 'tw_notify_staff', 'notify_id', 'user_id')
+            ->withPivot('staff_status')
+            ->withTimestamps();
+    }
+
+    public function notifyStaffs()
+    {
+        return $this->hasMany(TwNotifyStaffs::class, 'notify_id');
+    }
     /**
      * ความสัมพันธ์: ดึงข้อมูลผู้แจ้งเหตุ
      */
@@ -32,25 +51,28 @@ class TwNotifies extends Model
         return $this->belongsTo(User::class, 'user_id');
     }
 
+    public function issueType(){
+        return $this->belongsTo(IssueType::class, 'issue_type_id', 'id');
+    }
     /**
      * ความสัมพันธ์: ดึงข้อมูล Staff ผู้รับงาน (สมมติว่า Staff ก็คือ User Model)
      */
-    public function staffs()
-    {
-        return $this->belongsToMany(
-            User::class,            // Model ปลายทาง (Staff/User)
-            'tw_notify_staff',      // ชื่อตาราง Pivot (ตามภาพ)
-            'notify_id',            // FK ใน pivot table ที่ชี้มาหา tw_notifies.id
-            'user_id'               // FK ใน pivot table ที่ชี้ไปหา users.id
-        )
-        ->withPivot('staff_status')
-        ->withTimestamps();
-    }
+    // public function staffs()
+    // {
+    //     return $this->belongsToMany(
+    //         User::class,            // Model ปลายทาง (Staff/User)
+    //         'tw_notify_staff',      // ชื่อตาราง Pivot (ตามภาพ)
+    //         'notify_id',            // FK ใน pivot table ที่ชี้มาหา tw_notifies.id
+    //         'user_id'               // FK ใน pivot table ที่ชี้ไปหา users.id
+    //     )
+    //     ->withPivot('staff_status')
+    //     ->withTimestamps();
+    // }
 
     public function assignedStaff()
-{
-    return $this->belongsToMany(User::class, 'notify_staff', 'notify_id', 'user_id')
-                ->withPivot('staff_status') // ดึงสถานะเฉพาะของ Staff ต่องานนั้นมาด้วย
-                ->withTimestamps();
-}
+    {
+        return $this->belongsToMany(User::class, 'tw_notify_staff', 'notify_id', 'user_id')
+            ->withPivot('staff_status') // ดึงสถานะเฉพาะของ Staff ต่องานนั้นมาด้วย
+            ->withTimestamps();
+    }
 }

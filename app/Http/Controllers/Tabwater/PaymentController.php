@@ -8,7 +8,7 @@ use App\Http\Controllers\FunctionsController;
 use App\Http\Controllers\Tabwater\InvoiceController;
 use App\Models\Admin\BudgetYear;
 use App\Models\Tabwater\Account;
-use App\Models\Tabwater\TwInvoicePeriod;
+use App\Models\Tabwater\InvoicePeriod;
 use App\Models\Admin\Subzone;
 use App\Models\User;
 use App\Models\Tabwater\TwMeterInfos;
@@ -21,10 +21,11 @@ use App\Models\Tabwater\TwAccTransactions;
 use App\Models\Tabwater\TwCutmeter;
 use App\Models\Tabwater\TwInvoiceHistoty;
 use App\Models\Tabwater\TwInvoice;
+use App\Models\Tabwater\TwInvoiceHistory;
 
 class PaymentController extends Controller
 {
-  public function index(Request $request)
+    public function index(Request $request)
     {
         // 1. จัดการ Session ของ Subzone (เหมือนเดิม)
         if ($request->session()->has('payment_subzone_selected')) {
@@ -69,7 +70,7 @@ class PaymentController extends Controller
             'tw_invoices' => function ($query) use ($inv_period_id) {
                 // เลือกเฉพาะบิลที่ค้างจ่ายมาแสดง
                 $query->whereIn('status', ['owe', 'invoice'])
-                      ->orderBy('id', 'asc'); // เรียงตามลำดับบิลเก่าไปใหม่
+                    ->orderBy('id', 'asc'); // เรียงตามลำดับบิลเก่าไปใหม่
 
                 if ($inv_period_id != 0) {
                     $query->where('inv_period_id_fk', $inv_period_id);
@@ -164,150 +165,155 @@ class PaymentController extends Controller
     }
 
     public function store(Request $request)
-{
-    $this->validate($request, [
-        'payments' => 'required|array|min:1',
-        'meter_id' => 'required', // ตรวจสอบ meter_id ด้วย
-    ]);
+    {
+        $this->validate($request, [
+            'payments' => 'required|array|min:1',
+            'meter_id' => 'required', // ตรวจสอบ meter_id ด้วย
+        ]);
 
-    // 1. ดึง ID ของ Invoice ที่เลือกมาทั้งหมด
-    $selected_payments = collect($request->get('payments'))->filter(function ($v) {
-        return isset($v['on']);
-    });
+        // 1. ดึง ID ของ Invoice ที่เลือกมาทั้งหมด
+        $selected_payments = collect($request->get('payments'))->filter(function ($v) {
+            return isset($v['on']);
+        });
 
-    if ($selected_payments->isEmpty()) {
-        return back()->with('error', 'กรุณาเลือกรายการชำระเงิน');
-    }
-
-    $invoice_ids = $selected_payments->pluck('iv_id')->toArray();
-    $meter_id = $request->meter_id;
-
-    // 2. ดึงข้อมูล Invoice ทั้งหมดในครั้งเดียว (ลด Query)
-    $invoices = TwInvoice::whereIn('id', $invoice_ids)
-                 ->where('status', '!=', 'paid') // กันพลาดจ่ายซ้ำ
-                 ->get();
-
-    if ($invoices->isEmpty()) {
-        return back()->with('error', 'ไม่พบรายการที่เลือก หรือถูกชำระไปแล้ว');
-    }
-
-    // 3. คำนวณยอดรวมสำหรับ Transaction เดียว
-    $sum_vat = $invoices->sum('vat');
-    $sum_reserve = $invoices->sum('reserve_meter');
-    $sum_paid = $invoices->sum('paid'); // ค่าน้ำ
-    $sum_total = $invoices->sum('totalpaid'); // ยอดสุทธิ
-
-    // 4. สร้าง Transaction (ใบเสร็จรับเงิน Header) เพียง 1 รายการ
-    $accTrans = new TwAccTransactions();
-    // $accTrans->inv_id_fk = ...; // **ไม่ต้องใส่** เพราะ 1 Transaction มีหลาย Inv ให้ไปดูที่ลูกแทน
-    $accTrans->vatsum            = $sum_vat;
-    $accTrans->reserve_meter_sum = $sum_reserve;
-    $accTrans->paidsum           = $sum_paid;
-    $accTrans->totalpaidsum      = $sum_total;
-    $accTrans->status            = '1';
-    $accTrans->cashier           = Auth::id();
-    $accTrans->created_at        = now(); // ใช้ now() ของ Laravel
-    $accTrans->updated_at        = now();
-    $accTrans->save();
-
-    // 5. เตรียมข้อมูล User และ Running Number ใบเสร็จ
-    $twUserInfo = TwMeterInfos::find($meter_id);
-    $receipt_running_no = $twUserInfo->inv_no_index; // เลขที่ใบเสร็จรับเงิน
-    $nextLastmeter = $twUserInfo->last_meter_recording;
-
-    // 6. Loop Update Invoice (Link ไปหา Transaction)
-    
-    foreach ($invoices as $inv) {
-        $inv->status          = 'paid';
-        $inv->acc_trans_id_fk = $accTrans->id; // **Key สำคัญ: ผูกบิลกับ Transaction**
-        $inv->inv_no          = $receipt_running_no; // เลขที่ใบเสร็จเดียวกันทั้งชุด
-        $inv->updated_at      = now();
-        $inv->save();
-
-        // เช็คเลขมิเตอร์ล่าสุด
-        if ($nextLastmeter <= $inv->currentmeter) {
-            $nextLastmeter = $inv->currentmeter;
+        if ($selected_payments->isEmpty()) {
+            return back()->with('error', 'กรุณาเลือกรายการชำระเงิน');
         }
-    }
 
-    // 7. จัดการ Cutmeter และสถานะ User (Logic เดิมของคุณ แต่ยุบรวม Query)
-    $remaining_owe_count = TwInvoice::where('meter_id_fk', $meter_id)
-                            ->whereIn('status', ['owe', 'invoice'])
-                            ->count();
+        $invoice_ids = $selected_payments->pluck('iv_id')->toArray();
+        $meter_id = $request->meter_id;
 
-    $cutmeter = TwCutmeter::where('meter_id_fk', $meter_id)
-                ->whereIn('status', ['pending', 'cutmeter'])
-                ->latest() // เอาตัวล่าสุด
-                ->first();
+        // 2. ดึงข้อมูล Invoice ทั้งหมดในครั้งเดียว (ลด Query)
+        $invoices = TwInvoice::whereIn('id', $invoice_ids)
+            ->where('status', '!=', 'paid') // กันพลาดจ่ายซ้ำ
+            ->get();
 
-    if ($cutmeter) {
-        // กรณีปลดหนี้หมด และโดนตัดมิเตอร์อยู่ -> เปลี่ยนสถานะเป็นรอติดตั้ง/ผ่าน
-        if ($remaining_owe_count == 0 && $twUserInfo->cutmeter == 1) {
-
-            if ($cutmeter->status == 'cutmeter') {
-                // Logic เดิม: cutmeter -> passed
-                $cutmeter->status = 'passed';
-                $cutmeter->save(); // Save สถานะ passed ก่อน (ตาม code เดิม)
-            }
-
-            // Update เป็น install/complete
-            $cutmeter->update([
-                'status'        => ($cutmeter->status == "pending") ? "complete" : "install",
-                'owe_count'     => $remaining_owe_count,
-                "warning_print" => 0,
-                'updated_at'    => now(),
-            ]);
-
-            // Update User Info ตามสถานะ Cutmeter
-            $is_active = ($cutmeter->status == 'init' || $cutmeter->status == 'complete');
-            $twUserInfo->cutmeter = $is_active ? 0 : 1;
-            $twUserInfo->status   = $is_active ? 'active' : 'inactive';
-
-        } else {
-            // ยังเหลือหนี้ หรือไม่ได้โดนตัด -> อัปเดตแค่ยอดค้าง
-            $cutmeter->update(['owe_count' => $remaining_owe_count]);
+        if ($invoices->isEmpty()) {
+            return back()->with('error', 'ไม่พบรายการที่เลือก หรือถูกชำระไปแล้ว');
         }
-    }
 
-    // 8. Update User Info สุดท้าย
-    $twUserInfo->owe_count            = $remaining_owe_count;
-    // Update สถานะตัดมิเตอร์ (ถ้าไม่ได้เข้าเงื่อนไขข้างบน ก็เช็คตามจำนวนบิล)
-    // หมายเหตุ: ตรงนี้ต้องระวัง Logic ตีกันกับข้างบน ถ้าข้างบน set active แล้ว ตรงนี้อาจจะทับ
-    // แต่ตาม Code เดิมคุณทำแบบนี้ ผมคงไว้ก่อน
-    if(!$cutmeter) {
-         $twUserInfo->cutmeter = $remaining_owe_count < 2 ? '0' : '1';
-    }
+        // 3. คำนวณยอดรวมสำหรับ Transaction เดียว
+        $sum_vat = $invoices->sum('vat');
+        $sum_reserve = $invoices->sum('reserve_meter');
+        $sum_paid = $invoices->sum('paid'); // ค่าน้ำ
+        $sum_total = $invoices->sum('totalpaid'); // ยอดสุทธิ
 
-    $twUserInfo->last_meter_recording = $nextLastmeter;
-    $twUserInfo->inv_no_index         = $receipt_running_no + 1; // รันเลขใบเสร็จถัดไป
-    $twUserInfo->updated_at           = now();
-    $twUserInfo->save();
+        // 4. สร้าง Transaction (ใบเสร็จรับเงิน Header) เพียง 1 รายการ
+        $accTrans = new TwAccTransactions();
+        // $accTrans->inv_id_fk = ...; // **ไม่ต้องใส่** เพราะ 1 Transaction มีหลาย Inv ให้ไปดูที่ลูกแทน
+        $accTrans->meter_id_fk       = $meter_id;
+        $accTrans->vatsum            = $sum_vat;
+        $accTrans->reserve_meter_sum = $sum_reserve;
+        $accTrans->paidsum           = $sum_paid;
+        $accTrans->totalpaidsum      = $sum_total;
+        $accTrans->status            = '1';
+        $accTrans->cashier           = Auth::id();
+        $accTrans->created_at        = now(); // ใช้ now() ของ Laravel
+        $accTrans->updated_at        = now();
+        $accTrans->save();
 
-    // 9. ส่งไปพิมพ์ใบเสร็จ (ส่ง Transaction ID ไปเลย แม่นยำกว่า)
-    return $this->receipt_print_by_trans($accTrans->id);
-}
+        // 5. เตรียมข้อมูล User และ Running Number ใบเสร็จ
+        $twUserInfo = TwMeterInfos::find($meter_id);
+        $receipt_running_no = $twUserInfo->inv_no_index; // เลขที่ใบเสร็จรับเงิน
+        $nextLastmeter = $twUserInfo->last_meter_recording;
 
-// สร้าง function ใหม่ หรือปรับแก้ receipt_print เดิมให้รับ trans_id
-private function receipt_print_by_trans($acc_trans_id)
-{
-    // ดึง Invoices โดยอ้างอิงจาก Transaction ID เดียว (จะได้บิลทั้งหมดที่เพิ่งจ่าย)
-    $invoicesPaidForPrint = TwInvoice::where('acc_trans_id_fk', $acc_trans_id)
-        ->with([
-            'invoice_period:id,inv_p_name',
-            'tw_meter_infos:meter_id,user_id,meternumber,undertake_subzone_id',
-            'tw_acc_transactions' => function ($query) {
-                // ดึงข้อมูล Transaction (แคชเชียร์, วันที่, ยอดรวม)
-                $query->select('id', 'paidsum', 'vatsum', 'totalpaidsum', 'cashier', 'updated_at')
-                      ->with('cashier_info:id,prefix,firstname,lastname');
+        // 6. Loop Update Invoice (Link ไปหา Transaction)
+
+        foreach ($invoices as $inv) {
+            $inv->status          = 'paid';
+            $inv->acc_trans_id_fk = $accTrans->id; // **Key สำคัญ: ผูกบิลกับ Transaction**
+            //  $inv->inv_no          = $receipt_running_no; // เลขที่ใบเสร็จเดียวกันทั้งชุด
+            $inv->updated_at      = now();
+            $inv->save();
+
+            // เช็คเลขมิเตอร์ล่าสุด
+            if ($nextLastmeter <= $inv->currentmeter) {
+                $nextLastmeter = $inv->currentmeter;
             }
-        ])
-        ->get();
+        }
 
-    $type = 'paid_receipt';
-    $from_blade = 'payment.index';
+        // 7. จัดการ Cutmeter และสถานะ User (Logic เดิมของคุณ แต่ยุบรวม Query)
+        $remaining_owe_count = TwInvoice::where('meter_id_fk', $meter_id)
+            ->whereIn('status', ['owe', 'invoice'])
+            ->count();
 
-    return view('payment.receipt_print', compact('invoicesPaidForPrint', 'type', 'from_blade'));
-}
+        $cutmeter = TwCutmeter::where('meter_id_fk', $meter_id)
+            ->whereIn('status', ['pending', 'cutmeter'])
+            ->latest() // เอาตัวล่าสุด
+            ->first();
+
+        if ($cutmeter) {
+            // กรณีปลดหนี้หมด และโดนตัดมิเตอร์อยู่ -> เปลี่ยนสถานะเป็นรอติดตั้ง/ผ่าน
+            if ($remaining_owe_count == 0 && $twUserInfo->cutmeter == 1) {
+
+                if ($cutmeter->status == 'cutmeter') {
+                    // Logic เดิม: cutmeter -> passed
+                    $cutmeter->status = 'passed';
+                    $cutmeter->save(); // Save สถานะ passed ก่อน (ตาม code เดิม)
+                }
+
+                // Update เป็น install/complete
+                $cutmeter->update([
+                    'status'        => ($cutmeter->status == "pending") ? "complete" : "install",
+                    'owe_count'     => $remaining_owe_count,
+                    "warning_print" => 0,
+                    'updated_at'    => now(),
+                ]);
+
+                // Update User Info ตามสถานะ Cutmeter
+                $is_active = ($cutmeter->status == 'init' || $cutmeter->status == 'complete');
+                $twUserInfo->cutmeter = $is_active ? 0 : 1;
+                $twUserInfo->status   = $is_active ? 'active' : 'inactive';
+            } else {
+                // ยังเหลือหนี้ หรือไม่ได้โดนตัด -> อัปเดตแค่ยอดค้าง
+                $cutmeter->update(['owe_count' => $remaining_owe_count]);
+            }
+        }
+
+        // 8. Update User Info สุดท้าย
+        $twUserInfo->owe_count            = $remaining_owe_count;
+        // Update สถานะตัดมิเตอร์ (ถ้าไม่ได้เข้าเงื่อนไขข้างบน ก็เช็คตามจำนวนบิล)
+        // หมายเหตุ: ตรงนี้ต้องระวัง Logic ตีกันกับข้างบน ถ้าข้างบน set active แล้ว ตรงนี้อาจจะทับ
+        // แต่ตาม Code เดิมคุณทำแบบนี้ ผมคงไว้ก่อน
+        if (!$cutmeter) {
+            $twUserInfo->cutmeter = $remaining_owe_count < 2 ? '0' : '1';
+        }
+
+        $twUserInfo->last_meter_recording = $nextLastmeter;
+        $twUserInfo->inv_no_index         = $receipt_running_no + 1; // รันเลขใบเสร็จถัดไป
+        $twUserInfo->updated_at           = now();
+        $twUserInfo->save();
+
+        // 9. ส่งไปพิมพ์ใบเสร็จ (ส่ง Transaction ID ไปเลย แม่นยำกว่า)
+        return $this->receipt_print_by_trans($accTrans->id);
+    }
+    /**
+     * Summary of receipt_print_by_trans
+     * @param mixed $acc_trans_id
+     * @return \Illuminate\Contracts\View\View
+     */
+    private function receipt_print_by_trans($acc_trans_id)
+    {
+        // สร้าง function ใหม่ หรือปรับแก้ receipt_print เดิมให้รับ trans_id
+
+        // ดึง Invoices โดยอ้างอิงจาก Transaction ID เดียว (จะได้บิลทั้งหมดที่เพิ่งจ่าย)
+        $invoicesPaidForPrint = TwInvoice::where('acc_trans_id_fk', $acc_trans_id)
+            ->with([
+                'invoice_period:id,inv_p_name',
+                'tw_meter_infos:meter_id,user_id,meternumber,undertake_subzone_id',
+                'tw_acc_transactions' => function ($query) {
+                    // ดึงข้อมูล Transaction (แคชเชียร์, วันที่, ยอดรวม)
+                    $query->select('id', 'paidsum', 'vatsum', 'totalpaidsum', 'cashier', 'updated_at')
+                        ->with('cashier_info:id,prefix,firstname,lastname');
+                }
+            ])
+            ->get();
+
+        $type = 'paid_receipt';
+        $from_blade = 'payment.index';
+
+        return view('payment.receipt_print', compact('invoicesPaidForPrint', 'type', 'from_blade'));
+    }
     public function store_by_inv_no(Request $request)
     {
         $arr = [];
@@ -402,14 +408,13 @@ private function receipt_print_by_trans($acc_trans_id)
 
     public function receipt_print_multi(REQUEST $request, $inv_id = 0, $from_blade = 'payment.index')
     {
-
         $receipt_id = $account_id_fk;
         if ($request->session()->has('account_id_fk')) {
             $receipt_id = $request->session()->get('account_id_fk');
         }
 
         //ดึงมาจาก  invoice_history_table  เพราะทำการย้าย data status paid ไปเก็บไว้ตอน  payment.stor
-        $invoicesPaidForPrint = TwInvoiceHistoty::where('acc_trans_id_fk', $receipt_id)
+        $invoicesPaidForPrint = TwInvoiceHistory::where('acc_trans_id_fk', $receipt_id)
             ->where('status', 'paid')
             ->with([
                 'invoice_period' => function ($query) {
@@ -489,7 +494,7 @@ private function receipt_print_by_trans($acc_trans_id)
             ])
             ->get(['inv_period_id_fk', 'meter_id_fk', 'inv_no', 'lastmeter', 'currentmeter', 'status', 'acc_trans_id_fk', 'recorder_id', 'updated_at', 'created_at']);
 
-        $invoiceHistoryTable = TwInvoiceHistoty::where('acc_trans_id_fk', $receipt_id)
+        $invoiceHistoryTable = TwInvoiceHistory::where('acc_trans_id_fk', $receipt_id)
             ->with([
                 'invoice_period' => function ($query) {
                     return $query->select('id', 'inv_p_name');
@@ -542,7 +547,7 @@ private function receipt_print_by_trans($acc_trans_id)
                 $q->select('user_id');
             })
             ->get(['prefix', 'firstname', 'lastname', 'address', 'id', 'zone_id']);
-            // Note: ตรวจสอบว่าตาราง users มี org_id_fk ใช่ไหม ถ้าใช่ก็ผ่านครับ
+        // Note: ตรวจสอบว่าตาราง users มี org_id_fk ใช่ไหม ถ้าใช่ก็ผ่านครับ
 
         // 4. Query Zone
         // ใช้ Trait แล้ว จะได้เฉพาะ Zone ของ Org นี้
@@ -550,7 +555,7 @@ private function receipt_print_by_trans($acc_trans_id)
 
         // 5. Query Invoice Period
         // ใช้ Trait แล้ว จะได้เฉพาะ Period ของ Org นี้
-        $invoice_period = TwInvoicePeriod::where('status', 'active')->first(); // ใช้ first() แทน get()->first() ประหยัด query
+        $invoice_period = InvoicePeriod::where('status', 'active')->first(); // ใช้ first() แทน get()->first() ประหยัด query
 
         return view('payment.search', compact('zones', 'invoice_period', 'users', 'inv_by_budgetyear', 'orgInfos'));
     }
@@ -562,7 +567,7 @@ private function receipt_print_by_trans($acc_trans_id)
         // receipt_id เป็น 0,
         //ถ้า inv_period_id เท่ากับ invoice period table ที่ status  เท่ากับ active (ปัจจุบัน) ให้
         // - invoice.status เท่ากับ invoice นอกเหนือจากนั้นให้ status เป็น owe
-        $currentInvoicePeriod = TwInvoicePeriod::where('status', 'active')->get('id')->first();
+        $currentInvoicePeriod = InvoicePeriod::where('status', 'active')->get('id')->first();
         $invoicesTemp = TwInvoice::where('receipt_id', $receiptId);
         $invoices = $invoicesTemp->get(['inv_period_id', 'id']);
         foreach ($invoices as $invoice) {

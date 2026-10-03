@@ -65,7 +65,11 @@ class KpPurchaseController extends Controller
         return view('keptkayas.purchase.select_user', compact('keptKayaMembers'));
     }
 
-
+    /**
+     * Summary of startPurchase
+     * @param mixed $user_waste_pref_id
+     * @return \Illuminate\Http\RedirectResponse
+     */
     public function startPurchase($user_waste_pref_id)
     {
         $userWastePref = KpUserWastePreference::find($user_waste_pref_id);
@@ -188,6 +192,12 @@ class KpPurchaseController extends Controller
         return view('keptkayas.purchase.connect_bluethooth',compact('transaction', 'orgInfos'));
 
     }
+
+    /**
+     * Summary of showReceipt
+     * @param mixed $transaction_id
+     * @return \Illuminate\Contracts\View\View
+     */
     public function showReceipt($transaction_id)
     {
         $transaction = KpPurchaseTransaction::where('id', $transaction_id)
@@ -324,7 +334,12 @@ class KpPurchaseController extends Controller
     }
 
 
-
+    /**
+     * Summary of removeFromCart
+     * @param Request $request
+     * @param mixed $index
+     * @return \Illuminate\Http\RedirectResponse
+     */
     public function removeFromCart(Request $request, $index)
     {
         $cart = Session::get('purchase_cart', []);
@@ -431,6 +446,11 @@ class KpPurchaseController extends Controller
         return response()->json($data);
     }
 
+    /**
+     * Summary of showPurchaseHistory
+     * @param mixed $kp_waste_pref_id
+     * @return \Illuminate\Contracts\View\View
+     */
     public function showPurchaseHistory($kp_waste_pref_id)
     {
         // return $kp_waste_pref_id;

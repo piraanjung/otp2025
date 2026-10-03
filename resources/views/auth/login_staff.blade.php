@@ -840,13 +840,13 @@ body {
             <form  method="POST" action="{{ route('login') }}">
             @csrf
                 <div class="floating-group">
-                    <input type="text" id="username" name="username"  placeholder=" " value="katsukipai16@gmail.com" autofocus required>
+                    <input type="text" id="username" name="username"  placeholder=" " value="twman6" autofocus required>
                     <label for="username">👤 ชื่อผู้ใช้งาน / รหัสเจ้าหน้าที่</label>
                     <span class="input-highlight"></span>
                 </div>
 
                 <div class="floating-group">
-                    <input type="password" id="password" name="password" " placeholder=" " value="0910642922" autocomplete="current-password" required>
+                    <input type="password" id="password" name="password" " placeholder=" " value="123456" autocomplete="current-password" required>
                     <label for="password">🔒 รหัสผ่านความปลอดภัย</label>
                     <span class="input-highlight"></span>
                 </div>

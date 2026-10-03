@@ -15,6 +15,7 @@ return new class extends Migration
     {
         Schema::create('budget_year', function (Blueprint $table) {
             $table->bigIncrements('id');
+            $table->foreign('org_id_fk')->references('id')->on('organization')->onDelete('cascade');
             $table->string('budgetyear_name');
             $table->date('startdate');
             $table->date('enddate');

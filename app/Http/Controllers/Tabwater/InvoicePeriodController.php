@@ -9,50 +9,119 @@ use App\Models\Admin\BudgetYear;
 use App\Models\Admin\Organization;
 use App\Models\Tabwater\TwAccTransactions;
 use App\Models\Tabwater\TwInvoice;
-use App\Models\Tabwater\TwInvoicePeriod;
+use App\Models\Tabwater\InvoicePeriod;
 use App\Models\Tabwater\TwMeterInfos;
+use App\Models\Tabwater\TwMeterType;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 
 class InvoicePeriodController extends Controller
 {
-    public function index()
-{
-    $funcCtrl = new FunctionsController();
+    public function index(Request $request)
+    {
+        $org_id = Auth::user()->org_id_fk;
 
-    // 1. ดึงปีงบประมาณที่ Active โดยใช้ first() แทน get()
-    // หมายเหตุ: การใช้ on(session('db_conn')) หรือ setConnection เป็นวิธีที่ถูกต้องสำหรับ Multi-tenant
-    $activeBudgetYear = BudgetYear::on(session('db_conn'))
-                        ->where('status', 'active')
-                        ->first(); 
+        // ดึงปีงบประมาณที่ active อยู่
+        $budgetyear = BudgetYear::where('status', 'active')->first();
 
-    $orgInfos = Organization::getOrgName(Auth::user()->org_id_fk);
+        $periods = [];
+        if ($budgetyear) {
+            // ดึงรอบบิลทั้ง 12 เดือนที่ผูกกับปีงบประมาณนี้
+            $periods = InvoicePeriod::where('budgetyear_id', $budgetyear->id)
+                ->orderBy('id', 'asc')
+                ->get();
 
-    // --- UX Friendly Check ---
-    // ถ้าไม่มีปีงบประมาณที่ Active
-    if (!$activeBudgetYear) {
-        return view('admin.invoice_period.index', [
-            'invoice_periods' => [], // ส่ง array ว่างไปกัน view error
-            'orgInfos' => $orgInfos,
-            'error_message' => 'ไม่พบปีงบประมาณที่เปิดใช้งาน (Active)' // ส่งข้อความ error ไป
-        ]);
+            // เช็คสถานะการสร้าง Invoice ของแต่ละรอบบิล
+            foreach ($periods as $period) {
+                $invoiceCount = TwInvoice::where('inv_period_id_fk', $period->id)->count();
+
+                $period->invoice_count = $invoiceCount;
+                $period->is_generated = $invoiceCount > 0;
+            }
+        }
+        // เช็คว่ามีประเภทผู้ใช้น้ำและตั้งค่าอัตราค่าน้ำเรียบร้อยหรือยัง
+        $hasConfig = TwMeterType::whereHas('rateConfigs')->exists();
+
+
+        return view('admin.invoice_period.index', compact('budgetyear', 'periods', 'hasConfig'));
     }
 
-    // 2. ถ้ามีข้อมูล ทำงานต่อตามปกติ
-    $invoice_periods = TwInvoicePeriod::on(session('db_conn')) // อย่าลืมใส่ connection ให้เหมือนกัน
-        ->with('budgetyear')
-        ->where('budgetyear_id', $activeBudgetYear->id)
-        ->orderBy('id', 'desc')
-        ->get();
+    // ฟังก์ชันสร้าง Invoice เฉพาะรอบบิลที่เลือก (กดปุ่มสร้าง)
+    public function generateInvoice($period_id)
+    {
+        $current_inv_prd = InvoicePeriod::findOrFail($period_id);
 
-    foreach ($invoice_periods as $invoice_period) {
-        $invoice_period->startdate = $funcCtrl->engDateToThaiDateFormat($invoice_period->startdate);
-        $invoice_period->enddate = $funcCtrl->engDateToThaiDateFormat($invoice_period->enddate);
+        // เช็คว่ารอบบิลนี้เคยถูกสร้างไปหรือยัง
+        $existingCount = TwInvoice::where('inv_period_id_fk', $current_inv_prd->id)->count();
+
+        if ($existingCount > 0) {
+            return redirect()->back()->with(['color' => 'warning', 'message' => 'รอบบิลนี้ถูกสร้างใบแจ้งหนี้ไปแล้ว']);
+        }
+
+        // ดึงมิเตอร์ที่ active อยู่
+        $user_meter_infos = TwMeterInfos::where('status', 'active')
+            ->with(['invoice_not_paid' => function ($q) {
+                $q->select('id', 'meter_id_fk', 'inv_period_id_fk', 'status', 'acc_trans_id_fk')
+                    ->whereIn('status', ['owe', 'invoice']);
+            }])
+            ->get(['meter_id', 'user_id', 'last_meter_recording', 'inv_no_index']);
+
+        $newInvoiceArray = [];
+        $now = now();
+        $orgId = Auth::user()->org_id_fk;
+
+        $invoiceModel = new TwInvoice();
+
+        foreach ($user_meter_infos as $user_meter_info) {
+            $newInvNo = $invoiceModel->generateInvNo($user_meter_info->meter_id);
+
+            $newInvoiceArray[] = [
+                'meter_id_fk' => $user_meter_info->meter_id,
+                'inv_no' => $newInvNo,
+                'inv_period_id_fk' => $current_inv_prd->id,
+                'lastmeter' => $user_meter_info->last_meter_recording,
+                'currentmeter' => 0,
+                'water_used' => 0,
+                'paid' => 0,
+                'reserve_meter' => 0,
+                'vat' => 0,
+                'totalpaid' => 0,
+                'status' => 'init',
+                'recorder_id' => Auth::id(),
+                'created_at' => $now,
+                'updated_at' => $now,
+                'org_id_fk' => $orgId,
+            ];
+
+            // จัดการยอดค้างชำระเดิม (ถ้ามี)
+            if ($user_meter_info->invoice_not_paid->isNotEmpty()) {
+                $accTrans = TwAccTransactions::create([
+                    'user_id_fk' => $user_meter_info->user_id,
+                    'inv_no_fk' => 0,
+                    'paidsum' => 0,
+                    'vatsum' => 0,
+                    'totalpaidsum' => 0,
+                    'net' => 0,
+                    'cashier' => Auth::id(),
+                    'org_id_fk' => $orgId
+                ]);
+
+                $oweIds = $user_meter_info->invoice_not_paid->pluck('id');
+                TwInvoice::whereIn('id', $oweIds)->update([
+                    'acc_trans_id_fk' => $accTrans->id,
+                    'updated_at' => $now
+                ]);
+            }
+        }
+
+        // บันทึกข้อมูลแบบ Bulk Insert
+        if (!empty($newInvoiceArray)) {
+            TwInvoice::insert($newInvoiceArray);
+        }
+
+        return redirect()->route('admin.invoice_period.index')
+            ->with(['message' => 'สร้างใบแจ้งหนี้ประจำรอบบิล ' . $current_inv_prd->inv_p_name . ' เรียบร้อยแล้ว', 'color' => 'success']);
     }
-
-    return view('admin.invoice_period.index', compact('invoice_periods', 'orgInfos'));
-}
-
     public function create()
     {
         $orgInfos = Organization::getOrgName(Auth::user()->org_id_fk);
@@ -72,7 +141,7 @@ class InvoicePeriodController extends Controller
         // ---------------------------------------------------------
         // 1. ตรวจสอบสถานะ Init (ป้องกันการสร้างซ้อน)
         // ---------------------------------------------------------
-        $last_inv_prd = TwInvoicePeriod::latest('id')->first();
+        $last_inv_prd = InvoicePeriod::latest('id')->first();
 
         $check_inv_init_status = 0;
         if ($last_inv_prd) {
@@ -113,7 +182,7 @@ class InvoicePeriodController extends Controller
         $req['status']      = 'active';
         // $req['org_id_fk'] = ... (Trait เติมให้อัตโนมัติถ้าใช้ create)
 
-        $current_inv_prd = TwInvoicePeriod::create($req);
+        $current_inv_prd = InvoicePeriod::create($req);
 
         // ---------------------------------------------------------
         // 4. ดึงข้อมูลมิเตอร์และยอดค้างชำระ
@@ -208,7 +277,7 @@ class InvoicePeriodController extends Controller
         return redirect()->route('admin.invoice_period.index')
             ->with(['message' => 'ทำการบันทึกข้อมูลแล้ว', 'color' => 'success']);
     }
-    public function edit(TwInvoicePeriod $invoice_period)
+    public function edit(InvoicePeriod $invoice_period)
     {
         $funcCtrl = new FunctionsController();
 
@@ -218,7 +287,7 @@ class InvoicePeriodController extends Controller
         return view('admin.invoice_period.edit', compact('invoice_period'));
     }
 
-    public function update(Request $request, TwInvoicePeriod $invoice_period)
+    public function update(Request $request, InvoicePeriod $invoice_period)
     {
         date_default_timezone_set('Asia/Bangkok');
 
@@ -239,10 +308,10 @@ class InvoicePeriodController extends Controller
         return redirect()->route('admin.invoice_period.index')->with('message', 'ทำการอัพเดทข้อมูลเรียบร้อยแล้ว');
     }
 
-    public function destroy(TwInvoicePeriod $invoice_period)
+    public function destroy(InvoicePeriod $invoice_period)
     {
         if (collect($invoice_period)->isNotEmpty()) {
-            $check_inv_prd_count = (new TwInvoicePeriod())->setConnection(session('db_conn'))->all()->count();
+            $check_inv_prd_count = (new InvoicePeriod())->setConnection(session('db_conn'))->all()->count();
             if ($check_inv_prd_count == 1) {
                 return redirect()->route('admin.invoice_period.index')->with(['message' => 'ไม่สามารถทำการลบข้อมูลได้ เนื่องจากระบบตั้งค่าให้ต้องมีรอบบิลอย่างน้อย 1 รอบบิล']);
             }

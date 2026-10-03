@@ -89,60 +89,64 @@ tr.selected td {
     </button>
 </div>
 
-<div class="row">
+<div class="row" id="search_by_subzone_div">
     <div class="col-12 mb-3">
         <form action="{{ route('payment.index') }}" method="get">
             @csrf
             <div class="card shadow-sm">
+                <div class="card-header">
+                    <h6><i class="fas fa-search"></i> ค้นหาจากเส้นทางจดมิเตอร์</h6>
+                </div>
                 <div class="card-body">
-                    <div class="row align-items-end">
-                        <div class="col-12 mb-2">
-                            <h6><i class="fas fa-search"></i> ค้นหาจากเส้นทางจดมิเตอร์</h6>
-                        </div>
-                        
-                        <div class="col-md-2 mb-2">
-                            <div class="form-check">
-                                <input class="form-check-input" type="checkbox" name="check-input-select-all"
-                                    id="check-input-select-all" {{ $select_all == true ? 'checked' : '' }}>
-                                <label class="form-check-label font-weight-bold" for="check-input-select-all">เลือกทั้งหมด</label>
+                    <div class="show_search_form hidden">
+                        <div class="row align-items-end">
+                            <div class="col-12 mb-2">
                             </div>
-                        </div>
+                            
+                            <div class="col-md-2 mb-2">
+                                <div class="form-check">
+                                    <input class="form-check-input" type="checkbox" name="check-input-select-all"
+                                        id="check-input-select-all" {{ $select_all == true ? 'checked' : '' }}>
+                                    <label class="form-check-label font-weight-bold" for="check-input-select-all">เลือกทั้งหมด</label>
+                                </div>
+                            </div>
 
-                        <div class="col-md-8">
-                            <div class="row">
-                                @foreach ($subzones as $key => $subzone)
-                                    <div class="col-lg-3 col-md-4 col-sm-6 mb-2">
-                                        <div class="form-check">
-                                            <input class="form-check-input subzone_checkbox" type="checkbox"
-                                                name="subzone_id_lists[]" value="{{ $subzone['id'] }}"
-                                                {{ isset($subzone_selected) && in_array($subzone['id'], is_array($subzone_selected) ? $subzone_selected : json_decode($subzone_selected)) ? 'checked' : '' }}>
-                                            <label class="form-check-label text-primary" style="font-size: 0.9rem;">
-                                                {{ $subzone->zone->zone_name }}
-                                            </label>
+                            <div class="col-md-8">
+                                <div class="row">
+                                    @foreach ($subzones as $key => $subzone)
+                                        <div class="col-lg-3 col-md-4 col-sm-6 mb-2">
+                                            <div class="form-check">
+                                                <input class="form-check-input subzone_checkbox" type="checkbox"
+                                                    name="subzone_id_lists[]" value="{{ $subzone['id'] }}"
+                                                    {{ isset($subzone_selected) && in_array($subzone['id'], is_array($subzone_selected) ? $subzone_selected : json_decode($subzone_selected)) ? 'checked' : '' }}>
+                                                <label class="form-check-label text-primary" style="font-size: 0.9rem;">
+                                                    {{ $subzone->zone->zone_name }}
+                                                </label>
+                                            </div>
                                         </div>
-                                    </div>
-                                @endforeach
+                                    @endforeach
+                                </div>
+                            </div>
+
+                            <div class="col-md-2 text-center">
+                                <button type="submit" class="btn btn-primary btn-block w-100">
+                                    <i class="fas fa-search"></i> ค้นหา
+                                </button>
                             </div>
                         </div>
 
-                        <div class="col-md-2 text-center">
-                            <button type="submit" class="btn btn-primary btn-block w-100">
-                                <i class="fas fa-search"></i> ค้นหา
-                            </button>
-                        </div>
-                    </div>
-
-                    <div class="row mt-2">
-                        <div class="col-md-4">
-                            <label>รอบบิล ปีงบประมาณ {{ $current_budgetyear[0]->budgetyear_name ?? '' }}</label>
-                            <select name="inv_period_id" class="form-control">
-                                <option value="0">ทั้งหมด</option>
-                                @foreach ($current_budgetyear[0]->invoice_period ?? [] as $inv_period)
-                                    <option value="{{ $inv_period->id }}" {{ request('inv_period_id') == $inv_period->id ? 'selected' : '' }}>
-                                        {{ $inv_period->inv_p_name }}
-                                    </option>
-                                @endforeach
-                            </select>
+                        <div class="row mt-2">
+                            <div class="col-md-4">
+                                <label>รอบบิล ปีงบประมาณ {{ $current_budgetyear[0]->budgetyear_name ?? '' }}</label>
+                                <select name="inv_period_id" class="form-control">
+                                    <option value="0">ทั้งหมด</option>
+                                    @foreach ($current_budgetyear[0]->invoice_period ?? [] as $inv_period)
+                                        <option value="{{ $inv_period->id }}" {{ request('inv_period_id') == $inv_period->id ? 'selected' : '' }}>
+                                            {{ $inv_period->inv_p_name }}
+                                        </option>
+                                    @endforeach
+                                </select>
+                            </div>
                         </div>
                     </div>
                 </div>
@@ -206,9 +210,9 @@ tr.selected td {
                 <form action="{{ route('payment.store_by_inv_no') }}" method="POST" id="bulkPaymentForm">
                     @csrf
                     
-                    <button type="submit" class="btn btn-info mb-3 hidden" id="submitbtn" onclick="return confirm('คุณต้องการบันทึกการรับชำระเงินหลายรายการใช่หรือไม่?')">
+                    {{-- <button type="submit" class="btn btn-info mb-3 hidden" id="submitbtn" onclick="return confirm('คุณต้องการบันทึกการรับชำระเงินหลายรายการใช่หรือไม่?')">
                         <i class="fas fa-save"></i> บันทึกการชำระเงินหลายรายการ
-                    </button>
+                    </button> --}}
 
                     <div class="table-responsive">
                         <table class="table table-hover align-items-center mb-0" id="invoiceTable">
@@ -431,6 +435,9 @@ tr.selected td {
 @section('script')
     <script src="https://cdn.jsdelivr.net/npm/jquery.qrcode@1.0.3/jquery.qrcode.min.js"></script>
     <script>
+        $('#search_by_subzone_div').click(()=>{
+            $('#search_by_subzone_div .card-body .show_search_form').toggle('slow')
+        })
         let table;
         // ประกาศตัวแปร Global เพื่อเก็บข้อมูล Invoice ที่โหลดมา
         let invoice_local = []; 

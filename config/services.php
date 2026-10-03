@@ -36,6 +36,7 @@ return [
      'line_staff' => [
         'channel_token' => env('STAFF_LINE_CHANNEL_ACCESS_TOKEN'),
         'channel_secret' => env('STAFF_LINE_CHANNEL_SECRET'),
+        'head_user_id'  => env('LINE_STAFF_HEAD_USER_ID'),
         'staff_group_id' => env('STAFF_LINE_GROUP_ID'),
     ],
 

@@ -3,7 +3,7 @@
 namespace App\Models\Tabwater;
 
 use App\Models\User;
-use App\Models\Tabwater\TwInvoicePeriod;
+use App\Models\Tabwater\InvoicePeriod;
 use App\Models\Tabwater\TwMeterInfos;
 use App\Models\Tabwater\TwAccTransactions;
 use App\Traits\BelongsToOrganization; // <--- เรียกใช้แค่ตัวนี้พอ
@@ -14,11 +14,11 @@ use Illuminate\Support\Facades\DB;
 class TwInvoiceHistory extends Model
 {
     // ใช้แค่ BelongsToOrganization ตัวเดียว (มันสลับ DB ให้แล้ว)
-    use HasFactory, BelongsToOrganization; 
+    use HasFactory, BelongsToOrganization;
 
     protected $table = 'tw_invoice_history';
     public $timestamps = false;
-    
+
     protected $fillable = [
         'id',
         'inv_period_id_fk',
@@ -41,12 +41,12 @@ class TwInvoiceHistory extends Model
     ];
 
     public function tw_meter_infos()
-{
-    return $this->belongsTo(TwMeterInfos::class, 'meter_id_fk', 'meter_id');
-}
+    {
+        return $this->belongsTo(TwMeterInfos::class, 'meter_id_fk', 'meter_id');
+    }
     public function invoice_period()
     {
-        return $this->belongsTo(TwInvoicePeriod::class, 'inv_period_id_fk', 'id');
+        return $this->belongsTo(InvoicePeriod::class, 'inv_period_id_fk', 'id');
     }
 
     public function tw_acc_transactions()
@@ -60,24 +60,24 @@ class TwInvoiceHistory extends Model
     {
         // $this->getConnectionName() เรียกใช้ได้เลย เพราะมาจาก Trait BelongsToOrganization
         $budgetyear = DB::connection($this->getConnectionName())
-                        ->table('budget_year')
-                        ->where('status', 'active')
-                        ->first();
+            ->table('budget_year')
+            ->where('status', 'active')
+            ->first();
 
         $budget_id = $budgetyear ? $budgetyear->id : 0;
         $budgetyear_id_str = str_pad($budget_id, 2, '0', STR_PAD_LEFT);
 
         // ใช้ self:: เพื่อให้ Trait ทำงาน (สลับ DB + กรอง Org)
         $last_inv = self::where('meter_id_fk', $meter_id)
-                        ->whereIn('status', ['owe', 'paid'])
-                        ->latest('id')
-                        ->first();
+            ->whereIn('status', ['owe', 'paid'])
+            ->latest('id')
+            ->first();
 
         $inv_running_no = '01';
 
         if ($last_inv) {
             $current_period_no = intval(substr($last_inv->inv_no, 2, 2));
-            
+
             if ($last_inv->status == 'owe') {
                 $inv_running_no = str_pad($current_period_no, 2, '0', STR_PAD_LEFT);
             } else {

@@ -49,6 +49,7 @@ class KeptkayaController extends Controller
                     'kp_tbank_items.kp_items_group_idfk as group_id',
                     'grp.kp_items_groupname as group_name',
                     'unt.unitname as unitname',
+                    'unt.unit_short_name as unit_short_name',
                     'prc.id as prc_pnt_id',
                     'prc.price_for_member as price',
                     'prc.price_from_dealer as price_dealer',
@@ -71,6 +72,11 @@ class KeptkayaController extends Controller
         }
     }
 
+    /**
+     * Summary of members
+     * @param mixed $org_id
+     * @return \Illuminate\Http\JsonResponse
+     */
     public function members($org_id)
     {
         try {
@@ -79,10 +85,13 @@ class KeptkayaController extends Controller
             // ดึงรายชื่อ User ทั้งหมด (ระบบจะกรอง org_id_fk อัตโนมัติด้วย Trait BelongsToOrganization)
             $members =  User::where('org_id_fk', $org_id)
                         ->with(['wastePreference' => function($q){
-                            $q->select('id', 'user_id', 'address');
+                            $q->select('id', 'user_id', 'address', 'zone_id');
                         }, 'wastePreference.kpBankAccount' => function($q){
                             $q->select('id', 'user_pref_id', 'account_no');
+                        }, 'wastePreference.user_pref_zone' => function($q){
+                            $q->select('id', 'zone_name');
                         }
+                        
                         ])
                        ->whereHas('wastePreference.kpBankAccount') // 🎯 กรองเฉพาะคนที่มีบัญชี
                         ->get(['firstname', 'lastname', 'id', 'address', 'zone_id', 'subzone_id', 'phone'])

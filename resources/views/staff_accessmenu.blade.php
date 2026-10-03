@@ -1,903 +1,28 @@
 @extends('layouts.keptkaya_mobile2')
 
 @section('style')
-    <style>
-        body {
-            font-family: sans-serif;
-            padding: 20px;
-            background: #f0f2f5;
-            margin: 0;
-        }
-
-        .card {
-            background: white;
-            padding: 20px;
-            border-radius: 8px;
-            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
-            margin-bottom: 15px;
-        }
-
-        /* สไตล์ฟอร์ม Login */
-        .login-container {
-            max-width: 400px;
-            margin: 50px auto;
-        }
-
-        .form-group {
-            margin-bottom: 15px;
-        }
-
-        .form-group label {
-            display: block;
-            margin-bottom: 5px;
-            font-weight: bold;
-        }
-
-        .form-group input {
-            width: 100%;
-            padding: 10px;
-            border: 1px solid #ccc;
-            border-radius: 4px;
-            box-sizing: border-box;
-            font-size: 16px;
-        }
-
-        button {
-            background: #007bff;
-            color: rgb(0, 0, 0);
-            border: none;
-            padding: 12px 20px;
-            border-radius: 5px;
-            font-size: 16px;
-            width: 100%;
-            cursor: pointer;
-        }
-
-        button:disabled {
-            background: #cccccc;
-        }
-
-        /* คลาสสำหรับซ่อนหน้าจอ */
-        .is-hidden {
-            display: none !important;
-        }
-
-        /* เพิ่มต่อท้าย CSS เดิมใน <style> */
-        :root {
-            --primary: #007bff;
-            --recycle-color: #28a745;
-            --organic-color: #fd7e14;
-            --water-color: #17a2b8;
-            --dark: #343a40;
-        }
-
-        body {
-            margin: 0;
-            padding: 0;
-            background-color: #f4f6f9;
-            color: var(--dark);
-        }
-
-        .container {
-            padding: 15px;
-        }
-
-        /* Header สไตล์แอปมือถือ */
-        .app-header {
-            background: linear-gradient(135deg, #1e3c72 0%, #2a5298 100%);
-            color: white;
-            padding: 20px 15px;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            border-bottom-left-radius: 15px;
-            border-bottom-right-radius: 15px;
-            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
-        }
-
-        .user-info {
-            display: flex;
-            align-items: center;
-            gap: 12px;
-        }
-
-        .avatar {
-            font-size: 28px;
-            background: rgba(255, 255, 255, 0.2);
-            padding: 5px;
-            border-radius: 50%;
-            width: 40px;
-            height: 40px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-        }
-
-        .welcome-text {
-            font-size: 12px;
-            opacity: 0.8;
-        }
-
-        .staff-name {
-            font-size: 18px;
-            font-weight: bold;
-        }
-
-        .btn-logout {
-            background: rgba(255, 255, 255, 0.15);
-            border: 1px solid rgba(255, 255, 255, 0.3);
-            color: white;
-            padding: 6px 12px;
-            border-radius: 20px;
-            font-size: 13px;
-            width: auto;
-            margin-top: 0;
-        }
-
-        .section-title {
-            margin: 20px 0 10px 5px;
-            font-size: 16px;
-            color: #6c757d;
-            text-transform: uppercase;
-            letter-spacing: 0.5px;
-        }
-
-        /* Layout เมนู Grid */
-        .menu-grid {
-            display: grid;
-            grid-template-columns: repeat(2, 1fr);
-            /* แบ่งเป็น 2 คอลัมน์เท่าๆ กัน */
-            gap: 15px;
-        }
-
-        /* สไตล์พื้นฐานของปุ่มเมนู */
-        .menu-item {
-            background: white;
-            padding: 20px 15px;
-            border-radius: 12px;
-            box-shadow: 0 3px 10px rgba(0, 0, 0, 0.05);
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            text-align: center;
-            cursor: pointer;
-            transition: transform 0.1s ease, box-shadow 0.1s ease;
-            border-top: 5px solid #ccc;
-        }
-
-        /* เอฟเฟกต์ตอนใช้นิ้วกด (Touch Feedback) */
-        .menu-item:active {
-            transform: scale(0.95);
-            box-shadow: 0 1px 4px rgba(0, 0, 0, 0.1);
-        }
-
-        .menu-icon {
-            font-size: 40px;
-            margin-bottom: 10px;
-        }
-
-        .menu-title {
-            font-size: 15px;
-            font-weight: bold;
-            margin-bottom: 6px;
-            color: #212529;
-        }
-
-        .menu-desc {
-            font-size: 11px;
-            color: #6c757d;
-            line-height: 1.3;
-        }
-
-        /* แยกสีขอบบนของแต่ละกองงานให้ชัดเจน */
-        .card-recycle {
-            border-top-color: var(--recycle-color);
-        }
-
-        .card-organic {
-            border-top-color: var(--organic-color);
-        }
-
-        .card-water {
-            border-top-color: var(--water-color);
-        }
-
-        .card-settings {
-            border-top-color: #6c757d;
-        }
-
-
-        .sub-header {
-            background: #28a745;
-            color: white;
-            padding: 15px;
-            display: flex;
-            align-items: center;
-            gap: 15px;
-        }
-
-        .btn-back {
-            background: rgba(255, 255, 255, 0.2);
-            border: none;
-            color: white;
-            padding: 6px 12px;
-            border-radius: 5px;
-            width: auto;
-        }
-
-        .search-wrapper {
-            display: flex;
-            gap: 8px;
-        }
-
-        #searchMemberInput {
-            flex: 1;
-            padding: 10px;
-            border: 1px solid #ccc;
-            border-radius: 6px;
-            font-size: 16px;
-        }
-
-        .btn-scan {
-            width: auto;
-            background: #17a2b8;
-            /* padding: 0 15px; */
-            margin: 0;
-        }
-
-        .member-list {
-            display: flex;
-            flex-direction: column;
-            gap: 10px;
-        }
-
-        .member-card {
-            background: white;
-            padding: 15px;
-            border-radius: 10px;
-            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-        }
-
-        .member-info p {
-            margin: 4px 0;
-            color: #495057;
-            font-size: 14px;
-        }
-
-        .btn-deposit {
-            background: #28a745;
-            color: white;
-            width: auto;
-            padding: 8px 15px;
-            font-size: 14px;
-            margin: 0;
-        }
-
-        .badge-account {
-            background: #e2f0d9;
-            color: #385723;
-            padding: 2px 6px;
-            border-radius: 4px;
-            font-size: 11px;
-            font-weight: bold;
-        }
-
-        .badge-no-account {
-            background: #fce4d6;
-            color: #c65911;
-            padding: 2px 6px;
-            border-radius: 4px;
-            font-size: 11px;
-            font-weight: bold;
-        }
-
-
-        /* 🟢 เพิ่มต่อท้ายใน style.css */
-        .trash-grid-card {
-            background: white;
-            border: 1px solid #e0e0e0;
-            border-radius: 12px;
-            padding: 15px 10px;
-            text-align: center;
-            cursor: pointer;
-            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.03);
-            transition: all 0.2s ease;
-            display: flex;
-            flex-direction: column;
-            justify-content: space-between;
-            align-items: center;
-            min-height: 100px;
-        }
-
-        /* เอฟเฟกต์ตอนเอานิ้วกดจิ้มปุ่มขยะ */
-        .trash-grid-card:active {
-            transform: scale(0.95);
-            background-color: #f1f3f5;
-        }
-
-        .trash-card-code {
-            font-size: 11px;
-            color: #888;
-            background: #f0f2f5;
-            padding: 2px 6px;
-            border-radius: 4px;
-            margin-bottom: 5px;
-        }
-
-        .trash-card-name {
-            font-weight: bold;
-            font-size: 14px;
-            color: #333;
-            margin: 5px 0;
-            line-height: 1.3;
-        }
-
-        .trash-card-price {
-            font-size: 13px;
-            color: #28a745;
-            font-weight: bold;
-            margin-top: 5px;
-        }
-
-        /* สไตล์ปุ่มแท็บหมวดหมู่ด้านบน */
-        .category-tab-btn {
-            padding: 8px 16px;
-            border: 1px solid #ced4da;
-            background: white;
-            color: #495057;
-            border-radius: 20px;
-            font-weight: bold;
-            font-size: 14px;
-            cursor: pointer;
-            white-space: nowrap;
-            transition: all 0.2s;
-        }
-
-        .category-tab-btn.is-active {
-            background: #28a745;
-            /* สีเขียวงานรีไซเคิล */
-            color: white;
-            border-color: #28a745;
-        }
-
-
-
-        /* =========================================================================
-                                           🟢 CSS สำหรับ Branch: feature/mobile-animated-login
-                                           ========================================================================= */
-
-        /* พื้นหลังไล่เฉดสีนุ่มนวลแบบแอปมือถือสมัยใหม่ */
-        .mobile-login-wrapper {
-            min-height: 100vh;
-            background: linear-gradient(180deg, #1e3c72 0%, #2a5298 60%, #f4f6f9 100%);
-            display: flex;
-            flex-direction: column;
-            justify-content: center;
-            padding: 20px;
-            box-sizing: border-box;
-            font-family: sans-serif;
-        }
-
-        /* แอนิเมชันหัวข้อแอป (ค่อยๆ ชัดขึ้น) */
-        .login-brand-area {
-            text-align: center;
-            color: white;
-            margin-bottom: 25px;
-            animation: fadeInDown 0.8s ease-out forwards;
-        }
-
-        .brand-logo {
-            font-size: 48px;
-            margin-bottom: 10px;
-            filter: drop-shadow(0 4px 8px rgba(0, 0, 0, 0.15));
-        }
-
-        .login-brand-area h1 {
-            font-size: 24px;
-            margin: 0 0 5px 0;
-            font-weight: bold;
-            letter-spacing: 0.5px;
-        }
-
-        .login-brand-area p {
-            font-size: 14px;
-            margin: 0;
-            opacity: 0.75;
-        }
-
-        /* ⚡ การ์ด Login ลอยขึ้นมาแบบนุ่มนวล (Fade In Up) */
-        .mobile-login-card {
-            background: rgba(255, 255, 255, 0.95);
-            padding: 30px 24px;
-            border-radius: 20px;
-            box-shadow: 0 10px 25px rgba(30, 60, 114, 0.15);
-            animation: fadeInUpMobile 0.8s cubic-bezier(0.4, 0, 0.2, 1) forwards;
-        }
-
-        .mobile-login-card h2 {
-            font-size: 22px;
-            color: #1e3c72;
-            margin: 0 0 4px 0;
-            font-weight: bold;
-        }
-
-        .subtitle {
-            font-size: 13px;
-            color: #6c757d;
-            margin: 0 25px 25px 0;
-        }
-
-        /* 🔄 ระบบพิมพ์แบบอักษรลอยตัว (Floating Labels) */
-        .floating-group {
-            position: relative;
-            margin-bottom: 20px;
-        }
-
-        .floating-group input {
-            width: 100%;
-            padding: 14px 12px 10px 12px;
-            font-size: 16px;
-            border: 1.5px solid #ced4da;
-            border-radius: 10px;
-            outline: none;
-            background: transparent;
-            box-sizing: border-box;
-            transition: all 0.2s ease;
-            color: #333;
-        }
-
-        .floating-group label {
-            position: absolute;
-            left: 12px;
-            top: 50%;
-            transform: translateY(-50%);
-            background: transparent;
-            color: #6c757d;
-            font-size: 14px;
-            pointer-events: none;
-            transition: all 0.2s ease;
-        }
-
-        /* เมื่อคลิก หรือเมื่อมีข้อความในช่อง ให้ฉลากลอยขึ้นข้างบนอัตโนมัติ */
-        .floating-group input:focus~label,
-        .floating-group input:not(:placeholder-shown)~label {
-            top: 0;
-            font-size: 12px;
-            padding: 0 6px;
-            background: white;
-            color: #1e3c72;
-            font-weight: bold;
-        }
-
-        .floating-group input:focus {
-            border-color: #1e3c72;
-            box-shadow: 0 0 0 3px rgba(30, 60, 114, 0.1);
-        }
-
-        /* ป้ายแสดงข้อความเตือนเมื่อกรอกผิด */
-        .error-banner {
-            background-color: #f8d7da;
-            color: #721c24;
-            padding: 12px;
-            border-radius: 8px;
-            font-size: 13px;
-            margin-bottom: 15px;
-            border-left: 4px solid #dc3545;
-        }
-
-        /* ปุ่มล็อกอินสำหรับใช้นิ้วโป้งกดง่ายๆ */
-        .btn-mobile-login {
-            width: 100%;
-            background: linear-gradient(90deg, #1e3c72 0%, #2a5298 100%);
-            color: white;
-            border: none;
-            padding: 14px;
-            font-size: 16px;
-            font-weight: bold;
-            border-radius: 10px;
-            cursor: pointer;
-            margin-top: 10px;
-            box-shadow: 0 4px 12px rgba(30, 60, 114, 0.2);
-            transition: all 0.2s;
-        }
-
-        .btn-mobile-login:active {
-            transform: scale(0.98);
-            opacity: 0.9;
-        }
-
-        .btn-mobile-login:disabled {
-            background: #6c757d;
-            cursor: not-allowed;
-        }
-
-        .login-footer {
-            text-align: center;
-            margin-top: 30px;
-            font-size: 11px;
-            color: #6c757d;
-        }
-
-        /* 🎬 แอนิเมชันสไลด์ขึ้นตอนโหลดแอป */
-        @keyframes fadeInUpMobile {
-            from {
-                opacity: 0;
-                transform: translateY(40px);
-            }
-
-            to {
-                opacity: 1;
-                transform: translateY(0);
-            }
-        }
-
-        @keyframes fadeInDown {
-            from {
-                opacity: 0;
-                transform: translateY(-20px);
-            }
-
-            to {
-                opacity: 1;
-                transform: translateY(0);
-            }
-        }
-
-        /* =========================================================================
-                                           🟢 CSS สำหรับ Branch: feature/sidebar-toggle-menu
-                                           ========================================================================= */
-
-        .mobile-sidebar-wrapper {
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            z-index: 10000;
-            visibility: hidden;
-            transition: visibility 0.3s;
-        }
-
-        /* ปลดล็อกคลาสเมื่อสั่งเปิดเมนู */
-        .mobile-sidebar-wrapper.is-open {
-            visibility: visible;
-        }
-
-        /* พื้นหลังมืดโปร่งแสงด้านหลัง */
-        .sidebar-overlay {
-            position: absolute;
-            width: 100%;
-            height: 100%;
-            background: rgba(0, 0, 0, 0.4);
-            opacity: 0;
-            transition: opacity 0.3s ease;
-        }
-
-        .mobile-sidebar-wrapper.is-open .sidebar-overlay {
-            opacity: 1;
-        }
-
-        /* กล่องเนื้อหาเมนูที่เด้งสไลด์มาจากทางซ้าย */
-        .sidebar-content {
-            position: absolute;
-            top: 0;
-            left: 0;
-            width: 280px;
-            /* ความกว้างเมนู */
-            height: 100%;
-            background: #ffffff;
-            box-shadow: 4px 0 15px rgba(0, 0, 0, 0.1);
-            display: flex;
-            flex-direction: column;
-            transform: translateX(-100%);
-            /* ซ่อนไว้ฝั่งซ้ายสุดจอก่อนเปิด */
-            transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-        }
-
-        .mobile-sidebar-wrapper.is-open .sidebar-content {
-            transform: translateX(0);
-            /* สไลด์กลับเข้ามาโชว์ปกติ */
-        }
-
-        /* พื้นหลังข้อมูล Staff ใช้โทนน้ำเงินไล่เฉดให้เข้าเซ็ตกับแอป */
-        .sidebar-user-profile {
-            background: linear-gradient(135deg, #1e3c72 0%, #2a5298 100%);
-            color: white;
-            padding: 35px 20px 25px 20px;
-            display: flex;
-            align-items: center;
-            gap: 15px;
-        }
-
-        .sidebar-avatar {
-            font-size: 32px;
-            background: rgba(255, 255, 255, 0.2);
-            width: 50px;
-            height: 50px;
-            border-radius: 50%;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-        }
-
-        .sidebar-user-details small {
-            display: block;
-            font-size: 11px;
-            opacity: 0.75;
-            margin-bottom: 2px;
-        }
-
-        .sidebar-user-details span {
-            font-size: 16px;
-            font-weight: bold;
-        }
-
-        /* รายการปุ่มเมนูสไลด์ */
-        .sidebar-menu-items {
-            padding: 15px 10px;
-            flex: 1;
-            display: flex;
-            flex-direction: column;
-            gap: 5px;
-        }
-
-        .menu-item {
-            display: block;
-            padding: 12px 15px;
-            color: #495057;
-            text-decoration: none;
-            font-size: 15px;
-            border-radius: 8px;
-            font-weight: 500;
-            transition: background 0.2s;
-        }
-
-        .menu-item:active,
-        .menu-item.active {
-            background: #f0f4fd;
-            color: #1e3c72;
-            font-weight: bold;
-        }
-
-        /* พื้นที่ปุ่มออกจากระบบด้านล่างสุด */
-        .sidebar-footer {
-            padding: 15px;
-            border-top: 1px solid #dee2e6;
-        }
-
-        .btn-sidebar-logout {
-            width: 100%;
-            background: #fff0f0;
-            color: #dc3545;
-            border: 1px solid #fecaca;
-            padding: 12px;
-            font-size: 14px;
-            font-weight: bold;
-            border-radius: 8px;
-            cursor: pointer;
-            transition: all 0.2s;
-        }
-
-        .btn-sidebar-logout:active {
-            background: #fcdede;
-        }
-
-        /* 🟢 ล็อกขนาดพื้นที่กล่องรายการขยะย่อยให้สไลด์ข้างในแทน */
-        #item-buttons-container {
-            display: grid;
-            grid-template-columns: repeat(2, 1fr);
-            gap: 10px;
-
-            /* 📌 จุดสำคัญ: จำกัดความสูงไว้ที่ 160px - 180px (แสดงได้ประมาณ 2 แถวพอดีสวย) */
-            max-height: 170px;
-            overflow-y: auto;
-            /* ถ้าของเกิน ให้เกิด Scrollbar สไลด์ในกล่องนี้แทน */
-            padding-right: 4px;
-            /* เผื่อพื้นที่ให้ Scrollbar ฝั่งขวาไม่บังปุ่ม */
-        }
-
-        /* 🟢 ปรับสไตล์การ์ดขยะย่อยให้กระชับ เต็มตา ไม่กินพื้นที่แนวตั้ง */
-        .trash-item-card-compact {
-            background: white;
-            border: 1px solid #e2e8f0;
-            border-radius: 10px;
-            padding: 8px 10px;
-            /* ลด Padding ลงเพื่อให้การ์ดผอมลง */
-            text-align: center;
-            min-height: 65px;
-            /* ลดความสูงขั้นต่ำลงจากเดิม */
-            display: flex;
-            flex-direction: column;
-            justify-content: center;
-            align-items: center;
-            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.02);
-        }
-
-        /* ปรับฟอนต์ชื่อขยะและราคาให้สมดุล */
-        .trash-item-card-compact .item-title {
-            font-size: 18px;
-            font-weight: bold;
-            color: #2d3748;
-            margin-bottom: 2px;
-        }
-
-        .trash-item-card-compact .item-price {
-            font-size: 14px;
-            color: #38a169;
-            font-weight: bold;
-        }
-
-        /* =========================================================================
-                                           🟢 CSS สำหรับหน้าต่างคีย์น้ำหนักเด้งจากด้านล่าง (Bottom Sheet Modal)
-                                           ========================================================================= */
-        .weight-modal-container {
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            z-index: 1050;
-            display: flex;
-            flex-direction: column;
-            justify-content: flex-end;
-            /* ดึงของลงขอบล่างจอ */
-            visibility: hidden;
-            transition: visibility 0.3s ease;
-        }
-
-
-        /* คลาสเปิดใช้งานผ่าน JavaScript */
-        .weight-modal-container.is-active {
-            visibility: visible;
-        }
-
-        /* ฉากหลังสีเทาดำโปร่งแสง */
-        .weight-modal-overlay {
-            position: absolute;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            background: rgba(0, 0, 0, 0.4);
-            opacity: 0;
-            transition: opacity 0.3s ease;
-        }
-
-        .weight-modal-container.is-active .weight-modal-overlay {
-            opacity: 1;
-        }
-
-        /* ตัวกล่องเนื้อหาที่จะดีดขึ้นมา */
-        .weight-modal-content {
-            position: relative;
-            background: #ffffff;
-            width: 100%;
-            border-top-left-radius: 24px;
-            border-top-right-radius: 24px;
-            padding: 20px 20px 30px 20px;
-            box-sizing: border-box;
-            transform: translateY(100%);
-            /* เริ่มต้นซ่อนไว้ใต้จอ */
-            transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-            box-shadow: 0 -5px 20px rgba(0, 0, 0, 0.1);
-        }
-
-        .weight-modal-container.is-active .weight-modal-content {
-            transform: translateY(0);
-            /* สไลด์ลอยขึ้นมาพิกัดปกติ */
-        }
-
-        /* ขีดจับดีไซน์มือถือ */
-        .weight-modal-handle {
-            width: 44px;
-            height: 5px;
-            background: #e2e8f0;
-            border-radius: 3px;
-            margin: -10px auto 15px auto;
-        }
-
-        .weight-modal-header {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            border-bottom: 1px solid #f1f3f5;
-            padding-bottom: 12px;
-            margin-bottom: 15px;
-        }
-
-        .btn-weight-modal-close {
-            background: #f1f3f5;
-            border: none;
-            width: 32px;
-            height: 32px;
-            border-radius: 50%;
-            color: #6c757d;
-            font-size: 14px;
-            font-weight: bold;
-            cursor: pointer;
-        }
-
-        /* เอฟเฟกต์ตอนเอานิ้วกดปุ่มลงตะกร้า */
-        #btnAddToCart:active {
-            transform: scale(0.98);
-            opacity: 0.95;
-        }
-
-
-        /* =========================================================================
-                                           🟢 CSS สำหรับกล่องแจ้งเตือนความสำเร็จแบบหายวับอัตโนมัติ (Success Toast)
-                                           ========================================================================= */
-        .success-toast-overlay {
-            position: fixed;
-            top: 50%;
-            left: 50%;
-            transform: translate(-50%, -50%) scale(0.8);
-            background: rgba(0, 0, 0, 0.85);
-            color: white;
-            padding: 20px 30px;
-            border-radius: 16px;
-            text-align: center;
-            z-index: 9999;
-            /* อยู่บนสุดของทุกเลเยอร์ */
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            justify-content: center;
-            gap: 10px;
-            pointer-events: none;
-            /* เพื่อไม่ให้บล็อกการกดหน้าจอหลัก */
-            opacity: 0;
-            transition: all 0.2s cubic-bezier(0.175, 0.885, 0.32, 1.275);
-        }
-
-        /* คลาสเปิดใช้งานให้แสดงผล */
-        .success-toast-overlay.show {
-            opacity: 1;
-            transform: translate(-50%, -50%) scale(1);
-        }
-
-        .toast-icon {
-            font-size: 40px;
-            animation: pulseIcon 0.4s ease-in-out;
-        }
-
-        .toast-text {
-            font-size: 15px;
-            font-weight: bold;
-            white-space: nowrap;
-        }
-
-        /* แอนิเมชันให้ไอคอนเด้งดึ๋งสะใจ */
-        @keyframes pulseIcon {
-            0% {
-                transform: scale(0.5);
-            }
-
-            50% {
-                transform: scale(1.2);
-            }
-
-            100% {
-                transform: scale(1);
-            }
-        }
-
-        .profile img {
-            display: block;
-            width: 70px;
-            height: 70px;
-            border-radius: 50%;
-            margin: 0 auto;
-        }
-    </style>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/sweetalert2@11/dist/sweetalert2.min.css">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link
+        href="https://fonts.googleapis.com/css2?family=Google+Sans:ital,opsz,wght@0,17..18,400..700;1,17..18,400..700&family=Kanit:ital,wght@0,100;0,200;0,300;0,400;0,500;0,600;0,700;0,800;0,900;1,100;1,200;1,300;1,400;1,500;1,600;1,700;1,800;1,900&display=swap"
+        rel="stylesheet">
+   
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/css/bootstrap.min.css"
+        integrity="sha384-sRIl4kxILFvY47J16cr9ZwB07vP4J8+LH7qKQnuqkuIAvNWLzeN8tE5YBujZqJLB" crossorigin="anonymous">
+    <script>
+        window.ASSET_URL = "{{ asset('') }}";
+    </script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/cropperjs/1.5.13/cropper.min.css" />
+
+    <link rel="stylesheet" href="{{ asset('css/accessmenu.css') }}">
 @endsection
 
 @section('content')
-    <canvas id="receiptCanvas" width="384" height="400" style="display:block;border:1px solid"></canvas>
-    <div class="app-header">
+
+    <div class="app-header is-hidden">
         <div style="display: flex; align-items: center; gap: 12px;">
             <button type="button" id="btnOpenSidebar" onclick="toggleSidebar(true)"
                 style="background: transparent; border: none; color: white; font-size: 24px; cursor: pointer; padding: 0 5px; width: auto; margin: 0;">
@@ -913,18 +38,17 @@
     </div>
 
 
-    <div id="appSidebar" class="mobile-sidebar-wrapper">
+    <div id="appSidebar" class="mobile-sidebar-wrapper is-hidden">
         <div class="sidebar-overlay" onclick="toggleSidebar(false)"></div>
 
         <div class="sidebar-content">
 
             <div class="sidebar-user-profile">
                 <div class="sidebar-avatar">
-                    <center class="profile">
-                        {{-- <img src="{{ " https://profile.line-scdn.net/" . Auth::user()->image }}" class="img-bordered
-                        md"
-                        alt=""> --}}
-                    </center>
+                    {{-- <center class="profile">
+                        <img src="{{ " https://profile.line-scdn.net/" . Auth::user()->image }}" class="img-bordered-md"
+                            alt="">
+                    </center> --}}
                 </div>
                 <div class="sidebar-user-details">
                     <small>เจ้าหน้าที่ผู้ปฏิบัติงาน</small>
@@ -933,11 +57,11 @@
             </div>
 
             <div class="sidebar-menu-items">
-                <a href="#" class="menu-item active" onclick="toggleSidebar(false,'main')"> หน้าหลักบันทึกขยะ</a>
-                <a href="#" class="menu-item" onclick="alert('ระบบตั้งค่าเครื่องชั่งและเครื่องปรินท์บลูทูธ')">⚙️
+                <a href="#" class="menu-item active" onclick="toggleSidebar(false,'main'), navigateTo('main')">
+                    หน้าหลักบันทึกขยะ</a>
+                <a href="#" class="menu-item" onclick="toggleSidebar(false,'main'), navigateTo('settings')">⚙️
                     ตั้งค่าอุปกรณ์</a>
-                <a href="#" class="menu-item" onclick="alert('เวอร์ชันแอปพลิเคชัน: v1.2.0-Recycle')">ℹ️
-                    เกี่ยวกับระบบ</a>
+
             </div>
 
             <div class="sidebar-footer">
@@ -948,46 +72,22 @@
         </div>
     </div>
 
-    <div id="loginScreen" class="mobile-login-wrapper">
-        <div class="login-brand-area">
-            <div class="brand-logo">♻️</div>
-            <h1>ธนาคารขยะรีไซเคิล</h1>
-            <p>KeptKaya Staff Application</p>
-        </div>
-
-        <div class="mobile-login-card">
-            <h2>ยินดีต้อนรับ</h2>
-            <p class="subtitle">กรุณาเข้าสู่ระบบเพื่อปฏิบัติงาน</p>
-
-            <div id="loginError" class="error-banner" style="display: none;"></div>
-
-            <form id="loginForm" autocomplete="off">
-                <div class="floating-group">
-                    <input type="text" id="username" placeholder=" " value="katsukipai16@gmail.com" required>
-                    <label for="username">👤 ชื่อผู้ใช้งาน / รหัสเจ้าหน้าที่</label>
-                    <span class="input-highlight"></span>
-                </div>
-
-                <div class="floating-group">
-                    <input type="password" id="password" placeholder=" " value="0910642922" required>
-                    <label for="password">🔒 รหัสผ่านความปลอดภัย</label>
-                    <span class="input-highlight"></span>
-                </div>
-
-                <button type="submit" id="btnLogin" class="btn-mobile-login">
-                    🔓 เข้าสู่ระบบ
-                </button>
-            </form>
-        </div>
-
-
+    <div id="loginScreen" class="ixs-hidden">
+        @include('staff.includes.login_screen')
     </div>
+    @include('staff.includes.screen_select_org')
 
     <div id="mainScreen" class="is-hidden">
         <div class="container">
             <h3 class="section-title">เมนูบริการระบบสนาม</h3>
 
             <div class="menu-grid">
+                <div class="menu-item card-water" onclick="navigateTo('water')">
+                    <div class="menu-icon">💧</div>
+                    <div class="menu-title">งานประปา</div>
+                    <div class="menu-desc">จดมาตรวัดน้ำ, แจ้งท่อแตก/ซ่อมแซม</div>
+                </div>
+
                 <div class="menu-item card-recycle" onclick="navigateTo('recycle')">
                     <div class="menu-icon">♻️</div>
                     <div class="menu-title">ธนาคารขยะรีไซเคิล</div>
@@ -1000,10 +100,16 @@
                     <div class="menu-desc">ตรวจประเมินถังขยะ, บันทึกพิกัดคาร์บอน</div>
                 </div>
 
-                <div class="menu-item card-water" onclick="navigateTo('water')">
-                    <div class="menu-icon">💧</div>
-                    <div class="menu-title">งานประปาภูมิภาค</div>
-                    <div class="menu-desc">จดมาตรวัดน้ำ, แจ้งท่อแตก/ซ่อมแซม</div>
+                 <div class="menu-item card-inventory" onclick="navigateTo('inventory')">
+                    <div class="menu-icon">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="40" height="40" fill="currentColor" class="bi bi-house-gear" viewBox="0 0 16 16">
+  <path d="M7.293 1.5a1 1 0 0 1 1.414 0L11 3.793V2.5a.5.5 0 0 1 .5-.5h1a.5.5 0 0 1 .5.5v3.293l2.354 2.353a.5.5 0 0 1-.708.708L8 2.207l-5 5V13.5a.5.5 0 0 0 .5.5h4a.5.5 0 0 1 0 1h-4A1.5 1.5 0 0 1 2 13.5V8.207l-.646.647a.5.5 0 1 1-.708-.708z"/>
+  <path d="M11.886 9.46c.18-.613 1.048-.613 1.229 0l.043.148a.64.64 0 0 0 .921.382l.136-.074c.561-.306 1.175.308.87.869l-.075.136a.64.64 0 0 0 .382.92l.149.045c.612.18.612 1.048 0 1.229l-.15.043a.64.64 0 0 0-.38.921l.074.136c.305.561-.309 1.175-.87.87l-.136-.075a.64.64 0 0 0-.92.382l-.045.149c-.18.612-1.048.612-1.229 0l-.043-.15a.64.64 0 0 0-.921-.38l-.136.074c-.561.305-1.175-.309-.87-.87l.075-.136a.64.64 0 0 0-.382-.92l-.148-.044c-.613-.181-.613-1.049 0-1.23l.148-.043a.64.64 0 0 0 .382-.921l-.074-.136c-.306-.561.308-1.175.869-.87l.136.075a.64.64 0 0 0 .92-.382zM14 12.5a1.5 1.5 0 1 0-3 0 1.5 1.5 0 0 0 3 0"/>
+</svg>
+                    </div>
+                    
+                    <div class="menu-title">ยืม/คืน พัสดุ</div>
+                    <div class="menu-desc">ยืม/คืน พัสดุ</div>
                 </div>
 
                 <div class="menu-item card-settings" onclick="navigateTo('settings')">
@@ -1011,6 +117,8 @@
                     <div class="menu-title">ตั้งค่าเครื่องพิมพ์</div>
                     <div class="menu-desc">เชื่อมต่อ Bluetooth Thermal Printer</div>
                 </div>
+
+               
             </div>
         </div>
     </div>
@@ -1024,7 +132,7 @@
         <div class="container">
             <div class="card" style="padding: 12px;">
                 <div class="search-wrapper">
-                    <input type="text" id="searchMemberInput" placeholder="🔍 ค้นหาชื่อ, นามสกุล หรือเบอร์โทร..."
+                    <input type="text" id="searchMemberRecycleInput" placeholder="🔍 ค้นหาชื่อ, นามสกุล หรือเบอร์โทร..."
                         oninput="filterMembers()">
                     <button id="btnScanQR" class="btn-scan">📷 สแกน QR</button>
                 </div>
@@ -1141,8 +249,8 @@
 
                     <div id="selected-item-display"
                         class="alert alert-warning border-0 rounded-3 d-flex justify-content-between align-items-center mb-3 shadow-sm"
-                        style="display: none; background: #fff3cd; color: #856404; padding: 15px; border-radius: 8px; justify-content: space-between; align-items: center;">
-                        <div>
+                        style="display: none; opacity: 0; background: #fff3cd; color: #856404; padding: 15px; border-radius: 8px; justify-content: space-between; align-items: center;">
+                        <div style="opacity: 0">
                             <small class="d-block" style="font-size: 11px; text-transform: uppercase;">กำลังเลือก:</small>
                             <span id="selected-item-name" class="fw-bold fs-3 text-dark"
                                 style="font-size: 22px; font-weight: bold; color: #212529;">...</span>
@@ -1171,9 +279,9 @@
 
                                 <div class="p-3 bg-white border rounded-4"
                                     style="background: #fff; border: 1px solid #dee2e6; padding: 15px; border-radius: 12px; margin-top: 15px; clear: both;">
-                                    <div
+                                    <div class="row"
                                         style="display: grid-column; grid-template-columns: 7fr 5fr; gap: 15px; margin-bottom: 15px; align-items: end;">
-                                        <div>
+                                        <div class="col-8">
                                             <label class="small text-muted mb-1"
                                                 style="font-size: 13px; color: #6c757d; display: block; margin-bottom: 5px;">จำนวน</label>
                                             <input type="number" step="0.01" id="amount_in_units" class="form-control"
@@ -1181,9 +289,7 @@
                                                 style="width: 100%; padding: 12px 5px; box-sizing: border-box; font-size: 28px; font-weight: bold; text-align: center; background: #f8f9fa; border: 1px solid #ced4da; border-radius: 8px; height: 58px;">
                                         </div>
 
-                                        <div>
-                                            <label class="small text-muted mb-1"
-                                                style="font-size: 15px; color: #6c757d; display: block; margin-bottom: 5px;">หน่วย</label>
+                                        <div class="col-4">
                                             <div id="unit-buttons-container"
                                                 style="display: flex; gap: 8px; height: 58px; align-items: stretch; color:black">
                                             </div>
@@ -1227,23 +333,11 @@
                     </span>
                 </div>
 
-                {{-- <div style="display: flex; flex-direction: column; gap: 12px;">
-                    <button type="button" id="btnConnect"
-                        style="background: #4e73df; font-weight: bold; padding: 14px; border-radius: 6px;">
-                        🔄 ค้นหา & เชื่อมต่ออุปกรณ์
-                    </button>
-
-                    <button type="button" id="btnPrintTest"
-                        style="background: #17a2b8; font-weight: bold; padding: 14px; border-radius: 6px;">
-                        ⚡ ทดสอบการพิมพ์ (Test Print)
-                    </button>
-                </div> --}}
                 <div class="bottom-action-bar">
-                    <button id="connectButton" class="btn btn-custom-secondary col-4">
+                    <button id="connectButton" class="btn btn-info col-4">
                         <span>🔄 ค้นหา & เชื่อมต่ออุปกรณ์</span>
                     </button>
-                    <button id="printImageButton" disabled onclick="printReceipt()"
-                        class="btn btn-custom-primary col-8 shadow-sm">
+                    <button id="printImageButton" onclick="printReceipt()" class="btn btn-primary col-8 shadow-sm">
                         <span class="material-icons-round">print</span>
                         <span id="printBtnText">พิมพ์ใบเสร็จ</span>
                     </button>
@@ -1263,13 +357,6 @@
 
                 <canvas id="canvas" style="display: none;"></canvas>
             </div>
-
-            <div style="text-align: center; margin-top: 15px;">
-                <p style="font-size: 13px; color: #6c757d; margin-bottom: 8px;">🖼️
-                    ตัวอย่างหน้าตาใบเสร็จพิมพ์สแกนกราฟิก:</p>
-                {{-- <canvas id="receiptCanvas" width="384" height="600" style="display:block;border:1px solid"></canvas>
-                --}}
-            </div>
         </div>
     </div>
 
@@ -1278,6 +365,13 @@
             <h3 class="section-title">งานประปา</h3>
 
             <div class="menu-grid">
+                 <div class="menu-item card-organic" onclick="navigateTo('water-tabwater-record')">
+                    <div class="menu-icon">🍂</div>
+                    <div class="menu-title">จดมิเตอร์ประปา</div>
+                    <div class="menu-desc">จดมิเตอร์ประปา</div>
+                </div>
+
+
                 <div class="menu-item card-recycle" onclick="navigateTo('water-cutmeter')">
                     <div class="menu-icon">♻️</div>
                     <div class="menu-title">ตัดมิเตอร์ประปา</div>
@@ -1289,12 +383,7 @@
                     <div class="menu-desc">เรื่องร้องเรียน/แจ้งเหตุงานประปา</div>
                 </div>
 
-                <div class="menu-item card-organic" onclick="navigateTo('water-tabwater-record')">
-                    <div class="menu-icon">🍂</div>
-                    <div class="menu-title">จุดมิเตอร์ประปา</div>
-                    <div class="menu-desc">จุดมิเตอร์ประปา</div>
-                </div>
-
+               
                 <div class="menu-item card-water" onclick="navigateTo('water-equipment-control')">
                     <div class="menu-icon">💧</div>
                     <div class="menu-title">ควบคุมงานผลิตน้ำ</div>
@@ -1302,17 +391,25 @@
                 </div>
 
 
-                <div class="menu-item card-settings" onclick="navigateTo('settings-store')">
-                    <div class="menu-icon">🖨️</div>
-                    <div class="menu-title">ยืม/คืน พัสดุงานประปา</div>
-                    <div class="menu-desc">ยืม/คืน พัสดุงานประปา</div>
-                </div>
+
             </div>
         </div>
     </div>
 
+    <div id="waterRecordScreen" class="is-hidden">
+        @include('staff.includes.screen_water_record')
+    </div>
 
-    <div id="successToast" class="success-toast-overlay">
+    <div id="waterMembersListScreen" class="is-hidden">
+        @include('staff.includes.screen_water_members_list')
+    </div>
+    <div id="inventoryScreen" class="is-hidden">
+        <iframe src=""  style=" width: 100%; height: 800px; border: none;"
+            id="inventoryIframe">
+        </iframe>
+    </div>
+
+    <div id="successToast" class="success-toast-overlay is-hidden">
         <div class="toast-icon">✅</div>
         <div id="successToastText" class="toast-text">เพิ่มลงตะกร้าเรียบร้อย</div>
     </div>
@@ -1324,27 +421,54 @@
             style="margin-top: 15px; padding: 10px 20px; background: #ff4d4d; color: #fff; border: none; border-radius: 5px; cursor: pointer;">ปิดกล้อง</button>
     </div>
 
-    {{--
-    <script src="capacitor.js"></script>
-    <script src="cordova.js"></script>
-    <script src="js/receipt-printer-encoder.umd.js"></script>
-    <script src="app.js"></script> --}}
+    <!-- Modal สำหรับแสดงหน้า Dashboard/Staff -->
+    <div class="modal fade" id="staffDashboardModal" tabindex="-1" aria-labelledby="staffDashboardModalLabel"
+        aria-hidden="true">
+        <div class="modal-dialog modal-xl modal-dialog-scrollable">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="staffDashboardModalLabel">ระบบจัดการงาน Staff</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <!-- ส่วนที่จะเอา HTML จาก Server มาใส่ -->
+                <div class="modal-body" id="modal-staff-content">
+                    <div class="text-center py-5">
+                        <div class="spinner-border text-primary" role="status"></div>
+                        <p class="mt-2 text-muted">กำลังโหลดข้อมูล...</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div id="card-reciept" style="width: 384px; 
+                                    background: #ffffff; 
+                                    color: #000000;
+                                    font-size:1.4rem !important;
+                                    ">
+    </div>
+
+    {{-- <div id="qrcode_info"></div> --}}
 
 @endsection
 
 @section('script')
     <script src="https://html2canvas.hertzen.com/dist/html2canvas.min.js"></script>
     <script src="https://unpkg.com/html5-qrcode"></script>
-    <script src="https://code.jquery.com/jquery-4.0.0.slim.js"
-        integrity="sha256-M+GjhMBfXikM1izMplICCTscIj5hzPCp6uDzaypxtgg=" crossorigin="anonymous"></script>
+    <script src="{{ asset('js/jquery-3.7.1.slim.js') }}"></script>
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    <!-- แนะนำให้วางไว้ในส่วน <head> หรือก่อนปิด </body> -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+    <!-- โหลด Tesseract.js ผ่าน CDN (หรือโหลดมาเก็บไว้ใน public/js ของ Laravel) -->
+    <script src="https://cdn.jsdelivr.net/npm/tesseract.js@5/dist/tesseract.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/cropperjs/1.5.13/cropper.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+    <script src="{{ asset('js/accessmenu.js') }}"></script>
     <script>
-        // =========================================================================
-        //  PIOS Staffs Application - Core Logic (app.js)
-        // =========================================================================
+
         let BluetoothSerial = null;
         let allMembers = [];                 // เก็บรายชื่อสมาชิกทั้งหมดที่ดึงมาจาก Laravel
-        const API_BASE_URL = " https://b520-1-46-64-210.ngrok-free.app/api";
-        // const API_BASE_URL = " https://qa.envsogo.site/api";
+        const API_BASE_URL = "https://6181-1-47-73-222.ngrok-free.app/api";
 
         let rawItemsData = [];               // เก็บรายการขยะทั้งหมด (kp_tbank_items)
         let currentSelectedTrash = null;     // เก็บขยะชิ้นปัจจุบันที่เจ้าหน้าที่เลือกอยู่
@@ -1353,574 +477,106 @@
         let currentActiveMember = null;      // เก็บข้อมูลสมาชิกที่กำลังทำรายการฝากขยะอยู่
         const sidebar = document.getElementById('appSidebar');
         let staffInfo;
-        // -------------------------------------------------------------------------
-        //  เริ่มต้นระบบเมื่อหน้าจอ (DOM) โหลดพร้อมใช้งาน
-        // -------------------------------------------------------------------------
-        document.addEventListener("DOMContentLoaded", () => {
-            drawReceipt()
-            // ดึงองค์ประกอบจากหน้า HTML หลังโหลดครบ
-            const loginScreen = document.getElementById('loginScreen');
-            const mainScreen = document.getElementById('mainScreen');
-            const loginForm = document.getElementById('loginForm');
-            const loginError = document.getElementById('loginError');
-            const staffNameSpan = document.getElementById('staffName');
-            document.getElementById('connectionStatusBadge').innerHTML = 'x';
 
-            // ตรวจสอบสถานะการล็อกอินเดิม (Auto Login)
-            const savedToken = localStorage.getItem("staff_token");
-            const savedName = localStorage.getItem("staff_name");
-            const savedStaffID = localStorage.getItem("staff_id");
-            const savedMembers = localStorage.getItem("all_members_data");
-            const savedCart = localStorage.getItem("current_purchase_cart");
+        //bluethooth.js
+        let bluetoothDevice;
+        let printCharacteristic;
+        let isRecorded = false
+
+        // {! file_get_contents(resource_path('views/staff/includes/screen_login.js')) !!}
+        // {! file_get_contents(resource_path('views/staff/includes/screen_water_record.js')) !!}
+        // {! file_get_contents(resource_path('views/staff/includes/screen_water_members_list.js')) !!}
+        // {! file_get_contents(resource_path('views/staff/includes/navigate_to.js')) !!}
+        // {! file_get_contents(resource_path('views/staff/includes/bluethooth.js')) !!}
+        // {! file_get_contents(resource_path('views/staff/includes/modals.js')) !!}
 
 
-            if (savedToken && savedName) {
-                //     if (savedMembers) {
-                //         allMembers = JSON.parse(savedMembers); // ดึงข้อมูลสมาชิกเก่าคืนมา
-                //     }
-                //     if (savedCart) {
-                //         purchaseCart = JSON.parse(savedCart); // ดึงข้อมูลตะกร้าเก่าค้างไว้คืนมา
-                //     }
-                // showMainScreen(savedName);
-                // renderFloatingCart(); // วาดตะกร้าลอยที่มีข้อมูลค้างอยู่ทันที
+
+
+
+        viewFullImage = function (url) {
+            if (!url) return;
+            const modalEl = document.getElementById('imagePreviewModal');
+            const targetImg = document.getElementById('previewImageTarget');
+            if (modalEl && targetImg) {
+                targetImg.src = url;
+                modalEl.classList.add('show');
+                modalEl.style.display = 'block';
             }
+        };
 
-            // ฟังก์ชันสลับหน้าจอไปหน้าหลักของ Staff
-            function showMainScreen(name) {
-                loginScreen.classList.add('is-hidden');
-                mainScreen.classList.remove('is-hidden');
-                if (staffNameSpan) staffNameSpan.innerText = name;
-                updateGlobalPrinterStatus();
-            }
-
-            // 🔒 ฟังก์ชันเมื่อกดส่งฟอร์ม Login เพื่อต่อ API Laravel
-            if (loginForm) {
-                loginForm.addEventListener('submit', async (e) => {
-                    console.log('loginform()')
-
-                    e.preventDefault();
-
-                    const username = document.getElementById('username').value;
-                    const password = document.getElementById('password').value;
-                    const btnSubmit = document.getElementById('btnLogin');
-
-                    if (loginError) loginError.style.display = "none";
-                    btnSubmit.disabled = true;
-                    btnSubmit.innerText = "กำลังตรวจสอบข้อมูล...";
-
-                    try {
-                        // 🟢 เคลียร์ข้อมูลขยะค้างเก่าในเครื่องของคนก่อนหน้าก่อนเริ่มล็อกอินใหม่
-                        localStorage.removeItem("staff_token");
-                        localStorage.removeItem("staff_name");
-                        localStorage.removeItem("staff_id");
-
-                        const response = await fetch(`${API_BASE_URL}/users/staff_authen`, {
-                            method: 'POST',
-                            headers: {
-                                'Content-Type': 'application/json',
-                                'Accept': 'application/json',
-                                'ngrok-skip-browser-warning': 'true'
-                            },
-                            body: JSON.stringify({
-                                username: username,
-                                passwords: password,
-                            })
-                        });
-
-                        // เช็คว่า response ตอบกลับมาสำเร็จหรือไม่ (Status 200-299)
-                        console.log('HTTP Status:', response.status);
-
-                        const resData = await response.json(); // 🟢 เพิ่ม await ตรงนี้
-                        console.log('resData จากเซิร์ฟเวอร์:', resData);
-
-
-
-
-
-                        // 📦 โครงโค้ดในท่อน Login ของ app.js หลังดึงข้อมูลสำเร็จ
-                        if (resData.code === 200 && resData.data && resData.data.logged === true) {
-                            staffInfo = resData.data;
-                            const fullName = `${staffInfo.prefix || ''}${staffInfo.firstname} ${staffInfo.lastname}`;
-
-                            localStorage.setItem("staff_token", staffInfo.remember_token);
-                            localStorage.setItem("staff_name", fullName);
-                            localStorage.setItem("staff_id", staffInfo.id)
-                            localStorage.setItem("staff_org_id", staffInfo.org_id_fk || '');
-
-                            showMainScreen(fullName);
-
-                            // 🟢 เติมบรรทัดนี้: ให้แอปวิ่งไปดูดรายชื่อสมาชิกจาก API มาเตรียมทันทีที่เข้าหน้าหลัก
-                            loadMembersFromServer();
-
-
-                        } else {
-                            if (loginError) {
-                                loginError.innerText = resData.message || "ชื่อผู้ใช้หรือรหัสผ่านไม่ถูกต้อง หรือไม่มีสิทธิ์เข้าใช้งาน";
-                                loginError.style.display = "block";
-                            }
-                        }
-                    } catch (error) {
-                        if (loginError) {
-                            loginError.innerText = "เกิดข้อผิดพลาด: ไม่สามารถเชื่อมต่อกับฐานข้อมูลระบบ PIOS ได้";
-                            loginError.style.display = "block";
-                        }
-                        console.error("API Connection Error:", error);
-                    } finally {
-                        btnSubmit.disabled = false;
-                        btnSubmit.innerText = "🔓 เข้าสู่ระบบ";
-                    }
-                });
-            }
-
-            // 🔒 ระบบออกจากระบบ (Logout)
-            const btnLogout = document.getElementById('btnLogout');
-            if (btnLogout) {
-                btnLogout.addEventListener('click', () => {
-                    localStorage.clear(); // ล้างข้อมูลทั้งหมดในเครื่องออก
-                    allMembers = [];
-                    purchaseCart = [];
-                    currentActiveMember = null;
-                    mainScreen.classList.add('is-hidden');
-                    loginScreen.classList.remove('is-hidden');
-                    sidebar.classList.remove('is-open');
-
-                    if (loginForm) loginForm.reset();
-                    renderFloatingCart();
-
-                    document.location.href = 'acc'
-                });
-            }
-        });
-
-        // -------------------------------------------------------------------------
-        //  โมดูลระบบเชื่อมต่อเครื่องพิมพ์บลูทูธ (Bluetooth LE เท่านั้น ไม่ใช้ระบบเก่า)
-        // -------------------------------------------------------------------------
-        function checkBluetoothStatus() {
-            const statusText = document.getElementById('status');
-            if (!statusText) return;
-
-            const BleClient = window.Capacitor?.Plugins?.BluetoothLe;
-            if (BleClient) {
-                statusText.innerText = "💻 โหมดจำลองบน Browser (คอมพิวเตอร์)";
-                statusText.style.color = "#858796";
-            } else {
-                const isConnected = localStorage.getItem('is_printer_connected') === 'true';
-                const printerName = localStorage.getItem('connected_printer_name') || 'เครื่องพิมพ์';
-                if (isConnected) {
-                    statusText.innerText = `🟢 เชื่อมต่ออยู่กับ: ${printerName}`;
-                    statusText.style.color = "green";
-                } else {
-                    // statusText.innerText = "🔴 พร้อมเชื่อมต่อ (เปิดบลูทูธเครื่องพิมพ์ไว้เลย)";
-                    statusText.style.color = "#dc3545";
-                }
-            }
-        }
-
-        // 🔄 ระบบสั่งค้นหา & เชื่อมต่ออุปกรณ์ด้วย Capacitor BLE
-        const btnConnect = document.getElementById('btnConnect');
-        if (btnConnect) {
-            btnConnect.addEventListener('click', async () => {
-                const statusText = document.getElementById('status');
-                const BleClient = window.Capacitor?.Plugins?.BluetoothLe;
-
-                if (!BleClient) {
-                    alert("ระบบตรวจไม่พบปลั๊กอิน Capacitor Bluetooth LE (เปิดบนคอมพิวเตอร์จะทดสอบปุ่มนี้ไม่ได้)");
+        // ฟังก์ชันช่วยโหลด Script QRCode อัตโนมัติกรณีที่ยังไม่มีในระบบ
+        function loadQRCodeScript() {
+            return new Promise((resolve, reject) => {
+                if (typeof QRCode !== 'undefined') {
+                    resolve();
                     return;
                 }
-
-                try {
-                    if (statusText) statusText.innerText = "กำลังตรวจสอบสิทธิ์บลูทูธ...";
-
-                    // 🟢 เรียกขอเปิดใช้งานบลูทูธและสิทธิ์ค้นหาอุปกรณ์ (แมทช์กับสิทธิ์ Android 12)
-                    await BleClient.initialize();
-
-                    if (statusText) statusText.innerText = "กำลังสแกนหาอุปกรณ์บลูทูธรอบตัว...";
-
-                    // 🟢 เปิดหน้าป๊อปอัปให้เจ้าหน้าที่ทำการเลือกจับคู่เครื่องพิมพ์ใบเสร็จ
-                    const device = await BleClient.requestDevice();
-
-                    if (!device) {
-                        if (statusText) statusText.innerText = "ยกเลิกการเลือกอุปกรณ์";
-                        return;
-                    }
-
-                    if (statusText) statusText.innerText = `กำลังเชื่อมต่อเข้ากับ: ${device.name || 'Thermal Printer'}...`;
-
-                    // 🟢 เชื่อมต่อสัญญาณโดยตรง
-                    await BleClient.connect({ deviceId: device.deviceId });
-
-                    localStorage.setItem('printer_id', device.deviceId);
-                    localStorage.setItem('connected_printer_name', device.name || 'Thermal Printer');
-                    localStorage.setItem('is_printer_connected', 'true');
-
-                    if (statusText) {
-                        statusText.innerText = `🟢 เชื่อมต่อสำเร็จกับ: ${device.name || 'Thermal Printer'}`;
-                        statusText.style.color = "green";
-                    }
-                    updateGlobalPrinterStatus();
-                    alert(`✅ เชื่อมต่อกับเครื่องพิมพ์สำเร็จ!`);
-
-                    // วาดใบเสร็จตัวอย่างอัปเดตลง Canvas ทันที
-                    drawReceipt();
-
-                } catch (error) {
-                    if (statusText) {
-                        statusText.innerText = "❌ การเชื่อมต่อล้มเหลว";
-                        statusText.style.color = "red";
-                    }
-                    console.error(error);
-                    alert("เกิดข้อผิดพลาดในการเชื่อมต่อ: " + error.message);
-                }
+                const script = document.createElement('script');
+                script.src = "https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js";
+                script.onload = () => resolve();
+                script.onerror = () => reject(new Error("ไม่สามารถโหลดไลบรารี QRCode ได้"));
+                document.head.appendChild(script);
             });
         }
 
-        // 🖼️ ฟังก์ชันสำหรับวาดรูปหน้าตาใบเสร็จสลิปจำลองลง Canvas
-        function drawReceipt() {
-            const canvas = document.getElementById('receiptCanvas');
-            if (!canvas) return;
-            const ctx = canvas.getContext('2d');
+        // ฟังก์ชันแปลงข้อความชำระเงินเป็น Base64 Image
+        async function generateQRBase64(text) {
+            // 1. รอให้มั่นใจว่าไลบรารี QRCode โหลดเสร็จแล้ว
+            await loadQRCodeScript();
 
-            // 1. สร้าง Image Object สำหรับ Logo
-            const logo = new Image();
-            logo.src = "{{ asset('logo/chiangkreu_sakonnakhon_gray.png') }}"; // 👈 เปลี่ยนเป็น Path หรือ URL ของรูปโลโก้ของคุณ
+            return new Promise((resolve) => {
+                let tempDiv = document.createElement("div");
 
-            // 2. เมื่อรูปภาพโหลดเสร็จแล้วค่อยเริ่มวาด Canvas
-            logo.onload = () => {
-                // ล้าง Canvas และลงสีพื้นหลัง
-                ctx.fillStyle = '#FFFFFF';
-                ctx.fillRect(0, 0, canvas.width, canvas.height);
-                ctx.fillStyle = '#000000';
-
-                // ตรวจสอบว่ามีของในตะกร้าไหม ถ้าไม่มีให้ใส่ข้อมูลจำลองเพื่อพรีวิว/ทดสอบพิมพ์
-                const itemsToPrint = purchaseCart.length > 0 ? purchaseCart : [
-                    { item_name: "ขวดพลาสติกใส (PET)", amount_in_units: 5.5, unit_name: "กก.", amount: 24.75, points: 10, pointsum: 55 },
-                    { item_name: "กระดาษลัง", amount_in_units: 10.0, unit_name: "กก.", amount: 75.00, points: 20, pointsum: 200 },
-                    { item_name: "ขวดเบียร์ลีโอ", amount_in_units: 10.0, unit_name: "ลัง.", amount: 75.00 ,points: 20, pointsum: 200 },
-                    // { item_name: "กระดาษลัง", amount_in_units: 10.0, unit_name: "กก.", amount: 75.00 },
-                ];
-                let expandHCanvas = 550 + (40 * itemsToPrint.length)
-                $('#receiptCanvas').attr('height', expandHCanvas)
-
-                // ----------------------------------------------------
-                // 3. วาดโลโก้ลง Canvas (ปรับตำแหน่ง X, Y และ ขนาด W, H ตามต้องการ)
-                // ctx.drawImage(image, x, y, width, height)
-                const logoWidth = 170;   // กว้าง 60px
-                const logoHeight = 150;  // สูง 60px
-                const logoX = 0;//(canvas.width - logoWidth) / 2; // จัดให้อยู่ตรงกลาง (162)
-                const logoY = 15;       // วาดเริ่มที่ Y = 15
-
-                ctx.drawImage(logo, logoX, logoY, logoWidth, logoHeight);
-                // ----------------------------------------------------
-                let xExis = (canvas.width + logoWidth - 40) / 2;
-                let yExis = 0;
-                ctx.font = 'bold 20px Arial';
-                ctx.textAlign = 'right';
-                ctx.fillText('เทศบาลตำบล', canvas.width - 20, logoHeight / 4);
-
-                yExis += logoHeight / 2;
-                ctx.font = 'bold 28px Arial';
-                ctx.textAlign = 'right';
-                ctx.fillText('เชียงเครือ', canvas.width - 20, yExis);
-
-                yExis += 20;
-                let rage = 20
-                ctx.font = '16px Arial';
-                ctx.textAlign = 'right';
-                ctx.lineWidth = 2;
-                ctx.beginPath(); ctx.moveTo(logoWidth - 22, yExis); ctx.lineTo(canvas.width - 20, yExis); ctx.stroke();
-
-                ctx.fillText('109 หมู่ 14 ต.เชียงเครือ', canvas.width - 20, yExis + (rage * 1));
-                ctx.fillText('อ.เมืองสกลนคร จ.สกลนคร', canvas.width - 20, yExis + (rage * 2));
-                ctx.fillText('โทร.042-4345433', canvas.width - 20, yExis + (rage * 3));
-
-                // ปรับตำแหน่ง Y ของข้อความหัวข้อให้ขยับลงมาต่อจากโลโก้
-                ctx.font = 'bold 24px Arial';
-                ctx.textAlign = 'center';
-                ctx.fillText('ธนาคารขยะรีไซเคิล', canvas.width / 2, yExis + (rage * 5));
-
-                ctx.lineWidth = 2;
-                ctx.beginPath(); ctx.moveTo(20, yExis + (rage * 5 + 10));
-                ctx.lineTo(canvas.width - 20, yExis + (rage * 5 + 10)); ctx.stroke();
-
-                rage += 3;
-                ctx.font = 'bold 18px Arial';
-                ctx.textAlign = 'left';
-                const memberName = currentActiveMember ? `${currentActiveMember.firstname} ${currentActiveMember.lastname}` : "นายสมชาย ใจดี (ทดสอบ)";
-                ctx.fillText(`สมาชิก:`, 20, yExis + (rage * 6));
-
-                ctx.font = ' 18px Arial';
-                ctx.textAlign = 'left';
-                ctx.fillText(`${memberName}`, 90, yExis + (rage * 6));
-
-
-                ctx.font = 'bold 18px Arial';
-                ctx.textAlign = 'left';
-                ctx.fillText('ที่อยู่:', 40, yExis + (rage * 7));
-
-                ctx.font = '16px Arial';
-                ctx.textAlign = 'left';
-                ctx.fillText(`109 หมู่ 14 ต.เชียงเครือ`, 90, yExis + (rage * 7));
-                ctx.textAlign = 'left'
-
-                ctx.fillText(`อ.เมืองสกลนคร จ.สกลนคร 47000`, 90, yExis + (rage * 8));
-
-                ctx.lineWidth = 2;
-                ctx.beginPath(); ctx.moveTo(20, yExis + (rage * 9 - 10));
-                ctx.lineTo(canvas.width - 20, yExis + (rage * 9 - 10)); ctx.stroke();
-
-
-                const today = new Date().toLocaleDateString('th-TH');
-                ctx.font = 'bold 18px Arial';
-                ctx.fillText(`วันที่:`, 20, yExis + (rage * 10));
-
-                ctx.font = '16px Arial';
-                ctx.fillText(`${today}`, 70, yExis + (rage * 10));
-                ctx.font = 'bold 18px Arial';
-                ctx.fillText(`ใบเสร็จเลขที่:`, 20, yExis + (rage * 11));
-                ctx.font = '16px Arial';
-                ctx.fillText(`0333-333-333`, 130, yExis + (rage * 11));
-
-                let startY = yExis + rage * 13;
-                let grandTotal = 0;
-                let pointTotal = 0;
-
-                ctx.font = '16px Arial';
-                ctx.textAlign = 'left';
-                ctx.fillText(`แต้ม`, 250, startY - 20);
-                ctx.fillText(`บาท`, 333, startY - 20);
-
-
-                itemsToPrint.forEach(item => {
-                    // 1. วาดชื่อสินค้า (ชิดซ้ายที่ X = 20)
-                    ctx.font = '16px Arial';
-                    ctx.textAlign = 'left';
-                    ctx.fillText(`- ${item.item_name}`, 20, startY);
-
-                    // 2. วาดจำนวน + หน่วย (กำหนดพิกัด X คงที่ เช่น X = 170 และ X = 210)
-                    ctx.textAlign = 'right';
-                    ctx.font = 'bold 17px Arial';
-                    ctx.fillText(`${item.amount_in_units}`, 210, startY);
-                    ctx.textAlign = 'left';
-                    ctx.font = '15px Arial';
-                    ctx.fillText(`${item.unit_name}`, 215, startY);
-
-                    // วาดรายละเอียดราคา/แต้มย่อย (บรรทัดล่าง)
-                    ctx.font = '14px Arial';
-                    ctx.fillText(`( 5 บาท:กก. / ${item.points} แต้ม:กก.)`, 40, startY + 20);
-
-                    // 3. วาดรวมแต้ม และ รวมเงิน (ชิดขวาตามพิกัดเดิม)
-                    ctx.textAlign = 'right';
-                    ctx.font = '16px Arial';
-                    ctx.fillText(`${item.pointsum}`, 280, startY);
-                    ctx.fillText(`${item.amount.toFixed(2)}`, 364, startY);
-
-                    grandTotal += item.amount;
-                    pointTotal += item.pointsum;
-                    startY += 40;
+                new QRCode(tempDiv, {
+                    text: text,
+                    width: 150,
+                    height: 150,
+                    correctLevel: QRCode.CorrectLevel.M
                 });
 
-                ctx.beginPath(); ctx.moveTo(20, startY); ctx.lineTo(364, startY); ctx.stroke();
-                startY += 40;
-
-                ctx.font = 'bold 18px Arial';
-                ctx.textAlign = 'left';
-                ctx.fillText('รวมรับเงิน/แต้ม สะสม:', 20, startY);
-                ctx.textAlign = 'right';
-                ctx.fillText(`${pointTotal} `, 280, startY);
-                ctx.fillText(`${grandTotal.toFixed(2)} `, 364, startY);
-
-                ctx.font = 'bold 14px Arial';
-                ctx.textAlign = 'left';
-                ctx.fillText(`แต้ม`, 250, startY + 20);
-                ctx.fillText(`บาท`, 334, startY + 20);
-
-
-                startY += 50;
-                ctx.font = '14px Arial';
-                ctx.textAlign = 'center';
-                ctx.fillText('ขอบคุณที่ร่วมลดโลกร้อนกับ อบต.', 192, startY);
-                ctx.fillText('--- ใบเสร็จระบบพิมพ์กราฟิก ---', 192, startY + 25);
-            };
-
-            // กรณีรูปโหลดไม่ผ่าน สามารถวาดส่วนอื่นต่อได้เพื่อไม่ให้ระบบค้าง
-            logo.onerror = () => {
-                console.error("ไม่สามารถโหลดภาพ Logo ได้");
-            };
-        }
-
-        // ⚡ ฟังก์ชันสำหรับส่งข้อมูลรูปกราฟิกออกไปยังหัวพิมพ์ความร้อน (ใช้ร่วมกันทั้งปุ่มเทสและบิลจริง)
-        async function sendCanvasToPrinter() {
-            const BleClient = window.Capacitor?.Plugins?.BluetoothLe;
-            const deviceId = localStorage.getItem('printer_id');
-
-            if (!BleClient || !deviceId) {
-                throw new Error("ยังไม่ได้เชื่อมต่อเครื่องพิมพ์บลูทูธ กรุณากดปุ่มเชื่อมต่ออุปกรณ์ก่อนครับ");
-            }
-
-            // 🟢 ตรวจสอบตัวแปรที่ดึงมาจากสคริปต์ออฟไลน์ใน index.html
-            const EncoderClass = window.ReceiptPrinterEncoder;
-
-            if (!EncoderClass) {
-                throw new Error("ระบบหาโมดูลแปลงรูปภาพ (ReceiptPrinterEncoder) ไม่เจอ กรุณาตรวจสอบการใส่แท็ก script ใน index.html");
-            }
-
-            const canvas = document.getElementById('receiptCanvas');
-            if (!canvas) {
-                throw new Error("ไม่พบหน้าจอ Canvas (#receiptCanvas)");
-            }
-            const ctx = canvas.getContext('2d');
-
-            // 🟢 1. คำนวณหาค่าความสูงใหม่ที่ใกล้เคียงที่สุดและหารด้วย 8 ลงตัวพอดี (Multiple of 8)
-            const exactHeight = canvas.height;
-            const adjustedHeight = Math.ceil(exactHeight / 8) * 8; // ปัดขึ้นให้หาร 8 ลงตัวเสมอล้างพัง
-
-            let imageData;
-
-            // 🟢 2. เช็คว่าถ้าความสูงเดิมหาร 8 ไม่ลงตัว ให้สร้างแผ่นภาพสำรองที่ปัดเศษแล้ว เพื่อไม่ให้ภาพยืดหรือพัง
-            if (exactHeight !== adjustedHeight) {
-                // สร้าง Canvas ชั่วคราวขนาดที่ถอดรหัสผ่านชัวร์ 100%
-                const tempCanvas = document.createElement('canvas');
-                tempCanvas.width = canvas.width;
-                tempCanvas.height = adjustedHeight;
-                const tempCtx = tempCanvas.getContext('2d');
-
-                // เทสีพื้นหลังเป็นสีขาว (เพื่อไม่ให้ส่วนที่ขยายออกไปกลายเป็นสีดำปื้น)
-                tempCtx.fillStyle = '#FFFFFF';
-                tempCtx.fillRect(0, 0, tempCanvas.width, tempCanvas.height);
-
-                // วาดใบเสร็จตัวจริงของคุณพี่ทับลงไป
-                tempCtx.drawImage(canvas, 0, 0);
-                imageData = tempCtx.getImageData(0, 0, tempCanvas.width, tempCanvas.height);
-            } else {
-                // ถ้าหาร 8 ลงตัวอยู่แล้ว ดึงค่าตรงๆ ไปใช้ได้เลยครับ
-                imageData = ctx.getImageData(0, 0, canvas.width, canvas.height);
-            }
-
-            // 🟢 3. เรียกใช้งาน Object ตัวใหม่ตามปกติ (ส่งภาพที่ปรับขนาดความสูงแมทช์ชิ่งเรียบร้อยแล้ว)
-            const encoder = new EncoderClass({
-                language: 'esc-pos'
-            });
-
-            // แยกสั่งงานทีละคำสั่ง ห้ามเขียนต่อท้ายแบบเดิมครับ
-            encoder.image(imageData, canvas.width, imageData.height, 'threshold');
-            encoder.newline(4);
-
-            // บรรทัดสุดท้ายให้ดึงรหัสฐานสองออกมาเก็บในตัวแปร binaryCommands
-            const binaryCommands = encoder.encode();
-
-            // ค้นหา Service และส่งสัญญาณบลูทูธความเร็วต่ำ
-            const result = await BleClient.getServices({ deviceId: deviceId });
-            const servicesList = result.services || [];
-            let targetServiceUuid = null;
-            let targetCharacteristicUuid = null;
-
-            // 🟢 ลูปค้นหาพอร์ตออโต้แบบคัดกรอง (ข้ามพอร์ตระบบ 1800 ที่ทำให้แอปเอ๋อ)
-            for (const s of servicesList) {
-                if (!s.characteristics) continue;
-
-                const sUUID = s.uuid.toLowerCase();
-                if (sUUID.includes("1800") || sUUID.includes("1801") || sUUID.includes("180a")) {
-                    continue; // ข้ามไปพอร์ตถัดไป
-                }
-
-                for (const c of s.characteristics) {
-                    if (c.properties.writeWithoutResponse || c.properties.write) {
-                        targetServiceUuid = s.uuid;
-                        targetCharacteristicUuid = c.uuid;
-                        break;
+                // หน่วงเวลาเล็กน้อยให้ DOM เรนเดอร์รูปภาพเสร็จ
+                setTimeout(() => {
+                    let img = tempDiv.querySelector("img");
+                    if (img && img.src) {
+                        resolve(img.src);
+                    } else {
+                        let canvas = tempDiv.querySelector("canvas");
+                        resolve(canvas ? canvas.toDataURL("image/png") : "");
                     }
-                }
-                if (targetServiceUuid) break;
-            }
-
-            // แผนสำรองสุดท้าย
-            if (!targetServiceUuid || !targetCharacteristicUuid) {
-                targetServiceUuid = "0000ffe0-0000-1000-8000-00805f9b34fb";
-                targetCharacteristicUuid = "0000ffe1-0000-1000-8000-00805f9b34fb";
-            }
-
-            console.log("พบพอร์ตจริงของเครื่องพิมพ์คือ Service:", targetServiceUuid, "Char:", targetCharacteristicUuid);
-
-            // 6. ส่งข้อมูลภาพที่หั่นเป็น Chunk ละ 512 บายต์ ออกไปทางบลูทูธความเร็วต่ำ (BLE)
-            const CHUNK_SIZE = 64;
-
-            for (let i = 0; i < binaryCommands.length; i += CHUNK_SIZE) {
-                const chunk = binaryCommands.slice(i, i + CHUNK_SIZE);
-
-                // แปลงอาร์เรย์ตัวเลขก้อนใหญ่ให้กลายเป็น Hex String
-                let hexString = '';
-                for (let j = 0; j < chunk.length; j++) {
-                    const hex = chunk[j].toString(16).padStart(2, '0');
-                    hexString += hex;
-                }
-
-                try {
-                    await BleClient.writeWithoutResponse({
-                        deviceId: deviceId,
-                        service: targetServiceUuid,
-                        characteristic: targetCharacteristicUuid,
-                        value: hexString
-                    });
-                } catch (writeError) {
-                    console.error("จุดที่พังตอนยิงข้อมูล:", writeError);
-                    throw new Error("ยิงข้อมูลเข้าหัวพิมพ์ไม่สำเร็จ: " + writeError.message);
-                }
-
-                // 🟢 2. ลดเวลาหน่วงเหลือแค่ 5ms เพื่อให้เครื่องพิมพ์ทำงานได้ต่อเนื่องแบบรวดเร็ว
-                // (ถ้าพิมพ์แล้วตัวหนังสือขาด ให้พี่ลองขยับเพิ่มเป็น 10 หรือ 15 ดูนะครับ แต่ 5 คือเร็วสะใจสุด)
-                await new Promise(resolve => setTimeout(resolve, 2));
-            }
-        }
-
-        // ⚡ ดักจับเหตุการณ์เมื่อจิ้มปุ่ม "ทดสอบการพิมพ์ (Test Print)"
-        const btnPrintTest = document.getElementById('btnPrintTest');
-        if (btnPrintTest) {
-            btnPrintTest.addEventListener('click', async () => {
-                try {
-                    await sendCanvasToPrinter();
-                    alert("✅ ส่งข้อมูลทดสอบระบบหัวพิมพ์เรียบร้อยแล้ว!");
-                } catch (error) {
-                    console.error("Test print failed:", error);
-                    alert("❌ พิมพ์ทดสอบล้มเหลว: " + error.message + "\nกรุณาตรวจสอบว่าเปิดบลูทูธและต่อเครื่องพิมพ์แล้ว");
-                }
+                }, 50);
             });
         }
 
-        // =========================================================================
-        //  โมดูลระบบนำทาง และ ค้นหาสมาชิก (Recycle Module)
-        // =========================================================================
-        function navigateTo(moduleName) {
-            if (moduleName === 'recycle') {
-                document.getElementById('mainScreen').classList.add('is-hidden');
-                document.getElementById('recycleScreen').classList.remove('is-hidden');
-                document.getElementById('searchMemberInput').value = "";
-                loadMembersFromServer();
-                renderMemberList(allMembers);
-            }
-            else if (moduleName === 'settings') {
-                document.getElementById('mainScreen').classList.add('is-hidden');
-                document.getElementById('settingsScreen').classList.remove('is-hidden');
-                checkBluetoothStatus();
-            }
-            else if (moduleName === 'water') {
-                document.getElementById('mainScreen').classList.add('is-hidden');
-                document.getElementById('waterScreen').classList.remove('is-hidden');
-                checkBluetoothStatus();
-            }
-            // else if (moduleName === 'water-cutmeter') {
-            //    document.location.href= 'cutmeter'
-            // }
-            else if (moduleName === 'main') {
-                document.getElementById('mainScreen').classList.remove('is-hidden');
-                document.getElementById('waterScreen').classList.add('is-hidden');
-                document.getElementById('settingsScreen').classList.add('is-hidden');
-                document.getElementById('recycleScreen').classList.add('is-hidden');
+        async function buildReceiptHtml() {
+            let user_id = 11;
+            let meter_id = String(user_id).padStart(18, '0');
+            let net_paid = 263.60;
+            let amount_formatted = net_paid.toFixed(2).replace(".", "");
 
-                checkBluetoothStatus();
-            }
+            let payment_str = `|099400035262000\n${meter_id}\n${inv_id}\n${amount_formatted}`;
 
-            updateGlobalPrinterStatus();
+            // 🟢 เปลี่ยน text (payment_str) ให้กลายเป็นรูป QR Code (Base64)
+            let qrImageBase64 = await generateQRBase64(payment_str);
+
+
+            // ใส่ qrImageBase64 ลงในแท็ก <img> แทนการแสดง text ดิบ
+            // let text = generateWaterBillHTML2()
+            $('#qrcode').html(`
+        <div id="receipt-area" class="receipt-container">
+            <!-- รายการค่าน้ำประปา / รายละเอียดต่างๆ -->
+            ...
+
+            <!-- ส่วนแสดง QR Code -->
+            <div class="text-center my-2">
+                <img src="${qrImageBase64}" style="width: 180px; height: 180px;" alt="QR Code">
+                <div style="font-size: 10px;">Ref1: ${meter_id}</div>
+                <div style="font-size: 10px;">Ref2: ${inv_id}</div>
+            </div>
+        </div>
+        `);
         }
+
 
         function backToMenu() {
             document.getElementById('recycleScreen').classList.add('is-hidden');
@@ -1946,28 +602,27 @@
             }
 
             members.forEach(member => {
-                console.log('member', member.waste_preference.kp_bank_account.account_no)
                 const account = member.waste_preference.kp_bank_account.account_no;
                 const card = document.createElement('div');
                 card.className = 'member-card';
                 card.innerHTML = `
-                                                    <div class="member-info">
-                                                        <p style="font-weight: bold; font-size: 16px; margin: 0 0 5px 0;">${member.firstname} ${member.lastname}</p>
-                                                        <p style="margin: 0 0 5px 0; font-size: 14px; color: #555;">📞 เบอร์โทร: ${member.phone || 'ไม่มีข้อมูล'}</p>
-                                                        <p style="margin: 0;"><span class="badge-account" style="background: #e6f0fa; color: #007bff; padding: 3px 8px; border-radius: 4px; font-size: 12px;">เลขบัญชี: ${account ? account : 'ไม่มีบัญชี'}</span></p>
-                                                    </div>
-                                                    <div>
-                                                        <button class="btn-deposit" onclick="selectMemberToDeposit(${member.id})" style="background: #28a745; color: white; border: none; padding: 8px 15px; border-radius: 4px; cursor: pointer; font-weight: bold;">
-                                                            💰 รับซื้อขยะรีไซเคิล
-                                                        </button>
-                                                    </div>
-                                                `;
+                                    <div class="member-info">
+                                        <p style="font-weight: bold; font-size: 16px; margin: 0 0 5px 0;">${member.firstname} ${member.lastname}</p>
+                                        <p style="margin: 0 0 5px 0; font-size: 14px; color: #555;">📞 เบอร์โทร: ${member.phone || 'ไม่มีข้อมูล'}</p>
+                                        <p style="margin: 0;"><span class="badge-account" style="background: #e6f0fa; color: #007bff; padding: 3px 8px; border-radius: 4px; font-size: 12px;">เลขบัญชี: ${account ? account : 'ไม่มีบัญชี'}</span></p>
+                                    </div>
+                                    <div>
+                                        <button class="btn-deposit" onclick="selectMemberToDeposit(${member.id})" style="background: #28a745; color: white; border: none; padding: 8px 15px; border-radius: 4px; cursor: pointer; font-weight: bold;">
+                                            💰 รับซื้อขยะรีไซเคิล
+                                        </button>
+                                    </div>
+                                `;
                 container.appendChild(card);
             });
         }
 
         function filterMembers() {
-            const searchText = document.getElementById('searchMemberInput').value.toLowerCase();
+            const searchText = document.getElementById('searchMemberRecycleInput').value.toLowerCase();
             const filtered = allMembers.filter(member => {
                 const fullName = `${member.firstname} ${member.lastname}`.toLowerCase();
                 const phone = (member.phone || "").toLowerCase();
@@ -1979,10 +634,11 @@
         // 🟢 เพิ่มฟังก์ชันนี้ต่อท้ายตัวแปรโกลบอลด้านบนของ app.js
         async function loadMembersFromServer() {
             console.log('loadMembersFromServer')
+            let org_id_fk = localStorage.getItem('staff_org_id')
             try {
-                console.log("กำลังดึงรายชื่อสมาชิกทั้งหมดจากระบบ Keptkaya..." + API_BASE_URL);
+                // console.log("กำลังดึงรายชื่อสมาชิกทั้งหมดจากระบบ Keptkaya..." + API_BASE_URL);
 
-                const response = await fetch(`${API_BASE_URL}/keptkaya/members/${staffInfo.org_id_fk}`, {
+                const response = await fetch(`${API_BASE_URL}/keptkaya/members/${org_id_fk}`, {
                     method: "GET",
                     headers: {
                         "Content-Type": "application/json",
@@ -2000,8 +656,8 @@
                 // ตรวจสอบว่ามีข้อมูลกลับมาตาม format { code: 200, data: [...] } ไหม
                 if (resData.code === 200 && Array.isArray(resData.data)) {
                     allMembers = resData.data; // เอาข้อมูลยัดเข้าตัวแปรหลักของ master
-                    console.log('resData.data', resData.data)
-                    console.log(`โหลดข้อมูลสำเร็จ! พบสมาชิกทั้งหมด: ${allMembers.length} คน`);
+                    // console.log('resData.data', resData.data)
+                    // console.log(`โหลดข้อมูลสำเร็จ! พบสมาชิกทั้งหมด: ${allMembers.length} คน`);
 
                     // 💡 เรียกฟังก์ชันอัปเดตหน้าจอ 2 แท็บทำงานต่อ (รอเขียนในด่านถัดไป)
                     if (typeof updateMemberListUI === "function") {
@@ -2031,7 +687,7 @@
                             const { barcodes } = await BarcodeScanning.scan();
                             if (barcodes.length > 0) {
                                 const scannedValue = barcodes[0].rawValue;
-                                document.getElementById('searchMemberInput').value = scannedValue;
+                                document.getElementById('searchMemberRecycleInput').value = scannedValue;
                                 filterMembers();
                             }
                         } else {
@@ -2060,7 +716,7 @@
                             scanConfig,
                             (decodedText, decodedResult) => {
                                 // เมื่อสแกนสำเร็จ
-                                document.getElementById('searchMemberInput').value = decodedText;
+                                document.getElementById('searchMemberRecycleInput').value = decodedText;
                                 filterMembers();
                                 stopWebScanner();
                             },
@@ -2115,7 +771,7 @@
                 // ข้อมูลประเภทขยะจำลอง
                 try {
                     console.log(`กำลังดึงข้อมูลขยะรีไซเคิลจาก Server สำหรับสมาชิก ID: ${memberId}`);
-
+                    console.log('curmember', currentActiveMember)
                     // 🟢 2. สั่งยิง Request ไปที่ URL ของ Server
                     const response = await fetch(`${API_BASE_URL}/keptkaya/kp_items_recycle_info`, {
                         method: "GET", // ขอข้อมูลใช้ GET
@@ -2125,7 +781,7 @@
                             "ngrok-skip-browser-warning": "true"
                         }
                     });
-                    console.log('res', response)
+                    console.log('resxx', response)
                     // 🟢 3. ตรวจสอบว่า Server ตอบกลับมาสำเร็จไหม (Status 200-299)
                     if (!response.ok) {
                         throw new Error(`Server ตอบกลับผิดพลาด: ${response.status}`);
@@ -2193,48 +849,15 @@
                 // else if (g.name.includes("โลหะ")) icon = "🛠️";
 
                 filterDiv.innerHTML = `
-                                                    <button type="button" class="btn btn-outline-dark rounded-circle" style="width: 60px; height: 60px; border-radius:50%; border:1px solid #ccc; background:#fff; font-size:20px;text-align:center">
-                                                        ${icon}
-                                                    </button>
-                                                    <small class="mt-1 text-muted fw-bold " style="font-size: 15px; margin-top:5px; color:green; font-weight:bold;text-align:center">${g.name}</small>
-                                                `;
+                                        <button type="button" class="btn btn-outline-dark rounded-circle" style="width: 60px; height: 60px; border-radius:50%; border:1px solid #ccc; background:#fff; font-size:20px;text-align:center">
+                                            ${icon}
+                                        </button>
+                                        <small class="mt-1 text-muted fw-bold " style="font-size: 15px; margin-top:5px; color:green; font-weight:bold;text-align:center">${g.name}</small>
+                                    `;
                 container.appendChild(filterDiv);
             });
         }
 
-        // function triggerFilter(groupId, element) {
-        //     document.querySelectorAll('.filter-item button').forEach(b => {
-        //         b.style.background = "#fff"; b.style.color = "#000"; b.style.borderColor = "#ccc";
-        //     });
-        //     document.querySelectorAll('.filter-item small').forEach(s => s.style.color = "#6c757d");
-
-        //     const targetBtn = element.querySelector('button');
-        //     const targetTxt = element.querySelector('small');
-        //     if (targetBtn && targetTxt) {
-        //         targetBtn.style.background = "#212529"; targetBtn.style.color = "#fff";
-        //         targetTxt.style.color = "#212529";
-        //     }
-
-        //     const subContainer = document.getElementById('item-buttons-container');
-        //     if (!subContainer) return;
-        //     subContainer.innerHTML = "";
-
-        //     console.log('rawItemsData', rawItemsData)
-
-        //     const filteredItems = rawItemsData.filter(item => item.group_id === groupId);
-        //     filteredItems.forEach(opt => {
-        //         const gridCol = document.createElement('div');
-        //         gridCol.className = 'trash-item-card-compact';
-        //         gridCol.id = `card-${opt.kp_itemscode}`;
-        //         gridCol.onclick = () => selectTrashItem(opt.kp_itemscode);
-        //         gridCol.innerHTML = `
-        //                     <div class="item-title">${opt.kp_itemsname}</div>
-        //                     <div class="item-price">${opt.price} บ./กก.</div>
-        //                 `;
-        //         subContainer.appendChild(gridCol);
-
-        //     });
-        // }
 
         function triggerFilter(groupId, element) {
             document.querySelectorAll('.filter-item button').forEach(b => {
@@ -2262,9 +885,9 @@
                 gridCol.id = `card-${opt.kp_itemscode}`;
                 gridCol.onclick = () => selectTrashItem(opt.kp_itemscode);
                 gridCol.innerHTML = `
-                                        <div class="item-title">${opt.kp_itemsname}</div>
-                                        <div class="item-price">${opt.price} บาท./${opt.unitname}</div>
-                                    `;
+                                                                                <div class="item-title">${opt.kp_itemsname}</div>
+                                                                                <div class="item-price">${opt.price} บาท./${opt.unitname}</div>
+                                                                            `;
                 subContainer.appendChild(gridCol);
 
             });
@@ -2326,34 +949,7 @@
             }
         }
 
-        // function selectTrashItem(itemCode) {
-        //     document.querySelectorAll('#item-buttons-container div').forEach(d => {
-        //         d.style.borderColor = "#e3e6f0"; d.style.background = "#fff";
-        //     });
-        //     const activeCard = document.getElementById(`card-${itemCode}`);
-        //     if (activeCard) {
-        //         activeCard.style.borderColor = "#28a745";
-        //         activeCard.style.background = "#eafaf1";
-        //     }
 
-        //     const trash = rawItemsData.find(item => item.kp_itemscode === itemCode);
-        //     if (trash) {
-        //         currentSelectedTrash = trash;
-        //         console.log('currentSelectedTrash', trash)
-        //         openWeightModal(trash.kp_itemsname);
-
-        //         const mockupUnits = [
-        //             { id: 1, unitname: "กิโลกรัม" },
-        //             { id: 2, unitname: "ขวด" }
-        //         ];
-        //         renderUnitButtons(trash.units || mockupUnits);
-        //         const amountInput = document.getElementById('amount_in_units');
-        //         if (amountInput) {
-        //             amountInput.value = "";
-        //             amountInput.focus();
-        //         }
-        //     }
-        // }
 
         function renderUnitButtons(unitsArray) {
             const container = document.getElementById('unit-buttons-container');
@@ -2425,7 +1021,6 @@
 
                 const itemTotalPrice = currentSelectedTrash.price * weight;
                 const activeUnitBtn = document.querySelector('#unit-buttons-container button[style*="rgb(0, 123, 255)"]');
-                const unitNameLabel = activeUnitBtn ? activeUnitBtn.innerText : "กก.";
 
                 const savedItemName = currentSelectedTrash.kp_itemsname;
                 console.log('currentSelectedTrash', currentSelectedTrash)
@@ -2437,7 +1032,8 @@
                     price_per_unit: currentSelectedTrash.price,
                     point: currentSelectedTrash.point,
                     amount_in_units: weight,
-                    unit_name: unitNameLabel,
+                    unit_name: currentSelectedTrash.unit_name,
+                    unit_short_name: currentSelectedTrash.unit_short_name,
                     amount: itemTotalPrice
                 });
                 console.log('purchaseCart', purchaseCart)
@@ -2466,13 +1062,13 @@
 
             let grandTotal = 0;
             let pointTotal = 0;
-            
+
             purchaseCart.forEach(c => grandTotal += c.amount);
 
             const cartBtn = document.createElement('button');
             cartBtn.type = "button";
             cartBtn.style.cssText = "position:fixed; bottom:30px; right:30px; width:80px; height:80px; border-radius:50%; background:#28a745; color:#fff; border:3px solid #fff; box-shadow:0 8px 24px rgba(114, 246, 144, 0.4); font-size:35px; cursor:pointer; z-index:999; display:flex; align-items:center; justify-content:center;";
-            cartBtn.innerHTML = `🛒<span style="position:absolute; top:-15px; right:-10px; background:#dc3545; color:#000000; font-size:25px; font-weight:bold; padding:4px 8px; border-radius:50%; border:2px solid #fff; min-width:20px; text-align:center;">${purchaseCart.length}</span>`;
+            cartBtn.innerHTML = `🛒<span style="position:absolute; top:-20px; right:-10px; background:#dc3545; font-size:25px; font-weight:bold; padding:4px 14px; border-radius:50%; border:2px solid #fff; min-width:20px; text-align:center;">${purchaseCart.length}</span>`;
             cartBtn.onclick = () => openCartModal(grandTotal);
             container.appendChild(cartBtn);
         }
@@ -2488,40 +1084,41 @@
             let tableRows = "";
             purchaseCart.forEach((item, index) => {
                 tableRows += `
-                                                    <tr style="border-bottom:1px solid #eee; height:50px;">
-                                                        <td style="padding:5px;"><b>${item.item_name}</b><br><small style="color:#888;">${item.price_per_unit.toFixed(2)} บ./หน่วย</small></td>
-                                                        <td style="text-align:right; padding:5px;">${item.amount_in_units.toFixed(2)} ${item.unit_name}</td>
-                                                        <td style="text-align:right; padding:5px; color:#28a745; font-weight:bold;">${item.amount.toFixed(2)} บ.</td>
-                                                        <td style="text-align:center; padding:5px;"><button onclick="removeFromCart(${index})" style="background:none; border:none; color:#dc3545; font-size:18px; cursor:pointer;">🗑️</button></td>
-                                                    </tr>
-                                                `;
+                                    <tr style="border-bottom:1px solid #eee; height:50px;">
+                                        <td style="padding:5px;"><b>${item.item_name}</b><br><small style="color:#888;">${item.price_per_unit.toFixed(2)} บ./${item.unit_short_name}</small></td>
+                                        <td style="text-align:right; padding:5px;">${item.amount_in_units.toFixed(2)} ${item.unit_short_name}</td>
+                                        <td style="text-align:right; padding:5px; color:#28a745; font-weight:bold;">${item.amount.toFixed(2)} บ.</td>
+                                        <td style="text-align:center; padding:5px;"><button onclick="removeFromCart(${index})" style="background:none; border:none; color:#dc3545; font-size:18px; cursor:pointer;">🗑️</button></td>
+                                    </tr>
+                                `;
             });
 
             modal.innerHTML = `
-                                                <div style="background:#fff; width:100%; max-width:500px; border-radius:15px; padding:20px; box-shadow:0 10px 25px rgba(0,0,0,0.1); position:relative; font-family:sans-serif;">
-                                                    <h4 style="margin-top:0; font-weight:bold; color:#333;">🛒 รายการในตะกร้า</h4>
-                                                    <div style="max-height:250px; overflow-y:auto; margin-bottom:15px;">
-                                                        <table style="width:100%; border-collapse:collapse; font-size:14px;">
-                                                            <thead>
-                                                                <tr style="background:#f8f9fa; height:35px; text-align:left; color:#6c757d;">
-                                                                    <th>สินค้า</th><th style="text-align:right;">จำนวน</th><th style="text-align:right;">รวม (บาท)</th><th style="text-align:center;">ลบ</th>
-                                                                </tr>
-                                                            </thead>
-                                                            <tbody>${tableRows}</tbody>
-                                                        </table>
-                                                    </div>
-                                                    <div style="display:flex; justify-content:space-between; align-items:center; background:#f8f9fa; padding:15px; border-radius:10px; margin-bottom:15px;">
-                                                        <span>ยอดสุทธิรวม:</span>
-                                                        <span style="font-size:22px; font-weight:bold; color:#28a745;">${grandTotal.toFixed(2)} บาท</span>
-                                                        <input type="checkbox" id="cashback" name="cashback" style="width:30px; height:30px">จ่ายเงินสด
-                                                    </div>
-                                                    <div style="display:flex; gap:10px;">
-                                                        <button onclick="document.getElementById('customCartModal').remove()" style="flex:1; padding:12px; border-radius:8px; border:1px solid #ccc; background:#ccc; font-weight:bold; cursor:pointer;">ปิดหน้าต่าง</button>
-                                                        <button onclick="submitFinalPurchase(0)" style="flex:2; padding:12px; border-radius:8px; border:none; background:#28a745; color:#fff; font-weight:bold; font-size:16px; cursor:pointer;">📝 ยืนยันบันทึก</button>
-                                                        <button onclick="submitFinalPurchase(1)" style="flex:2; padding:12px; border-radius:8px; border:none; background:#28a745; color:#fff; font-weight:bold; font-size:16px; cursor:pointer;">📝 ยืนยันบันทึก & ปริ้นบิล</button>
-                                                    </div>
-                                                </div>
-                                            `;
+                                                                                        <div style="background:#fff; width:100%; max-width:500px; border-radius:15px; padding:20px; box-shadow:0 10px 25px rgba(0,0,0,0.1); position:relative; font-family:sans-serif;">
+                                                                                            <h4 style="margin-top:0; font-weight:bold; color:#333;">🛒 รายการในตะกร้า</h4>
+                                                                                            <div style="max-height:250px; overflow-y:auto; margin-bottom:15px;">
+                                                                                                <table style="width:100%; border-collapse:collapse; font-size:14px;">
+                                                                                                    <thead>
+                                                                                                        <tr style="background:#f8f9fa; height:35px; text-align:left; color:#6c757d;">
+                                                                                                            <th>สินค้า</th><th style="text-align:right;">จำนวน</th><th style="text-align:right;">รวม (บาท)</th><th style="text-align:center;">ลบ</th>
+                                                                                                        </tr>
+                                                                                                    </thead>
+                                                                                                    <tbody>${tableRows}</tbody>
+                                                                                                </table>
+                                                                                            </div>
+                                                                                            <div style="display:flex; justify-content:space-between; align-items:center; background:#f8f9fa; padding:15px; border-radius:10px; margin-bottom:15px;">
+                                                                                                <span>ยอดสุทธิรวม:</span>
+                                                                                                <span style="font-size:22px; font-weight:bold; color:#28a745;">${grandTotal.toFixed(2)} บาท</span>
+                                                                                                <input type="checkbox" id="cashback" name="cashback" style="width:30px; height:30px">จ่ายเงินสด
+                                                                                            </div>
+                                                                                            <div style="display:flex; gap:10px;">
+                                                                                                <button onclick="document.getElementById('customCartModal').remove()" style="flex:1; padding:12px; border-radius:8px; border:1px solid #ccc; background:#ccc; font-weight:bold; cursor:pointer;">ปิดหน้าต่าง</button>
+                                                                                                <button onclick="submitFinalPurchase(0)" style="flex:2; padding:12px; border-radius:8px; border:none; background:#28a745; color:#fff; font-weight:bold; font-size:16px; cursor:pointer;">📝 ยืนยันบันทึก</button>
+                                                                                                <button onclick="submitFinalPurchase(1)" id="submit_and_print"  
+                                                                                                    style="flex:2; padding:12px; border-radius:8px; border:none; background:#28a745; color:#fff; font-weight:bold; font-size:16px; cursor:pointer;">📝 ยืนยันบันทึก & ปริ้นบิล</button>
+                                                                                            </div>
+                                                                                        </div>
+                                                                                    `;
             document.body.appendChild(modal);
         }
 
@@ -2542,11 +1139,13 @@
         // 📝 ส่งบิลสรุปยอดส่งไปหลังบ้าน และสั่งพิมพ์ใบเสร็จอัตโนมัติ
         // 🟢 ปรับปรุงฟังก์ชันบันทึกในฝั่ง app.js เพื่อยิงขึ้น Server จริงก่อนพิมพ์
         async function submitFinalPurchase(print_bill) {
+            console.log('submitFinalPurchase()')
             if (purchaseCart.length === 0) {
                 alert("❌ ไม่มีรายการขยะในตะกร้า");
                 return;
             }
 
+            BluethoothConnectedModal('recycle');
             // คำนวณยอดรวมสุทธิจากตะกร้าแอป
             const totalWeight = purchaseCart.reduce((sum, item) => sum + parseFloat(item.amount_in_units), 0);
             const totalAmount = purchaseCart.reduce((sum, item) => sum + parseFloat(item.amount), 0);
@@ -2595,17 +1194,115 @@
                 const resData = await response.json();
 
                 if (resData.code === 200) {
-                    alert(`🎉 บันทึกสำเร็จ! เลขที่บิล: ${resData.data.receipt_no}`);
 
+                    let recieptText =
+                        `<div class="row">
+                                <div class="col-5">
+                                    <img src="{{ asset('logo/${staffInfo.org.org_logo_img}') }}" width="100%" alt="">
+                                </div>
+                                <div class="col-7" id="org">
+                                    <div style="font-size: 1.5rem;">${staffInfo.org.org_type_name}</div>
+                                    <div style="font-size: 2rem; margin-top: -10px;">${staffInfo.org.org_name}</div>
+
+                                </div>
+                                <div class="text-right" id="org_address">
+                                    <div>${staffInfo.org.org_address} หมู่ ${staffInfo.org.org_zone} ต.${staffInfo.org.org_tambon}</div>
+                                    <div>อ.${staffInfo.org.org_district} จ.${staffInfo.org.org_province}</div>
+                                    <div>โทร.${staffInfo.org.org_phone}</div>
+                                </div>
+                            </div>
+
+                            <p>ธนาคารขยะรีไซเคิล</p>
+                            <div id="member_info">
+                                <div class="row">
+                                    <div class="col-3 header">ชื่อ-สกุล:</div>
+                                    <div class="col-9">${currentActiveMember.firstname} ${currentActiveMember.lastname}</div>
+                                    <div class="col-3 header">ที่อยู่:</div>
+                                    <div class="col-9 info">
+                                        <div>${currentActiveMember.address} หมู่ ${currentActiveMember.waste_preference.user_pref_zone.zone_name} ต.${staffInfo.org.org_tambon}</div>
+                                        <div>อ.${staffInfo.org.org_district} จ.${staffInfo.org.org_province}</div>
+                                    </div>
+                                    <div class="col-3 header">รหัส:</div>
+                                    <div class="col-9 info">${currentActiveMember.waste_preference.id}</div>
+                                </div>
+                            </div>
+
+                            <div id="reciept_info" style="margin-bottom:10px">
+                                <div class="row">
+                                    <div class="col-4 header">วันที่:</div>
+                                    <div class="col-8">${resData.data.transaction_date}</div>
+                                    <div class="col-4 header">เลขใบเสร็จ:</div>
+                                    <div class="col-8 info">${resData.data.receipt_no}</div>
+                                </div>
+                            </div>
+                            <table border="0" width="100%">
+                                <thead>
+                                    <tr>
+                                        <td width="60%"></td>
+                                        <td width="15%">แต้ม</td>
+                                        <td width="25%">บาท</td>
+                                    </tr>
+                                </thead>
+                                <tbody>`;
+
+
+                    let totalAmount = 0;
+                    let totalPoint = 0;
+
+                    purchaseCart.forEach(v => {
+                        let _points = v.point * v.amount_in_units;
+                        recieptText += `
+                                                    <tr>
+                                                        <td style="text-align: left; font-size: 1.5rem;line-height: 22px;">
+                                                            -${v.item_name} 
+                                                            <div style="font-size: 1rem; padding-left: 10px; ">
+                                                                <span style="font-size: 1.4rem;">${v.amount_in_units} ${v.unit_short_name}   </span>
+                                                                <span style="margin-left:10px">(${v.price_per_unit} บาท, ${v.point} แต้ม):${v.unit_short_name}</span>
+                                                            </div>
+                                                        </td>
+                                                        <td class="amount">${_points}</td>
+                                                        <td class="amount">${v.amount.toFixed(2)}</td>
+                                                    </tr>
+
+                                                    `;
+                        totalAmount += v.amount;
+                        totalPoint += _points
+                    })
+
+                    recieptText += `    
+                                                </tbody>
+                                            </table>
+                                            <hr style="color: #000000;opacity:1; margin-left: 20px;" width="90%">
+                                            <table width="100%">
+                                                    <tbody>
+                                                        <tr>
+
+                                                            <td style="text-align: left; font-size: 1.5rem;font-weight:bold" width="60%">
+                                                                รวมรับเงิน/แต้มสะสม
+                                                            </td>
+                                                            <td width="15%" style="line-height: 22px; font-weight:bold" class="amount">${totalPoint} <div style="font-size: 1rem;text-align: right">แต้ม</div></td>
+                                                            <td width="25%" style="line-height: 22px; font-weight:bold" class="amount">${totalAmount.toFixed(2)} <div style="font-size: 1rem;text-align: right">บาท</div></td>
+                                                        </tr>
+
+                                                    </tbody>
+                                                </table>
+                                            <hr style="opacity:1;">
+
+                                            <div style="margin-bottom:3rem; margin-top:rem;text-align:center;font-size:1.4rem; font-weight:bold">
+                                                ขอบคุณที่ร่วมลดโลกร้อน
+                                            </div>`;
+
+
+                    $('#card-reciept').html(recieptText)
                     // 🟢 จุดสำคัญ: เอาข้อมูลตัวจริงจาก Server (resData.data) ส่งไปสั่งพิมพ์ใบเสร็จบลูทูธ
                     if (typeof printReceipt === "function" && print_bill === 1) {
-                        printReceipt(resData.data, purchaseCart);
+                        await printReceipt();
                     }
 
                     // เคลียร์ค่า และอัปเดตหน้าจอแอปพลิเคชันกลับไปสถานะเริ่มต้น
                     purchaseCart = [];
                     closePurchaseModal();
-
+                    $('#card-reciept').html('')
                     // เปลี่ยนสถานะของสมาชิกคนนี้ในหน้าหลักเป็นเสร็จสิ้นทันที
                     onDepositSuccess(currentActiveMember.id);
 
@@ -2617,6 +1314,14 @@
                 console.error("Submit Purchase Error:", error);
                 alert("❌ ไม่สามารถเชื่อมต่อฐานข้อมูลได้ กรุณาเช็กอินเทอร์เน็ตหน้างาน");
             }
+            Swal.close();
+            await Swal.fire({
+                icon: 'success',
+                title: 'บันทึกสำเร็จ!',
+                timer: 1500,
+                showConfirmButton: false
+            });
+
             backToRecycleScreen();
         }
 
@@ -2664,7 +1369,7 @@
 
             if (!statusBox || !lblName || !lblIndicator) return;
 
-            if (isConnected) {
+            if (isConnected || printCharacteristic) {
                 lblName.innerText = `🟢 เชื่อมต่ออยู่กับ (${printerName})`;
                 lblName.style.color = "#28a745";
                 lblIndicator.style.background = "#28a745";
@@ -2729,7 +1434,7 @@
                 member.status = 'completed';
             }
 
-            alert("บันทึกข้อมูลและสั่งพิมพ์ใบเสร็จสำเร็จ!");
+            //alert("บันทึกข้อมูลและสั่งพิมพ์ใบเสร็จสำเร็จ!");
 
             // 2. สั่งอัปเดตหน้าจอทันที รายชื่อคนนี้จะหายไปจากแท็บปัจจุบันแล้วย้ายไปแท็บประวัติทันทีครับ
             updateMemberListUI();
@@ -2833,6 +1538,9 @@
             const loginScreen = document.getElementById('loginScreen');
             const mainAppScreen = document.getElementById('mainAppScreen'); // หรือ ID หน้าจัดการขยะหลักของพี่
 
+
+            $sessionAuthen = localStorage.getItem('staff');
+
             // if (loginScreen) {
             loginScreen.style.display = 'block';
             // }
@@ -2844,203 +1552,61 @@
         }
 
         //📌 สั่งให้ระบบล้างไพ่ทันทีที่หน้าจอเว็บแอปถูกโหลดขึ้นมา (DOM Loaded)
-        document.addEventListener("DOMContentLoaded", () => {
-            initializeAppSession();
-        });
+        // document.addEventListener("DOMContentLoaded", () => {
+        //     generateWaterBillHTML2('s')
+        //     printReceipt();
+        //     // initializeAppSession();
+        // }); 
+
+//         document.addEventListener("DOMContentLoaded", function() {
+//     // 1. ตรวจสอบว่ามี staff_token และ staff_user_id ใน localStorage หรือยัง
+//     const staffToken = localStorage.getItem("staff_token");
+//     const staffUserId = localStorage.getItem("staff_user_id");
+//     const savedName = localStorage.getItem("staff_name");
+
+//     // ถ้ารหัส Token และ User ID มีอยู่จริง แปลว่าเคยล็อกอินค้างไว้แล้ว
+//     if (staffToken && staffUserId) {
+//         console.log("🟢 ตรวจพบ Token เดิมในระบบ ข้ามหน้า Login ไปยังหน้าหลักทันที");
+
+//         // แสดงส่วนหัวแอปพลิเคชัน
+//         $('.app-header').removeClass('hidden');
+
+//         // แสดงชื่อพนักงานที่บันทึกไว้ (ถ้ามี element #staffName)
+//         const staffNameEl = document.getElementById('staffName');
+//         if (staffNameEl && savedName) {
+//             staffNameEl.innerText = savedName;
+//         }
+
+//         // ซ่อนหน้า Login และหน้าเลือก Org
+//         const loginScreen = document.getElementById('loginScreen');
+//         const selectOrgScreen = document.getElementById('selectOrgScreen');
+//         const mainScreen = document.getElementById('mainScreen') || document.getElementById('mainAppScreen');
+
+//         if (loginScreen) {
+//             loginScreen.style.display = 'none';
+//             loginScreen.classList.add('is-hidden');
+//         }
+//         if (selectOrgScreen) {
+//             selectOrgScreen.style.display = 'none';
+//             selectOrgScreen.classList.add('is-hidden');
+//         }
+
+//         // แสดงหน้าหลักของระบบ
+//         if (mainScreen) {
+//             mainScreen.style.display = 'block';
+//             mainScreen.classList.remove('is-hidden');
+//         }
+
+//         // เรียกฟังก์ชันแสดงหน้าหลักเพิ่มเติม (ถ้ามี)
+//         if (typeof showMainScreen === "function" && savedName) {
+//             showMainScreen(savedName);
+//         }
+//     } else {
+//         test();
+//         console.log("🔴 ไม่พบ Token ในระบบ ต้องแสดงหน้า Login ปกติ");
+//     }
+// });
     </script>
 
 
-
-    <script>
-        // --- Configuration Constants ---
-        const PRINTER_SERVICE_UUID = '000018f0-0000-1000-8000-00805f9b34fb';
-        const PRINTER_CHARACTERISTIC_UUID = '00002af1-0000-1000-8000-00805f9b34fb';
-        const LAST_USED_DEVICE_ID_KEY = 'lastUsedBluetoothDeviceId';
-
-        // --- UI Elements ---
-        const statusText = document.getElementById('status-text');
-        const statusCard = document.getElementById('status-card');
-        const connectButton = document.getElementById('connectButton');
-        const printButton = document.getElementById('printImageButton');
-        const printBtnText = document.getElementById('printBtnText');
-
-        let bluetoothDevice;
-        let printCharacteristic;
-
-        // --- Helper: UI Updates ---
-        function updateStatus(message, type = 'info') {
-            console.log('mes', message)
-            statusText.textContent = message;
-
-            // Reset Classes
-            statusCard.className = 'status-badge border';
-            const icon = statusCard.querySelector('.material-icons-round');
-
-            if (type === 'success') {
-                statusCard.classList.add('bg-success', 'bg-opacity-10', 'text-success', 'border-success');
-                icon.textContent = 'check_circle';
-                icon.classList.replace('text-primary', 'text-success');
-
-                // Update Buttons
-                connectButton.classList.add('text-success', 'border-success');
-                // connectButton.innerHTML = '<span class="material-icons-round">bluetooth_connected</span><span>เชื่อมต่อแล้ว</span>';
-                const isConnected = localStorage.getItem('is_printer_connected') === 'true';
-                const printerName = localStorage.getItem('connected_printer_name') || 'เครื่องพิมพ์';
-
-                statusText.innerText = `🟢 เชื่อมต่ออยู่กับ: ${printerName}`;
-                statusText.style.color = "green";
-
-                printButton.disabled = false;
-
-            } else if (type === 'error') {
-                statusCard.classList.add('bg-danger', 'bg-opacity-10', 'text-danger', 'border-danger');
-                icon.textContent = 'error';
-                icon.classList.replace('text-primary', 'text-danger');
-            } else {
-                // Info / Loading
-
-                statusCard.classList.add('bg-light', 'text-secondary');
-                icon.textContent = 'info';
-                icon.classList.replace('text-danger', 'text-primary');
-                icon.classList.replace('text-success', 'text-primary');
-            }
-        }
-
-        // --- Bluetooth Logic ---
-        async function connectToPrinter() {
-            updateStatus('กำลังค้นหาเครื่องพิมพ์...', 'info');
-
-            if (!navigator.bluetooth) {
-                updateStatus('Browser ไม่รองรับ Bluetooth (ใช้ Chrome Android)', 'error');
-                return;
-            }
-
-            try {
-                let selectedDevice = null;
-                const lastDeviceId = localStorage.getItem(LAST_USED_DEVICE_ID_KEY);
-
-                if (lastDeviceId) {
-                    try {
-                        const devices = await navigator.bluetooth.getDevices();
-                        selectedDevice = devices.find(d => d.id === lastDeviceId);
-                    } catch (e) { }
-                }
-
-                if (!selectedDevice) {
-                    selectedDevice = await navigator.bluetooth.requestDevice({
-                        filters: [{ services: [PRINTER_SERVICE_UUID] }],
-                        optionalServices: []
-                    });
-                    localStorage.setItem(LAST_USED_DEVICE_ID_KEY, selectedDevice.id);
-                }
-
-                bluetoothDevice = selectedDevice;
-                bluetoothDevice.addEventListener('gattserverdisconnected', onDisconnected);
-
-                const server = await bluetoothDevice.gatt.connect();
-                const service = await server.getPrimaryService(PRINTER_SERVICE_UUID);
-                printCharacteristic = await service.getCharacteristic(PRINTER_CHARACTERISTIC_UUID);
-
-                updateStatus(`เชื่อมต่อ ${bluetoothDevice.name} สำเร็จ`, 'success');
-
-            } catch (error) {
-                updateStatus(`เชื่อมต่อไม่สำเร็จ: ${error.message}`, 'error');
-            }
-        }
-
-        function onDisconnected() {
-            updateStatus('เครื่องพิมพ์หลุดการเชื่อมต่อ', 'error');
-            printButton.disabled = true;
-            connectButton.innerHTML = '<span class="material-icons-round">bluetooth</span><span>เชื่อมต่อ</span>';
-            connectButton.classList.remove('text-success', 'border-success');
-        }
-
-        // --- Printing Logic ---
-        function getMonochromeBitmapData(ctx, width, height) {
-            const imageData = ctx.getImageData(0, 0, width, height);
-            const data = imageData.data;
-            const bitmap = new Uint8Array(Math.ceil(width / 8) * height);
-
-            for (let y = 0; y < height; y++) {
-                for (let x = 0; x < width; x++) {
-                    const i = (y * width + x) * 4;
-                    const avg = (data[i] + data[i + 1] + data[i + 2]) / 3;
-                    if (avg < 128) {
-                        const byteIndex = y * Math.ceil(width / 8) + Math.floor(x / 8);
-                        const bitIndex = 7 - (x % 8);
-                        bitmap[byteIndex] |= (1 << bitIndex);
-                    }
-                }
-            }
-            return bitmap;
-        }
-
-        async function printReceipt() {
-            console.log('xx')
-            if (!printCharacteristic) {
-                console.log('!printCharacteristic')
-                updateStatus('กรุณาเชื่อมต่อก่อนพิมพ์', 'error');
-                return;
-            }
-
-            const originalText = printBtnText.textContent;
-            printButton.disabled = true;
-            printBtnText.textContent = 'กำลังส่งข้อมูล...';
-
-            try {
-                // 1. HTML to Canvas
-                const receiptElement = document.getElementById('receipt-card');
-                const canvas = await html2canvas(receiptElement, {
-                    scale: 2,
-                    useCORS: true,
-                    backgroundColor: '#ffffff'
-                });
-
-                // 2. Resize
-                const printerWidth = 384;
-                const scaleFactor = printerWidth / canvas.width;
-                const printerHeight = canvas.height * scaleFactor;
-
-                const printCanvas = document.createElement('canvas');
-                printCanvas.width = printerWidth;
-                printCanvas.height = printerHeight;
-                const ctx = printCanvas.getContext('2d');
-                ctx.drawImage(canvas, 0, 0, printerWidth, printerHeight);
-
-                // 3. Bitmap & Command
-                const bitmapData = getMonochromeBitmapData(ctx, printerWidth, printerHeight);
-                const bytesPerRow = Math.ceil(printerWidth / 8);
-                const command = new Uint8Array([
-                    0x1D, 0x76, 0x30, 0x00,
-                    bytesPerRow & 0xFF, (bytesPerRow >> 8) & 0xFF,
-                    printerHeight & 0xFF, (printerHeight >> 8) & 0xFF
-                ]);
-
-                const dataToSend = new Uint8Array(command.length + bitmapData.length);
-                dataToSend.set(command, 0);
-                dataToSend.set(bitmapData, command.length);
-
-                // 4. Send Chunks
-                const CHUNK_SIZE = 256;
-                for (let i = 0; i < dataToSend.length; i += CHUNK_SIZE) {
-                    const chunk = dataToSend.slice(i, i + CHUNK_SIZE);
-                    await printCharacteristic.writeValueWithoutResponse(chunk);
-                    await new Promise(r => setTimeout(r, 40));
-                }
-
-                // Feed Lines
-                await printCharacteristic.writeValueWithoutResponse(new Uint8Array([0x0A, 0x0A, 0x0A]));
-                updateStatus('พิมพ์เสร็จสิ้น', 'success');
-
-            } catch (error) {
-                updateStatus(`Error: ${error.message}`, 'error');
-            } finally {
-                printButton.disabled = false;
-                printBtnText.textContent = originalText;
-            }
-        }
-
-        // Initialize
-        connectButton.addEventListener('click', connectToPrinter);
-    </script>
 @endsection

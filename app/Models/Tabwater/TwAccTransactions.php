@@ -14,6 +14,7 @@ class TwAccTransactions extends Model
     protected $table = 'tw_acc_transactions';
 
     protected $fillable = ['id', 'org_id_fk', 'meter_id_fk', 'vatsum', 'reserve_meter_sum', 'paidsum', 'totalpaidsum', 'cashier'];
+    // protected $fillable = ['id', 'org_id_fk', 'meter_id_fk', 'vatsum', 'reserve_meter_sum', 'paidsum', 'totalpaidsum', 'cashier', 'old_cashier_id'];
 
     public function cashier_info()
     {

@@ -13,12 +13,6 @@
 @endsection
 @section('content')
 
-    @if (session('success'))
-        <div class="text-success">{{ session('success') }}</div>
-    @endif
-    @if (session('error'))
-        <div class="text-danger">{{ session('error') }}</div>
-    @endif
 
     <a href="{{ route('admin.meter_rates.create') }}" class="btn btn-info">Create New Rate Configuration</a>
     <div class="card mb-4">

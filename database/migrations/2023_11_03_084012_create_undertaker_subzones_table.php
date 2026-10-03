@@ -15,8 +15,10 @@ return new class extends Migration
     {
         Schema::create('undertaker_subzones', function (Blueprint $table) {
             $table->bigIncrements('id');
-            $table->integer('twman_id');
-            $table->integer('subzone_id');
+            $table->foreignId('org_id_fk')->constrained('organizations')->onDelete('cascade');
+            $table->foreignId('twman_id')->constrained('staffs')->onDelete('cascade');
+            $table->foreignId('subzone_id')->constrained('subzones')->onDelete('cascade');
+;
             $table->timestamps();
         });
     }

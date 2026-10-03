@@ -3,7 +3,7 @@
 namespace App\Models;
 
 use App\Models\Tabwater\TwAccTransactions;
-use App\Models\Tabwater\TwInvoicePeriod;
+use App\Models\Tabwater\InvoicePeriod;
 use App\Models\Tabwater\TwMeterInfos;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
@@ -30,12 +30,12 @@ class InvoiceHistoryNew extends Model
 
     public function invoice_period()
     {
-        return $this->belongsTo(TwInvoicePeriod::class, 'inv_period_id_fk', 'id');
+        return $this->belongsTo(InvoicePeriod::class, 'inv_period_id_fk', 'id');
     }
 
     public function recorder()
     {
-        return $this->belongsTo(User::class,'recorder_id', 'id');
+        return $this->belongsTo(User::class, 'recorder_id', 'id');
     }
 
     public function usermeterinfos()
@@ -49,6 +49,6 @@ class InvoiceHistoryNew extends Model
     }
     public function invoice_inv_pd_active()
     {
-        return $this->hasOne(TwInvoicePeriod::class, 'inv_period_id_fk', 'id');
+        return $this->hasOne(InvoicePeriod::class, 'inv_period_id_fk', 'id');
     }
 }

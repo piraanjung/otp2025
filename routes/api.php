@@ -16,12 +16,15 @@ use App\Http\Controllers\Api\IoTBoxDataController;
 use App\Http\Controllers\Api\OcrController;
 use App\Http\Controllers\FunctionsController;
 use App\Http\Controllers\Api\FunctionsController as apiFunctionsController;
+use App\Http\Controllers\Api\IssueTyeController;
 use App\Http\Controllers\Api\KioskController;
 use App\Http\Controllers\Api\UnknownItemReviewController;
 use App\Http\Controllers\Kiosk\KioskController as WebKioskController;
 use App\Http\Controllers\ImageController;
 use App\Http\Controllers\KeptKaya\MachineController;
 use App\Http\Controllers\Kiosk\KioskApiController;
+use App\Http\Controllers\Tabwater\UndertakerSubzoneController;
+use App\Http\Controllers\Tabwater\UserMeterInfosController;
 use Illuminate\Support\Facades\Log;
 
 
@@ -48,6 +51,8 @@ Route::get('/health-check', function () {
 Route::get('/keptkaya/kp_items_recycle_info', [KeptkayaController::class, 'kp_items_recycle_info']);
 Route::get('/keptkaya/members/{org_id}', [KeptkayaController::class, 'members']);
 Route::post('/keptkaya/store_purchase', [KeptkayaController::class, 'store_purchase']);
+
+Route::get('/issue_type/lists/{system_type}', [IssueTyeController::class, 'lists']);
 
 // =====================================================x====================
 // 🌿 [Branch: backend/feature-chunk-image-receiver]
@@ -121,13 +126,15 @@ Route::prefix('line')->group(function () {
     Route::get('/user_qrcode', [LineController::class, 'user_qrcode']);
     Route::post('/update_user_by_phone', [LineController::class, 'update_user_by_phone']);
     Route::post('/user_line_register', [LineController::class, 'user_line_register']);
-    Route::post('/webhook', [LineController::class, 'handleWebhook']);
+    Route::post('/webhook', [LineController::class, 'handle']);
+    Route::get('/test', [LineController::class, 'testSendFlexMessage']);
+    
     Route::get('/reply/{lineUserId}/{replyToken}', [LineController::class, 'replyWithLastReceipt']);
     Route::get('/buildFlexReceipt/{transaction}', [LineController::class, 'buildFlexReceipt']);
     Route::post('/findUserByPhone', [LineController::class, 'findUserByPhone']);
-
     Route::get('/get_org_lists/{org_type}', [LineController::class,'getOrgLists']);
     Route::get('/getzones/{tambon_id}', [LineController::class, 'getZones'])->name('getzones');
+    Route::get('/xx', [LineController::class, 'buildStaffFlexMessage'])->name('buildStaffFlexMessage');
 
 });
 
@@ -181,6 +188,15 @@ Route::middleware(['throttle:api'])->name('api.')->group(function () {
 
         Route::post('/authen', [UsersController::class, 'authen']);
         Route::post('/staff_authen', [UsersController::class, 'staff_authen']);
+        Route::post('/staff_login_core', [UsersController::class, 'staff_login_core']);
+        Route::post('/staff/verify_token', [UsersController::class, 'verify_staff_token']);
+    });
+
+    Route::prefix('staff/tabwater')->group(function () {
+        Route::post('/staff/service-data', [UndertakerSubzoneController::class, 'get_service_dashboard_data']);   
+        Route::post('/members', [UserMeterInfosController::class, 'get_subzone_members']);
+        Route::post('/meter-records', [UserMeterInfosController::class, 'meter_records']);
+        
     });
 
     Route::prefix('invoice')->group(function () {
@@ -244,17 +260,6 @@ Route::middleware(['throttle:api'])->name('api.')->group(function () {
     // Route สำหรับรับไฟล์ภาพ (ใช้โดย ESP32-CAM ช่วงกลางคืน)
     Route::post('/kiosk/upload-image', [KioskApiController::class, 'uploadImage'])->name('uploadImage');
 
-    // Route::prefix('cutmeter')->group(function () {
-    //     Route::get('/index/{zone_id?}/{subzone_id?}', [CutmeterController::class,'index']);
-    //     Route::get('/owe', 'Api\CutmeterController@owe');
-    //     Route::get('/get_reciepting', 'Api\CutmeterController@get_reciepting');
-    //     Route::get('/user_owe_infos/{user_id}', 'Api\CutmeterController@user_owe_infos');
-    //     Route::get('/get_cutmeter_history/{user_id}', 'Api\CutmeterController@get_cutmeter_history');
-    //     Route::get('/get_process_history/{user_id}/{inv_period_id}', 'Api\CutmeterController@get_process_history');
-    //     Route::get('/count', 'Api\CutmeterController@count');
-    //     Route::get('/test', 'Api\CutmeterController@test');
-    //     Route::get('/getOweOver3CountDivideBySubzone', 'Api\CutmeterController@getOweOver3CountDivideBySubzone');
-
-    // });
+    
 
 });

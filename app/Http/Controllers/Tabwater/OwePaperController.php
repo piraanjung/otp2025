@@ -11,7 +11,7 @@ use App\Http\Controllers\Api\InvoiceController as ApiInvoiceCtrl;
 use App\Http\Controllers\Api\OwepaperController as ApiOwepaperController;
 use App\Models\Tabwater\TwCutmeter;
 use App\Models\Tabwater\TwInvoice;
-use App\Models\Tabwater\TwInvoicePeriod;
+use App\Models\Tabwater\InvoicePeriod;
 use App\Models\Tabwater\TwMeterInfos;
 use Illuminate\Support\Facades\Auth;
 
@@ -24,7 +24,7 @@ class OwePaperController extends Controller
         $apiOwepaper = new ApiOwepaperController;
         $oweInvCountGroupByUserId = $apiOwepaper->oweAndInvoiceCount();
 
-        $invoice_period = TwInvoicePeriod::where('status', 'active')->get()->first();
+        $invoice_period = InvoicePeriod::where('status', 'active')->get()->first();
         $zone_id_selected = 'all';
         $subzone_id_selected = 'all';
         return view('owepaper.index', compact(

@@ -5,9 +5,11 @@ namespace App\Http\Controllers\Api;
 use App\Http\Controllers\Api\FunctionsController;
 use App\Http\Controllers\Api\ZoneController;
 use App\Http\Controllers\Controller;
+use App\Models\Admin\Organization;
+use App\Models\Admin\Staff;
 use App\Models\KeptKaya\KpTbankItems;
 use App\Models\Tabwater\TwInvoice;
-use App\Models\Tabwater\TwInvoicePeriod;
+use App\Models\Tabwater\InvoicePeriod;
 use App\Models\Tabwater\TwMeterInfos;
 use App\Models\Tabwater\UndertakerSubzone;
 use App\Models\User;
@@ -192,6 +194,88 @@ class UsersController extends Controller
         return response()->json($request);
     }
 
+    public function staff_login_core(Request $request)
+    {
+        $username = $request->input('username', '');
+        $passwords = $request->input('passwords', '');
+
+        if (empty($username) || empty($passwords)) {
+            return response()->json(['code' => 400, 'message' => 'กรุณากรอกชื่อผู้ใช้และรหัสผ่าน'], 400);
+        }
+
+        $user = User::where('username', $username)->first();
+
+        if (!$user || !Hash::check($passwords, $user->password)) {
+            return response()->json(['code' => 401, 'message' => 'ชื่อผู้ใช้ หรือ รหัสผ่าน ไม่ถูกต้อง'], 401);
+        }
+
+        // 🟢 ดึง Staff ทุก Org พร้อม Join ข้อมูลองค์กรด้วยฟิลด์จริง (org_name, org_logo_img)
+        $staffRecords = Staff::where('user_id', $user->id)
+            ->where('deleted', '0')
+            ->with('organization:id,org_name,org_logo_img')
+            ->get();
+
+        if ($staffRecords->isEmpty()) {
+            return response()->json(['code' => 403, 'message' => 'ผู้ใช้งานนี้ไม่มีสิทธิ์เป็นเจ้าหน้าที่ (Staff)'], 403);
+        }
+
+        $user->remember_token = base64_encode(Str::random(40));
+        $user->save();
+        $user->logged = true;
+
+        // ส่งรายการ Staff profiles ที่มีข้อมูลองค์กรติดไปด้วย
+        $user->staff_profiles = $staffRecords;
+        $user->token = $user->remember_token;
+        return response()->json([
+            'code' => 200,
+            'message' => 'เข้าสู่ระบบสำเร็จ',
+            'data' => $user
+        ], 200);
+    }
+
+
+
+    public function verify_staff_token(Request $request)
+    {
+        // 1. รับค่า Token ที่ส่งมาจากฝั่ง Client (เช่น ส่งมาทาง Header หรือ Request Body)
+        $token = $request->input('remember_token') ?? $request->bearerToken();
+
+        if (!$token) {
+            return response()->json([
+                'status' => 'error',
+                'message' => 'ไม่พบข้อมูล Token สำหรับตรวจสอบ'
+            ], 401);
+        }
+
+        // 2. ค้นหา User ในระบบที่มี remember_token นี้ตรงกัน
+        $staff = User::where('remember_token', $token)->first();
+
+        // 3. ตรวจสอบว่าพบผู้ใช้งานหรือไม่ และมีสิทธิ์เป็นเจ้าหน้าที่ (Staff) หรือไม่
+        if (!$staff) {
+            return response()->json([
+                'status' => 'error',
+                'message' => 'Token ไม่ถูกต้องหรือหมดอายุ'
+            ], 401);
+        }
+
+        // (เพิ่มเติม) ตรวจสอบเงื่อนไขบทบาทสิทธิ์พนักงาน เช่น role == 'staff'
+        // if ($staff->role !== 'staff') { ... }
+
+        // 4. ส่งข้อมูลยืนยันกลับไปว่าผ่าน
+        return response()->json([
+            'status' => 'success',
+            'message' => 'ยืนยันตัวตนสำเร็จ',
+            'data' => [
+                'id' => $staff->id,
+                'name' => $staff->name ?? $staff->username,
+                'valid' => true
+                // ข้อมูลอื่นๆ ที่จำเป็นต้องใช้ต่อหน้าบ้าน
+            ],
+            'code' => 200
+        ], 200);
+    }
+
+
     public function staff_authen(Request $request)
     {
         $code = 200;
@@ -213,18 +297,20 @@ class UsersController extends Controller
                 // Spatie มีฟังก์ชัน getRoleNames() ให้ใช้ได้เลยครับ
                 $user->role_names = $user->getRoleNames(); // จะได้เป็น Array เช่น ["Staff", "Admin"]
 
-                if($user->hasRole('Recycle Bank Staff')){
+                if ($user->hasRole('Recycle Bank Staff')) {
                     $user->org_member = User::where('org_id_fk', $user->org_id_fk)
-                        ->with(['wastePreference' => function($q){
-                            $q->select('id', 'user_id', 'address');
-                        }, 'wastePreference.kpBankAccount' => function($q){
-                            $q->select('id', 'user_pref_id', 'account_no');
-                        }
+                        ->with([
+                            'wastePreference' => function ($q) {
+                                $q->select('id', 'user_id', 'address');
+                            },
+                            'wastePreference.kpBankAccount' => function ($q) {
+                                $q->select('id', 'user_pref_id', 'account_no');
+                            }
                         ])
-                       ->whereHas('wastePreference.kpBankAccount') // 🎯 กรองเฉพาะคนที่มีบัญชี
-                        ->get(['firstname', 'lastname', 'id', 'address', 'zone_id', 'subzone_id', 'phone']);
+                        ->whereHas('wastePreference.kpBankAccount') // 🎯 กรองเฉพาะคนที่มีบัญชี
+                        ->get(['firstname', 'lastname', 'id', 'address', 'zone_id', 'subzone_id', 'phone', 'remember_token']);
                     $user->items = KpTbankItems::where('org_id_fk', $user->org_id_fk)->get();
-
+                    $user->org = Organization::getOrgName($user->org_id_fk);
                     return response()->json(['data' => $user, 'code' => 200]);
                 }
             } else {
@@ -273,7 +359,7 @@ class UsersController extends Controller
                     $subzone->members_status_paid    = $this->usermeter_info_get_invoice_status_count($subzone->subzone_id, 'paid');
                 }
 
-                $result[0]->inv_period = TwInvoicePeriod::where('status', 'active')->get(['id', 'inv_p_name']);
+                $result[0]->inv_period = InvoicePeriod::where('status', 'active')->get(['id', 'inv_p_name']);
             } else {
                 $result = User::where('username', $username)
                     ->with(
@@ -512,7 +598,7 @@ class UsersController extends Controller
 
     public function usermeter_info_get_invoice_status_count($subzone_id, $status)
     {
-        $curr_inv_period = TwInvoicePeriod::where('status', 'active')->get('id')->first();
+        $curr_inv_period = InvoicePeriod::where('status', 'active')->get('id')->first();
         $curr_inv_period_id = $curr_inv_period->id;
         $res = TwMeterInfos::where('undertake_subzone_id', $subzone_id)
             ->with(['invoice' => function ($query) use ($status, $curr_inv_period_id) {

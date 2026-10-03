@@ -555,8 +555,9 @@
         .btn-submit-material:active {
             transform: scale(0.98);
         }
-        .topic_no{
-               background: black;
+
+        .topic_no {
+            background: black;
             color: pink;
             border-radius: 50%;
             padding: 5px 12px;
@@ -565,8 +566,8 @@
             margin-top: -30px;
         }
 
-        
-        .line{
+
+        .line {
             border: 1px solid #007bff;
             padding: 15px;
             margin-bottom: 30px
@@ -612,12 +613,14 @@
                 <form id="form-idcard">
                     <div class="mb-3">
                         <label for="input-idcard" class="form-label">เลขบัตรประจำตัวประชาชน</label>
-                        <input type="text" class="form-control form-control-lg text-center" style="font-size: large; font-weight: bold;" id="input-idcard"
-                            placeholder="เลข 13 หลัก" maxlength="13" required>
+                        <input type="text" class="form-control form-control-lg text-center"
+                            style="font-size: large; font-weight: bold;" id="input-idcard" placeholder="เลข 13 หลัก"
+                            maxlength="13" required>
                     </div>
                     <button type="submit" class="btn btn-primary w-100 btn-lg">ค้นหาด้วยเลขบัตรประชาชน</button>
                     {{-- <button type="button" onclick="goToStep('phone')"
-                        class="btn btn-link w-100 text-muted mt-2 btn-sm text-decoration-none">ย้อนกลับไปกรอกเบอร์โทร</button> --}}
+                        class="btn btn-link w-100 text-muted mt-2 btn-sm text-decoration-none">ย้อนกลับไปกรอกเบอร์โทร</button>
+                    --}}
                 </form>
             </div>
 
@@ -634,164 +637,169 @@
             <div id="step-register-notice" class="step-container text-center py-3">
                 <div id="new_user_form">
                     ลงทะเบียนผู้ใช้งานใหม่
-                        <form id="registerForm">
+                    <form id="registerForm">
 
-                            {{-- 1. ชื่อ - นามสกุล (ย้ายมาไว้บนสุด เพื่อความชัดเจน) --}}
-                            <div class="line">
-                                <label class="d-block text-secondary mb-2 ps-1 text-start"><span class="topic_no">1</span></label>
+                        {{-- 1. ชื่อ - นามสกุล (ย้ายมาไว้บนสุด เพื่อความชัดเจน) --}}
+                        <div class="line">
+                            <label class="d-block text-secondary mb-2 ps-1 text-start"><span
+                                    class="topic_no">1</span></label>
+                            <div class="row g-2">
+
+                                <div class="col-6">
+                                    <div class="form-floating">
+                                        <input type="text" name="firstname" class="form-control" id="firstname"
+                                            placeholder="ชื่อ" required>
+                                        <label for="firstname">ชื่อ</label>
+                                    </div>
+                                </div>
+                                <div class="col-6">
+                                    <div class="form-floating">
+                                        <input type="text" name="lastname" class="form-control" id="lastname"
+                                            placeholder="นามสกุล" required>
+                                        <label for="lastname">นามสกุล</label>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        {{--
+                        <hr class="text-muted opacity-25 mb-4"> --}}
+
+                        {{-- 2. เลือกประเภทหน่วยงาน (Selection Cards) --}}
+                        <div class="line">
+                            <label class="d-block text-secondary mb-2 ps-1 text-start"><span
+                                    class="topic_no">2</span></label>
+                            <div class="form-group">
+                                <label class="d-block text-secondary small mb-2 ps-1">สังกัดหน่วยงาน</label>
+
                                 <div class="row g-2">
-                                    
-                                    <div class="col-6">
-                                        <div class="form-floating">
-                                            <input type="text" name="firstname" class="form-control" id="firstname"
-                                                placeholder="ชื่อ" required>
-                                            <label for="firstname">ชื่อ</label>
-                                        </div>
+
+                                    <div class="col-6 col-md-6">
+                                        <label class="w-100 m-0">
+                                            <input type="radio" class="org-radio-input" name="org_type_selector"
+                                                id="type_general" value="general">
+                                            <div class="org-card text-center py-3">
+                                                <i class="bi bi-building d-block mb-1 fs-4"></i>
+                                                <span>เทศบาล/อบต.</span>
+                                            </div>
+                                        </label>
                                     </div>
-                                    <div class="col-6">
-                                        <div class="form-floating">
-                                            <input type="text" name="lastname" class="form-control" id="lastname"
-                                                placeholder="นามสกุล" required>
-                                            <label for="lastname">นามสกุล</label>
-                                        </div>
+
+                                    <div class="col-6 col-md-6">
+                                        <label class="w-100 m-0">
+                                            <input type="radio" class="org-radio-input" name="org_type_selector"
+                                                id="type_uni" value="uni" checked>
+                                            <div class="org-card text-center py-3">
+                                                <i class="bi bi-mortarboard-fill d-block mb-1 fs-4"></i>
+                                                <span>มหาวิทยาลัย</span>
+                                            </div>
+                                        </label>
+                                    </div>
+
+                                    <div class="col-6 col-md-6">
+                                        <label class="w-100 m-0">
+                                            <input type="radio" class="org-radio-input" name="org_type_selector"
+                                                id="type_hospital" value="hospital">
+                                            <div class="org-card text-center py-3">
+                                                <i class="bi bi-hospital-fill d-block mb-1 fs-4"></i>
+                                                <span>โรงพยาบาล</span>
+                                            </div>
+                                        </label>
+                                    </div>
+                                    <div class="col-6 col-md-6">
+                                        <label class="w-100 m-0">
+                                            <input type="radio" class="org-radio-input" name="org_type_selector"
+                                                id="type_school" value="school">
+                                            <div class="org-card text-center py-3">
+                                                <i class="bi bi-hospital-fill d-block mb-1 fs-4"></i>
+                                                <span>โรงเรียน</span>
+                                            </div>
+                                        </label>
+                                    </div>
+
+                                </div>
+                            </div>
+                        </div>
+
+                        {{-- 3. Dropdown ชื่อหน่วยงาน --}}
+                        <div class="line">
+                            <label class="d-block text-secondary mb-2 ps-1 text-start"><span
+                                    class="topic_no">3</span></label>
+                            <div class="form-floating">
+                                <input type="text" id="org_display" class="form-control clickable-input"
+                                    placeholder="เลือกหน่วยงาน..." readonly>
+                                <label id="org_label">เลือกสถานศึกษา ที่ท่านสังกัด</label>
+                                <input type="hidden" name="org_id" id="org_id">
+                                <input type="hidden" name="province_id" id="province_id">
+                                <input type="hidden" name="district_id" id="district_id">
+                                <input type="hidden" name="tambon_id" id="tambon_id">
+                            </div>
+
+                            <div id="location_info_display" class="d-none bg-light p-3 rounded-3 mb-3 border border-light">
+                                <p class="small text-muted mb-2"><i class="bi bi-geo-alt-fill"></i> ที่ตั้งหน่วยงาน</p>
+                                <div class="row g-2">
+                                    <div class="col-4">
+                                        <input type="text" id="show_province"
+                                            class="form-control form-control-sm bg-white border-0" disabled
+                                            placeholder="จ.">
+                                    </div>
+                                    <div class="col-4">
+                                        <input type="text" id="show_district"
+                                            class="form-control form-control-sm bg-white border-0" disabled
+                                            placeholder="อ.">
+                                    </div>
+                                    <div class="col-4">
+                                        <input type="text" id="show_tambon"
+                                            class="form-control form-control-sm bg-white border-0" disabled
+                                            placeholder="ต.">
                                     </div>
                                 </div>
                             </div>
-                            {{-- <hr class="text-muted opacity-25 mb-4"> --}}
+                        </div>
 
-                            {{-- 2. เลือกประเภทหน่วยงาน (Selection Cards) --}}
-                            <div class="line">
-                                <label class="d-block text-secondary mb-2 ps-1 text-start"><span class="topic_no">2</span></label>
-                                <div class="form-group">
-                                    <label class="d-block text-secondary small mb-2 ps-1">สังกัดหน่วยงาน</label>
+                        {{-- 5. ส่วนรายละเอียดฟอร์ม --}}
+                        <div class="line">
+                            <label class="d-block text-secondary mb-2 ps-1 text-start"><span
+                                    class="topic_no">4</span></label>
+                            <div id="form_details" class="d-none animate__animated animate__fadeIn">
 
-                                    <div class="row g-2">
+                                {{-- Zone / Subzone (Clickable Inputs) --}}
+                                <div class="form-floating mb-3">
+                                    <input type="text" id="zone_display" class="form-control clickable-input"
+                                        placeholder="เลือก" readonly>
+                                    <label id="zone_label">หมู่ที่/โซน</label>
+                                    <input type="hidden" name="zone_id" id="zone_id">
+                                </div>
 
-                                        <div class="col-6 col-md-6">
-                                            <label class="w-100 m-0">
-                                                <input type="radio" class="org-radio-input" name="org_type_selector"
-                                                    id="type_general" value="general">
-                                                <div class="org-card text-center py-3">
-                                                    <i class="bi bi-building d-block mb-1 fs-4"></i>
-                                                    <span>เทศบาล/อบต.</span>
-                                                </div>
-                                            </label>
-                                        </div>
+                                <div class="form-floating mb-4">
+                                    <input type="text" id="subzone_display" class="form-control clickable-input"
+                                        placeholder="เลือก" readonly disabled>
+                                    <label id="subzone_label">ซอย/อาคาร</label>
+                                    <input type="hidden" name="subzone_id" id="subzone_id">
+                                </div>
 
-                                        <div class="col-6 col-md-6">
-                                            <label class="w-100 m-0">
-                                                <input type="radio" class="org-radio-input" name="org_type_selector"
-                                                    id="type_uni" value="uni" checked>
-                                                <div class="org-card text-center py-3">
-                                                    <i class="bi bi-mortarboard-fill d-block mb-1 fs-4"></i>
-                                                    <span>มหาวิทยาลัย</span>
-                                                </div>
-                                            </label>
-                                        </div>
-
-                                        <div class="col-6 col-md-6">
-                                            <label class="w-100 m-0">
-                                                <input type="radio" class="org-radio-input" name="org_type_selector"
-                                                    id="type_hospital" value="hospital">
-                                                <div class="org-card text-center py-3">
-                                                    <i class="bi bi-hospital-fill d-block mb-1 fs-4"></i>
-                                                    <span>โรงพยาบาล</span>
-                                                </div>
-                                            </label>
-                                        </div>
-                                        <div class="col-6 col-md-6">
-                                            <label class="w-100 m-0">
-                                                <input type="radio" class="org-radio-input" name="org_type_selector"
-                                                    id="type_school" value="school">
-                                                <div class="org-card text-center py-3">
-                                                    <i class="bi bi-hospital-fill d-block mb-1 fs-4"></i>
-                                                    <span>โรงเรียน</span>
-                                                </div>
-                                            </label>
-                                        </div>
-
+                                {{-- สมาชิกใหม่ (กรอกเพิ่มเติม) --}}
+                                <div id="new_member_div">
+                                    <div class="form-floating mb-3" id="address_div">
+                                        <input type="text" name="address" id="address" class="form-control"
+                                            placeholder="บ้านเลขที่">
+                                        <label>บ้านเลขที่ / ห้องเลขที่</label>
                                     </div>
-                                </div>
-                            </div>
 
-                            {{-- 3. Dropdown ชื่อหน่วยงาน --}}
-                            <div class="line">
-                                <label class="d-block text-secondary mb-2 ps-1 text-start"><span class="topic_no">3</span></label>
-                                <div class="form-floating">
-                                    <input type="text" id="org_display" class="form-control clickable-input"
-                                        placeholder="เลือกหน่วยงาน..." readonly>
-                                    <label id="org_label">เลือกสถานศึกษา ที่ท่านสังกัด</label>
-                                    <input type="hidden" name="org_id" id="org_id">
-                                    <input type="hidden" name="province_id" id="province_id">
-                                    <input type="hidden" name="district_id" id="district_id">
-                                    <input type="hidden" name="tambon_id" id="tambon_id">
-                                </div>
-                          
-                                <div id="location_info_display" class="d-none bg-light p-3 rounded-3 mb-3 border border-light">
-                                    <p class="small text-muted mb-2"><i class="bi bi-geo-alt-fill"></i> ที่ตั้งหน่วยงาน</p>
-                                    <div class="row g-2">
-                                        <div class="col-4">
-                                            <input type="text" id="show_province"
-                                                class="form-control form-control-sm bg-white border-0" disabled
-                                                placeholder="จ.">
-                                        </div>
-                                        <div class="col-4">
-                                            <input type="text" id="show_district"
-                                                class="form-control form-control-sm bg-white border-0" disabled
-                                                placeholder="อ.">
-                                        </div>
-                                        <div class="col-4">
-                                            <input type="text" id="show_tambon"
-                                                class="form-control form-control-sm bg-white border-0" disabled
-                                                placeholder="ต.">
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
-
-                            {{-- 5. ส่วนรายละเอียดฟอร์ม --}}
-                            <div class="line">
-                                <label class="d-block text-secondary mb-2 ps-1 text-start"><span class="topic_no">4</span></label>
-                                <div id="form_details" class="d-none animate__animated animate__fadeIn">
-
-                                    {{-- Zone / Subzone (Clickable Inputs) --}}
                                     <div class="form-floating mb-3">
-                                        <input type="text" id="zone_display" class="form-control clickable-input"
-                                            placeholder="เลือก" readonly>
-                                        <label id="zone_label">หมู่ที่/โซน</label>
-                                        <input type="hidden" name="zone_id" id="zone_id">
+                                        <input type="tel" name="phone" id="phone" class="form-control"
+                                            placeholder="เบอร์โทร">
+                                        <label>หมายเลขโทรศัพท์ผู้สมัคร</label>
                                     </div>
-
-                                    <div class="form-floating mb-4">
-                                        <input type="text" id="subzone_display" class="form-control clickable-input"
-                                            placeholder="เลือก" readonly disabled>
-                                        <label id="subzone_label">ซอย/อาคาร</label>
-                                        <input type="hidden" name="subzone_id" id="subzone_id">
-                                    </div>
-
-                                    {{-- สมาชิกใหม่ (กรอกเพิ่มเติม) --}}
-                                    <div id="new_member_div">
-                                        <div class="form-floating mb-3" id="address_div">
-                                            <input type="text" name="address" id="address" class="form-control"
-                                                placeholder="บ้านเลขที่">
-                                            <label>บ้านเลขที่ / ห้องเลขที่</label>
-                                        </div>
-
-                                        <div class="form-floating mb-3">
-                                            <input type="tel" name="phone" id="phone" class="form-control"
-                                                placeholder="เบอร์โทร">
-                                            <label>หมายเลขโทรศัพท์ผู้สมัคร</label>
-                                        </div>
-                                    </div>
-
-                                    <button type="button" id="phone_search_btn"
-                                        class="btn btn-info text-white w-100 btn-submit-material mt-2">
-                                        ลงทะเบียนเข้าใช้งาน
-                                    </button>
                                 </div>
-                            </div>
 
-                        </form>
+                                <button type="button" id="phone_search_btn"
+                                    class="btn btn-info text-white w-100 btn-submit-material mt-2">
+                                    ลงทะเบียนเข้าใช้งาน
+                                </button>
+                            </div>
+                        </div>
+
+                    </form>
                 </div>
 
             </div>
@@ -842,21 +850,36 @@
             try {
                 await liff.init({ liffId: "1656703539-5eopvjK9" }); // 👈 นำ LIFF ID จาก Line Developer Console มาใส่ตรงนี้
                 if (!liff.isLoggedIn()) {
-                                console.log('xx')
+                    console.log('xx')
 
                     liff.login();
                     return;
                 }
 
                 profile = await liff.getProfile();
-                        console.log('profile',profile)
+                console.log('profile', profile)
 
                 currentLineUserId = profile.userId;
                 console.log('currentLineUserId', currentLineUserId)
-                currentLineUserImage = profile.pictureUrl.replace("https://profile.line-scdn.net/", "")
+                // ป้องกัน Error กรณีผู้ใช้งานไม่ได้ตั้งรูปโปรไฟล์ใน LINE (pictureUrl จะเป็น undefined)
+                if (profile.pictureUrl) {
+                    currentLineUserImage = profile.pictureUrl.replace("https://profile.line-scdn.net/", "");
+                } else {
+                    currentLineUserImage = null;
+                }
 
                 // ส่งไปเช็คที่หลังบ้านก่อนเป็นอันดับแรกว่า Line ID นี้เคยผูกบัญชีไปหรือยัง
-                checkExistingLineUser(currentLineUserId);
+                // อ่าน Query Parameter จาก URL ว่ามาจากปุ่มไหน (?page=report หรือ ?page=login)
+                const urlParams = new URLSearchParams(window.location.search);
+                const page = urlParams.get('page');
+
+                if (page === 'report') {
+                    // หน้าแจ้งเหตุ: เช็กเพื่อ Auto-fill ข้อมูลสมาชิก (ถ้าไม่ใช่สมาชิกก็เปิดให้แจ้งเหตุแบบ Guest ได้)
+                    checkUserForReportForm(currentLineUserId);
+                } else {
+                    // หน้าเช็กสิทธิ์/เข้าสู่ระบบเดิม
+                    checkExistingLineUser(currentLineUserId);
+                }
 
             } catch (error) {
                 console.error("LIFF Initialization failed", error);
@@ -874,7 +897,7 @@
                     line_user_id: lineId
                 },
                 success: function (response) {
-                    console.log('res',response)
+                    console.log('res', response)
                     if (response.status === 'found') {
                         console.log('response.organization_list', response)
                         // หากเคยลงทะเบียนและผูก Line ID ไว้แล้ว นำไปสเต็ปเลือกองค์กรเลย
@@ -885,10 +908,10 @@
                         } else {
                             pref_id = response.organization_list[0].pref_id;
                             orgId = response.organization_list[0].id;
-                            if(Object.keys(response.organization_list).length === 1){
-                                  window.location.href = "{{ url('/line/dashboard') }}/" + pref_id + "/" + orgId;
+                            if (Object.keys(response.organization_list).length === 1) {
+                                window.location.href = "{{ url('/line/dashboard') }}/" + pref_id + "/" + orgId;
 
-                            }else{
+                            } else {
                                 selectOrganization(userId, orgId, org_name)
                             }
 
@@ -987,16 +1010,16 @@
             organizations.forEach(function (org) {
                 // org.pref_id จะได้มาจากการ Join ตารางใน Controller
                 let buttonHtml = `
-                    <button type="button" 
-                        onclick="selectOrganization(${org.pref_id}, ${org.id}, '${org.org_name}')" 
-                        class="btn btn-info btn-block mb-3">
-                        <div>
-                            <i class="fa fa-circle-user"></i>
-                            <span class="fw-bold">${org.org_type}${org.org_name}</span>
-                        </div>
-                        <i class="fa-solid fa-circle-arrow-right"></i>
-                    </button>
-                `;
+                        <button type="button" 
+                            onclick="selectOrganization(${org.pref_id}, ${org.id}, '${org.org_name}')" 
+                            class="btn btn-info btn-block mb-3">
+                            <div>
+                                <i class="fa fa-circle-user"></i>
+                                <span class="fw-bold">${org.org_type}${org.org_name}</span>
+                            </div>
+                            <i class="fa-solid fa-circle-arrow-right"></i>
+                        </button>
+                    `;
                 container.append(buttonHtml);
             });
         }
@@ -1020,7 +1043,7 @@
                         userId: userId
                     }).done(function (data) {
                         // 🚀 พารีไดเร็กต์ไปยังหน้า Dashboard พร้อมส่งค่า pref_id และ org_id ผ่าน URL ตามที่คุณต้องการ
-                         window.location.href = "{{ url('/line/dashboard') }}/" + userId + "/" + orgId;
+                        window.location.href = "{{ url('/line/dashboard') }}/" + userId + "/" + orgId;
                     }).fail(function () {
                         Swal.fire('ผิดพลาด', 'ไม่สามารถบันทึกเซสชันได้', 'error');
                     });
@@ -1099,10 +1122,10 @@
                     _token: "{{ csrf_token() }}",
                     payload: payload,
                 });
-                console.log('res',response)
+                console.log('res', response)
 
                 if (response.res == 1) {
-                     window.location.href = `/line/dashboard/${response.user_id}/${org_id_text.value}`;
+                    window.location.href = `/line/dashboard/${response.user_id}/${org_id_text.value}`;
                 } else {
                     // กรณีอื่นๆ
                 }
@@ -1243,16 +1266,16 @@
                     let id = item.id;
 
                     html += `
-                                <a href="#" class="list-group-item list-group-item-action py-3 select-item-btn"
-                                   data-id="${id}" data-type="${currentModalType}">
-                                    <div class="d-flex w-100 justify-content-between align-items-center">
-                                        <div>
-                                            <div class="fw-bold text-dark">${name}</div>
-                                            ${desc ? `<small class="text-muted">${desc}</small>` : ''}
+                                    <a href="#" class="list-group-item list-group-item-action py-3 select-item-btn"
+                                       data-id="${id}" data-type="${currentModalType}">
+                                        <div class="d-flex w-100 justify-content-between align-items-center">
+                                            <div>
+                                                <div class="fw-bold text-dark">${name}</div>
+                                                ${desc ? `<small class="text-muted">${desc}</small>` : ''}
+                                            </div>
+                                            <i class="bi bi-chevron-right text-muted opacity-50"></i>
                                         </div>
-                                        <i class="bi bi-chevron-right text-muted opacity-50"></i>
-                                    </div>
-                                </a>`;
+                                    </a>`;
                 });
             }
             $('#modalListContainer').html(html);
@@ -1307,9 +1330,9 @@
             $('#tambon_id').val(orgData.org_tambon_id_fk);
 
             // 3. Set Display Location (สำหรับ อบต.)
-            $('#show_province').val('จ. '+orgData.provinces.province_name);
-            $('#show_district').val('อ. '+orgData.districts.district_name);
-            $('#show_tambon').val('ต. '+orgData.tambons.tambon_name);
+            $('#show_province').val('จ. ' + orgData.provinces.province_name);
+            $('#show_district').val('อ. ' + orgData.districts.district_name);
+            $('#show_tambon').val('ต. ' + orgData.tambons.tambon_name);
 
             // 4. Check Type (ม. หรือ อบต.)
             let isUni = (orgData.org_type.code === 'ม.');

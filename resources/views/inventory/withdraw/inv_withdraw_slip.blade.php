@@ -92,13 +92,13 @@
             <div class="col-4">
                 <div class="mb-5">ผู้เบิก (Requester)</div>
                 <div class="signature-box"></div>
-                <div class="mt-2">({{ $transaction->requester_name }})</div>
+                <div class="mt-2">({{ $transaction->user->prefix.''.$transaction->user->firstname." ".$transaction->user->lastname }})</div>
                 <div>วันที่ ............/............/............</div>
             </div>
             <div class="col-4">
                 <div class="mb-5">เจ้าหน้าที่พัสดุ (Stock Keeper)</div>
                 <div class="signature-box"></div>
-                <div class="mt-2">({{ Auth::user()->name }})</div>
+                <div class="mt-2">({{ $transaction->user->prefix.''.$transaction->user->firstname." ".$transaction->user->lastname }})</div>
                 <div>วันที่ ............/............/............</div>
             </div>
             <div class="col-4">
@@ -106,7 +106,7 @@
                 
                 @if($transaction->status == 'APPROVED')
                    <div class="text-success fw-bold py-2 border border-success rounded bg-light">
-                       E-SIGNED by {{ $transaction->approver_user->name ?? 'System' }}<br>
+                       E-SIGNED by {{ $transaction->approver_user->firstname ?? 'System' }}<br>
                        <small>{{ $transaction->approved_at }}</small>
                    </div>
                 @else
