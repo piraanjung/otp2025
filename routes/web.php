@@ -175,7 +175,7 @@ Route::post('/line/update_user_by_phone', [LineLiffController::class, 'update_us
 Route::post('/line/login', [LineLiffController::class, 'handleLineLogin']);
 
 
-Route::prefix('staffs')->name('keptkayas.staffs.')->group(function () {
+Route::middleware(['auth', 'role:Admin|Super Admin'])->prefix('staffs')->name('keptkayas.staffs.')->group(function () {
     Route::get('/', [StaffController::class, 'index'])->name('index');
     Route::get('/create', [StaffController::class, 'create'])->name('create');
     Route::post('/', [StaffController::class, 'store'])->name('store');
@@ -396,8 +396,11 @@ Route::prefix('superadmin')->name('superadmin.')->group(function () {
     Route::get('/login', [SuperAdminAuthController::class, 'showLoginForm'])->name('login');
     Route::post('/login', [SuperAdminAuthController::class, 'login'])->name('login.post');
     Route::post('/logout', [SuperAdminAuthController::class, 'logout'])->name('logout');
-    Route::resource('staff', StaffController::class);
     Route::resource('/machines', MachineController::class);
+
+    Route::middleware(['auth', 'role:Admin|Super Admin'])->group(function () {
+        Route::resource('staff', StaffController::class);
+    });
 });
 
 Route::middleware(['auth'])->group(function () {

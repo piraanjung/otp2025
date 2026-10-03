@@ -13,14 +13,6 @@
                 <div class="card-body">
                     <form action="{{ route('keptkayas.staffs.store') }}" method="POST">
                         @csrf
-                        @if(session('success'))
-                            <div class="alert alert-success alert-dismissible fade show mb-3" role="alert">
-                                <span class="alert-text text-white"><strong>สำเร็จ!</strong> {{ session('success') }}</span>
-                                <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close">
-                                    <span aria-hidden="true">&times;</span>
-                                </button>
-                            </div>
-                        @endif
                         @if($errors->any())
                             <div class="alert alert-danger alert-dismissible fade show mb-3" role="alert">
                                 <span class="alert-text text-white"><strong>เกิดข้อผิดพลาด!</strong> โปรดตรวจสอบข้อมูลอีกครั้ง</span>

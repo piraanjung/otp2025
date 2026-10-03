@@ -1,126 +1,61 @@
+@php
+    $statusMap = [
+        'active' => ['ใช้งาน', 'success'],
+        'inactive' => ['ไม่ใช้งาน', 'secondary'],
+        'suspended' => ['ระงับ', 'warning'],
+    ];
+    $maxPermissions = 3;
+@endphp
 @forelse($staffs as $staff)
+    @php
+        $fullName = trim(($staff->prefix ?? '') . ' ' . ($staff->firstname ?? '') . ' ' . ($staff->lastname ?? ''));
+        [$statusText, $statusColor] = $statusMap[$staff->status] ?? [ucfirst((string) $staff->status), 'warning'];
+    @endphp
     <tr>
         <td>
             <div class="d-flex px-2 py-1">
                 <div class="d-flex flex-column justify-content-center">
-                    <h6 class="mb-0 text-sm">{{ $staff->prefix ?? '' }} {{ $staff->firstname ?? 'N/A' }}
-                        {{ $staff->lastname ?? '' }}
-                    </h6>
-                    <p class="text-xs text-secondary mb-0">{{ $staff->username ?? 'N/A' }}</p>
+                    {{-- ผู้ใช้บางคนยังไม่มีชื่อ-นามสกุล ให้แสดง username แทนที่จะเป็น N/A --}}
+                    <h6 class="mb-0 text-sm">{{ $fullName !== '' ? $fullName : ($staff->username ?? '-') }}</h6>
+                    @if ($fullName !== '')
+                        <p class="text-xs text-secondary mb-0">{{ $staff->username }}</p>
+                    @endif
                 </div>
             </div>
         </td>
         <td>
-            {{ $staff->email ?? 'N/A' }}
+            <p class="text-sm mb-0">{{ $staff->email ?? '-' }}</p>
         </td>
         <td>
-            @foreach($staff->roles as $role)
-                <span class="badge badge-xs bg-gradient-info">{{ $role->name }}</span>
-            @endforeach
-            @if($staff->roles->isEmpty())
+            @forelse($staff->roles as $role)
+                <span class="badge badge-sm bg-gradient-info">{{ $role->name }}</span>
+            @empty
                 <span class="text-xs text-secondary">ไม่มีบทบาท</span>
-            @endif
+            @endforelse
         </td>
-
         <td>
-            @foreach($staff->permissions as $permission)
-                <span class="badge badge-xs border border-info text-info bg-transparent">
-                    {{ $permission->name }}
-                </span>
-            @endforeach
-            @if($staff->permissions->isEmpty())
-                <span class="text-xs text-muted">-</span>
+            @forelse($staff->permissions->take($maxPermissions) as $permission)
+                <span class="badge badge-sm border border-info text-info bg-transparent">{{ $permission->name }}</span>
+            @empty
+                <span class="text-xs text-secondary">-</span>
+            @endforelse
+            @if ($staff->permissions->count() > $maxPermissions)
+                <span class="badge badge-sm bg-gradient-secondary"
+                    title="{{ $staff->permissions->pluck('name')->implode(', ') }}">+{{ $staff->permissions->count() - $maxPermissions }}</span>
             @endif
         </td>
-
         <td class="align-middle text-center text-sm">
-            <span class="badge badge-sm bg-gradient-{{ $staff->status == 'active' ? 'success' : ($staff->status == 'inactive' ? 'secondary' : 'warning') }}">
-                {{ ucfirst($staff->status) }}
-            </span>
+            <span class="badge badge-sm bg-gradient-{{ $statusColor }}">{{ $statusText }}</span>
         </td>
-
         <td class="align-middle">
             <a href="{{ route('keptkayas.staffs.edit', $staff->id) }}"
-                class="btn btn-link text-secondary font-weight-bold text-xs px-0 mb-0 me-2">
+                class="text-secondary font-weight-bold text-xs me-3">
                 <i class="fas fa-edit me-1"></i> แก้ไข
             </a>
         </td>
     </tr>
 @empty
-    @endforelse
-
-{{-- @forelse($staffs as $staff)
-
     <tr>
-        <td>
-            <div class="d-flex px-2 py-1">
-                <div class="d-flex flex-column justify-content-center">
-                    <h6 class="mb-0 text-sm">{{ $staff->prefix ?? '' }} {{ $staff->firstname ?? 'N/A' }}
-                        {{ $staff->lastname ?? '' }}
-                    </h6>
-                    <p class="text-xs text-secondary mb-0">{{ $staff->username ?? 'N/A' }}</p>
-                </div>
-            </div>
-        </td>
-        <td>
-            <p class="text-xs font-weight-bold mb-0">{{ $staff->email ?? 'N/A' }}</p>
-        </td>
-        <td class="align-middle text-center text-sm">
-            <span
-                class="badge badge-sm bg-gradient-{{ $staff->status == 'active' ? 'success' : ($staff->status == 'inactive' ? 'secondary' : 'warning') }}">{{ ucfirst($staff->status) }}</span>
-        </td>
-        <td>
-            @forelse($staffs as $staff)
-                <tr>
-                    <td>
-                        @foreach($staff->roles as $role)
-                            <span class="badge badge-xs bg-gradient-info">{{ $role->name }}</span>
-                        @endforeach
-                        @if($staff->roles->isEmpty())
-                            <span class="text-xs text-secondary">ไม่มีบทบาท</span>
-                        @endif
-                    </td>
-
-                    <td>
-                        @foreach($staff->permissions as $permission)
-                            <span class="badge badge-xs border border-info text-info bg-transparent">
-                                {{ $permission->name }}
-                            </span>
-                        @endforeach
-                        @if($staff->permissions->isEmpty())
-                            <span class="text-xs text-muted">-</span>
-                        @endif
-                    </td>
-
-                    <td class="align-middle text-center text-sm">
-                        <span
-                            class="badge badge-sm bg-gradient-{{ $staff->status == 'active' ? 'success' : ($staff->status == 'inactive' ? 'secondary' : 'warning') }}">
-                            {{ ucfirst($staff->status) }}
-                        </span>
-                    </td>
-
-                    <td class="align-middle">
-                        <a href="{{ route('keptkayas.staffs.edit', $staff->id) }}"
-                            class="btn btn-link text-secondary font-weight-bold text-xs px-0 mb-0 me-2">
-                            <i class="fas fa-edit me-1"></i> แก้ไข
-                        </a>
-                    </td>
-                </tr>
-            @empty
-    @endforelse
-    </td>
-
-    <td class="align-middle">
-        <a href="{{ route('keptkayas.staffs.edit', $staff->id) }}"
-            class="btn btn-link text-secondary font-weight-bold text-xs px-0 mb-0 me-2">
-            <i class="fas fa-edit me-1"></i> แก้ไข
-        </a>
-
-    </td>
+        <td colspan="6" class="text-center text-secondary py-4">ไม่พบข้อมูลเจ้าหน้าที่</td>
     </tr>
-
-@empty
-    <tr>
-        <td colspan="5" class="text-center">ไม่มีข้อมูลเจ้าหน้าที่ในระบบ</td>
-    </tr>
-@endforelse --}}
+@endforelse
