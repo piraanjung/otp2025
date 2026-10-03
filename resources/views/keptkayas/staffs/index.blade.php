@@ -20,7 +20,7 @@
 
                 <div class="card-body px-0 pt-0 pb-2">
                     {{-- ฟอร์มกรองเป็น GET จริง: กด Enter / เปลี่ยนตัวเลือกแล้วค้นหาได้ และ pagination คงค่าที่กรองไว้ --}}
-                    <form id="filterForm" action="{{ route('keptkayas.staffs.index') }}" method="GET"
+                    <form id="filterForm" action="{{ url()->current() }}" method="GET"
                         class="row g-2 align-items-end px-4 py-3">
                         <div class="col-12 col-md-5">
                             <label for="search_name" class="form-label text-xs mb-1">ค้นหา</label>
@@ -49,7 +49,7 @@
                             <button type="submit" class="btn btn-primary btn-sm mb-0 flex-fill">
                                 <i class="fas fa-search me-1"></i> ค้นหา
                             </button>
-                            <a href="{{ route('keptkayas.staffs.index') }}" class="btn btn-outline-secondary btn-sm mb-0"
+                            <a href="{{ url()->current() }}" class="btn btn-outline-secondary btn-sm mb-0"
                                 title="ล้างตัวกรอง"><i class="fas fa-undo"></i></a>
                         </div>
                     </form>
