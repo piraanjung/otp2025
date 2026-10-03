@@ -33,7 +33,7 @@ class StaffController extends Controller
         $searchCanAccessAnnualCollection = $request->input('search_can_access_annual_collection');
         $isAjax = $request->input('ajax');
 
-        $query = User::role($staffRoles)->with(['roles', 'permissions', 'staff.user'])
+        $query = User::role($staffRoles)->with(['roles', 'permissions', 'staffs.user'])
             ->where('org_id_fk', Auth::user()->org_id_fk);
 
         // Apply filters
@@ -81,7 +81,7 @@ class StaffController extends Controller
     {
         // ดึงผู้ใช้งานที่ไม่มี role ที่เกี่ยวข้องกับ staff/super_admin
         $usersToAssign = User::where('org_id_fk', Auth::user()->org_id_fk) // เงื่อนไขบังคับ: ต้องอยู่ Org เดียวกัน
-            ->whereDoesntHave('staff') // เงื่อนไข: ต้องยังไม่ถูกบันทึกอยู่ในตาราง staff (ใช้ความสัมพันธ์ 'staff')
+            ->whereDoesntHave('staffs') // เงื่อนไข: ต้องยังไม่ถูกบันทึกอยู่ในตาราง staff (ใช้ความสัมพันธ์ 'staffs')
             ->where(function ($query) {
                 // เงื่อนไขกลุ่ม Role: ไม่มี Role เลย หรือ มีเฉพาะ Role 'User'
                 $query->doesntHave('roles')
