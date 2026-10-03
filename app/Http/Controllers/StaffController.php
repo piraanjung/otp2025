@@ -22,6 +22,9 @@ class StaffController extends Controller
         'Annual Fee Staff', 'Food Waste Staff', 'Staff',
     ];
 
+    /** ค่าที่ enum ของ staffs.status รองรับ (ไม่มี suspended) */
+    protected const STAFF_STATUSES = ['active', 'inactive'];
+
     function __construct()
     {
         $this->staffRolesArray = ['Tabwater Staff', 'Tabwater Header', 'Admin', 'Recycle Bank Staff', 
@@ -36,6 +39,40 @@ class StaffController extends Controller
             $me->hasRole('Super Admin') || $staff->org_id_fk === $me->org_id_fk,
             403
         );
+    }
+
+    /**
+     * แถว staffs ของผู้ใช้ใน org ของผู้ใช้เอง
+     * ไม่ใช้ global scope ของ BelongsToOrganization เพราะ Super Admin อาจแก้ผู้ใช้ต่าง org
+     */
+    private function staffRecord(User $user): ?Staff
+    {
+        return Staff::withoutGlobalScopes()
+            ->where('user_id', $user->id)
+            ->where('org_id_fk', $user->org_id_fk)
+            ->first();
+    }
+
+    /** บันทึก "สถานะเจ้าหน้าที่" ลง staffs.status (สร้างแถวให้ถ้ายังไม่มี) */
+    private function saveStaffStatus(User $user, string $status): void
+    {
+        $record = $this->staffRecord($user);
+        if ($record) {
+            $record->update(['status' => $status]);
+            return;
+        }
+
+        $attributes = [
+            'user_id' => $user->id,
+            'org_id_fk' => $user->org_id_fk,
+            'status' => $status,
+            'deleted' => '0',
+        ];
+        // โค้ดเดิมใช้ staffs.id = users.id ให้คงไว้ถ้า id นั้นยังว่าง
+        if (!Staff::withoutGlobalScopes()->whereKey($user->id)->exists()) {
+            $attributes['id'] = $user->id;
+        }
+        Staff::withoutGlobalScopes()->create($attributes);
     }
 
     /** ชื่อ role จริงใน DB ที่จัดการได้ (เทียบแบบไม่สนตัวพิมพ์เล็ก/ใหญ่ ตาม collation ของ MySQL) */
@@ -73,7 +110,7 @@ class StaffController extends Controller
         }
 
         if ($searchStatus && $searchStatus !== 'any') {
-            $query->where('status', $searchStatus);
+            $query->whereHas('staffs', fn ($q) => $q->where('status', $searchStatus));
         }
 
         // Filter by permissions (This part is complex and assumes a specific permission structure)
@@ -141,7 +178,7 @@ class StaffController extends Controller
                 'roles.*' => [Rule::in($roleNames)],
                 'permissions' => ['nullable', 'array'],
                 'permissions.*' => ['exists:permissions,name'],
-                'status' => ['nullable', Rule::in(['active', 'inactive', 'suspended'])],
+                'status' => ['nullable', Rule::in(self::STAFF_STATUSES)],
             ],
             [
                 'roles.required' => 'กรุณาเลือกบทบาทอย่างน้อย 1 รายการ',
@@ -156,10 +193,7 @@ class StaffController extends Controller
             $user->givePermissionTo($request->get('permissions'));
         }
 
-        Staff::firstOrCreate(
-            ['user_id' => $user->id],
-            ['id' => $user->id, 'status' => $request->input('status', 'active'), 'deleted' => '0']
-        );
+        $this->saveStaffStatus($user, $request->input('status', 'active'));
 
         return redirect()->route('keptkayas.staffs.index')->with('success', 'เพิ่มเจ้าหน้าที่ใหม่เรียบร้อยแล้ว');
     }
@@ -186,7 +220,8 @@ class StaffController extends Controller
         $allPermissions = Permission::all();
 
         $staff->load('roles', 'permissions');
-        return view('keptkayas.staffs.edit', compact('staff', 'allRoles', 'allPermissions'));
+        $staffStatus = $this->staffRecord($staff)?->status ?? 'active';
+        return view('keptkayas.staffs.edit', compact('staff', 'allRoles', 'allPermissions', 'staffStatus'));
     }
 
     /**
@@ -203,7 +238,7 @@ class StaffController extends Controller
             'roles.*' => [Rule::in($manageable->all())],
             'permissions' => ['nullable', 'array'],
             'permissions.*' => ['exists:permissions,name'],
-            'status' => ['required', Rule::in(['active', 'inactive', 'suspended'])],
+            'status' => ['required', Rule::in(self::STAFF_STATUSES)],
         ]);
 
         // เปลี่ยนเฉพาะ role ที่อยู่ในรายการที่จัดการได้ ส่วน role อื่น (User, Tabwater User ฯลฯ) คงไว้
@@ -211,6 +246,8 @@ class StaffController extends Controller
         $staff->syncRoles($kept->merge($request->input('roles', []))->all());
 
         $staff->syncPermissions($request->input('permissions', []));
+
+        $this->saveStaffStatus($staff, $request->input('status'));
 
         return redirect()->route('keptkayas.staffs.index')->with('success', 'อัปเดตข้อมูลเจ้าหน้าที่เรียบร้อยแล้ว');
     }
