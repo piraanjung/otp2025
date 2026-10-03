@@ -54,6 +54,16 @@ jobs:
         with:
           ssh-private-key: ${{ secrets.PIOS_SSH_PRIVATE_KEY }}
 
+      - name: Show deploy target
+        run: |
+          echo "==================== DEPLOY TARGET ===================="
+          echo "User@Host : ${{ secrets.PIOS_SSH_USER }}@${{ secrets.PIOS_SSH_HOST }}"
+          echo "Port      : ${{ secrets.PIOS_SSH_PORT }}"
+          # DEPLOY_PATH เป็น secret → แทรกช่องว่างหลัง '/' เพื่อให้อ่านได้ (ไม่โดน GitHub mask เป็น ***)
+          echo -n "Path      : "
+          echo "${{ secrets.PIOS_DEPLOY_PATH }}" | sed 's#/#/ #g'
+          echo "======================================================="
+
       - name: Deploy with rsync
         run: |
           rsync -avz --delete \
@@ -67,6 +77,15 @@ jobs:
             --exclude='repomix-output.xml' \
             --exclude='.DS_Store' \
             ./ "${{ secrets.PIOS_SSH_USER }}@${{ secrets.PIOS_SSH_HOST }}:${{ secrets.PIOS_DEPLOY_PATH }}"
+
+      - name: Verify upload location on server
+        run: |
+          ssh -p "${{ secrets.PIOS_SSH_PORT }}" -o StrictHostKeyChecking=accept-new "${{ secrets.PIOS_SSH_USER }}@${{ secrets.PIOS_SSH_HOST }}" \
+            "cd '${{ secrets.PIOS_DEPLOY_PATH }}' && \
+             echo '==== อัปโหลดไปที่ (absolute path) ====' && \
+             pwd | sed 's#/#/ #g' && \
+             echo '==== ไฟล์ล่าสุดในโฟลเดอร์ปลายทาง ====' && \
+             ls -lat | head -20"
 
       # ---------- Post-deploy: each stage is its own step so the
       #            GitHub Actions log shows exactly which one fails ----------
