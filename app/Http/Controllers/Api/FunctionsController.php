@@ -4,7 +4,6 @@ namespace App\Http\Controllers\Api;
 
 use App\Http\Controllers\Controller;
 use App\Models\Admin\District;
-use App\Models\Admin\ManagesTenantConnection;
 use App\Models\Admin\Organization;
 use App\Models\Tabwater\TwInvoice;
 use Illuminate\Http\Request;
@@ -67,7 +66,6 @@ class FunctionsController extends Controller
 
   public static function createInvoiceNumberString($id)
   {
-    ManagesTenantConnection::configConnection('envsogo_super_admin');
     $meternumber_code = Organization::where('id', Auth::user()->org_id_fk)->get('org_code')->first();
 
     $invString = '';
@@ -87,7 +85,6 @@ class FunctionsController extends Controller
 
   public static function createMeterNumberString($id)
   {
-    ManagesTenantConnection::configConnection('envsogo_super_admin');
     $meternumber_code = Organization::where('id', Auth::user()->org_id_fk)->get('org_code')->first();
 
     $invString = '';

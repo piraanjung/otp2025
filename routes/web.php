@@ -99,7 +99,7 @@ Route::get('/login_staff', function () {
 
 Route::get('acc', function () {
     Auth::logout();
-    return view('staff_accessmenu');
+    return view('staff.includes.staff_accessmenu');
     // return view('staff.mobile');
 });
         Route::get('/inventory/items/iframe', [InvItemController::class, 'iframeIndex'])->name('inventory.items.iframe');
@@ -328,11 +328,11 @@ Route::middleware(['auth', 'role:Admin|Super Admin'])->name('admin.')->prefix('a
     });
 
 
-    Route::get('undertaker_subzone', [UndertakerSubzoneController::class, 'index'])->name('undertaker_subzone');
-    // Route::get('undertaker_subzone/create', 'UndertakerSubzoneController@create');
-    // Route::post('undertaker_subzone/store', 'UndertakerSubzoneController@store');
+    Route::get('/undertaker_subzone', [UndertakerSubzoneController::class, 'index'])->name('undertaker_subzone');
+    Route::get('/undertaker_subzone/create',  [UndertakerSubzoneController::class, 'create'])->name('undertaker_subzone.create');
+    Route::post('undertaker_subzone/store', [UndertakerSubzoneController::class, 'store'])->name('undertaker_subzone.store');
     // Route::get('undertaker_subzone/update/{id}', 'UndertakerSubzoneController@update');
-    // Route::get('undertaker_subzone/edit/{id}', [UndertakerSubzoneController::class, 'edit']);
+    Route::get('/undertaker_subzone/edit/{id}', [UndertakerSubzoneController::class, 'edit']);
     // Route::get('undertaker_subzone/delete/{id}', 'UndertakerSubzoneController@delete');
 });
 

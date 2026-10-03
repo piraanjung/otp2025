@@ -37,7 +37,7 @@ active
   <div class="card card-outline card-info">
     <div class="card-header">
       <div class="card-tools">
-        <a href="{{url('undertaker_subzone/create')}}" class="btn btn-primary">เพิ่มเจ้าหน้าที่รับผิดชอบเส้นทาง</a>
+        <a href="{{url('/admin/undertaker_subzone/create')}}" class="btn btn-primary">เพิ่มเจ้าหน้าที่รับผิดชอบเส้นทาง</a>
       </div>
     </div>
     <div class="card-body">

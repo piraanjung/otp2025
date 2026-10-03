@@ -306,7 +306,7 @@
                         </ul>
                     </div>
                 </li>
-                @role('Super Admin')
+                {{-- @role('Super Admin') --}}
                 <li class="nav-item">
                     <a class="nav-link collapsed @yield('header_nav_undertaker-subzone')" data-bs-toggle="collapse"
                         aria-expanded="false" href="#zone">
@@ -352,7 +352,7 @@
                     </a>
                 </li>
 
-                @endrole
+                {{-- @endrole --}}
             </ul>
         </div>
     </li>
