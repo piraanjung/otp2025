@@ -8,7 +8,7 @@ use App\Exports\DailyReportExport;
 use App\Exports\meterRecordHistoryExport;
 use App\Http\Controllers\Api\FunctionsController;
 use App\Models\Tabwater\TwInvoice;
-use App\Models\Tabwater\TwInvoicePeriod;
+use App\Models\Tabwater\InvoicePeriod;
 use App\Models\Tabwater\TwMeterInfos;
 use App\Models\Tabwater\TwCutmeter;
 use App\Models\Admin\Subzone;
@@ -81,10 +81,10 @@ class ReportsController extends Controller
         $activeBudgetYear = $budgetyears->where('status', 'active')->first();
         $budgetyears_selected = $activeBudgetYear ? [$activeBudgetYear->id] : [];
 
-        $inv_periods = TwInvoicePeriod::whereIn('budgetyear_id', $budgetyears_selected)->get(['id', 'inv_p_name']);
+        $inv_periods = InvoicePeriod::whereIn('budgetyear_id', $budgetyears_selected)->get(['id', 'inv_p_name']);
 
         $owe_inv_periods = $invoice_owe_status->groupBy('inv_period_id_fk')->map(function ($group, $key) {
-            return TwInvoicePeriod::select('id', 'inv_p_name')->find($key);
+            return InvoicePeriod::select('id', 'inv_p_name')->find($key);
         })->sortByDesc('id');
 
         return view("reports.owe", array_merge($defaultData, compact(
@@ -154,17 +154,17 @@ class ReportsController extends Controller
         $subzones    = Subzone::where('status', 'active')->get(['id', 'subzone_name']);
         $budgetyears = BudgetYear::get(['id', 'budgetyear_name', 'status']);
 
-        $periodQuery = TwInvoicePeriod::query();
+        $periodQuery = InvoicePeriod::query();
         if (!empty($budget_ids)) {
             $periodQuery->whereIn('budgetyear_id', $budget_ids);
         }
         $inv_periods = $periodQuery->get(['id', 'inv_p_name']);
 
-        $selected_inv_periods = TwInvoicePeriod::whereIn('id', $inv_p_ids)->get();
+        $selected_inv_periods = InvoicePeriod::whereIn('id', $inv_p_ids)->get();
         if ($selected_inv_periods->isEmpty()) $selected_inv_periods = ['all'];
 
         $owe_inv_periods = $rawInvoices->groupBy('inv_period_id_fk')
-            ->map(fn($g, $k) => TwInvoicePeriod::select('id', 'inv_p_name')->find($k))
+            ->map(fn($g, $k) => InvoicePeriod::select('id', 'inv_p_name')->find($k))
             ->sortByDesc('id');
 
         // Excel Export
@@ -246,7 +246,7 @@ class ReportsController extends Controller
 
         // Defaults
         if (!$request->has('nav') || $request->get('nav') == 'nav') {
-            $activePeriod = TwInvoicePeriod::where('status', 'active')->first(['id', 'budgetyear_id']);
+            $activePeriod = InvoicePeriod::where('status', 'active')->first(['id', 'budgetyear_id']);
             $request->merge([
                 'zone_id' => 'all',
                 'subzone_id' => 'all',
@@ -276,7 +276,7 @@ class ReportsController extends Controller
         $zones       = Zone::all();
         $subzones    = ($request->zone_id != 'all') ? Subzone::all() : 'all';
         $budgetyears = BudgetYear::all();
-        $inv_periods = TwInvoicePeriod::where('budgetyear_id', $request->budgetyear_id)->orderByDesc('id')->get(['id', 'inv_p_name']);
+        $inv_periods = InvoicePeriod::where('budgetyear_id', $request->budgetyear_id)->orderByDesc('id')->get(['id', 'inv_p_name']);
 
         // [Security] ดึงเฉพาะ User ใน Org เดียวกัน
         $receiptions = User::where('org_id_fk', $orgId)
@@ -298,7 +298,7 @@ class ReportsController extends Controller
 
         $request_selected = [
             'budgeryear' => BudgetYear::where('id', $request->budgetyear_id)->pluck('budgetyear_name'),
-            'inv_period' => $request->inv_period_id == 'all' ? ['ทั้งหมด'] : TwInvoicePeriod::where('id', $request->inv_period_id)->pluck('inv_p_name'),
+            'inv_period' => $request->inv_period_id == 'all' ? ['ทั้งหมด'] : InvoicePeriod::where('id', $request->inv_period_id)->pluck('inv_p_name'),
             'zone'       => $request->zone_id == 'all' ? ['ทั้งหมด'] : Zone::where('id', $request->zone_id)->pluck('zone_name'),
             'subzone'    => $request->subzone_id == 'all' ? ['ทั้งหมด'] : Subzone::where('id', $request->subzone_id)->pluck('subzone_name'),
             'cashier'    => [['id' => $request->cashier_id, 'firstname' => $cashierName, 'lastname' => '']]
@@ -424,7 +424,7 @@ class ReportsController extends Controller
         // Master Data
         $zones = Zone::all();
         $budgetyears = BudgetYear::select('id', 'budgetyear_name', 'status')->get();
-        $inv_periods = TwInvoicePeriod::whereIn('budgetyear_id', $budget_ids)
+        $inv_periods = InvoicePeriod::whereIn('budgetyear_id', $budget_ids)
             ->orderBy('id', 'asc')
             ->get();
 
@@ -632,7 +632,7 @@ class ReportsController extends Controller
         $values = [];
         $tables = [];
 
-        $allPeriodNames = TwInvoicePeriod::where('budgetyear_id', $budgetYearId)->pluck('inv_p_name');
+        $allPeriodNames = InvoicePeriod::where('budgetyear_id', $budgetYearId)->pluck('inv_p_name');
 
         foreach ($grouped as $zoneId => $zoneData) {
             $first = $zoneData->first();
@@ -674,134 +674,134 @@ class ReportsController extends Controller
         return $text;
     }
 
-   public function ledger(Request $request)
-{
-    // 1. ดึงรายการปีงบประมาณทั้งหมด
-    $budgetyear_list = BudgetYear::all();
+    public function ledger(Request $request)
+    {
+        // 1. ดึงรายการปีงบประมาณทั้งหมด
+        $budgetyear_list = BudgetYear::all();
 
-    // ดึง Master Data สำหรับ Dropdown ผู้ใช้น้ำ โดยดึงจาก TwMeterInfos และดึงความสัมพันธ์ user มาด้วย
-    $users_list = TwMeterInfos::with('user')
-        ->select('id', 'user_id', 'meter_id') // ดึง id ของ TwMeterInfos และ user_id
-        ->orderBy('id')
-        ->get();
-        
-    $zone_list = Zone::all();
-    
-    // หากมีการเลือก zone_id ให้ดึง subzone เฉพาะ zone นั้น ถ้าไม่เลือกดึงทั้งหมด
-    $selected_zone_id = $request->input('zone_id');
-    if ($selected_zone_id && $selected_zone_id !== 'all') {
-        $subzone_list = Subzone::where('zone_id', $selected_zone_id)->get();
-    } else {
-        $subzone_list = Subzone::all();
-    }
+        // ดึง Master Data สำหรับ Dropdown ผู้ใช้น้ำ โดยดึงจาก TwMeterInfos และดึงความสัมพันธ์ user มาด้วย
+        $users_list = TwMeterInfos::with('user')
+            ->select('id', 'user_id', 'meter_id') // ดึง id ของ TwMeterInfos และ user_id
+            ->orderBy('id')
+            ->get();
 
-    // 2. ตรวจสอบปีงบประมาณที่เลือก (ถ้าไม่ได้เลือก ให้ใช้ปีงบประมาณที่ status = 'active')
-    $selected_year_id = $request->input('budgetyear_id');
+        $zone_list = Zone::all();
 
-    if ($selected_year_id && $selected_year_id !== 'all') {
-        $budgetyear_selected = BudgetYear::with('invoice_period')->where('id', $selected_year_id)->get();
-    } else {
-        $budgetyear_selected = BudgetYear::with('invoice_period')->where('status', 'active')->get();
-
-        if ($budgetyear_selected->isEmpty()) {
-            $budgetyear_selected = BudgetYear::with('invoice_period')->latest()->take(1)->get();
-        }
-    }
-
-    // 3. ตรวจสอบรอบบิล (Invoice Period)
-    $selected_period_id = $request->input('inv_period_id');
-
-    if ($selected_period_id && $selected_period_id !== 'all') {
-        // กรณีเลือกเฉพาะรอบบิลใดรอบบิลหนึ่ง
-        $current_inv_period = TwInvoicePeriod::where('id', $selected_period_id)->get();
-    } else {
-        // กรณีเลือก "ทั้งหมด" (all) หรือเข้ามาครั้งแรก (ยังไม่มี request)
-        $activeYear = $budgetyear_selected->firstWhere('status', 'active');
-
-        if (!$activeYear) {
-            $activeYear = $budgetyear_selected->first();
+        // หากมีการเลือก zone_id ให้ดึง subzone เฉพาะ zone นั้น ถ้าไม่เลือกดึงทั้งหมด
+        $selected_zone_id = $request->input('zone_id');
+        if ($selected_zone_id && $selected_zone_id !== 'all') {
+            $subzone_list = Subzone::where('zone_id', $selected_zone_id)->get();
+        } else {
+            $subzone_list = Subzone::all();
         }
 
-        // ดึงรอบบิลทั้งหมดของปีงบประมาณ active มาแสดง
-        $current_inv_period = ($activeYear && $activeYear->invoice_period) 
-            ? $activeYear->invoice_period 
-            : collect([]);
-    }
+        // 2. ตรวจสอบปีงบประมาณที่เลือก (ถ้าไม่ได้เลือก ให้ใช้ปีงบประมาณที่ status = 'active')
+        $selected_year_id = $request->input('budgetyear_id');
 
-    // 4. ดึงข้อมูล Ledgers จาก TwMeterInfos (ตารางหลัก)
-    $status = $request->input('status', 'all');
-    $meter_info_id = $request->input('user_id'); // ค่า user_id ที่ส่งมาจาก View คือ id ของ TwMeterInfos
-    $zone_id = $request->input('zone_id');
-    $subzone_id = $request->input('subzone_id');
+        if ($selected_year_id && $selected_year_id !== 'all') {
+            $budgetyear_selected = BudgetYear::with('invoice_period')->where('id', $selected_year_id)->get();
+        } else {
+            $budgetyear_selected = BudgetYear::with('invoice_period')->where('status', 'active')->get();
 
-    $query = TwMeterInfos::with([
-        'user',
-        'tw_invoices' => function ($q) use ($current_inv_period, $selected_period_id) {
-            if ($selected_period_id && $selected_period_id !== 'all' && $current_inv_period->isNotEmpty()) {
-                $q->where('inv_period_id_fk', $current_inv_period->first()->id);
-            } 
-            if ($current_inv_period->isNotEmpty()) {
-                $q->whereIn('inv_period_id_fk', $current_inv_period->pluck('id'));
+            if ($budgetyear_selected->isEmpty()) {
+                $budgetyear_selected = BudgetYear::with('invoice_period')->latest()->take(1)->get();
             }
-            $q->with('tw_acc_transactions');
         }
-    ]);
 
-    // --- กรองข้อมูลตาม id ของ TwMeterInfos ---
+        // 3. ตรวจสอบรอบบิล (Invoice Period)
+        $selected_period_id = $request->input('inv_period_id');
 
-    if ($meter_info_id && $meter_info_id !== 'all') {
-        $query->where('id', $meter_info_id);
-    }
+        if ($selected_period_id && $selected_period_id !== 'all') {
+            // กรณีเลือกเฉพาะรอบบิลใดรอบบิลหนึ่ง
+            $current_inv_period = InvoicePeriod::where('id', $selected_period_id)->get();
+        } else {
+            // กรณีเลือก "ทั้งหมด" (all) หรือเข้ามาครั้งแรก (ยังไม่มี request)
+            $activeYear = $budgetyear_selected->firstWhere('status', 'active');
 
-
-    // --- กรองข้อมูลตาม โซน (Zone) ---
-    if ($zone_id && $zone_id !== 'all') {
-        $query->where('undertake_zone_id', $zone_id);
-    }
-
-    // --- กรองข้อมูลตาม สายการจ่ายน้ำ (Subzone) ---
-    if ($subzone_id && $subzone_id !== 'all') {
-        $query->where('undertake_subzone_id', $subzone_id);
-    }
-
-    // --- กรองตามสถานะการชำระเงิน ---
-    if ($status !== 'all') {
-        $query->whereHas('tw_invoices', function ($q) use ($status, $current_inv_period, $selected_period_id) {
-            $q->where('status', $status);
-            if ($selected_period_id && $selected_period_id !== 'all' && $current_inv_period->isNotEmpty()) {
-                $q->where('inv_period_id_fk', $current_inv_period->first()->id);
-            } else if ($current_inv_period->isNotEmpty()) {
-                $q->whereIn('inv_period_id_fk', $current_inv_period->pluck('id'));
+            if (!$activeYear) {
+                $activeYear = $budgetyear_selected->first();
             }
+
+            // ดึงรอบบิลทั้งหมดของปีงบประมาณ active มาแสดง
+            $current_inv_period = ($activeYear && $activeYear->invoice_period)
+                ? $activeYear->invoice_period
+                : collect([]);
+        }
+
+        // 4. ดึงข้อมูล Ledgers จาก TwMeterInfos (ตารางหลัก)
+        $status = $request->input('status', 'all');
+        $meter_info_id = $request->input('user_id'); // ค่า user_id ที่ส่งมาจาก View คือ id ของ TwMeterInfos
+        $zone_id = $request->input('zone_id');
+        $subzone_id = $request->input('subzone_id');
+
+        $query = TwMeterInfos::with([
+            'user',
+            'tw_invoices' => function ($q) use ($current_inv_period, $selected_period_id) {
+                if ($selected_period_id && $selected_period_id !== 'all' && $current_inv_period->isNotEmpty()) {
+                    $q->where('inv_period_id_fk', $current_inv_period->first()->id);
+                }
+                if ($current_inv_period->isNotEmpty()) {
+                    $q->whereIn('inv_period_id_fk', $current_inv_period->pluck('id'));
+                }
+                $q->with('tw_acc_transactions');
+            }
+        ]);
+
+        // --- กรองข้อมูลตาม id ของ TwMeterInfos ---
+
+        if ($meter_info_id && $meter_info_id !== 'all') {
+            $query->where('id', $meter_info_id);
+        }
+
+
+        // --- กรองข้อมูลตาม โซน (Zone) ---
+        if ($zone_id && $zone_id !== 'all') {
+            $query->where('undertake_zone_id', $zone_id);
+        }
+
+        // --- กรองข้อมูลตาม สายการจ่ายน้ำ (Subzone) ---
+        if ($subzone_id && $subzone_id !== 'all') {
+            $query->where('undertake_subzone_id', $subzone_id);
+        }
+
+        // --- กรองตามสถานะการชำระเงิน ---
+        if ($status !== 'all') {
+            $query->whereHas('tw_invoices', function ($q) use ($status, $current_inv_period, $selected_period_id) {
+                $q->where('status', $status);
+                if ($selected_period_id && $selected_period_id !== 'all' && $current_inv_period->isNotEmpty()) {
+                    $q->where('inv_period_id_fk', $current_inv_period->first()->id);
+                } else if ($current_inv_period->isNotEmpty()) {
+                    $q->whereIn('inv_period_id_fk', $current_inv_period->pluck('id'));
+                }
+            });
+        }
+
+        $raw_ledgers = $query->get();
+
+        // Map Alias Properties ให้ตรงกับ Blade ($infos->invoice และ $infos->invoice_by_user_id)
+        $ledgers = $raw_ledgers->map(function ($meter) {
+            $invoices = $meter->tw_invoices->map(function ($inv) {
+                $inv->acc_transactions = $inv->tw_acc_transactions;
+                return $inv;
+            });
+            $meter->invoice = $invoices;
+
+            $meter->invoice_by_user_id = $invoices->map(function ($inv) {
+                return (object)['totalpaid' => $inv->previous_balance];
+            });
+
+            return $meter;
         });
+
+        // 5. ส่งค่าไปยัง View ledger.blade.php
+        return view('reports.ledger', compact(
+            'budgetyear_list',
+            'budgetyear_selected',
+            'current_inv_period',
+            'ledgers',
+            'users_list',
+            'zone_list',
+            'subzone_list'
+        ));
     }
-
-    $raw_ledgers = $query->get();
-
-    // Map Alias Properties ให้ตรงกับ Blade ($infos->invoice และ $infos->invoice_by_user_id)
-    $ledgers = $raw_ledgers->map(function ($meter) {
-        $invoices = $meter->tw_invoices->map(function ($inv) {
-            $inv->acc_transactions = $inv->tw_acc_transactions;
-            return $inv;
-        });
-        $meter->invoice = $invoices;
-
-        $meter->invoice_by_user_id = $invoices->map(function ($inv) {
-            return (object)['totalpaid' => $inv->previous_balance];
-        });
-
-        return $meter;
-    });
-
-    // 5. ส่งค่าไปยัง View ledger.blade.php
-    return view('reports.ledger', compact(
-        'budgetyear_list',
-        'budgetyear_selected',
-        'current_inv_period',
-        'ledgers',
-        'users_list',
-        'zone_list',
-        'subzone_list'
-    ));
-}
 }

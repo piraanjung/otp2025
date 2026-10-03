@@ -1,7 +1,11 @@
 // =========================================================================
 //  โมดูลระบบนำทาง และ ค้นหาสมาชิก (Recycle Module)
 // =========================================================================
-function navigateTo(moduleName) {
+let prevScreen = "";
+async function navigateTo(moduleName) {
+    prevScreen = moduleName;
+    moduleName = 'main';//await checkCurrentScreen(moduleName);
+    console.log('moduleName',moduleName)
     if (moduleName === 'recycle') {
         document.getElementById('mainScreen').classList.add('is-hidden');
         document.getElementById('recycleScreen').classList.remove('is-hidden');
@@ -17,20 +21,24 @@ function navigateTo(moduleName) {
         checkBluetoothStatus();
     }
     else if (moduleName === 'inventory') {
-        document.getElementById('mainScreen').classList.add('is-hidden');
+        $('#mainScreen').addClass('is-hidden');
         document.getElementById('depositScreen').classList.add('is-hidden');
         document.getElementById('settingsScreen').classList.add('is-hidden');
         document.getElementById('inventoryScreen').classList.remove('is-hidden');
-
+        manageInventoryIframe('open')
+        return
     }
     else if (moduleName === 'water') {
         document.getElementById('mainScreen').classList.add('is-hidden');
-        document.getElementById('waterScreen').classList.remove('is-hidden');
+        document.getElementById('waterRecordScreen').classList.add('is-hidden');
+        document.getElementById('tabwaterScreen').classList.remove('is-hidden');
+        
 
     }
     // --- เพิ่มเงื่อนไขสำหรับจดมิเตอร์ประปาตรงนี้ ---
     else if (moduleName === 'water-tabwater-record') {
-        document.getElementById('waterScreen').classList.add('is-hidden');
+
+        document.getElementById('tabwaterScreen').classList.add('is-hidden');
         document.getElementById('waterRecordScreen').classList.remove('is-hidden');
 
         // หากมีฟังก์ชันโหลดข้อมูลมิเตอร์เดิม ให้เรียกตรงนี้ เช่น loadWaterMeters();
@@ -75,13 +83,49 @@ function navigateTo(moduleName) {
     }
     else if (moduleName === 'main') {
         document.getElementById('mainScreen').classList.remove('is-hidden');
-        document.getElementById('waterScreen').classList.add('is-hidden');
+        document.getElementById('assistiveBtn').classList.remove('is-hidden');
+
+        document.getElementById('tabwaterScreen').classList.add('is-hidden');
         document.getElementById('settingsScreen').classList.add('is-hidden');
         document.getElementById('recycleScreen').classList.add('is-hidden');
-
         checkBluetoothStatus();
     }
-
+     else if (moduleName === 'login') {
+        document.getElementById('mainScreen').classList.add('is-hidden');
+        document.getElementById('tabwaterScreen').classList.add('is-hidden');
+        document.getElementById('settingsScreen').classList.add('is-hidden');
+        document.getElementById('recycleScreen').classList.add('is-hidden');
+        checkBluetoothStatus();
+    }
+    manageInventoryIframe('close')
 
     updateGlobalPrinterStatus();
+}
+$('#staffDashboardModal', '#secondModal').on('hidden.bs.modal', function (e) {
+    // โค้ดที่จะทำงานหลังจาก Modal ปิดเรียบร้อยแล้ว
+    navigateTo('water');
+});
+
+function manageInventoryIframe(status){
+    const $iframe = $('#inventoryIframe');
+    let url = '';
+    if(status === 'open'){
+        url = '/inventory/items/iframe'
+    }
+    
+    $iframe.attr('src', url);
+}
+
+function checkCurrentScreen(moduleName){
+    let currentScreen = sessionStorage.getItem('current_screen')
+    if(currentScreen === moduleName || !moduleName){
+
+    }else{
+    console.log('moduleName else')
+
+        sessionStorage.removeItem('current_screen')
+        sessionStorage.setItem('current_screen', moduleName)
+        currentScreen = moduleName;
+    }
+    return  currentScreen;
 }

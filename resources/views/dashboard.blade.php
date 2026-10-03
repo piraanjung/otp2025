@@ -77,7 +77,7 @@
         </div>
 
         {{-- ========================================================= --}}
-        {{-- ส่วนที่ 2: กราฟแถวบน (ใช้น้ำ & สมาชิก) --}}
+        {{-- ส่วนที่ 2: กราฟแถวบน (ปริมาณการใช้น้ำ & สมาชิกแยกตามซับโซน) --}}
         {{-- ========================================================= --}}
         <div class="row mt-4">
             <div class="col-lg-6 col-12 mb-4">
@@ -108,7 +108,7 @@
         </div>
 
         {{-- ========================================================= --}}
-        {{-- ส่วนที่ 3: กราฟแถวล่าง (Stacked Bar Chart: สถานะการชำระเงินแยกโซน) --}}
+        {{-- ส่วนที่ 3: กราฟสถานะการชำระเงินแยกโซน (ภาพรวมโซนใหญ่) --}}
         {{-- ========================================================= --}}
         <div class="row mt-4">
             <div class="col-12 mb-4">
@@ -119,6 +119,42 @@
                     <div class="card-body p-3">
                         <div class="chart">
                             <canvas id="zoneBarChart" class="chart-canvas" height="400"></canvas>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        {{-- ========================================================= --}}
+        {{-- ส่วนที่ 4: กราฟสถานะการชำระเงินแยกตามซับโซน (รอบบิลเดือนปัจจุบัน) --}}
+        {{-- ========================================================= --}}
+        <div class="row mt-4">
+            <div class="col-12 mb-4">
+                <div class="card z-index-2">
+                    <div class="card-header pb-0">
+                        <h6>สถานะการชำระเงินแยกตามหมู่บ้าน / ซับโซน (รอบบิลเดือนปัจจุบัน)</h6>
+                    </div>
+                    <div class="card-body p-3">
+                        <div class="chart">
+                            <canvas id="subzoneCurrentBarChart" class="chart-canvas" height="400"></canvas>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        {{-- ========================================================= --}}
+        {{-- ส่วนที่ 5: กราฟสถานะการชำระเงินแยกตามซับโซน (ยอดสะสมปีงบประมาณ) --}}
+        {{-- ========================================================= --}}
+        <div class="row mt-4">
+            <div class="col-12 mb-4">
+                <div class="card z-index-2">
+                    <div class="card-header pb-0">
+                        <h6>สถานะการชำระเงินแยกตามหมู่บ้าน / ซับโซน (ยอดสะสมปีงบประมาณ ถึงเดือนปัจจุบัน)</h6>
+                    </div>
+                    <div class="card-body p-3">
+                        <div class="chart">
+                            <canvas id="subzoneYtdBarChart" class="chart-canvas" height="400"></canvas>
                         </div>
                     </div>
                 </div>
@@ -141,23 +177,17 @@
         document.addEventListener("DOMContentLoaded", function() {
 
             // --------------------------------------------------------
-            // 1. กราฟปริมาณการใช้น้ำ
+            // 1. กราฟปริมาณการใช้น้ำแยกตามหมู่บ้าน
             // --------------------------------------------------------
             var ctx1 = document.getElementById('barChart').getContext('2d');
             
-            // สร้าง Gradient
-            var gradientStroke1 = ctx1.createLinearGradient(0, 230, 0, 50);
-            gradientStroke1.addColorStop(1, 'rgba(203, 12, 159, 0.2)');
-            gradientStroke1.addColorStop(0.2, 'rgba(72, 72, 176, 0.0)');
-            gradientStroke1.addColorStop(0, 'rgba(203, 12, 159, 0)');
-
             new Chart(ctx1, {
                 type: 'bar',
                 data: {
-                    labels: @json($data['labels']),
+                    labels: @json($water_by_subzone_data['labels']),
                     datasets: [{
                         label: 'ปริมาณการใช้น้ำ',
-                        data: @json($data['data']),
+                        data: @json($water_by_subzone_data['data']),
                         backgroundColor: '#cb0c9f',
                         borderWidth: 0,
                         borderRadius: 4,
@@ -216,32 +246,29 @@
             });
 
             // --------------------------------------------------------
-            // 3. กราฟสถานะการชำระเงินแยกโซน (Stacked Bar Chart)
+            // 3. กราฟสถานะการชำระเงินแยกโซนใหญ่ (Stacked Bar Chart)
             // --------------------------------------------------------
-            // รับตัวแปรจาก Controller: $zone_chart_data
             var zoneData = @json(isset($zone_chart_data) ? $zone_chart_data : ['labels'=>[], 'paid'=>[], 'unpaid'=>[]]);
 
             if(zoneData.labels && zoneData.labels.length > 0) {
                 var ctxZone = document.getElementById('zoneBarChart').getContext('2d');
                 
                 new Chart(ctxZone, {
-                    type: 'bar', // ใช้ bar chart ปกติ แต่ config ให้ stack
+                    type: 'bar',
                     data: {
                         labels: zoneData.labels,
                         datasets: [
                             {
                                 label: 'ชำระแล้ว',
                                 data: zoneData.paid,
-                                backgroundColor: '#82d616', // สีเขียว
-                                borderWidth: 0,
+                                backgroundColor: '#82d616',
                                 borderRadius: 4,
                                 barPercentage: 0.6,
                             },
                             {
                                 label: 'ค้างชำระ',
                                 data: zoneData.unpaid,
-                                backgroundColor: '#ea0606', // สีแดง
-                                borderWidth: 0,
+                                backgroundColor: '#ea0606',
                                 borderRadius: 4,
                                 barPercentage: 0.6,
                             }
@@ -265,23 +292,136 @@
                         },
                         scales: {
                             xAxes: [{
-                                stacked: true, // ทำให้กราฟซ้อนกันในแนวตั้ง
+                                stacked: true,
                                 gridLines: { display: false, drawBorder: false },
                                 ticks: { fontColor: "#9a9a9a", autoSkip: false }
                             }],
                             yAxes: [{
-                                stacked: true, // ทำให้กราฟซ้อนกัน
-                                ticks: {
-                                    beginAtZero: true,
-                                    fontColor: "#9a9a9a",
-                                    precision: 0 // บังคับให้แสดงจำนวนเต็ม
-                                },
-                                gridLines: {
-                                    borderDash: [2],
-                                    color: '#dee2e6',
-                                    zeroLineColor: '#dee2e6',
-                                    drawBorder: false,
+                                stacked: true,
+                                ticks: { beginAtZero: true, fontColor: "#9a9a9a", precision: 0 },
+                                gridLines: { borderDash: [2], color: '#dee2e6', drawBorder: false }
+                            }]
+                        }
+                    }
+                });
+            }
+
+            // --------------------------------------------------------
+            // 4. กราฟสถานะการชำระเงินแยกตามซับโซน (รอบบิลเดือนปัจจุบัน)
+            // --------------------------------------------------------
+            var currentData = @json(isset($subzone_current_chart) ? $subzone_current_chart : ['labels'=>[], 'paid'=>[], 'unpaid'=>[]]);
+
+            if(currentData.labels && currentData.labels.length > 0) {
+                var ctxCurrent = document.getElementById('subzoneCurrentBarChart').getContext('2d');
+                
+                new Chart(ctxCurrent, {
+                    type: 'bar',
+                    data: {
+                        labels: currentData.labels,
+                        datasets: [
+                            {
+                                label: 'ชำระแล้ว',
+                                data: currentData.paid,
+                                backgroundColor: '#82d616', // สีเขียว
+                                borderRadius: 4,
+                                barPercentage: 0.6,
+                            },
+                            {
+                                label: 'ยังไม่ชำระ',
+                                data: currentData.unpaid,
+                                backgroundColor: '#ea0606', // สีแดง
+                                borderRadius: 4,
+                                barPercentage: 0.6,
+                            }
+                        ]
+                    },
+                    options: {
+                        responsive: true,
+                        maintainAspectRatio: false,
+                        tooltips: {
+                            mode: 'index',
+                            intersect: false,
+                            callbacks: {
+                                footer: function(tooltipItems, data) {
+                                    var sum = 0;
+                                    tooltipItems.forEach(function(tooltipItem) {
+                                        sum += data.datasets[tooltipItem.datasetIndex].data[tooltipItem.index];
+                                    });
+                                    return 'รวมทั้งหมด: ' + sum + ' รายการ';
                                 }
+                            }
+                        },
+                        scales: {
+                            xAxes: [{
+                                stacked: true,
+                                gridLines: { display: false, drawBorder: false },
+                                ticks: { fontColor: "#9a9a9a", autoSkip: false }
+                            }],
+                            yAxes: [{
+                                stacked: true,
+                                ticks: { beginAtZero: true, fontColor: "#9a9a9a", precision: 0 },
+                                gridLines: { borderDash: [2], color: '#dee2e6', drawBorder: false }
+                            }]
+                        }
+                    }
+                });
+            }
+
+            // --------------------------------------------------------
+            // 5. กราฟสถานะการชำระเงินแยกตามซับโซน (ยอดสะสมปีงบประมาณถึงปัจจุบัน)
+            // --------------------------------------------------------
+            var ytdData = @json(isset($subzone_ytd_chart) ? $subzone_ytd_chart : ['labels'=>[], 'paid'=>[], 'unpaid'=>[]]);
+
+            if(ytdData.labels && ytdData.labels.length > 0) {
+                var ctxYtd = document.getElementById('subzoneYtdBarChart').getContext('2d');
+                
+                new Chart(ctxYtd, {
+                    type: 'bar',
+                    data: {
+                        labels: ytdData.labels,
+                        datasets: [
+                            {
+                                label: 'ชำระแล้ว (สะสม)',
+                                data: ytdData.paid,
+                                backgroundColor: '#17c1e8', // สีฟ้า
+                                borderRadius: 4,
+                                barPercentage: 0.6,
+                            },
+                            {
+                                label: 'ยังไม่ชำระ (สะสม)',
+                                data: ytdData.unpaid,
+                                backgroundColor: '#fbcf33', // สีเหลือง/ส้ม
+                                borderRadius: 4,
+                                barPercentage: 0.6,
+                            }
+                        ]
+                    },
+                    options: {
+                        responsive: true,
+                        maintainAspectRatio: false,
+                        tooltips: {
+                            mode: 'index',
+                            intersect: false,
+                            callbacks: {
+                                footer: function(tooltipItems, data) {
+                                    var sum = 0;
+                                    tooltipItems.forEach(function(tooltipItem) {
+                                        sum += data.datasets[tooltipItem.datasetIndex].data[tooltipItem.index];
+                                    });
+                                    return 'รวมทั้งหมด: ' + sum + ' รายการ';
+                                }
+                            }
+                        },
+                        scales: {
+                            xAxes: [{
+                                stacked: true,
+                                gridLines: { display: false, drawBorder: false },
+                                ticks: { fontColor: "#9a9a9a", autoSkip: false }
+                            }],
+                            yAxes: [{
+                                stacked: true,
+                                ticks: { beginAtZero: true, fontColor: "#9a9a9a", precision: 0 },
+                                gridLines: { borderDash: [2], color: '#dee2e6', drawBorder: false }
                             }]
                         }
                     }

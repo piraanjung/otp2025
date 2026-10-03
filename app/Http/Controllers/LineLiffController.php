@@ -60,10 +60,17 @@ class   LineLiffController extends Controller
         $totalFoodWasteCarbon = FoodWasteLog::where('user_id', $userId)->sum('carbon_saved_kg');
         $treesByFoodWasteCarbon = number_format( $totalFoodWasteCarbon > 0 ? ($totalFoodWasteCarbon / 12) : 0, 2);
         // 3. คาร์บอนขยะรีไซเคิล
+        
         $transaction = KpPurchaseTransaction::where('kp_user_w_pref_id_fk', $pref_id)
             ->with('details')
             ->get()->first();
-        $totalRecycleCarbon = collect($transaction->details)->sum('carbon_saved');
+
+        $totalRecycleCarbon = 0;
+         
+        if($transaction){
+            $totalRecycleCarbon = collect($transaction->details)->sum('carbon_saved');
+        }
+
         // ต้นไม้ 1 ต้น ดูดซับ CO2 ได้ประมาณ 12 kg/ปี
         $treesByRecycleCarbon = number_format( $totalRecycleCarbon > 0 ? ($totalRecycleCarbon / 12) : 0, 2);
 
@@ -78,6 +85,7 @@ class   LineLiffController extends Controller
             ->where('status', 'filling')
             ->latest()
             ->first();
+        // return response()->json($transaction);
 
         if ($activeBatch) {
             $days = (int) now()->diffInDays($activeBatch->start_date);

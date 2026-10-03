@@ -98,6 +98,11 @@
                 </h4>
 
                 <ul class="nav flex-column">
+                      <li class="nav-item">
+                        <a href="{{ route('accessmenu') }}" class="nav-link text-white active">
+                            <i class="material-icons-round align-middle me-2">dashboard</i> กลับเมนูหลัก
+                        </a>
+                    </li>
                     <li class="nav-item">
                         <a href="{{ route('inventory.dashboard') }}" class="nav-link text-white active">
                             <i class="material-icons-round align-middle me-2">dashboard</i> ภาพรวมระบบ

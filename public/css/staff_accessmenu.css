@@ -1,0 +1,110 @@
+
+        /* Neumorphism Card (กล่องหลัก) */
+        .neu-card {
+            width: 100%;
+            max-width: 380px;
+            background: #e4e7eb;
+            border-radius: 35px;
+            box-shadow: 14px 14px 25px #cbced1, -14px -14px 25px #ffffff;
+            border: none;
+        }
+
+        /* Neumorphism Concave/Inset (ช่องกรอกข้อมูลยุบลงไป) */
+        .neu-input-group {
+            background: #e4e7eb;
+            border-radius: 50px;
+            box-shadow: inset 5px 5px 10px #cbced1, inset -5px -5px 10px #ffffff;
+            padding: 15px 15px;
+            display: flex;
+            align-items: center;
+        }
+
+        .neu-input-group input {
+            background: transparent;
+            border: none;
+            box-shadow: none;
+            color: #495057;
+            padding-left: 10px;
+            font-size: 1.5rem;
+        }
+
+        .neu-input-group input:focus {
+            background: transparent;
+            box-shadow: none;
+            outline: none;
+        }
+
+        .neu-input-group span {
+            color: #6c757d;
+        }
+
+        /* Neumorphism Convex (ปุ่มนูนขึ้นมา) */
+        .neu-button {
+            background: #4fc3f7;
+            border: none;
+            border-radius: 50px;
+            color: white;
+            font-weight: 600;
+            box-shadow: 5px 5px 10px #cbced1, -5px -5px 10px #ffffff;
+            transition: all 0.2s ease;
+        }
+
+        .neu-button:active {
+            box-shadow: inset 3px 3px 6px rgba(0, 0, 0, 0.2), inset -3px -3px 6px rgba(255, 255, 255, 0.5);
+        }
+
+        /* รูปโปรไฟล์วงกลมแบบ Neumorphism */
+        .neu-profile {
+            width: 180px;
+            height: 180px;
+            border-radius: 50%;
+            background: #e4e7eb;
+            box-shadow: 6px 6px 12px #cbced1, -6px -6px 12px #ffffff;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            overflow: hidden;
+            margin: 0 auto;
+        }
+
+        .neu-profile img {
+            width: 160px;
+            height: 160px;
+            border-radius: 50%;
+            object-fit: cover;
+        }
+
+        /* ลิงก์ด้านล่าง */
+        .neu-link {
+            color: #6c757d;
+            text-decoration: none;
+            font-size: 0.85rem;
+        }
+
+        .neu-link:hover {
+            color: #495057;
+        }
+
+        .is-hidden{
+            display: none;
+        }
+
+
+        /* /////////////////// Main Screen ////////////////// */
+
+        #mainScreen{
+            height: 100vh;
+        }
+
+    /*////////////////////////////// Button Menu ////////////////////////////// */
+
+   body {
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    /* height: 75vh;
+    margin: 20px;
+    width: 90vw; */
+    display: flex;
+    align-items: flex-end;
+    justify-content: center;
+}
+     

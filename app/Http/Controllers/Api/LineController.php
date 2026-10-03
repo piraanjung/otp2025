@@ -67,20 +67,21 @@ class LineController extends Controller
 
         $user = User::where('line_id', $lineUserId)->with('wastePreference')->get()->first();
         if(!$user){
-            return response()->json(['status' => 'not_found']);
+            return response()->json(['status' => 'not_foundxx']);
         }
+        
         if(collect($user->wastePreference)->isEmpty()){
             KpUserWastePreference::create([
-                'user_id' => $user[0]->id,
-                'org_id_fk' => $user[0]->org_id_fk,
+                'user_id' => $user->id,
+                'org_id_fk' => $user->org_id_fk,
                 'is_waste_bank' => 1,
                 'is_annual_collection' => 0,
-                "address" => $user[0]->address,
-                "zone_id" => $user[0]->zone_id,
-                "subzone_id" => $user[0]->subzone_id,
-                "tambon_code" => $user[0]->tambon_code,
-                "district_code" => $user[0]->district_code,
-                "province_code" => $user[0]->province_code,
+                "address" => $user->address,
+                "zone_id" => $user->zone_id,
+                "subzone_id" => $user->subzone_id,
+                "tambon_code" => $user->tambon_code,
+                "district_code" => $user->district_code,
+                "province_code" => $user->province_code,
             ]);
         }
         if (collect($user)->isNotEmpty()) {
@@ -380,39 +381,6 @@ public function getZones($tambon_id)
         ]);
     }
 
-    // app/Http/Controllers/Api/LineController.php
-
-    public function handle(Request $request)
-    {
-        $events = $request->input('events', []);
-
-        foreach ($events as $event) {
-            // ดักจับเหตุการณ์ที่เป็นการส่งข้อความตัวหนังสือ (Text Message)
-            if ($event['type'] === 'message' && $event['message']['type'] === 'text') {
-                
-                $userMessage = trim($event['message']['text']);
-                $replyToken  = $event['replyToken'];
-
-                // ใช้ Regex ดักคำสั่ง เช่น "งานเข้า 1042" หรือ "งานเข้า#1042"
-                if (preg_match('/^งานเข้า\s*#?(\d+)$/u', $userMessage, $matches)) {
-                    $notifyId = $matches[1];
-
-                    // ค้นหาข้อมูลการแจ้งเหตุใน DB
-                    $notify = TwNotifies::find($notifyId);
-
-                    if ($notify) {
-                        // 1. สร้างโครงสร้าง Flex Message
-                        $flexPayload = $this->buildStaffFlexMessage($notify);
-
-                        // 2. ส่ง Reply Message กลับไปที่กลุ่ม (ใช้ Reply API ฟรี)
-                        $this->sendReplyMessage($replyToken, $flexPayload);
-                    }
-                }
-            }
-        }
-
-        return response()->json(['status' => 'ok'], 200);
-    }
 
  
 
@@ -553,297 +521,188 @@ public function getZones($tambon_id)
         }
     }
 
+    public function handle(Request $request) 
+    { 
+        $events = $request->input('events', []);
+        
+        foreach ($events as $event) { 
+            // return $event['message'];
+            // 1. ตรวจสอบว่าเป็นข้อความตัวอักษรที่ส่งเข้ามาในแชท (ไม่ว่าจะพิมพ์เองหรือกดปุ่ม)
+            if ($event['type'] === 'message' && $event['message']['type'] === 'text') { 
+
+                $userMessage = trim($event['message']['text']); 
+                $replyToken = $event['replyToken']; // โทเค็นชั่วคราวสำหรับกดส่งตอบกลับทันที
+
+                // 2. เช็กว่าข้อความขึ้นต้นด้วยคำว่า "งานเข้า" หรือไม่
+                if (preg_match('/^งานเข้า\s+(\d+)$/u', $userMessage, $matches)) {
+                   $notifyId = $matches[1]; // ดึงตัวเลขหลังคำว่า "งานเข้า" (เช่น เลข 3)
+                    
+                    // 3. ไปค้นหาข้อมูลจากฐานข้อมูล
+                    $notify = TwNotifies::find($notifyId); 
+                    
+                    if ($notify) { 
+                        // สร้างโครงสร้าง Flex Message จากข้อมูลจริงใน Database
+                        $flexPayload = $this->buildStaffFlexMessage($notify); 
+                        
+                        // ส่ง Flex Message ตอบกลับไปหาห้องแชทนั้นทันที (ใช้ replyToken)
+                        $this->sendReplyMessage($replyToken, $flexPayload); 
+                    } else {
+                        $this->sendReplyText($replyToken, "ไม่พบข้อมูลแจ้งเหตุรหัส #{$notifyId}");
+                    }
+                } 
+            } 
+        } 
+        
+        return response()->json(['status' => 'ok'], 200); 
+    }
+
     /**
      * Summary of buildFlexReceipt
      * @param mixed $transaction
      * @return array{body: array, header: array, styles: array, type: string}
      */
-    public function buildFlexReceipt($transaction)
+    private function buildStaffFlexMessage(TwNotifies $notify)
     {
-        $itemContents = [];
+         $bodyContents = [
+        [
+            'type' => 'text',
+            'text' => "รหัสแจ้งเหตุ: {$notify->id}\nเรื่อง: " . ($notify->issueType->name ?? '-'),
+            'weight' => 'bold',
+            'size' => 'sm',
+            'color' => '#333333',
+            'wrap' => true 
+        ],
+        [
+            'type' => 'text',
+            'text' => "ผู้แจ้ง: {$notify->reporter_name}\nเบอร์โทร: {$notify->reporter_phone}",
+            'size' => 'sm',
+            'color' => '#666666',
+            'wrap' => true
+        ]
+    ];
 
-        // หมายเหตุ: อย่าลืมเอาบรรทัด find(1) ออกเมื่อใช้งานจริงนะครับ เพื่อให้ใช้ค่า $transaction ที่รับมาจาก Parameter
-        // $transaction = KpPurchaseTransaction::find(1);
+    // 2. จัดการดึงรูปภาพจาก Database มาแสดง (สมมติว่าฟิลด์ photos เก็บเป็น JSON array เช่น ['notify/abc.jpg'])
+    // ปรับเปลี่ยนวิธี decode ตามโครงสร้างจริงของฐานข้อมูลคุณ เช่น json_decode หรือถ้าเป็น array อยู่แล้วก็ใช้ได้เลย
+    $photos = is_string($notify->photo_path) ? json_decode($notify->photo_path, true) : $notify->photo_path;
 
-        foreach ($transaction->details as $detail) {
-            $itemContents[] = [
-                "type" => "box",
-                "layout" => "vertical",
-                "margin" => "lg", // เพิ่มระยะห่างระหว่างรายการขยะ
-                "spacing" => "sm",
-                "contents" => [
-                    [
-                        "type" => "box",
-                        "layout" => "horizontal",
-                        "contents" => [
-                            [
-                                "type" => "text",
-                                "text" => (string)($detail->item->kp_itemsname ?? 'ขยะรีไซเคิล'),
-                                "size" => "md",
-                                "color" => "#555555",
-                                "flex" => 0,
-                                "weight" => "bold"
-                            ],
-                            [
-                                "type" => "text",
-                                "text" => number_format($detail->amount, 2) . " บาท", // เปลี่ยนเป็น $detail->amount
-                                "size" => "md",
-                                "color" => "#111111",
-                                "align" => "end",
-                                "weight" => "bold"
-                            ]
-                        ]
-                    ],
-                    [
-                        "type" => "box",
-                        "layout" => "horizontal",
-                        "contents" => [
-                            [
-                                "type" => "text",
-                                // เปลี่ยนเป็น amount_in_units และ unit_short_name
-                                "text" => "(" . (float)$detail->amount_in_units . " " . ($detail->unit->unit_short_name ?? 'กก.') . " x " . number_format($detail->price_per_unit, 2) . " บาท)",
-                                "size" => "xs",
-                                "color" => "#555555",
-                                "flex" => 0,
-                                "style" => "italic",
-                                "wrap" => true,
-                            ],
-                            [
-                                "type" => "text",
-                                "text" => " ",
-                                "flex" => 1
-                            ]
-                        ]
-                    ]
+    if (!empty($photos) && is_array($photos)) {
+        // คั่นเส้นแบ่งก่อนแสดงรูป
+        $bodyContents[] = [
+            'type' => 'separator',
+            'margin' => 'md'
+        ];
+
+        $bodyContents[] = [
+            'type' => 'text',
+            'text' => '📸 รูปภาพแนบ:',
+            'size' => 'xs',
+            'weight' => 'bold',
+            'color' => '#aaaaaa',
+            'margin' => 'md'
+        ];
+
+        // วนลูปรูปภาพแต่ละรูป
+        foreach ($photos as $photoPath) {
+            // ใช้ asset() เพื่อแปลงเป็น Full URL (เช่น https://yourdomain.com/notify/xxx.jpg)
+            // *หมายเหตุ: URL รูปภาพต้องเป็น HTTPS และเปิดให้คนภายนอกเข้าถึงได้
+            $imageUrl = asset("uploads/".$photoPath);
+
+            $bodyContents[] = [
+                'type' => 'image',
+                'url' => $imageUrl,
+                'size' => 'full',       // ขนาด: xs, sm, md, lg, full
+                'aspectRatio' => '4:3',  // สัดส่วนรูป: '1:1', '4:3', '16:9'
+                'aspectMode' => 'cover',  // การแสดงผลภาพ: cover หรือ fit
+                'margin' => 'md',
+                'action' => [
+                    'type' => 'uri',
+                    'label' => 'ดูรูปขนาดเต็ม',
+                    'uri' => $imageUrl // พอกดที่รูปจะเด้งเปิดดูรูปใหญ่
                 ]
             ];
         }
-
-        if (empty($itemContents)) {
-            $itemContents[] = ["type" => "text", "text" => "ไม่พบรายการสินค้า", "size" => "sm", "color" => "#aaaaaa"];
-        }
-
-        return [
-            "type" => "bubble",
-            "header" => [
-                "type" => "box",
-                "layout" => "vertical",
-                "contents" => [
-                    ["type" => "text", "text" => "ใบเสร็จรับเงิน", "weight" => "bold", "color" => "#1DB446", "size" => "xl"],
-                    ["type" => "text", "text" => "ธนาคารขยะรีไซเคิล", "weight" => "bold", "size" => "xxl", "margin" => "md", "color" => "#ffffff"],
-                    ["type" => "text", "text" => "ขอบคุณที่ร่วมเป็นส่วนหนึ่งในการรักษาสิ่งแวดล้อม", "size" => "xs", "color" => "#aaaaaa", "wrap" => true]
-                ]
-            ],
-            "body" => [
-                "type" => "box",
-                "layout" => "vertical",
-                "contents" => [
-                    ["type" => "box", "layout" => "vertical", "contents" => $itemContents],
-                    ["type" => "separator", "margin" => "xxl"],
-
-                    // --- ส่วนสรุปยอด (เพิ่ม Margin เพื่อให้ไม่ติดกัน) ---
-                    [
-                        "type" => "box",
-                        "layout" => "horizontal",
-                        "margin" => "xl", // ห่างจากเส้นคั่น
-                        "contents" => [
-                            ["type" => "text", "text" => "รวมเป็นเงิน", "size" => "sm", "color" => "#555555", "weight" => "bold"],
-                            ["type" => "text", "text" => number_format($transaction->total_amount, 2) . " บาท", "size" => "sm", "color" => "#111111", "align" => "end", "weight" => "bold"]
-                        ]
-                    ],
-                    [
-                        "type" => "box",
-                        "layout" => "horizontal",
-                        "margin" => "md", // เพิ่มช่องว่างแถวแต้ม
-                        "contents" => [
-                            ["type" => "text", "text" => "แต้มที่ได้รับ", "size" => "sm", "color" => "#555555", "weight" => "bold"],
-                            ["type" => "text", "text" => "+ " . number_format($transaction->total_points) . " แต้ม", "size" => "sm", "color" => "#111111", "align" => "end", "weight" => "bold"]
-                        ]
-                    ],
-                    [
-                        "type" => "box",
-                        "layout" => "horizontal",
-                        "margin" => "md", // เพิ่มช่องว่างแถวคาร์บอน
-                        "contents" => [
-                            ["type" => "text", "text" => "ลดคาร์บอนได้", "size" => "sm", "color" => "#1DB446", "weight" => "bold"],
-                            ["type" => "text", "text" => number_format($transaction->total_carbon_saved ?? 0, 4) . " kgCO2e", "size" => "sm", "color" => "#1DB446", "align" => "end", "weight" => "bold"]
-                        ]
-                    ],
-
-                    ["type" => "separator", "margin" => "xxl"],
-
-                    [
-                        "type" => "box",
-                        "layout" => "horizontal",
-                        "margin" => "lg", // ดึงเลขที่ใบเสร็จให้ห่างออกมา
-                        "contents" => [
-                            ["type" => "text", "text" => "เลขที่ใบเสร็จ", "size" => "xs", "color" => "#aaaaaa", "flex" => 0],
-                            ["type" => "text", "text" => (string)($transaction->kp_u_trans_no ?? '-'), "color" => "#aaaaaa", "size" => "xs", "align" => "end"]
-                        ]
-                    ]
-                ]
-            ],
-            "styles" => [
-                "header" => [
-                    "separator" => true,
-                    "backgroundColor" => "#111111",
-                    "separatorColor" => "#111111"
-                ],
-                "body" => [
-                    "separator" => true,
-                    "separatorColor" => "#ee2385" // 🌟 เปลี่ยนเส้นคั่นระหว่าง Header และ Body เป็นสีชมพู
-                ],
-                "footer" => [
-                    "separator" => true
-                ]
-            ]
-        ];
     }
 
-    /**
-     * Summary of replyText
-     * @param mixed $replyToken
-     * @param mixed $text
-     * @return \Illuminate\Http\Client\Response
-     */
-    private function replyText($replyToken, $text)
+    // 3. ประกอบร่างโครงสร้าง Flex Message ทั้งหมด
+   return  [
+        'type' => 'bubble',
+        'header' => [
+            'type' => 'box',
+            'layout' => 'vertical',
+            'contents' => [
+                [
+                    'type' => 'text',
+                    'text' => 'แจ้งเตือนงานใหม่ (เจ้าหน้าที่งานประปา)',
+                    'weight' => 'bold',
+                    'color' => '#ffffff',
+                    'size' => 'sm'
+                ]
+            ],
+            'backgroundColor' => '#d9534f'
+        ],
+        'body' => [
+            'type' => 'box',
+            'layout' => 'vertical',
+            'spacing' => 'md',
+            'contents' => $bodyContents // นำอาเรย์ข้อมูลทั้งหมดที่เตรียมไว้มายัดใส่ตรงนี้
+        ],
+        'footer' => [
+            'type' => 'box',
+            'layout' => 'vertical',
+            'contents' => [
+                [
+                    'type' => 'button',
+                    'action' => [
+                        'type' => 'uri',
+                        'label' => 'กดเพื่อดูข้อมูลและรับงาน',
+                        'uri' => 'https://yourdomain.com/notify/detail/' . $notify->id // ใส่ URL หน้าเว็บของคุณที่ต้องการให้กดแล้วเด้งไปหา
+                    ],
+                    'style' => 'primary',
+                    'color' => '#0275d8' // สามารถปรับสีปุ่มได้ตามต้องการ (เช่น #0275d8 สีฟ้า, #d9534f สีแดง)
+                ]
+            ]
+        ]
+    ];
+    }
+
+    // ฟังก์ชันยิง Reply API กลับไปหา LINE
+    private function sendReplyMessage($replyToken, $flexPayload)
     {
-        return Http::withHeaders([
-            'Authorization' => 'Bearer ' . env('LINE_CHANNEL_ACCESS_TOKEN'),
+        $channelToken = config('services.line_staff.channel_token'); // หรือใส่ Token ตรงๆ
+
+        Http::withHeaders([
+            'Authorization' => 'Bearer ' . $channelToken,
+            'Content-Type'  => 'application/json',
         ])->post('https://api.line.me/v2/bot/message/reply', [
             'replyToken' => $replyToken,
-            'messages' => [['type' => 'text', 'text' => $text]]
+            'messages'   => [
+                [
+                    'type'     => 'flex',
+                    'altText'  => 'รายละเอียดแจ้งเหตุ',
+                    'contents' => $flexPayload
+                ]
+            ]
         ]);
     }
 
-    /**
-     * Summary of buildStaffFlexMessage
-     * @param TwNotifies $notify
-     * @return array{altText: string, contents: array, type: string}
-     */
-    private function buildStaffFlexMessage(TwNotifies $notify)
-    {
-        $notify = TwNotifies::find(1);
-
-        // $notify = TwNotifies::where('id', 1)
-        // ->with('issueType')
-        // ->get()->first();
-        // แกะรูปภาพแรกจาก JSON photo_path
-        $imageUrl = 'https://via.placeholder.com/600x400?text=No+Image';
-        if (!empty($notify->photo_path)) {
-            $photos = is_array($notify->photo_path) 
-                ? $notify->photo_path 
-                : json_decode($notify->photo_path, true);
-
-            if (!empty($photos[0])) {
-                $imageUrl = asset($photos[0]);
-            }
-        }
-
-        // แปลงประเภทงานเป็นภาษาไทย
-       
-        $typeName = $notify->issueType->name;
-        // $typeName = $typeNames[$notify->issue_type] ?? $notify->issue_type;
-
-        // ลิงก์สำหรับช่างกดรับงาน และ ลิงก์แผนที่นำทาง
-        $acceptJobUrl  = route('staff.job.accept', ['notify' => $notify->id]);
-        $googleMapsUrl = "https://www.google.com/maps?q={$notify->latitude},{$notify->longitude}";
-
-        return [
-            'type' => 'flex',
-            'altText' => "🚨 แจ้งเหตุงานประปา (#{$notify->id})",
-            'contents' => [
-                'type' => 'bubble',
-                'hero' => [
-                    'type' => 'image',
-                    'url' => $imageUrl,
-                    'size' => 'full',
-                    'aspectRatio' => '20:13',
-                    'aspectMode' => 'cover',
-                ],
-                'body' => [
-                    'type' => 'box',
-                    'layout' => 'vertical',
-                    'contents' => [
-                        [
-                            'type' => 'text',
-                            'text' => "🚨 แจ้งเหตุใหม่ (#{$notify->id})",
-                            'weight' => 'bold',
-                            'size' => 'lg',
-                            'color' => '#1DB446',
-                        ],
-                        [
-                            'type' => 'box',
-                            'layout' => 'vertical',
-                            'margin' => 'md',
-                            'spacing' => 'xs',
-                            'contents' => [
-                                [
-                                    'type' => 'text',
-                                    'text' => "ประเภท: {$typeName}",
-                                    'size' => 'sm',
-                                    'color' => '#555555',
-                                    'weight' => 'bold',
-                                ],
-                                [
-                                    'type' => 'text',
-                                    'text' => "สถานะ: รอดำเนินการ",
-                                    'size' => 'xs',
-                                    'color' => '#ff9900',
-                                ],
-                            ],
-                        ],
-                    ],
-                ],
-                'footer' => [
-                    'type' => 'box',
-                    'layout' => 'vertical',
-                    'spacing' => 'sm',
-                    'contents' => [
-                        [
-                            'type' => 'button',
-                            'style' => 'primary',
-                            'height' => 'sm',
-                            'action' => [
-                                'type' => 'uri',
-                                'label' => '🛠️ กดรับงานนี้',
-                                'uri' => $acceptJobUrl,
-                            ],
-                            'color' => '#0D6EFD',
-                        ],
-                        [
-                            'type' => 'button',
-                            'style' => 'secondary',
-                            'height' => 'sm',
-                            'action' => [
-                                'type' => 'uri',
-                                'label' => '🗺️ เปิดแผนที่นำทาง',
-                                'uri' => $googleMapsUrl,
-                            ],
-                        ],
-                    ],
-                ],
-            ],
-        ];
-    }
-
-    /**
-     * Summary of sendReplyMessage
-     * @param mixed $replyToken
-     * @param mixed $flexPayload
-     * @return void
-     */
-    private function sendReplyMessage($replyToken, $flexPayload)
+    private function sendReplyText($replyToken, $text)
     {
         $channelToken = config('services.line_staff.channel_token');
 
         Http::withHeaders([
-            'Authorization' => "Bearer {$channelToken}",
+            'Authorization' => 'Bearer ' . $channelToken,
             'Content-Type'  => 'application/json',
         ])->post('https://api.line.me/v2/bot/message/reply', [
             'replyToken' => $replyToken,
-            'messages'   => [$flexPayload],
+            'messages'   => [
+                ['type' => 'text', 'text' => $text]
+            ]
         ]);
     }
+
+ 
+
+
+
 }
 

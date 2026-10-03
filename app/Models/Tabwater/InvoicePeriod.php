@@ -6,12 +6,12 @@ use App\Models\Admin\BudgetYear;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use App\Traits\BelongsToOrganization; // 1. เรียกใช้ Trait
-class TwInvoicePeriod extends Model
+class InvoicePeriod extends Model
 {
-    use HasFactory; 
+    use HasFactory;
     use BelongsToOrganization;
 
-    protected $fillable = [ 'id', 'org_id_fk', "inv_p_name","budgetyear_id","startdate","enddate","status"];
+    protected $fillable = ['id', 'org_id_fk', "inv_p_name", "budgetyear_id", "startdate", "enddate", "status"];
     protected $table = "invoice_period";
 
     public function budgetyear()

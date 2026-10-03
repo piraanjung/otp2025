@@ -320,7 +320,7 @@
                 href="{{auth()->user()->can('access tabwater') | auth()->user()->hasRole('Super Admin') ? route('inventory.dashboard') : '#'}}">
                 <div class="bubble centralized">
                     <div class="inner centralized">
-                        Inventory
+                        คลังพัสดุ
                     </div>
                 </div>
             </a>

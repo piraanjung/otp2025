@@ -2,987 +2,27 @@
 
 @section('style')
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/sweetalert2@11/dist/sweetalert2.min.css">
-<link rel="preconnect" href="https://fonts.googleapis.com">
-<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link rel="preconnect" href="https://fonts.googleapis.com">
-<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Google+Sans:ital,opsz,wght@0,17..18,400..700;1,17..18,400..700&family=Kanit:ital,wght@0,100;0,200;0,300;0,400;0,500;0,600;0,700;0,800;0,900;1,100;1,200;1,300;1,400;1,500;1,600;1,700;1,800;1,900&display=swap" rel="stylesheet">    <style>
-        body {
-            font-family: sans-serif;
-            padding: 20px;
-            background: #f0f2f5;
-            margin: 0;
-        }
-
-        .card {
-            background: white;
-            padding: 20px;
-            border-radius: 8px;
-            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
-            margin-bottom: 15px;
-        }
-
-        /* สไตล์ฟอร์ม Login */
-        .login-container {
-            max-width: 400px;
-            margin: 50px auto;
-        }
-
-        .form-group {
-            margin-bottom: 15px;
-        }
-
-        .form-group label {
-            display: block;
-            margin-bottom: 5px;
-            font-weight: bold;
-        }
-
-        .form-group input {
-            width: 100%;
-            padding: 10px;
-            border: 1px solid #ccc;
-            border-radius: 4px;
-            box-sizing: border-box;
-            font-size: 16px;
-        }
-
-        button {
-            background: #007bff;
-            color: rgb(0, 0, 0);
-            border: none;
-            padding: 12px 20px;
-            border-radius: 5px;
-            font-size: 16px;
-            width: 100%;
-            cursor: pointer;
-        }
-
-        button:disabled {
-            background: #cccccc;
-        }
-
-        /* คลาสสำหรับซ่อนหน้าจอ */
-        .is-hidden {
-            display: none !important;
-        }
-
-        /* เพิ่มต่อท้าย CSS เดิมใน <style> */
-        :root {
-            --primary: #007bff;
-            --recycle-color: #28a745;
-            --organic-color: #fd7e14;
-            --water-color: #17a2b8;
-            --dark: #343a40;
-        }
-
-        body {
-            margin: 0;
-            padding: 0;
-            background-color: #f4f6f9;
-            color: var(--dark);
-        }
-
-        .container {
-            padding: 15px;
-        }
-
-        /* Header สไตล์แอปมือถือ */
-        .app-header {
-            background: linear-gradient(135deg, #1e3c72 0%, #2a5298 100%);
-            color: white;
-            padding: 20px 15px;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            border-bottom-left-radius: 15px;
-            border-bottom-right-radius: 15px;
-            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
-        }
-
-        .user-info {
-            display: flex;
-            align-items: center;
-            gap: 12px;
-        }
-
-        .avatar {
-            font-size: 28px;
-            background: rgba(255, 255, 255, 0.2);
-            padding: 5px;
-            border-radius: 50%;
-            width: 40px;
-            height: 40px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-        }
-
-        .welcome-text {
-            font-size: 12px;
-            opacity: 0.8;
-        }
-
-        .staff-name {
-            font-size: 18px;
-            font-weight: bold;
-        }
-
-        .btn-logout {
-            background: rgba(255, 255, 255, 0.15);
-            border: 1px solid rgba(255, 255, 255, 0.3);
-            color: white;
-            padding: 6px 12px;
-            border-radius: 20px;
-            font-size: 13px;
-            width: auto;
-            margin-top: 0;
-        }
-
-        .section-title {
-            margin: 20px 0 10px 5px;
-            font-size: 16px;
-            color: #6c757d;
-            text-transform: uppercase;
-            letter-spacing: 0.5px;
-        }
-
-        /* Layout เมนู Grid */
-        .menu-grid {
-            display: grid;
-            grid-template-columns: repeat(2, 1fr);
-            /* แบ่งเป็น 2 คอลัมน์เท่าๆ กัน */
-            gap: 15px;
-        }
-
-        /* สไตล์พื้นฐานของปุ่มเมนู */
-        .menu-item {
-            background: white;
-            padding: 20px 15px;
-            border-radius: 12px;
-            box-shadow: 0 3px 10px rgba(0, 0, 0, 0.05);
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            text-align: center;
-            cursor: pointer;
-            transition: transform 0.1s ease, box-shadow 0.1s ease;
-            border-top: 5px solid #ccc;
-        }
-
-        /* เอฟเฟกต์ตอนใช้นิ้วกด (Touch Feedback) */
-        .menu-item:active {
-            transform: scale(0.95);
-            box-shadow: 0 1px 4px rgba(0, 0, 0, 0.1);
-        }
-
-        .menu-icon {
-            font-size: 40px;
-            margin-bottom: 10px;
-        }
-
-        .menu-title {
-            font-size: 15px;
-            font-weight: bold;
-            margin-bottom: 6px;
-            color: #212529;
-        }
-
-        .menu-desc {
-            font-size: 11px;
-            color: #6c757d;
-            line-height: 1.3;
-        }
-
-        /* แยกสีขอบบนของแต่ละกองงานให้ชัดเจน */
-        .card-recycle {
-            border-top-color: var(--recycle-color);
-        }
-
-        .card-organic {
-            border-top-color: var(--organic-color);
-        }
-
-        .card-water {
-            border-top-color: var(--water-color);
-        }
-
-        .card-settings {
-            border-top-color: #6c757d;
-        }
-
-
-        .sub-header {
-            background: #28a745;
-            color: white;
-            padding: 15px;
-            display: flex;
-            align-items: center;
-            gap: 15px;
-        }
-
-        .btn-back {
-            background: rgba(255, 255, 255, 0.2);
-            border: none;
-            color: white;
-            padding: 6px 12px;
-            border-radius: 5px;
-            width: auto;
-        }
-
-        .search-wrapper {
-            display: flex;
-            gap: 8px;
-        }
-
-        #searchMemberRecycleInput {
-            flex: 1;
-            padding: 10px;
-            border: 1px solid #ccc;
-            border-radius: 6px;
-            font-size: 16px;
-        }
-
-        .btn-scan {
-            width: auto;
-            background: #17a2b8;
-            /* padding: 0 15px; */
-            margin: 0;
-        }
-
-        .member-list {
-            display: flex;
-            flex-direction: column;
-            gap: 10px;
-        }
-
-        .member-card {
-            background: white;
-            padding: 15px;
-            border-radius: 10px;
-            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-        }
-
-        .member-info p {
-            margin: 4px 0;
-            color: #495057;
-            font-size: 14px;
-        }
-
-        .btn-deposit {
-            background: #28a745;
-            color: white;
-            width: auto;
-            padding: 8px 15px;
-            font-size: 14px;
-            margin: 0;
-        }
-
-        .badge-account {
-            background: #e2f0d9;
-            color: #385723;
-            padding: 2px 6px;
-            border-radius: 4px;
-            font-size: 11px;
-            font-weight: bold;
-        }
-
-        .badge-no-account {
-            background: #fce4d6;
-            color: #c65911;
-            padding: 2px 6px;
-            border-radius: 4px;
-            font-size: 11px;
-            font-weight: bold;
-        }
-
-
-        /* 🟢 เพิ่มต่อท้ายใน style.css */
-        .trash-grid-card {
-            background: white;
-            border: 1px solid #e0e0e0;
-            border-radius: 12px;
-            padding: 15px 10px;
-            text-align: center;
-            cursor: pointer;
-            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.03);
-            transition: all 0.2s ease;
-            display: flex;
-            flex-direction: column;
-            justify-content: space-between;
-            align-items: center;
-            min-height: 100px;
-        }
-
-        /* เอฟเฟกต์ตอนเอานิ้วกดจิ้มปุ่มขยะ */
-        .trash-grid-card:active {
-            transform: scale(0.95);
-            background-color: #f1f3f5;
-        }
-
-        .trash-card-code {
-            font-size: 11px;
-            color: #888;
-            background: #f0f2f5;
-            padding: 2px 6px;
-            border-radius: 4px;
-            margin-bottom: 5px;
-        }
-
-        .trash-card-name {
-            font-weight: bold;
-            font-size: 14px;
-            color: #333;
-            margin: 5px 0;
-            line-height: 1.3;
-        }
-
-        .trash-card-price {
-            font-size: 13px;
-            color: #28a745;
-            font-weight: bold;
-            margin-top: 5px;
-        }
-
-        /* สไตล์ปุ่มแท็บหมวดหมู่ด้านบน */
-        .category-tab-btn {
-            padding: 8px 16px;
-            border: 1px solid #ced4da;
-            background: white;
-            color: #495057;
-            border-radius: 20px;
-            font-weight: bold;
-            font-size: 14px;
-            cursor: pointer;
-            white-space: nowrap;
-            transition: all 0.2s;
-        }
-
-        .category-tab-btn.is-active {
-            background: #28a745;
-            /* สีเขียวงานรีไซเคิล */
-            color: white;
-            border-color: #28a745;
-        }
-
-
-
-        /* =========================================================================
-                                                                               🟢 CSS สำหรับ Branch: feature/mobile-animated-login
-                                                                               ========================================================================= */
-
-        /* พื้นหลังไล่เฉดสีนุ่มนวลแบบแอปมือถือสมัยใหม่ */
-        .mobile-login-wrapper {
-            min-height: 100vh;
-            background: linear-gradient(180deg, #1e3c72 0%, #2a5298 60%, #f4f6f9 100%);
-            display: flex;
-            flex-direction: column;
-            justify-content: center;
-            padding: 20px;
-            box-sizing: border-box;
-            font-family: sans-serif;
-        }
-
-        /* แอนิเมชันหัวข้อแอป (ค่อยๆ ชัดขึ้น) */
-        .login-brand-area {
-            text-align: center;
-            color: white;
-            margin-bottom: 25px;
-            animation: fadeInDown 0.8s ease-out forwards;
-        }
-
-        .brand-logo {
-            font-size: 48px;
-            margin-bottom: 10px;
-            filter: drop-shadow(0 4px 8px rgba(0, 0, 0, 0.15));
-        }
-
-        .login-brand-area h1 {
-            font-size: 24px;
-            margin: 0 0 5px 0;
-            font-weight: bold;
-            letter-spacing: 0.5px;
-        }
-
-        .login-brand-area p {
-            font-size: 14px;
-            margin: 0;
-            opacity: 0.75;
-        }
-
-        /* ⚡ การ์ด Login ลอยขึ้นมาแบบนุ่มนวล (Fade In Up) */
-        .mobile-login-card {
-            background: rgba(255, 255, 255, 0.95);
-            padding: 30px 24px;
-            border-radius: 20px;
-            box-shadow: 0 10px 25px rgba(30, 60, 114, 0.15);
-            animation: fadeInUpMobile 0.8s cubic-bezier(0.4, 0, 0.2, 1) forwards;
-        }
-
-        .mobile-login-card h2 {
-            font-size: 22px;
-            color: #1e3c72;
-            margin: 0 0 4px 0;
-            font-weight: bold;
-        }
-
-        .subtitle {
-            font-size: 13px;
-            color: #6c757d;
-            margin: 0 25px 25px 0;
-        }
-
-        /* 🔄 ระบบพิมพ์แบบอักษรลอยตัว (Floating Labels) */
-        .floating-group {
-            position: relative;
-            margin-bottom: 20px;
-        }
-
-        .floating-group input {
-            width: 100%;
-            padding: 14px 12px 10px 12px;
-            font-size: 16px;
-            border: 1.5px solid #ced4da;
-            border-radius: 10px;
-            outline: none;
-            background: transparent;
-            box-sizing: border-box;
-            transition: all 0.2s ease;
-            color: #333;
-        }
-
-        .floating-group label {
-            position: absolute;
-            left: 12px;
-            top: 50%;
-            transform: translateY(-50%);
-            background: transparent;
-            color: #6c757d;
-            font-size: 14px;
-            pointer-events: none;
-            transition: all 0.2s ease;
-        }
-
-        /* เมื่อคลิก หรือเมื่อมีข้อความในช่อง ให้ฉลากลอยขึ้นข้างบนอัตโนมัติ */
-        .floating-group input:focus~label,
-        .floating-group input:not(:placeholder-shown)~label {
-            top: 0;
-            font-size: 12px;
-            padding: 0 6px;
-            background: white;
-            color: #1e3c72;
-            font-weight: bold;
-        }
-
-        .floating-group input:focus {
-            border-color: #1e3c72;
-            box-shadow: 0 0 0 3px rgba(30, 60, 114, 0.1);
-        }
-
-        /* ป้ายแสดงข้อความเตือนเมื่อกรอกผิด */
-        .error-banner {
-            background-color: #f8d7da;
-            color: #721c24;
-            padding: 12px;
-            border-radius: 8px;
-            font-size: 13px;
-            margin-bottom: 15px;
-            border-left: 4px solid #dc3545;
-        }
-
-        /* ปุ่มล็อกอินสำหรับใช้นิ้วโป้งกดง่ายๆ */
-        .btn-mobile-login {
-            width: 100%;
-            background: linear-gradient(90deg, #1e3c72 0%, #2a5298 100%);
-            color: white;
-            border: none;
-            padding: 14px;
-            font-size: 16px;
-            font-weight: bold;
-            border-radius: 10px;
-            cursor: pointer;
-            margin-top: 10px;
-            box-shadow: 0 4px 12px rgba(30, 60, 114, 0.2);
-            transition: all 0.2s;
-        }
-
-        .btn-mobile-login:active {
-            transform: scale(0.98);
-            opacity: 0.9;
-        }
-
-        .btn-mobile-login:disabled {
-            background: #6c757d;
-            cursor: not-allowed;
-        }
-
-        .login-footer {
-            text-align: center;
-            margin-top: 30px;
-            font-size: 11px;
-            color: #6c757d;
-        }
-
-        /* 🎬 แอนิเมชันสไลด์ขึ้นตอนโหลดแอป */
-        @keyframes fadeInUpMobile {
-            from {
-                opacity: 0;
-                transform: translateY(40px);
-            }
-
-            to {
-                opacity: 1;
-                transform: translateY(0);
-            }
-        }
-
-        @keyframes fadeInDown {
-            from {
-                opacity: 0;
-                transform: translateY(-20px);
-            }
-
-            to {
-                opacity: 1;
-                transform: translateY(0);
-            }
-        }
-
-        /* =========================================================================
-                        🟢 CSS สำหรับ Branch: feature/sidebar-toggle-menu
-                        ========================================================================= */
-
-        .mobile-sidebar-wrapper {
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            z-index: 10000;
-            visibility: hidden;
-            transition: visibility 0.3s;
-        }
-
-        /* ปลดล็อกคลาสเมื่อสั่งเปิดเมนู */
-        .mobile-sidebar-wrapper.is-open {
-            visibility: visible;
-        }
-
-        /* พื้นหลังมืดโปร่งแสงด้านหลัง */
-        .sidebar-overlay {
-            position: absolute;
-            width: 100%;
-            height: 100%;
-            background: rgba(0, 0, 0, 0.4);
-            opacity: 0;
-            transition: opacity 0.3s ease;
-        }
-
-        .mobile-sidebar-wrapper.is-open .sidebar-overlay {
-            opacity: 1;
-        }
-
-        /* กล่องเนื้อหาเมนูที่เด้งสไลด์มาจากทางซ้าย */
-        .sidebar-content {
-            position: absolute;
-            top: 0;
-            left: 0;
-            width: 280px;
-            /* ความกว้างเมนู */
-            height: 100%;
-            background: #ffffff;
-            box-shadow: 4px 0 15px rgba(0, 0, 0, 0.1);
-            display: flex;
-            flex-direction: column;
-            transform: translateX(-100%);
-            /* ซ่อนไว้ฝั่งซ้ายสุดจอก่อนเปิด */
-            transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-        }
-
-        .mobile-sidebar-wrapper.is-open .sidebar-content {
-            transform: translateX(0);
-            /* สไลด์กลับเข้ามาโชว์ปกติ */
-        }
-
-        /* พื้นหลังข้อมูล Staff ใช้โทนน้ำเงินไล่เฉดให้เข้าเซ็ตกับแอป */
-        .sidebar-user-profile {
-            background: linear-gradient(135deg, #1e3c72 0%, #2a5298 100%);
-            color: white;
-            padding: 35px 20px 25px 20px;
-            display: flex;
-            align-items: center;
-            gap: 15px;
-        }
-
-        .sidebar-avatar {
-            font-size: 32px;
-            background: rgba(255, 255, 255, 0.2);
-            width: 50px;
-            height: 50px;
-            border-radius: 50%;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-        }
-
-        .sidebar-user-details small {
-            display: block;
-            font-size: 11px;
-            opacity: 0.75;
-            margin-bottom: 2px;
-        }
-
-        .sidebar-user-details span {
-            font-size: 16px;
-            font-weight: bold;
-        }
-
-        /* รายการปุ่มเมนูสไลด์ */
-        .sidebar-menu-items {
-            padding: 15px 10px;
-            flex: 1;
-            display: flex;
-            flex-direction: column;
-            gap: 5px;
-        }
-
-        .menu-item {
-            display: block;
-            padding: 12px 15px;
-            color: #495057;
-            text-decoration: none;
-            font-size: 15px;
-            border-radius: 8px;
-            font-weight: 500;
-            transition: background 0.2s;
-        }
-
-        .menu-item:active,
-        .menu-item.active {
-            background: #f0f4fd;
-            color: #1e3c72;
-            font-weight: bold;
-        }
-
-        /* พื้นที่ปุ่มออกจากระบบด้านล่างสุด */
-        .sidebar-footer {
-            padding: 15px;
-            border-top: 1px solid #dee2e6;
-        }
-
-        .btn-sidebar-logout {
-            width: 100%;
-            background: #fff0f0;
-            color: #dc3545;
-            border: 1px solid #fecaca;
-            padding: 12px;
-            font-size: 14px;
-            font-weight: bold;
-            border-radius: 8px;
-            cursor: pointer;
-            transition: all 0.2s;
-        }
-
-        .btn-sidebar-logout:active {
-            background: #fcdede;
-        }
-
-        /* 🟢 ล็อกขนาดพื้นที่กล่องรายการขยะย่อยให้สไลด์ข้างในแทน */
-        #item-buttons-container {
-            display: grid;
-            grid-template-columns: repeat(2, 1fr);
-            gap: 10px;
-
-            /* 📌 จุดสำคัญ: จำกัดความสูงไว้ที่ 160px - 180px (แสดงได้ประมาณ 2 แถวพอดีสวย) */
-            max-height: 170px;
-            overflow-y: auto;
-            /* ถ้าของเกิน ให้เกิด Scrollbar สไลด์ในกล่องนี้แทน */
-            padding-right: 4px;
-            /* เผื่อพื้นที่ให้ Scrollbar ฝั่งขวาไม่บังปุ่ม */
-        }
-
-        /* 🟢 ปรับสไตล์การ์ดขยะย่อยให้กระชับ เต็มตา ไม่กินพื้นที่แนวตั้ง */
-        .trash-item-card-compact {
-            background: white;
-            border: 1px solid #e2e8f0;
-            border-radius: 10px;
-            padding: 8px 10px;
-            /* ลด Padding ลงเพื่อให้การ์ดผอมลง */
-            text-align: center;
-            min-height: 65px;
-            /* ลดความสูงขั้นต่ำลงจากเดิม */
-            display: flex;
-            flex-direction: column;
-            justify-content: center;
-            align-items: center;
-            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.02);
-        }
-
-        /* ปรับฟอนต์ชื่อขยะและราคาให้สมดุล */
-        .trash-item-card-compact .item-title {
-            font-size: 18px;
-            font-weight: bold;
-            color: #2d3748;
-            margin-bottom: 2px;
-        }
-
-        .trash-item-card-compact .item-price {
-            font-size: 14px;
-            color: #38a169;
-            font-weight: bold;
-        }
-
-        /* =========================================================================
-                                                                               🟢 CSS สำหรับหน้าต่างคีย์น้ำหนักเด้งจากด้านล่าง (Bottom Sheet Modal)
-        ========================================================================= */
-        .weight-modal-container {
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            z-index: 1050;
-            display: flex;
-            flex-direction: column;
-            justify-content: flex-end;
-            /* ดึงของลงขอบล่างจอ */
-            visibility: hidden;
-            transition: visibility 0.3s ease;
-        }
-
-
-        /* คลาสเปิดใช้งานผ่าน JavaScript */
-        .weight-modal-container.is-active {
-            visibility: visible;
-        }
-
-        /* ฉากหลังสีเทาดำโปร่งแสง */
-        .weight-modal-overlay {
-            position: absolute;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            background: rgba(0, 0, 0, 0.4);
-            opacity: 0;
-            transition: opacity 0.3s ease;
-        }
-
-        .weight-modal-container.is-active .weight-modal-overlay {
-            opacity: 1;
-        }
-
-        /* ตัวกล่องเนื้อหาที่จะดีดขึ้นมา */
-        .weight-modal-content {
-            position: relative;
-            background: #ffffff;
-            width: 100%;
-            border-top-left-radius: 24px;
-            border-top-right-radius: 24px;
-            padding: 20px 20px 30px 20px;
-            box-sizing: border-box;
-            transform: translateY(100%);
-            /* เริ่มต้นซ่อนไว้ใต้จอ */
-            transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-            box-shadow: 0 -5px 20px rgba(0, 0, 0, 0.1);
-        }
-
-        .weight-modal-container.is-active .weight-modal-content {
-            transform: translateY(0);
-            /* สไลด์ลอยขึ้นมาพิกัดปกติ */
-        }
-
-        /* ขีดจับดีไซน์มือถือ */
-        .weight-modal-handle {
-            width: 44px;
-            height: 5px;
-            background: #e2e8f0;
-            border-radius: 3px;
-            margin: -10px auto 15px auto;
-        }
-
-        .weight-modal-header {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            border-bottom: 1px solid #f1f3f5;
-            padding-bottom: 12px;
-            margin-bottom: 15px;
-        }
-
-        .btn-weight-modal-close {
-            background: #f1f3f5;
-            border: none;
-            width: 32px;
-            height: 32px;
-            border-radius: 50%;
-            color: #6c757d;
-            font-size: 14px;
-            font-weight: bold;
-            cursor: pointer;
-        }
-
-        /* เอฟเฟกต์ตอนเอานิ้วกดปุ่มลงตะกร้า */
-        #btnAddToCart:active {
-            transform: scale(0.98);
-            opacity: 0.95;
-        }
-
-
-        /* =========================================================================
-                        🟢 CSS สำหรับกล่องแจ้งเตือนความสำเร็จแบบหายวับอัตโนมัติ (Success Toast)
-                        ========================================================================= */
-        .success-toast-overlay {
-            position: fixed;
-            top: 50%;
-            left: 50%;
-            transform: translate(-50%, -50%) scale(0.8);
-            background: rgba(0, 0, 0, 0.85);
-            color: white;
-            padding: 20px 30px;
-            border-radius: 16px;
-            text-align: center;
-            z-index: 9999;
-            /* อยู่บนสุดของทุกเลเยอร์ */
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            justify-content: center;
-            gap: 10px;
-            pointer-events: none;
-            /* เพื่อไม่ให้บล็อกการกดหน้าจอหลัก */
-            opacity: 0;
-            transition: all 0.2s cubic-bezier(0.175, 0.885, 0.32, 1.275);
-        }
-
-        /* คลาสเปิดใช้งานให้แสดงผล */
-        .success-toast-overlay.show {
-            opacity: 1;
-            transform: translate(-50%, -50%) scale(1);
-        }
-
-        .toast-icon {
-            font-size: 40px;
-            animation: pulseIcon 0.4s ease-in-out;
-        }
-
-        .toast-text {
-            font-size: 15px;
-            font-weight: bold;
-            white-space: nowrap;
-        }
-
-        /* แอนิเมชันให้ไอคอนเด้งดึ๋งสะใจ */
-        @keyframes pulseIcon {
-            0% {
-                transform: scale(0.5);
-            }
-
-            50% {
-                transform: scale(1.2);
-            }
-
-            100% {
-                transform: scale(1);
-            }
-        }
-
-        .profile img {
-            display: block;
-            width: 70px;
-            height: 70px;
-            border-radius: 50%;
-            margin: 0 auto;
-        }
-    </style>
-    <style>
-        #card-reciept {
-            font-size: 1.5rem !important
-                /* border-bottom: #000000 1px solid */
-        }
-
-        #card-reciept #org div {
-            text-align: right;
-            padding-right: 7px
-        }
-
-        #org_address {
-            position: absolute;
-            margin-top: 4.5rem;
-            text-align: right;
-            padding-right: 0
-        }
-
-        #org_address div {
-            font-size: 1.3rem;
-            line-height: 22px
-        }
-
-        #card-reciept p {
-            font-size: 1.6rem;
-            font-weight: bold;
-            text-align: center;
-            margin-top: 1.5rem;
-        }
-
-        #member_info,
-        #card-reciept p {
-            border-bottom: #000000 1px solid;
-            margin-bottom: 10px
-        }
-
-        #member_info {
-            /* margin-bottom: 10px */
-        }
-
-        .header {
-            text-align: right;
-            font-weight: bold;
-            font-size: 1.25rem
-        }
-
-        .info,
-        .info div {
-            font-size: 1.3rem
-        }
-
-        thead td {
-            font-size: 1.3rem;
-            text-align: center
-        }
-
-        tbody td {
-            font-size: 1.3rem;
-            /* border: 1px solid; */
-            text-align: center;
-            padding-top: 5px
-        }
-
-        #card-reciept .amount {
-            text-align: right;
-            font-size: 1.3rem;
-            vertical-align: top
-        }
-
-        .hidden {
-            display: none
-        }
-    </style>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link
+        href="https://fonts.googleapis.com/css2?family=Google+Sans:ital,opsz,wght@0,17..18,400..700;1,17..18,400..700&family=Kanit:ital,wght@0,100;0,200;0,300;0,400;0,500;0,600;0,700;0,800;0,900;1,100;1,200;1,300;1,400;1,500;1,600;1,700;1,800;1,900&display=swap"
+        rel="stylesheet">
+   
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/css/bootstrap.min.css"
         integrity="sha384-sRIl4kxILFvY47J16cr9ZwB07vP4J8+LH7qKQnuqkuIAvNWLzeN8tE5YBujZqJLB" crossorigin="anonymous">
-
     <script>
         window.ASSET_URL = "{{ asset('') }}";
     </script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/cropperjs/1.5.13/cropper.min.css" />
+
+    <link rel="stylesheet" href="{{ asset('css/accessmenu.css') }}">
 @endsection
 
 @section('content')
 
-    <div class="app-header">
+    <div class="app-header is-hidden">
         <div style="display: flex; align-items: center; gap: 12px;">
             <button type="button" id="btnOpenSidebar" onclick="toggleSidebar(true)"
                 style="background: transparent; border: none; color: white; font-size: 24px; cursor: pointer; padding: 0 5px; width: auto; margin: 0;">
@@ -998,17 +38,17 @@
     </div>
 
 
-    <div id="appSidebar" class="mobile-sidebar-wrapper">
+    <div id="appSidebar" class="mobile-sidebar-wrapper is-hidden">
         <div class="sidebar-overlay" onclick="toggleSidebar(false)"></div>
 
         <div class="sidebar-content">
 
             <div class="sidebar-user-profile">
                 <div class="sidebar-avatar">
-                    <center class="profile">
+                    {{-- <center class="profile">
                         <img src="{{ " https://profile.line-scdn.net/" . Auth::user()->image }}" class="img-bordered-md"
                             alt="">
-                    </center>
+                    </center> --}}
                 </div>
                 <div class="sidebar-user-details">
                     <small>เจ้าหน้าที่ผู้ปฏิบัติงาน</small>
@@ -1032,8 +72,8 @@
         </div>
     </div>
 
-    <div id="loginScreen" class="">
-        @include('staff.includes.screen_login')
+    <div id="loginScreen" class="ixs-hidden">
+        @include('staff.includes.login_screen')
     </div>
     @include('staff.includes.screen_select_org')
 
@@ -1042,6 +82,12 @@
             <h3 class="section-title">เมนูบริการระบบสนาม</h3>
 
             <div class="menu-grid">
+                <div class="menu-item card-water" onclick="navigateTo('water')">
+                    <div class="menu-icon">💧</div>
+                    <div class="menu-title">งานประปา</div>
+                    <div class="menu-desc">จดมาตรวัดน้ำ, แจ้งท่อแตก/ซ่อมแซม</div>
+                </div>
+
                 <div class="menu-item card-recycle" onclick="navigateTo('recycle')">
                     <div class="menu-icon">♻️</div>
                     <div class="menu-title">ธนาคารขยะรีไซเคิล</div>
@@ -1054,10 +100,16 @@
                     <div class="menu-desc">ตรวจประเมินถังขยะ, บันทึกพิกัดคาร์บอน</div>
                 </div>
 
-                <div class="menu-item card-water" onclick="navigateTo('water')">
-                    <div class="menu-icon">💧</div>
-                    <div class="menu-title">งานประปาภูมิภาค</div>
-                    <div class="menu-desc">จดมาตรวัดน้ำ, แจ้งท่อแตก/ซ่อมแซม</div>
+                 <div class="menu-item card-inventory" onclick="navigateTo('inventory')">
+                    <div class="menu-icon">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="40" height="40" fill="currentColor" class="bi bi-house-gear" viewBox="0 0 16 16">
+  <path d="M7.293 1.5a1 1 0 0 1 1.414 0L11 3.793V2.5a.5.5 0 0 1 .5-.5h1a.5.5 0 0 1 .5.5v3.293l2.354 2.353a.5.5 0 0 1-.708.708L8 2.207l-5 5V13.5a.5.5 0 0 0 .5.5h4a.5.5 0 0 1 0 1h-4A1.5 1.5 0 0 1 2 13.5V8.207l-.646.647a.5.5 0 1 1-.708-.708z"/>
+  <path d="M11.886 9.46c.18-.613 1.048-.613 1.229 0l.043.148a.64.64 0 0 0 .921.382l.136-.074c.561-.306 1.175.308.87.869l-.075.136a.64.64 0 0 0 .382.92l.149.045c.612.18.612 1.048 0 1.229l-.15.043a.64.64 0 0 0-.38.921l.074.136c.305.561-.309 1.175-.87.87l-.136-.075a.64.64 0 0 0-.92.382l-.045.149c-.18.612-1.048.612-1.229 0l-.043-.15a.64.64 0 0 0-.921-.38l-.136.074c-.561.305-1.175-.309-.87-.87l.075-.136a.64.64 0 0 0-.382-.92l-.148-.044c-.613-.181-.613-1.049 0-1.23l.148-.043a.64.64 0 0 0 .382-.921l-.074-.136c-.306-.561.308-1.175.869-.87l.136.075a.64.64 0 0 0 .92-.382zM14 12.5a1.5 1.5 0 1 0-3 0 1.5 1.5 0 0 0 3 0"/>
+</svg>
+                    </div>
+                    
+                    <div class="menu-title">ยืม/คืน พัสดุ</div>
+                    <div class="menu-desc">ยืม/คืน พัสดุ</div>
                 </div>
 
                 <div class="menu-item card-settings" onclick="navigateTo('settings')">
@@ -1066,12 +118,7 @@
                     <div class="menu-desc">เชื่อมต่อ Bluetooth Thermal Printer</div>
                 </div>
 
-                <div class="menu-item card-inventory" onclick="navigateTo('inventory')">
-                    <div class="menu-icon">🖨️</div>
-                    <div class="fa fa-bible"></div>
-                    <div class="menu-title">ยืม/คืน พัสดุ</div>
-                    <div class="menu-desc">ยืม/คืน พัสดุ</div>
-                </div>
+               
             </div>
         </div>
     </div>
@@ -1318,6 +365,13 @@
             <h3 class="section-title">งานประปา</h3>
 
             <div class="menu-grid">
+                 <div class="menu-item card-organic" onclick="navigateTo('water-tabwater-record')">
+                    <div class="menu-icon">🍂</div>
+                    <div class="menu-title">จดมิเตอร์ประปา</div>
+                    <div class="menu-desc">จดมิเตอร์ประปา</div>
+                </div>
+
+
                 <div class="menu-item card-recycle" onclick="navigateTo('water-cutmeter')">
                     <div class="menu-icon">♻️</div>
                     <div class="menu-title">ตัดมิเตอร์ประปา</div>
@@ -1329,12 +383,7 @@
                     <div class="menu-desc">เรื่องร้องเรียน/แจ้งเหตุงานประปา</div>
                 </div>
 
-                <div class="menu-item card-organic" onclick="navigateTo('water-tabwater-record')">
-                    <div class="menu-icon">🍂</div>
-                    <div class="menu-title">จดมิเตอร์ประปา</div>
-                    <div class="menu-desc">จดมิเตอร์ประปา</div>
-                </div>
-
+               
                 <div class="menu-item card-water" onclick="navigateTo('water-equipment-control')">
                     <div class="menu-icon">💧</div>
                     <div class="menu-title">ควบคุมงานผลิตน้ำ</div>
@@ -1342,7 +391,7 @@
                 </div>
 
 
-                
+
             </div>
         </div>
     </div>
@@ -1355,13 +404,12 @@
         @include('staff.includes.screen_water_members_list')
     </div>
     <div id="inventoryScreen" class="is-hidden">
-        <iframe src="{{ route('inventory.items.iframe') }}" 
-            style="width: 100%; height: 600px; border: none;" 
+        <iframe src=""  style=" width: 100%; height: 800px; border: none;"
             id="inventoryIframe">
-    </iframe>
+        </iframe>
     </div>
 
-    <div id="successToast" class="success-toast-overlay">
+    <div id="successToast" class="success-toast-overlay is-hidden">
         <div class="toast-icon">✅</div>
         <div id="successToastText" class="toast-text">เพิ่มลงตะกร้าเรียบร้อย</div>
     </div>
@@ -1394,33 +442,33 @@
     </div>
 
     <div id="card-reciept" style="width: 384px; 
-                                background: #ffffff; 
-                                color: #000000;
-                                font-size:1.4rem !important;
-                                ">
+                                    background: #ffffff; 
+                                    color: #000000;
+                                    font-size:1.4rem !important;
+                                    ">
     </div>
 
-{{-- <div id="qrcode_info"></div> --}}
+    {{-- <div id="qrcode_info"></div> --}}
 
 @endsection
 
 @section('script')
     <script src="https://html2canvas.hertzen.com/dist/html2canvas.min.js"></script>
     <script src="https://unpkg.com/html5-qrcode"></script>
-    <script src="https://code.jquery.com/jquery-4.0.0.slim.js"
-        integrity="sha256-M+GjhMBfXikM1izMplICCTscIj5hzPCp6uDzaypxtgg=" crossorigin="anonymous"></script>
+    <script src="{{ asset('js/jquery-3.7.1.slim.js') }}"></script>
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
     <!-- แนะนำให้วางไว้ในส่วน <head> หรือก่อนปิด </body> -->
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
     <!-- โหลด Tesseract.js ผ่าน CDN (หรือโหลดมาเก็บไว้ใน public/js ของ Laravel) -->
-<script src="https://cdn.jsdelivr.net/npm/tesseract.js@5/dist/tesseract.min.js"></script>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/cropperjs/1.5.13/cropper.min.js"></script>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/tesseract.js@5/dist/tesseract.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/cropperjs/1.5.13/cropper.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+    <script src="{{ asset('js/accessmenu.js') }}"></script>
     <script>
 
         let BluetoothSerial = null;
         let allMembers = [];                 // เก็บรายชื่อสมาชิกทั้งหมดที่ดึงมาจาก Laravel
-        const API_BASE_URL = "https://8d74-1-47-53-190.ngrok-free.app/api";
+        const API_BASE_URL = "https://6181-1-47-73-222.ngrok-free.app/api";
 
         let rawItemsData = [];               // เก็บรายการขยะทั้งหมด (kp_tbank_items)
         let currentSelectedTrash = null;     // เก็บขยะชิ้นปัจจุบันที่เจ้าหน้าที่เลือกอยู่
@@ -1433,14 +481,14 @@
         //bluethooth.js
         let bluetoothDevice;
         let printCharacteristic;
-        let isRecorded = false  
+        let isRecorded = false
 
-        {!! file_get_contents(resource_path('views/staff/includes/screen_login.js')) !!}
-        {!! file_get_contents(resource_path('views/staff/includes/screen_water_record.js')) !!}
-        // {!! file_get_contents(resource_path('views/staff/includes/screen_water_members_list.js')) !!}
-        {!! file_get_contents(resource_path('views/staff/includes/navigate_to.js')) !!}
-        {!! file_get_contents(resource_path('views/staff/includes/bluethooth.js')) !!}
-        {!! file_get_contents(resource_path('views/staff/includes/modals.js')) !!}
+        // {! file_get_contents(resource_path('views/staff/includes/screen_login.js')) !!}
+        // {! file_get_contents(resource_path('views/staff/includes/screen_water_record.js')) !!}
+        // {! file_get_contents(resource_path('views/staff/includes/screen_water_members_list.js')) !!}
+        // {! file_get_contents(resource_path('views/staff/includes/navigate_to.js')) !!}
+        // {! file_get_contents(resource_path('views/staff/includes/bluethooth.js')) !!}
+        // {! file_get_contents(resource_path('views/staff/includes/modals.js')) !!}
 
 
 
@@ -1457,77 +505,77 @@
             }
         };
 
-    // ฟังก์ชันช่วยโหลด Script QRCode อัตโนมัติกรณีที่ยังไม่มีในระบบ
-function loadQRCodeScript() {
-    return new Promise((resolve, reject) => {
-        if (typeof QRCode !== 'undefined') {
-            resolve();
-            return;
+        // ฟังก์ชันช่วยโหลด Script QRCode อัตโนมัติกรณีที่ยังไม่มีในระบบ
+        function loadQRCodeScript() {
+            return new Promise((resolve, reject) => {
+                if (typeof QRCode !== 'undefined') {
+                    resolve();
+                    return;
+                }
+                const script = document.createElement('script');
+                script.src = "https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js";
+                script.onload = () => resolve();
+                script.onerror = () => reject(new Error("ไม่สามารถโหลดไลบรารี QRCode ได้"));
+                document.head.appendChild(script);
+            });
         }
-        const script = document.createElement('script');
-        script.src = "https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js";
-        script.onload = () => resolve();
-        script.onerror = () => reject(new Error("ไม่สามารถโหลดไลบรารี QRCode ได้"));
-        document.head.appendChild(script);
-    });
-}
 
-// ฟังก์ชันแปลงข้อความชำระเงินเป็น Base64 Image
-async function generateQRBase64(text) {
-    // 1. รอให้มั่นใจว่าไลบรารี QRCode โหลดเสร็จแล้ว
-    await loadQRCodeScript();
+        // ฟังก์ชันแปลงข้อความชำระเงินเป็น Base64 Image
+        async function generateQRBase64(text) {
+            // 1. รอให้มั่นใจว่าไลบรารี QRCode โหลดเสร็จแล้ว
+            await loadQRCodeScript();
 
-    return new Promise((resolve) => {
-        let tempDiv = document.createElement("div");
+            return new Promise((resolve) => {
+                let tempDiv = document.createElement("div");
 
-        new QRCode(tempDiv, {
-            text: text,
-            width: 150,
-            height: 150,
-            correctLevel: QRCode.CorrectLevel.M
-        });
+                new QRCode(tempDiv, {
+                    text: text,
+                    width: 150,
+                    height: 150,
+                    correctLevel: QRCode.CorrectLevel.M
+                });
 
-        // หน่วงเวลาเล็กน้อยให้ DOM เรนเดอร์รูปภาพเสร็จ
-        setTimeout(() => {
-            let img = tempDiv.querySelector("img");
-            if (img && img.src) {
-                resolve(img.src);
-            } else {
-                let canvas = tempDiv.querySelector("canvas");
-                resolve(canvas ? canvas.toDataURL("image/png") : "");
-            }
-        }, 50);
-    });
-}
+                // หน่วงเวลาเล็กน้อยให้ DOM เรนเดอร์รูปภาพเสร็จ
+                setTimeout(() => {
+                    let img = tempDiv.querySelector("img");
+                    if (img && img.src) {
+                        resolve(img.src);
+                    } else {
+                        let canvas = tempDiv.querySelector("canvas");
+                        resolve(canvas ? canvas.toDataURL("image/png") : "");
+                    }
+                }, 50);
+            });
+        }
 
-async function buildReceiptHtml() {
-    let user_id = 11;
-    let meter_id = String(user_id).padStart(18, '0');
-    let net_paid = 263.60;
-    let amount_formatted = net_paid.toFixed(2).replace(".", "");
+        async function buildReceiptHtml() {
+            let user_id = 11;
+            let meter_id = String(user_id).padStart(18, '0');
+            let net_paid = 263.60;
+            let amount_formatted = net_paid.toFixed(2).replace(".", "");
 
-    let payment_str = `|099400035262000\n${meter_id}\n${inv_id}\n${amount_formatted}`;
+            let payment_str = `|099400035262000\n${meter_id}\n${inv_id}\n${amount_formatted}`;
 
-    // 🟢 เปลี่ยน text (payment_str) ให้กลายเป็นรูป QR Code (Base64)
-    let qrImageBase64 = await generateQRBase64(payment_str);
+            // 🟢 เปลี่ยน text (payment_str) ให้กลายเป็นรูป QR Code (Base64)
+            let qrImageBase64 = await generateQRBase64(payment_str);
 
 
-    // ใส่ qrImageBase64 ลงในแท็ก <img> แทนการแสดง text ดิบ
-   // let text = generateWaterBillHTML2()
-    $('#qrcode').html( `
-    <div id="receipt-area" class="receipt-container">
-        <!-- รายการค่าน้ำประปา / รายละเอียดต่างๆ -->
-        ...
-        
-        <!-- ส่วนแสดง QR Code -->
-        <div class="text-center my-2">
-            <img src="${qrImageBase64}" style="width: 180px; height: 180px;" alt="QR Code">
-            <div style="font-size: 10px;">Ref1: ${meter_id}</div>
-            <div style="font-size: 10px;">Ref2: ${inv_id}</div>
+            // ใส่ qrImageBase64 ลงในแท็ก <img> แทนการแสดง text ดิบ
+            // let text = generateWaterBillHTML2()
+            $('#qrcode').html(`
+        <div id="receipt-area" class="receipt-container">
+            <!-- รายการค่าน้ำประปา / รายละเอียดต่างๆ -->
+            ...
+
+            <!-- ส่วนแสดง QR Code -->
+            <div class="text-center my-2">
+                <img src="${qrImageBase64}" style="width: 180px; height: 180px;" alt="QR Code">
+                <div style="font-size: 10px;">Ref1: ${meter_id}</div>
+                <div style="font-size: 10px;">Ref2: ${inv_id}</div>
+            </div>
         </div>
-    </div>
-    `);
-}
+        `);
+        }
 
 
         function backToMenu() {
@@ -1558,17 +606,17 @@ async function buildReceiptHtml() {
                 const card = document.createElement('div');
                 card.className = 'member-card';
                 card.innerHTML = `
-                                <div class="member-info">
-                                    <p style="font-weight: bold; font-size: 16px; margin: 0 0 5px 0;">${member.firstname} ${member.lastname}</p>
-                                    <p style="margin: 0 0 5px 0; font-size: 14px; color: #555;">📞 เบอร์โทร: ${member.phone || 'ไม่มีข้อมูล'}</p>
-                                    <p style="margin: 0;"><span class="badge-account" style="background: #e6f0fa; color: #007bff; padding: 3px 8px; border-radius: 4px; font-size: 12px;">เลขบัญชี: ${account ? account : 'ไม่มีบัญชี'}</span></p>
-                                </div>
-                                <div>
-                                    <button class="btn-deposit" onclick="selectMemberToDeposit(${member.id})" style="background: #28a745; color: white; border: none; padding: 8px 15px; border-radius: 4px; cursor: pointer; font-weight: bold;">
-                                        💰 รับซื้อขยะรีไซเคิล
-                                    </button>
-                                </div>
-                            `;
+                                    <div class="member-info">
+                                        <p style="font-weight: bold; font-size: 16px; margin: 0 0 5px 0;">${member.firstname} ${member.lastname}</p>
+                                        <p style="margin: 0 0 5px 0; font-size: 14px; color: #555;">📞 เบอร์โทร: ${member.phone || 'ไม่มีข้อมูล'}</p>
+                                        <p style="margin: 0;"><span class="badge-account" style="background: #e6f0fa; color: #007bff; padding: 3px 8px; border-radius: 4px; font-size: 12px;">เลขบัญชี: ${account ? account : 'ไม่มีบัญชี'}</span></p>
+                                    </div>
+                                    <div>
+                                        <button class="btn-deposit" onclick="selectMemberToDeposit(${member.id})" style="background: #28a745; color: white; border: none; padding: 8px 15px; border-radius: 4px; cursor: pointer; font-weight: bold;">
+                                            💰 รับซื้อขยะรีไซเคิล
+                                        </button>
+                                    </div>
+                                `;
                 container.appendChild(card);
             });
         }
@@ -1801,11 +849,11 @@ async function buildReceiptHtml() {
                 // else if (g.name.includes("โลหะ")) icon = "🛠️";
 
                 filterDiv.innerHTML = `
-                                    <button type="button" class="btn btn-outline-dark rounded-circle" style="width: 60px; height: 60px; border-radius:50%; border:1px solid #ccc; background:#fff; font-size:20px;text-align:center">
-                                        ${icon}
-                                    </button>
-                                    <small class="mt-1 text-muted fw-bold " style="font-size: 15px; margin-top:5px; color:green; font-weight:bold;text-align:center">${g.name}</small>
-                                `;
+                                        <button type="button" class="btn btn-outline-dark rounded-circle" style="width: 60px; height: 60px; border-radius:50%; border:1px solid #ccc; background:#fff; font-size:20px;text-align:center">
+                                            ${icon}
+                                        </button>
+                                        <small class="mt-1 text-muted fw-bold " style="font-size: 15px; margin-top:5px; color:green; font-weight:bold;text-align:center">${g.name}</small>
+                                    `;
                 container.appendChild(filterDiv);
             });
         }
@@ -1837,9 +885,9 @@ async function buildReceiptHtml() {
                 gridCol.id = `card-${opt.kp_itemscode}`;
                 gridCol.onclick = () => selectTrashItem(opt.kp_itemscode);
                 gridCol.innerHTML = `
-                                                                            <div class="item-title">${opt.kp_itemsname}</div>
-                                                                            <div class="item-price">${opt.price} บาท./${opt.unitname}</div>
-                                                                        `;
+                                                                                <div class="item-title">${opt.kp_itemsname}</div>
+                                                                                <div class="item-price">${opt.price} บาท./${opt.unitname}</div>
+                                                                            `;
                 subContainer.appendChild(gridCol);
 
             });
@@ -2036,41 +1084,41 @@ async function buildReceiptHtml() {
             let tableRows = "";
             purchaseCart.forEach((item, index) => {
                 tableRows += `
-                                <tr style="border-bottom:1px solid #eee; height:50px;">
-                                    <td style="padding:5px;"><b>${item.item_name}</b><br><small style="color:#888;">${item.price_per_unit.toFixed(2)} บ./${item.unit_short_name}</small></td>
-                                    <td style="text-align:right; padding:5px;">${item.amount_in_units.toFixed(2)} ${item.unit_short_name}</td>
-                                    <td style="text-align:right; padding:5px; color:#28a745; font-weight:bold;">${item.amount.toFixed(2)} บ.</td>
-                                    <td style="text-align:center; padding:5px;"><button onclick="removeFromCart(${index})" style="background:none; border:none; color:#dc3545; font-size:18px; cursor:pointer;">🗑️</button></td>
-                                </tr>
-                            `;
+                                    <tr style="border-bottom:1px solid #eee; height:50px;">
+                                        <td style="padding:5px;"><b>${item.item_name}</b><br><small style="color:#888;">${item.price_per_unit.toFixed(2)} บ./${item.unit_short_name}</small></td>
+                                        <td style="text-align:right; padding:5px;">${item.amount_in_units.toFixed(2)} ${item.unit_short_name}</td>
+                                        <td style="text-align:right; padding:5px; color:#28a745; font-weight:bold;">${item.amount.toFixed(2)} บ.</td>
+                                        <td style="text-align:center; padding:5px;"><button onclick="removeFromCart(${index})" style="background:none; border:none; color:#dc3545; font-size:18px; cursor:pointer;">🗑️</button></td>
+                                    </tr>
+                                `;
             });
 
             modal.innerHTML = `
-                                                                                    <div style="background:#fff; width:100%; max-width:500px; border-radius:15px; padding:20px; box-shadow:0 10px 25px rgba(0,0,0,0.1); position:relative; font-family:sans-serif;">
-                                                                                        <h4 style="margin-top:0; font-weight:bold; color:#333;">🛒 รายการในตะกร้า</h4>
-                                                                                        <div style="max-height:250px; overflow-y:auto; margin-bottom:15px;">
-                                                                                            <table style="width:100%; border-collapse:collapse; font-size:14px;">
-                                                                                                <thead>
-                                                                                                    <tr style="background:#f8f9fa; height:35px; text-align:left; color:#6c757d;">
-                                                                                                        <th>สินค้า</th><th style="text-align:right;">จำนวน</th><th style="text-align:right;">รวม (บาท)</th><th style="text-align:center;">ลบ</th>
-                                                                                                    </tr>
-                                                                                                </thead>
-                                                                                                <tbody>${tableRows}</tbody>
-                                                                                            </table>
+                                                                                        <div style="background:#fff; width:100%; max-width:500px; border-radius:15px; padding:20px; box-shadow:0 10px 25px rgba(0,0,0,0.1); position:relative; font-family:sans-serif;">
+                                                                                            <h4 style="margin-top:0; font-weight:bold; color:#333;">🛒 รายการในตะกร้า</h4>
+                                                                                            <div style="max-height:250px; overflow-y:auto; margin-bottom:15px;">
+                                                                                                <table style="width:100%; border-collapse:collapse; font-size:14px;">
+                                                                                                    <thead>
+                                                                                                        <tr style="background:#f8f9fa; height:35px; text-align:left; color:#6c757d;">
+                                                                                                            <th>สินค้า</th><th style="text-align:right;">จำนวน</th><th style="text-align:right;">รวม (บาท)</th><th style="text-align:center;">ลบ</th>
+                                                                                                        </tr>
+                                                                                                    </thead>
+                                                                                                    <tbody>${tableRows}</tbody>
+                                                                                                </table>
+                                                                                            </div>
+                                                                                            <div style="display:flex; justify-content:space-between; align-items:center; background:#f8f9fa; padding:15px; border-radius:10px; margin-bottom:15px;">
+                                                                                                <span>ยอดสุทธิรวม:</span>
+                                                                                                <span style="font-size:22px; font-weight:bold; color:#28a745;">${grandTotal.toFixed(2)} บาท</span>
+                                                                                                <input type="checkbox" id="cashback" name="cashback" style="width:30px; height:30px">จ่ายเงินสด
+                                                                                            </div>
+                                                                                            <div style="display:flex; gap:10px;">
+                                                                                                <button onclick="document.getElementById('customCartModal').remove()" style="flex:1; padding:12px; border-radius:8px; border:1px solid #ccc; background:#ccc; font-weight:bold; cursor:pointer;">ปิดหน้าต่าง</button>
+                                                                                                <button onclick="submitFinalPurchase(0)" style="flex:2; padding:12px; border-radius:8px; border:none; background:#28a745; color:#fff; font-weight:bold; font-size:16px; cursor:pointer;">📝 ยืนยันบันทึก</button>
+                                                                                                <button onclick="submitFinalPurchase(1)" id="submit_and_print"  
+                                                                                                    style="flex:2; padding:12px; border-radius:8px; border:none; background:#28a745; color:#fff; font-weight:bold; font-size:16px; cursor:pointer;">📝 ยืนยันบันทึก & ปริ้นบิล</button>
+                                                                                            </div>
                                                                                         </div>
-                                                                                        <div style="display:flex; justify-content:space-between; align-items:center; background:#f8f9fa; padding:15px; border-radius:10px; margin-bottom:15px;">
-                                                                                            <span>ยอดสุทธิรวม:</span>
-                                                                                            <span style="font-size:22px; font-weight:bold; color:#28a745;">${grandTotal.toFixed(2)} บาท</span>
-                                                                                            <input type="checkbox" id="cashback" name="cashback" style="width:30px; height:30px">จ่ายเงินสด
-                                                                                        </div>
-                                                                                        <div style="display:flex; gap:10px;">
-                                                                                            <button onclick="document.getElementById('customCartModal').remove()" style="flex:1; padding:12px; border-radius:8px; border:1px solid #ccc; background:#ccc; font-weight:bold; cursor:pointer;">ปิดหน้าต่าง</button>
-                                                                                            <button onclick="submitFinalPurchase(0)" style="flex:2; padding:12px; border-radius:8px; border:none; background:#28a745; color:#fff; font-weight:bold; font-size:16px; cursor:pointer;">📝 ยืนยันบันทึก</button>
-                                                                                            <button onclick="submitFinalPurchase(1)" id="submit_and_print"  
-                                                                                                style="flex:2; padding:12px; border-radius:8px; border:none; background:#28a745; color:#fff; font-weight:bold; font-size:16px; cursor:pointer;">📝 ยืนยันบันทึก & ปริ้นบิล</button>
-                                                                                        </div>
-                                                                                    </div>
-                                                                                `;
+                                                                                    `;
             document.body.appendChild(modal);
         }
 
@@ -2149,53 +1197,53 @@ async function buildReceiptHtml() {
 
                     let recieptText =
                         `<div class="row">
-                            <div class="col-5">
-                                <img src="{{ asset('logo/${staffInfo.org.org_logo_img}') }}" width="100%" alt="">
-                            </div>
-                            <div class="col-7" id="org">
-                                <div style="font-size: 1.5rem;">${staffInfo.org.org_type_name}</div>
-                                <div style="font-size: 2rem; margin-top: -10px;">${staffInfo.org.org_name}</div>
-
-                            </div>
-                            <div class="text-right" id="org_address">
-                                <div>${staffInfo.org.org_address} หมู่ ${staffInfo.org.org_zone} ต.${staffInfo.org.org_tambon}</div>
-                                <div>อ.${staffInfo.org.org_district} จ.${staffInfo.org.org_province}</div>
-                                <div>โทร.${staffInfo.org.org_phone}</div>
-                            </div>
-                        </div>
-
-                        <p>ธนาคารขยะรีไซเคิล</p>
-                        <div id="member_info">
-                            <div class="row">
-                                <div class="col-3 header">ชื่อ-สกุล:</div>
-                                <div class="col-9">${currentActiveMember.firstname} ${currentActiveMember.lastname}</div>
-                                <div class="col-3 header">ที่อยู่:</div>
-                                <div class="col-9 info">
-                                    <div>${currentActiveMember.address} หมู่ ${currentActiveMember.waste_preference.user_pref_zone.zone_name} ต.${staffInfo.org.org_tambon}</div>
-                                    <div>อ.${staffInfo.org.org_district} จ.${staffInfo.org.org_province}</div>
+                                <div class="col-5">
+                                    <img src="{{ asset('logo/${staffInfo.org.org_logo_img}') }}" width="100%" alt="">
                                 </div>
-                                <div class="col-3 header">รหัส:</div>
-                                <div class="col-9 info">${currentActiveMember.waste_preference.id}</div>
-                            </div>
-                        </div>
+                                <div class="col-7" id="org">
+                                    <div style="font-size: 1.5rem;">${staffInfo.org.org_type_name}</div>
+                                    <div style="font-size: 2rem; margin-top: -10px;">${staffInfo.org.org_name}</div>
 
-                        <div id="reciept_info" style="margin-bottom:10px">
-                            <div class="row">
-                                <div class="col-4 header">วันที่:</div>
-                                <div class="col-8">${resData.data.transaction_date}</div>
-                                <div class="col-4 header">เลขใบเสร็จ:</div>
-                                <div class="col-8 info">${resData.data.receipt_no}</div>
+                                </div>
+                                <div class="text-right" id="org_address">
+                                    <div>${staffInfo.org.org_address} หมู่ ${staffInfo.org.org_zone} ต.${staffInfo.org.org_tambon}</div>
+                                    <div>อ.${staffInfo.org.org_district} จ.${staffInfo.org.org_province}</div>
+                                    <div>โทร.${staffInfo.org.org_phone}</div>
+                                </div>
                             </div>
-                        </div>
-                        <table border="0" width="100%">
-                            <thead>
-                                <tr>
-                                    <td width="60%"></td>
-                                    <td width="15%">แต้ม</td>
-                                    <td width="25%">บาท</td>
-                                </tr>
-                            </thead>
-                            <tbody>`;
+
+                            <p>ธนาคารขยะรีไซเคิล</p>
+                            <div id="member_info">
+                                <div class="row">
+                                    <div class="col-3 header">ชื่อ-สกุล:</div>
+                                    <div class="col-9">${currentActiveMember.firstname} ${currentActiveMember.lastname}</div>
+                                    <div class="col-3 header">ที่อยู่:</div>
+                                    <div class="col-9 info">
+                                        <div>${currentActiveMember.address} หมู่ ${currentActiveMember.waste_preference.user_pref_zone.zone_name} ต.${staffInfo.org.org_tambon}</div>
+                                        <div>อ.${staffInfo.org.org_district} จ.${staffInfo.org.org_province}</div>
+                                    </div>
+                                    <div class="col-3 header">รหัส:</div>
+                                    <div class="col-9 info">${currentActiveMember.waste_preference.id}</div>
+                                </div>
+                            </div>
+
+                            <div id="reciept_info" style="margin-bottom:10px">
+                                <div class="row">
+                                    <div class="col-4 header">วันที่:</div>
+                                    <div class="col-8">${resData.data.transaction_date}</div>
+                                    <div class="col-4 header">เลขใบเสร็จ:</div>
+                                    <div class="col-8 info">${resData.data.receipt_no}</div>
+                                </div>
+                            </div>
+                            <table border="0" width="100%">
+                                <thead>
+                                    <tr>
+                                        <td width="60%"></td>
+                                        <td width="15%">แต้ม</td>
+                                        <td width="25%">บาท</td>
+                                    </tr>
+                                </thead>
+                                <tbody>`;
 
 
                     let totalAmount = 0;
@@ -2204,45 +1252,45 @@ async function buildReceiptHtml() {
                     purchaseCart.forEach(v => {
                         let _points = v.point * v.amount_in_units;
                         recieptText += `
-                                                <tr>
-                                                    <td style="text-align: left; font-size: 1.5rem;line-height: 22px;">
-                                                        -${v.item_name} 
-                                                        <div style="font-size: 1rem; padding-left: 10px; ">
-                                                            <span style="font-size: 1.4rem;">${v.amount_in_units} ${v.unit_short_name}   </span>
-                                                            <span style="margin-left:10px">(${v.price_per_unit} บาท, ${v.point} แต้ม):${v.unit_short_name}</span>
-                                                        </div>
-                                                    </td>
-                                                    <td class="amount">${_points}</td>
-                                                    <td class="amount">${v.amount.toFixed(2)}</td>
-                                                </tr>
+                                                    <tr>
+                                                        <td style="text-align: left; font-size: 1.5rem;line-height: 22px;">
+                                                            -${v.item_name} 
+                                                            <div style="font-size: 1rem; padding-left: 10px; ">
+                                                                <span style="font-size: 1.4rem;">${v.amount_in_units} ${v.unit_short_name}   </span>
+                                                                <span style="margin-left:10px">(${v.price_per_unit} บาท, ${v.point} แต้ม):${v.unit_short_name}</span>
+                                                            </div>
+                                                        </td>
+                                                        <td class="amount">${_points}</td>
+                                                        <td class="amount">${v.amount.toFixed(2)}</td>
+                                                    </tr>
 
-                                                `;
+                                                    `;
                         totalAmount += v.amount;
                         totalPoint += _points
                     })
 
                     recieptText += `    
-                                            </tbody>
-                                        </table>
-                                        <hr style="color: #000000;opacity:1; margin-left: 20px;" width="90%">
-                                        <table width="100%">
-                                                <tbody>
-                                                    <tr>
-
-                                                        <td style="text-align: left; font-size: 1.5rem;font-weight:bold" width="60%">
-                                                            รวมรับเงิน/แต้มสะสม
-                                                        </td>
-                                                        <td width="15%" style="line-height: 22px; font-weight:bold" class="amount">${totalPoint} <div style="font-size: 1rem;text-align: right">แต้ม</div></td>
-                                                        <td width="25%" style="line-height: 22px; font-weight:bold" class="amount">${totalAmount.toFixed(2)} <div style="font-size: 1rem;text-align: right">บาท</div></td>
-                                                    </tr>
-
                                                 </tbody>
                                             </table>
-                                        <hr style="opacity:1;">
+                                            <hr style="color: #000000;opacity:1; margin-left: 20px;" width="90%">
+                                            <table width="100%">
+                                                    <tbody>
+                                                        <tr>
 
-                                        <div style="margin-bottom:3rem; margin-top:rem;text-align:center;font-size:1.4rem; font-weight:bold">
-                                            ขอบคุณที่ร่วมลดโลกร้อน
-                                        </div>`;
+                                                            <td style="text-align: left; font-size: 1.5rem;font-weight:bold" width="60%">
+                                                                รวมรับเงิน/แต้มสะสม
+                                                            </td>
+                                                            <td width="15%" style="line-height: 22px; font-weight:bold" class="amount">${totalPoint} <div style="font-size: 1rem;text-align: right">แต้ม</div></td>
+                                                            <td width="25%" style="line-height: 22px; font-weight:bold" class="amount">${totalAmount.toFixed(2)} <div style="font-size: 1rem;text-align: right">บาท</div></td>
+                                                        </tr>
+
+                                                    </tbody>
+                                                </table>
+                                            <hr style="opacity:1;">
+
+                                            <div style="margin-bottom:3rem; margin-top:rem;text-align:center;font-size:1.4rem; font-weight:bold">
+                                                ขอบคุณที่ร่วมลดโลกร้อน
+                                            </div>`;
 
 
                     $('#card-reciept').html(recieptText)
@@ -2490,6 +1538,9 @@ async function buildReceiptHtml() {
             const loginScreen = document.getElementById('loginScreen');
             const mainAppScreen = document.getElementById('mainAppScreen'); // หรือ ID หน้าจัดการขยะหลักของพี่
 
+
+            $sessionAuthen = localStorage.getItem('staff');
+
             // if (loginScreen) {
             loginScreen.style.display = 'block';
             // }
@@ -2501,11 +1552,60 @@ async function buildReceiptHtml() {
         }
 
         //📌 สั่งให้ระบบล้างไพ่ทันทีที่หน้าจอเว็บแอปถูกโหลดขึ้นมา (DOM Loaded)
-        document.addEventListener("DOMContentLoaded", () => {
-         generateWaterBillHTML2('s')
-           printReceipt();
-            // initializeAppSession();
-        });
+        // document.addEventListener("DOMContentLoaded", () => {
+        //     generateWaterBillHTML2('s')
+        //     printReceipt();
+        //     // initializeAppSession();
+        // }); 
+
+//         document.addEventListener("DOMContentLoaded", function() {
+//     // 1. ตรวจสอบว่ามี staff_token และ staff_user_id ใน localStorage หรือยัง
+//     const staffToken = localStorage.getItem("staff_token");
+//     const staffUserId = localStorage.getItem("staff_user_id");
+//     const savedName = localStorage.getItem("staff_name");
+
+//     // ถ้ารหัส Token และ User ID มีอยู่จริง แปลว่าเคยล็อกอินค้างไว้แล้ว
+//     if (staffToken && staffUserId) {
+//         console.log("🟢 ตรวจพบ Token เดิมในระบบ ข้ามหน้า Login ไปยังหน้าหลักทันที");
+
+//         // แสดงส่วนหัวแอปพลิเคชัน
+//         $('.app-header').removeClass('hidden');
+
+//         // แสดงชื่อพนักงานที่บันทึกไว้ (ถ้ามี element #staffName)
+//         const staffNameEl = document.getElementById('staffName');
+//         if (staffNameEl && savedName) {
+//             staffNameEl.innerText = savedName;
+//         }
+
+//         // ซ่อนหน้า Login และหน้าเลือก Org
+//         const loginScreen = document.getElementById('loginScreen');
+//         const selectOrgScreen = document.getElementById('selectOrgScreen');
+//         const mainScreen = document.getElementById('mainScreen') || document.getElementById('mainAppScreen');
+
+//         if (loginScreen) {
+//             loginScreen.style.display = 'none';
+//             loginScreen.classList.add('is-hidden');
+//         }
+//         if (selectOrgScreen) {
+//             selectOrgScreen.style.display = 'none';
+//             selectOrgScreen.classList.add('is-hidden');
+//         }
+
+//         // แสดงหน้าหลักของระบบ
+//         if (mainScreen) {
+//             mainScreen.style.display = 'block';
+//             mainScreen.classList.remove('is-hidden');
+//         }
+
+//         // เรียกฟังก์ชันแสดงหน้าหลักเพิ่มเติม (ถ้ามี)
+//         if (typeof showMainScreen === "function" && savedName) {
+//             showMainScreen(savedName);
+//         }
+//     } else {
+//         test();
+//         console.log("🔴 ไม่พบ Token ในระบบ ต้องแสดงหน้า Login ปกติ");
+//     }
+// });
     </script>
 
 

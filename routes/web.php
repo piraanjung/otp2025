@@ -100,7 +100,9 @@ Route::get('/login_staff', function () {
 Route::get('acc', function () {
     Auth::logout();
     return view('staff_accessmenu');
+    // return view('staff.mobile');
 });
+        Route::get('/inventory/items/iframe', [InvItemController::class, 'iframeIndex'])->name('inventory.items.iframe');
 
 Route::get('/logout', function () {
     Auth::logout();
@@ -128,7 +130,9 @@ Route::prefix('tabwater/notify')->name('tabwater.notify.')->group(function () {
     Route::get('/success/{id}', [NotifyController::class, 'success'])->name('success');
     Route::get('/create', [NotifyController::class, 'create'])->name('create');     // <-- เพิ่มบรรทัดนี้ (หน้าฟอร์มกรอกแจ้งเหตุ)    Route::post('/check-phone', [NotifyController::class, 'checkPhone'])->name('check-phone');
     Route::post('/check-line-user', [NotifyController::class, 'checkLineUser'])->name('check-line-user');
-});
+    Route::get('/xx', [NotifyController::class, 'sendHeadNotificationText'])->name('xxx');
+
+    });
 
 Route::get('/logout_staff', function () {
     Auth::logout();
@@ -255,7 +259,10 @@ Route::middleware(['auth', 'role:Admin|Super Admin'])->name('admin.')->prefix('a
         Route::get('{user}/{action?}', [UserController::class, 'show'])->name('show');
     });
 
+    
     Route::resource('/invoice_period', InvoicePeriodController::class);
+    Route::get('/invoice_period/{period_id}/generate', [InvoicePeriodController::class, 'generateInvoice'])->name('invoice_period.generate');
+
     Route::get('/metertype/{metertype_id}/infos', [MetertypeController::class, 'infos'])->name('metertype.infos');
 
     Route::resource('/metertype', MetertypeController::class);
@@ -425,7 +432,7 @@ Route::middleware(['auth'])->prefix('inventory')->name('inventory.')->group(func
         Route::get('/create', [InvItemController::class, 'create'])->name('create');
         Route::get('/{id}/edit', [InvItemController::class, 'edit'])->name('edit');
         Route::put('/{id}', [InvItemController::class, 'update'])->name('update');
-        Route::get('/iframe', [InvItemController::class, 'iframeIndex'])->name('iframe');
+        // Route::get('/iframe', [InvItemController::class, 'iframeIndex'])->name('iframe');
         Route::post('/store', [InvItemController::class, 'store'])->name('store');
     });
 

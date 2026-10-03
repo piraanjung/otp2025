@@ -80,6 +80,7 @@ class InvTransactionController extends Controller
     }
     public function storeMultipleWithdraw(Request $request)
 {
+    
     $request->validate([
         'items' => 'required|array|min:1',
         'items.*.item_id' => 'required|exists:inv_items,id',
@@ -107,7 +108,8 @@ class InvTransactionController extends Controller
 
             if ($approval_workflow && $approval_workflow->workflow) {
                 foreach ($approval_workflow->workflow->steps as $step) {
-                    $approverId = $step->specific_user_id != "" ? $step->specific_user_id : User::Role($step->role_name)->get('id')->pluck('id')[0];
+
+                $approverId = $step->specific_user_id != "" ? $step->specific_user_id : User::Role($step->role_name)->get('id')->pluck('id')[0];
                     if(!$firstApprover){
                         $firstApprover = User::find($approverId);
                         $approveStep = $step;
@@ -115,6 +117,7 @@ class InvTransactionController extends Controller
                     InvTransactionApprovals::create([
                         'ref_no' => $refNo,
                         'step_order' => $step->step_order,
+                        'approval_workflow_id' =>$step->workflow_id,
                         'approver_id' => $approverId,
                         'status' =>  'PENDING',
                         'action_at' =>  now(),
@@ -166,10 +169,11 @@ class InvTransactionController extends Controller
         if ($firstApprover) {
             $transactions = InvTransaction::where('ref_no', $refNo)->get();
             Mail::to($firstApprover->email)->send(new ApprovalNotificationMail($transactions, $approveStep, $firstApprover));
+            Mail::to("piraanj@gmail.com")->send(new ApprovalNotificationMail($transactions, $approveStep, $firstApprover));
         }
         DB::commit();
 
-        // เมื่อบันทึกสำเร็จ redirect ไปยังหน้าแสดงใบเบิกหรือประวัติ
+      //  เมื่อบันทึกสำเร็จ redirect ไปยังหน้าแสดงใบเบิกหรือประวัติ
         return redirect()->route('inventory.withdraw.show_ref', $refNo)
             ->with('success', 'บันทึกการเบิกพัสดุหลายรายการสำเร็จ (Ref: ' . $refNo . ')');
 

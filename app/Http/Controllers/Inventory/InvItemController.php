@@ -9,6 +9,7 @@ use App\Models\InvItem;
 use App\Models\InvCategory;
 use App\Models\InvHazardLevel;
 use App\Models\InvUnit;
+use App\Models\User;
 use Carbon\Carbon;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\File;
@@ -65,7 +66,7 @@ class InvItemController extends Controller
     public function iframeIndex(Request $request)
     {
         // ใช้ Logic การดึงข้อมูลและ Search แบบเดิมของคุณทั้งหมดที่นี่
-        $user = Auth::user();
+        $user = Auth::user();//User::find(1);//
 
         // 1. เริ่มต้น Query
         $query = InvItem::where('org_id_fk', $user->org_id_fk)
