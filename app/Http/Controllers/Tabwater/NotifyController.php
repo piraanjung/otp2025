@@ -72,176 +72,290 @@ class NotifyController extends Controller
     /**
      * บันทึกข้อมูลการแจ้งเหตุ
      */
-    public function store(Request $request)
-    {
-        // 1. Validate ข้อมูล (เปลี่ยน photo เป็น photos และเป็น array)
-        $request->validate([
-            'reporter_name'     => 'required|string|max:255',
-            'reporter_phone'    => 'required|string|max:20',
-            'system_type'       => 'required|string',
-            'issue_type'        => 'required|string',
-            'custom_issue_type' => 'nullable|required_if:issue_type,other|string|max:255', // แก้จาก "อื่นๆ" เป็น "other"
-            'latitude'          => 'required',
-            'longitude'         => 'required',
-            'photos'            => 'nullable|array',
-            'photos.*'          => 'image|mimes:jpeg,png,jpg|max:5120',
+   public function store(Request $request) 
+{
+
+    // 1. Validate ข้อมูลให้ตรงกับฟิลด์ที่ส่งมาจากฟอร์ม
+    $request->validate([
+        'reporter_name' => 'required|string|max:255',
+        'reporter_phone' => 'required|string|max:20',
+        'issue_type' => 'required|string',
+        'issue_type' => 'required',
+        'other_issue' => 'nullable|required_if:issue_type,0|string|max:255', // ปรับจาก custom_issue_type เป็น other_issue ตามฟอร์ม
+        'latitude' => 'required',
+        'longitude' => 'required',
+        'photos' => 'nullable|array',
+        'photos.*' => 'image|mimes:jpeg,png,jpg|max:5120',
+    ]);
+    DB::beginTransaction();
+    try {
+        // 2. จัดการอัปโหลดรูปภาพ (ถ้ามี)
+        $photoPaths = [];
+        if ($request->hasFile('photos')) {
+            foreach ($request->file('photos') as $photo) {
+                $photoPaths[] = $photo->store('notify', 'direct_public');
+            }
+        }
+
+        // 3. กำหนดค่า issue_type และจัดการกรณี "อื่นๆ" (ถ้า issue_type เป็น 0 หรืออื่นๆ)
+        $issueTypeVal = $request->issue_type;
+        // $customIssueText = null;
+
+        if ($request->issue_type == '0' || $request->issue_type === 'other') {
+            // บันทึกลงตาราง IssueType กลางถ้าจำเป็น
+            $customIssueType = IssueType::firstOrCreate(
+                [
+                    'system_type' => $request->system_type,
+                    'name' => $request->other_issue,
+                ],
+                [
+                    'is_active' => 1,
+                    'is_suggested' => 1,
+                ]
+            );
+
+            $issueTypeVal = $customIssueType->id;
+
+        }
+
+        $orgId = session()->pull('selected_org_id');
+        $moduleType = $request->system_type; 
+        $userId = $request->user_id;
+
+
+        // 4. บันทึกข้อมูลลงตาราง tw_notifies
+        $notify = TwNotifies::create([
+            'user_id' => $memberId ?? ($userId != 0 ? $userId : null),
+            'org_id_fk' => $orgId ?? Auth::user()->org_id_fk,
+            'reporter_name' => $request->reporter_name,
+            'reporter_phone' => $request->reporter_phone,
+            'issue_type_id' => $issueTypeVal,
+            'description' => $request->description,
+            'latitude' => $request->latitude,
+            'longitude' => $request->longitude,
+            'photo_path' => json_encode($photoPaths), 
+            'status' => 'pending',
         ]);
 
-        DB::beginTransaction();
-        try {
-            // 2. จัดการอัปโหลดรูปภาพ (ถ้ามี)
-            $photoPaths = [];
-
-            if ($request->hasFile('photos')) {
-                foreach ($request->file('photos') as $photo) {
-                    // เก็บ Path ของแต่ละรูปลง Array sub direct_public โดยตรง
-                    $photoPaths[] = $photo->store('notify', 'direct_public');
-                }
-            }
-
-            // 3. กำหนดค่า issue_type ที่จะบันทึก
-            $issueTypeVal = $request->issue_type;
-
-            if ($request->issue_type === 'other' && $request->filled('custom_issue_type')) {
-                $issueTypeVal = $request->custom_issue_type;
-
-                IssueType::firstOrCreate(
-                    [
-                        'system_type' => $request->system_type,
-                        'name'        => $request->custom_issue_type,
-                    ],
-                    [
-                        'is_active'    => true,
-                        'is_suggested' => true,
-                    ]
-                );
-            }
-
-            $orgId = session()->pull('selected_org_id');
-            $moduleType = $request->system_type; // เช่น 'recycle_bank', 'water_works', 'consumer'
-            $userId = $request->user_id;
-            $memberId = "";
-
-            if ($userId != "") {
-                switch ($moduleType) {
-                    case 'recycle_trash':
-                        // ค้นจาก Reference Table ของธนาคารขยะรีไซเคิล
-                        $member = DB::table('kp_user_waste_preferences')
-                            ->where('org_id_fk', $orgId)
-                            ->where('user_id', $userId) // หรือเงื่อนไขที่ใช้ระบุตัวตนสมาชิก
-                            ->first();
-
-                        $memberId = $member?->user_id;
-                        break;
-
-                    case 'water_works':
-                        // ค้นจาก Reference Table ของระบบประปา
-                        $member = DB::table('water_works_members')
-                            ->where('org_id_fk', $orgId)
-                            ->where('user_id', $userId)
-                            ->first();
-
-                        $memberId = $member?->user_id;
-                        break;
-
-                    case 'organic_waste':
-                        // ค้นจาก Reference Table ของธนาคารขยะเปียก
-                        $member = DB::table('organic_waste_members')
-                            ->where('org_id_fk', $orgId)
-                            ->where('user_id', $userId)
-                            ->first();
-
-                        $memberId = $member?->user_id;
-                        break;
-
-                    default:
-                        // กรณีเป็นสมาชิกทั่วไป หรือผู้บริโภคในระบบสาธารณะ
-                        $member = DB::table('general_members')
-                            ->where('org_id_fk', $orgId)
-                            ->where('user_id', $userId)
-                            ->first();
-
-                        $memberId = $member?->user_id;
-                        break;
-                }
-            }
-
-            // 4. บันทึกข้อมูลลงตาราง tw_notifies
-            $notify = TwNotifies::create([
-                'user_id'           => $memberId,
-                'org_id_fk'         => $orgId ?? null,
-                'reporter_name'     => $request->reporter_name,
-                'reporter_phone'    => $request->reporter_phone,
-                'system_type'       => $request->system_type,
-                'issue_type'        => $issueTypeVal,
-                'custom_issue_type' => $request->issue_type === 'other' ? $request->custom_issue_type : null,
-                'description'       => $request->description,
-                'latitude'          => $request->latitude,
-                'longitude'         => $request->longitude,
-                'photo_path'        => json_encode($photoPaths), // แปลง Array เป็น JSON String
-                'status'            => 'pending',
-            ]);
-
-            DB::commit();
-            //  ส่ง Text Message แจ้งเตือน 1-on-1 ไปหาหัวหน้างานประจำ System Type นั้นๆ
+        DB::commit();
+        // ส่งแจ้งเตือน (ถ้ามีเมธอดนี้)
+        if (method_exists($this, 'sendHeadNotificationText')) {
             $this->sendHeadNotificationText($notify);
-
-            session()->forget('selected_org_id');
-            return redirect()->route('tabwater.notify.success', $notify->id)
-                ->with('success', 'บันทึกข้อมูลการแจ้งเหตุเรียบร้อยแล้ว');
-        } catch (\Exception $e) {
-            DB::rollBack();
-            return redirect()->back()
-                ->withInput()
-                ->with('error', 'เกิดข้อผิดพลาดในการบันทึกข้อมูล: ' . $e->getMessage());
         }
+
+        return response()->json([
+            'success' => true,
+            'message' => 'บันทึกข้อมูลการแจ้งเหตุเรียบร้อยแล้ว',
+            'id' => $notify->id
+        ]);
+
+    } catch (\Exception $e) {
+        DB::rollBack();
+        return response()->json([
+            'success' => false,
+            'message' => 'เกิดข้อผิดพลาดในการบันทึกข้อมูล: ' . $e->getMessage()
+        ], 500);
+    }
+}
+
+public function sendHeadNotificationText()
+{
+    $notify = TwNotifies::find(3);
+    
+    // ดักตรวจสอบกรณีไม่พบข้อมูล
+    if (!$notify) {
+        return response()->json(['status' => 'error', 'message' => 'ไม่พบข้อมูลแจ้งเหตุ ID: 3'], 404);
     }
 
-   protected function sendHeadNotificationText(TwNotifies $notify)
-{
     $channelToken = config('services.line_staff.channel_token');
 
-    // ค้นหา Staff ที่:
-    // 1. สังกัด org_id_fk เดียวกัน
-    // 2. สถานะ Staff ปกติ (เช่น status == 'active' หรือ != 'inactive')
-    // 3. มี User relationship ที่มี Role 'head_tap_water' และมี line_user_id
-    $headStaff = Staff::where('org_id_fk', $notify->org_id_fk)
+    $headStaff = Staff::where('org_id_fk', 1)
         ->where('status', 'active') // ปรับค่า status ตามระบบของคุณ
         ->whereHas('user', function ($query) {
-            $query->role('head_tap_water') // เช็ก Role ใน Model User
-                  ->whereNotNull('line_user_id');
+            $query->role('Tabwater Header') // เช็ก Role ใน Model User
+                  ->whereNotNull('line_id');
         })
+        ->where('user_id', 1)
         ->with('user') // Eager load Relation user เพื่อลด Query
         ->first();
 
     // หากไม่พบข้อมูล
-    if (!$headStaff || !$headStaff->user || empty($headStaff->user->line_user_id)) {
-        Log::warning("ไม่พบหัวหน้างานประปา (Staff) ที่มี LINE ID สำหรับ Org ID: {$notify->org_id_fk}");
+    if (!$headStaff || !$headStaff->user || empty($headStaff->user->line_id)) {
+        Log::warning("ไม่พบหัวหน้างานประปา (Staff) ที่มี LINE ID สำหรับ Org ID: {1}");
         return;
     }
 
     // ดึง line_user_id ของหัวหน้าจาก Relationship user
-    $headUserId = $headStaff->user->line_user_id;
+    $headerGroupId = $headStaff->user->line_id;
 
-    // 2. ข้อความสั้นเพื่อให้หัวหน้าก๊อปปี้ง่ายที่สุด
-    $triggerText = "งานเข้า " . $notify->id;
-    
-    $messageText = "🚨 **มีแจ้งเหตุใหม่ (#{$notify->id})**\n"
-                 . "องค์กร: " . ($notify->organization->name ?? '-') . "\n"
-                 . "ประเภท: " . $notify->issue_type . "\n"
-                 . "---------------------------\n"
-                 . "📌 **กรุณาก๊อปปี้ข้อความด้านล่างนี้ วางลงในกลุ่มงาน:**\n\n"
-                 . $triggerText;
+    // 1. เตรียมเนื้อหาภายใน body (เริ่มจากข้อความรายละเอียดหลัก)
+    $bodyContents = [
+        [
+            'type' => 'text',
+            'text' => "รหัสแจ้งเหตุ: {$notify->id}\nเรื่อง: " . ($notify->issueType->name ?? '-'),
+            'weight' => 'bold',
+            'size' => 'sm',
+            'color' => '#333333',
+            'wrap' => true 
+        ],
+        [
+            'type' => 'text',
+            'text' => "ผู้แจ้ง: {$notify->reporter_name}\nเบอร์โทร: {$notify->reporter_phone}",
+            'size' => 'sm',
+            'color' => '#666666',
+            'wrap' => true
+        ]
+    ];
 
-    // 3. ส่ง 1-on-1 หาหัวหน้า
-    Http::withHeaders([
-        'Authorization' => "Bearer {$channelToken}",
+    // 2. จัดการดึงรูปภาพจาก Database มาแสดง (สมมติว่าฟิลด์ photos เก็บเป็น JSON array เช่น ['notify/abc.jpg'])
+    // ปรับเปลี่ยนวิธี decode ตามโครงสร้างจริงของฐานข้อมูลคุณ เช่น json_decode หรือถ้าเป็น array อยู่แล้วก็ใช้ได้เลย
+    $photos = is_string($notify->photo_path) ? json_decode($notify->photo_path, true) : $notify->photo_path;
+
+    if (!empty($photos) && is_array($photos)) {
+        // คั่นเส้นแบ่งก่อนแสดงรูป
+        $bodyContents[] = [
+            'type' => 'separator',
+            'margin' => 'md'
+        ];
+
+        $bodyContents[] = [
+            'type' => 'text',
+            'text' => '📸 รูปภาพแนบ:',
+            'size' => 'xs',
+            'weight' => 'bold',
+            'color' => '#aaaaaa',
+            'margin' => 'md'
+        ];
+
+        // วนลูปรูปภาพแต่ละรูป
+        foreach ($photos as $photoPath) {
+            // ใช้ asset() เพื่อแปลงเป็น Full URL (เช่น https://yourdomain.com/notify/xxx.jpg)
+            // *หมายเหตุ: URL รูปภาพต้องเป็น HTTPS และเปิดให้คนภายนอกเข้าถึงได้
+            $imageUrl = asset("uploads/".$photoPath);
+
+            $bodyContents[] = [
+                'type' => 'image',
+                'url' => $imageUrl,
+                'size' => 'full',       // ขนาด: xs, sm, md, lg, full
+                'aspectRatio' => '4:3',  // สัดส่วนรูป: '1:1', '4:3', '16:9'
+                'aspectMode' => 'cover',  // การแสดงผลภาพ: cover หรือ fit
+                'margin' => 'md',
+                'action' => [
+                    'type' => 'uri',
+                    'label' => 'ดูรูปขนาดเต็ม',
+                    'uri' => $imageUrl // พอกดที่รูปจะเด้งเปิดดูรูปใหญ่
+                ]
+            ];
+        }
+    }
+
+    // 3. ประกอบร่างโครงสร้าง Flex Message ทั้งหมด
+    $flexPayload = [
+        'type' => 'bubble',
+        'header' => [
+            'type' => 'box',
+            'layout' => 'vertical',
+            'contents' => [
+                [
+                    'type' => 'text',
+                    'text' => 'แจ้งเตือนงานใหม่ (หัวหน้างานประปา)',
+                    'weight' => 'bold',
+                    'color' => '#ffffff',
+                    'size' => 'sm'
+                ]
+            ],
+            'backgroundColor' => '#d9534f'
+        ],
+        'body' => [
+            'type' => 'box',
+            'layout' => 'vertical',
+            'spacing' => 'md',
+            'contents' => $bodyContents // นำอาเรย์ข้อมูลทั้งหมดที่เตรียมไว้มายัดใส่ตรงนี้
+        ],
+        'footer' => [
+            'type' => 'box',
+            'layout' => 'vertical',
+            'contents' => [
+                [
+                    'type' => 'button',
+                    'action' => [
+                        'type' => 'message',
+                        'label' => 'กดเพื่อแจ้งข้อมูลให้ทุกคน',
+                        'text' => 'งานเข้า '.$notify->id
+                    ],
+                    'style' => 'primary'
+                ]
+            ]
+        ]
+    ];
+
+    // 4. ส่ง Request ไปยัง LINE Messaging API (Push Message)
+    $response = Http::withHeaders([
+        'Authorization' => 'Bearer ' . $channelToken,
         'Content-Type'  => 'application/json',
     ])->post('https://api.line.me/v2/bot/message/push', [
-        'to'       => $headUserId,
-        'messages' => [['type' => 'text', 'text' => $messageText]],
+        'to'       => $headerGroupId, 
+        'messages' => [
+            [
+                'type'     => 'flex',
+                'altText'  => 'แจ้งเตือนงานใหม่ #3',
+                'contents' => $flexPayload
+            ]
+        ]
+    ]);
+
+    return response()->json([
+        'status' => $response->successful() ? 'success' : 'error',
+        'response' => $response->json()
     ]);
 }
+
+//    protected function sendHeadNotificationText(TwNotifies $notify)
+// {
+//     $channelToken = config('services.line_staff.channel_token');
+
+//     // ค้นหา Staff ที่:
+//     // 1. สังกัด org_id_fk เดียวกัน
+//     // 2. สถานะ Staff ปกติ (เช่น status == 'active' หรือ != 'inactive')
+//     // 3. มี User relationship ที่มี Role 'head_tap_water' และมี line_user_id
+//     $headStaff = Staff::where('org_id_fk', 1)
+//         ->where('status', 'active') // ปรับค่า status ตามระบบของคุณ
+//         ->whereHas('user', function ($query) {
+//             $query->role('Tabwater Header') // เช็ก Role ใน Model User
+//                   ->whereNotNull('line_id');
+//         })
+//         // ->where('user_id', 1)
+//         ->with('user') // Eager load Relation user เพื่อลด Query
+//         ->first();
+
+//     // หากไม่พบข้อมูล
+//     if (!$headStaff || !$headStaff->user || empty($headStaff->user->line_id)) {
+//         Log::warning("ไม่พบหัวหน้างานประปา (Staff) ที่มี LINE ID สำหรับ Org ID: {1}");
+//         return;
+//     }
+
+//     // ดึง line_user_id ของหัวหน้าจาก Relationship user
+//     $headUserId = $headStaff->user->line_id;
+
+//     // 2. ข้อความสั้นเพื่อให้หัวหน้าก๊อปปี้ง่ายที่สุด
+//     $triggerText = "งานเข้า 3";
+    
+//     $messageText = "🚨 **มีแจ้งเหตุใหม่ (#{1})**\n"
+//                  . "องค์กร: " . ($เทศบาลตำบลห้องแซง ?? '-') . "\n"
+//                  . "ประเภท: water\n"
+//                  . "---------------------------\n"
+//                  . "📌 **กรุณาก๊อปปี้ข้อความด้านล่างนี้ วางลงในกลุ่มงาน:**\n\n"
+//                  . $triggerText;
+
+//     // 3. ส่ง 1-on-1 หาหัวหน้า
+//     Http::withHeaders([
+//         'Authorization' => "Bearer {$channelToken}",
+//         'Content-Type'  => 'application/json',
+//     ])->post('https://api.line.me/v2/bot/message/push', [
+//         'to'       => $headUserId,
+//         'messages' => [['type' => 'text', 'text' => $messageText]],
+//     ]);
+// }
 
     /**
      * Summary of success

@@ -16,6 +16,7 @@ return new class extends Migration
         Schema::create('tw_invoice', function (Blueprint $table) {
                 $table->id();
                 $table->unsignedBigInteger('meter_id_fk');
+                $table->string('inv_no')->unique();
                 $table->unsignedBigInteger('inv_period_id_fk');
                 $table->decimal('lastmeter', 8,2);
                 $table->decimal('currentmeter', 8,2);

@@ -4,7 +4,7 @@ namespace App\Http\Controllers\Tabwater;
 
 use App\Models\User;
 use App\Models\Tabwater\TwInvoice;
-use App\Models\Tabwater\TwInvoicePeriod;
+use App\Models\Tabwater\InvoicePeriod;
 use App\Exports\P17ReportExport;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
@@ -16,7 +16,7 @@ class WaterLedgerController extends Controller
 {
     public function p17Report(Request $request)
     {
-        $periods = TwInvoicePeriod::orderBy('id', 'desc')->get();
+        $periods = InvoicePeriod::orderBy('id', 'desc')->get();
         $periodId = $request->input('inv_period_id_fk');
         $search = $request->input('search');
         $userId = $request->input('user_id');
@@ -31,11 +31,11 @@ class WaterLedgerController extends Controller
         if ($search) {
             $userQuery->where(function ($q) use ($search) {
                 $q->where(DB::raw("CONCAT(COALESCE(prefix,''), COALESCE(firstname,''), ' ', COALESCE(lastname,''))"), 'LIKE', "%$search%")
-                  ->orWhere('firstname', 'LIKE', "%$search%")
-                  ->orWhere('lastname', 'LIKE', "%$search%");
+                    ->orWhere('firstname', 'LIKE', "%$search%")
+                    ->orWhere('lastname', 'LIKE', "%$search%");
             });
         }
-        
+
         $users = $userQuery->paginate(20)->withQueryString();
         $paginateUserIds = $users->pluck('id');
 

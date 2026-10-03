@@ -7,9 +7,11 @@ use App\Models\User;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use App\Traits\BelongsToOrganization;
+use Spatie\Permission\Traits\HasRoles; // 1. นำเข้า Trait ของ Spatie
 class Staff extends Model
 {
     use HasFactory; use BelongsToOrganization;
+    use HasRoles; // 2. เรียกใช้งาน Trait ตรงนี้
     protected $table = 'staffs';
     // protected $primaryKey = 'user_id';
 

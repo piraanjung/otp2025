@@ -10,7 +10,9 @@ use App\Http\Controllers\Admin\RoleController;
 use App\Http\Controllers\Admin\AdminSubzoneController;
 use App\Http\Controllers\Admin\AdminWithdrawController;
 use App\Http\Controllers\Admin\SuperAdminAuthController;
+use App\Http\Controllers\Admin\SupplierController;
 use App\Http\Controllers\Admin\UserController;
+use App\Http\Controllers\Admin\WorkflowController;
 use App\Http\Controllers\Admin\ZoneController;
 use App\Http\Controllers\Api\KioskController;
 use App\Http\Controllers\Auth\LoginController;
@@ -20,6 +22,7 @@ use App\Http\Controllers\Inventory\InvCategoryController;
 use App\Http\Controllers\Inventory\InvDashboardController;
 use App\Http\Controllers\Inventory\InvHazardLevelController;
 use App\Http\Controllers\Inventory\InvItemController;
+use App\Http\Controllers\Inventory\InvLocationController;
 use App\Http\Controllers\Inventory\InvStockController;
 use App\Http\Controllers\Inventory\InvTransactionController;
 use App\Http\Controllers\Inventory\InvUnitController;
@@ -97,7 +100,9 @@ Route::get('/login_staff', function () {
 Route::get('acc', function () {
     Auth::logout();
     return view('staff_accessmenu');
+    // return view('staff.mobile');
 });
+        Route::get('/inventory/items/iframe', [InvItemController::class, 'iframeIndex'])->name('inventory.items.iframe');
 
 Route::get('/logout', function () {
     Auth::logout();
@@ -125,7 +130,9 @@ Route::prefix('tabwater/notify')->name('tabwater.notify.')->group(function () {
     Route::get('/success/{id}', [NotifyController::class, 'success'])->name('success');
     Route::get('/create', [NotifyController::class, 'create'])->name('create');     // <-- เพิ่มบรรทัดนี้ (หน้าฟอร์มกรอกแจ้งเหตุ)    Route::post('/check-phone', [NotifyController::class, 'checkPhone'])->name('check-phone');
     Route::post('/check-line-user', [NotifyController::class, 'checkLineUser'])->name('check-line-user');
-});
+    Route::get('/xx', [NotifyController::class, 'sendHeadNotificationText'])->name('xxx');
+
+    });
 
 Route::get('/logout_staff', function () {
     Auth::logout();
@@ -133,8 +140,7 @@ Route::get('/logout_staff', function () {
     Session()->regenerateToken();
     Session()->flush();
 
-        return view('auth/login_staff');
-    
+    return view('auth/login_staff');
 });
 Route::get('/upload-form', function () {
     return view('upload');
@@ -144,7 +150,7 @@ Route::post('/upload-and-convert', [SqlToJsonController::class, 'uploadAndProces
 
 
 Route::resource('/test', TestController::class);
-Route::get('/test/textSendLineMessage', [TestController::class,'textSendLineMessage']);
+Route::get('/test/textSendLineMessage', [TestController::class, 'textSendLineMessage']);
 
 
 // Auth::routes() removed: auth routes are provided by Breeze in routes/auth.php.
@@ -230,6 +236,7 @@ Route::middleware(['auth', 'role:Admin|Super Admin'])->name('admin.')->prefix('a
     Route::delete('/permissions/{permission}/roles/{role}', [PermissionController::class, 'removeRole'])->name('permissions.roles.remove');
     Route::resource('/permissions', PermissionController::class);
 
+    Route::resource('workflows', WorkflowController::class);
 
     //tabwater
     Route::prefix('users/')->name('users.')->group(function () {
@@ -252,7 +259,10 @@ Route::middleware(['auth', 'role:Admin|Super Admin'])->name('admin.')->prefix('a
         Route::get('{user}/{action?}', [UserController::class, 'show'])->name('show');
     });
 
+    
     Route::resource('/invoice_period', InvoicePeriodController::class);
+    Route::get('/invoice_period/{period_id}/generate', [InvoicePeriodController::class, 'generateInvoice'])->name('invoice_period.generate');
+
     Route::get('/metertype/{metertype_id}/infos', [MetertypeController::class, 'infos'])->name('metertype.infos');
 
     Route::resource('/metertype', MetertypeController::class);
@@ -327,6 +337,7 @@ Route::middleware(['auth', 'role:Admin|Super Admin'])->name('admin.')->prefix('a
 });
 
 
+
 Route::middleware(['auth', 'role:Admin|finance|Super Admin'])->group(function () {
     Route::prefix('payment/')->name('payment.')->group(function () {
         Route::get('paymenthistory/{inv_period}/{subzone_id}', [PaymentController::class, 'paymenthistory'])->name('paymenthistory');
@@ -381,9 +392,6 @@ Route::group(['middleware' => ['role:Admin|tabwater|Super Admin']], function () 
     });
 });
 
-
-
-
 Route::prefix('superadmin')->name('superadmin.')->group(function () {
     Route::get('/login', [SuperAdminAuthController::class, 'showLoginForm'])->name('login');
     Route::post('/login', [SuperAdminAuthController::class, 'login'])->name('login.post');
@@ -407,34 +415,77 @@ Route::prefix('admin/ef')->group(function () {
     Route::delete('/{emissionFactor}', [EmissionFactorController::class, 'destroy'])->name('ef.destroy');
 });
 
-Route::middleware(['auth'])->prefix('inventory')->name('inventory.')->group(function () {
+Route::middleware(['auth'])->name('admin.')->prefix('admin')->group(function () { 
+    Route::get('/suppliers', [SupplierController::class, 'index'])->name('suppliers.index');
+    Route::post('/suppliers', [SupplierController::class, 'store'])->name('suppliers.store');
+    Route::get('/suppliers/{id}/edit', [SupplierController::class, 'edit'])->name('suppliers.edit'); // เพิ่มอันนี้
+    Route::put('/suppliers/{id}', [SupplierController::class, 'update'])->name('suppliers.update'); // เพิ่มอันนี้
+    Route::delete('/suppliers/{id}', [SupplierController::class, 'destroy'])->name('suppliers.destroy');
+});
 
-    // หน้า Dashboard รวม (ที่เราทำไป Phase 1)
+Route::middleware(['auth'])->prefix('inventory')->name('inventory.')->group(function () {
     Route::get('/dashboard', [InvDashboardController::class, 'index'])->name('dashboard');
 
     // Route สำหรับจัดการพัสดุ (Items)
-    Route::get('/items', [InvItemController::class, 'index'])->name('items.index');
-    Route::get('/items/create', [InvItemController::class, 'create'])->name('items.create');
-    Route::post('/items', [InvItemController::class, 'store'])->name('items.store');
+    Route::prefix('items')->name('items.')->group(function () {
+        Route::get('/index', [InvItemController::class, 'index'])->name('index');
+        Route::get('/create', [InvItemController::class, 'create'])->name('create');
+        Route::get('/{id}/edit', [InvItemController::class, 'edit'])->name('edit');
+        Route::put('/{id}', [InvItemController::class, 'update'])->name('update');
+        // Route::get('/iframe', [InvItemController::class, 'iframeIndex'])->name('iframe');
+        Route::post('/store', [InvItemController::class, 'store'])->name('store');
+    });
 
-    Route::get('/stock/receive/{id}', [InvStockController::class, 'receiveForm'])->name('stock.receive');
-    Route::get('download-template', [InvItemController::class, 'downloadTemplate'])->name('items.template');
+    Route::prefix('stock')->name('stock.')->group(function () {
+        Route::get('/receive/{id}', [InvStockController::class, 'receiveForm'])->name('receive');
+        Route::get('/expiring', [InvStockController::class, 'expiringStock'])->name('expiring');
+        Route::post('/receive', [InvStockController::class, 'storeReceive'])->name('store_receive');
+    });
 
+    Route::prefix('locations')->name('locations.')->group(function () {
+        Route::get('/index', [InvLocationController::class, 'index'])->name('index');
+        Route::post('/store', [InvLocationController::class, 'store'])->name('store');
+        Route::delete('destroy/{loc_id}', [InvLocationController::class, 'destroy'])->name('destroy');
+
+    });
+
+    Route::get('/transactions/pending', [InvTransactionController::class, 'pendingIssueList'])->name('transactions.pending');
+    
+    // กดยืนยันจ่ายของ (ตัดสต็อกข้ามล็อต FIFO)
+    Route::post('/transactions/{refNo}/issue', [InvTransactionController::class, 'issueItems'])->name('transactions.issue');
+
+    Route::prefix('/withdraw')->name('withdraw.')->group(function () {
+       
+        // หน้าจอเลือกพัสดุหลายรายการ (แนวทางตะกร้าสินค้า)
+        Route::get('/multiple', [InvTransactionController::class, 'createMultipleWithdraw'])->name('create_multiple');
+        Route::get('/withdraw_print/{refNo}', [InvTransactionController::class, 'showByRef'])->name('show_ref');
+        // ฟังก์ชันบันทึกการเบิกหลายรายการ
+        Route::post('/multiple/store', [InvTransactionController::class, 'storeMultipleWithdraw'])->name('store_multiple');
+        // ปุ่มกดอนุมัติ
+        Route::post('/dispense/{refNo}', [InvTransactionController::class, 'dispense'])->name('dispense');
+        // หน้าฟอร์มให้เจ้าหน้าที่พัสดุตรวจสอบ/แก้ไขจำนวน/ยกเลิกรายการ ก่อนตัดสต็อก
+        Route::get('/dispense-form/{refNo}', [InvTransactionController::class, 'dispenseForm'])->name('dispense_form');
+
+        // บันทึกการจ่ายพัสดุจริงและตัดสต็อก
+        Route::post('/dispense-process/{refNo}', [InvTransactionController::class, 'dispenseProcess'])->name('dispense_process');
+        Route::get('/{item_id}', [InvTransactionController::class, 'withdrawForm'])->name('form');
+        Route::post('/', [InvTransactionController::class, 'storeWithdraw'])->name('store');
+        Route::get('/{id}/show', [InvTransactionController::class, 'show'])->name('show');
+        Route::post('/{refNo}/approve', [InvTransactionController::class, 'approveStep'])->name('step.approve');
+        Route::post('/{refNo}/reject', [InvTransactionController::class, 'rejectStep'])->name('step.reject');
+        Route::post('/{id}/approve', [InvTransactionController::class, 'approve'])->name('approve');
+
+    });
+   
     // Route สำหรับ process การ import
     Route::post('import', [InvItemController::class, 'import'])->name('items.import');
-    // ฟังก์ชันบันทึกการรับของ
-    Route::post('/stock/receive', [InvStockController::class, 'storeReceive'])->name('stock.store_receive');
-    Route::get('/stock/withdraw/{item_id}', [InvTransactionController::class, 'withdrawForm'])->name('withdraw.form');
-    Route::post('/stock/withdraw', [InvTransactionController::class, 'storeWithdraw'])->name('withdraw.store');
+    Route::get('download-template', [InvItemController::class, 'downloadTemplate'])->name('items.template');
     Route::resource('units', InvUnitController::class)->only(['index', 'store', 'destroy']);
-    Route::resource('categories', InvCategoryController::class)->only(['index', 'store', 'destroy']);
+    Route::resource('categories', InvCategoryController::class)->only(['index', 'store', 'destroy', 'edit', 'update']);
     Route::get('/history', [InvTransactionController::class, 'history'])->name('history');
     Route::resource('hazards', InvHazardLevelController::class)->only(['index', 'store', 'destroy']);
     // ดูใบเบิก
-    Route::get('/withdraw/{id}/slip', [InvTransactionController::class, 'show'])->name('withdraw.show');
 
-    // ปุ่มกดอนุมัติ
-    Route::post('/withdraw/{id}/approve', [InvTransactionController::class, 'approve'])->name('withdraw.approve');
 });
 
 require __DIR__ . '/auth.php';

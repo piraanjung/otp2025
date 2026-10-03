@@ -2,14 +2,15 @@
 
 namespace App\Models\Admin;
 
-use App\Models\Tabwater\TwInvoicePeriod;
+use App\Models\Tabwater\InvoicePeriod;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+
 class BudgetYear extends Model
 {
     use HasFactory;
     protected $fillable = [
-        "id",
+        "org_id_fk",
         "budgetyear_name",
         'startdate',
         'enddate',
@@ -19,6 +20,11 @@ class BudgetYear extends Model
 
     public function invoice_period()
     {
-        return $this->hasMany(TwInvoicePeriod::class, 'budgetyear_id', 'id');
+        return $this->hasMany(InvoicePeriod::class, 'budgetyear_id', 'id');
+    }
+
+    public function organization()
+    {
+        return $this->belongsTo(Organization::class, 'org_id_fk', 'id');
     }
 }

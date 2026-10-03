@@ -280,12 +280,16 @@
             position: absolute;
             inset: 0;
             pointer-events: none;
+            margin-top: 5rem
         }
 
         .main__stat-value {
-            font-size: 1.25em;
+            font-size: 1.5em;
             line-height: 1.2;
             font-weight: 700;
+            -webkit-text-stroke: 1px rgb(0, 0, 0); /* Width and color of the outline */
+            -webkit-text-fill-color: transparent; /* Makes the inside of the text transparent */
+
         }
 
         .main__stat-block--lg .main__stat-value {
@@ -293,8 +297,8 @@
         }
 
         .main__stat-unit {
-            font-weight: 300;
-            font-size: 0.8em;
+            font-weight: 600;
+            font-size: 1em;
             color: hsl(var(--hue), 10%, 40%);
         }
 
@@ -306,11 +310,11 @@
 
         .icon {
             position: absolute;
-            top: 30%;
+            top: 50%;
             left: 50%;
             transform: translate(-50%, -50%);
-            width: 30%;
-            height: 30%;
+            width: 40%;
+            height: 40%;
         }
 
         /* --- DARK MODE SUPPORT --- */
@@ -744,23 +748,23 @@
             <button class="close-sidebar-btn" id="closeMenuBtn">&times;</button>
         </div>
         <div class="sidebar-content navigation2">
-            @if ( auth()->user()->hasRole('Recycle Bank User') )
+            @if (auth()->user()->hasRole('Recycle Bank User'))
 
-            <a href="#" class="sidebar-link active main_bottom_nav" data-id="recycle"><i class="bi bi-recycle"></i>
-                ธนาคารขยะรีไซเคิล</a>
+                <a href="#" class="sidebar-link active main_bottom_nav" data-id="recycle"><i class="bi bi-recycle"></i>
+                    ธนาคารขยะรีไซเคิล</a>
             @endif
-            
-            @if ( auth()->user()->hasRole('Food Waste User') )
-            
-            <a href="#" class="sidebar-link main_bottom_nav" data-id="wet"><i class="bi bi-trash-fill"></i>
-                ธนาคารขยะเปียก</a>
+
+            @if (auth()->user()->hasRole('Food Waste User'))
+
+                <a href="#" class="sidebar-link main_bottom_nav" data-id="wet"><i class="bi bi-trash-fill"></i>
+                    ธนาคารขยะเปียก</a>
             @endif
-            
-            @if ( auth()->user()->hasRole('Annual Fee User') )
-            <a href="#" class="sidebar-link main_bottom_nav" data-id="annual"><i class="bi bi-calendar-check"></i>
-                ค่าขยะรายปี</a>
+
+            @if (auth()->user()->hasRole('Annual Fee User'))
+                <a href="#" class="sidebar-link main_bottom_nav" data-id="annual"><i class="bi bi-calendar-check"></i>
+                    ค่าขยะรายปี</a>
             @endif
-            
+
         </div>
     </div>
 
@@ -770,12 +774,13 @@
                 <div style="font-size: 1.2em; font-weight: bold;">{{$user->firstname ?? 'User'}}</div>
                 <div>{{$user->lastname ?? ''}}</div>
             </div>
+            {{-- @dd($user) --}}
             <img class="header__profile-icon" src="https://profile.line-scdn.net/{{$user->image ?? ''}}" width="60"
                 height="60">
         </header>
 
         <main>
-            @if ( auth()->user()->hasRole('Annual Fee User') )
+            @if (auth()->user()->hasRole('Annual Fee User'))
                 <div class="kp div_annual">
                     @php
                         // เปลี่ยนมาดึงจาก user_id ตรงๆ
@@ -813,7 +818,7 @@
                 </div>
             @endif
 
-            @if ( auth()->user()->hasRole('Recycle Bank User') )
+            @if (auth()->user()->hasRole('Recycle Bank User'))
 
                 <div class="kp div_recycle">
                     <h3 class="mb-3 text-center"><i class="bi bi-bank"></i> ธนาคารขยะรีไซเคิล</h3>
@@ -843,21 +848,21 @@
                                     <span class="main__stat-unit">แต้มสะสม</span>
                                 </div>
                             </div>
-                                <div style="font-weight: bold ;font-size: 1.2em;">
-                                    ลดก๊าซเรือนกระจก
-                                        <span style="font-size: 1.4em;">
-                                            {{ $totalRecycleCarbon}}
-                                        </span>
-                                        <span style="font-size: 0.8em;">kgCO2e</span>
-                                </div>
-                                <div style="font-weight: bold ;font-size: 1.2em;">
-                                    เทียบปลูกต้นไม้
-                                        <span style="font-size: 1.4em;">
-                                            {{ $treesByRecycleCarbon}}
-                                        </span>
-                                        <span style="font-size: 0.8em;">ต้น</span>
-                                </div>
-                                
+                            <div style="font-weight: bold ;font-size: 1.2em;">
+                                ลดก๊าซเรือนกระจก
+                                <span style="font-size: 1.4em;">
+                                    {{ $totalRecycleCarbon}}
+                                </span>
+                                <span style="font-size: 0.8em;">kgCO2e</span>
+                            </div>
+                            <div style="font-weight: bold ;font-size: 1.2em;">
+                                เทียบปลูกต้นไม้
+                                <span style="font-size: 1.4em;">
+                                    {{ $treesByRecycleCarbon}}
+                                </span>
+                                <span style="font-size: 0.8em;">ต้น</span>
+                            </div>
+
                         </div>
                     </div>
 
@@ -871,7 +876,8 @@
                                 <i class="bi bi-qr-code icon" style="font-size: 1.5rem;"></i>
                             </div>
                             <div class="main__stat-detail">
-                                <strong class="main__stat-value" style="font-size: 1em;">สร้าง QR Code <div>ขายขยะ</div></strong>
+                                <strong class="main__stat-value" style="font-size: 1em;">สร้าง QR Code <div>ขายขยะ</div>
+                                </strong>
                             </div>
                         </div>
 
@@ -926,7 +932,8 @@
                                 <i class="bi bi-clock-history icon" style="font-size: 1.5rem; color: #6c757d;"></i>
                             </div>
                             <div class="main__stat-detail">
-                                <strong class="main__stat-value" style="font-size: 1em;">ประวัติการ<div>ขายขยะ</div></strong>
+                                <strong class="main__stat-value" style="font-size: 1em;">ประวัติการ<div>ขายขยะ</div>
+                                </strong>
                             </div>
                         </a>
 
@@ -939,9 +946,10 @@
                                 <i class="bi bi-tree-fill icon" style="font-size: 1.5rem; color: #198754;"></i>
                             </div>
                             <div class="main__stat-detail">
-                                <strong class="main__stat-value" style="font-size: 1em;"> ลดก๊าซ<div>เรือนกระจก</div></strong>
+                                <strong class="main__stat-value" style="font-size: 1em;"> ลดก๊าซ<div>เรือนกระจก</div>
+                                </strong>
 
-                              
+
                             </div>
                         </a>
 
@@ -989,7 +997,7 @@
                 </div>
             @endif
 
-            @if ( auth()->user()->hasRole('Recycle Bank User') )
+            @if (auth()->user()->hasRole('Recycle Bank User'))
                 <div class="kp div_wet hidden">
                     <h3 class="mb-3 text-center"><i class="bi bi-trash"></i> ธนาคารขยะเปียก</h3>
 
@@ -1088,21 +1096,21 @@
                             </div>
 
                             <div style="font-weight: bold ;font-size: 1.2em;">
-                                    ลดก๊าซเรือนกระจก
-                                        <span style="font-size: 1.4em;">
-                                            {{ $totalFoodWasteCarbon}}
-                                        </span>
-                                        <span style="font-size: 0.8em;">kgCO2e</span>
-                                </div>
-                                <div style="font-weight: bold ;font-size: 1.2em;">
-                                    เทียบปลูกต้นไม้
-                                        <span style="font-size: 1.4em;">
-                                            {{ $treesByFoodWasteCarbon}}
-                                        </span>
-                                        <span style="font-size: 0.8em;">ต้น</span>
-                                </div>
+                                ลดก๊าซเรือนกระจก
+                                <span style="font-size: 1.4em;">
+                                    {{ $totalFoodWasteCarbon}}
+                                </span>
+                                <span style="font-size: 0.8em;">kgCO2e</span>
+                            </div>
+                            <div style="font-weight: bold ;font-size: 1.2em;">
+                                เทียบปลูกต้นไม้
+                                <span style="font-size: 1.4em;">
+                                    {{ $treesByFoodWasteCarbon}}
+                                </span>
+                                <span style="font-size: 0.8em;">ต้น</span>
+                            </div>
                         </div>
-                        
+
 
                     </div>
 
@@ -1195,9 +1203,12 @@
                 </div>
             @endif
 
-            @if ( auth()->user()->hasRole('Tabwater User') )
+            @if (auth()->user()->hasRole('Tabwater User'))
+                @php
+                    $member = collect($user)->isNotEmpty() ? $user : [];
+                @endphp
                 <div class="div_tabwater">
-                    @include('lineliff/_tabwater')
+                    @include('lineliff/_tabwater',['member' => $member])
                 </div>
             @endif
 
@@ -1206,37 +1217,49 @@
 
     <div class="navigation">
         <ul>
-            @if ( auth()->user()->hasRole('Recycle Bank User') )
+            {{-- @if ( auth()->user()->hasRole('Recycle Bank User') ) --}}
 
             <li class="list active main_bottom_nav" data-id="recycle">
-                <a href="#"><span class="icon"><i class="bi bi-recycle"></i></span></a>
-                <div style="top: 70%;position: absolute;padding-left: 20px;">รีไซเคิล</div>
-            </li>
-            @endif 
+                <a href="#"><span class="icon">
+                        <i class="bi bi-recycle"></i></span>
+                    <div style="margin-top: 60%; padding-left:5%">รีไซเคิล</div>
 
-            @if ( auth()->user()->hasRole('Recycle Bank User') )
+                </a>
+            </li>
+            {{-- @endif --}}
+
+            {{-- @if ( auth()->user()->hasRole('Recycle Bank User') ) --}}
 
             <li class="list main_bottom_nav" data-id="wet">
-                <a href="#"><span class="icon"><i class="bi bi-trash-fill"></i></span></a>
-                <div style="top: 70%;position: absolute;padding-left: 5px;">ขยะเปียก</div>
+                <a href="#" class="text-center"><span class="icon"><i class="bi bi-trash-fill"></i></span>
+                    <div style="margin-top: 60%;">ขยะเปียก</div>
+
+                </a>
 
             </li>
-            @endif 
+            {{-- @endif --}}
 
-            @if ( auth()->user()->hasRole('Annual Bin User') )
+            {{-- @if ( auth()->user()->hasRole('Annual Bin User') ) --}}
 
             <li class="list main_bottom_nav" data-id="annual">
-                <a href="#"><span class="icon"><i class="bi bi-calendar-check"></i></span></a>
-                <div style="top: 70%;position: absolute;">ถังขยะรายปี</div>
+                <a href="#"><span class="icon"><i class="bi bi-calendar-check"></i></span>
+                    <div style="margin-top: 60%; padding-left:5%; font-size: 0.8rem;">ถังขยะรายปี</div>
+
+                </a>
+
             </li>
-            @endif 
-            @if ( auth()->user()->hasRole('Tabwater User') )
-                
-             <li class="list main_bottom_nav active" data-id="tabwater">
-                <a href="#"><span class="icon"><i class="bi bi-calendar-check"></i></span></a>
-                <div style="top: 70%;position: absolute;">ประปา</div>
+            {{-- @endif --}}
+            {{-- @if ( auth()->user()->hasRole('Tabwater User') ) --}}
+
+            <li class="list main_bottom_nav text-center" data-id="tabwater">
+                <a href="#"><span class="icon">
+                        <i class="bi bi-droplet-half"></i>
+                    </span>
+                    <div style="margin-top: 60%; padding-left:5%">ประปา</div>
+
+                </a>
             </li>
-             @endif 
+            {{-- @endif --}}
             <div class="indicator"></div>
         </ul>
     </div>

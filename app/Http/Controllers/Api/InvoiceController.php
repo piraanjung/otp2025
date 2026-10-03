@@ -7,7 +7,7 @@ use App\Http\Controllers\Api\FunctionsController;
 use App\Http\Controllers\Controller;
 use App\Models\Tabwater\TwAccTransactions;
 use App\Models\Tabwater\TwInvoice;
-use App\Models\Tabwater\TwInvoicePeriod;
+use App\Models\Tabwater\InvoicePeriod;
 use App\Models\Admin\Subzone;
 use App\Models\Tabwater\TwInvoiceHistory;
 use App\Models\Tabwater\TwUsersInfos;
@@ -24,7 +24,7 @@ class InvoiceController extends Controller
         //หา invoice_period ปัจจุบัน (active)
         if ($request->input('status') == 'active') {
             $status = $request->input('status');
-            $presentInvoicePeriod = TwInvoicePeriod::where('status', '=', "active")->first();
+            $presentInvoicePeriod = InvoicePeriod::where('status', '=', "active")->first();
             $invoices = TwInvoice::where('inv_period_id', $presentInvoicePeriod->id)
                 ->with([
                     'invoice_period',
@@ -83,7 +83,7 @@ class InvoiceController extends Controller
      * @param mixed $meter_id
      * @param mixed $status
      * @return \Illuminate\Http\JsonResponse
-    */
+     */
     public function get_user_invoice($meter_id, $status = '')
     {
         $invoices = TwInvoice::where('meter_id_fk', $meter_id)
@@ -460,7 +460,7 @@ class InvoiceController extends Controller
     public function create(Request $request)
     {
         date_default_timezone_set('Asia/Bangkok');
-        $invPeriod = TwInvoicePeriod::where('status', 'active')->get('id');
+        $invPeriod = InvoicePeriod::where('status', 'active')->get('id');
         $findRowDuplicate = TwInvoice::where('inv_period_id', $request->get('inv_period_id'))
             ->where('meter_id', $request->get('meter_id'))->get();
 
@@ -724,7 +724,7 @@ class InvoiceController extends Controller
 
     public function totalWaterUsed()
     {
-        $presentInvoicePeriod = TwInvoicePeriod::where('status', '=', "active")->first();
+        $presentInvoicePeriod = InvoicePeriod::where('status', '=', "active")->first();
         $query = TwInvoice::where('inv_period_id', $presentInvoicePeriod->id)
             ->get(['meter_id', 'currentmeter']);
         return collect($query)->sum('currentmeter');
@@ -745,7 +745,7 @@ class InvoiceController extends Controller
             $sumLastmeter  = $q->sum('lastmeter');
             return $sumCurrentmer - $sumLastmeter;
         });
-        $invPeriod = TwInvoicePeriod::where('id', $query[0]->inv_period_id)->get('inv_period_name');
+        $invPeriod = InvoicePeriod::where('id', $query[0]->inv_period_id)->get('inv_period_name');
 
         return [$sum, $invPeriod[0]->inv_period_name];
     }
@@ -757,7 +757,7 @@ class InvoiceController extends Controller
 
     public function zone_edit($subzone_id)
     {
-        $presentInvoicePeriod = TwInvoicePeriod::where('status', 'active')->get()->first();
+        $presentInvoicePeriod = InvoicePeriod::where('status', 'active')->get()->first();
         $zoneInfo = Subzone::where('id', $subzone_id)->with([
             'zone',
         ])->get(['zone_id', 'subzone_name']);
@@ -828,7 +828,7 @@ class InvoiceController extends Controller
 
     public function invoiced_lists($subzone_id)
     {
-        $presentInvoicePeriod = TwInvoicePeriod::where('status', 'active')->get()->first();
+        $presentInvoicePeriod = InvoicePeriod::where('status', 'active')->get()->first();
         $sql = DB::table('user_meter_infos as umf')
             ->join('invoice as iv', 'iv.meter_id_fk', '=', 'umf.meter_id')
             ->join('users as u', 'u.id', '=', 'umf.user_id')

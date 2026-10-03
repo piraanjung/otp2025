@@ -19,9 +19,7 @@ class TwNotifies extends Model
         'org_id_fk',
         'reporter_name',
         'reporter_phone',
-        'system_type',
-        'issue_type',
-        'custom_issue_type',
+        'issue_type_id',
         'description',
         'latitude',
         'longitude',
@@ -54,7 +52,7 @@ class TwNotifies extends Model
     }
 
     public function issueType(){
-        return $this->belongsTo(IssueType::class, 'issue_type', 'id');
+        return $this->belongsTo(IssueType::class, 'issue_type_id', 'id');
     }
     /**
      * ความสัมพันธ์: ดึงข้อมูล Staff ผู้รับงาน (สมมติว่า Staff ก็คือ User Model)
