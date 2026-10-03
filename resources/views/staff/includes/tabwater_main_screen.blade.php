@@ -1,42 +1,4 @@
-   
-   {{-- <div id="tabwaterScreen" class="is-hiddsen">
-        <div class="container">
-            <h3 class="section-title">งานประปา</h3>
-
-            <div class="menu-grid">
-                 <div class="menu-item card-organic" onclick="navigateTo('water-tabwater-record')">
-                    <div class="menu-icon">🍂</div>
-                    <div class="menu-title">จดมิเตอร์ประปา</div>
-                    <div class="menu-desc">จดมิเตอร์ประปา</div>
-                </div>
-
-
-                <div class="menu-item card-recycle" onclick="navigateTo('water-cutmeter')">
-                    <div class="menu-icon">♻️</div>
-                    <div class="menu-title">ตัดมิเตอร์ประปา</div>
-                    <div class="menu-desc">ตัดมิเตอร์ประปา</div>
-                </div>
-                <div class="menu-item card-recycle" onclick="navigateTo('water-complain')">
-                    <div class="menu-icon">♻️</div>
-                    <div class="menu-title">เรื่องร้องเรียน/แจ้งเหตุงานประปา</div>
-                    <div class="menu-desc">เรื่องร้องเรียน/แจ้งเหตุงานประปา</div>
-                </div>
-
-               
-                <div class="menu-item card-water" onclick="navigateTo('water-equipment-control')">
-                    <div class="menu-icon">💧</div>
-                    <div class="menu-title">ควบคุมงานผลิตน้ำ</div>
-                    <div class="menu-desc">ควบคุมงานผลิตน้ำ</div>
-                </div>
-
-
-
-            </div>
-        </div>
-    </div> --}}
-
-
-        <div id="tabwaterScreen" class="main-screen-container">
+    <div id="tabwaterScreen" class="main-screen-container">
     <div class="container py-3">
         <!-- ส่วนหัว: ปุ่มเมนู วันที่ และโปรไฟล์ -->
         <div class="d-flex justify-content-between align-items-center mb-4">
@@ -143,25 +105,3 @@
         </div>
     </div>
 </div>
-<script>
-    document.addEventListener("DOMContentLoaded", () => {
-        const taskCards = document.querySelectorAll('.task-card');
-
-        taskCards.forEach(card => {
-            card.addEventListener('click', function(e) {
-                if (this.classList.contains('is-pressed')) return;
-                this.classList.add('is-pressed');
-
-                const onclickAttr = this.getAttribute('onclick');
-                this.removeAttribute('onclick');
-
-                setTimeout(() => {
-                    this.classList.remove('is-pressed');
-                    if (onclickAttr) {
-                        new Function(onclickAttr).call(this);
-                    }
-                }, 200); // หน่วงเวลา 200 มิลลิวินาทีให้อนิเมชันเล่นจบอย่างสมูท
-            });
-        });
-    });
-</script>

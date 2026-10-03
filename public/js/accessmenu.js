@@ -1,14 +1,13 @@
 // ////////////////////////////////////////////////////////
+//                    Global                             //
+///////////////////////////////////////////////////////////
+let currentScreenGlobal = "";
+// ////////////////////////////////////////////////////////
 //                    Screen Login                       //
 ///////////////////////////////////////////////////////////
 document.addEventListener("DOMContentLoaded", () => {
 
-    const loginScreen = document.getElementById('loginScreen');
-    const selectOrgScreen = document.getElementById('selectOrgScreen'); // 🟢 เพิ่ม Screen เลือก Org
-    const mainScreen = document.getElementById('mainScreen');
     const loginForm = document.getElementById('loginForm');
-    const loginError = document.getElementById('loginError');
-    const staffNameSpan = document.getElementById('staffName');
 
     if (document.getElementById('connectionStatusBadge')) {
         document.getElementById('connectionStatusBadge').innerHTML = 'x';
@@ -84,9 +83,8 @@ function selectOrgAndContinue(orgId, staffId, fullName) {
 }
 
 $(document).ready(function () {
-
-    let currentScreen = sessionStorage.getItem('current_screen')
-    navigateTo(currentScreen)
+   
+    // sessionStorage.clear()
     // ==========================================
     // 1. ตรวจสอบ Session ทันทีเมื่อเปิดหน้าเว็บหรือ Refresh
     // ==========================================
@@ -106,13 +104,14 @@ async function checkExistingSession() {
     const staffToken = sessionStorage.getItem("staff_token");
     const staffUserId = sessionStorage.getItem("staff_user_id");
     const savedName = sessionStorage.getItem("staff_name");
-    let currentScreen = sessionStorage.getItem("current_screen");
-    console.log('staffToken', staffToken)
+    currentScreenGlobal = sessionStorage.getItem("current_screen");
 
     if (!staffToken || !staffUserId) {
         console.log("🔴 ไม่พบ Token ในระบบ แสดงหน้า Login");
-        $('#loginScreen').removeClass('is-hidden');
+        sessionStorage.setItem('current_screen', 'loginScreen');
+        currentScreenGlobal = 'loginScreen';
 
+        navigateTo('loginScreen')
         return;
     }
 
@@ -133,7 +132,7 @@ async function checkExistingSession() {
         });
 
         const resData = await response.json();
-        console.log('resData', resData)
+
         if (resData.code === 200 && resData.data && resData.data.valid === true) {
             console.log("🟢 Token ถูกต้อง ข้ามหน้า Login ไปยังหน้าหลัก");
             $('.app-header').removeClass('hidden');
@@ -143,10 +142,18 @@ async function checkExistingSession() {
                 staffNameEl.innerText = savedName;
             }
 
-            $('#loginScreen').addClass('is-hidden');
-            $('#selectOrgScreen').addClass('is-hidden');
-            // $('#mainScreen, #mainAppScreen').removeClass('is-hidden');
-            $('.app-header').removeClass('is-hidden');
+           if( !currentScreenGlobal ){
+            console.log("loginScreenxx");
+
+            navigateTo('loginScreen')
+            }else{
+            console.log("currentScreenGlobalxxx",currentScreenGlobal);
+
+            navigateTo(currentScreenGlobal)
+            } 
+
+            console.log('checkExistingSession currentScreenGlobal',currentScreenGlobal)
+
             loadInventoryIframeOnce();
             if (typeof showMainScreen === "function" && savedName) {
                 showMainScreen(savedName);
@@ -193,10 +200,9 @@ async function handleStaffLogin() {
         });
 
         const resData = await response.json();
-        console.log('login core resData:', resData);
+        // console.log('login core resData:', resData);
 
         if (resData.code === 200 && resData.data && resData.data.logged === true) {
-            $('.app-header').removeClass('hidden');
             const staffUser = resData.data;
             const fullName = `${staffUser.prefix || ''}${staffUser.firstname || ''} ${staffUser.lastname || ''}`.trim();
 
@@ -219,9 +225,10 @@ async function handleStaffLogin() {
                 if (typeof setStaffActiveOrg === "function") {
                     setStaffActiveOrg(singleOrg.org_id_fk, singleOrg.id);
                 }
-                $loginScreen.addClass('is-hidden');
-                $selectOrgScreen.addClass('is-hidden'); $mainScreen.removeClass('is-hidden');
-
+                // $loginScreen.addClass('is-hidden');
+                // $selectOrgScreen.addClass('is-hidden'); 
+                // $mainScreen.removeClass('is-hidden');
+                navigateTo('mainScreen')
                 if (typeof showMainScreen === "function") {
                     showMainScreen(fullName);
                 } else {
@@ -233,7 +240,10 @@ async function handleStaffLogin() {
                     renderOrgSelectionList(profiles, fullName);
                 }
 
-                $loginScreen.addClass('is-hidden'); $selectOrgScreen.removeClass('is-hidden');
+                // $loginScreen.addClass('is-hidden'); 
+                // $selectOrgScreen.removeClass('is-hidden');
+                navigateTo('selectOrgScreen')
+
             } else {
                 throw new Error("ไม่พบข้อมูลสิทธิ์เจ้าหน้าที่ในระบบ (Staff Profiles)");
             }
@@ -277,3 +287,239 @@ function loadInventoryIframeOnce() {
         $iframe.attr('src', realSrc);
     }
 }
+
+///////////////////////////////////////////////////////////
+//                    NavigateTo                        //
+///////////////////////////////////////////////////////////
+
+let prevScreen = "";
+async function navigateTo(moduleName) {
+    console.log('navigateTo current_screen', moduleName)
+    sessionStorage.setItem('current_screen', moduleName)
+    $('.screen').each(function(){
+
+        !$(this).hasClass('is-hidden') ?  $(this).addClass('is-hidden') : ''
+    })
+    $moduleNameArray = ['mainScreen','tabwaterScreen']
+    if($moduleNameArray.includes(moduleName)){
+        $('#appSidebar').removeClass('is-hidden')
+    }
+    if(1===1){
+        loadMembersFromServer()
+    }
+    $(`#${moduleName}`).removeClass('is-hidden')
+    // prevScreen = moduleName;
+    // moduleName = 'main';//await checkCurrentScreen(moduleName);
+    // console.log('moduleName',moduleName)
+    // if (moduleName === 'recycle') {
+    //     document.getElementById('mainScreen').classList.add('is-hidden');
+    //     document.getElementById('recycleScreen').classList.remove('is-hidden');
+    //     document.getElementById('searchMemberInput').value = "";
+    //     loadMembersFromServer();
+    //     renderMemberList(allMembers);
+    // }
+    // else if (moduleName === 'settings') {
+    //     document.getElementById('mainScreen').classList.add('is-hidden');
+    //     document.getElementById('depositScreen').classList.add('is-hidden');
+    //     document.getElementById('settingsScreen').classList.remove('is-hidden');
+
+    //     checkBluetoothStatus();
+    // }
+    // else if (moduleName === 'inventory') {
+    //     $('#mainScreen').addClass('is-hidden');
+    //     document.getElementById('depositScreen').classList.add('is-hidden');
+    //     document.getElementById('settingsScreen').classList.add('is-hidden');
+    //     document.getElementById('inventoryScreen').classList.remove('is-hidden');
+    //     manageInventoryIframe('open')
+    //     return
+    // }
+    // else if (moduleName === 'water') {
+    //     document.getElementById('mainScreen').classList.add('is-hidden');
+    //     document.getElementById('waterRecordScreen').classList.add('is-hidden');
+    //     document.getElementById('tabwaterScreen').classList.remove('is-hidden');
+        
+
+    // }
+    // // --- เพิ่มเงื่อนไขสำหรับจดมิเตอร์ประปาตรงนี้ ---
+    // else if (moduleName === 'water-tabwater-record') {
+
+    //     document.getElementById('tabwaterScreen').classList.add('is-hidden');
+    //     document.getElementById('waterRecordScreen').classList.remove('is-hidden');
+
+    //     // หากมีฟังก์ชันโหลดข้อมูลมิเตอร์เดิม ให้เรียกตรงนี้ เช่น loadWaterMeters();
+    //     loadWaterRecordDashboard();
+    // }
+    // else if (moduleName === 'water-members-list') {
+    //     console.log('water-members-list')
+    //     document.getElementById('waterRecordScreen').classList.add('is-hidden');
+    //     document.getElementById('waterMembersListScreen').classList.remove('is-hidden');
+
+    //     // เรียกดึงข้อมูลรายชื่อสมาชิกใน Subzone นั้นทันที
+    //     if (typeof loadWaterMembersList === 'function') {
+    //         loadWaterMembersList();
+    //     }
+    // }
+    // // 🟢 2. เพิ่มหน้าแก้ไขรายชื่อสมาชิก/เลขมิเตอร์
+    // else if (moduleName === 'water-members-edit-list') {
+    //     document.getElementById('waterRecordScreen').classList.add('is-hidden');
+    //     document.getElementById('waterMembersEditListScreen').classList.remove('is-hidden');
+
+    //     if (typeof loadWaterMembersEditList === 'function') {
+    //         loadWaterMembersEditList();
+    //     }
+    // }
+    // else if (moduleName === 'water-complain') {
+    //     // 1. เปิด Modal
+    //     const staffModal = new bootstrap.Modal(document.getElementById('staffDashboardModal'));
+    //     staffModal.show();
+
+    //     // 2. ดึงเนื้อหาจาก Route staff/dashboard ผ่าน Fetch API
+    //     fetch('staff/dashboard')
+    //         .then(response => response.text())
+    //         .then(html => {
+    //             // นำ HTML ที่ได้มาใส่ใน modal-body โดยไม่ Refresh หน้า
+    //             document.getElementById('modal-staff-content').innerHTML = html;
+    //         })
+    //         .catch(error => {
+    //             console.error('Error loading staff dashboard:', error);
+    //             document.getElementById('modal-staff-content').innerHTML =
+    //                 '<div class="alert alert-danger">ไม่สามารถโหลดข้อมูลได้</div>';
+    //         });
+    // }
+    // else if (moduleName === 'main') {
+    //     document.getElementById('mainScreen').classList.remove('is-hidden');
+    //     document.getElementById('assistiveBtn').classList.remove('is-hidden');
+
+    //     document.getElementById('tabwaterScreen').classList.add('is-hidden');
+    //     document.getElementById('settingsScreen').classList.add('is-hidden');
+    //     document.getElementById('recycleScreen').classList.add('is-hidden');
+    //     checkBluetoothStatus();
+    // }
+    //  else if (moduleName === 'login') {
+    //     document.getElementById('mainScreen').classList.add('is-hidden');
+    //     document.getElementById('tabwaterScreen').classList.add('is-hidden');
+    //     document.getElementById('settingsScreen').classList.add('is-hidden');
+    //     document.getElementById('recycleScreen').classList.add('is-hidden');
+    //     checkBluetoothStatus();
+    // }
+    manageInventoryIframe('close')
+
+    // updateGlobalPrinterStatus();
+}
+
+
+
+$('#staffDashboardModal', '#secondModal').on('hidden.bs.modal', function (e) {
+    // โค้ดที่จะทำงานหลังจาก Modal ปิดเรียบร้อยแล้ว
+    // navigateTo('water');
+});
+
+function manageInventoryIframe(status){
+    const $iframe = $('#inventoryIframe');
+    let url = '';
+    if(status === 'open'){
+        url = '/inventory/items/iframe'
+    }
+    
+    $iframe.attr('src', url);
+}
+
+function checkCurrentScreen(moduleName){
+    let _currentScreen = sessionStorage.getItem('current_screen')
+    if(_currentScreen === moduleName || !moduleName){
+
+    }else{
+    console.log('moduleName else')
+
+        sessionStorage.removeItem('current_screen')
+        sessionStorage.setItem('current_screen', moduleName)
+        _currentScreen = moduleName;
+        currentScreenGlobal = moduleName;
+    }
+    return  _currentScreen;
+}
+
+
+// ////////////////////////////////////////////////////////
+//                    SideBar.                           //
+///////////////////////////////////////////////////////////
+
+ function toggleIconOnly() {
+            const sidebar = document.getElementById('sidebarMenu');
+            sidebar.classList.toggle('icon-only');
+            $('#sidebarMenu').hasClass('icon-only') ? $('.menu-link div').addClass('is-hidden') 
+                : $('.menu-link div').removeClass('is-hidden')
+        }
+
+        // ฟังก์ชันปุ่ม iPhone สำหรับซ่อน/แสดงเมนูลอยทั้งหมด
+        function toggleFullSidebar() {
+            const sidebar = document.getElementById('sidebarMenu');
+            const assistiveIcon = document.getElementById('assistiveIcon');
+            
+            sidebar.classList.toggle('hidden-sidebar');
+
+            if (sidebar.classList.contains('hidden-sidebar')) {
+                
+                assistiveIcon.className = "fa-solid fa-arrow-right";
+            } else {
+                assistiveIcon.className = "fa-solid fa-bars-staggered";
+
+            }
+        }
+
+        function switchSidebarMenu(element, menuName) {
+            document.querySelectorAll('.sidebar-nav .sidebar-item').forEach(item => {
+                item.classList.remove('active');
+            });
+            element.classList.add('active');
+            toggleIconOnly()
+            switch (menuName) {
+                case 'tabwater':
+                    navigateTo('tabwaterScreen')
+                    break;
+                case 'recycle_bank':
+                    navigateTo('recycleBankScreen')
+                    break;
+                case 'inventory':
+                    navigateTo('inventoryScreen')
+                    break;
+                default:
+                    navigateTo('mainScreen')
+                }
+
+            
+            const indicator = document.getElementById('activeIndicator');
+            indicator.style.transform = `translateY(${element.offsetTop}px)`;
+        }
+
+        window.addEventListener('load', () => {
+            const firstActive = document.querySelector('.sidebar-nav .sidebar-item.active');
+            if (firstActive) {
+                const indicator = document.getElementById('activeIndicator');
+                indicator.style.transform = `translateY(${firstActive.offsetTop}px)`;
+            }
+        });
+   
+///////////////////////////////////////////////////////////
+//                    tabwaterScreen.                    //
+///////////////////////////////////////////////////////////
+         document.addEventListener("DOMContentLoaded", () => {
+        const taskCards = document.querySelectorAll('.task-card');
+
+        taskCards.forEach(card => {
+            card.addEventListener('click', function(e) {
+                if (this.classList.contains('is-pressed')) return;
+                this.classList.add('is-pressed');
+
+                const onclickAttr = this.getAttribute('onclick');
+                this.removeAttribute('onclick');
+
+                setTimeout(() => {
+                    this.classList.remove('is-pressed');
+                    if (onclickAttr) {
+                        new Function(onclickAttr).call(this);
+                    }
+                }, 200); // หน่วงเวลา 200 มิลลิวินาทีให้อนิเมชันเล่นจบอย่างสมูท
+            });
+        });
+    });
