@@ -133,7 +133,7 @@ class OrgAdminController extends Controller
      */
     public function edit($id)
     {
-        $user = User::with('staff')->findOrFail($id);
+        $user = User::with('staffs')->findOrFail($id);
         $organizations = Organization::all();
 
         return view('admin.org_admins.edit', compact('user', 'organizations'));
@@ -209,8 +209,8 @@ class OrgAdminController extends Controller
         DB::transaction(function () use ($user) {
             $user->update(['status' => 'inactive']); // หรือ 'banned'
 
-            if ($user->staff) {
-                $user->staff()->update([
+            if ($user->staffs->isNotEmpty()) {
+                $user->staffs()->update([
                     'status' => 'inactive',
                     'deleted' => 1
                 ]);
