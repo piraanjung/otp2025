@@ -9,7 +9,8 @@
     <link
         href="https://fonts.googleapis.com/css2?family=Google+Sans:ital,opsz,wght@0,17..18,400..700;1,17..18,400..700&family=Kanit:ital,wght@0,100;0,200;0,300;0,400;0,500;0,600;0,700;0,800;0,900;1,100;1,200;1,300;1,400;1,500;1,600;1,700;1,800;1,900&display=swap"
         rel="stylesheet">
-   
+       <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/css/bootstrap.min.css"
         integrity="sha384-sRIl4kxILFvY47J16cr9ZwB07vP4J8+LH7qKQnuqkuIAvNWLzeN8tE5YBujZqJLB" crossorigin="anonymous">
     <script>
@@ -21,7 +22,7 @@
 @endsection
 
 @section('content')
-
+{{-- 
     <div class="app-header is-hidden">
         <div style="display: flex; align-items: center; gap: 12px;">
             <button type="button" id="btnOpenSidebar" onclick="toggleSidebar(true)"
@@ -35,11 +36,12 @@
                 style="font-size: 12px; background: rgba(255,255,255,0.15); padding: 4px 10px; border-radius: 20px;">📱
                 Mobile Mode</span>
         </div>
-    </div>
-
+    </div> --}}
 
     <div id="appSidebar" class="mobile-sidebar-wrapper is-hidden">
-        <div class="sidebar-overlay" onclick="toggleSidebar(false)"></div>
+        @include('staff.includes.sidebar')
+
+        {{-- <div class="sidebar-overlay" onclick="toggleSidebar(false)"></div>
 
         <div class="sidebar-content">
 
@@ -48,7 +50,7 @@
                     {{-- <center class="profile">
                         <img src="{{ " https://profile.line-scdn.net/" . Auth::user()->image }}" class="img-bordered-md"
                             alt="">
-                    </center> --}}
+                    </center> --}
                 </div>
                 <div class="sidebar-user-details">
                     <small>เจ้าหน้าที่ผู้ปฏิบัติงาน</small>
@@ -69,16 +71,16 @@
                     🚪 ออกจากระบบ
                 </button>
             </div>
-        </div>
+        </div> --}}
     </div>
 
-    <div id="loginScreen" class="ixs-hidden">
+    <div id="loginScreen" class="screen is-hidden">
         @include('staff.includes.login_screen')
     </div>
     @include('staff.includes.screen_select_org')
 
-    <div id="mainScreen" class="is-hidden">
-        <div class="container">
+    <div id="mainScreen" class="screen is-hidden">
+        {{-- <div class="container">
             <h3 class="section-title">เมนูบริการระบบสนาม</h3>
 
             <div class="menu-grid">
@@ -120,44 +122,15 @@
 
                
             </div>
-        </div>
+        </div> --}}
+        @include('staff.includes.main_screen')
     </div>
 
-    <div id="recycleScreen" class="is-hidden">
-        <div class="sub-header">
-            <button onclick="backToMenu()" class="btn-back">⬅️ กลับเมนูหลัก</button>
-            <h3 style="margin: 0;">ธนาคารขยะรีไซเคิล</h3>
-        </div>
+    {{-- <div id="recycleBankScreen" class="screen is-hidden"> --}}
+        @include('staff.includes.recycle_bank_screen')
+    {{-- </div> --}}
 
-        <div class="container">
-            <div class="card" style="padding: 12px;">
-                <div class="search-wrapper">
-                    <input type="text" id="searchMemberRecycleInput" placeholder="🔍 ค้นหาชื่อ, นามสกุล หรือเบอร์โทร..."
-                        oninput="filterMembers()">
-                    <button id="btnScanQR" class="btn-scan">📷 สแกน QR</button>
-                </div>
-            </div>
-
-            <h4 class="section-title">รายชื่อสมาชิกในระบบ (<span id="memberCount">0</span> คน)</h4>
-
-
-            <div class="tab-container"
-                style="display: flex; margin-bottom: 15px; background: #eee; padding: 5px; border-radius: 8px;">
-                <button id="btnTabPending" onclick="switchTab('pending')"
-                    style="flex: 1; padding: 10px; border: none; border-radius: 6px; font-weight: bold; background: #007bff; color: white; cursor: pointer;">
-                    ⏳ รอรับซื้อ (<span id="countPending">0</span>)
-                </button>
-                <button id="btnTabCompleted" onclick="switchTab('completed')"
-                    style="flex: 1; padding: 10px; border: none; border-radius: 6px; font-weight: bold; background: transparent; color: #333; cursor: pointer;">
-                    ✓ รับซื้อแล้ววันนี้ (<span id="countCompleted">0</span>)
-                </button>
-            </div>
-
-            <div id="memberListContainer"></div>
-        </div>
-    </div>
-
-    <div id="depositScreen" class="is-hidden">
+    <div id="depositScreen" class="screen is-hidden">
         <div id="globalPrinterStatus"
             style="background: #fff; padding: 10px 15px; margin-bottom: 15px; border-radius: 8px; border-left: 5px solid #dc3545; display: flex; justify-content: space-between; align-items: center; box-shadow: 0 2px 4px rgba(0,0,0,0.05);">
             <div style="font-size: 14px; font-weight: bold; color: #495057;">
@@ -312,7 +285,7 @@
             </div>
         </div>
     </div>
-    <div id="settingsScreen" class="is-hidden">
+    <div id="settingsScreen" class="screen is-hidden">
         <div class="sub-header">
             <button onclick="backToMenuFromSettings()" class="btn-back">⬅️ กลับเมนูหลัก</button>
             <h3 style="margin: 0;">ตั้งค่าระบบเครื่องพิมพ์</h3>
@@ -360,50 +333,18 @@
         </div>
     </div>
 
-    <div id="waterScreen" class="is-hidden">
-        <div class="container">
-            <h3 class="section-title">งานประปา</h3>
-
-            <div class="menu-grid">
-                 <div class="menu-item card-organic" onclick="navigateTo('water-tabwater-record')">
-                    <div class="menu-icon">🍂</div>
-                    <div class="menu-title">จดมิเตอร์ประปา</div>
-                    <div class="menu-desc">จดมิเตอร์ประปา</div>
-                </div>
-
-
-                <div class="menu-item card-recycle" onclick="navigateTo('water-cutmeter')">
-                    <div class="menu-icon">♻️</div>
-                    <div class="menu-title">ตัดมิเตอร์ประปา</div>
-                    <div class="menu-desc">ตัดมิเตอร์ประปา</div>
-                </div>
-                <div class="menu-item card-recycle" onclick="navigateTo('water-complain')">
-                    <div class="menu-icon">♻️</div>
-                    <div class="menu-title">เรื่องร้องเรียน/แจ้งเหตุงานประปา</div>
-                    <div class="menu-desc">เรื่องร้องเรียน/แจ้งเหตุงานประปา</div>
-                </div>
-
-               
-                <div class="menu-item card-water" onclick="navigateTo('water-equipment-control')">
-                    <div class="menu-icon">💧</div>
-                    <div class="menu-title">ควบคุมงานผลิตน้ำ</div>
-                    <div class="menu-desc">ควบคุมงานผลิตน้ำ</div>
-                </div>
-
-
-
-            </div>
-        </div>
+    <div id="tabwaterScreen" class="screen -mb-2is-hidden">
+        @include('staff.includes.tabwater_main_screen')
     </div>
 
-    <div id="waterRecordScreen" class="is-hidden">
+    <div id="waterRecordScreen" class="screen is-hidden">
         @include('staff.includes.screen_water_record')
     </div>
 
-    <div id="waterMembersListScreen" class="is-hidden">
+    <div id="waterMembersListScreen" class="screen is-hidden">
         @include('staff.includes.screen_water_members_list')
     </div>
-    <div id="inventoryScreen" class="is-hidden">
+    <div id="inventoryScreen" class="screen is-hidden">
         <iframe src=""  style=" width: 100%; height: 800px; border: none;"
             id="inventoryIframe">
         </iframe>
@@ -579,13 +520,14 @@
 
 
         function backToMenu() {
-            document.getElementById('recycleScreen').classList.add('is-hidden');
-            document.getElementById('mainScreen').classList.remove('is-hidden');
+           navigateTo('mainScreen')
         }
 
         function backToMenuFromSettings() {
-            document.getElementById('settingsScreen').classList.add('is-hidden');
-            document.getElementById('mainScreen').classList.remove('is-hidden');
+           navigateTo('settingsScreen')
+
+            // document.getElementById('settingsScreen').classList.add('is-hidden');
+            // document.getElementById('mainScreen').classList.remove('is-hidden');
         }
 
         function renderMemberList(members) {
@@ -652,7 +594,7 @@
                 }
 
                 const resData = await response.json();
-
+                console.log('resData',resData)
                 // ตรวจสอบว่ามีข้อมูลกลับมาตาม format { code: 200, data: [...] } ไหม
                 if (resData.code === 200 && Array.isArray(resData.data)) {
                     allMembers = resData.data; // เอาข้อมูลยัดเข้าตัวแปรหลักของ master
