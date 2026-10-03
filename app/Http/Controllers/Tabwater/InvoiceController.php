@@ -193,7 +193,6 @@ class InvoiceController extends Controller
         // 1. [Best Practice] Timezone ควรตั้งที่ config/app.php
         // แต่ถ้าจำเป็นต้องตั้งตรงนี้ก็ทำได้ครับ
         date_default_timezone_set('Asia/Bangkok');
-
         // 2. [Security] ควร Validate ข้อมูลก่อนใช้งานเสมอ
         $request->validate([
             'data' => 'required|array',
@@ -242,7 +241,7 @@ class InvoiceController extends Controller
                 // Update Or Create (ใส่ org_id_fk ไปด้วย)
                 // ---------------------------------------------------------
 
-                $invoice = TwInvoice::updateOrCreate(
+                TwInvoice::updateOrCreate(
                     [
                         'meter_id_fk'   => $inv['meter_id'],
                         'inv_period_id_fk' => $inv_period_table->id,

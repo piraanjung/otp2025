@@ -333,12 +333,12 @@
         </div>
     </div>
 
-    <div id="tabwaterScreen" class="screen -mb-2is-hidden">
+    <div id="tabwaterScreen" class="screen is-hidden">
         @include('staff.includes.tabwater_main_screen')
     </div>
 
-    <div id="waterRecordScreen" class="screen is-hidden">
-        @include('staff.includes.screen_water_record')
+    <div id="tabwaterRecordScreen" class="screen is-hidden">
+        @include('staff.includes.tabwater_record_screen')
     </div>
 
     <div id="waterMembersListScreen" class="screen is-hidden">
