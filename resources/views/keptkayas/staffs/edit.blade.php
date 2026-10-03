@@ -1,101 +1,28 @@
 @extends('layouts.super-admin')
 
 @section('title_page', 'แก้ไขเจ้าหน้าที่')
-ิ@section('style')
+@section('style')
     <style>
-    /* 1. สไตล์พื้นฐานของกล่อง (Unchecked) */
-    .flat-check {
-        transition: all 0.2s ease;
-        border: 1px solid #ebedf0 !important;
-        background-color: #ffffff !important;
-        cursor: pointer;
-        position: relative;
-    }
-    /* สไตล์ที่คุณเขียนมานั้นถูกต้องและดีมากแล้วครับ */
-    .flat-check:has(input:checked) {
-        background-color: #f0f5ff !important;
-        border-color: #5e72e4 !important;
-    }
-    .flat-check:has(input:checked) .form-check-label {
-        color: #5e72e4 !important;
-        font-weight: 700 !important;
-    }
-
-    /* 2. เมื่อกล่องถูก "Checked" (เปลี่ยนสีทั้งกล่องให้เด่น) */
-    .flat-check:has(input:checked) {
-        background-color: #f0f5ff !important; /* สีฟ้าอ่อนๆ ให้รู้ว่าเลือกแล้ว */
-        border-color: #5e72e4 !important; /* เส้นขอบสีหลัก */
-    }
-
-    /* 3. ปรับตัวอักษรเมื่อ Checked */
-    .flat-check:has(input:checked) .form-check-label {
-        color: #5e72e4 !important;
-        font-weight: 700 !important;
-    }
-
-    /* 4. แก้ไขตัว Switch ให้แสดงสีชัดเจนและไม่ซ้อน */
-    .flat-check .form-check-input {
-        cursor: pointer;
-        background-color: #dee2e6 !important;
-        border: none !important;
-        height: 1.25rem !important;
-        width: 2.5rem !important;
-    }
-
-    .flat-check .form-check-input:checked {
-        background-color: #5e72e4 !important; /* สีตอนเปิด */
-        background-image: none !important; /* ปิด SVG ที่ทำให้ซ้อน */
-    }
-
-    /* 5. เอฟเฟกต์ตอน Hover */
-    .flat-check:hover {
-        border-color: #5e72e4 !important;
-        background-color: #f8f9fa !important;
-    }
-
-    /* สไตล์เดิมของคุณที่ควรคงไว้ */
-    .bg-light-gray {
-        background-color: #f8f9fa !important;
-    }
-    .flat-check {
-        transition: all 0.2s;
-        border: 1px solid #ebedf0 !important;
-        cursor: pointer;
-    }
-    .card-header {
-        border-bottom: 1px solid #f1f3f5 !important;
-    }
-    .card {
-        background-color: #ffffff;
-    }
-
-    .form-control, .form-select {
-        border: 1px solid #e9ecef !important;
-        box-shadow: none !important;
-        background-color: #ffffff !important;
-        transition: border-color 0.2s;
-    }
-
-    .form-control:focus, .form-select:focus {
-        border-color: #5e72e4 !important;
-    }
-
-    .form-control[readonly] {
-        background-color: #f8f9fa !important;
-        opacity: 1;
-    }
-
-    /* ปรับแต่งหัวข้อ Card */
-    .card-header h6 {
-        color: #344767;
-        letter-spacing: -0.025rem;
-    }
-
-    /* สไตล์ปุ่มกดส่ง */
-    .btn-primary {
-        background-color: #5e72e4 !important;
-        border: none;
-    }
+        /* กล่อง switch ของ Role / Permission ใช้สี primary ของ Soft UI */
+        .flat-check {
+            transition: all 0.2s ease;
+            border: 1px solid #e9ecef;
+            cursor: pointer;
+        }
+        .flat-check:hover {
+            border-color: #cb0c9f;
+        }
+        .flat-check:has(input:checked) {
+            background-color: #fdf2fb;
+            border-color: #cb0c9f;
+        }
+        .flat-check:has(input:checked) .form-check-label {
+            color: #cb0c9f !important;
+        }
+        .flat-check .form-check-input {
+            cursor: pointer;
+            flex-shrink: 0;
+        }
     </style>
 @endsection
 @section('content')
@@ -104,21 +31,13 @@
             <div class="col-md-12 mx-auto">
                 <div class="card mb-4">
                     <div class="card-header pb-0">
-                        <h6>แก้ไขข้อมูลเจ้าหน้าที่: {{ $staff->firstname ?? 'N/A' }}
-                            {{ $staff->user->lastname ?? '' }}
+                        <h6>แก้ไขข้อมูลเจ้าหน้าที่: {{ trim(($staff->firstname ?? '') . ' ' . ($staff->lastname ?? '')) ?: $staff->username }}
                         </h6>
                     </div>
                     <div class="card-body">
                         <form action="{{ route('keptkayas.staffs.update', $staff->id) }}" method="POST">
                             @csrf
                             @method('PUT')
-                                @if(session('success'))
-                                <div class="alert alert-success border-0 shadow-none text-white mb-3" role="alert" style="background-color: #2dce89 !important;">
-                                    <span class="alert-icon"><i class="fas fa-check-circle me-2"></i></span>
-                                    <span class="alert-text"><strong>สำเร็จ!</strong> {{ session('success') }}</span>
-                                    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
-                                </div>
-                            @endif
                             @if($errors->any())
                                 <div class="alert alert-danger alert-dismissible fade show mb-3" role="alert">
                                     <span class="alert-text text-white"><strong>เกิดข้อผิดพลาด!</strong>
@@ -132,9 +51,8 @@
                             <div class="mb-3">
                                 <label for="user_display" class="form-label">ผู้ใช้งาน (User)</label>
                                 <input type="text" class="form-control" id="user_display"
-                                    value="{{ $staff->prefix ?? '' }} {{ $staff->firstname ?? 'N/A' }} {{ $staff->lastname ?? '' }} ({{ $staff->email ?? 'N/A' }})"
+                                    value="{{ trim(($staff->prefix ?? '') . ' ' . ($staff->firstname ?? '') . ' ' . ($staff->lastname ?? '')) ?: $staff->username }} ({{ $staff->email ?? '-' }})"
                                     readonly>
-                                <input type="hidden" name="user_id" value="{{ $staff->user_id }}">
                             </div>
 
                             <div class="mb-3">
@@ -231,8 +149,8 @@
 
                             <div class="d-flex justify-content-end mt-4">
                                 <a href="{{ route('keptkayas.staffs.index') }}"
-                                    class="btn btn-light border me-2 shadow-none">ยกเลิก</a>
-                                <button type="submit" class="btn btn-primary shadow-none px-4">บันทึกการเปลี่ยนแปลง</button>
+                                    class="btn btn-outline-secondary me-2">ยกเลิก</a>
+                                <button type="submit" class="btn bg-gradient-primary px-4">บันทึกการเปลี่ยนแปลง</button>
                             </div>
                         </form>
                     </div>

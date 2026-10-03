@@ -15,10 +15,33 @@ use Spatie\Permission\Models\Permission;
 class StaffController extends Controller
 {
     protected $staffRolesArray;
+
+    /** Role ที่หน้าจัดการเจ้าหน้าที่อนุญาตให้ติ๊กเพิ่ม/ถอดได้ (role อื่นของผู้ใช้จะไม่ถูกแตะ) */
+    protected const MANAGEABLE_ROLES = [
+        'Tabwater Staff', 'Tabwater Header', 'Admin', 'Recycle Bank Staff',
+        'Annual Fee Staff', 'Food Waste Staff', 'Staff',
+    ];
+
     function __construct()
     {
         $this->staffRolesArray = ['Tabwater Staff', 'Tabwater Header', 'Admin', 'Recycle Bank Staff', 
         'Annual Fee Staff', 'Food Waste Staff'];
+    }
+
+    /** ผู้ใช้ต้องอยู่ org เดียวกับผู้ที่ล็อกอิน (Super Admin ข้าม org ได้) */
+    private function authorizeOrg(User $staff): void
+    {
+        $me = Auth::user();
+        abort_unless(
+            $me->hasRole('Super Admin') || $staff->org_id_fk === $me->org_id_fk,
+            403
+        );
+    }
+
+    /** ชื่อ role จริงใน DB ที่จัดการได้ (เทียบแบบไม่สนตัวพิมพ์เล็ก/ใหญ่ ตาม collation ของ MySQL) */
+    private function manageableRoles()
+    {
+        return Role::whereIn('name', self::MANAGEABLE_ROLES)->orderBy('name')->get();
     }
     public function index(Request $request)
     {
@@ -29,6 +52,9 @@ class StaffController extends Controller
         $searchName = $request->input('search_name');
         $searchStatus = $request->input('search_status');
         $perPage = $request->input('per_page', 10);
+        if ($perPage !== 'all' && !in_array((int) $perPage, [10, 20, 50, 100], true)) {
+            $perPage = 10;
+        }
         $searchCanAccessWasteBank = $request->input('search_can_access_waste_bank');
         $searchCanAccessAnnualCollection = $request->input('search_can_access_annual_collection');
         $isAjax = $request->input('ajax');
@@ -41,6 +67,7 @@ class StaffController extends Controller
             $query->where(function ($q) use ($searchName) {
                 $q->where('firstname', 'like', "%{$searchName}%")
                     ->orWhere('lastname', 'like', "%{$searchName}%")
+                    ->orWhere('username', 'like', "%{$searchName}%")
                     ->orWhere('email', 'like', "%{$searchName}%");
             });
         }
@@ -105,45 +132,34 @@ class StaffController extends Controller
      */
     public function store(Request $request)
     {
+        $roleNames = $this->manageableRoles()->pluck('name')->all();
+
         $request->validate(
             [
                 'user_id' => 'required|exists:users,id',
-                'roles' => [
-                    'required',
-                    // Rule::in(['tabwater staff', 'tabwater header', 'finance staff', 'finance header']),
-                    Rule::unique('model_has_roles', 'model_id')->where(function ($query) use ($request) {
-                        $roleId = Role::where('name', $request->roles)->first()->id;
-                        return $query->where('role_id', $roleId)
-                            ->where('model_type', 'App\\Models\\User');
-                    })
-                ],
+                'roles' => ['required', 'array', 'min:1'],
+                'roles.*' => [Rule::in($roleNames)],
+                'permissions' => ['nullable', 'array'],
+                'permissions.*' => ['exists:permissions,name'],
+                'status' => ['nullable', Rule::in(['active', 'inactive', 'suspended'])],
             ],
             [
-                'role_name.unique' => 'ผู้ใช้งานนี้มีบทบาทที่เลือกอยู่แล้ว'
+                'roles.required' => 'กรุณาเลือกบทบาทอย่างน้อย 1 รายการ',
+                'roles.*.in' => 'บทบาทที่เลือกไม่ถูกต้อง',
             ]
         );
-        $user = User::find($request->user_id);
+        $user = User::findOrFail($request->user_id);
+        $this->authorizeOrg($user);
 
-        foreach ($request->roles as $role) {
-            $user->assignRole($role);
-        }
+        $user->assignRole($request->roles);
         if (collect($request->get('permissions'))->isNotEmpty()) {
-            foreach ($request->get('permissions') as $permission) {
-                $user->givePermissionTo($permission);
-            }
+            $user->givePermissionTo($request->get('permissions'));
         }
 
-        $staff = Staff::find($user->id);
-        if (collect($staff)->isEmpty()) {
-            $staff = new Staff();
-            $staff->id = $user->id;
-            $staff->user_id = $user->id;
-            $staff->status  = 'active';
-            $staff->deleted    = '0';
-            $staff->save();
-        }
-
-
+        Staff::firstOrCreate(
+            ['user_id' => $user->id],
+            ['id' => $user->id, 'status' => $request->input('status', 'active'), 'deleted' => '0']
+        );
 
         return redirect()->route('keptkayas.staffs.index')->with('success', 'เพิ่มเจ้าหน้าที่ใหม่เรียบร้อยแล้ว');
     }
@@ -153,9 +169,10 @@ class StaffController extends Controller
      */
     public function show(User $staff)
     {
-        // โหลด permissions และ roles สำหรับการแสดงผล
-        $staff->load('permissions', 'roles');
-        return view('keptkayas.staffs.show', compact('staff'));
+        $this->authorizeOrg($staff);
+
+        // ยังไม่มีหน้ารายละเอียดแยก ใช้หน้าแก้ไขซึ่งแสดงข้อมูลบทบาท/สิทธิ์ครบแล้ว
+        return redirect()->route('keptkayas.staffs.edit', $staff->id);
     }
 
     /**
@@ -163,21 +180,11 @@ class StaffController extends Controller
      */
     public function edit(User $staff)
     {
-        // ดึง Roles ทั้งหมด (หรือเฉพาะกลุ่มที่อนุญาต)
-        $allRoles = Role::whereIn('name', [
-            'staff',
-            'Admin',
-            'tabwater staff',
-            'tabwater header',
-            'finance staff',
-            'finance header',
-            'Food Waste Staff'
-        ])->get();
+        $this->authorizeOrg($staff);
 
-        // ดึง Permissions ทั้งหมด
+        $allRoles = $this->manageableRoles();
         $allPermissions = Permission::all();
 
-        // Load ข้อมูลความสัมพันธ์
         $staff->load('roles', 'permissions');
         return view('keptkayas.staffs.edit', compact('staff', 'allRoles', 'allPermissions'));
     }
@@ -187,29 +194,23 @@ class StaffController extends Controller
      */
     public function update(Request $request, User $staff)
     {
-        // 1. ปรับ Validation ให้ตรงกับชื่อ input ในหน้า Blade
+        $this->authorizeOrg($staff);
+
+        $manageable = $this->manageableRoles()->pluck('name');
+
         $request->validate([
-            'roles' => ['required', 'array'], // รับเป็น array ตามหน้า Blade
-            'roles.*' => [Rule::in(['staff', 'tabwater staff', 'tabwater header', 'finance staff', 'Admin'])],
-            'permissions' => ['nullable', 'array'], // เพิ่มการตรวจสอบ permissions
+            'roles' => ['nullable', 'array'],
+            'roles.*' => [Rule::in($manageable->all())],
+            'permissions' => ['nullable', 'array'],
+            'permissions.*' => ['exists:permissions,name'],
             'status' => ['required', Rule::in(['active', 'inactive', 'suspended'])],
         ]);
 
-        // 2. อัปเดต Roles (ใช้ syncRoles จะจัดการลบอันเก่าและเพิ่มอันใหม่ให้เอง)
-        $staff->syncRoles($request->roles);
+        // เปลี่ยนเฉพาะ role ที่อยู่ในรายการที่จัดการได้ ส่วน role อื่น (User, Tabwater User ฯลฯ) คงไว้
+        $kept = $staff->roles->pluck('name')->reject(fn ($name) => $manageable->contains($name));
+        $staff->syncRoles($kept->merge($request->input('roles', []))->all());
 
-        // 3. อัปเดต Permissions (เพิ่มส่วนนี้เพื่อให้สิทธิ์ที่ติ๊กไว้ถูกบันทึก)
-        if ($request->has('permissions')) {
-            $staff->syncPermissions($request->permissions);
-        } else {
-            // ถ้าไม่ได้ติ๊กอะไรเลย ให้ล้าง permissions เดิม (Direct Permissions)
-            $staff->syncPermissions([]);
-        }
-
-        // 4. อัปเดตข้อมูลอื่นๆ
-        // $staff->status = $request->status;
-        // $staff->deleted = $request->has('deleted') ? '1' : '0'; // รองรับ checkbox 'deleted'
-        // $staff->save();
+        $staff->syncPermissions($request->input('permissions', []));
 
         return redirect()->route('keptkayas.staffs.index')->with('success', 'อัปเดตข้อมูลเจ้าหน้าที่เรียบร้อยแล้ว');
     }
@@ -219,11 +220,11 @@ class StaffController extends Controller
      */
     public function destroy(User $staff)
     {
-        // ดึง roles ทั้งหมดที่เกี่ยวข้องกับ staff
-        $staffRoles = ['staff', 'tabwater staff', 'tabwater header', 'finance staff', 'finance header'];
+        $this->authorizeOrg($staff);
 
-        // ลบ roles ทั้งหมดที่อยู่ในรายการนี้ออกจากผู้ใช้งาน
-        foreach ($staffRoles as $roleName) {
+        // ถอดเฉพาะ role ฝั่งเจ้าหน้าที่ที่ผู้ใช้มีอยู่จริง (removeRole กับ role ที่ไม่มีจะโยน exception)
+        $manageable = $this->manageableRoles()->pluck('name');
+        foreach ($staff->roles->pluck('name')->intersect($manageable) as $roleName) {
             $staff->removeRole($roleName);
         }
 
