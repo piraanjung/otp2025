@@ -33,7 +33,6 @@
                                 <option value="any">ทั้งหมด</option>
                                 <option value="active" @selected(request('search_status') == 'active')>ใช้งาน (Active)</option>
                                 <option value="inactive" @selected(request('search_status') == 'inactive')>ไม่ใช้งาน (Inactive)</option>
-                                <option value="suspended" @selected(request('search_status') == 'suspended')>ระงับ (Suspended)</option>
                             </select>
                         </div>
                         <div class="col-6 col-md-2">

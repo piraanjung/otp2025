@@ -9,7 +9,9 @@
 @forelse($staffs as $staff)
     @php
         $fullName = trim(($staff->prefix ?? '') . ' ' . ($staff->firstname ?? '') . ' ' . ($staff->lastname ?? ''));
-        [$statusText, $statusColor] = $statusMap[$staff->status] ?? [ucfirst((string) $staff->status), 'warning'];
+        // สถานะเจ้าหน้าที่เก็บที่ staffs.status (ไม่ใช่ users.status ซึ่งเป็นสถานะสมาชิก)
+        $staffStatus = optional($staff->staffs->first())->status;
+        [$statusText, $statusColor] = $statusMap[$staffStatus] ?? ['ไม่ระบุ', 'secondary'];
     @endphp
     <tr>
         <td>

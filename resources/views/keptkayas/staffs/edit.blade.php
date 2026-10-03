@@ -59,10 +59,8 @@
                                 <label for="status" class="form-label">สถานะเจ้าหน้าที่</label>
                                 <select class="form-select @error('status') is-invalid @enderror" id="status" name="status"
                                     required>
-                                    <option value="active" {{ old('status', $staff->status) == 'active' ? 'selected' : '' }}>
-                                        Active</option>
-                                    <option value="inactive" {{ old('status', $staff->status) == 'inactive' ? 'selected' : '' }}>Inactive</option>
-                                    <option value="suspended" {{ old('status', $staff->status) == 'suspended' ? 'selected' : '' }}>Suspended</option>
+                                    <option value="active" {{ old('status', $staffStatus) == 'active' ? 'selected' : '' }}>ใช้งาน (Active)</option>
+                                    <option value="inactive" {{ old('status', $staffStatus) == 'inactive' ? 'selected' : '' }}>ไม่ใช้งาน (Inactive)</option>
                                 </select>
                                 @error('status')<div class="invalid-feedback">{{ $message }}</div>@enderror
                             </div>
