@@ -30,7 +30,9 @@ class UserMatchingAnnualTrashsController extends Controller
     {
         $w_user = User::find($w_user);
         $AnnualTrashs = $w_user->foodAnnualTrashs()->paginate(10);
-        return view('foodwaste.w.waste_bins.index', compact('w_user', 'AnnualTrashs'));
+        // view อ่านจากตัวแปร $wasteBins
+        $wasteBins = $AnnualTrashs;
+        return view('foodwaste.w.waste_bins.index', compact('w_user', 'AnnualTrashs', 'wasteBins'));
     }
 
 
