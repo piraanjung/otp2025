@@ -670,13 +670,14 @@ class UserController extends Controller
 
         // Logic ปกติสำหรับแสดง User ถ้าไม่ใช่เคส store
         $user = User::find($function);
-        return view('admin.users.show', compact('user'));
+        // ยังไม่มีหน้ารายละเอียดแยก ใช้หน้าแก้ไขซึ่งแสดงข้อมูลครบแล้ว
+        return redirect()->route('admin.users.edit', $user->id ?? $function);
     }
 
     public function history(User $user)
     {
         $user = User::with('usermeterinfos', 'usermeterinfos.invoice')->where('id', $user->id)->get();
-        return view('admin.users.history', compact('user'));
+        return view('admin.users_tabwater.history', compact('user'));
     }
     public function assignRole(Request $request, User $user)
     {
@@ -700,7 +701,7 @@ class UserController extends Controller
                 }
             ])
             ->get();
-        return view('admin.users.cancel', compact('user'));
+        return view('admin.users_tabwater.cancel', compact('user'));
     }
 
     public function removeRole(User $user, Role $role)

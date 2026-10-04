@@ -4,10 +4,10 @@ namespace App\Http\Controllers\Admin;
 
 use App\Imports\UsersImport;
 use App\Models\InvoiceOld;
-use App\Models\Tabwater\Invoice;
+use App\Models\Tabwater\TwInvoice as Invoice;
 use App\Models\Tabwater\InvoicePeriod;
 use App\Models\Tabwater\SequenceNumber;
-use App\Models\Tabwater\UserMerterInfo;
+use App\Models\Tabwater\TwMeterInfos as UserMerterInfo;
 use App\Models\User;
 use Illuminate\Http\Request;
 use App\Http\Controllers\Controller;

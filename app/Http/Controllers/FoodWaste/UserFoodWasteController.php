@@ -144,7 +144,7 @@ class UserFoodWasteController extends Controller
     public function create()
     {
         $user_groups = KpUserGroup::all();
-        return view('users.create');
+        return view('foodwaste.w.users.create');
     }
 
     /**
@@ -191,7 +191,7 @@ class UserFoodWasteController extends Controller
      */
     public function edit(User $user)
     {
-        return view('users.edit', compact('user'));
+        return view('foodwaste.w.users.edit', compact('user'));
     }
 
     /**
@@ -276,7 +276,7 @@ class UserFoodWasteController extends Controller
             })
             ->get();
 
-        return view('users.enroll_waste_services', compact('eligibleUsers'));
+        return view('foodwaste.w.users.enroll_waste_services', compact('eligibleUsers'));
     }
 
     public function aa(Request $request)

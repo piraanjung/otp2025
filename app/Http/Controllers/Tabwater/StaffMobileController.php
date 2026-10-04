@@ -6,10 +6,10 @@ use App\Http\Controllers\Controller;
 use App\Http\Controllers\FunctionsController;
 use App\Models\Admin\ManagesTenantConnection;
 use App\Models\Admin\Organization;
-use App\Models\Tabwater\Invoice;
+use App\Models\Tabwater\TwInvoice as Invoice;
 use App\Models\Tabwater\InvoicePeriod;
 use App\Models\Tabwater\UndertakerSubzone;
-use App\Models\Tabwater\UserMerterInfo;
+use App\Models\Tabwater\TwMeterInfos as UserMerterInfo;
 use App\Models\User;
 use Carbon\Carbon;
 use Illuminate\Http\Request;
@@ -23,7 +23,6 @@ class StaffMobileController extends Controller
 {
     public function index()
     {
-        ManagesTenantConnection::configConnection(session('db_conn'));
         $staff = User::where('id', Auth::id())
             ->with([
                 'undertaker_subzone',

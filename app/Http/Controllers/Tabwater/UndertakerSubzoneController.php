@@ -64,7 +64,8 @@ class UndertakerSubzoneController extends Controller
             )
             ->get();
 
-        return view('undertaker_subzone.create', compact('subzone', 'tw_mans'));
+        // view undertaker_subzone.create ไม่มีแล้ว กลับไปหน้ารายการ
+        return redirect()->route('admin.undertaker_subzone');
     }
 
     public function store(REQUEST $request)

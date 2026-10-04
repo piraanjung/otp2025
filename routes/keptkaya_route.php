@@ -44,7 +44,6 @@ Route::get('/unknown-review', function () {
 
     Route::get('/history/{pref_id}', [HistoryController::class, 'index'])->name('history');
     Route::get('/impact/{pref_id}', [ImpactController::class, 'index'])->name('impact');
-    Route::get('/locations', [LocationController::class, 'index'])->name('locations');
     Route::get('/withdraw/create/{pref_id}', [WithdrawController::class, 'create'])->name('withdraw.create');
     Route::post('/withdraw/store', [WithdrawController::class, 'storeRequest'])->name('withdraw.store');
     Route::get('/withdraw/success/{id}', [WithdrawController::class, 'showSuccess'])->name('withdraw.success');
@@ -57,7 +56,7 @@ Route::middleware(['auth'])->prefix('keptkayas')->name('keptkayas.')->group(func
     Route::get('/recycle-bank/members', [RecycleBankController::class, 'index'])->name('recycle-bank.members');
 Route::get('/recycle-bank/members/{id}/history', [RecycleBankController::class, 'history'])->name('recycle-bank.history');
 
-    Route::resource('kiosks', KioskController::class);
+    Route::resource('kiosks', KioskController::class)->except(['show']);
     Route::get('/kiosks/noscreen/login', [KioskController::class, 'login'])->name('kiosks.noscreen.login');
     Route::post('/kiosks/noscreen/userMatchKiosk', [KioskController::class, 'userMatchKiosk']);
     // หน้า Monitor ควบคุมตู้
@@ -85,7 +84,7 @@ Route::get('/recycle-bank/members/{id}/history', [RecycleBankController::class, 
         return view('keptkayas.barcode.scanner');
     });
 
-    Route::resource('/purchase-shops', KpPurchaseShopController::class); // middleware auth ซ้ำซ้อน ลบออกได้เพราะ Group มีแล้ว
+    Route::resource('/purchase-shops', KpPurchaseShopController::class)->except(['show']); // middleware auth ซ้ำซ้อน ลบออกได้เพราะ Group มีแล้ว
 
     Route::post('barcode/search', [BarcodeController::class, 'search'])->name('barcode.search');
     Route::resource('shop-products', KpShopProductController::class);
@@ -95,7 +94,6 @@ Route::get('/recycle-bank/members/{id}/history', [RecycleBankController::class, 
         Route::get('/', [KpMemberShopController::class, 'index'])->name('index');
         Route::get('cart', [KpMemberShopController::class, 'showCart'])->name('cart');
         Route::get('order-history', [KpMemberShopController::class, 'orderHistory'])->name('order_history');
-        Route::get('checkout', [KpMemberShopController::class, 'checkout'])->name('checkout');
         // Actions
         Route::post('add-to-cart', [KpMemberShopController::class, 'addToCart'])->name('add_to_cart');
         Route::post('place-order', [KpMemberShopController::class, 'placeOrder'])->name('place_order');
@@ -105,7 +103,7 @@ Route::get('/recycle-bank/members/{id}/history', [RecycleBankController::class, 
     // 4. Staff Routes
     Route::prefix('/staffs')->name('staffs.')->group(function () {
         Route::prefix('/mobile')->name('mobile.')->group(function () {
-            Route::resource('/recycle', RecycleWasteStaffCotroller::class);
+            Route::resource('/recycle', RecycleWasteStaffCotroller::class)->except(['create', 'store', 'show', 'edit', 'update', 'destroy']);
         });
     });
 
@@ -120,14 +118,13 @@ Route::get('/recycle-bank/members/{id}/history', [RecycleBankController::class, 
         Route::post('/import', [EmissionFactorController::class, 'import'])->name('import');
     });
 
-    Route::resource('annual_batch', AnnualBatchController::class);
+    Route::resource('annual_batch', AnnualBatchController::class)->except(['create', 'show', 'edit', 'update']);
 
     // 5. User & Waste Bin Management
-    Route::resource('users', UserWasteController::class);
+    Route::resource('users', UserWasteController::class)->except(['show']);
     Route::get('/waste_bin_users', [UserWasteController::class, 'waste_bin_users'])->name('waste_bin_users');
     Route::get('/users/search/{query}', [UserWasteController::class, 'search'])->name('users.search');
     Route::post('/waste-service-preferences', [UserWasteController::class, 'updateWasteServicePreferences'])->name('updateWasteServicePreferences');
-    Route::post('users/batch-update-service-preferences', [UserWasteController::class, 'batchUpdateWasteServicePreferences'])->name('users.batchUpdateWasteServicePreferences');
 
     // 6. Purchase System
     Route::prefix('purchase/')->name('purchase.')->group(function () {
@@ -182,24 +179,23 @@ Route::get('/recycle-bank/members/{id}/history', [RecycleBankController::class, 
         Route::post('/history', [AnnualTrashSubscriptionController::class, 'history'])->name('history');
     });
 
-    Route::resource('/kp_budgetyear', KpBudgetYearController::class);
-    Route::resource('wbin_payrate_per_months', AnnualTrashPayratePerMonthController::class);
+    Route::resource('wbin_payrate_per_months', AnnualTrashPayratePerMonthController::class)->except(['show']);
 
     // 10. Tbank System
     Route::prefix('/tbank/')->name('tbank.')->group(function () {
 
-        Route::resource('items_group', KpTbankItemsGroupsController::class);
+        Route::resource('items_group', KpTbankItemsGroupsController::class)->except(['show', 'edit', 'update', 'destroy']);
         Route::resource('units', KpTbankUnitsController::class);
 
         Route::get('cart/cartLists/{user_id}', [CartController::class, 'cartLists'])->name('cart.cart_lists');
         Route::get('cart/add_to_cart/{id}/{amount}', [CartController::class, 'addToCart'])->name('cart.add_to_cart');
-        Route::resource('cart', CartController::class);
+        Route::resource('cart', CartController::class)->except(['store', 'show', 'edit', 'update', 'destroy']);
 
         Route::get('prices/export', [KpTbankPriceController::class, 'export'])->name('prices.export');
         Route::post('prices/import', [KpTbankPriceController::class, 'import'])->name('prices.import');
         Route::get('/prices/bulk-edit', [KpTbankPriceController::class, 'bulkEdit'])->name('prices.bulk_edit');
         Route::post('/prices/bulk-update', [KpTbankPriceController::class, 'bulkUpdate'])->name('prices.bulk_update');
-        Route::resource('prices', KpTbankPriceController::class);
+        Route::resource('prices', KpTbankPriceController::class)->except(['show']);
 
 
         Route::prefix('items/')->name('items.')->group(function () {
@@ -209,7 +205,6 @@ Route::get('/recycle-bank/members/{id}/history', [RecycleBankController::class, 
             
             Route::get('buyItems/{user_id?}', [KpTbankItemsController::class, 'buyItems'])->name('buy_items');
             Route::get('search_items/{itemscode}', [KpTbankItemsController::class, 'search_items'])->name('search_items');
-            Route::get('set_items_pricepoint', [KpTbankItemsController::class, 'set_items_pricepoint'])->name('set_items_pricepoint');
             Route::get('generate-code/{group_id}', [KpTbankItemsController::class, 'generateCode'])->name('generate_code');
 
             Route::get('trash', [KpTbankItemsController::class, 'trash'])->name('trash');
@@ -238,6 +233,6 @@ Route::get('/recycle-bank/members/{id}/history', [RecycleBankController::class, 
     // 11. User Groups
     Route::prefix('kp_usergroup')->name('kp_usergroup.')->group(function () {
         Route::get('/{usergroup_id}/infos', [KpUserGroupController::class, 'infos'])->name('usergroup.infos');
-        Route::resource('/', KpUserGroupController::class);
+        Route::resource('/', KpUserGroupController::class)->except(['show']);
     });
 }); // End Main Group

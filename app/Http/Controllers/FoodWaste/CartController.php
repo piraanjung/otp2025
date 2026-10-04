@@ -12,13 +12,13 @@ class CartController extends Controller
 {
     public function index()
     {
-        return view('keptkaya.tbank.cart.index');
+        return view('keptkayas.tbank.cart.index');
     }
 
     public function create(Request $request)
     {
         $members = UserWastePreference::where('is_waste_bank', "1")->get();
-        return view('keptkaya.tbank.cart.create', compact('members'));
+        return view('keptkayas.tbank.cart.create', compact('members'));
     }
 
     public function addToCart(Request $request, $id, $amount)
@@ -56,6 +56,6 @@ class CartController extends Controller
             // ])
             ->get(['id', 'prefix', 'firstname', 'lastname', 'zone_id', 'subzone_id', 'address'])->first();
 
-        return view('keptkaya.tbank.cart.cart_lists', compact('member'));
+        return view('keptkayas.tbank.cart.cart_lists', compact('member'));
     }
 }

@@ -62,7 +62,7 @@ class KpTbankUnitsController extends Controller
      */
     public function show(KpTbankUnits $unit)
     {
-        return view('keptkayas.tbank.units.show', compact('unit'));
+        return redirect()->route('keptkayas.tbank.units.edit', $unit);
     }
 
     /**
