@@ -8,10 +8,15 @@
           break;
       }
   }
+  // หน้าที่ view ไม่ตั้งหัวข้อเอง ใช้ชื่อเมนูจาก config/page_titles.php
+  $menuTitle = \App\Support\PageTitle::for();
+  if ($pageTitle === '') {
+      $pageTitle = (string) $menuTitle;
+  }
   $crumbParent = $clean($__env->yieldContent('nav-main')) ?: $clean($__env->yieldContent('nav-header')) ?: 'หน้าหลัก';
   $crumbCurrent = $clean($__env->yieldContent('nav-current')) ?: $pageTitle;
   // <title> ใช้ชื่อเมนูที่เปิดอยู่ (config/page_titles.php) ถ้าไม่มีให้ใช้หัวข้อหน้า
-  $tabTitle = \App\Support\PageTitle::for() ?: $pageTitle;
+  $tabTitle = $menuTitle ?: $pageTitle;
 @endphp
 <!DOCTYPE html>
 <html lang="th">

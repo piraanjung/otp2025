@@ -9,10 +9,15 @@
             break;
         }
     }
+    // หน้าที่ view ไม่ตั้งหัวข้อเอง ใช้ชื่อเมนูจาก config/page_titles.php
+    $menuTitle = \App\Support\PageTitle::for();
+    if ($pageTitle === '') {
+        $pageTitle = (string) $menuTitle;
+    }
     $crumbParent = $clean($__env->yieldContent('nav-header')) ?: 'หน้าหลัก';
     $crumbCurrent = $clean($__env->yieldContent('nav-main')) ?: $clean($__env->yieldContent('nav-current')) ?: $pageTitle;
     // <title> ใช้ชื่อเมนูที่เปิดอยู่ (config/page_titles.php) ถ้าไม่มีให้ใช้หัวข้อหน้า
-    $tabTitle = \App\Support\PageTitle::for() ?: $pageTitle;
+    $tabTitle = $menuTitle ?: $pageTitle;
 
     $orgInfos = $orgInfos ?? [];
     $orgLogo = $orgInfos['org_logo_img'] ?? 'ko_envsogo.png';
@@ -153,6 +158,7 @@
     <script src="{{ asset('soft-ui/assets/js/plugins/smooth-scrollbar.min.js') }}"></script>
     <script src="{{ asset('soft-ui/assets/js/soft-ui-dashboard.min.js?v=1.0.7') }}"></script>
 
+    @include('layouts.partials.sidenav-active')
     @yield('script')
     @yield('scripts')
 
