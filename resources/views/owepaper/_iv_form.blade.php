@@ -29,16 +29,16 @@ $fnc = new FunctionsController();
             </div>
             <div class="row mb-4" style="margin-top:1.5rem">
                 <div class="col-4 text-center"></div>
-                <div class="col-6 text-left pt-3 ml-5">
+                <div class="col-6 text-start pt-3 ms-5">
                     <div>เรียน &nbsp;
                         {{ $item['res'][0]->usermeterinfos->user->prefix . '' . $item['res'][0]->usermeterinfos->user->firstname . ' ' . $item['res'][0]->usermeterinfos->user->lastname }}
                     </div>
 
-                    <div class="pl-5">
+                    <div class="ps-5">
                         {{ $item['res'][0]->usermeterinfos->user->address . ' ' . $item['res'][0]->usermeterinfos->user->user_zone->zone_name }}
                         ต.ขามป้อม
                     </div>
-                    <div class="pl-5">อ.พระยืน จ.ขอนแก่น 40320</div>
+                    <div class="ps-5">อ.พระยืน จ.ขอนแก่น 40320</div>
                 </div>
             </div>
             <hr>
@@ -47,7 +47,7 @@ $fnc = new FunctionsController();
 
             <div class="row">
                 <div class="col-3 textbetweenKrut">ที่ ขก 78002/</div>
-                <div class="col-4 text-right">
+                <div class="col-4 text-end">
                     <img src="{{ asset('/logo/krut.png') }}" style="width: 3cm; height:3cm">
                 </div>
                 <div class="col-5 textbetweenKrut tesabanAddr">
@@ -182,7 +182,7 @@ $paidBeforeDate = 30;
 
                 </div>
                 <div class="col-8">
-                    <div class="col-12 ml-5">ขอแสดงความนับถือ </div>
+                    <div class="col-12 ms-5">ขอแสดงความนับถือ </div>
                     <div class="row mt-5">
                         <div class="col-5"></div>
                         <div class="col-6 text-center pt-3" style="line-height: 1.8rem">

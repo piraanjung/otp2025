@@ -62,7 +62,7 @@
 {{-- Section: Fixed Rate --}}
 <div id="fixed_rate_section" style="display: none;">
     <h5 class="text-primary">กำหนดราคาแบบคงที่ (Fixed Rate)</h5>
-    <div class="form-group">
+    <div class="mb-3">
         <label for="fixed_rate_per_unit">อัตราค่าน้ำต่อหน่วย (บาท)</label>
         <input type="number" step="0.01" class="form-control" id="fixed_rate_per_unit" name="fixed_rate_per_unit"
             value="{{ old('fixed_rate_per_unit', $meterRateConfig->fixed_rate_per_unit ?? '') }}">
@@ -74,7 +74,7 @@
 <div id="progressive_tiers_section" style="display: none;">
     <div class="d-flex justify-content-between align-items-center mb-3">
         <h5 class="text-primary m-0">กำหนดราคาแบบขั้นบันได (Progressive Rate)</h5>
-        <button type="button" class="btn btn-info btn-sm" onclick="addTier()">
+        <button type="button" class="btn bg-gradient-info btn-sm" onclick="addTier()">
             <i class="fas fa-plus"></i> เพิ่มขั้นบันได (Add Tier)
         </button>
     </div>
@@ -100,7 +100,7 @@
             @endphp
 
             <div class="tier-row">
-                <button type="button" class="btn btn-danger btn-sm btn-remove-tier" onclick="removeTier(this)">
+                <button type="button" class="btn btn-outline-danger btn-sm btn-remove-tier" onclick="removeTier(this)">
                     <i class="fas fa-times"></i>
                 </button>
                 <h6 class="text-secondary font-weight-bold">Tier <span class="tier-number">{{ $index + 1 }}</span></h6>
@@ -164,7 +164,7 @@
     </div>
 </div>
 
-<div class="form-group">
+<div class="mb-3">
     <label for="comment">หมายเหตุเพิ่มเติม</label>
     <textarea id="comment" name="comment" class="form-control" rows="3">{{ old('comment', $meterRateConfig->comment ?? '') }}</textarea>
 </div>
@@ -222,7 +222,7 @@
 
             const html = `
             <div class="tier-row" id="tier-row-${index}">
-                <button type="button" class="btn btn-danger btn-sm btn-remove-tier" onclick="removeTier(this)">
+                <button type="button" class="btn btn-outline-danger btn-sm btn-remove-tier" onclick="removeTier(this)">
                     <i class="fas fa-times"></i>
                 </button>
                 <h6 class="text-secondary font-weight-bold">Tier <span class="tier-number">${tierCount}</span></h6>

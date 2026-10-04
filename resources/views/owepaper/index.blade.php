@@ -95,7 +95,7 @@
                                 </div>
                             </div>
                             <div class="card-tools">
-                                <input type="submit" class="btn btn-primary mb-3 float-right" id="print_multi_inv"
+                                <input type="submit" class="btn btn-primary mb-3 float-end" id="print_multi_inv"
                                     value="ปริ้นใบแจ้งเตือนชำระหนี้ที่เลือก">
                             </div>
                         </div>
@@ -388,7 +388,7 @@
 
                     }) //table
                     $('.dt-buttons').prepend(`
-                        <button class="dt-button  buttons-html5 ml-5 show_all_btn all" >เลือกทั้งหมด</button>`)
+                        <button class="dt-button buttons-html5 ms-5 show_all_btn all" >เลือกทั้งหมด</button>`)
                 } //else
 
 

@@ -1,61 +1,55 @@
 @extends('layouts.super-admin')
-@section('nav-main')
-    Pricing Types
-@endsection
-@section('nav-main-url')
-    {{route('meter_types.index')}}
-@endsection
-@section('nav-current')
-    Pricing Types
-@endsection
-@section('nav-current-title')
-    Pricing Types
-@endsection
+
+@section('nav-main', 'ประเภทมิเตอร์')
+@section('nav-current', 'ประเภทการชำระเงิน')
+@section('nav-current-title', 'ประเภทการชำระเงิน')
+
 @section('content')
-
-
-    <a href="{{ route('admin.pricing_types.create') }}" class="btn btn-info">Create New Pricing Type</a>
-    <div class="card mb-4">
-        <div class="card-header pb-0">
-            <h6>Authors table</h6>
-        </div>
-        <div class="card-body px-0 pt-0 pb-2">
-            <div class="table-responsive p-0">
-                <table class="table align-items-center mb-0">
-                    <thead>
+<div class="card mb-4">
+    <div class="card-header pb-0 d-flex justify-content-between align-items-center">
+        <h6 class="mb-0">ประเภทการชำระเงิน</h6>
+        <a href="{{ route('admin.pricing_types.create') }}" class="btn bg-gradient-primary btn-sm mb-0">
+            <i class="fas fa-plus me-1"></i> เพิ่มประเภทการชำระเงิน
+        </a>
+    </div>
+    <div class="card-body px-0 pt-0 pb-2">
+        <div class="table-responsive p-0">
+            <table class="table align-items-center mb-0">
+                <thead>
+                    <tr>
+                        <th class="text-uppercase text-secondary text-xxs font-weight-bolder opacity-7">ID</th>
+                        <th class="text-uppercase text-secondary text-xxs font-weight-bolder opacity-7">ชื่อ</th>
+                        <th class="text-uppercase text-secondary text-xxs font-weight-bolder opacity-7">คำอธิบาย</th>
+                        <th class="text-secondary opacity-7"></th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @forelse ($pricingTypes as $pricingType)
                         <tr>
-                            <th class="text-uppercase text-secondary text-xxs font-weight-bolder">ID</th>
-                <th class="text-uppercase text-secondary text-xxs font-weight-bolder">Name</th>
-                <th class="text-uppercase text-secondary text-xxs font-weight-bolder">Description</th>
-                <th class="text-uppercase text-secondary text-xxs font-weight-bolder">Actions</th>
-                           
+                            <td class="ps-4 text-sm">{{ $pricingType->id }}</td>
+                            <td><h6 class="mb-0 text-sm">{{ $pricingType->name }}</h6></td>
+                            <td><p class="text-xs text-secondary mb-0">{{ $pricingType->description ?: '-' }}</p></td>
+                            <td class="align-middle text-end pe-4">
+                                <a href="{{ route('admin.pricing_types.edit', $pricingType->id) }}"
+                                    class="text-secondary font-weight-bold text-xs me-3">
+                                    <i class="fas fa-edit me-1"></i> แก้ไข
+                                </a>
+                                <form action="{{ route('admin.pricing_types.destroy', $pricingType->id) }}" method="POST" class="d-inline"
+                                    onsubmit="return confirm('ยืนยันการลบ? การลบอาจกระทบอัตราการชำระที่ใช้ประเภทนี้อยู่')">
+                                    @csrf
+                                    @method('DELETE')
+                                    <button type="submit" class="btn btn-link text-danger font-weight-bold text-xs p-0 mb-0">
+                                        <i class="fas fa-trash me-1"></i> ลบ
+                                    </button>
+                                </form>
+                            </td>
                         </tr>
-                    </thead>
-                    <tbody>
-
-                        @foreach ($pricingTypes as $pricingType)
-                            <tr>
-                                <td>{{ $pricingType->id }}</td>
-                    <td>{{ $pricingType->name }}</td>
-                    <td>{{ $pricingType->description }}</td>
-                                <td class="d-flex">
-                                    <a href="{{ route('admin.pricing_types.edit', $pricingType->id) }}"
-                                        class="btn btn-warning btn-sm">Edit</a>
-                                    <form action="{{ route('admin.pricing_types.destroy', $pricingType->id) }}" method="POST">
-                                        @csrf
-                                        @method('DELETE')
-                                        <button type="submit" class="btn btn-danger btn-sm"
-                                            onclick="return confirm('Are you sure you want to delete this pricing type? This might affect existing rate configurations.')">Delete</button>
-                                    </form>
-                                </td>
-                            </tr>
-                        @endforeach
-                    </tbody>
-                </table>
-            </div>
+                    @empty
+                        <tr><td colspan="4" class="text-center text-secondary py-4">ยังไม่มีข้อมูล</td></tr>
+                    @endforelse
+                </tbody>
+            </table>
         </div>
     </div>
-
-
-
+</div>
 @endsection
