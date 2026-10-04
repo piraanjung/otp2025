@@ -19,7 +19,7 @@ use App\Models\FoodWaste\FoodWasteLog;
 use App\Models\FoodWaste\FoodWasteUserPreference;
 use App\Models\KeptKaya\KpPurchaseTransaction;
 use App\Models\KeptKaya\KpPurchaseTransactionDetail;
-use App\Models\KpBankAccount;
+use App\Models\KPBankAccount;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;

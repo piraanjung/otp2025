@@ -4,8 +4,8 @@ namespace App\Http\Controllers\KeptKaya;
 
 use App\Http\Controllers\Controller;
 use App\Models\Admin\BudgetYear;
-use App\Models\Keptkaya\AnnualTrash;
-use App\Models\Keptkaya\KpUserGroup;
+use App\Models\AnnualTrash\AnnualTrash;
+use App\Models\KeptKaya\KpUserGroup;
 use App\Models\Keptkaya\KpUserKeptkayaInfos;
 use Illuminate\Http\Request;
 

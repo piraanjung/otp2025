@@ -30,7 +30,7 @@ use App\Http\Controllers\KeptKaya\HistoryController;
 use App\Http\Controllers\KeptKaya\ImpactController;
 use App\Http\Controllers\KeptKaya\LocationController;
 use App\Http\Controllers\KeptKaya\PointController;
-use App\Http\Controllers\keptkaya\RecycleBankController;
+use App\Http\Controllers\KeptKaya\RecycleBankController;
 use App\Http\Controllers\KeptKaya\WithdrawController;
 use App\Http\Controllers\Kiosk\KioskController;
 

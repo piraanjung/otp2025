@@ -9,7 +9,7 @@ use App\Models\Admin\Organization;
 use App\Models\Admin\OrgSettings;
 use App\Models\KeptKaya\KpPurchaseShop;
 use App\Models\KeptKaya\KpUserWastePreference;
-use App\Models\KeptKaya\AnnualTrash;
+use App\Models\AnnualTrash\AnnualTrash;
 use App\Models\Admin\Tambon;
 use App\Models\AnnualTrash\AnnualTrash as ModelsAnnualTrash;
 use App\Models\FoodWaste\FoodAnnualTrash;

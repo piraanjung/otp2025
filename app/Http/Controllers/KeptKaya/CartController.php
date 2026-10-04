@@ -3,8 +3,8 @@
 namespace App\Http\Controllers\KeptKaya;
 
 use App\Http\Controllers\Controller;
-use App\Models\Keptkaya\KpTbankItems;
-use App\Models\KeptKaya\UserWastePreference;
+use App\Models\KeptKaya\KpTbankItems;
+use App\Models\KeptKaya\KpUserWastePreference as UserWastePreference;
 use App\Models\User;
 use Illuminate\Http\Request;
 

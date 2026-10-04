@@ -26,10 +26,10 @@ class FoodWasteIssueReport extends Model
     public function user() {
         return $this->belongsTo(User::class);
     }
-    // เชื่อมไปหาหมวดหมู่ปัญหา (FoodwasteIssueType)
+    // เชื่อมไปหาหมวดหมู่ปัญหา (FoodWasteIssueType)
     public function issueType()
     {
-        return $this->belongsTo(FoodwasteIssueType::class, 'issue_type_id');
+        return $this->belongsTo(FoodWasteIssueType::class, 'issue_type_id');
     }
 
     // ความสัมพันธ์เชื่อมไปหา Batch

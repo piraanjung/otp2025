@@ -4,7 +4,7 @@ namespace App\Http\Controllers\Api;
 
 use App\Http\Controllers\Controller;
 use App\Models\FoodWaste\FoodWastIoTBoxesData;
-use App\Models\IotCompost\CP_SensorData;
+use App\Models\IoTCompost\CP_SensorData;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Log;
 

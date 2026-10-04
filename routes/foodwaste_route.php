@@ -15,7 +15,7 @@ use App\Http\Controllers\FoodWaste\UserMatchingWasteBinsController;
 use App\Http\Controllers\FoodWaste\FoodwastIotboxController;
 use App\Http\Controllers\FoodWaste\UserFoodWasteController;
 use App\Http\Controllers\FoodWaste\UserMatchingAnnualTrashsController;
-use App\Http\Controllers\Keptkaya\KpUserGroupController;
+use App\Http\Controllers\KeptKaya\KpUserGroupController;
 use App\Http\Controllers\KeptKaya\RecycleWasteStaffCotroller;
 use Illuminate\Support\Facades\Route;
 

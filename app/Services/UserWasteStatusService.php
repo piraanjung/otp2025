@@ -5,7 +5,7 @@ namespace App\Services;
 use App\Models\FoodWaste\FoodAnnualTrash;
 use App\Models\User;
 use App\Models\KeptKaya\UserWastePreference;
-use App\Models\KeptKaya\AnnualTrash;
+use App\Models\AnnualTrash\AnnualTrash;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log; // สำหรับการ Log
 

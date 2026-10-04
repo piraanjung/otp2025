@@ -3,7 +3,7 @@
 namespace App\Http\Controllers\KeptKaya;
 
 use App\Http\Controllers\Controller;
-use App\Models\Keptkaya\KpTbankItemsGroups;
+use App\Models\KeptKaya\KpTbankItemsGroups;
 use App\Models\User;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
