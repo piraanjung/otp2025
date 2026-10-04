@@ -18,12 +18,24 @@ use App\Models\UserOld;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Hash;
+use Illuminate\Support\Facades\Schema;
 use PhpOffice\PhpSpreadsheet\Reader\Xlsx as ReaderXlsx;
 use Illuminate\Support\Facades\Auth;
 use Spatie\Permission\Contracts\Role;
 
 class SettingsController extends Controller
 {
+    /** ตาราง settings เป็นของโครงสร้างเดิม ถ้าฐานข้อมูลปัจจุบันไม่มีให้แจ้งผู้ใช้แทนการเกิด error 500 */
+    private function settingsTableMissing()
+    {
+        if (Schema::hasTable('settings')) {
+            return null;
+        }
+
+        return redirect()->route('admin.dashboard')
+            ->with('error', 'หน้าตั้งค่านี้ยังใช้งานไม่ได้ เนื่องจากไม่พบตาราง settings ในฐานข้อมูลปัจจุบัน');
+    }
+
     public function index()
     {
         // return $this->manageCashierDatas();
@@ -40,6 +52,10 @@ class SettingsController extends Controller
         // }
         // return 1;
         //////////////////
+
+        if ($missing = $this->settingsTableMissing()) {
+            return $missing;
+        }
 
         $organization_sql = Setting::where('name', 'organization')->get(['values'])->first();
         if (collect($organization_sql)->count() == 0) {
@@ -162,6 +178,10 @@ class SettingsController extends Controller
 
     public function invoice()
     {
+        if ($missing = $this->settingsTableMissing()) {
+            return $missing;
+        }
+
         $meternumber_code = Setting::where('name', 'meternumber_code')->get(['values'])->first();
         $invoice_expired = Setting::where('name', 'invoice_expired')->get(['values'])->first();
         $owe_count = Setting::where('name', 'owe_count')->get(['values'])->first();

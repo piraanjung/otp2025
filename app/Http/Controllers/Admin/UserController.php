@@ -290,12 +290,8 @@ class UserController extends Controller
 
     public function staff()
     {
-        $users = User::with('roles')
-            ->get()->filter(
-                fn($user) => $user->roles->whereIn('name', ["admin", "tabwater man", "finance"])->toArray()
-            );
-        $usertype = "staff";
-        return view('admin.users.index', compact('users', 'usertype'));
+        // หน้าจัดการเจ้าหน้าที่ย้ายไปอยู่ที่ StaffController แล้ว (เดิมใช้ view สมาชิกซึ่งต้องการ $zones จึงเกิด error)
+        return redirect()->route('keptkayas.staffs.index');
     }
 
     public function create()

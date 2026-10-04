@@ -102,13 +102,22 @@ jobs:
             "cd '${{ secrets.PIOS_DEPLOY_PATH }}' && \
              php artisan optimize:clear"
 
-      - name: "Post-deploy › 3. Cache config"
+      # รันเฉพาะไฟล์ migration ที่ระบุ (ไม่ใช่ migrate ทั้งหมด) เพราะ migration เก่าบางตัวไม่ตรงกับ schema บน prod
+      # ถ้ามี migration ใหม่ ให้เพิ่ม --path อีกบรรทัดด้านล่าง
+      - name: "Post-deploy › 3. Database migrations (เฉพาะไฟล์ที่ระบุ)"
+        run: |
+          ssh -p "${{ secrets.PIOS_SSH_PORT }}" -o StrictHostKeyChecking=accept-new "${{ secrets.PIOS_SSH_USER }}@${{ secrets.PIOS_SSH_HOST }}" \
+            "cd '${{ secrets.PIOS_DEPLOY_PATH }}' && \
+             php artisan migrate --force --no-interaction \
+               --path=database/migrations/2026_10_04_000001_add_org_id_fk_to_tenant_tables.php"
+
+      - name: "Post-deploy › 4. Cache config"
         run: |
           ssh -p "${{ secrets.PIOS_SSH_PORT }}" -o StrictHostKeyChecking=accept-new "${{ secrets.PIOS_SSH_USER }}@${{ secrets.PIOS_SSH_HOST }}" \
             "cd '${{ secrets.PIOS_DEPLOY_PATH }}' && \
              php artisan config:cache"
 
-      - name: "Post-deploy › 4. Cache views"
+      - name: "Post-deploy › 5. Cache views"
         run: |
           ssh -p "${{ secrets.PIOS_SSH_PORT }}" -o StrictHostKeyChecking=accept-new "${{ secrets.PIOS_SSH_USER }}@${{ secrets.PIOS_SSH_HOST }}" \
             "cd '${{ secrets.PIOS_DEPLOY_PATH }}' && \

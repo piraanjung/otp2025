@@ -6,7 +6,7 @@
         <div class="col-lg-8 mx-auto">
             <div class="card border-0 shadow-sm rounded-4">
                 <div class="card-header bg-white border-0 pb-0">
-                    <h5 class="fw-bold"><i class="bi bi-gear-fill me-2 text-primary"></i>ตั้งค่าเกณฑ์การรับสวัสดิการ</h5>
+                    <h5 class="fw-bold"><i class="fas fa-cog me-2 text-primary"></i>ตั้งค่าเกณฑ์การรับสวัสดิการ</h5>
                     <p class="text-sm text-muted">กำหนดเงื่อนไขที่สมาชิกจะได้รับเงินสวัสดิการฌาปนกิจ</p>
                 </div>
                 <hr class="horizontal dark">
@@ -17,14 +17,14 @@
                             <div class="col-md-6 mb-3">
                                 <label class="form-label fw-bold small">ระยะเวลาการเป็นสมาชิกขั้นต่ำ (เดือน)</label>
                                 <div class="input-group">
-                                    <span class="input-group-text bg-light border-0"><i class="bi bi-calendar-check"></i></span>
+                                    <span class="input-group-text bg-light border-0"><i class="fas fa-calendar-check"></i></span>
                                     <input type="number" name="min_months_active" class="form-control border-0 bg-light" value="{{ $config->min_months_active }}">
                                 </div>
                             </div>
                             <div class="col-md-6 mb-3">
                                 <label class="form-label fw-bold small">น้ำหนักขยะสะสมขั้นต่ำ (กก.)</label>
                                 <div class="input-group">
-                                    <span class="input-group-text bg-light border-0"><i class="bi bi-box-seam"></i></span>
+                                    <span class="input-group-text bg-light border-0"><i class="fas fa-box"></i></span>
                                     <input type="number" name="min_total_weight" class="form-control border-0 bg-light" value="{{ $config->min_total_weight }}">
                                 </div>
                             </div>
@@ -45,7 +45,7 @@
 
                         <div class="d-flex justify-content-end">
                             <button type="submit" class="btn btn-primary rounded-pill px-5 shadow-sm">
-                                <i class="bi bi-save me-1"></i> บันทึกการตั้งค่า
+                                <i class="fas fa-save me-1"></i> บันทึกการตั้งค่า
                             </button>
                         </div>
                     </form>
@@ -60,7 +60,7 @@
                             <p class="text-white text-xs opacity-8">เมื่อตั้งค่าแล้ว ระบบจะใช้เกณฑ์นี้ตรวจสอบประวัติจากตู้บักแอโร่อัตโนมัติในหน้าเบิกจ่าย</p>
                         </div>
                         <div class="col-4 text-end">
-                            <i class="bi bi-shield-check text-white display-6"></i>
+                            <i class="fas fa-shield-alt text-white display-6"></i>
                         </div>
                     </div>
                 </div>

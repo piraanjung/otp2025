@@ -138,7 +138,7 @@
             <div class="row justify-content-center"> <div class="col-md-6"> <form action="{{ route('admin.invoice_period.store') }}" method="post" onsubmit="return check()">
                         @csrf
                         
-                        <div class="form-group mb-3">
+                        <div class="mb-3">
                             <label class="form-label font-weight-bold">ปีงบประมาณ</label>
                             <input class="form-control text-center bg-light" type="text"
                                 value="{{ $budgetyear->budgetyear_name }}" readonly style="cursor: not-allowed;">
@@ -147,14 +147,14 @@
 
                         <div class="row">
                             <div class="col-6">
-                                <div class="form-group mb-3">
+                                <div class="mb-3">
                                     <label class="form-label font-weight-bold">ประจำเดือน (XX)</label>
                                     <input class="form-control text-center" type="text" name="inv_period_name"
                                         value="{{ date('m') }}" id="inv_period_name" placeholder="01" maxlength="2">
                                 </div>
                             </div>
                             <div class="col-6">
-                                <div class="form-group mb-3">
+                                <div class="mb-3">
                                     <label class="form-label font-weight-bold">พ.ศ.</label>
                                     <input class="form-control text-center bg-light" type="text" name="inv_period_name_year"
                                         value="{{ $budgetyear->budgetyear_name }}" readonly style="cursor: not-allowed;">
@@ -162,7 +162,7 @@
                             </div>
                         </div>
 
-                        <div class="form-group mb-3">
+                        <div class="mb-3">
                             <label class="form-label font-weight-bold">วันที่เริ่มรอบบิล</label>
                             <div class="input-group">
                                 <span class="input-group-text"><i class="fas fa-calendar-alt"></i></span>
@@ -170,7 +170,7 @@
                             </div>
                         </div>
 
-                        <div class="form-group mb-4">
+                        <div class="mb-4">
                             <label class="form-label font-weight-bold">วันสิ้นสุดรอบบิล</label>
                             <div class="input-group">
                                 <span class="input-group-text"><i class="fas fa-calendar-alt"></i></span>

@@ -32,7 +32,7 @@
 
 @section('content')
     <div class="card">
-        <div class="card-header text-right">
+        <div class="card-header text-end">
             <a href="{{ route('admin.budgetyear.create') }}" class="btn btn-primary">สร้างปีงบประมาณ</a>
         </div>
         <div class="card-content">
@@ -56,7 +56,7 @@
                             <th>{{ $budgetyear->startdate }}</th>
                             <th>{{ $budgetyear->enddate }}</th>
                             <th>
-                                <span class="right badge {{ $budgetyear->status == 'active' ? 'badge-success' : '' }}">
+                                <span class="right badge {{ $budgetyear->status == 'active' ? 'bg-gradient-success' : '' }}">
                                     {{ $budgetyear->status == 'inactive' ? 'สิ้นสุดปีงบประมาณ' : 'ปีงบประมาณปัจจุบัน' }}
                                 </span>
                             </th>

@@ -46,14 +46,14 @@
                             <td><input type="number" name="items[{{ $index }}][price_per_unit]" class="form-control text-center" value="{{ $detail->price_per_unit }}" step="0.1" required></td>
                             <td>
                                 @if($index > 0)
-                                    <button type="button" class="btn btn-outline-danger btn-sm remove-row"><i class="bi bi-trash"></i></button>
+                                    <button type="button" class="btn btn-outline-danger btn-sm remove-row"><i class="fas fa-trash"></i></button>
                                 @endif
                             </td>
                         </tr>
                         @endforeach
                     </tbody>
                 </table>
-                <button type="button" class="btn btn-outline-primary btn-sm mb-4" id="addRow"><i class="bi bi-plus-circle"></i> เพิ่มประเภทขยะ</button>
+                <button type="button" class="btn btn-outline-primary btn-sm mb-4" id="addRow"><i class="fas fa-plus-circle"></i> เพิ่มประเภทขยะ</button>
 
                 <div class="text-end border-top pt-4">
                     <button type="submit" class="btn btn-primary px-5 py-2 rounded-pill fw-bold">บันทึกการแก้ไข</button>

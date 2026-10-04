@@ -40,7 +40,7 @@
 <div class="card shadow-sm border-0">
     <div class="card-header bg-white">
         <div class="d-flex justify-content-between align-items-center mb-3">
-            <h6 class="fw-bold mb-0"><i class="bi bi-people-fill"></i> จัดการสมาชิกและสิทธิ์บริการ</h6>
+            <h6 class="fw-bold mb-0"><i class="fas fa-users"></i> จัดการสมาชิกและสิทธิ์บริการ</h6>
             <button type="button" id="btnSaveBatch" class="btn btn-success btn-sm mb-0">บันทึกสิทธิ์ที่เลือก</button>
             <a  href="{{ route('admin.users.create') }}"  class="btn btn-success btn-sm mb-0">เพิ่ม user</a>
         </div>

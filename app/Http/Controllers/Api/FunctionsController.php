@@ -80,7 +80,7 @@ class FunctionsController extends Controller
     } else {
       $invString = $id;
     }
-    return $meternumber_code->values . "" . $invString;
+    return $meternumber_code->org_code . "" . $invString;
   }
 
   public static function createMeterNumberString($id)
@@ -99,7 +99,7 @@ class FunctionsController extends Controller
     } else {
       $invString = $id;
     }
-    return $meternumber_code->values . "10" . $invString;
+    return $meternumber_code->org_code . "10" . $invString;
   }
 
   public static function createNumberString($id, $type)

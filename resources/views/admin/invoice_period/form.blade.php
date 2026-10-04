@@ -1,6 +1,6 @@
 <main class="main-content col">
     <div class="main-content-container container-fluid px-4 my-auto h-100">
-        <div class="row no-gutters h-100">
+        <div class="row g-0 h-100">
             <div class="col-lg-3 col-md-5 auth-form mx-auto my-auto">
                 <div class="card">
                     <div class="card-body">

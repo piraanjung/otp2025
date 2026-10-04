@@ -9,6 +9,7 @@ class IndexController extends Controller
 {
     public function index()
     {
-        return view('admin.index');
+        // เดิมเป็นหน้า placeholder ("Admin Content") ให้ไปที่ Dashboard แทน
+        return redirect()->route('admin.dashboard');
     }
 }

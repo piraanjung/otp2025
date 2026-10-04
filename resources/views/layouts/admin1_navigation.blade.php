@@ -38,7 +38,7 @@
     </li>
     {{-- @role('Super Admin|Admin|Tabwater Staff') --}}
     <li class="nav-item">
-        <a data-bs-toggle="collapse" href="#invoices" class="nav-link active collapsed" aria-controls="invoices"
+        <a data-bs-toggle="collapse" href="#invoices" class="nav-link collapsed" aria-controls="invoices"
             role="button" aria-expanded="false">
             <div
                 class="icon icon-shape icon-sm shadow border-radius-md bg-white text-center d-flex align-items-center justify-content-center  me-2">
@@ -68,13 +68,13 @@
 
                 <li class="nav-item  ">
                     <a class="nav-link @yield('nav-invoice')" href="{{ route('invoice.index') }}">
-                        <span class="sidenav-mini-icon"> P </span>
+                        <span class="sidenav-mini-icon"> IV </span>
                         <span class="sidenav-normal">ออกใบแจ้งหนี้ </span>
                     </a>
                 </li>
                 <li class="nav-item ">
                     <a href="{{route('admin.owepaper.index')}}" class="nav-link @yield('owepaper')">
-                        <span class="sidenav-mini-icon"> P </span>
+                        <span class="sidenav-mini-icon"> OW </span>
                         <span class="sidenav-normal">ออกใบแจ้งเตือนค้างชำระหนี้ </span>
                     </a>
                 </li>
@@ -93,7 +93,7 @@
         </div>
     </li>
     <li class="nav-item">
-        <a data-bs-toggle="collapse" href="#receipt" class="nav-link active collapsed" aria-controls="receipt"
+        <a data-bs-toggle="collapse" href="#receipt" class="nav-link collapsed" aria-controls="receipt"
             role="button" aria-expanded="false">
             <div
                 class="icon icon-shape icon-sm shadow border-radius-md bg-white text-center d-flex align-items-center justify-content-center  me-2">
@@ -123,7 +123,7 @@
 
                 <li class="nav-item">
                     <a class="nav-link @yield('nav-payment')" href="{{ route('payment.index') }}">
-                        <span class="sidenav-mini-icon"> P </span>
+                        <span class="sidenav-mini-icon"> PM </span>
                         <span class="sidenav-normal">รับชำระค่าน้ำประปา </span>
                     </a>
                 </li>
@@ -150,7 +150,7 @@
         </div>
     </li>
     <li class="nav-item">
-        <a data-bs-toggle="collapse" href="#reports" class="nav-link active collapsed" aria-controls="reports"
+        <a data-bs-toggle="collapse" href="#reports" class="nav-link collapsed" aria-controls="reports"
             role="button" aria-expanded="false">
             <div
                 class="icon icon-shape icon-sm shadow border-radius-md bg-white text-center d-flex align-items-center justify-content-center  me-2">
@@ -225,7 +225,7 @@
 
 
     <li class="nav-item">
-        <a data-bs-toggle="collapse" href="#pagesExamples" class="nav-link active" aria-controls="pagesExamples"
+        <a data-bs-toggle="collapse" href="#pagesExamples" class="nav-link" aria-controls="pagesExamples"
             role="button" aria-expanded="true">
             <div
                 class="icon icon-shape icon-sm shadow border-radius-md bg-white text-center d-flex align-items-center justify-content-center  me-2">
@@ -267,7 +267,7 @@
                                 </a>
                             </li>
                             <li class="nav-item @yield('nav-staff')">
-                                <a class="nav-link " href="{{ route('admin.users.staff') }}">
+                                <a class="nav-link {{ request()->routeIs('admin.users.staff') ? 'active' : '' }}" href="{{ route('admin.users.staff') }}">
                                     <span class="sidenav-mini-icon text-xs"> T </span>
                                     <span class="sidenav-normal"> เจ้าหน้าที่ </span>
                                 </a>
@@ -276,7 +276,7 @@
                     </div>
                 </li>
                 <li class="nav-item @yield('nav-metertype')">
-                    <a class="nav-link " href="{{ route('admin.metertype.index') }}">
+                    <a class="nav-link {{ request()->routeIs('admin.metertype.*') ? 'active' : '' }}" href="{{ route('admin.metertype.index') }}">
                         <span class="sidenav-mini-icon"> P </span>
                         <span class="sidenav-normal">ประเภทมิเตอร์ </span>
                     </a>
@@ -316,7 +316,7 @@
                     <div class="collapse" id="zone" style="">
                         <ul class="nav nav-sm flex-column ">
                             <li class="nav-item">
-                                <a class="nav-link " href="{{ route('admin.zone.index') }}">
+                                <a class="nav-link {{ request()->routeIs('admin.zone.*') ? 'active' : '' }}" href="{{ route('admin.zone.index') }}">
                                     <span class="sidenav-mini-icon text-xs"> P </span>
                                     <span class="sidenav-normal"> พื้นที่-เส้นทางจัดเก็บค่าน้ำประปา </span>
                                 </a>
@@ -334,13 +334,13 @@
 
 
                 <li class="nav-item ">
-                    <a class="nav-link " href="{{ route('admin.settings.index') }}">
+                    <a class="nav-link {{ request()->routeIs('admin.settings.index') ? 'active' : '' }}" href="{{ route('admin.settings.index') }}">
                         <span class="sidenav-mini-icon"> P </span>
                         <span class="sidenav-normal">ตั้งค่าข้อมูลองค์กร </span>
                     </a>
                 </li>
                 <li class="nav-item ">
-                    <a class="nav-link " href="{{ route('admin.settings.invoice') }}">
+                    <a class="nav-link {{ request()->routeIs('admin.settings.invoice') ? 'active' : '' }}" href="{{ route('admin.settings.invoice') }}">
                         <span class="sidenav-mini-icon"> P </span>
                         <span class="sidenav-normal">ใบแจ้งหนี้/vat </span>
                     </a>
@@ -357,13 +357,15 @@
         </div>
     </li>
     @endrole
-     <li class="nav-item">
-        <a href="{{ route('logout') }}" class="nav-link active mt-4" style="border: 1px solid red">
-            <div
-                class="fab fa-ubuntu icon-sm shadow border-radius-md bg-danger text-center d-flex align-items-center justify-content-center  me-2">
-            </div>
-            <span class="nav-link-text ms-1 text-danger">Log Out</span>
-        </a>
-
+    <li class="nav-item mt-4">
+        <form method="POST" action="{{ route('logout') }}" class="mb-0">
+            @csrf
+            <button type="submit" class="nav-link w-100 text-start border border-danger bg-transparent">
+                <div class="icon icon-shape icon-sm shadow border-radius-md bg-danger text-center me-2 d-flex align-items-center justify-content-center">
+                    <i class="fas fa-sign-out-alt text-white text-sm"></i>
+                </div>
+                <span class="nav-link-text ms-1 text-danger">ออกจากระบบ</span>
+            </button>
+        </form>
     </li>
 </ul>

@@ -11,7 +11,7 @@
                     @foreach ($signs as $item)
                         <div class="card bg-gradient-secondary mb-2" id="form{{ ++$i }}">
                             <div class="card-body">
-                                <div class="form-group row">
+                                <div class="mb-3 row">
                                     <div class="col-sm-1  trash_div" >
                                         <a href="javascript:;" onclick="del('{{ $i }}')">
                                             <label for="organize_address" class="col-form-label ">&nbsp;</label>

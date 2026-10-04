@@ -9,18 +9,18 @@
             </div>
             <button class="btn btn-primary rounded-pill px-4 shadow-sm" data-bs-toggle="modal"
                 data-bs-target="#addPayoutModal">
-                <i class="bi bi-plus-lg me-1"></i> บันทึกจ่ายสวัสดิการ
+                <i class="fas fa-plus me-1"></i> บันทึกจ่ายสวัสดิการ
             </button>
         </div>
 
         @if(session('success'))
             <div class="alert alert-success border-0 shadow-sm rounded-4 mb-4">
-                <i class="bi bi-check-circle-fill me-2"></i> {{ session('success') }}
+                <i class="fas fa-check-circle me-2"></i> {{ session('success') }}
             </div>
         @endif
         @if(session('error'))
             <div class="alert alert-danger border-0 shadow-sm rounded-4 mb-4">
-                <i class="bi bi-exclamation-triangle-fill me-2"></i> {{ session('error') }}
+                <i class="fas fa-exclamation-triangle me-2"></i> {{ session('error') }}
             </div>
         @endif
 
@@ -56,7 +56,7 @@
 
         <div class="card border-0 shadow-sm rounded-4">
             <div class="card-header bg-white py-3 border-0 d-flex justify-content-between align-items-center">
-                <h5 class="mb-0 fw-bold"><i class="bi bi-clock-history me-2"></i>ประวัติการจ่ายสวัสดิการล่าสุด</h5>
+                <h5 class="mb-0 fw-bold"><i class="fas fa-history me-2"></i>ประวัติการจ่ายสวัสดิการล่าสุด</h5>
             </div>
             <div class="table-responsive">
                 <table class="table align-middle mb-0">
@@ -84,17 +84,17 @@
                                     {{-- ปุ่มสำหรับเสนอผู้บริหาร --}}
                                     <a href="{{ route('admin.welfare.approval.pdf', $payout->id) }}" target="_blank"
                                         class="btn btn-sm btn-outline-primary">
-                                        <i class="bi bi-file-earmark-text"></i> ใบเสนออนุมัติ
+                                        <i class="fas fa-file-alt"></i> ใบเสนออนุมัติ
                                     </a>
                                     <a href="{{ route('admin.admin.welfare.payout.voucher', $payout->id) }}" target="_blank"
                                         class="btn btn-sm btn-outline-dark rounded-pill">
-                                        <i class="bi bi-printer"></i> พิมพ์ใบสำคัญ
+                                        <i class="fas fa-print"></i> พิมพ์ใบสำคัญ
                                     </a>
                                     @if($payout->death_certificate_img)
                                         {{-- ปรับ Path ให้ดึงจาก folder public/storage --}}
                                         <a href="{{ asset('storage/' . $payout->death_certificate_img) }}" target="_blank"
                                             class="btn btn-sm btn-outline-info rounded-pill px-3">
-                                            <i class="bi bi-image"></i> ใบมรณบัตร
+                                            <i class="fas fa-image"></i> ใบมรณบัตร
                                         </a>
                                     @else
                                         <span class="text-muted small">ไม่มีหลักฐาน</span>
