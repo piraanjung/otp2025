@@ -722,7 +722,7 @@
         $(document).on('change', "#zone_id", function(e) {
             let zone_id = $(this).val();
             // ใช้ url() helper ของ Laravel เพื่อความชัวร์ของ Path
-            $.post(`{{ url('api/subzone') }}`, {
+        $.post(`{{ url('api/subzone') }}`, {
                 zone_id: [zone_id],
                 _token: '{{ csrf_token() }}' // อย่าลืม CSRF Token สำหรับ POST
             }).done(function(data) {
