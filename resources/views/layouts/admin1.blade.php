@@ -11,6 +11,8 @@
     }
     $crumbParent = $clean($__env->yieldContent('nav-header')) ?: 'หน้าหลัก';
     $crumbCurrent = $clean($__env->yieldContent('nav-main')) ?: $clean($__env->yieldContent('nav-current')) ?: $pageTitle;
+    // <title> ใช้ชื่อเมนูที่เปิดอยู่ (config/page_titles.php) ถ้าไม่มีให้ใช้หัวข้อหน้า
+    $tabTitle = \App\Support\PageTitle::for() ?: $pageTitle;
 
     $orgInfos = $orgInfos ?? [];
     $orgLogo = $orgInfos['org_logo_img'] ?? 'ko_envsogo.png';
@@ -27,7 +29,7 @@
     <meta name="csrf-token" content="{{ csrf_token() }}">
     <link rel="apple-touch-icon" sizes="76x76" href="{{ asset('soft-ui/assets/img/apple-icon.png') }}">
     <link rel="icon" type="image/png" href="{{ asset('logo/ko_envsogo.png') }}">
-    <title>{{ $pageTitle !== '' ? $pageTitle . ' | ' : '' }}{{ $orgName }}</title>
+    <title>{{ $tabTitle !== '' ? $tabTitle . ' | ' : '' }}{{ $orgName }}</title>
 
     <link href="https://fonts.googleapis.com/css?family=Open+Sans:300,400,600,700" rel="stylesheet" />
     <link href="https://fonts.googleapis.com/css2?family=Sarabun:wght@300;400;600;700&display=swap" rel="stylesheet" />
