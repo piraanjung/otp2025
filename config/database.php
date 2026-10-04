@@ -2,6 +2,16 @@
 
 use Illuminate\Support\Str;
 
+/*
+| DB_PERSISTENT=true : ให้ PDO เก็บการเชื่อมต่อ MySQL ไว้ใช้ซ้ำข้ามคำขอ (PDO::ATTR_PERSISTENT)
+| เพื่อลดจำนวนการ "เปิดการเชื่อมต่อใหม่" ซึ่งโฮสต์บางเจ้านับเป็นโควตาต่อชั่วโมง
+| (เช่น Hostinger max_connections_per_hour = 500) ปิดไว้เป็นค่าเริ่มต้น เปิด/ปิดได้จาก .env
+| หมายเหตุ: ถ้ารัน config:cache ไว้ ต้องรัน config:cache ใหม่หลังแก้ .env
+*/
+$mysqlOptions = filter_var(env('DB_PERSISTENT', false), FILTER_VALIDATE_BOOLEAN)
+    ? [PDO::ATTR_PERSISTENT => true]
+    : [];
+
 return [
 
     /*
@@ -59,6 +69,7 @@ return [
             'prefix_indexes' => true,
             'strict' => true,
             'engine' => null,
+            'options' => $mysqlOptions,
         ],
 
         'qa' => [
@@ -75,6 +86,7 @@ return [
             'prefix_indexes' => true,
             'strict' => true,
             'engine' => null,
+            'options' => $mysqlOptions,
         ],
 
         'pgsql' => [
