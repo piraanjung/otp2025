@@ -122,7 +122,7 @@
                     </div>
                     <div class="card-body pt-0">
                         {{-- เลขมิเตอร์ --}}
-                        @include('admin.settings.meternumber')
+                        @include('admin.settings.invoice.meternumber')
                     </div>
                 </div>
 
@@ -132,7 +132,7 @@
                     </div>
                     <div class="card-body pt-0">
                         {{-- ใบแจ้งหนี้ --}}
-                        @include('admin.settings.inv_period')
+                        @include('admin.settings.invoice.inv_period')
                     </div>
                 </div>
             </div>

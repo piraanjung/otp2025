@@ -108,7 +108,7 @@
                             <form action="{{ route('admin.settings.import.provinces') }}" method="POST"
                                 enctype="multipart/form-data">
                                 @csrf
-                                <div class="form-group">
+                                <div class="mb-3">
                                     <label for="provinces_excel_file" class="form-control-label">Choose Provinces Excel
                                         File:</label>
                                     <input type="file" name="provinces_excel_file" class="form-control"
@@ -121,7 +121,7 @@
                         <div class="col-12 col-md-6">
                             {{-- ส่วนสำหรับ Export Provinces (จากตัวอย่างก่อนหน้า) --}}
                             <h5>Export Provinces Data</h5>
-                            <div class="form-group">
+                            <div class="mb-3">
                                 <label for="provinces_excel_file" class="form-control-label">Export Provinces Excel</label>
                                 <a href="{{ route('admin.settings.export.provinces') }}"
                                     class="form-control btn btn-sm bg-gradient-success my-sm-auto mt-2 mb-0">Download Provinces Excel</a>
@@ -144,7 +144,7 @@
                             <form action="{{ route('admin.settings.import.districts')}}" method="POST"
                                 enctype="multipart/form-data">
                                 @csrf
-                                <div class="form-group">
+                                <div class="mb-3">
                                     <label for="provinces_excel_file" class="form-control-label">Choose Districts Excel File:</label>
                                     <input type="file" name="districts_excel_file" class="form-control" id="districts_excel_file" accept=".xls,.xlsx" required>
                                 </div>
@@ -154,7 +154,7 @@
                         <div class="col-12 col-md-6">
                             {{-- ส่วนสำหรับ Export Provinces (จากตัวอย่างก่อนหน้า) --}}
                             <h5>Export Districts Data</h5>
-                            <div class="form-group">
+                            <div class="mb-3">
                                 <label for="provinces_excel_file" class="form-control-label">Export Districts Excel</label>
                                 <a href="{{ route('admin.settings.export.districts') }}"
                                     class="form-control btn btn-sm bg-gradient-success my-sm-auto mt-2 mb-0">Download Districts Excel</a>
@@ -178,7 +178,7 @@
                             <form action="{{ route('admin.settings.import.tambons')}}" method="POST"
                                 enctype="multipart/form-data">
                                 @csrf
-                                <div class="form-group">
+                                <div class="mb-3">
                                     <label for="tambons_excel_file" class="form-control-label">Choose Tambons Excel File:</label>
                                     <input type="file" name="tambons_excel_file" class="form-control" id="tambons_excel_file" accept=".xls,.xlsx" required>
                                 </div>
@@ -188,7 +188,7 @@
                         <div class="col-12 col-md-6">
                             {{-- ส่วนสำหรับ Export Provinces (จากตัวอย่างก่อนหน้า) --}}
                             <h5>Export Tambons Data</h5>
-                            <div class="form-group">
+                            <div class="mb-3">
                                 <label for="provinces_excel_file" class="form-control-label">Export Tambons Excel</label>
                                 <a href="{{ route('admin.settings.export.tambons') }}"
                                     class="form-control btn btn-sm bg-gradient-success my-sm-auto mt-2 mb-0">Download Tambons Excel</a>
@@ -211,7 +211,7 @@
                             <form action="{{ route('admin.settings.import.tw_zones')}}" method="POST"
                                 enctype="multipart/form-data">
                                 @csrf
-                                <div class="form-group">
+                                <div class="mb-3">
                                     <label for="tw_zones_excel_file" class="form-control-label">Choose Tabwater Zones Excel File:</label>
                                     <input type="file" name="tw_zones_excel_file" class="form-control" id="tw_zones_excel_file" accept=".xls,.xlsx" required>
                                 </div>
@@ -221,7 +221,7 @@
                         <div class="col-12 col-md-6">
                             {{-- ส่วนสำหรับ Export Provinces (จากตัวอย่างก่อนหน้า) --}}
                             <h5>Export Tabwater Zones Data</h5>
-                            <div class="form-group">
+                            <div class="mb-3">
                                 <label for="provinces_excel_file" class="form-control-label">Export Tabwater Zones Excel</label>
                                 <a href="{{ route('admin.settings.export.tw_zones') }}"
                                     class="form-control btn btn-sm bg-gradient-success my-sm-auto mt-2 mb-0">Download Tabwater Zones Excel</a>
@@ -243,7 +243,7 @@
                             <form action="{{ route('admin.settings.import.tw_zoneblocks')}}" method="POST"
                                 enctype="multipart/form-data">
                                 @csrf
-                                <div class="form-group">
+                                <div class="mb-3">
                                     <label for="tw_zoneblocks_excel_file" class="form-control-label">Choose Tabwater Zone Block Excel File:</label>
                                     <input type="file" name="tw_zoneblocks_excel_file" class="form-control" id="tw_zoneblocks_excel_file" accept=".xls,.xlsx" required>
                                 </div>
@@ -253,7 +253,7 @@
                         <div class="col-12 col-md-6">
                             {{-- ส่วนสำหรับ Export Provinces (จากตัวอย่างก่อนหน้า) --}}
                             <h5>Export Tabwater Zone Block Data</h5>
-                            <div class="form-group">
+                            <div class="mb-3">
                                 <label for="provinces_excel_file" class="form-control-label">Export Tabwater Zone Block Excel</label>
                                 <a href="{{ route('admin.settings.export.tw_zoneblocks') }}"
                                     class="form-control btn btn-sm bg-gradient-success my-sm-auto mt-2 mb-0">Download Tabwater Zone Block Excel</a>
@@ -275,7 +275,7 @@
                             <form action="{{ route('admin.settings.import.organizations')}}" method="POST"
                                 enctype="multipart/form-data">
                                 @csrf
-                                <div class="form-group">
+                                <div class="mb-3">
                                     <label for="organizations_excel_file" class="form-control-label">Choose Organizations Excel File:</label>
                                     <input type="file" name="organizations_excel_file" class="form-control" id="organizations_excel_file" accept=".xls,.xlsx" required>
                                 </div>
@@ -285,7 +285,7 @@
                         <div class="col-12 col-md-6">
                             {{-- ส่วนสำหรับ Export Provinces (จากตัวอย่างก่อนหน้า) --}}
                             <h5>Export Organizations Data</h5>
-                            <div class="form-group">
+                            <div class="mb-3">
                                 <label for="provinces_excel_file" class="form-control-label">Export Organizations Excel</label>
                                 <a href="{{ route('admin.settings.export.organizations') }}"
                                     class="form-control btn btn-sm bg-gradient-success my-sm-auto mt-2 mb-0">Download Organizations Excel</a>
@@ -308,7 +308,7 @@
                             <form action="{{ route('admin.settings.import.users')}}" method="POST"
                                 enctype="multipart/form-data">
                                 @csrf
-                                <div class="form-group">
+                                <div class="mb-3">
                                     <label for="users_excel_file" class="form-control-label">Choose users Excel File:</label>
                                     <input type="file" name="users_excel_file" class="form-control" id="users_excel_file" accept=".xls,.xlsx" required>
                                 </div>
@@ -318,7 +318,7 @@
                         <div class="col-12 col-md-6">
                             {{-- ส่วนสำหรับ Export Provinces (จากตัวอย่างก่อนหน้า) --}}
                             <h5>Export users Data</h5>
-                            <div class="form-group">
+                            <div class="mb-3">
                                 <label for="provinces_excel_file" class="form-control-label">Export users Excel</label>
                                 <a href="{{ route('admin.settings.export.users') }}"
                                     class="form-control btn btn-sm bg-gradient-success my-sm-auto mt-2 mb-0">Download users Excel</a>
@@ -341,7 +341,7 @@
                             <form action="{{ route('admin.settings.import.tw_meters')}}" method="POST"
                                 enctype="multipart/form-data">
                                 @csrf
-                                <div class="form-group">
+                                <div class="mb-3">
                                     <label for="tw_meters_excel_file" class="form-control-label">Choose Meters Excel File:</label>
                                     <input type="file" name="tw_meters_excel_file" class="form-control" id="tw_meters_excel_file" accept=".xls,.xlsx" required>
                                 </div>
@@ -351,7 +351,7 @@
                         <div class="col-12 col-md-6">
                             {{-- ส่วนสำหรับ Export Provinces (จากตัวอย่างก่อนหน้า) --}}
                             <h5>Export Meters Data</h5>
-                            <div class="form-group">
+                            <div class="mb-3">
                                 <label for="provinces_excel_file" class="form-control-label">Export Meters Excel</label>
                                 <a href="{{ route('admin.settings.export.tw_meters') }}"
                                     class="form-control btn btn-sm bg-gradient-success my-sm-auto mt-2 mb-0">Download Meters Excel</a>

@@ -18,11 +18,11 @@
             <div class="col-12 col-lg-8 m-auto">
                 <form action="{{ route('superadmin.meter_types.store') }}" method="POST">
                     @csrf
-                    <div class="form-group is-focused">
+                    <div class="mb-3 is-focused">
                         <label for="exampleFormControlInput1">Name:</label>
                         <input type="text" class="form-control" id="name" name="meter_type_name" value="{{ old('meter_type_name') }}" required>
                     </div>
-                    <div class="form-group">
+                    <div class="mb-3">
                         <label for="exampleFormControlTextarea1">Description:</label>
                         <textarea class="form-control" id="description" name="description"
                             rows="3">{{ old('description') }}</textarea>

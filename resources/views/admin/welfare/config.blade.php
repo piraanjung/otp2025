@@ -1,4 +1,6 @@
-@extends('layouts.keptkaya')
+@extends('layouts.super-admin')
+
+@section('title_page', 'ตั้งค่าเกณฑ์สวัสดิการ')
 
 @section('content')
 <div class="container-fluid py-4">

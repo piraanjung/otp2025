@@ -28,11 +28,11 @@
         @csrf
         @method('PUT')
 
-                    <div class="form-group is-focused">
+                    <div class="mb-3 is-focused">
                         <label for="exampleFormControlInput1">Name:</label>
                         <input type="text" class="form-control" id="name" name="name"  value="{{ old('name', $meterType->name) }}" required>
                     </div>
-                    <div class="form-group">
+                    <div class="mb-3">
                         <label for="exampleFormControlTextarea1">Description:</label>
                         <textarea class="form-control" id="description" name="description"
                             rows="3">{{ old('description', $meterType->description) }}</textarea>

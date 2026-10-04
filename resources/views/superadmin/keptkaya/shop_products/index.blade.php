@@ -61,7 +61,7 @@
                                             <span class="badge badge-sm bg-gradient-{{ $product->status == 'active' ? 'success' : 'secondary' }}">{{ ucfirst($product->status) }}</span>
                                         </td>
                                         <td class="align-middle">
-                                            <a href="{{ route('keptkayas.shop-products.edit', $product->id) }}" class="text-secondary font-weight-bold text-xs me-2" data-toggle="tooltip" data-original-title="Edit user">
+                                            <a href="{{ route('keptkayas.shop-products.edit', $product->id) }}" class="text-secondary font-weight-bold text-xs me-2" data-bs-toggle="tooltip" data-original-title="Edit user">
                                                 แก้ไข
                                             </a>
                                             <form action="{{ route('keptkayas.shop-products.destroy', $product->id) }}" method="POST" class="d-inline">

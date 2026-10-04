@@ -42,7 +42,7 @@
         <div class="mb-4">
             <label class="block text-gray-700 text-sm font-bold mb-2">Machine Ready</label>
             <input type="checkbox" name="machine_ready" id="machine_ready" value="1" {{ old('machine_ready') ? 'checked' : '' }}
-                   class="mr-2 leading-tight">
+                   class="me-2 leading-tight">
             <span class="text-sm">Is the machine ready to work?</span>
         </div>
 

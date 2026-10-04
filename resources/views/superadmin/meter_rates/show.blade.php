@@ -1,5 +1,7 @@
 @extends('layouts.super-admin')
 
+@section('nav-main', 'อัตราการชำระตามประเภทมิเตอร์')
+@section('nav-current', 'รายละเอียดอัตราการชำระ')
 @section('content')
 <div class="card">
     <div class="card-header">
@@ -18,7 +20,7 @@
 @if($meterRateConfig->Ratetiers->isNotEmpty()) 
     <h5 class="mt-4 text-primary">อัตราก้าวหน้า (Progressive Tiers)</h5>
     <table class="table table-bordered table-striped w-100">
-        <thead class="thead-dark">
+        <thead>
             <tr>
                 <th style="width: 10%">Tier</th>
                 <th style="width: 45%">ช่วงการใช้งาน (หน่วย)</th>
@@ -35,7 +37,7 @@
                     - 
                     {{ $tier->max_units ? $tier->max_units : 'ขึ้นไป (ไม่จำกัด)' }}
                 </td>
-                <td class="text-right">
+                <td class="text-end">
                     {{ number_format($tier->rate_per_unit, 2) }}
                 </td>
             </tr>
@@ -51,8 +53,8 @@
     @endif
 @endif
 
-        <a href="{{ route('admin.meter_rates.index') }}" class="btn btn-secondary">ย้อนกลับ</a>
-        <a href="{{ route('admin.meter_rates.edit', $meterRateConfig->id) }}" class="btn btn-warning">แก้ไข</a>
+        <a href="{{ route('admin.meter_rates.index') }}" class="btn btn-outline-secondary">ย้อนกลับ</a>
+        <a href="{{ route('admin.meter_rates.edit', $meterRateConfig->id) }}" class="btn bg-gradient-primary">แก้ไข</a>
     </div>
 </div>
 @endsection
