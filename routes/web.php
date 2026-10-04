@@ -76,10 +76,10 @@ Route::post('/api/save_session', [KioskApiController::class, 'saveSession']);
 Route::get('/kiosk', [KioskApiController::class, 'index']);
 
 Route::middleware(['auth'])->group(function () {
-    Route::get('/kiosk/scan/{kioskId}', [KioskController::class, 'scanQr'])->name('kiosk.scan');
+    Route::get('/kiosk/scan/{kioskId}', [\App\Http\Controllers\Kiosk\KioskController::class, 'scanQr'])->name('kiosk.scan');
 
     // หน้า AI Camera (หน้าหลักที่จะใช้งาน)
-    Route::get('/kiosk/session/{kioskId}', [KioskController::class, 'sessionPage'])->name('kiosk.session');
+    Route::get('/kiosk/session/{kioskId}', [\App\Http\Controllers\Kiosk\KioskController::class, 'sessionPage'])->name('kiosk.session');
 });
 
 
@@ -129,7 +129,6 @@ Route::prefix('tabwater/notify')->name('tabwater.notify.')->group(function () {
     Route::get('/check-member', [NotifyController::class, 'checkMember'])->name('check_member');
     Route::get('/success/{id}', [NotifyController::class, 'success'])->name('success');
     Route::get('/create', [NotifyController::class, 'create'])->name('create');     // <-- เพิ่มบรรทัดนี้ (หน้าฟอร์มกรอกแจ้งเหตุ)    Route::post('/check-phone', [NotifyController::class, 'checkPhone'])->name('check-phone');
-    Route::post('/check-line-user', [NotifyController::class, 'checkLineUser'])->name('check-line-user');
     Route::get('/xx', [NotifyController::class, 'sendHeadNotificationText'])->name('xxx');
 
     });
@@ -149,7 +148,7 @@ Route::get('/upload-form', function () {
 Route::post('/upload-and-convert', [SqlToJsonController::class, 'uploadAndProcess']);
 
 
-Route::resource('/test', TestController::class);
+Route::resource('/test', TestController::class)->except(['create', 'store', 'show', 'edit', 'update', 'destroy']);
 Route::get('/test/textSendLineMessage', [TestController::class, 'textSendLineMessage']);
 
 
@@ -169,7 +168,6 @@ Route::get('/dashboard', [AccessMenusController::class, 'dashboard'])->middlewar
 
 Route::get('/lineliff', [LineLiffController::class, 'index'])->name('lineliff.index');
 Route::get('/line/dashboard/{pref_id}/{org_id}/{regis?}', [LineLiffController::class, 'dashboard'])->name('lineliff.dashboard');
-Route::post('/line/fine_line_id', [LineLiffController::class, 'fine_line_id']);
 Route::post('/line/user_line_register', [LineLiffController::class, 'user_line_register']);
 Route::post('/line/update_user_by_phone', [LineLiffController::class, 'update_user_by_phone']);
 Route::post('/line/login', [LineLiffController::class, 'handleLineLogin']);
@@ -195,7 +193,6 @@ Route::middleware(['auth'])->prefix('staff')->name('staff.')->group(function () 
     Route::get('/job/{notify}/accept', [StaffController::class, 'acceptJob'])->name('job.accept');
 
     // 3. ดูรายละเอียดงานเฉพาะชิ้น (Detail Page)
-    Route::get('/job/{notify}', [StaffController::class, 'showJob'])->name('job.show');
 
     // 4. บันทึกปิดงาน (Complete) เมื่อซ่อมเสร็จแล้ว
     Route::post('/job/{notify}/complete', [StaffController::class, 'completeJob'])->name('job.complete');
@@ -210,7 +207,7 @@ Route::prefix('tabwater/staff/mobile/')->name('tabwater.staff.mobile.')->group(f
     Route::get('{subzone_id}/membersJson', [StaffMobileController::class, 'membersJson'])->name('membersJson');
     Route::get('{meter_id}/meter_reading', [StaffMobileController::class, 'meter_reading'])->name('meter_reading');
     Route::post('process-meter-image', [StaffMobileController::class, 'process_meter_image'])->name('process_meter_image');
-    Route::resource('/', StaffMobileController::class);
+    Route::resource('/', StaffMobileController::class)->except(['create', 'show', 'edit', 'update', 'destroy']);
 });
 
 
@@ -291,7 +288,7 @@ Route::middleware(['auth', 'role:Admin|Super Admin'])->name('admin.')->prefix('a
     Route::get('/owepaper/index', [OwePaperController::class, 'index'])->name('owepaper.index');
     Route::post('/owepaper/print', [OwePaperController::class, 'print'])->name('owepaper.print');
     Route::resource('meter_rates', MeterRateConfigController::class);
-    Route::resource('pricing_types', TwPricingTypeController::class);
+    Route::resource('pricing_types', TwPricingTypeController::class)->except('show');
 
     Route::prefix('settings')->name('settings.')->group(function () {
         //     Route::get('/', [SuperAdminSettingsController::class, 'showSettingsForm'])->name('settings_form');
@@ -345,7 +342,7 @@ Route::middleware(['auth', 'role:Admin|finance|Super Admin'])->group(function ()
         Route::get('receipt_print_history/{account_id_fk?}', [PaymentController::class, 'receipt_print_history'])->name('receipt_print_history');
         Route::post('store_by_inv_no', [PaymentController::class, 'store_by_inv_no'])->name('store_by_inv_no');
 
-        Route::resource('', PaymentController::class);
+        Route::resource('', PaymentController::class)->except(['show', 'edit', 'update']);
     });
 
 
@@ -354,12 +351,10 @@ Route::middleware(['auth', 'role:Admin|finance|Super Admin'])->group(function ()
     Route::prefix('reports/')->name('reports.')->group(function () {
         Route::post('export', [ReportsController::class, 'export'])->name('export');
         Route::get('p17', [WaterLedgerController::class, 'p17Report'])->name('p17');
-        Route::get('p17/export', [WaterLedgerController::class, 'exportP17Excel'])->name('p17.export');
         Route::get('owe', [ReportsController::class, 'owe'])->name('owe');
         Route::get('ledger', [ReportsController::class, 'ledger'])->name('ledger');
         Route::get('water_used/{from?}', [ReportsController::class, 'water_used'])->name('water_used');
         Route::post('dailypayment', [ReportsController::class, 'dailypayment'])->name('dailypayment');
-        Route::get('dailypayment2', [ReportsController::class, 'dailypayment2'])->name('dailypayment2');
         Route::post('owe_search', [ReportsController::class, 'owe_search'])->name('owe_search');
         Route::get('meter_record_history/{budgetyear?}/{zone_id?}', [ReportsController::class, 'meter_record_history'])->name('meter_record_history');
     });
@@ -367,8 +362,8 @@ Route::middleware(['auth', 'role:Admin|finance|Super Admin'])->group(function ()
 
 Route::group(['middleware' => ['role:Admin|tabwater|Super Admin']], function () {
 
-    Route::resource('/invoice', InvoiceController::class);
-    Route::get('/invoice/print/{zone_id}/{curr_inv_prd}', [InvoiceController::class, 'printInvoice'])
+    Route::resource('/invoice', InvoiceController::class)->except(['create', 'show', 'destroy']);
+    Route::get('/invoice/print/{zone_id}/{curr_inv_prd}', [InvoiceController::class, 'print_invoice'])
         ->name('invoice.print_invoice');
     Route::get('/invoice/zone_create/{zone_id}/{curr_inv_prd}/{new_user?}', [InvoiceController::class, 'zone_create'])->name('invoice.zone_create');
     Route::get('/invoice/export_excel/{zone_id}/{curr_inv_prd}', [InvoiceController::class, 'export_excel'])->name('invoice.export_excel');
@@ -380,11 +375,13 @@ Route::group(['middleware' => ['role:Admin|tabwater|Super Admin']], function () 
     Route::get('/cutmeter/print_install_meter/{cutmeter_id}', [CutmeterController::class, 'print_install_meter'])->name('cutmeter.print_install_meter');
     Route::get('/cutmeter/cutmeterProgress/{id}', [CutmeterController::class, 'cutmeterProgress'])->name('cutmeter.progress');
     Route::get('/cutmeter/installMeterProgress/{id}', [CutmeterController::class, 'installMeterProgress'])->name('cutmeter.installmeter');
-    Route::resource('/cutmeter', CutmeterController::class);
-    Route::resource('meter_types', MeterTypeController::class);
+    // create() ต้องการ $user_id (view index1 เรียก /cutmeter/create/{user_id})
+    Route::get('/cutmeter/create/{user_id}', [CutmeterController::class, 'create'])->name('cutmeter.create');
+    Route::resource('/cutmeter', CutmeterController::class)->except(['show', 'destroy', 'create']);
+    // MeterTypeController ไม่มีอยู่แล้ว (ใช้ admin.metertype.*) คงชื่อ route เดิมไว้ให้ view ที่อ้างถึงไม่พัง
+    Route::redirect('meter_types', '/admin/metertype')->name('meter_types.index');
 
     Route::prefix('usermeter_infos')->name('usermeter_infos.')->group(function () {
-        Route::resource('/',  UserMeterInfosController::class);
         Route::get('/edit_invoices/{meter_id}',  [UserMeterInfosController::class, 'edit_invoices'])->name('edit_invoices');
         Route::post('/store_edited_invoice',  [UserMeterInfosController::class, 'store_edited_invoice'])->name('store_edited_invoice');
     });
@@ -450,7 +447,6 @@ Route::middleware(['auth'])->prefix('inventory')->name('inventory.')->group(func
 
     });
 
-    Route::get('/transactions/pending', [InvTransactionController::class, 'pendingIssueList'])->name('transactions.pending');
     
     // กดยืนยันจ่ายของ (ตัดสต็อกข้ามล็อต FIFO)
     Route::post('/transactions/{refNo}/issue', [InvTransactionController::class, 'issueItems'])->name('transactions.issue');

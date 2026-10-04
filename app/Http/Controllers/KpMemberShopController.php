@@ -27,8 +27,13 @@ class KpMemberShopController extends Controller
         
         $request->session()->put('user_from_line', 1);
         // ManagesTenantConnection::configConnection(session('db_conn'));
+        $pref = optional($user)->wastePreference;
+        if (!$pref) {
+            return redirect()->route('accessmenu')
+                ->with('warning', 'บัญชีนี้ยังไม่ได้ลงทะเบียนธนาคารขยะ');
+        }
         $member = KPBankAccount::with('userWastePreference', 'userWastePreference.user')
-            ->where('u_wpref_id_fk', $user->wastePreference->id)->get()->first();
+            ->where('user_pref_id', $pref->id)->get()->first();
         $products = KpShopProduct::where('status', 'active')->paginate(12);
         $product_categorys = KpShopCategory::all();
         return view('keptkayas.shop.index', compact('products', 'member','product_categorys'));
@@ -206,7 +211,11 @@ class KpMemberShopController extends Controller
      */
     public function orderHistory()
     {
-        $user = User::where('id', 1940)->with('wastePreference')->get()->first();
+        $user = User::with('wastePreference')->find(Auth::id());
+        if (!optional($user)->wastePreference) {
+            return redirect()->route('accessmenu')
+                ->with('warning', 'บัญชีนี้ยังไม่ได้ลงทะเบียนธนาคารขยะ');
+        }
         $orders = KpShopOrder::where('user_wpref_id', $user->wastePreference->id)
             ->with('details.product')
             ->orderByDesc('created_at')

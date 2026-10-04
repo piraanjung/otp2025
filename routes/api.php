@@ -62,7 +62,6 @@ Route::post('/kiosk/upload-item-image-chunk', [KioskController::class, 'uploadIt
 
 Route::get('/kiosk/index', [KioskController::class, 'index']);
 Route::post('/kiosk/upload', [KioskController::class, 'upload']);
-Route::get('/kiosk/activate', [KioskController::class, 'activateKiosk']);
 Route::get('/kiosk/ready', [KioskController::class, 'setReady']);
 Route::get('/kiosk/object-detected', [KioskController::class, 'objectDetected']);
 Route::get('/kiosk/check-command', [KioskController::class, 'checkCommand']);
@@ -71,7 +70,6 @@ Route::get('/kiosk/sleep', [KioskController::class, 'sleepMode']);
 Route::post('/kiosk/submit-transaction', [KioskController::class, 'submitTransaction']);
 Route::get('/kiosk/get-rates', [KioskController::class, 'getRates']);
 Route::post('/kiosk/upload-offline-images', [KioskController::class, 'uploadOfflineImages']);
-Route::get('/kiosk/check-transaction/{kiosk_id}', [KioskController::class, 'checkTransactionStatus']);
 
 Route::post('/kiosk/wake-up', [WebKioskController::class, 'wakeUp']);
 Route::post('/kiosk/match', [WebKioskController::class, 'matchKiosk']);
@@ -83,8 +81,6 @@ Route::prefix('kiosk/unknown-items')->group(function () {
 });
 
 // Endpoint สำหรับ Frontend (Browser) เพื่อส่งคำสั่ง "Start" ไปยัง ESP8266
-Route::post('/device/start-sale', [DeviceController::class, 'startSale']);
-Route::get('/device/check-bottle-status', [DeviceController::class, 'checkBottleStatus']);
 Route::post('/bottle/upload-photo', [ImageController::class, 'uploadPhoto']);
 Route::post('/upload-unknown', [ImageController::class, 'uploadUnknownPhoto']);
 // 1. Endpoint ที่ Web ใช้ Polling (GET) - อ่านค่า status จาก Server
@@ -104,7 +100,6 @@ Route::get('/device/get-control/{machine_id}', [MachineController::class, 'getCo
 Route::post('/device/status-simulator', [DeviceController::class, 'updateSensorStatus']);
 
 // Endpoint สำหรับ ESP8266 เพื่อส่งค่า hasBottle=1 กลับมายัง Server
-Route::post('/device/update-status', [DeviceController::class, 'updateStatus']);
 
 Route::post('/ocr', [OcrController::class, 'readMeter']);
 // -------------------------------------------------------------
@@ -127,10 +122,8 @@ Route::prefix('line')->group(function () {
     Route::post('/update_user_by_phone', [LineController::class, 'update_user_by_phone']);
     Route::post('/user_line_register', [LineController::class, 'user_line_register']);
     Route::post('/webhook', [LineController::class, 'handle']);
-    Route::get('/test', [LineController::class, 'testSendFlexMessage']);
     
     Route::get('/reply/{lineUserId}/{replyToken}', [LineController::class, 'replyWithLastReceipt']);
-    Route::get('/buildFlexReceipt/{transaction}', [LineController::class, 'buildFlexReceipt']);
     Route::post('/findUserByPhone', [LineController::class, 'findUserByPhone']);
     Route::get('/get_org_lists/{org_type}', [LineController::class,'getOrgLists']);
     Route::get('/getzones/{tambon_id}', [LineController::class, 'getZones'])->name('getzones');
@@ -160,7 +153,6 @@ Route::middleware(['throttle:api'])->name('api.')->group(function () {
 
     Route::prefix('zone')->group(function () {
         Route::get('/', [ZoneController::class, 'index']);
-        Route::delete('/delete/{id}', [ZoneController::class, 'delete'])->name('zone.delete');
         Route::get('/getzoxne_and_subzone', [ZoneController::class, 'getZoneAndSubzone']);
         Route::get('/users_by_zone/{zone_id}', [ZoneController::class, 'users_by_zone']);
         Route::get('/undertakenZoneAndSubzone/{id}', [ZoneController::class, 'undertakenZoneAndSubzone']);
@@ -182,7 +174,6 @@ Route::middleware(['throttle:api'])->name('api.')->group(function () {
         Route::get('/usersbycategory/{cate_id}', [UsersController::class, 'usersbycategory']);
         Route::post('/store', [UsersController::class, 'store']);
         Route::get('/set_session_id/{user_id}/{session_id}', [UsersController::class, 'set_session_id']);
-        Route::get('/init_settings', [UsersController::class, 'init_settings']);
         Route::get('/usermeter_info_get_invoice_status_count/{subzone_id}/{status}', [UsersController::class, 'usermeter_info_get_invoice_status_count']);
 
 
@@ -210,16 +201,11 @@ Route::middleware(['throttle:api'])->name('api.')->group(function () {
         Route::get('/get_user_invoice/{user_id}/{status?}', [InvoiceController::class, 'get_user_invoice']);
         Route::get('/invoice_history_current_budget_year/{user_id}', [InvoiceController::class, 'invoice_history_current_budget_year']);
         Route::get('/paid_invoice/{invoice_id}', [InvoiceController::class, 'paid_invoice']);
-        Route::get('/print/{id_array}', [InvoiceController::class, 'print']);
         Route::get('/totalWaterByInvPeriod/{inv_id}', [InvoiceController::class, 'totalWaterByInvPeriod']);
-        Route::get('/totalWaterByInvPeriodAndSubzone/{inv_id}/{subzone_id}', [InvoiceController::class, 'totalWaterByInvPeriodAndSubzone']);
         Route::get('/get_user_invoice_by_invId_and_mode/{inv_id}/{mode}', [InvoiceController::class, 'get_user_invoice_by_invId_and_mode']);
-        Route::get('/checkInvoice/{inv_id}', [InvoiceController::class, 'checkInvoice']);
         Route::get('/zone_edit/{zone}', [InvoiceController::class, 'zone_edit']);
         Route::get('/invoiced_lists/{subzone_id}', [InvoiceController::class, 'invoiced_lists']);
         Route::get('/get_invoice_and_invoice_history/{meter_id}/{status?}', [InvoiceController::class, 'get_invoice_and_invoice_history'])->name('invoice.get_invoice_and_invoice_history');
-        Route::get('/paid_by_bank_slip/{inv_id}/{paid}/{meter_id}', [InvoiceController::class, 'paid_by_bank_slip']);
-        // Route::post('/paid_by_bank_slip',[InvoiceController::class,'paid_by_bank_slip' ]);
     });
 
     Route::prefix('subzone')->group(function () {

@@ -134,7 +134,7 @@
                     <?php $i = 1; ?>
                     @foreach ($invoices as $invoice)
                     <tr>
-                        <td>{{ {{ $invoice->usermeterinfos->user->prefix . '' . $invoice->usermeterinfos->user->firstname . ' ' . $invoice->usermeterinfos->user->lastname }} }}</td>
+                        <td>{{ $invoice->usermeterinfos->user->prefix . '' . $invoice->usermeterinfos->user->firstname . ' ' . $invoice->usermeterinfos->user->lastname }}</td>
                     </tr>
                         {{-- <tr data-id="{{ $i }}" class="data">
                             <td>

@@ -9,6 +9,6 @@ class RecycleWasteStaffCotroller extends Controller
 {
     public function index()
     {
-        return view('keptkaya.staffs.mobile.recycle.index');
+        return view('foodwaste.staffs.mobile.recycle.index');
     }
 }

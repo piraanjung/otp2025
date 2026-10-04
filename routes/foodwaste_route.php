@@ -94,8 +94,7 @@ Route::middleware(['auth', 'role:Super Admin|Admin|FoodWaste Staff'])->prefix('f
     Route::get('/users/foodwaste_bin_users', [UserFoodWasteController::class, 'foodwaste_bin_users'])->name('users.foodwaste_bin_users');
     Route::get('/users/search/{query}', [UserFoodWasteController::class, 'search'])->name('users.search');
     Route::post('users/waste-service-preferences', [UserFoodWasteController::class, 'updateWasteServicePreferences'])->name('users.updateWasteServicePreferences');
-    Route::post('users/batch-update-service-preferences', [UserFoodWasteController::class, 'batchUpdateWasteServicePreferences'])->name('users.batchUpdateWasteServicePreferences');
-    Route::resource('users', UserFoodWasteController::class);
+    Route::resource('users', UserFoodWasteController::class)->except(['show']);
 
     Route::prefix('/{wasteBin}/waste-bins')->name('waste_bins.')->group(function () {
         Route::get('/', [UserMatchingAnnualTrashsController::class, 'index'])->name('index');
@@ -106,7 +105,7 @@ Route::middleware(['auth', 'role:Super Admin|Admin|FoodWaste Staff'])->prefix('f
     Route::put('waste-bins/{waste_bin}', [UserMatchingAnnualTrashsController::class, 'update'])->name('waste_bins.update');
     Route::get('waste-bins/map', [UserMatchingAnnualTrashsController::class, 'map'])->name('waste_bins.map'); // NEW ROUTE
     //
-    Route::resource('iotboxes', FoodwastIotboxController::class);
+    Route::resource('iotboxes', FoodwastIotboxController::class)->except('show');
     // Route สำหรับดึงข้อมูลพรีวิวผ่าน AJAX
     Route::get('/bins/preview-codes', [BinsController::class, 'previewCodes'])->name('bins.preview');
     Route::post('/bins/print-selected', [BinsController::class, 'printSelected'])->name('bins.print_selected');
@@ -117,7 +116,7 @@ Route::middleware(['auth', 'role:Super Admin|Admin|FoodWaste Staff'])->prefix('f
 
     Route::prefix('/staffs')->name('staffs.')->group(function () {
         Route::prefix('/mobile')->name('mobile.')->group(function () {
-            Route::resource('/recycle', RecycleWasteStaffCotroller::class);
+            Route::resource('/recycle', RecycleWasteStaffCotroller::class)->except(['create', 'store', 'show', 'edit', 'update', 'destroy']);
         });
     });
 
@@ -125,7 +124,7 @@ Route::middleware(['auth', 'role:Super Admin|Admin|FoodWaste Staff'])->prefix('f
 
         Route::get('/{usergroup_id}/infos', [KpUserGroupController::class, 'infos'])->name('usergroup.infos');
 
-        Route::resource('/', KpUserGroupController::class);
+        Route::resource('/', KpUserGroupController::class)->except(['show']);
     });
 
 });

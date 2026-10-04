@@ -87,6 +87,11 @@ class KpPurchaseController extends Controller
         // } else {
         //     return 'ss';
         // }
+        if (!$userId) {
+            // ยังไม่ได้เลือกผู้ขาย (เปิดหน้านี้ตรง ๆ) ให้กลับไปเลือกก่อน แทนที่จะเกิด error 500
+            return redirect()->route('keptkayas.purchase.select_user')
+                ->with('warning', 'กรุณาเลือกผู้ขายก่อนเปิดตะกร้า');
+        }
         $seller = User::where('id', $userId)
             ->with('wastePreference')->get()->first();
         $user = User::find(Auth::id());

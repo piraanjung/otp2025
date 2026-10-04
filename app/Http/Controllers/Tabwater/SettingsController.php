@@ -5,12 +5,12 @@ namespace App\Http\Controllers\Tabwater;
 use App\Http\Controllers\Controller;
 
 use App\Http\Controllers\Api\FunctionsController;
-use App\Models\Accounting;
-use App\Models\AccTransactions;
+use App\Models\Tabwater\Accounting;
+use App\Models\Tabwater\TwAccTransactions as AccTransactions;
 use App\Models\Admin\UserProfile;
-use App\Models\SequenceNumber;
+use App\Models\Tabwater\SequenceNumber;
 use App\Models\Tabwater\Setting;
-use App\Models\Staff;
+use App\Models\Admin\Staff;
 use App\Models\User;
 use App\Models\UserMerterInfo;
 use App\Models\UserMeterInfoOld;

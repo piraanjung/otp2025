@@ -152,6 +152,10 @@ class PaymentController extends Controller
     {
         $paymentsArr = [];
         $total = 0;
+        if (!is_array($request->get('data'))) {
+            // เปิดหน้านี้ตรง ๆ โดยไม่ได้เลือกรายการจากหน้ารับชำระ
+            return redirect()->route('payment.index');
+        }
         foreach ($request->get('data') as $inv) {
             $v = TwInvoice::where('id', $inv['inv_id'])
                 ->with('usermeterinfos', 'usermeterinfos.user_profile', 'invoice_period')
@@ -161,7 +165,8 @@ class PaymentController extends Controller
             $total += ($v[0]->currentmeter - $v[0]->lastmeter) * 8;
         }
         $payments = collect($paymentsArr)->flatten();
-        return view('payment.invoice_sum', compact('payments', 'total'));
+        // view payment.invoice_sum ถูกถอดไปแล้ว กลับไปหน้ารับชำระ
+        return redirect()->route('payment.index');
     }
 
     public function store(Request $request)
@@ -616,7 +621,8 @@ class PaymentController extends Controller
     {
         $apiPaymentCtrl = new ApiPaymentController;
         $receipted_list = $apiPaymentCtrl->history($user_id, 'receipt_history');
-        return view('payment.receipted_list', compact('receipted_list'));
+        // view payment.receipted_list ถูกถอดไปแล้ว ใช้หน้าค้นหาใบเสร็จแทน
+        return redirect()->route('payment.search');
     }
 
     public function destroy($acc_trans_id_fk)
