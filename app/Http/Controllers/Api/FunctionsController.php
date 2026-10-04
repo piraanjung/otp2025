@@ -61,7 +61,7 @@ class FunctionsController extends Controller
       'พฤศจิกายน' => '11',
       'ธันวาคม' => '12',
     ];
-    return array_search($m, $month);
+    return $month[$m];
   }
 
   public static function createInvoiceNumberString($id)

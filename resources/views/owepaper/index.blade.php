@@ -121,7 +121,7 @@
 
 @section('script')
     <script src="{{ asset('/datatables.1.10.20/dataTables.select.min.js') }}"></script>
-  oweAndInvoiceCount  {{-- <script src="{{ asset('js/my_script.js') }}"></script> --}}
+    {{-- <script src="{{ asset('js/my_script.js') }}"></script> --}}
     <script src="https://cdn.datatables.net/buttons/1.2.2/js/buttons.html5.js"></script>
     <script src="https://cdn.datatables.net/buttons/1.5.1/js/dataTables.buttons.min.js"></script>
     <script src="https://cdn.datatables.net/buttons/1.5.1/js/buttons.colVis.min.js"></script>

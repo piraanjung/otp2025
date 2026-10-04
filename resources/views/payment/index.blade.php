@@ -89,11 +89,11 @@ tr.selected td {
     </button>
 </div>
 
-<div class="row" id="search_by_subzone_div">
+<div class="row">
     <div class="col-12 mb-3">
         <form action="{{ route('payment.index') }}" method="get">
             @csrf
-            <div class="card shadow-sm">
+            <div class="card shadow-sm" id="search_by_subzone_div">
                 <div class="card-header">
                     <h6><i class="fas fa-search"></i> ค้นหาจากเส้นทางจดมิเตอร์</h6>
                 </div>

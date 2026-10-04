@@ -200,7 +200,6 @@ class PaymentController extends Controller
 
         // 4. สร้าง Transaction (ใบเสร็จรับเงิน Header) เพียง 1 รายการ
         $accTrans = new TwAccTransactions();
-        // $accTrans->inv_id_fk = ...; // **ไม่ต้องใส่** เพราะ 1 Transaction มีหลาย Inv ให้ไปดูที่ลูกแทน
         $accTrans->meter_id_fk       = $meter_id;
         $accTrans->vatsum            = $sum_vat;
         $accTrans->reserve_meter_sum = $sum_reserve;
@@ -294,15 +293,17 @@ class PaymentController extends Controller
      */
     private function receipt_print_by_trans($acc_trans_id)
     {
-        // สร้าง function ใหม่ หรือปรับแก้ receipt_print เดิมให้รับ trans_id
-
-        // ดึง Invoices โดยอ้างอิงจาก Transaction ID เดียว (จะได้บิลทั้งหมดที่เพิ่งจ่าย)
         $invoicesPaidForPrint = TwInvoice::where('acc_trans_id_fk', $acc_trans_id)
             ->with([
                 'invoice_period:id,inv_p_name',
-                'tw_meter_infos:meter_id,user_id,meternumber,undertake_subzone_id',
+                'tw_meter_infos' => function ($query) {
+                    $query->select('id', 'meter_id', 'user_id', 'meternumber', 'undertake_subzone_id', 'meter_address')
+                          ->with([
+                              'user:id,prefix,firstname,lastname,phone',
+                              'undertake_subzone:id,subzone_name'
+                          ]);
+                },
                 'tw_acc_transactions' => function ($query) {
-                    // ดึงข้อมูล Transaction (แคชเชียร์, วันที่, ยอดรวม)
                     $query->select('id', 'paidsum', 'vatsum', 'totalpaidsum', 'cashier', 'updated_at')
                         ->with('cashier_info:id,prefix,firstname,lastname');
                 }
@@ -311,7 +312,6 @@ class PaymentController extends Controller
 
         $type = 'paid_receipt';
         $from_blade = 'payment.index';
-
         return view('payment.receipt_print', compact('invoicesPaidForPrint', 'type', 'from_blade'));
     }
     public function store_by_inv_no(Request $request)
@@ -471,46 +471,66 @@ class PaymentController extends Controller
         $type = 'paid_receipt';
         return view('payment.receipt_print', compact('invoicesPaidForPrint',  'type', 'from_blade'));
     }
-    public function receipt_print_history($id)
-    {
-        $receipt_id = $id;
+   public function receipt_print_history($id)
+{
+    $receipt_id = $id;
 
-        $invoiceTable = TwInvoice::where('acc_trans_id_fk', $receipt_id)
-            ->with([
-                'invoice_period' => function ($query) {
-                    return $query->select('id', 'inv_p_name');
-                },
-                'usermeterinfos' => function ($query) {
-                    return $query->select('id', 'user_id', 'meternumber', 'undertake_subzone_id', 'submeter_name');
-                },
-                'tw_acc_transactions' => function ($query) {
-                    return $query->select('id', 'user_id_fk', 'paidsum', 'vatsum', 'totalpaidsum', 'cashier', 'updated_at')
-                        ->where('status', 1);
-                },
-                'tw_acc_transactions.cashier_info' => function ($query) {
-                    return $query->select('id', 'prefix', 'firstname', 'lastname')
-                        ->where('status', 1);
-                }
-            ])
-            ->get(['inv_period_id_fk', 'meter_id_fk', 'inv_no', 'lastmeter', 'currentmeter', 'status', 'acc_trans_id_fk', 'recorder_id', 'updated_at', 'created_at']);
+    // ตาราง tw_invoice ไม่มีคอลัมน์ inv_no
+    $invoiceTable = TwInvoice::where('acc_trans_id_fk', $receipt_id)
+        ->with([
+            'invoice_period:id,inv_p_name',
+            'tw_meter_infos' => function ($query) {
+                $query->select('id', 'meter_id', 'user_id', 'meter_address', 'meternumber', 'undertake_zone_id', 'undertake_subzone_id', 'submeter_name')
+                      ->with([
+                          // ดึงข้อมูล User พร้อมความสัมพันธ์ ตำบล อำเภอ จังหวัด ที่อยู่ใน Model User
+                          'user:id,prefix,firstname,lastname,phone,tambon_code,district_code,province_code',
+                          'user.user_tambon:id,tambon_name', // ชื่อฟังก์ชันความสัมพันธ์ใน Model User
+                          'user.user_district:id,district_name',
+                          'user.user_province:id,province_name',
+                          'undertake_subzone:id,subzone_name',
+                          'undertake_zone:id,zone_name',
+                      ]);
+            },
+            'tw_acc_transactions' => function ($query) {
+                return $query->select('id', 'paidsum', 'vatsum', 'totalpaidsum', 'cashier', 'updated_at')
+                    ->where('status', 1)
+                    ->with('cashier_info:id,prefix,firstname,lastname');
+            }
+        ])
+        ->get(['id', 'inv_period_id_fk', 'meter_id_fk', 'lastmeter', 'currentmeter', 'status', 'acc_trans_id_fk', 'recorder_id', 'updated_at', 'created_at', 'vat', 'reserve_meter', 'paid', 'totalpaid']);
 
-        $invoiceHistoryTable = TwInvoiceHistory::where('acc_trans_id_fk', $receipt_id)
-            ->with([
-                'invoice_period' => function ($query) {
-                    return $query->select('id', 'inv_p_name');
-                },
-                'usermeterinfos' => function ($query) {
-                    return $query->select('id', 'user_id', 'meternumber', 'undertake_subzone_id');
-                },
-            ])
-            ->get(['inv_period_id_fk', 'meter_id_fk', 'inv_no', 'lastmeter', 'currentmeter', 'status', 'acc_trans_id_fk', 'recorder_id', 'updated_at', 'created_at']);
+    // ตาราง tw_invoice_history มีคอลัมน์ inv_no สามารถดึงมาได้
+    $invoiceHistoryTable = TwInvoiceHistory::where('acc_trans_id_fk', $receipt_id)
+        ->with([
+            'invoice_period:id,inv_p_name',
+            'tw_meter_infos' => function ($query) {
+                $query->select('id', 'meter_id', 'user_id', 'meternumber', 'meter_address', 'undertake_zone_id', 'undertake_subzone_id', 'submeter_name')
+                      ->with([
+                          // ดึงข้อมูล User พร้อมความสัมพันธ์ ตำบล อำเภอ จังหวัด ที่อยู่ใน Model User
+                          'user:id,prefix,firstname,lastname,phone,tambon_code,district_code,province_code',
+                          'user.user_tambon:id,tambon_name',
+                          'user.user_district:id,district_name',
+                          'user.user_province:id,province_name',
+                          'undertake_subzone:id,subzone_name',
+                          'undertake_zone:id,zone_name',
+                      ]);
+            },
+            'tw_acc_transactions' => function ($query) {
+                return $query->select('id', 'paidsum', 'vatsum', 'totalpaidsum', 'cashier', 'updated_at')
+                    ->where('status', 1)
+                    ->with('cashier_info:id,prefix,firstname,lastname');
+            }
+        ])
+        ->get(['id', 'inv_period_id_fk', 'meter_id_fk', 'inv_no', 'lastmeter', 'currentmeter', 'status', 'acc_trans_id_fk', 'recorder_id', 'updated_at', 'created_at', 'vat', 'reserve_meter', 'paid', 'totalpaid']);
 
-        $invoicesPaidForPrint = collect($invoiceTable)->merge($invoiceHistoryTable);
+    $invoicesPaidForPrint = collect($invoiceTable)->merge($invoiceHistoryTable);
 
-        $newId = (new FunctionsController())->createInvoiceNumberString($receipt_id);
-        $type = 'payment_search';
-        return view('payment.receipt_print', compact('invoicesPaidForPrint', 'newId', 'type'));
-    }
+    $newId = (new FunctionsController())->createInvoiceNumberString($receipt_id);
+    $type = 'payment_search';
+    $from_blade = 'payment.history';
+
+    return view('payment.receipt_print', compact('invoicesPaidForPrint', 'newId', 'type', 'from_blade'));
+}
     public function search(Request $request)
     {
         // 1. ดึงชื่อองค์กร (อันนี้ OK)
