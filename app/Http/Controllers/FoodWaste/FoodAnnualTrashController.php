@@ -8,7 +8,7 @@ use App\Models\AnnualTrash\AnnualTrash;
 use App\Models\FoodWaste\FoodAnnualTrash;
 use App\Models\FoodWaste\FoodAnnualTrashStocks;
 use App\Models\FoodWaste\FoodwastIotbox;
-use App\Models\Keptkaya\KpUserGroup;
+use App\Models\KeptKaya\KpUserGroup;
 use App\Models\User;
 use App\Models\AnnualTrash\AnnualTrashSubscription; // Import AnnualTrashSubscription model
 use App\Services\UserWasteStatusService;

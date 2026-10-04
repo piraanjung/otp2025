@@ -8,7 +8,7 @@ use App\Http\Controllers\Controller;
 use App\Models\KeptKaya\KpPurchaseTransaction;
 use App\Models\KeptKaya\KpPurchaseTransactionDetail;
 use App\Models\KeptKaya\KpTbankItems;
-use App\Models\KpBankAccount;
+use App\Models\KPBankAccount;
 use App\Models\User;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;

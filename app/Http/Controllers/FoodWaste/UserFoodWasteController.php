@@ -3,8 +3,8 @@
 namespace App\Http\Controllers\FoodWaste;
 
 use App\Http\Controllers\Controller;
-use App\Models\Keptkaya\KpUserGroup;
-use App\Models\KeptKaya\UserWastePreference;
+use App\Models\KeptKaya\KpUserGroup;
+use App\Models\KeptKaya\KpUserWastePreference as UserWastePreference;
 use App\Models\User;
 use App\Services\UserWasteStatusService;
 use Illuminate\Http\Request;

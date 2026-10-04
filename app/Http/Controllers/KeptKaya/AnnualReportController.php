@@ -4,8 +4,8 @@ namespace App\Http\Controllers\KeptKaya;
 
 use App\Http\Controllers\Controller;
 use App\Models\Admin\Zone;
-use App\Models\KeptKaya\AnnualTrashSubscription;
-use App\Models\KeptKaya\AnnualTrashPayment;
+use App\Models\AnnualTrash\AnnualTrashSubscription;
+use App\Models\AnnualTrash\AnnualTrashPayment;
 use Illuminate\Http\Request;
 use Carbon\Carbon;
 use Illuminate\Support\Facades\DB;
@@ -35,7 +35,7 @@ class AnnualReportController extends Controller
             case 'daily_collection':
                 $date = $request->input('date', date('Y-m-d'));
                 $title = "รายงานการรับเงินประจำวันที่ " . \Carbon\Carbon::parse($date)->locale('th')->isoFormat('D MMMM YYYY');
-                $data = \App\Models\KeptKaya\AnnualTrashPayment::with(['subscription.AnnualTrash.user', 'subscription.AnnualTrash.kpUserGroup'])
+                $data = \App\Models\AnnualTrash\AnnualTrashPayment::with(['subscription.AnnualTrash.user', 'subscription.AnnualTrash.kpUserGroup'])
                     ->whereDate('created_at', $date)
                     ->get();
                 break;
@@ -44,7 +44,7 @@ class AnnualReportController extends Controller
                 $fy = $request->input('fiscal_year');
                 $zone = $request->input('zone_id');
                 $title = "รายชื่อลูกหนี้ค้างชำระ ประจำปีงบประมาณ $fy";
-                $query = \App\Models\KeptKaya\AnnualTrashSubscription::with(['AnnualTrash.user', 'AnnualTrash.user.user_zone'])
+                $query = \App\Models\AnnualTrash\AnnualTrashSubscription::with(['AnnualTrash.user', 'AnnualTrash.user.user_zone'])
                     ->where('fiscal_year', $fy)
                     ->where('status', '!=', 'paid');
                 if ($zone) {
@@ -58,7 +58,7 @@ class AnnualReportController extends Controller
             case 'zone_summary':
                 $fy = $request->input('fiscal_year');
                 $title = "สรุปผลการจัดเก็บรายโซน ปีงบประมาณ $fy";
-                $data = \App\Models\KeptKaya\AnnualTrashSubscription::join('kp_waste_bins', 'kp_waste_bin_subscriptions.waste_bin_id', '=', 'kp_waste_bins.id')
+                $data = \App\Models\AnnualTrash\AnnualTrashSubscription::join('kp_waste_bins', 'kp_waste_bin_subscriptions.waste_bin_id', '=', 'kp_waste_bins.id')
                     ->join('users', 'kp_waste_bins.user_id', '=', 'users.id')
                     ->join('user_zones', 'users.zone_id', '=', 'user_zones.id')
                     ->where('kp_waste_bin_subscriptions.fiscal_year', $fy)
@@ -77,7 +77,7 @@ class AnnualReportController extends Controller
                 $start = $request->input('start_date');
                 $end = $request->input('end_date');
                 $title = "ทะเบียนคุมใบเสร็จรับเงิน (" . \Carbon\Carbon::parse($start)->format('d/m/Y') . " - " . \Carbon\Carbon::parse($end)->format('d/m/Y') . ")";
-                $data = \App\Models\KeptKaya\AnnualTrashPayment::with(['subscription.AnnualTrash.user'])
+                $data = \App\Models\AnnualTrash\AnnualTrashPayment::with(['subscription.AnnualTrash.user'])
                     ->whereDate('created_at', '>=', $start)
                     ->whereDate('created_at', '<=', $end)
                     ->orderBy('id', 'asc')
@@ -88,7 +88,7 @@ class AnnualReportController extends Controller
                 // 5. รายงานนำส่งเงิน
                 $date = $request->input('date', date('Y-m-d'));
                 $title = "ใบนำส่งเงินประจำวันที่ " . \Carbon\Carbon::parse($date)->locale('th')->isoFormat('D MMMM YYYY');
-                $data = \App\Models\KeptKaya\AnnualTrashPayment::with(['subscription.AnnualTrash.user'])
+                $data = \App\Models\AnnualTrash\AnnualTrashPayment::with(['subscription.AnnualTrash.user'])
                     ->whereDate('created_at', $date)
                     ->get();
 
@@ -110,7 +110,7 @@ class AnnualReportController extends Controller
                 $title = "รายชื่อจุดเก็บขยะ (Service Point List)";
 
                 // ดึงข้อมูลถังขยะ Active
-                $query = \App\Models\KeptKaya\AnnualTrash::with(['user.user_zone', 'kpUserGroup'])
+                $query = \App\Models\AnnualTrash\AnnualTrash::with(['user.user_zone', 'kpUserGroup'])
                     ->where('status', 'active'); // เฉพาะที่ Active
 
                 if ($zone) {
@@ -128,7 +128,7 @@ class AnnualReportController extends Controller
                 // 7. รายงานถังขยะชำรุด
                 $title = "รายงานถังขยะชำรุด/แจ้งซ่อม (Damaged Bins)";
 
-                $data = \App\Models\KeptKaya\AnnualTrash::with(['user.user_zone'])
+                $data = \App\Models\AnnualTrash\AnnualTrash::with(['user.user_zone'])
                     ->where('status', 'damaged') // สถานะ damaged
                     ->orderBy('updated_at', 'desc') // เรียงตามวันที่แจ้งล่าสุด
                     ->get();

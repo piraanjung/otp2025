@@ -3,9 +3,9 @@
 namespace App\Http\Controllers\KeptKaya;
 
 use App\Http\Controllers\Controller;
-use App\Models\KeptKaya\AnnualTrashSubscription;
-use App\Models\KeptKaya\AnnualTrash;
-use App\Models\KeptKaya\AnnualTrashPayratePerMonth;
+use App\Models\AnnualTrash\AnnualTrashSubscription;
+use App\Models\AnnualTrash\AnnualTrash;
+use App\Models\AnnualTrash\AnnualTrashPayratePerMonth;
 use App\Models\Admin\BudgetYear;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;

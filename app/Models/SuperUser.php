@@ -9,7 +9,7 @@ use App\Models\Admin\Subzone;
 use App\Models\Admin\Tambon;
 use App\Models\Admin\Zone;
 use App\Models\KeptKaya\KpUserWastePreference;
-use App\Models\KeptKaya\AnnualTrash;
+use App\Models\AnnualTrash\AnnualTrash;
 use App\Models\KeptKaya\AnnualCollectionPayment;
 use App\Models\Tabwater\TwMeterInfos;
 use App\Models\Tabwater\UndertakerSubzone;

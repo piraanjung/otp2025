@@ -3,7 +3,7 @@
 namespace App\Http\Controllers\KeptKaya;
 
 use App\Http\Controllers\Controller;
-use App\Models\KeptKaya\AnnualTrashSubscription;
+use App\Models\AnnualTrash\AnnualTrashSubscription;
 use Illuminate\Http\Request;
 use App\Exports\KorKor3Export;
 use Maatwebsite\Excel\Facades\Excel;

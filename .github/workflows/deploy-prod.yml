@@ -109,7 +109,8 @@ jobs:
           ssh -p "${{ secrets.PIOS_SSH_PORT }}" -o StrictHostKeyChecking=accept-new "${{ secrets.PIOS_SSH_USER }}@${{ secrets.PIOS_SSH_HOST }}" \
             "cd '${{ secrets.PIOS_DEPLOY_PATH }}' && \
              php artisan migrate --force --no-interaction \
-               --path=database/migrations/2026_10_04_000001_add_org_id_fk_to_tenant_tables.php"
+               --path=database/migrations/2026_10_04_000001_add_org_id_fk_to_tenant_tables.php \
+               --path=database/migrations/2026_10_04_000002_add_missing_columns_to_foodwaste_bins_table.php"
 
       - name: "Post-deploy › 4. Cache config"
         run: |

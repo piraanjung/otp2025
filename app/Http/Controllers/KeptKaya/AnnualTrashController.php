@@ -6,7 +6,7 @@ use App\Http\Controllers\Controller;
 use App\Http\Controllers\FunctionsController;
 use App\Models\Admin\Organization;
 use App\Models\FoodWaste\FoodAnnualTrashStocks;
-use App\Models\Keptkaya\KpUserGroup;
+use App\Models\KeptKaya\KpUserGroup;
 use App\Models\Keptkaya\KpUsergroupPayratePerMonth;
 use App\Models\AnnualTrash\AnnualTrash;
 use App\Models\AnnualTrash\AnnualTrashPayratePerMonth;

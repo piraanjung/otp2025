@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Models\IotCompost;
+namespace App\Models\IoTCompost;
 
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;

@@ -192,7 +192,7 @@ class User extends Authenticatable
     // เชื่อมกับบัญชีธนาคารขยะรีไซเคิล (1-to-1)
     public function kpBankAccount()
     {
-        return $this->hasOne(KpBankAccount::class, 'user_id', 'id');
+        return $this->hasOne(KPBankAccount::class, 'user_id', 'id');
     }
 
     // เชื่อมกับบัญชีขยะเปียก (1-to-1)

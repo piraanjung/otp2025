@@ -4,12 +4,12 @@ namespace App\Http\Controllers\FoodWaste;
 
 use App\Http\Controllers\Controller;
 use App\Models\KeptKaya\KPAccounts;
-use App\Models\KeptKaya\KpPurchaseDetail;
+use App\Models\KeptKaya\KpPurchaseTransactionDetail as KpPurchaseDetail;
 use App\Models\KeptKaya\KpPurchaseTransaction;
 use App\Models\KeptKaya\KpTbankItems;
 use App\Models\KeptKaya\KpTbankItemsPriceAndPoint;
 use App\Models\KeptKaya\KpTbankUnits;
-use App\Models\KeptKaya\UserWastePreference;
+use App\Models\KeptKaya\KpUserWastePreference as UserWastePreference;
 use App\Models\User;
 use Carbon\Carbon;
 use Illuminate\Http\Request;

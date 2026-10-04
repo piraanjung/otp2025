@@ -5,7 +5,7 @@ namespace App\Console\Commands;
 use Illuminate\Console\Command;
 use App\Models\User;
 use App\Models\RecycleTransaction;
-use App\Models\AnnualTrashSubscription;
+use App\Models\AnnualTrash\AnnualTrashSubscription;
 use Carbon\Carbon;
 use Illuminate\Support\Facades\DB;
 
