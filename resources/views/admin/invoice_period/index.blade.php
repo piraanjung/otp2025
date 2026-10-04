@@ -11,7 +11,7 @@
         <div class="card-header d-flex justify-content-between align-items-center">
             <h5 class="mb-0">ตารางรอบบิล 12 เดือน</h5>
             @if($budgetyear)
-                <span class="badge badge-success p-2" style="font-size: 1rem;">ปีงบประมาณปัจจุบัน:
+                <span class="badge bg-gradient-success p-2" style="font-size: 1rem;">ปีงบประมาณปัจจุบัน:
                     {{ $budgetyear->budgetyear_name }}</span>
             @endif
         </div>
@@ -48,12 +48,12 @@
                                 {{ \Carbon\Carbon::parse($period->enddate)->format('d/m/Y') }}</td>
                             <td class="text-center">
                                 @if ($period->is_generated)
-                                    <span class="badge badge-success">สร้างใบแจ้งหนี้แล้ว ({{ $period->invoice_count }}
+                                    <span class="badge bg-gradient-success">สร้างใบแจ้งหนี้แล้ว ({{ $period->invoice_count }}
                                         รายการ)</span>
                                 @elseif ($period->status == 'active')
-                                    <span class="badge badge-primary">รอบบิลปัจจุบัน (Active)</span>
+                                    <span class="badge bg-gradient-primary">รอบบิลปัจจุบัน (Active)</span>
                                 @else
-                                    <span class="badge badge-secondary">รอรอบจัดเก็บ</span>
+                                    <span class="badge bg-gradient-secondary">รอรอบจัดเก็บ</span>
                                 @endif
                             </td>
                             <td class="text-center">

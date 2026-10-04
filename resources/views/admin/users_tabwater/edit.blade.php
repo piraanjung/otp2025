@@ -346,14 +346,14 @@
                                                 </div>
                                                 <div class="col-12 col-sm-4">
                                                     <label>วิธีชำระเงิน</label>
-                                                    <span class="ml-auto text-right text-semibold text-reagent-gray">
+                                                    <span class="ms-auto text-end text-semibold text-reagent-gray">
                                                         <input type="text" class="form-control bg-gray-200" readonly
                                                             name="payment_id" value="1">
                                                     </span>
                                                 </div>
                                                 <div class="col-12 col-sm-4">
                                                     <label>ประเภทผู้ได้ส่วนลด</label>
-                                                    <span class="ml-auto text-right text-semibold text-reagent-gray">
+                                                    <span class="ms-auto text-end text-semibold text-reagent-gray">
                                                         <input type="text" class="form-control bg-gray-200"
                                                             name="discounttype" value="1" readonly>
                                                     </span>

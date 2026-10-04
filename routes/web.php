@@ -99,7 +99,7 @@ Route::get('/login_staff', function () {
 
 Route::get('acc', function () {
     Auth::logout();
-    return view('staff_accessmenu');
+    return view('staff.includes.staff_accessmenu');
     // return view('staff.mobile');
 });
         Route::get('/inventory/items/iframe', [InvItemController::class, 'iframeIndex'])->name('inventory.items.iframe');
@@ -157,7 +157,7 @@ Route::get('/test/textSendLineMessage', [TestController::class, 'textSendLineMes
 // Keeping both caused duplicate route names (e.g. password.request) that break route:cache.
 
 Route::group(['middleware' => ['auth', 'role:Admin|Super Admin']], function () {
-    Route::resource('org-admins', OrgAdminController::class);
+    Route::resource('org-admins', OrgAdminController::class)->except('show');
     Route::get('/ajax/users/search', [OrgAdminController::class, 'searchUsers'])->name('ajax.users.search');
 });
 
@@ -229,14 +229,14 @@ Route::middleware(['auth', 'role:Admin|Super Admin'])->name('admin.')->prefix('a
     Route::post('/register', [UserController::class, 'register']);
     Route::get('/transfer_old_data', [TransferOldDataToNewDBController::class, 'index'])->name('transfer_old_data');
     Route::get('/', [IndexController::class, 'index'])->name('index');
-    Route::resource('/roles', RoleController::class);
+    Route::resource('/roles', RoleController::class)->except('show');
     Route::post('/roles/{role}/permissions', [RoleController::class, 'givePermission'])->name('roles.permissions');
     Route::delete('/roles/{role}/permissions/{permission}', [RoleController::class, 'revokePermission'])->name('roles.permissions.revoke');
     Route::post('/permissions/{permission}/roles', [PermissionController::class, 'assignRole'])->name('permissions.roles');
     Route::delete('/permissions/{permission}/roles/{role}', [PermissionController::class, 'removeRole'])->name('permissions.roles.remove');
-    Route::resource('/permissions', PermissionController::class);
+    Route::resource('/permissions', PermissionController::class)->except('show');
 
-    Route::resource('workflows', WorkflowController::class);
+    Route::resource('workflows', WorkflowController::class)->except('show');
 
     //tabwater
     Route::prefix('users/')->name('users.')->group(function () {
@@ -260,18 +260,16 @@ Route::middleware(['auth', 'role:Admin|Super Admin'])->name('admin.')->prefix('a
     });
 
     
-    Route::resource('/invoice_period', InvoicePeriodController::class);
+    Route::resource('/invoice_period', InvoicePeriodController::class)->except('show');
     Route::get('/invoice_period/{period_id}/generate', [InvoicePeriodController::class, 'generateInvoice'])->name('invoice_period.generate');
 
-    Route::get('/metertype/{metertype_id}/infos', [MetertypeController::class, 'infos'])->name('metertype.infos');
-
-    Route::resource('/metertype', MetertypeController::class);
+    Route::resource('/metertype', MetertypeController::class)->except('show');
 
 
     Route::get('/budgetyear/invoice_period_list/{budgetyear_id}', [BudgetYearController::class, 'invoice_period_list'])->name('budgetyear.invoice_period_list');
-    Route::resource('/budgetyear', BudgetYearController::class);
+    Route::resource('/budgetyear', BudgetYearController::class)->except(['show', 'destroy']);
     Route::resource('/zone', ZoneController::class);
-    Route::resource('/subzone', SubzoneController::class);
+    Route::resource('/subzone', SubzoneController::class)->only(['edit', 'update']);
     Route::get('/subzone/{zone_id}/getSubzone', [SubzoneController::class, 'getSubzone'])->name('subzone.getSubzone');
 
     Route::get('super_admin/subzone/{id}/edit', [AdminSubzoneController::class, 'edit'])->name('super_admin.subzone.edit');
@@ -282,12 +280,12 @@ Route::middleware(['auth', 'role:Admin|Super Admin'])->name('admin.')->prefix('a
     Route::post('/settings/invoice_and_vat', [SettingsController::class, 'update_invoice_and_vat'])->name('settings.invoice_and_vat');
     Route::post('/settings/create_and_update', [SettingsController::class, 'create_and_update'])->name('settings.create_and_update');
     Route::post('/settings/store_users', [SettingsController::class, 'store_users'])->name('settings.store_users');
-    Route::resource('/settings', SettingsController::class);
+    Route::resource('/settings', SettingsController::class)->only('index');
 
     Route::post('/excel/store_invoice', [ExcelController::class, 'store_invoice'])->name('excel.store_invoice');
     Route::post('/excel/import_invoice_byzone', [ExcelController::class, 'import_invoice_byzone'])->name('excel.import_invoice_byzone');
     Route::post('/excel/import_invoice_old', [ExcelController::class, 'import_invoice_old'])->name('excel.import_invoice_old');
-    Route::resource('/excel', ExcelController::class);
+    Route::resource('/excel', ExcelController::class)->only(['index', 'create', 'store']);
 
 
     Route::get('/owepaper/index', [OwePaperController::class, 'index'])->name('owepaper.index');
@@ -328,11 +326,11 @@ Route::middleware(['auth', 'role:Admin|Super Admin'])->name('admin.')->prefix('a
     });
 
 
-    Route::get('undertaker_subzone', [UndertakerSubzoneController::class, 'index'])->name('undertaker_subzone');
-    // Route::get('undertaker_subzone/create', 'UndertakerSubzoneController@create');
-    // Route::post('undertaker_subzone/store', 'UndertakerSubzoneController@store');
+    Route::get('/undertaker_subzone', [UndertakerSubzoneController::class, 'index'])->name('undertaker_subzone');
+    Route::get('/undertaker_subzone/create',  [UndertakerSubzoneController::class, 'create'])->name('undertaker_subzone.create');
+    Route::post('undertaker_subzone/store', [UndertakerSubzoneController::class, 'store'])->name('undertaker_subzone.store');
     // Route::get('undertaker_subzone/update/{id}', 'UndertakerSubzoneController@update');
-    // Route::get('undertaker_subzone/edit/{id}', [UndertakerSubzoneController::class, 'edit']);
+    Route::get('/undertaker_subzone/edit/{id}', [UndertakerSubzoneController::class, 'edit']);
     // Route::get('undertaker_subzone/delete/{id}', 'UndertakerSubzoneController@delete');
 });
 

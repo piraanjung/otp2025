@@ -18,7 +18,7 @@
         <div class="row g-3 mb-4">
             <!-- การ์ดที่ 1: สีชมพู/แดง (Mobile App Design) -->
             <div class="col-6">
-                <div class="task-card card-pink" onclick="navigateTo('water-tabwater-record')">
+                <div class="task-card card-pink" onclick="navigateTo('tabwaterRecordScreen')">
                     <div class="d-flex justify-content-between align-items-start mb-3">
                         <div class="card-icon-box">
                             <i class="fa-solid fa-palette"></i>

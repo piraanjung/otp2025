@@ -1,8 +1,11 @@
-@extends('inventory.inv_master')
+@extends('layouts.super-admin')
+
+@section('title_page', 'แก้ไขสายการอนุมัติ')
 
 @section('content')
-<div class="container">
-    <h2>{{ isset($workflow) ? 'แก้ไขสายการอนุมัติ: ' . $workflow->name : 'สร้างสายการอนุมัติใหม่' }}</h2>
+<div class="card mb-4">
+<div class="card-header pb-0"><h6>{{ isset($workflow) ? 'แก้ไขสายการอนุมัติ: ' . $workflow->name : 'สร้างสายการอนุมัติใหม่' }}</h6></div>
+<div class="card-body">
 
     @if($errors->any())
         <div class="alert alert-danger">
@@ -91,10 +94,11 @@
         </table>
 
         <div class="d-flex justify-content-between">
-            <a href="{{ route('admin.workflows.index') }}" class="btn btn-secondary">ย้อนกลับ</a>
-            <button type="submit" class="btn btn-success">บันทึกข้อมูลทั้งหมด</button>
+            <a href="{{ route('admin.workflows.index') }}" class="btn btn-outline-secondary">ย้อนกลับ</a>
+            <button type="submit" class="btn bg-gradient-primary">บันทึกข้อมูลทั้งหมด</button>
         </div>
     </form>
+</div>
 </div>
 
 <!-- JavaScript สำหรับเพิ่ม/ลบแถวแบบ Dynamic -->

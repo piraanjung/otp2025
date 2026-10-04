@@ -9,6 +9,7 @@ use App\Models\Tabwater\TwMeterInfos;
 use App\Models\Tabwater\UndertakerSubzone;
 use App\Models\User;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
 
 class UndertakerSubzoneController extends Controller
@@ -23,7 +24,7 @@ class UndertakerSubzoneController extends Controller
 
     public function create()
     {
-        $undertakerSubzone = DB::table('undertaker_subzone as us')
+        $undertakerSubzone = DB::table('undertaker_subzones as us')
             ->select('us.subzone_id')
             ->orderBy('us.subzone_id')
             ->get();
@@ -31,7 +32,7 @@ class UndertakerSubzoneController extends Controller
         foreach ($undertakerSubzone as $uz) {
             $undertakerSubzoneArray->push($uz->subzone_id);
         }
-        $subzone = DB::table('subzone as sz')
+        $subzone = DB::table('subzones as sz')
             ->select('sz.id as subzone_id',)
             ->orderBy('sz.zone_id')
             ->get();
@@ -44,8 +45,8 @@ class UndertakerSubzoneController extends Controller
 
         $subzoneCollection = collect([]);
         foreach ($remain_subzone as $remain) {
-            $sz = DB::table('subzone as sz')
-                ->join('zone as z', 'z.id', 'sz.zone_id')
+            $sz = DB::table('subzones as sz')
+                ->join('zones as z', 'z.id', 'sz.zone_id')
                 ->where('sz.id', '=', $remain)
                 ->select('sz.id as subzone_id', 'sz.subzone_name', 'z.zone_name', 'z.id as zone_id')
                 ->orderBy('z.id')
@@ -54,10 +55,9 @@ class UndertakerSubzoneController extends Controller
         }
         $subzone = collect($subzoneCollection)->flatten()->sortBy('zone_id');
 
-        $tw_mans = User::where('user_cat_id', 4)
+   return     $tw_mans = User::role('Tabwater Staff')
             ->where('status', '=', 'active')
             ->with(
-                'user_profile',
                 'undertaker_subzone',
                 'undertaker_subzone.subzone',
                 'undertaker_subzone.subzone.zone'
@@ -73,15 +73,16 @@ class UndertakerSubzoneController extends Controller
 
         foreach ($request->get('on') as $key => $val) {
             $subzone = explode('-', $key)[1];
-            $undertakerSubzone = new UndertakerSubzone();
-            $undertakerSubzone->twman_id = $request->get('twman_id');
-            $undertakerSubzone->subzone_id = $subzone;
-            $undertakerSubzone->created_at = date('Y-m-d H:i:s');
-            $undertakerSubzone->updated_at = date('Y-m-d H:i:s');
+            $undertakerSubzone              = new UndertakerSubzone();
+            $undertakerSubzone->twman_id    = Staff::where('user_id', $request->get('twman_id'))->get('id')->first()->id;
+            $undertakerSubzone->org_id_fk   = Auth::user()->org_id_fk;//Auth::user()->staffs->org_id_fk;
+            $undertakerSubzone->subzone_id  = $subzone;
+            $undertakerSubzone->created_at  = date('Y-m-d H:i:s');
+            $undertakerSubzone->updated_at  = date('Y-m-d H:i:s');
             $undertakerSubzone->save();
         }
 
-        return redirect('undertaker_subzone')->with(['success' => 'ทำการบันทึกข้อมูลเรียบร้อยแล้ว']);
+        return redirect('admin/undertaker_subzone')->with(['success' => 'ทำการบันทึกข้อมูลเรียบร้อยแล้ว']);
     }
 
     /**
@@ -91,7 +92,7 @@ class UndertakerSubzoneController extends Controller
      */
     public function edit($id)
     {
-        $undertakerSubzone = DB::table('undertaker_subzone as us')
+        $undertakerSubzone = DB::table('undertaker_subzones as us')
             ->join('subzones as sz', 'sz.id', 'us.subzone_id')
             ->join('zones as z', 'z.id', 'sz.zone_id')
             ->select('us.subzone_id', 'sz.subzone_name', 'z.zone_name', 'z.id as zone_id')
@@ -112,7 +113,7 @@ class UndertakerSubzoneController extends Controller
             }
         }
 
-        $tw_mans = User::where('role_id', 5)
+        $tw_mans = User::role('User')
             ->where('id', $id)
             ->with(
                 'undertaker_subzone',

@@ -33,8 +33,10 @@ class ZoneController extends Controller
 
     public function create(Request $request)
     {
-        $org_id_fk = $request->org_id;
-        $org = Organization::with('tambons')->where('id',$request->org_id)->get(['id', 'org_tambon_id_fk']);
+        // เข้าหน้านี้ตรง ๆ จะไม่มี ?org_id จึงใช้ org ของผู้ใช้ที่ล็อกอินเป็นค่าเริ่มต้น
+        $org_id_fk = $request->org_id ?? Auth::user()->org_id_fk;
+        $org = Organization::with('tambons')->where('id', $org_id_fk)->get(['id', 'org_tambon_id_fk']);
+        abort_if($org->isEmpty(), 404, 'ไม่พบข้อมูลองค์กร');
         return view('admin.zone.create',compact('org_id_fk', 'org'));
     }
 

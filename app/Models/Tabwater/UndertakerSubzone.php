@@ -16,6 +16,7 @@ class UndertakerSubzone extends Model
     protected $fillable =[
         'id',
         'twman_id',
+        'org_id_fk',
         'subzone_id'
     ];
 

@@ -10,6 +10,8 @@ class Zone extends Model
 {
     use HasFactory;
     use BelongsToOrganization;
+
+    protected $table = 'zones'; 
     protected $fillable = ["zone_name","org_id_fk", "tambon_id", "location","lat","long", "status"];
 
     public function subzone(){

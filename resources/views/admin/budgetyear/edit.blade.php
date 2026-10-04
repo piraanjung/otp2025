@@ -84,11 +84,11 @@
                 </div>
                 <div class="card-body">
 
-                    <div class="form-group mb-3">
+                    <div class="mb-3">
                         <label for="budgetyear_suffix" class="text-muted">ปีงบประมาณ (25xx) <span class="text-danger">*</span></label>
                         
                         <div class="input-group">
-                            <div class="input-group-prepend">
+                            <div class="d-flex">
                                 <span class="input-group-text font-weight-bold bg-light text-dark" style="font-size: 1.25rem;">25</span>
                             </div>
                             
@@ -107,10 +107,10 @@
                         <small id="year-error" class="text-danger" style="display:none;"></small>
                     </div>
 
-                    <div class="form-group mb-3">
+                    <div class="mb-3">
                         <label for="startdate" class="text-muted">วันที่เริ่ม <span class="text-danger">*</span></label>
                         <div class="input-group">
-                            <div class="input-group-prepend">
+                            <div class="d-flex">
                                 <span class="input-group-text"><i class="fa fa-calendar text-muted"></i></span>
                             </div>
                             {{-- ใส่ value จาก DB โดยตรง --}}
@@ -120,10 +120,10 @@
                         </div>
                     </div>
 
-                    <div class="form-group mb-3">
+                    <div class="mb-3">
                         <label for="enddate" class="text-muted">วันที่สิ้นสุด <span class="text-danger">*</span></label>
                         <div class="input-group">
-                            <div class="input-group-prepend">
+                            <div class="d-flex">
                                 <span class="input-group-text"><i class="fa fa-calendar text-muted"></i></span>
                             </div>
                             <input class="form-control datepicker datepicker-input text-center" 
@@ -132,7 +132,7 @@
                         </div>
                     </div>
 
-                    <div class="form-group mb-4">
+                    <div class="mb-4">
                         <label for="status" class="text-muted">สถานะ</label>
                         <input class="form-control text-center bg-light" type="text" 
                                value="{{ $budgetyear->status == 'active' ? 'ปีงบประมาณปัจจุบัน (Active)' : 'สิ้นสุดปีงบประมาณ (Inactive)' }}" 
@@ -141,7 +141,7 @@
 
                     <div class="text-center">
                         <button type="submit" class="btn btn-success px-5 py-2 shadow-sm">
-                            <i class="fa fa-save mr-1"></i> บันทึกการแก้ไข
+                            <i class="fa fa-save me-1"></i> บันทึกการแก้ไข
                         </button>
                     </div>
 

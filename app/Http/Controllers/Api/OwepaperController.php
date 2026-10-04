@@ -30,7 +30,7 @@ class OwepaperController extends Controller
         }
         //หา user  ที่ invoice.status  เป็นowe หรือ invoice, init
         $oweInfosArr = DB::table('user_meter_infos as umf')
-            ->join('invoice as iv', 'iv.user_id', '=', 'umf.user_id')
+            ->join('tw_invoice as iv', 'iv.user_id', '=', 'umf.user_id')
             ->join('user as u', 'u.id', '=', 'umf.user_id')
             ->join('zone as z', 'z.id', '=', 'upf.zone_id')
             ->join('subzone as udt_sz', 'udt_sz.id', '=', 'umf.undertake_subzone_id')
@@ -334,14 +334,14 @@ class OwepaperController extends Controller
 
     public function oweAndInvoiceCount()
     {
-        $owes = DB::table('user_meter_infos as umf')
-            ->join('invoice as iv', 'iv.meter_id_fk', '=', 'umf.meter_id')
+        $owes = DB::table('tw_meter_infos as umf')
+            ->join('tw_invoice as iv', 'iv.meter_id_fk', '=', 'umf.meter_id')
             ->join('users as u', 'u.id', '=', 'umf.user_id')
             ->join('zones as z', 'z.id', '=', 'u.zone_id')
             ->join('subzones as sz', 'sz.id', '=', 'u.subzone_id')
             ->whereIn('umf.status', ['active', 'changemeter', 'cutmeter'])
             ->whereIn('iv.status', ['owe', 'invoice', 'init'])
-            ->where('iv.deleted', 0)
+            ->where('iv.status','<>', 'deleted')
             ->select(
                 // 'iv.user_id', 'iv.status',
                 DB::raw('count(*)  as oweInvCount')

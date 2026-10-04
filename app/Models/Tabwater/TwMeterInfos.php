@@ -16,7 +16,6 @@ class TwMeterInfos extends Model
 
     // public $primaryKey = 'meter_id';
     protected $fillable = [
-        "id",
         "meter_id",
         "org_id_fk",
         "meter_address",

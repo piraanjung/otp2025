@@ -2,7 +2,7 @@
 @section('content')
     <div class="card shadow-sm border-0">
     <div class="card-header bg-white py-3">
-        <h5 class="mb-0 fw-bold"><i class="bi bi-calendar-check text-primary"></i> จัดการค่าขยะรายปี</h5>
+        <h5 class="mb-0 fw-bold"><i class="fas fa-calendar-check text-primary"></i> จัดการค่าขยะรายปี</h5>
     </div>
     <div class="table-responsive">
         <table class="table table-hover align-middle mb-0">
@@ -34,7 +34,7 @@
                     <td class="small text-muted">{{ $sub->waive_reason }}</td>
                     <td>
                         <button class="btn btn-sm btn-outline-secondary" data-bs-toggle="modal" data-bs-target="#editModal{{$sub->id}}">
-                            <i class="bi bi-pencil-square"></i> แก้ไขสิทธิ์
+                            <i class="fas fa-edit"></i> แก้ไขสิทธิ์
                         </button>
                     </td>
                 </tr>

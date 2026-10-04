@@ -21,7 +21,7 @@
         </div>
     @endif
 
-    <form action="{{ url('undertaker_subzone/store') }}" method="post">
+    <form action="{{ url('admin/undertaker_subzone/store') }}" method="post">
         @csrf
         <div class="row">
             <div class="col-md-3">

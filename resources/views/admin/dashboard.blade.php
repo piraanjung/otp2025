@@ -10,7 +10,7 @@
                 <h2 class="text-white fw-bold mb-0">{{ number_format($totalCarbonSaved, 2) }} <small class="fs-6">kgCO₂e</small></h2>
             </div>
             <div class="icon icon-shape bg-white shadow text-center border-radius-md">
-                <i class="fa-solid fa-leaf text-success opacity-10"></i>
+                <i class="fas fa-leaf text-success opacity-10"></i>
             </div>
         </div>
 
@@ -39,7 +39,7 @@
                             <ul class="list-group list-group-flush">
                                 @foreach($wasteStats as $stat)
                                 <li class="list-group-item border-0 d-flex justify-content-between ps-0">
-                                    <span><i class="fa-solid fa-circle text-xs me-2" style="color: {{ '#' . substr(md5($stat->item_name), 0, 6) }}"></i>{{ $stat->item_name }}</span>
+                                    <span><i class="fas fa-circle text-xs me-2" style="color: {{ '#' . substr(md5($stat->item_name), 0, 6) }}"></i>{{ $stat->item_name }}</span>
                                     <span class="fw-bold">{{ number_format($stat->total_weight, 1) }} กก.</span>
                                 </li>
                                 @endforeach
@@ -75,7 +75,7 @@
     <div class="col-lg-7">
         <div class="card h-100 border-0 shadow-sm rounded-4">
             <div class="card-header pb-0 p-3 bg-white d-flex justify-content-between align-items-center">
-                <h6 class="mb-0 fw-bold"><i class="bi bi-bell-fill text-warning me-2"></i>รายการรอดำเนินการ</h6>
+                <h6 class="mb-0 fw-bold"><i class="fas fa-bell text-warning me-2"></i>รายการรอดำเนินการ</h6>
                 <span class="badge bg-soft-danger text-danger rounded-pill">ต้องจ่ายวันนี้: {{ $todayWithdraws }} รายการ</span>
             </div>
             <div class="card-body p-3">
@@ -111,7 +111,7 @@
                                     <span class="badge badge-sm bg-gradient-success">฿ {{ number_format($draw->amount, 2) }}</span>
                                 </td>
                                 <td class="align-middle text-center">
-                                    <a href="{{ route('admin.withdraws.index') }}" class="text-secondary font-weight-bold text-xs" data-toggle="tooltip">
+                                    <a href="{{ route('admin.withdraws.index') }}" class="text-secondary font-weight-bold text-xs" data-bs-toggle="tooltip">
                                         ยืนยันรหัส
                                     </a>
                                 </td>
@@ -134,14 +134,14 @@
                 <h6 class="fw-bold mb-3">ทางลัดจัดการระบบ</h6>
                 <div class="d-grid gap-2">
                     <a href="{{ route('admin.bulk_sales.create') }}" class="btn btn-outline-primary rounded-4 py-3 text-start">
-                        <i class="bi bi-cart-plus-fill fs-4 me-2"></i>
+                        <i class="fas fa-cart-plus fs-4 me-2"></i>
                         <div>
                             <span class="d-block fw-bold">บันทึกการขายขยะ</span>
                             <small class="opacity-75">นำขยะออกจากสต็อกเพื่อเข้ากองทุน</small>
                         </div>
                     </a>
                     <a href="{{ route('admin.withdraws.summary') }}" class="btn btn-outline-dark rounded-4 py-3 text-start">
-                        <i class="bi bi-bank fs-4 me-2"></i>
+                        <i class="fas fa-university fs-4 me-2"></i>
                         <div>
                             <span class="d-block fw-bold">สรุปยอดเบิกเงินสด</span>
                             <small class="opacity-75">ดูยอดที่ต้องเตรียมสำหรับวันอังคารหน้า</small>
@@ -154,7 +154,10 @@
 </div>
 </div>
 
-<script src="{{ asset('assets/js/plugins/chartjs.min.js') }}"></script>
+@endsection
+
+@section('script')
+<script src="{{ asset('soft-ui/assets/js/plugins/chartjs.min.js') }}"></script>
 <script>
     var ctx = document.getElementById("waste-donut-chart").getContext("2d");
     new Chart(ctx, {

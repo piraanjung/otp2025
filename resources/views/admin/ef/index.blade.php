@@ -50,7 +50,7 @@
                                         accept=".xlsx, .xls" required>
                                     <label class="custom-file-label" for="efFile">เลือกไฟล์ Excel...</label>
                                 </div>
-                                <div class="input-group-append">
+                                <div class="d-flex">
                                     <button type="submit" class="btn btn-success">นำเข้าข้อมูล</button>
                                 </div>
                             </div>
@@ -90,14 +90,14 @@
                             <tr>
                                 <td>{{ $loop->iteration }}</td>
                                 <td class="text-bold">{{ $ef->material_name }}</td>
-                                <td class="text-center"><span class="badge badge-info">{{ $ef->unit }}</span></td>
+                                <td class="text-center"><span class="badge bg-gradient-info">{{ $ef->unit }}</span></td>
                                 <td class="text-center text-success text-bold">{{ number_format($ef->ef_value, 4) }}</td>
                                 <td><small>{{ $ef->example ?? '-' }}</small></td>
                                 <td><small class="text-muted">{{ $ef->source }}</small></td>
                                 <td class="text-center">
                                     <div class="btn-group">
                                         <!-- ปุ่มแก้ไข (Edit) -->
-                                        <a href="{{ route('keptkayas.emission.edit', $ef->id) }}" class="btn btn-xs btn-default"
+                                        <a href="{{ route('keptkayas.emission.edit', $ef->id) }}" class="btn btn-xs btn-outline-secondary"
                                             title="แก้ไขข้อมูล">
                                             <i class="fas fa-edit text-primary"></i>
                                         </a>
@@ -108,7 +108,7 @@
                                             style="display:inline;">
                                             @csrf
                                             @method('DELETE')
-                                            <button type="submit" class="btn btn-xs btn-default" title="ลบข้อมูล">
+                                            <button type="submit" class="btn btn-xs btn-outline-secondary" title="ลบข้อมูล">
                                                 <i class="fas fa-trash text-danger"></i>
                                             </button>
                                         </form>

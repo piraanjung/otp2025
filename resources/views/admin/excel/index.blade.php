@@ -72,7 +72,7 @@
                                     @csrf
                                     <label class="label-control">Upload file excel ->users</label>
                                     <input type="file" class="form-control w-70" name="file" id="">
-                                    <input type="submit" class="btn btn-success mt-2 d-flex mr-0 ml-auto d-lg-flex" value="import">
+                                    <input type="submit" class="btn btn-success mt-2 d-flex me-0 ms-auto d-lg-flex" value="import">
                                 </form>
 
                             </div>
@@ -90,7 +90,7 @@
                             @csrf
                             <label class="label-control">Upload file excel ->ข้อมูลองค์กร</label>
                             <input type="file" class="form-control" name="file" id="">
-                            <input type="submit" class="btn btn-success mt-2 d-flex mr-0 ml-auto d-lg-flex" value="import">
+                            <input type="submit" class="btn btn-success mt-2 d-flex me-0 ms-auto d-lg-flex" value="import">
                         </form>
                     </div>
                 </div>
@@ -105,7 +105,7 @@
                             @csrf
                             <label class="label-control">Upload file excel ->ประเภทมิเตอร์</label>
                             <input type="file" class="form-control" name="file" id="">
-                            <input type="submit" class="btn btn-success mt-2 d-flex mr-0 ml-auto d-lg-flex" value="import">
+                            <input type="submit" class="btn btn-success mt-2 d-flex me-0 ms-auto d-lg-flex" value="import">
                         </form>
                     </div>
                 </div>
@@ -120,7 +120,7 @@
                             @csrf
                             <label class="label-control">Upload file excel ->พื้นที่จัดเก็บค่าน้ำประปา</label>
                             <input type="file" class="form-control" name="file" id="">
-                            <input type="submit" class="btn btn-success mt-2 d-flex mr-0 ml-auto d-lg-flex" value="import">
+                            <input type="submit" class="btn btn-success mt-2 d-flex me-0 ms-auto d-lg-flex" value="import">
                         </form>
                     </div>
                 </div>
@@ -135,7 +135,7 @@
                             @csrf
                             <label class="label-control">Upload file excel ->พื้นที่จัดเก็บค่าน้ำประปา</label>
                             <input type="file" class="form-control" name="file" id="">
-                            <input type="submit" class="btn btn-success mt-2 d-flex mr-0 ml-auto d-lg-flex" value="import">
+                            <input type="submit" class="btn btn-success mt-2 d-flex me-0 ms-auto d-lg-flex" value="import">
                         </form>
                     </div>
                 </div>
@@ -149,7 +149,7 @@
                             @csrf
                             <label class="label-control">Upload file excel ->เลขมิเตอร์น้ำ</label>
                             <input type="file" class="form-control" name="file" id="">
-                            <input type="submit" class="btn btn-success mt-2 d-flex mr-0 ml-auto d-lg-flex" value="import">
+                            <input type="submit" class="btn btn-success mt-2 d-flex me-0 ms-auto d-lg-flex" value="import">
                         </form>
                     </div>
                 </div>
@@ -174,7 +174,7 @@
                              @endforeach
                             </select>
                             <input type="file" class="form-control" name="file" id="">
-                            <input type="submit" class="btn btn-success mt-2 d-flex mr-0 ml-auto d-lg-flex" value="import">
+                            <input type="submit" class="btn btn-success mt-2 d-flex me-0 ms-auto d-lg-flex" value="import">
                         </form>
                     </div>
                 </div>
@@ -195,7 +195,7 @@
                              @endforeach
                             </select>
                             <input type="file" class="form-control" name="file" id="">
-                            <input type="submit" class="btn btn-success mt-2 d-flex mr-0 ml-auto d-lg-flex" value="import">
+                            <input type="submit" class="btn btn-success mt-2 d-flex me-0 ms-auto d-lg-flex" value="import">
                         </form>
                     </div>
                 </div>
@@ -233,7 +233,7 @@
             let text = `
                 <div class="card bg-gradient-secondary mb-2" id="form${preview_count}">
                     <div class="card-body">
-                        <div class="form-group row" >
+                        <div class="mb-3 row" >
                             <div class="col-sm-1  trash_div" onclick="del('${preview_count}')">
                                 <label for="organize_address" class="col-form-label ">&nbsp;</label>
                                 <i class="fas fa-trash-alt text-danger form-control"></i>
