@@ -7,7 +7,8 @@
                     <div class="h5 text-red mt-3">รูปตราสัญลักษณ์ของหน่วยงาน</div>
                 @endif
             @else
-                <img src="{{ asset('logo/init_logo2.png') }}" width="200" />
+                {{-- logo/init_logo2.png ไม่มีใน repo (รูปเสีย) ใช้โลโก้ระบบเป็นรูปแทน --}}
+                <img src="{{ asset('logo/ko_envsogo.png') }}" width="200" />
                 <div class="h5 text-red mt-3">ยังไม่รูปตราสัญลักษณ์ของหน่วยงาน</div>
             @endif
         </div>

@@ -222,6 +222,7 @@
     <script src="{{ asset('soft-ui/assets/js/plugins/smooth-scrollbar.min.js') }}"></script>
     <script src="{{ asset('soft-ui/assets/js/soft-ui-dashboard.min.js') }}"></script>
 
+    @include('layouts.partials.sidenav-active')
     @yield('script')
 
     <script>
