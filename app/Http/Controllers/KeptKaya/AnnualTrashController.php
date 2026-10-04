@@ -32,7 +32,9 @@ class AnnualTrashController extends Controller
     public function index(User $w_user)
     {
         $AnnualTrashs = $w_user->AnnualTrashs()->paginate(10);
-        return view('keptkayas.w.waste_bins.index', compact('w_user', 'AnnualTrashs'));
+        // view อ่านจากตัวแปร $wasteBins
+        $wasteBins = $AnnualTrashs;
+        return view('keptkayas.w.waste_bins.index', compact('w_user', 'AnnualTrashs', 'wasteBins'));
     }
 
     public function create(User $w_user)

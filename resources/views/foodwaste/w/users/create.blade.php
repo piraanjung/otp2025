@@ -1,4 +1,4 @@
-@extends('layouts.app')
+@extends('layouts.foodwaste')
 
 @section('title_page', 'เพิ่มผู้ใช้งานใหม่')
 
