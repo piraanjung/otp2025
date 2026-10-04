@@ -44,7 +44,7 @@
         <div class="mb-4">
             <label class="block text-gray-700 text-sm font-bold mb-2">Machine Ready</label>
             <input type="checkbox" name="machine_ready" id="machine_ready" value="1" {{ old('machine_ready', $machine->machine_ready) ? 'checked' : '' }}
-                   class="mr-2 leading-tight">
+                   class="me-2 leading-tight">
             <span class="text-sm">Is the machine ready to work?</span>
         </div>
 
@@ -59,7 +59,7 @@
         <div class="mb-4">
             <label class="block text-gray-700 text-sm font-bold mb-2">Has New Object</label>
             <input type="checkbox" name="has_new_object" id="has_new_object" value="1" {{ old('has_new_object', $machine->has_new_object) ? 'checked' : '' }}
-                   class="mr-2 leading-tight">
+                   class="me-2 leading-tight">
             <span class="text-sm">New object/data available?</span>
         </div>
         

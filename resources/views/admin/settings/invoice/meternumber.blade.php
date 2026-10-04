@@ -3,10 +3,13 @@
         <div class="card h-100">
             <div class="card-body">
                 <div class="row">
-                    <div class="col-12">
-                        <img class="w-100 border-radius-lg shadow-lg " src="{{ asset('logo/bill.png') }}"
-                            alt="product_image">
-                    </div>
+                    {{-- logo/bill.png ไม่มีใน repo (เดิมแสดงเป็นรูปเสีย) แสดงเมื่อมีไฟล์เท่านั้น --}}
+                    @if (file_exists(public_path('logo/bill.png')))
+                        <div class="col-12">
+                            <img class="w-100 border-radius-lg shadow-lg " src="{{ asset('logo/bill.png') }}"
+                                alt="product_image">
+                        </div>
+                    @endif
                     <div class="col-12 mt-4">
                         <div class="d-flex">
                             <input type="text" class="form-control text-lg text-bolder" name="meternumber_code"

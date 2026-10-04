@@ -20,7 +20,7 @@
                     @csrf
                     
         @include('superadmin.meter_rates.form')
-                    <button type="submit" class="btn btn-success">บันทึกอัตราการชำระค่าน้ำ</button>
+                    <button type="submit" class="btn bg-gradient-primary">บันทึกอัตราการชำระค่าน้ำ</button>
                 </form>
 
             </div>

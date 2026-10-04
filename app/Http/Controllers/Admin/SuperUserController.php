@@ -65,6 +65,11 @@ class SuperUserController extends Controller
     public function create()
     {
         $meter_sq_number    =  SequenceNumber::get()->first();
+        if (! $meter_sq_number) {
+            // sequence_number ยังไม่มีแถวของ org นี้ (เดิมเป็นระบบองค์กรเดียว) หน้าสมาชิกใหม่ admin.users.create ใช้งานได้ปกติ
+            return redirect()->route('admin.users.create')
+                ->with('warning', 'ยังไม่ได้ตั้งค่าเลขลำดับสมาชิกขององค์กรนี้ จึงพาไปหน้าเพิ่มสมาชิกแบบใหม่');
+        }
         $orgInfos = Organization::getOrgName(Auth::user()->org_id_fk);
 
         $zones              = Zone::all();
