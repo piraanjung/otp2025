@@ -12,7 +12,7 @@
                             <i class="fas fa-edit text-primary"></i> แก้ไข: {{ $factor->material_name }}
                         </h3>
                         <div class="card-tools">
-                            <a href="{{ route('keptkayas.emission.index') }}" class="btn btn-default btn-sm">
+                            <a href="{{ route('keptkayas.emission.index') }}" class="btn btn-outline-secondary btn-sm">
                                 <i class="fas fa-arrow-left"></i> กลับไปหน้ารายการ
                             </a>
                         </div>
@@ -36,7 +36,7 @@
                             <div class="row">
                                 <!-- ชื่อวัสดุ -->
                                 <!-- ตัวอย่างช่องชื่อวัสดุ -->
-                                <div class="form-group col-md-12">
+                                <div class="mb-3 col-md-12">
                                     <label for="material_name">ชื่อวัสดุ <span class="text-danger">*</span></label>
                                     <input type="text" name="material_name"
                                         class="form-control @error('material_name') is-invalid @enderror"
@@ -50,14 +50,14 @@
                                 </div>
 
                                 <!-- หน่วย -->
-                                <div class="form-group col-md-6">
+                                <div class="mb-3 col-md-6">
                                     <label for="unit">หน่วย (Unit)</label>
                                     <input type="text" name="unit" id="unit" class="form-control"
                                         value="{{ old('unit', $factor->unit) }}" placeholder="เช่น kgCO2e/kg">
                                 </div>
 
                                 <!-- ค่า EF -->
-                                <div class="form-group col-md-6">
+                                <div class="mb-3 col-md-6">
                                     <label for="ef_value">ค่า EF (ef_value) <span class="text-danger">*</span></label>
                                     <input type="number" step="0.0001" name="ef_value" id="ef_value"
                                         class="form-control text-bold text-success"
@@ -65,14 +65,14 @@
                                 </div>
 
                                 <!-- แหล่งที่มา -->
-                                <div class="form-group col-md-12">
+                                <div class="mb-3 col-md-12">
                                     <label for="source">แหล่งที่มาของข้อมูล (Source)</label>
                                     <input type="text" name="source" id="source" class="form-control"
                                         value="{{ old('source', $factor->source) }}">
                                 </div>
 
                                 <!-- ตัวอย่างขยะ -->
-                                <div class="form-group col-md-12">
+                                <div class="mb-3 col-md-12">
                                     <label for="example">ตัวอย่างวัสดุ / หมายเหตุ (Example)</label>
                                     <textarea name="example" id="example" class="form-control"
                                         rows="3">{{ old('example', $factor->example) }}</textarea>
@@ -80,8 +80,8 @@
                             </div>
                         </div>
 
-                        <div class="card-footer text-right">
-                            <button type="reset" class="btn btn-default">
+                        <div class="card-footer text-end">
+                            <button type="reset" class="btn btn-outline-secondary">
                                 <i class="fas fa-undo"></i> ล้างค่า
                             </button>
                             <button type="submit" class="btn btn-primary">

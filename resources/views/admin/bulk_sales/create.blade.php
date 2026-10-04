@@ -51,12 +51,12 @@
                     </tbody>
                 </table>
                 <button type="button" class="btn btn-outline-primary btn-sm mb-4" id="addRow">
-                    <i class="bi bi-plus-circle"></i> เพิ่มประเภทขยะ
+                    <i class="fas fa-plus-circle"></i> เพิ่มประเภทขยะ
                 </button>
 
                 <div class="text-end border-top pt-4">
                     <button type="submit" class="btn btn-success px-5 py-2 rounded-pill fw-bold">
-                        <i class="bi bi-save"></i> บันทึกรายการขายและกำไร
+                        <i class="fas fa-save"></i> บันทึกรายการขายและกำไร
                     </button>
                 </div>
             </form>
@@ -81,7 +81,7 @@
 
         // เพิ่มปุ่มลบ
         const delBtn = document.createElement('td');
-        delBtn.innerHTML = '<button type="button" class="btn btn-outline-danger btn-sm remove-row"><i class="bi bi-trash"></i></button>';
+        delBtn.innerHTML = '<button type="button" class="btn btn-outline-danger btn-sm remove-row"><i class="fas fa-trash"></i></button>';
         newRow.replaceChild(delBtn, newRow.lastElementChild);
 
         table.appendChild(newRow);

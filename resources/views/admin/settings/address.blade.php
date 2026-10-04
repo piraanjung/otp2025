@@ -1,5 +1,5 @@
 <div class="row">
-    <div class="form-group col-12 col-md-4">
+    <div class="mb-3 col-12 col-md-4">
         <label for="organize_address" class="col-form-label">เลขที่</label>
 
         <input type="text" class="form-control" id="organize_address"
@@ -7,7 +7,7 @@
             name="organize_address">
 
     </div>
-    <div class="form-group col-12 col-md-4">
+    <div class="mb-3 col-12 col-md-4">
         <label for="organize_zone" class="col-form-label">หมู่</label>
 
         <input type="text" class="form-control" id="organize_zone"
@@ -15,7 +15,7 @@
             name="organize_zone">
 
     </div>
-    <div class="form-group col-12 col-md-4">
+    <div class="mb-3 col-12 col-md-4">
         <label for="organize_road" class="col-form-label">ถนน</label>
 
         <input type="text" class="form-control" id="organize_road"
@@ -24,7 +24,7 @@
 
     </div>
 
-    <div class="form-group col-12 col-md-4">
+    <div class="mb-3 col-12 col-md-4">
         <label for="organize_tambon" class="col-form-label">ตำบล</label>
 
         <input type="text" class="form-control" id="organize_tambon"
@@ -32,7 +32,7 @@
             name="organize_tambon">
 
     </div>
-    <div class="form-group col-12 col-md-4">
+    <div class="mb-3 col-12 col-md-4">
         <label for="organize_district" class="col-form-label">อำเภอ</label>
 
         <input type="text" class="form-control" id="organize_district"
@@ -40,7 +40,7 @@
             name="organize_district">
 
     </div>
-    <div class="form-group col-12 col-md-4">
+    <div class="mb-3 col-12 col-md-4">
         <label for="organize_province" class="col-form-label">จังหวัด</label>
 
         <input type="text" class="form-control" id="organize_province"
@@ -48,7 +48,7 @@
             name="organize_province">
 
     </div>
-    <div class="form-group col-12 col-md-4">
+    <div class="mb-3 col-12 col-md-4">
         <label for="organize_zipcode" class="col-form-label">รหัสไปรษณีย์</label>
 
         <input type="text" class="form-control" id="organize_zipcode"
@@ -57,7 +57,7 @@
 
     </div>
 
-    <div class="form-group col-12 col-md-4">
+    <div class="mb-3 col-12 col-md-4">
         <label for="organize_phone" class="col-form-label">เบอร์โทร</label>
 
         <input type="text" class="form-control" id="organize_phone"
@@ -65,7 +65,7 @@
             name="organize_phone">
 
     </div>
-    <div class="form-group col-12 col-md-4">
+    <div class="mb-3 col-12 col-md-4">
         <label for="organize_email" class="col-form-label">อีเมลล์</label>
 
         <input type="text" class="form-control" id="organize_email"

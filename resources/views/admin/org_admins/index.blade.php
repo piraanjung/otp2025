@@ -11,7 +11,7 @@
                     <i class="fas fa-user-shield"></i> รายชื่อผู้ดูแลประจำหน่วยงาน
                 </h3>
             </div>
-            <div class="col-md-6 text-right">
+            <div class="col-md-6 text-end">
                 <a href="{{ route('org-admins.create') }}" class="btn btn-primary">
                     <i class="fas fa-plus-circle"></i> เพิ่มผู้ดูแลใหม่
                 </a>
@@ -21,18 +21,14 @@
         @if(session('success'))
             <div class="alert alert-success alert-dismissible fade show" role="alert">
                 <i class="fas fa-check-circle"></i> {{ session('success') }}
-                <button type="button" class="close" data-dismiss="alert" aria-label="Close">
-                    <span aria-hidden="true">&times;</span>
-                </button>
+                <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
             </div>
         @endif
 
         @if(session('error'))
             <div class="alert alert-danger alert-dismissible fade show" role="alert">
                 <i class="fas fa-exclamation-circle"></i> {{ session('error') }}
-                <button type="button" class="close" data-dismiss="alert" aria-label="Close">
-                    <span aria-hidden="true">&times;</span>
-                </button>
+                <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
             </div>
         @endif
 
@@ -43,9 +39,9 @@
                         <h5 class="mb-0">รายการ Admin ทั้งหมด ({{ $admins->total() }} คน)</h5>
                     </div>
                     {{-- (Optional) ช่องค้นหา --}}
-                    <div class="col text-right">
-                        <form action="{{ route('org-admins.index') }}" method="GET" class="form-inline float-right">
-                            <input type="text" name="search" class="form-control form-control-sm mr-2"
+                    <div class="col text-end">
+                        <form action="{{ route('org-admins.index') }}" method="GET" class="form-inline float-end">
+                            <input type="text" name="search" class="form-control form-control-sm me-2"
                                 placeholder="ค้นหาชื่อ หรือ หน่วยงาน..." value="{{ request('search') }}">
                             <button type="submit" class="btn btn-sm btn-outline-primary"><i
                                     class="fas fa-search"></i></button>
@@ -64,7 +60,7 @@
                             <th scope="col" style="width: 15%">เบอร์โทร / Email</th>
                             <th scope="col" style="width: 10%" class="text-center">สถานะ</th>
                             <th scope="col" style="width: 15%">สร้างเมื่อ</th>
-                            <th scope="col" style="width: 10%" class="text-right">จัดการ</th>
+                            <th scope="col" style="width: 10%" class="text-end">จัดการ</th>
                         </tr>
                     </thead>
                     <tbody>
@@ -74,7 +70,7 @@
                                 <td>{{ $admins->firstItem() + $index }}</td>
                                 <td>
                                     @if($admin->org)
-                                        {{-- <span class="badge badge-pill badge-info"> --}}
+                                        {{-- <span class="badge badge-pill bg-gradient-info"> --}}
                                             <i class="fas fa-building"></i>
                                             {{ $admin->org->org_type_name }}
                                             {{ $admin->org->org_name }}
@@ -98,15 +94,15 @@
                                 </td>
                                 <td class="text-center">
                                     @if($admin->status == 'active')
-                                        <span class="badge badge-success">ใช้งานปกติ</span>
+                                        <span class="badge bg-gradient-success">ใช้งานปกติ</span>
                                     @else
-                                        <span class="badge badge-secondary">ระงับใช้งาน</span>
+                                        <span class="badge bg-gradient-secondary">ระงับใช้งาน</span>
                                     @endif
                                 </td>
                                 <td>
                                     {{ $admin->created_at->format('d/m/Y') }}
                                 </td>
-                                <td class="text-right">
+                                <td class="text-end">
                                     <div class="btn-group shadow-none">
                                         {{-- ปุ่มจัดการสิทธิ์ (Role & Permission) --}}
                                         {{-- สมมติว่า route ชื่อ org-admins.permissions หรือ staffs.edit --}}

@@ -3,9 +3,9 @@
 @section('content')
 <div class="container-fluid py-4">
     <div class="d-flex justify-content-between align-items-center mb-4">
-        <h2 class="fw-bold text-dark"><i class="bi bi-journal-text"></i> ประวัติการขายขยะล๊อตใหญ่</h2>
+        <h2 class="fw-bold text-dark"><i class="fas fa-book"></i> ประวัติการขายขยะล๊อตใหญ่</h2>
         <a href="{{ route('admin.bulk_sales.create') }}" class="btn btn-primary rounded-pill px-4">
-            <i class="bi bi-plus-lg"></i> บันทึกรายการขายใหม่
+            <i class="fas fa-plus"></i> บันทึกรายการขายใหม่
         </a>
     </div>
 
@@ -34,7 +34,7 @@
                         <td class="text-center">
                             @if($sale->receipt_image)
                                 <a href="{{ asset('storage/' . $sale->receipt_image) }}" target="_blank" class="btn btn-sm btn-outline-info">
-                                    <i class="bi bi-image"></i> ดูใบเสร็จ
+                                    <i class="fas fa-image"></i> ดูใบเสร็จ
                                 </a>
                             @else
                                 <span class="text-muted small">ไม่มีรูป</span>

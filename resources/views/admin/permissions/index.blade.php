@@ -28,13 +28,13 @@
                                     <div class="d-flex align-items-center text-sm">
                                         <div class="">
                                             <a href="{{ route('admin.permissions.edit', $item->id) }}"
-                                                class="badge badge-secondary badge-sm text-black">แก้ไข</a>
+                                                class="badge bg-gradient-secondary badge-sm text-black">แก้ไข</a>
                                             <form class="" method="POST"
                                                 action="{{ route('admin.permissions.destroy', $item->id) }}"
                                                 onsubmit="return confirm('Are you sure?');">
                                                 @csrf
                                                 @method('DELETE')
-                                                <button class="badge badge-primary border-0 badge-sm text-black"
+                                                <button class="badge bg-gradient-primary border-0 badge-sm text-black"
                                                     type="submit">ลบข้อมูล</button>
                                             </form>
                                         </div>
@@ -62,10 +62,10 @@
                                         <thead class="bg-gray-50">
                                             <tr>
                                                 <th scope="col"
-                                                    class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                                    class="px-6 py-3 text-start text-xs font-medium text-gray-500 uppercase tracking-wider">
                                                     Name</th>
                                                 <th scope="col" class="relative px-6 py-3">
-                                                    <span class="sr-only">Edit</span>
+                                                    <span class="visually-hidden">Edit</span>
                                                 </th>
                                             </tr>
                                         </thead>
@@ -135,10 +135,10 @@
                                     <thead class="bg-gray-50">
                                         <tr>
                                             <th scope="col"
-                                                class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                                class="px-6 py-3 text-start text-xs font-medium text-gray-500 uppercase tracking-wider">
                                                 Name</th>
                                             <th scope="col" class="relative px-6 py-3">
-                                                <span class="sr-only">Edit</span>
+                                                <span class="visually-hidden">Edit</span>
                                             </th>
                                         </tr>
                                     </thead>

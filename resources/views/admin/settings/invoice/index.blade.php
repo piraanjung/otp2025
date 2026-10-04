@@ -138,7 +138,7 @@
             let text = `
                 <div class="card bg-gradient-secondary mb-2" id="form${preview_count}">
                     <div class="card-body">
-                        <div class="form-group row" >
+                        <div class="mb-3 row" >
                             <div class="col-sm-1  trash_div" onclick="del('${preview_count}')">
                                 <label for="organize_address" class="col-form-label ">&nbsp;</label>
                                 <i class="fas fa-trash-alt text-danger form-control"></i>

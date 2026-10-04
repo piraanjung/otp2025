@@ -3,9 +3,9 @@
 @section('content')
 <div class="container-fluid py-4">
     <div class="d-flex justify-content-between align-items-center mb-4">
-        <h2 class="fw-bold"><i class="bi bi-wallet2 text-primary"></i> สรุปยอดเบิกเงินสด</h2>
+        <h2 class="fw-bold"><i class="fas fa-wallet text-primary"></i> สรุปยอดเบิกเงินสด</h2>
         <a href="{{ route('admin.withdraws.index') }}" class="btn btn-outline-secondary rounded-pill">
-            <i class="bi bi-list-check"></i> ไปหน้ารายการอนุมัติ
+            <i class="fas fa-tasks"></i> ไปหน้ารายการอนุมัติ
         </a>
     </div>
 
@@ -44,7 +44,7 @@
                         <td class="text-end fw-bold text-primary">{{ number_format($row->total_amount, 2) }}</td>
                         <td class="text-center">
                             @if($row->payout_date <= now()->toDateString())
-                                <span class="text-danger small"><i class="bi bi-exclamation-triangle"></i> ถึงกำหนดแล้ว</span>
+                                <span class="text-danger small"><i class="fas fa-exclamation-triangle"></i> ถึงกำหนดแล้ว</span>
                             @else
                                 <span class="text-muted small">เตรียมเงินล่วงหน้า</span>
                             @endif

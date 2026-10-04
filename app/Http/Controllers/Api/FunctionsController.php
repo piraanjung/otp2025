@@ -67,7 +67,6 @@ class FunctionsController extends Controller
 
   public static function createInvoiceNumberString($id)
   {
-    ManagesTenantConnection::configConnection('envsogo_super_admin');
     $meternumber_code = Organization::where('id', Auth::user()->org_id_fk)->get('org_code')->first();
 
     $invString = '';
@@ -82,12 +81,11 @@ class FunctionsController extends Controller
     } else {
       $invString = $id;
     }
-    return $meternumber_code->values . "" . $invString;
+    return $meternumber_code->org_code . "" . $invString;
   }
 
   public static function createMeterNumberString($id)
   {
-    ManagesTenantConnection::configConnection('envsogo_super_admin');
     $meternumber_code = Organization::where('id', Auth::user()->org_id_fk)->get('org_code')->first();
 
     $invString = '';
@@ -102,7 +100,7 @@ class FunctionsController extends Controller
     } else {
       $invString = $id;
     }
-    return $meternumber_code->values . "10" . $invString;
+    return $meternumber_code->org_code . "10" . $invString;
   }
 
   public static function createNumberString($id, $type)

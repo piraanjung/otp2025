@@ -1,3 +1,16 @@
+@php
+  // view ต่าง ๆ ตั้งชื่อ section หัวข้อหน้าไม่เหมือนกัน รวมเป็นลำดับ fallback เดียวที่นี่
+  $clean = fn (string $v) => trim(preg_replace('/\s+/', ' ', strip_tags($v)));
+  $pageTitle = '';
+  foreach (['nav-current-title', 'nav-current', 'page-topic', 'mainheader', 'topic', 'nav-topic', 'title_page', 'nav-header'] as $s) {
+      $pageTitle = $clean($__env->yieldContent($s));
+      if ($pageTitle !== '') {
+          break;
+      }
+  }
+  $crumbParent = $clean($__env->yieldContent('nav-main')) ?: $clean($__env->yieldContent('nav-header')) ?: 'หน้าหลัก';
+  $crumbCurrent = $clean($__env->yieldContent('nav-current')) ?: $pageTitle;
+@endphp
 <!DOCTYPE html>
 <html lang="th">
 
@@ -7,7 +20,7 @@
   <meta name="csrf-token" content="{{ csrf_token() }}">
   <link rel="apple-touch-icon" sizes="76x76" href="{{ asset('soft-ui/assets/img/apple-icon.png')}}">
   <link rel="icon" type="image/png" href="{{ asset('logo/ko_envsogo.png')}}">
-  <title>@hasSection('title')@yield('title')@else @yield('title_page', 'Envsogo Admin')@endif | Envsogo</title>
+  <title>{{ $pageTitle !== '' ? $pageTitle . ' | ' : '' }}Envsogo</title>
 
   <!-- Fonts and icons -->
   <link href="https://fonts.googleapis.com/css?family=Open+Sans:300,400,600,700" rel="stylesheet" />
@@ -27,7 +40,10 @@
     }
     .sidenav .nav-link-text { white-space: normal; }
   </style>
+  <!-- jQuery (ตัวเต็ม มี $.ajax/$.get) โหลดใน head เพื่อให้ script ที่แทรกใน content ใช้ $ ได้ -->
+  <script src="{{ asset('soft-ui/assets/js/jquery-3.7.0.js') }}"></script>
   @yield('style')
+  @yield('styles')
 </head>
 
 <body class="g-sidenav-show bg-gray-100">
@@ -42,15 +58,11 @@
         <nav aria-label="breadcrumb">
           <ol class="breadcrumb bg-transparent mb-0 pb-0 pt-1 px-0 me-sm-6 me-5">
             <li class="breadcrumb-item text-sm">
-              <a class="opacity-5 text-dark" href="@yield('nav-main-url', route('admin.dashboard'))">@yield('nav-main', 'หน้าหลัก')</a>
+              <a class="opacity-5 text-dark" href="@yield('nav-main-url', route('admin.dashboard'))">{{ $crumbParent }}</a>
             </li>
-            <li class="breadcrumb-item text-sm text-dark active" aria-current="page">
-              @hasSection('nav-current')@yield('nav-current')@else @yield('title_page')@endif
-            </li>
+            <li class="breadcrumb-item text-sm text-dark active" aria-current="page">{{ $crumbCurrent }}</li>
           </ol>
-          <h6 class="font-weight-bolder mb-0">
-            @hasSection('nav-current-title')@yield('nav-current-title')@else @yield('title_page')@endif
-          </h6>
+          <h6 class="font-weight-bolder mb-0">{{ $pageTitle }}</h6>
         </nav>
 
         <div class="collapse navbar-collapse mt-sm-0 mt-2 me-md-0 me-sm-4" id="navbar">
@@ -105,8 +117,8 @@
   <script src="{{ asset('soft-ui/assets/js/plugins/perfect-scrollbar.min.js')}}"></script>
   <script src="{{ asset('soft-ui/assets/js/plugins/smooth-scrollbar.min.js')}}"></script>
   <script src="{{ asset('soft-ui/assets/js/soft-ui-dashboard.min.js?v=1.0.7')}}"></script>
-  <script src="{{ asset('js/jquery-3.7.1.slim.js')}}"></script>
 
   @yield('script')
+  @yield('scripts')
 </body>
 </html>

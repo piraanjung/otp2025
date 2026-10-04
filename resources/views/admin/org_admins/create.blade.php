@@ -28,8 +28,8 @@
 
                             {{-- ส่วนที่ 1: ข้อมูลสังกัด --}}
                             <h6 class="heading-small text-muted mb-4">ข้อมูลหน่วยงานสังกัด</h6>
-                            <div class="pl-lg-4">
-                                <div class="form-group">
+                            <div class="ps-lg-4">
+                                <div class="mb-3">
                                     <label class="form-control-label">เลือกหน่วยงาน / เทศบาล <span
                                             class="text-danger">*</span></label>
                                     <select name="org_id_fk" class="form-control @error('org_id_fk') is-invalid @enderror"
@@ -46,7 +46,7 @@
                                         <span class="invalid-feedback" role="alert"><strong>{{ $message }}</strong></span>
                                     @enderror
                                 </div>
-                                <div class="form-group">
+                                <div class="mb-3">
                                     <label>ค้นหา User ที่มีอยู่แล้ว (ชื่อ, Username, Email) <span
                                             class="text-danger">*</span></label>
                                     <select class="form-control select2-user-ajax" name="user_id" required>
@@ -63,17 +63,17 @@
 
                             {{-- ส่วนที่ 2: ข้อมูลส่วนตัว --}}
                             <h6 class="heading-small text-muted mb-4">ข้อมูลผู้ใช้งาน (Admin Info)</h6>
-                            <div class="pl-lg-4">
+                            <div class="ps-lg-4">
                                 <div class="row">
                                     <div class="col-lg-6">
-                                        <div class="form-group">
+                                        <div class="mb-3">
                                             <label class="form-control-label">ชื่อ<span class="text-danger">*</span></label>
                                             <input type="text" name="firstname" class="form-control"
                                                 value="{{ old('firstname') }}" required>
                                         </div>
                                     </div>
                                     <div class="col-lg-6">
-                                        <div class="form-group">
+                                        <div class="mb-3">
                                             <label class="form-control-label">นามสกุล <span
                                                     class="text-danger">*</span></label>
                                             <input type="text" name="lastname" class="form-control"
@@ -81,7 +81,7 @@
                                         </div>
                                     </div>
                                     <div class="col-lg-6">
-                                        <div class="form-group">
+                                        <div class="mb-3">
                                             <label class="form-control-label">เบอร์โทรศัพท์</label>
                                             <input type="text" name="phone" class="form-control" placeholder="08x-xxxxxxx"
                                                 value="{{ old('phone') }}">
@@ -91,7 +91,7 @@
 
                                 <div class="row">
                                     <div class="col-lg-6">
-                                        <div class="form-group">
+                                        <div class="mb-3">
                                             <label class="form-control-label">Username (สำหรับเข้าระบบ) <span
                                                     class="text-danger">*</span></label>
                                             <input type="text" name="username"
@@ -102,7 +102,7 @@
                                         </div>
                                     </div>
                                     <div class="col-lg-6">
-                                        <div class="form-group">
+                                        <div class="mb-3">
                                             <label class="form-control-label">Email <span
                                                     class="text-danger">*</span></label>
                                             <input type="email" name="email"
@@ -115,7 +115,7 @@
 
                                 <div class="row">
                                     <div class="col-lg-6">
-                                        <div class="form-group">
+                                        <div class="mb-3">
                                             <label class="form-control-label">Password <span
                                                     class="text-danger">*</span></label>
                                             <input type="password" name="password"
@@ -126,7 +126,7 @@
                                         </div>
                                     </div>
                                     <div class="col-lg-6">
-                                        <div class="form-group">
+                                        <div class="mb-3">
                                             <label class="form-control-label">Confirm Password <span
                                                     class="text-danger">*</span></label>
                                             <input type="password" name="password_confirmation" class="form-control"
@@ -136,7 +136,7 @@
                                 </div>
                             </div>
 
-                            <div class="card-footer text-right">
+                            <div class="card-footer text-end">
                                 <a href="{{ route('org-admins.index') }}" class="btn btn-secondary">ยกเลิก</a>
                                 <button type="submit" class="btn btn-success">
                                     <i class="fas fa-save"></i> บันทึกข้อมูล

@@ -14,7 +14,7 @@
                                 value="{{ isset($meternumber_code['values']) ? $meternumber_code['values'] : '' }}"
                                 placeholder="IV">
                             <span
-                                class="badge badge-secondary ms-auto text-lg">00001&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</span>
+                                class="badge bg-gradient-secondary ms-auto text-lg">00001&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</span>
                         </div>
                     </div>
                 </div>

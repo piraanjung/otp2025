@@ -190,7 +190,7 @@
                             </a>
                         </div>
 
-                        <div class="form-group">
+                        <div class="mb-3">
                             <label class="form-control-label">เลือกไฟล์ Excel</label>
                             <input type="file" name="file" class="form-control" required accept=".xlsx, .xls">
                         </div>

@@ -183,7 +183,7 @@
         <div class="modern-card">
             {{-- Header --}}
             <div class="card-header-modern">
-                <h5 class="mb-0 font-weight-bold"><i class="fas fa-edit mr-2"></i> แก้ไขรอบบิล (Edit Invoice Period)</h5>
+                <h5 class="mb-0 font-weight-bold"><i class="fas fa-edit me-2"></i> แก้ไขรอบบิล (Edit Invoice Period)</h5>
             </div>
 
             {{-- Body --}}
@@ -195,7 +195,7 @@
                     <div class="row">
                         {{-- ปีงบประมาณ --}}
                         <div class="col-12 mb-3">
-                            <div class="form-group">
+                            <div class="form-group mb-3">
                                 <label>ปีงบประมาณ</label>
                                 <input class="form-control" type="text" 
                                     value="{{ $invoice_period->budgetyear->budgetyear_name }}" readonly>
@@ -205,7 +205,7 @@
 
                         {{-- ชื่อรอบบิล --}}
                         <div class="col-12 mb-3">
-                            <div class="form-group">
+                            <div class="form-group mb-3">
                                 <label>ชื่อรอบบิล (เช่น มกราคม)</label>
                                 <input class="form-control" type="text" name="inv_p_name"
                                     value="{{ $invoice_period->only_name ?? $invoice_period->inv_p_name }}" 
@@ -216,7 +216,7 @@
 
                         {{-- วันที่เริ่ม - สิ้นสุด (จัดให้อยู่คู่กัน) --}}
                         <div class="col-md-6 mb-3">
-                            <div class="form-group">
+                            <div class="form-group mb-3">
                                 <label>วันที่เริ่มรอบบิล</label>
                                 <div class="input-group">
                                     <input class="form-control has-icon datepicker text-center" type="text" name="startdate"
@@ -227,7 +227,7 @@
                         </div>
 
                         <div class="col-md-6 mb-3">
-                            <div class="form-group">
+                            <div class="form-group mb-3">
                                 <label>วันสิ้นสุดรอบบิล</label>
                                 <div class="input-group">
                                     <input class="form-control has-icon datepicker text-center" type="text" name="enddate"
@@ -239,7 +239,7 @@
 
                         {{-- สถานะ --}}
                         <div class="col-12 mb-4">
-                            <div class="form-group">
+                            <div class="form-group mb-3">
                                 <label>สถานะ</label>
                                 <select name="status" id="status" class="form-control form-select">
                                     <option value="active" {{ $invoice_period->status == 'active' ? 'selected' : '' }}>
@@ -257,11 +257,11 @@
 
                     {{-- Actions --}}
                     <div class="text-center mt-3">
-                        <a href="{{ route('admin.invoice_period.index') }}" class="btn btn-light shadow-sm mr-2 text-muted">
-                            <i class="fas fa-arrow-left mr-1"></i> ย้อนกลับ
+                        <a href="{{ route('admin.invoice_period.index') }}" class="btn btn-light shadow-sm me-2 text-muted">
+                            <i class="fas fa-arrow-left me-1"></i> ย้อนกลับ
                         </a>
                         <button type="submit" class="btn btn-primary px-5 shadow-sm" style="background: linear-gradient(87deg, #5e72e4 0, #825ee4 100%); border:none; border-radius: 25px;">
-                            <i class="fas fa-save mr-2"></i> บันทึกการแก้ไข
+                            <i class="fas fa-save me-2"></i> บันทึกการแก้ไข
                         </button>
                     </div>
 

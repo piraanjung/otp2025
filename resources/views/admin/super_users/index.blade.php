@@ -123,7 +123,7 @@
                                 <td>
                                     {{$u_active->prefix."".$u_active->firstname." ".$u_active->lastname}}
                                 </td>
-                                <td class="text-right">
+                                <td class="text-end">
                                     @if (collect($u_active->user_zone)->isEmpty())
                                     @dd($u_active)
                                     @endif
@@ -202,7 +202,7 @@
                                 <td>
                                     {{$user[0]->prefix."".$user[0]->firstname." ".$user[0]->lastname}}
                                 </td>
-                                <td class="text-right">
+                                <td class="text-end">
                                     @foreach ($user as $item)
                                     {{-- @dd($item) --}}
                                     <div>{{$item['factory_no']}}</div>
