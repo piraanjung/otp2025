@@ -65,7 +65,7 @@
                             </div>
                         </div>
                         <button type="submit" class="btn bg-gradient-primary">บันทึกการเปลี่ยนแปลง</button>
-                        <a href="{{ route('waste_bins.index', $wasteBin->user->id) }}" class="btn btn-secondary">ยกเลิก</a>
+                        <a href="{{ route('keptkayas.waste_bins.index', $wasteBin->user->id) }}" class="btn btn-secondary">ยกเลิก</a>
                     </form>
                 </div>
             </div>

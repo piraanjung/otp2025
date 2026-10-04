@@ -11,7 +11,7 @@
                     <h6>เพิ่มข้อมูลผู้ใช้งาน</h6>
                 </div>
                 <div class="card-body">
-                    <form action="{{ route('users.store') }}" method="POST">
+                    <form action="{{ route('foodwaste.users.store') }}" method="POST">
                         @csrf
                         <div class="row">
                             <div class="col-md-6">
@@ -123,7 +123,7 @@
                         --}}
 
                         <button type="submit" class="btn bg-gradient-primary">บันทึกผู้ใช้งาน</button>
-                        <a href="{{ route('users.index') }}" class="btn btn-secondary">ยกเลิก</a>
+                        <a href="{{ route('foodwaste.users.index') }}" class="btn btn-secondary">ยกเลิก</a>
                     </form>
                 </div>
             </div>

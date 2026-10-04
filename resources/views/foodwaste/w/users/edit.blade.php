@@ -11,7 +11,7 @@
                     <h6>แก้ไขข้อมูลผู้ใช้งาน: {{ $user->firstname }} {{ $user->lastname }}</h6>
                 </div>
                 <div class="card-body">
-                    <form action="{{ route('users.update', $user->id) }}" method="POST">
+                    <form action="{{ route('foodwaste.users.update', $user->id) }}" method="POST">
                         @csrf
                         @method('PUT')
                         <div class="row">
@@ -116,7 +116,7 @@
                         </div>
 
                         <button type="submit" class="btn bg-gradient-primary">บันทึกการเปลี่ยนแปลง</button>
-                        <a href="{{ route('users.index') }}" class="btn btn-secondary">ยกเลิก</a>
+                        <a href="{{ route('foodwaste.users.index') }}" class="btn btn-secondary">ยกเลิก</a>
                     </form>
                 </div>
             </div>

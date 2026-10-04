@@ -11,7 +11,7 @@
                     <h6>แก้ไขข้อมูลถังขยะ: {{ $wasteBin->bin_code ?? 'N/A' }} สำหรับ {{ $wasteBin->user->firstname }}</h6>
                 </div>
                 <div class="card-body">
-                    <form action="{{ route('waste_bins.update', $wasteBin->id) }}" method="POST">
+                    <form action="{{ route('foodwaste.waste_bins.update', $wasteBin->id) }}" method="POST">
                         @csrf
                         @method('PUT')
                         <div class="mb-3">
@@ -64,7 +64,7 @@
                             </div>
                         </div>
                         <button type="submit" class="btn bg-gradient-primary">บันทึกการเปลี่ยนแปลง</button>
-                        <a href="{{ route('waste_bins.index', $wasteBin->user->id) }}" class="btn btn-secondary">ยกเลิก</a>
+                        <a href="{{ route('foodwaste.waste_bins.index', $wasteBin->user->id) }}" class="btn btn-secondary">ยกเลิก</a>
                     </form>
                 </div>
             </div>
