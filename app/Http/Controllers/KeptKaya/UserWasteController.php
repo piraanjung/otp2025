@@ -404,7 +404,7 @@ class UserWasteController extends Controller
             })
             ->get();
 
-        return view('users.enroll_waste_services', compact('eligibleUsers'));
+        return view('keptkayas.w.users.enroll_waste_services', compact('eligibleUsers'));
     }
 
     public function aa(Request $request)

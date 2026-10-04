@@ -19,7 +19,8 @@ class KioskApiController extends Controller
     // 1. Endpoint สำหรับรับ Transaction Log (JSON Batch)
     public function index()
     {
-        return view('kiosk.index');
+        // view kiosk.index เป็นรายการตู้สำหรับผู้ดูแล (ต้องการ $kiosks และอยู่หลังการล็อกอิน)
+        return redirect()->route('keptkayas.kiosks.index');
     }
     public function uploadTransactionLog(Request $request)
     {

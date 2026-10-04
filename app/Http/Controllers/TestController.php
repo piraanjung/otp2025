@@ -13,7 +13,7 @@ use App\Models\QaInvoice;
 use App\Models\QaUser;
 use App\Models\QaUsermeterInfos;
 use App\Models\KPBankAccount;
-use App\Models\SequenceNumber;
+use App\Models\Tabwater\SequenceNumber;
 use App\Models\Tabwater\TwAccTransactions;
 use App\Models\Tabwater\TwInvoice;
 use App\Models\Tabwater\InvoicePeriod;

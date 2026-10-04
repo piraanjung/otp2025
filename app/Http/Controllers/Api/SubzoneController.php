@@ -4,7 +4,7 @@ namespace App\Http\Controllers\Api;
 
 use App\Http\Controllers\Controller;
 use App\Models\Tabwater\InvoicePeriod;
-use App\Models\Tabwater\Invoice;
+use App\Models\Tabwater\TwInvoice as Invoice;
 use App\Models\Admin\Subzone;
 use App\Models\Admin\Zone;
 use Exception;

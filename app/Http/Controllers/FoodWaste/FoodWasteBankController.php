@@ -16,7 +16,7 @@ class FoodWasteBankController extends Controller
     // 1. หน้ารวมสมาชิกและยอดแต้มคงเหลือ
     public function index()
     {
-        $accounts = FoodWasteAccount::with('preference.user')
+        $accounts = FoodWasteAccount::with('user')
             ->orderBy('points_balance', 'desc')
             ->paginate(20);
 

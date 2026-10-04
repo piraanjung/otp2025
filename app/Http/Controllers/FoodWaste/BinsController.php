@@ -101,7 +101,7 @@ class BinsController extends Controller
     public function show(FoodAnnualTrashStocks $bin)
     {
         $bin->load('iotbox'); // โหลดข้อมูล IoT Box ที่เกี่ยวข้อง
-        return view('foodwaste.bins.show', compact('bin'));
+        return redirect()->route('foodwaste.bins.edit', $bin);
     }
 
     public function edit($id)

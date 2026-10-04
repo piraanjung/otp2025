@@ -51,8 +51,6 @@
                                     </span>
                                 </td>
                                 <td>
-                                    <a href="{{ route('keptkayas.purchase-shops.show', $shop->id) }}"
-                                        class="btn btn-info btn-sm" title="ดูรายละเอียด"><i class="fa fa-eye"></i></a>
                                     <a href="{{ route('keptkayas.purchase-shops.edit', $shop->id) }}"
                                         class="btn btn-warning btn-sm" title="แก้ไข"><i class="fa fa-edit"></i></a>
                                     <form action="{{ route('keptkayas.purchase-shops.destroy', $shop->id) }}" method="POST"

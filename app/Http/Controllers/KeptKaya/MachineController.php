@@ -57,7 +57,7 @@ class MachineController extends Controller
      */
     public function show(Machine $machine)
     {
-        return view('superadmin.machines.show', compact('machine'));
+        return redirect()->route('superadmin.machines.edit', $machine);
     }
 
     /**

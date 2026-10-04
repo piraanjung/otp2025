@@ -9,7 +9,7 @@
                 <div class="card-header pb-0 d-flex justify-content-between align-items-center">
                     <h6>ข้อมูลผู้ใช้และประเภทบริการ</h6>
                     <div class="d-flex align-items-center">
-                        <form id="perPageForm" action="{{ route('keptkayas.users.index') }}" method="GET" class="d-flex align-items-center me-3">
+                        <form id="perPageForm" action="{{ route('foodwaste.users.index') }}" method="GET" class="d-flex align-items-center me-3">
                             <label for="per_page" class="form-label mb-0 me-2">แสดง:</label>
                             <select name="per_page" id="per_page" class="form-select form-select-sm" onchange="this.form.submit()">
                                 @foreach([10, 20, 50, 100] as $option)
@@ -18,7 +18,7 @@
                                 <option value="all" {{ $perPage == 'all' ? 'selected' : '' }}>ทั้งหมด</option>
                             </select>
                         </form>
-                        <a href="{{ route('keptkayas.users.create') }}" class="btn bg-gradient-primary btn-sm mb-0">เพิ่มผู้ใช้งานใหม่</a>
+                        <a href="{{ route('foodwaste.users.create') }}" class="btn bg-gradient-primary btn-sm mb-0">เพิ่มผู้ใช้งานใหม่</a>
                     </div>
                 </div>
                 <div class="card-body px-0 pt-0 pb-2">
@@ -95,7 +95,7 @@
                                 @php
                                     $i=0;
                                 @endphp
-                                 <form action="{{ route('keptkayas.users.updateWasteServicePreferences') }}" method="POST">
+                                 <form action="{{ route('foodwaste.users.updateWasteServicePreferences') }}" method="POST">
                                             @csrf
 
                                     <input type="submit" class="btn btn-primary" value="บันทึกข้อมูล">
@@ -138,13 +138,13 @@
                                     <td class="align-middle">
                                         
                                         @if(optional($user->wastePreference)->is_annual_collection)
-                                            <a href="{{ route('keptkayas.waste_bins.index', $user->id) }}" class="btn btn-link text-info text-gradient px-0 mb-0 me-2">
+                                            <a href="{{ route('foodwaste.waste_bins.index', $user->id) }}" class="btn btn-link text-info text-gradient px-0 mb-0 me-2">
                                                 <i class="fas fa-trash-alt me-1"></i> จัดการถังขยะ
                                                 <div>{{collect($user->wasteBins)->count() }} ถัง</div>
 
                                             </a>
                                         @endif
-                                        <a href="{{ route('keptkayas.users.edit', $user->id) }}" class="btn btn-link text-secondary font-weight-bold text-xs px-0 mb-0 me-2">
+                                        <a href="{{ route('foodwaste.users.edit', $user->id) }}" class="btn btn-link text-secondary font-weight-bold text-xs px-0 mb-0 me-2">
                                             <i class="fas fa-edit me-1"></i> แก้ไข
                                             <div>&nbsp;</div>
                                         </a>
@@ -242,7 +242,7 @@
 
                 queryParams.append('ajax', '1'); // Flag for AJAX request
 
-                fetch(`{{ route('keptkayas.users.index') }}?${queryParams.toString()}`, {
+                fetch(`{{ route('foodwaste.users.index') }}?${queryParams.toString()}`, {
                     headers: {
                         'X-Requested-With': 'XMLHttpRequest'
                     }

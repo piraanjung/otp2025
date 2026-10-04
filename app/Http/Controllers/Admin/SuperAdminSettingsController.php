@@ -26,7 +26,7 @@ use Illuminate\Http\Request;
 use Maatwebsite\Excel\Facades\Excel; // อย่าลืม import Facade
 use App\Imports\YourDataImport; // สร้าง Importer ในขั้นตอนถัดไป
 use App\Models\Admin\Organization;
-use App\Models\SequenceNumber;
+use App\Models\Tabwater\SequenceNumber;
 use App\Models\Tabwater\TwMerterInfos;
 use App\Models\Tabwater\TwMeters;
 use App\Models\User;

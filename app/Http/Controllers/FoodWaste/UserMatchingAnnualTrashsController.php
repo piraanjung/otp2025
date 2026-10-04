@@ -152,7 +152,7 @@ class UserMatchingAnnualTrashsController extends Controller
 
     public function destroy(FoodAnnualTrash $AnnualTrash)
     {
-        $w_user = $AnnualTrash->user; // Get user before deleting bin
+        $w_user = optional($AnnualTrash->fw_user_preference)->user; // Get user before deleting bin
 
         DB::transaction(function () use ($AnnualTrash, $w_user) {
             $AnnualTrash->delete();
@@ -172,17 +172,30 @@ class UserMatchingAnnualTrashsController extends Controller
 
     public function map()
     {
+        // foodwaste_bins ผูกกับสมาชิกผ่าน u_pref_id_fk -> FoodWasteUserPreference -> User
         $bins = FoodAnnualTrash::with([
-            'user' => function ($q) {
+            'fw_user_preference.user' => function ($q) {
                 return $q->select('id', 'firstname', 'lastname', 'address', 'zone_id', 'subzone_id');
             },
-            'user.user_zone' => function ($q) {
+            'fw_user_preference.user.user_zone' => function ($q) {
                 return $q->select('id', 'zone_name');
             },
-            'user.user_subzone' => function ($q) {
+            'fw_user_preference.user.user_subzone' => function ($q) {
                 return $q->select('id', 'subzone_name');
             },
-        ])->get(['id', 'user_id',  'bin_code', 'latitude', 'longitude', 'status', 'bin_type']);
-        return response()->json($bins);
+        ])->get(['id', 'u_pref_id_fk', 'bin_code', 'latitude', 'longitude', 'status', 'bin_type']);
+
+        // view dashboard_map อ่าน bin.user.* จึงคงรูปแบบ JSON เดิมไว้
+        return response()->json($bins->map(function ($bin) {
+            return [
+                'id' => $bin->id,
+                'bin_code' => $bin->bin_code,
+                'latitude' => $bin->latitude,
+                'longitude' => $bin->longitude,
+                'status' => $bin->status,
+                'bin_type' => $bin->bin_type,
+                'user' => optional($bin->fw_user_preference)->user,
+            ];
+        }));
     }
 }

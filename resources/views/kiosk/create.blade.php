@@ -15,7 +15,7 @@
                     <input type="text" name="id" id="id" class="form-control @error('id') is-invalid @enderror" value="{{ old('id') }}" placeholder="เช่น KSK-001" required>
                     @error('id')
                         <div class="invalid-feedback">{{ $message }}</div>
-                    @errorEnd
+                    @enderror
                 </div>
 
                 <div class="mb-3">
@@ -23,7 +23,7 @@
                     <input type="text" name="name" id="name" class="form-control @error('name') is-invalid @enderror" value="{{ old('name') }}" placeholder="เช่น ตู้หน้าอาคารเรียน 1" required>
                     @error('name')
                         <div class="invalid-feedback">{{ $message }}</div>
-                    @errorEnd
+                    @enderror
                 </div>
 
                 <div class="row">
@@ -33,7 +33,7 @@
                         <input type="text" name="lat" id="lat" class="form-control @error('lat') is-invalid @enderror" value="{{ old('lat', $org->lat ?? '') }}" required>
                         @error('lat')
                             <div class="invalid-feedback">{{ $message }}</div>
-                        @errorEnd
+                        @enderror
                     </div>
 
                     <div class="col-md-6 mb-3">
@@ -42,7 +42,7 @@
                         <input type="text" name="lng" id="lng" class="form-control @error('lng') is-invalid @enderror" value="{{ old('lng', $org->long ?? '') }}" required>
                         @error('lng')
                             <div class="invalid-feedback">{{ $message }}</div>
-                        @errorEnd
+                        @enderror
                     </div>
                 </div>
 
@@ -63,12 +63,12 @@
     </div>
 </div>
 
-{{-- @if($org && $org->lat && $org->long)
+@if($org && $org->lat && $org->long)
 <script>
     function resetToOrgCoords() {
         document.getElementById('lat').value = "{{ $org->lat }}";
         document.getElementById('long').value = "{{ $org->long }}";
     }
 </script>
-@endif --}}
+@endif
 @endsection

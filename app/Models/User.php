@@ -190,6 +190,22 @@ class User extends Authenticatable
     }
 
     // เชื่อมกับบัญชีธนาคารขยะรีไซเคิล (1-to-1)
+    /**
+     * บัญชีธนาคารขยะของผู้ใช้ (users -> kp_user_waste_preferences -> kp_bank_accounts)
+     * RecycleBankController และ view recycle_bank เรียกใช้ชื่อนี้
+     */
+    public function recycleBankAccount()
+    {
+        return $this->hasOneThrough(
+            KPBankAccount::class,
+            \App\Models\KeptKaya\KpUserWastePreference::class,
+            'user_id',       // kp_user_waste_preferences.user_id
+            'user_pref_id',  // kp_bank_accounts.user_pref_id
+            'id',
+            'id'
+        );
+    }
+
     public function kpBankAccount()
     {
         return $this->hasOne(KPBankAccount::class, 'user_id', 'id');

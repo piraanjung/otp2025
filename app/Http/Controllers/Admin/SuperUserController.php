@@ -288,7 +288,7 @@ class SuperUserController extends Controller
     public function history(User $user)
     {
         $user = User::with('usermeterinfos', 'usermeterinfos.invoice')->where('id', $user->id)->get();
-        return view('admin.users.history', compact('user'));
+        return view('admin.super_users.history', compact('user'));
     }
     public function assignRole(Request $request, User $user)
     {
@@ -312,7 +312,7 @@ class SuperUserController extends Controller
                 }
             ])
             ->get();
-        return view('admin.users.cancel', compact('user'));
+        return view('admin.super_users.cancel', compact('user'));
     }
 
     public function removeRole(User $user, Role $role)

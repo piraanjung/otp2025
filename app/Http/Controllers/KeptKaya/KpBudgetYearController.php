@@ -10,7 +10,7 @@ use App\Models\KpInvoicePeriods;
 use App\Models\KpUserGroup;
 use App\Models\KpUsergroupPayratePerMonth;
 use App\Models\KpUserKeptkayaInfos;
-use App\Models\Zone;
+use App\Models\Admin\Zone;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 

@@ -2,8 +2,8 @@
 
 namespace App\Exports;
 
-use App\Models\Tabwater\Invoice;
-use App\Models\Tabwater\UserMerterInfo;
+use App\Models\Tabwater\TwInvoice as Invoice;
+use App\Models\Tabwater\TwMeterInfos as UserMerterInfo;
 use Illuminate\Contracts\View\View;
 use Maatwebsite\Excel\Concerns\FromView;
 

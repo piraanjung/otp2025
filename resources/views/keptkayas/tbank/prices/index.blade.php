@@ -67,8 +67,6 @@
                                     </span>
                                 </td>
                                 <td>
-                                    <a href="{{ route('keptkayas.tbank.prices.show', $price->id) }}" class="btn btn-info btn-sm"
-                                        title="ดูรายละเอียด"><i class="fa fa-eye"></i></a>
                                     <a href="{{ route('keptkayas.tbank.prices.edit', $price->id) }}"
                                         class="btn btn-warning btn-sm" title="แก้ไข"><i class="fa fa-edit"></i></a>
                                     <form action="{{ route('keptkayas.tbank.prices.destroy', $price->id) }}" method="POST"

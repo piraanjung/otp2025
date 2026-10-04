@@ -3,9 +3,9 @@
 namespace App\Http\Controllers\Api;
 
 use App\Http\Controllers\Controller;
-use App\Models\Subzone;
-use App\Models\Tabwater\UserMerterInfo;
-use App\Models\Zone;
+use App\Models\Admin\Subzone;
+use App\Models\Tabwater\TwMeterInfos as UserMerterInfo;
+use App\Models\Admin\Zone;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use App\Http\Controllers\Api\ReportsController as apiReportCtrl;
