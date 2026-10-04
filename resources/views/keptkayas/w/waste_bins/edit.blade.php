@@ -1,4 +1,4 @@
-@extends('layouts.app')
+@extends('layouts.keptkaya')
 
 @section('title_page', 'แก้ไขถังขยะ')
 
