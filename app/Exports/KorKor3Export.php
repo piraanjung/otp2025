@@ -2,7 +2,7 @@
 
 namespace App\Exports;
 
-use App\Models\KeptKaya\AnnualTrashSubscription; // เช็คชื่อ Model ของคุณให้ถูกต้อง
+use App\Models\AnnualTrash\AnnualTrashSubscription; // เช็คชื่อ Model ของคุณให้ถูกต้อง
 use Maatwebsite\Excel\Concerns\FromQuery;
 use Maatwebsite\Excel\Concerns\WithHeadings;
 use Maatwebsite\Excel\Concerns\WithMapping;
@@ -32,7 +32,7 @@ class KorKor3Export implements FromQuery, WithHeadings, WithMapping, ShouldAutoS
         if (!$fy) {
             // ใช้ Logic เดียวกับ Controller หรือเรียก Static function ที่คุณมี
             // สมมติว่าใน Model มี function calculateFiscalYear()
-            $fy = \App\Models\KeptKaya\AnnualTrashSubscription::calculateFiscalYear();
+            $fy = \App\Models\AnnualTrash\AnnualTrashSubscription::calculateFiscalYear();
 
             // หรือถ้าไม่มี function นั้น ให้ใช้ date('Y') + 543 (หรือตาม logic ระบบคุณ)
             // $fy = date('Y') + 543;

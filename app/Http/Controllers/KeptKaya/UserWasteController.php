@@ -5,7 +5,7 @@ namespace App\Http\Controllers\KeptKaya;
 use App\Http\Controllers\Controller;
 use App\Models\Admin\Subzone;
 use App\Models\Admin\Zone;
-use App\Models\Keptkaya\KpUserGroup;
+use App\Models\KeptKaya\KpUserGroup;
 use App\Models\KeptKaya\KpUserWastePreference;
 use App\Models\User;
 use App\Services\UserWasteStatusService;

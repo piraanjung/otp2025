@@ -17,7 +17,7 @@ use App\Models\FoodWaste\FoodWasteAccount;
 use App\Models\AnnualTrash\AnnualTrashPayratePerMonth;
 use App\Models\FoodWaste\FoodWasteUserPreference;
 use App\Models\KeptKaya\KpUserWastePreference;
-use App\Models\KpBankAccount;
+use App\Models\KPBankAccount;
 use App\Models\Tabwater\TwUsersInfos;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
