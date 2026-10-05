@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Tabwater;
 
 use App\Http\Controllers\Controller;
 use App\Models\Admin\Staff;
+use App\Models\Tabwater\InvoicePeriod;
 use App\Models\Tabwater\TwInvoice;
 use App\Models\Tabwater\TwMeterInfos;
 use App\Models\Tabwater\UndertakerSubzone;
@@ -152,11 +153,11 @@ class UndertakerSubzoneController extends Controller
 
     public function get_service_dashboard_data(Request $request)
     {
-        $userId = $request->input('user_id');
-        
+        $staffId = $request->input('staff_id');
         $orgId = $request->input('org_id_fk');
         $serviceType = $request->input('service_type'); // 'water', 'recycle_trash', 'wet_trash'
-        if (empty($userId) || empty($orgId) || empty($serviceType)) {
+        
+        if (empty($staffId) || empty($orgId) || empty($serviceType)) {
             return response()->json([
                 'code' => 400,
                 'message' => 'ข้อมูลไม่ครบถ้วน (ต้องการ user_id, org_id_fk, service_type)'
@@ -164,7 +165,7 @@ class UndertakerSubzoneController extends Controller
         }
 
         // 1. ตรวจสอบสิทธิ์ Staff ตาม Org ID
-        $staff = Staff::where('user_id', $userId)
+        $staff = Staff::where('id', $staffId)
             ->where('org_id_fk', $orgId)
             ->where('deleted', '0')
             ->first();
@@ -175,6 +176,10 @@ class UndertakerSubzoneController extends Controller
                 'message' => 'ไม่พบข้อมูลสิทธิ์เจ้าหน้าที่ในองค์กรนี้'
             ], 404);
         }
+
+        $currentInvPeriod = InvoicePeriod::where('status', 'active')
+            ->where('org_id_fk', $orgId)
+            ->get()->first();
 
         // 2. ดึง UndertakerSubzone ของ Staff คนนี้ พร้อม Relations
         $undertakerSubzones = UndertakerSubzone::where('twman_id', $staff->id)
@@ -221,7 +226,8 @@ class UndertakerSubzoneController extends Controller
             'code' => 200,
             'data' => [
                 'service_type' => $serviceType,
-                'undertaker_subzone' => $undertakerSubzones
+                'undertaker_subzone' => $undertakerSubzones,
+                'invoice_period' => $currentInvPeriod
             ]
         ], 200);
     }
