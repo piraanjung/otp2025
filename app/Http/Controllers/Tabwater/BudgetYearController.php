@@ -63,7 +63,7 @@ class BudgetYearController extends Controller
         $endDateEng = $funcCtrl->thaiDateToEngDateFormat($request->end);
 
         // 2. สร้างปีงบประมาณใหม่
-        $newBudgetYear = BudgetYear::on(session('db_conn'))->create([
+        $newBudgetYear = BudgetYear::create([
             'org_id_fk' => $org_id,
             "budgetyear_name" => $request->budgetyear,
             "startdate" => $startDateEng,
@@ -111,12 +111,13 @@ class BudgetYearController extends Controller
             $pStatus = ($i === 0) ? 'active' : 'inactive';
 
             InvoicePeriod::on(session('db_conn'))->create([
-                'org_id_fk' => $org_id,
-                'budgetyear_id' => $newBudgetYear->id,
-                'inv_p_name' => $periodName,
-                'startdate' => $pStart,
-                'enddate' => $pEnd,
-                'status' => $pStatus
+                'org_id_fk'         => $org_id,
+                'budgetyear_id'     => $newBudgetYear->id,
+                'inv_p_name'        => $periodName,
+                'inv_p_name_int'    => substr('00', strlen($monthNum)).$monthNum."-".substr($yearTh,2),
+                'startdate'         => $pStart,
+                'enddate'           => $pEnd,
+                'status'            => $pStatus
             ]);
         }
         // =====================================================================

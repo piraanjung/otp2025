@@ -94,6 +94,6 @@ class TwMeterInfos extends Model
 
     public function organization()
     {
-        return $this->hasOne(Organization::class, 'org_id_fk', 'id');
+        return $this->belongsTo(Organization::class, 'org_id_fk');
     }
 }

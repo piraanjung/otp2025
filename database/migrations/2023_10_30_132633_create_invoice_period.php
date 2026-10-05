@@ -16,6 +16,7 @@ return new class extends Migration
         Schema::create('invoice_period', function (Blueprint $table) {
             $table->bigIncrements('id');
             $table->string('inv_p_name');
+            $table->string('inv_p_name_int');
             $table->unsignedBigInteger('budgetyear_id');
             $table->date('startdate');
             $table->date('enddate');

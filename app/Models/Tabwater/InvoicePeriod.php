@@ -11,7 +11,7 @@ class InvoicePeriod extends Model
     use HasFactory;
     use BelongsToOrganization;
 
-    protected $fillable = ['id', 'org_id_fk', "inv_p_name", "budgetyear_id", "startdate", "enddate", "status"];
+    protected $fillable = ['id', 'org_id_fk', "inv_p_name",  "inv_p_name_int", "budgetyear_id", "startdate", "enddate", "status"];
     protected $table = "invoice_period";
 
     public function budgetyear()
