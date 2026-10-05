@@ -74,6 +74,7 @@
         </div> --}}
     </div>
 
+    </div>
     <div id="loginScreen" class="screen is-hidden">
         @include('staff.includes.login_screen')
     </div>
@@ -382,15 +383,11 @@
         </div>
     </div>
 
-    <div id="card-reciept" style="width: 384px; 
-                                    background: #ffffff; 
+    <div id="card-reciept" style="width: 384px;
+                                    background:transparent; 
                                     color: #000000;
                                     font-size:1.4rem !important;
                                     ">
-    </div>
-
-    {{-- <div id="qrcode_info"></div> --}}
-
 @endsection
 
 @section('script')
@@ -404,6 +401,7 @@
     <script src="https://cdn.jsdelivr.net/npm/tesseract.js@5/dist/tesseract.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/cropperjs/1.5.13/cropper.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
     <script src="{{ asset('js/accessmenu.js') }}"></script>
     <script>
 
@@ -1300,31 +1298,7 @@
             });
         }
 
-        // 🟢 ฟังก์ชันสำหรับอัปเดตสถานะแถบเครื่องพิมพ์ข้ามหน้าจอ (Global Badge Status)
-        function updateGlobalPrinterStatus() {
-            const isConnected = localStorage.getItem('is_printer_connected') === 'true';
-            const printerName = localStorage.getItem('connected_printer_name') || 'เครื่องพิมพ์';
-
-            const lblName = document.getElementById('lblGlobalPrinterName');
-            const lblIndicator = document.getElementById('lblGlobalPrinterIndicator');
-            const statusBox = document.getElementById('globalPrinterStatus');
-
-            if (!statusBox || !lblName || !lblIndicator) return;
-
-            if (isConnected || printCharacteristic) {
-                lblName.innerText = `🟢 เชื่อมต่ออยู่กับ (${printerName})`;
-                lblName.style.color = "#28a745";
-                lblIndicator.style.background = "#28a745";
-                statusBox.style.borderLeft = "5px solid #28a745";
-            } else {
-                lblName.innerText = "🔴 ยังไม่ได้เชื่อมต่ออุปกรณ์";
-                lblName.style.color = "#dc3545";
-                lblIndicator.style.background = "#dc3545";
-                statusBox.style.borderLeft = "5px solid #dc3545";
-            }
-        }
-
-
+        
         let currentTab = 'pending'; // แท็บปัจจุบัน (เริ่มต้นที่ pending)
 
         // 🟢 ฟังก์ชันสำหรับกดสลับแท็บ
