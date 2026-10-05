@@ -338,11 +338,11 @@
     </div>
 
     <div id="tabwaterRecordScreen" class="screen is-hidden">
-        @include('staff.includes.tabwater_record_screen')
+        @include('staff.mobile.tabwater_record_screen')
     </div>
 
-    <div id="waterMembersListScreen" class="screen is-hidden">
-        @include('staff.includes.screen_water_members_list')
+    <div id="tabwaterRecordMemberSubzoneLists" class="screen is-hidden">
+        @include('staff.mobile.screen_water_members_list')
     </div>
     <div id="inventoryScreen" class="screen is-hidden">
         <iframe src=""  style=" width: 100%; height: 800px; border: none;"

@@ -34,7 +34,7 @@ class UserMeterInfosController extends Controller
             'meter_type',
             'invoice_currrent_inv_period',
         ])
-
+           ->whereHas('invoice_currrent_inv_period')
             ->where('undertake_subzone_id', $subzoneId)
             ->get();
 

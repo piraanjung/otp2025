@@ -184,7 +184,7 @@ Route::middleware(['throttle:api'])->name('api.')->group(function () {
     });
 
     Route::prefix('staff/tabwater')->group(function () {
-        Route::post('/staff/service-data', [UndertakerSubzoneController::class, 'get_service_dashboard_data']);   
+        Route::post('/service-data', [UndertakerSubzoneController::class, 'get_service_dashboard_data']);   
         Route::post('/members', [UserMeterInfosController::class, 'get_subzone_members']);
         Route::post('/meter-records', [UserMeterInfosController::class, 'meter_records']);
         

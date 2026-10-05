@@ -89,7 +89,7 @@ Route::get('/login_staff', function () {
 
 Route::get('acc', function () {
     Auth::logout();
-    return view('staff.includes.staff_accessmenu');
+    return view('staff.mobile.staff_accessmenu');
     // return view('staff.mobile');
 });
         Route::get('/inventory/items/iframe', [InvItemController::class, 'iframeIndex'])->name('inventory.items.iframe');
@@ -199,6 +199,8 @@ Route::prefix('tabwater/staff/mobile/')->name('tabwater.staff.mobile.')->group(f
     Route::post('process-meter-image', [StaffMobileController::class, 'process_meter_image'])->name('process_meter_image');
     Route::resource('/', StaffMobileController::class)->except(['create', 'show', 'edit', 'update', 'destroy']);
 });
+
+
 
 
 
@@ -385,6 +387,7 @@ Route::prefix('superadmin')->name('superadmin.')->group(function () {
 
     Route::middleware(['auth', 'role:Admin|Super Admin'])->group(function () {
         Route::resource('staff', StaffController::class);
+        
     });
 });
 

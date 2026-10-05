@@ -205,7 +205,7 @@
         }
     </style>
 
-<div id="recycleBankScreen" class="screen">
+<div id="recycleBankScreen" class="screen is-hidden">
     <div class="sub-header">
         {{-- <button onclick="backToMenu()" class="btn-back">⬅️ กลับเมนูหลัก</button> --}}
         <h3 style="margin: 0; font-size: 18px;">ธนาคารขยะรีไซเคิล</h3>

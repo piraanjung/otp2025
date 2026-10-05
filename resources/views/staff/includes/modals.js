@@ -6,7 +6,6 @@ function BluethoothConnectedModal(from) {
             document.getElementById('customCartModal').remove();
         }
         
-
         Swal.fire({
             title: 'ยังไม่ได้เชื่อมต่อเครื่องพิมพ์!',
             text: 'กรุณากดเชื่อมต่อเครื่องพิมพ์บลูทูธก่อนทำการบันทึกและพิมพ์บิล',
