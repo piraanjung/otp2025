@@ -86,7 +86,7 @@
                                                     @endif
                                                 </td>
                                                 <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                                                    @if ($user->is_waste_bank === null || $user->is_waste_bank === false)
+                                                    @if ($user->is_recycle_bank === null || $user->is_recycle_bank === false)
                                                         <span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-red-100 text-red-800">
                                                             ยังไม่เป็น
                                                         </span>

@@ -17,7 +17,7 @@ class CreateKpUserWastePreferencesTable extends Migration
             $table->id();
             $table->foreignId('user_id')->constrained()->onDelete('cascade'); // Foreign key ไปยังตาราง users
             $table->boolean('is_annual_collection')->default(false); // เป็นสมาชิกเก็บขยะรายปีหรือไม่
-            $table->boolean('is_waste_bank')->default(false);        // เป็นสมาชิกธนาคารขยะหรือไม่
+            $table->boolean('is_recycle_bank')->default(false);        // เป็นสมาชิกธนาคารขยะหรือไม่
             $table->timestamps();
             $table->unique('user_id'); // User 1 คน มีได้แค่ 1 preference record
         });

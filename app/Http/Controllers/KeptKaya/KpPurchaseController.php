@@ -36,7 +36,7 @@ class KpPurchaseController extends Controller
         // เริ่มสร้าง Query พร้อม Eager Loading ข้อมูลที่ต้องใช้
         $query = User::where('org_id_fk', $orgId)
             ->whereHas('wastePreference', function ($q) {
-                $q->where('is_waste_bank', 1);
+                $q->where('is_recycle_bank', 1);
             })->with(['wastePreference.purchaseTransactions' => function ($q) use ($today) {
                 $q->whereDate('transaction_date', $today);
             }]);
@@ -321,7 +321,7 @@ class KpPurchaseController extends Controller
         $user = User::find($user_id);
         $request->session()->put('purchase_user_id', $user_id);
         // ตรวจสอบว่าผู้ใช้งานที่เลือกเป็นสมาชิกธนาคารขยะหรือไม่
-        if (!$user->wastePreference || !$user->kpUserPreferenceis_waste_bank) {
+        if (!$user->wastePreference || !$user->kpUserPreferenceis_recycle_bank) {
             return redirect()->route('keptkayas.purchase.select_user')->with('error', 'ผู้ใช้งานนี้ไม่ได้เป็นสมาชิกธนาคารขยะ');
         }
 

@@ -168,7 +168,7 @@ class UserFoodWasteController extends Controller
             // สร้าง UserWastePreference เริ่มต้นสำหรับผู้ใช้ใหม่
             $user->wastePreference()->create([
                 'is_annual_collection' => false,
-                'is_waste_bank' => false,
+                'is_recycle_bank' => false,
             ]);
         });
 
@@ -262,17 +262,17 @@ class UserFoodWasteController extends Controller
     public function showEligibleForWasteServices()
     {
         // ดึงผู้ใช้ที่ยังไม่มี record ใน user_waste_preferences
-        // หรือมี record แล้วแต่ทั้ง is_annual_collection และ is_waste_bank เป็น false
+        // หรือมี record แล้วแต่ทั้ง is_annual_collection และ is_recycle_bank เป็น false
         $eligibleUsers = User::leftJoin('user_waste_preferences', 'users.id', '=', 'user_waste_preferences.user_id')
             ->select(
                 'users.*',
                 'user_waste_preferences.is_annual_collection',
-                'user_waste_preferences.is_waste_bank'
+                'user_waste_preferences.is_recycle_bank'
             )
             ->whereNull('user_waste_preferences.user_id') // ผู้ใช้ที่ยังไม่มี preference record
             ->orWhere(function ($query) { // หรือมีแล้วแต่ทั้งสองเป็น false
                 $query->where('user_waste_preferences.is_annual_collection', false)
-                    ->where('user_waste_preferences.is_waste_bank', false);
+                    ->where('user_waste_preferences.is_recycle_bank', false);
             })
             ->get();
 
@@ -288,10 +288,10 @@ class UserFoodWasteController extends Controller
                     $preference = $user->wastePreference()->firstOrCreate(['user_id' => $user->id]);
 
                     $oldIsAnnualCollection = $preference->is_annual_collection;
-                    $oldIsWasteBank = $preference->is_waste_bank;
+                    $oldIsWasteBank = $preference->is_recycle_bank;
 
                     $newIsAnnualCollection = $userData['is_annual_collection'];
-                    $newIsWasteBank = $userData['is_waste_bank'];
+                    $newIsWasteBank = $userData['is_recycle_bank'];
 
                     // Apply the same logic for forcing waste bank if annual collection is turned off
                     if (!$newIsAnnualCollection && $oldIsAnnualCollection && !$oldIsWasteBank) {
@@ -301,7 +301,7 @@ class UserFoodWasteController extends Controller
 
                     $preference->update([
                         'is_annual_collection' => $newIsAnnualCollection,
-                        'is_waste_bank' => $newIsWasteBank,
+                        'is_recycle_bank' => $newIsWasteBank,
                     ]);
 
                     // You might want to call the UserWasteStatusService here if it has more complex logic
@@ -336,7 +336,7 @@ class UserFoodWasteController extends Controller
                     if ($serviceType === 'annual_collection') {
                         $preference->is_annual_collection = true;
                     } elseif ($serviceType === 'waste_bank') {
-                        $preference->is_waste_bank = true;
+                        $preference->is_recycle_bank = true;
                     }
                     $preference->save();
 
@@ -358,7 +358,7 @@ class UserFoodWasteController extends Controller
 
         $users = UserWastePreference::where('id', $query)
             ->with('user')
-            ->where('is_waste_bank', true)
+            ->where('is_recycle_bank', true)
             ->get();
             // where(function ($q) use ($query) {
             //         $q->where('firstname', 'like', '%' . $query . '%')

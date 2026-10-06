@@ -74,7 +74,7 @@ class LineController extends Controller
             KpUserWastePreference::create([
                 'user_id' => $user->id,
                 'org_id_fk' => $user->org_id_fk,
-                'is_waste_bank' => 1,
+                'is_recycle_bank' => 1,
                 'is_annual_collection' => 0,
                 "address" => $user->address,
                 "zone_id" => $user->zone_id,
@@ -221,7 +221,7 @@ class LineController extends Controller
         $userWastPref = KpUserWastePreference::create([
             'user_id' => $user->id,
             'is_annual_collection' => 0,
-            'is_waste_bank' => 1,
+            'is_recycle_bank' => 1,
             'created_at' => date('Y-m-d H:i:s'),
             'updated_at' => date('Y-m-d H:i:s'),
         ]);
@@ -315,7 +315,7 @@ class LineController extends Controller
                 $newUWastePref = (new KpUserWastePreference())->setConnection($user_org->org_database)->create([
                     'user_id' => $_user->id,
                     'is_annual_collection' => 0,
-                    'is_waste_bank' => 1,
+                    'is_recycle_bank' => 1,
                 ]);
 
                 $waste_pref_id  = $newUWastePref->id;
@@ -358,7 +358,7 @@ class LineController extends Controller
             $newUWastePref = (new KpUserWastePreference())->setConnection($user_org->org_database)->create([
                 'user_id'               => $local_user->id,
                 'is_annual_collection'  => 0,
-                'is_waste_bank'         => 1,
+                'is_recycle_bank'         => 1,
                 'created_at'            => date('Y-m-d H:i:s'),
                 'updated_at'            => date('Y-m-d H:i:s'),
             ]);

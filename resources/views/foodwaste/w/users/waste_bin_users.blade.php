@@ -83,10 +83,10 @@
                                                 <input class="form-check-input" type="checkbox" id="selectAllWasteBank">
                                                 <label class="form-check-label" for="selectAllWasteBank">ธนาคารขยะเปียก (ทั้งหมด)</label>
                                             </div>
-                                            <select name="search_is_waste_bank" id="search_is_waste_bank" class="form-select form-select-sm">
-                                                <option value="any" {{ request('search_is_waste_bank') == 'any' ? 'selected' : '' }}>ธนาคารขยะเปียก: ทั้งหมด</option>
-                                                <option value="true" {{ request('search_is_waste_bank') == 'true' ? 'selected' : '' }}>ธนาคารขยะเปียก: ใช่</option>
-                                                <option value="false" {{ request('search_is_waste_bank') == 'false' ? 'selected' : '' }}>ธนาคารขยะเปียก: ไม่</option>
+                                            <select name="search_is_recycle_bank" id="search_is_recycle_bank" class="form-select form-select-sm">
+                                                <option value="any" {{ request('search_is_recycle_bank') == 'any' ? 'selected' : '' }}>ธนาคารขยะเปียก: ทั้งหมด</option>
+                                                <option value="true" {{ request('search_is_recycle_bank') == 'true' ? 'selected' : '' }}>ธนาคารขยะเปียก: ใช่</option>
+                                                <option value="false" {{ request('search_is_recycle_bank') == 'false' ? 'selected' : '' }}>ธนาคารขยะเปียก: ไม่</option>
                                             </select>
                                         </div>
                                     </th>
@@ -122,7 +122,7 @@
                                     <td class="align-middle text-center">
 
 
-                                            <input type="hidden" name="is_waste_bank" value="0">
+                                            <input type="hidden" name="is_recycle_bank" value="0">
                                             <div class="form-check form-check-inline">
                                                 <input class="form-check-input waste-bank-checkbox" type="checkbox" id="waste_bank_{{ $user->id }}" name="waste[{{$user->id}}][is_foodwaste_bank]" value="1"
                                                     {{ collect($user->foodwastePreference)->isNotEmpty() ? 'checked' : '' }}
@@ -173,7 +173,7 @@
             { id: 'search_email', varName: 'searchEmailInput' },
             { id: 'search_status', varName: 'searchStatusSelect' },
             // { id: 'search_is_annual_collection', varName: 'searchAnnualCollectionSelect' },
-            { id: 'search_is_waste_bank', varName: 'searchWasteBankSelect' },
+            { id: 'search_is_recycle_bank', varName: 'searchWasteBankSelect' },
             { id: 'applySearchBtn', varName: 'applySearchBtn' },
             { id: 'userTableBody', varName: 'userTableBody' },
             // { id: 'selectAllAnnualCollection', varName: 'selectAllAnnualCollectionCheckbox' }, // NEW
@@ -224,7 +224,7 @@
                 queryParams.append('search_email', searchEmailInput.value);
                 queryParams.append('search_status', searchStatusSelect.value);
                 // queryParams.append('search_is_annual_collection', searchAnnualCollectionSelect.value);
-                queryParams.append('search_is_waste_bank', searchWasteBankSelect.value);
+                queryParams.append('search_is_recycle_bank', searchWasteBankSelect.value);
                 queryParams.append('per_page', perPageSelect.value); // Use perPageSelect.value
 
                 queryParams.append('ajax', '1'); // Flag for AJAX request

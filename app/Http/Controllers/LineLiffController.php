@@ -58,21 +58,21 @@ class   LineLiffController extends Controller
 
         // 2. คาร์บอนขยะเปียก
         $totalFoodWasteCarbon = FoodWasteLog::where('user_id', $userId)->sum('carbon_saved_kg');
-        $treesByFoodWasteCarbon = number_format( $totalFoodWasteCarbon > 0 ? ($totalFoodWasteCarbon / 12) : 0, 2);
+        $treesByFoodWasteCarbon = number_format($totalFoodWasteCarbon > 0 ? ($totalFoodWasteCarbon / 12) : 0, 2);
         // 3. คาร์บอนขยะรีไซเคิล
-        
+
         $transaction = KpPurchaseTransaction::where('kp_user_w_pref_id_fk', $pref_id)
             ->with('details')
             ->get()->first();
 
         $totalRecycleCarbon = 0;
-         
-        if($transaction){
+
+        if ($transaction) {
             $totalRecycleCarbon = collect($transaction->details)->sum('carbon_saved');
         }
 
         // ต้นไม้ 1 ต้น ดูดซับ CO2 ได้ประมาณ 12 kg/ปี
-        $treesByRecycleCarbon = number_format( $totalRecycleCarbon > 0 ? ($totalRecycleCarbon / 12) : 0, 2);
+        $treesByRecycleCarbon = number_format($totalRecycleCarbon > 0 ? ($totalRecycleCarbon / 12) : 0, 2);
 
         // 4. รวมคาร์บอนทั้งหมด (ตัวแปรหลักที่ใช้โชว์ใน Dashboard)
         $totalCo2Saved = $totalFoodWasteCarbon + $totalRecycleCarbon;
@@ -207,7 +207,7 @@ class   LineLiffController extends Controller
                 $newUWastePref = KpUserWastePreference::create([
                     'user_id' => $_user->id,
                     'is_annual_collection' => 0,
-                    'is_waste_bank' => 1,
+                    'is_recycle_bank' => 1,
                 ]);
 
                 $waste_pref_id  = $newUWastePref->id;
@@ -232,7 +232,7 @@ class   LineLiffController extends Controller
             $newUWastePref = KpUserWastePreference::create([
                 'user_id' => $seqNumber->user,
                 'is_annual_collection' => 0,
-                'is_waste_bank' => 1,
+                'is_recycle_bank' => 1,
                 'created_at' => date('Y-m-d H:i:s'),
                 'updated_at' => date('Y-m-d H:i:s'),
             ]);
@@ -295,7 +295,7 @@ class   LineLiffController extends Controller
             // 4. สร้างบัญชีธนาคารขยะรีไซเคิล (เงินชาวบ้าน)
             $kpref = KpUserWastePreference::create([
                 'user_id'       => $user->id,
-                'is_waste_bank' => 1,
+                'is_recycle_bank' => 1,
                 'status'        => 'active',
                 'org_id_fk'     => $request['org_id'],
                 'province_code' => $request['province_id'],
