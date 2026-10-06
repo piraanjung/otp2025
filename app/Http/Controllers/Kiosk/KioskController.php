@@ -337,7 +337,7 @@ class KioskController extends Controller
 
         // ตรวจสอบว่าเป็นสมาชิกธนาคารขยะหรือไม่
         $isMember = KpUserWastePreference::where('user_id', $userId)
-            ->where('is_waste_bank', '1')
+            ->where('is_recycle_bank', '1')
             ->exists();
 
         if (!$isMember) {

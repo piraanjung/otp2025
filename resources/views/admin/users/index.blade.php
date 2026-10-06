@@ -86,18 +86,18 @@
                     <tr class="bg-gray-100" style="border-bottom: 2px solid #dee2e6;">
                         <th colspan="3" class="text-end text-xxs font-weight-bolder py-2"></th>
                         <th class="text-center py-2">
-                            <div class="d-flex justify-content-center gap-3">
-                                <div class="form-check mb-0">
+                            <div class="d-flex justify-content-center gap-3" style="margin-left:-10px !important">
+                                <div class="mb-0">
                                     <input class="form-check-input" type="checkbox" id="selectAllRecycle" title="เลือกธนาคารขยะทั้งหมด">
-                                    <span class="text-xxs">รีไซเคิล</span>
+                                    <div class="text-xxs">รีไซเคิล</div>
                                 </div>
-                                <div class="form-check mb-0">
+                                <div class="mb-0">
                                     <input class="form-check-input" type="checkbox" id="selectAllFood" title="เลือกขยะเปียกทั้งหมด">
-                                    <span class="text-xxs">ขยะเปียก</span>
+                                    <div class="text-xxs">ขยะเปียก</div>
                                 </div>
-                                <div class="form-check mb-0">
+                                <div class="mb-0">
                                     <input class="form-check-input" type="checkbox" id="selectAllAnnual" title="เลือกรายปีทั้งหมด">
-                                    <span class="text-xxs">รายปี</span>
+                                    <div class="text-xxs">รายปี</div>
                                 </div>
                             </div>
                         </th>
@@ -114,32 +114,32 @@
         <td>
             <div class="d-flex flex-column">
                 <h6 class="mb-0 text-sm">{{ $user->firstname }} {{ $user->lastname }}</h6>
-                <p class="text-xs text-secondary mb-0">{{ $user->kpUserPreferenceaddress ?? '-' }}</p>
+                <p class="text-xs text-secondary mb-0">{{ $user->kpUserPreference->address ?? '-' }}</p>
             </div>
         </td>
 
         {{-- 3. โซน/ซอย --}}
         <td>
             <div class="text-xs">
-                <div><strong>โซน:</strong> {{ $user->kpUserPreferenceuser_pref_zone->zone_name ?? '-' }}</div>
-                <div class="text-muted"><strong>ซอย:</strong> {{ $user->kpUserPreferenceuser_pref_subzone->subzone_name ?? '-' }}</div>
+                <div><strong>โซน:</strong> {{ $user->kpUserPreference->user_pref_zone->zone_name ?? '-' }}</div>
+                <div class="text-muted"><strong>ซอย:</strong> {{ $user->kpUserPreference->user_pref_subzone->subzone_name ?? '-' }}</div>
             </div>
         </td>
 
         {{-- 4. สถานะบริการ (จุดที่หายไป) --}}
         <td class="align-middle text-center">
-            <div class="d-flex justify-content-center gap-3">
+            <div class="d-flex justify-content-center gap-4">
                 {{-- รีไซเคิล --}}
                 <div class="form-check mb-0">
                     <input class="form-check-input chk-recycle" type="checkbox"
                         name="services[{{$user->id}}][recycle]" value="1"
-                        {{ $user->kpUserPreferencekpBankAccount ? 'checked' : '' }}>
+                        {{  $user->recycleBankAccount->status == 'active' ? 'checked' : '' }}>
                 </div>
                 {{-- ขยะเปียก --}}
                 <div class="form-check mb-0">
                     <input class="form-check-input chk-food" type="checkbox"
                         name="services[{{$user->id}}][food_waste]" value="1"
-                        {{ $user->foodWasteAccount ? 'checked' : '' }}>
+                        {{   $user->foodWasteBankAccount->status == 'active' ? 'checked' : '' }}>
                 </div>
                 {{-- รายปี --}}
                 <div class="form-check mb-0">
@@ -185,7 +185,7 @@
             searchEmail: document.getElementById('search_email'),
             searchStatus: document.getElementById('search_status'),
             searchAnnual: document.getElementById('search_is_annual_collection'),
-            searchBank: document.getElementById('search_is_waste_bank'),
+            searchBank: document.getElementById('search_is_recycle_bank'),
             btnApply: document.getElementById('applySearchBtn'),
             tableBody: document.getElementById('userTableBody'),
             chkAllAnnual: document.getElementById('selectAllAnnualCollection'),
@@ -212,7 +212,7 @@
                     search_email: elements.searchEmail.value,
                     search_status: elements.searchStatus.value,
                     search_is_annual_collection: elements.searchAnnual.value,
-                    search_is_waste_bank: elements.searchBank.value,
+                    search_is_recycle_bank: elements.searchBank.value,
                     per_page: elements.perPage.value,
                     ajax: '1'
                 });

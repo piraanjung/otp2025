@@ -22,9 +22,9 @@
                 >
             <label class="form-check-label" for="annual_coll_{{ $user->id }}">เก็บขยะรายปี</label>
         </div> --}}
-        <input type="hidden" name="users[{{ $user->id }}][is_waste_bank]" value="0">
+        <input type="hidden" name="users[{{ $user->id }}][is_recycle_bank]" value="0">
         <div class="form-check form-check-inline">
-            <input class="form-check-input waste-bank-checkbox" type="checkbox" id="waste_bank_{{ $user->id }}" name="users[{{ $user->id }}][is_waste_bank]" value="1"
+            <input class="form-check-input waste-bank-checkbox" type="checkbox" id="waste_bank_{{ $user->id }}" name="users[{{ $user->id }}][is_recycle_bank]" value="1"
                 {{ $user->wastePreference[0]->is_foodwaste_bank ==1 ? 'checked' : '' }}
                 >
             <label class="form-check-label" for="waste_bank_{{ $user->id }}">ธนาคารขยะเปียก</label>

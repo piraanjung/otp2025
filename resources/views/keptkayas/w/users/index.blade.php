@@ -95,10 +95,10 @@
                                                     <input class="form-check-input" type="checkbox" id="selectAllWasteBank">
                                                     <label class="form-check-label" for="selectAllWasteBank">ธนาคารขยะ (ทั้งหมด)</label>
                                                 </div>
-                                                <select name="search_is_waste_bank" id="search_is_waste_bank" class="form-select form-select-sm">
-                                                    <option value="any" {{ request('search_is_waste_bank') == 'any' ? 'selected' : '' }}>ธนาคารขยะ: ทั้งหมด</option>
-                                                    <option value="true" {{ request('search_is_waste_bank') == 'true' ? 'selected' : '' }}>ธนาคารขยะ: ใช่</option>
-                                                    <option value="false" {{ request('search_is_waste_bank') == 'false' ? 'selected' : '' }}>ธนาคารขยะ: ไม่</option>
+                                                <select name="search_is_recycle_bank" id="search_is_recycle_bank" class="form-select form-select-sm">
+                                                    <option value="any" {{ request('search_is_recycle_bank') == 'any' ? 'selected' : '' }}>ธนาคารขยะ: ทั้งหมด</option>
+                                                    <option value="true" {{ request('search_is_recycle_bank') == 'true' ? 'selected' : '' }}>ธนาคารขยะ: ใช่</option>
+                                                    <option value="false" {{ request('search_is_recycle_bank') == 'false' ? 'selected' : '' }}>ธนาคารขยะ: ไม่</option>
                                                 </select>
                                             </div>
                                         </th>
@@ -130,7 +130,7 @@
                                                 // ตรวจสอบข้อมูล
                                                 $hasBins = $user->wasteBins && $user->wasteBins->count() > 0;
                                                 $isAnnual = optional($user->wastePreference)->is_annual_collection;
-                                                $isBank = optional($user->wastePreference)->is_waste_bank;
+                                                $isBank = optional($user->wastePreference)->is_recycle_bank;
                                             @endphp
 
                                             {{-- ============================ --}}
@@ -162,11 +162,11 @@
                                             {{-- ============================ --}}
                                             {{-- CHECKBOX: ธนาคารขยะ --}}
                                             {{-- ============================ --}}
-                                            <input type="hidden" name="waste[{{$user->id}}][is_waste_bank]" value="0">
+                                            <input type="hidden" name="waste[{{$user->id}}][is_recycle_bank]" value="0">
                                             <div class="form-check form-check-inline">
                                                 <input class="form-check-input waste-bank-checkbox" type="checkbox"
                                                     id="waste_bank_{{ $user->id }}"
-                                                    name="waste[{{$user->id}}][is_waste_bank]"
+                                                    name="waste[{{$user->id}}][is_recycle_bank]"
                                                     value="1"
                                                     {{ $isBank ? 'checked' : '' }}
                                                 >
@@ -216,7 +216,7 @@
             searchEmail: document.getElementById('search_email'),
             searchStatus: document.getElementById('search_status'),
             searchAnnual: document.getElementById('search_is_annual_collection'),
-            searchBank: document.getElementById('search_is_waste_bank'),
+            searchBank: document.getElementById('search_is_recycle_bank'),
             btnApply: document.getElementById('applySearchBtn'),
             tableBody: document.getElementById('userTableBody'),
             chkAllAnnual: document.getElementById('selectAllAnnualCollection'),
@@ -243,7 +243,7 @@
                     search_email: elements.searchEmail.value,
                     search_status: elements.searchStatus.value,
                     search_is_annual_collection: elements.searchAnnual.value,
-                    search_is_waste_bank: elements.searchBank.value,
+                    search_is_recycle_bank: elements.searchBank.value,
                     per_page: elements.perPage.value,
                     ajax: '1'
                 });
