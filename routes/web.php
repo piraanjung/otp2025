@@ -246,6 +246,8 @@ Route::middleware(['auth', 'role:Admin|Super Admin'])->name('admin.')->prefix('a
         Route::post('import', [UserController::class, 'importUsers'])->name('import');
         Route::get('download_template', [UserController::class, 'downloadUserTemplate'])->name('download_template');
         Route::get('{user}/{action?}', [UserController::class, 'show'])->name('show');
+        Route::post('update-service', [UserController::class, 'updateService'])->name('update_service');
+
     });
 
     

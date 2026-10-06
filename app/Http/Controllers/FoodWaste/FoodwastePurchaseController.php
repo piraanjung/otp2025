@@ -44,8 +44,8 @@ class FoodwastePurchaseController extends Controller
         if ($request->filled('username_search')) {
             $usernameSearch = $request->input('username_search');
             $query->with('wastePreference')
-                ->whereHas('wastePreference', function($q) use ($usernameSearch){
-                     $q->select('*')->where('id' ,$usernameSearch);
+                ->whereHas('wastePreference', function ($q) use ($usernameSearch) {
+                    $q->select('*')->where('id', $usernameSearch);
                 });
         }
 
@@ -170,7 +170,7 @@ class FoodwastePurchaseController extends Controller
         $user = User::find($user->user_id);
         $request->session()->put('purchase_user_id', $user->id);
         // ตรวจสอบว่าผู้ใช้งานที่เลือกเป็นสมาชิกธนาคารขยะหรือไม่
-        if (!$user->wastePreference || !$user->wastePreference->is_waste_bank) {
+        if (!$user->wastePreference || !$user->kpUserPreferenceis_waste_bank) {
             return redirect()->route('keptkayas.purchase.select_user')->with('error', 'ผู้ใช้งานนี้ไม่ได้เป็นสมาชิกธนาคารขยะ');
         }
 

@@ -126,9 +126,7 @@
         @include('staff.includes.main_screen')
     </div>
 
-    {{-- <div id="recycleBankScreen" class="screen is-hidden"> --}}
-        @include('staff.includes.recycle_bank_screen')
-    {{-- </div> --}}
+  
 
     <div id="depositScreen" class="screen is-hidden">
         <div id="globalPrinterStatus"
@@ -344,6 +342,12 @@
     <div id="tabwaterRecordMemberSubzoneLists" class="screen is-hidden">
         @include('staff.mobile.screen_water_members_list')
     </div>
+    <div id="tabwaterRecordMemberSubzoneLists" class="screen is-hidden">
+        @include('staff.mobile.screen_water_members_list')
+    </div>
+
+        @include('staff.mobile.recycle_bank_screen')
+
     <div id="inventoryScreen" class="screen is-hidden">
         <iframe src=""  style=" width: 100%; height: 800px; border: none;"
             id="inventoryIframe">
@@ -574,47 +578,7 @@
         }
 
         // 🟢 เพิ่มฟังก์ชันนี้ต่อท้ายตัวแปรโกลบอลด้านบนของ app.js
-        async function loadMembersFromServer() {
-            console.log('loadMembersFromServer')
-            let org_id_fk = localStorage.getItem('staff_org_id')
-            try {
-                // console.log("กำลังดึงรายชื่อสมาชิกทั้งหมดจากระบบ Keptkaya..." + API_BASE_URL);
-
-                const response = await fetch(`${API_BASE_URL}/keptkaya/members/${org_id_fk}`, {
-                    method: "GET",
-                    headers: {
-                        "Content-Type": "application/json",
-                        "Accept": "application/json",
-                        "ngrok-skip-browser-warning": "true" // 🛡️ ดักหน้าต่างขาว ngrok
-                    }
-                });
-
-                if (!response.ok) {
-                    throw new Error(`HTTP error! status: ${response.status}`);
-                }
-
-                const resData = await response.json();
-                console.log('resData',resData)
-                // ตรวจสอบว่ามีข้อมูลกลับมาตาม format { code: 200, data: [...] } ไหม
-                if (resData.code === 200 && Array.isArray(resData.data)) {
-                    allMembers = resData.data; // เอาข้อมูลยัดเข้าตัวแปรหลักของ master
-                    // console.log('resData.data', resData.data)
-                    // console.log(`โหลดข้อมูลสำเร็จ! พบสมาชิกทั้งหมด: ${allMembers.length} คน`);
-
-                    // 💡 เรียกฟังก์ชันอัปเดตหน้าจอ 2 แท็บทำงานต่อ (รอเขียนในด่านถัดไป)
-                    if (typeof updateMemberListUI === "function") {
-                        updateMemberListUI();
-                    }
-                } else {
-                    console.error("รูปแบบข้อมูลจาก Server ไม่ถูกต้อง:", resData);
-                }
-
-            } catch (error) {
-                console.error("เกิดข้อผิดพลาดในการโหลดข้อมูลสมาชิก:", error);
-                alert("ไม่สามารถดึงข้อมูลสมาชิกจากระบบได้: " + error.message);
-            }
-        }
-
+        
         // 📷 ปุ่มสแกน QR Code ค้นหาบัตรสมาชิกชาวบ้าน
         const btnScanQR = document.getElementById('btnScanQR');
         let html5QrCode = null; // ตัวแปรสำหรับเก็บ instance ของตัวสแกน

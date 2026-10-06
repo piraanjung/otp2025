@@ -45,7 +45,7 @@ class LineController extends Controller
             $org_id         = $user->org_id_fk;
             $res            = 1;
             $user_id        = $user->id;
-            $waste_pref_id  = $user->wastePreference->id;
+            $waste_pref_id  = $user->kpUserPreferenceid;
         }
 
 
@@ -66,11 +66,11 @@ class LineController extends Controller
         // ค้นหาผู้ใช้งานในตาราง users ด้วย line_id
 
         $user = User::where('line_id', $lineUserId)->with('wastePreference')->get()->first();
-        if(!$user){
+        if (!$user) {
             return response()->json(['status' => 'not_foundxx']);
         }
-        
-        if(collect($user->wastePreference)->isEmpty()){
+
+        if (collect($user->wastePreference)->isEmpty()) {
             KpUserWastePreference::create([
                 'user_id' => $user->id,
                 'org_id_fk' => $user->org_id_fk,
@@ -92,7 +92,6 @@ class LineController extends Controller
                 'status' => collect($organizationList)->isEmpty() ? 'not found' : 'found',
                 'organization_list' => $organizationList
             ]);
-            
         }
 
         // ถ้าไม่เจอ -> แจ้งให้หน้าบ้านเริ่มกรอกเบอร์โทรศัพท์ (Step 1)
@@ -114,7 +113,7 @@ class LineController extends Controller
                 $user->update([
                     'line_id' => $lineUserId,
                     'image'   => $imagePath
-                    ]);
+                ]);
                 return response()->json([
                     'status' => 'found',
                     'organization_list' => $this->getOrganizations($user->id)
@@ -158,30 +157,31 @@ class LineController extends Controller
 
     // ฟังก์ชันภายในสำหรับดึงข้อมูลองค์กรผ่านตาราง Preferences ร่วมกับตาราง Organizations
     private function getOrganizations($userId)
-{
-    return KpUserWastePreference::where('user_id', $userId)
-        ->join('organizations', 'kp_user_waste_preferences.org_id_fk', '=', 'organizations.id')
-        ->join('organization_types',  'organization_types.id','=','organizations.org_type_id')
-        ->select([
+    {
+        return KpUserWastePreference::where('user_id', $userId)
+            ->join('organizations', 'kp_user_waste_preferences.org_id_fk', '=', 'organizations.id')
+            ->join('organization_types',  'organization_types.id', '=', 'organizations.org_type_id')
+            ->select([
 
-            'kp_user_waste_preferences.id as pref_id', // 👈 ดึง ID ของตาราง Preferences และตั้งชื่อ Alias ว่า pref_id
-            'organizations.id',   
-            'organization_types.name as org_type',   
-            'kp_user_waste_preferences.user_id',
-            'organizations.org_name'                  // ชื่อองค์กร
-        ])
-        ->get();
-}
+                'kp_user_waste_preferences.id as pref_id', // 👈 ดึง ID ของตาราง Preferences และตั้งชื่อ Alias ว่า pref_id
+                'organizations.id',
+                'organization_types.name as org_type',
+                'kp_user_waste_preferences.user_id',
+                'organizations.org_name'                  // ชื่อองค์กร
+            ])
+            ->get();
+    }
 
-public function getOrgLists($org_type){
-    $orgs = Organization::where('org_type_id', $org_type)
+    public function getOrgLists($org_type)
+    {
+        $orgs = Organization::where('org_type_id', $org_type)
             ->with('provinces', 'districts', 'tambons', 'orgType')
             ->get(['id', 'org_type_id', 'org_name', 'org_tambon_id_fk', 'org_district_id_fk', 'org_province_id_fk']);
 
-    return response()->json(['orgs' => $orgs]);
-}
+        return response()->json(['orgs' => $orgs]);
+    }
 
-public function getZones($tambon_id)
+    public function getZones($tambon_id)
     {
         $zones = Zone::where('tambon_id', $tambon_id)
             ->with('subzone')
@@ -382,7 +382,7 @@ public function getZones($tambon_id)
     }
 
 
- 
+
 
     /**
      * Summary of replyWithUserQrCode
@@ -521,39 +521,39 @@ public function getZones($tambon_id)
         }
     }
 
-    public function handle(Request $request) 
-    { 
+    public function handle(Request $request)
+    {
         $events = $request->input('events', []);
-        
-        foreach ($events as $event) { 
+
+        foreach ($events as $event) {
             // return $event['message'];
             // 1. ตรวจสอบว่าเป็นข้อความตัวอักษรที่ส่งเข้ามาในแชท (ไม่ว่าจะพิมพ์เองหรือกดปุ่ม)
-            if ($event['type'] === 'message' && $event['message']['type'] === 'text') { 
+            if ($event['type'] === 'message' && $event['message']['type'] === 'text') {
 
-                $userMessage = trim($event['message']['text']); 
+                $userMessage = trim($event['message']['text']);
                 $replyToken = $event['replyToken']; // โทเค็นชั่วคราวสำหรับกดส่งตอบกลับทันที
 
                 // 2. เช็กว่าข้อความขึ้นต้นด้วยคำว่า "งานเข้า" หรือไม่
                 if (preg_match('/^งานเข้า\s+(\d+)$/u', $userMessage, $matches)) {
-                   $notifyId = $matches[1]; // ดึงตัวเลขหลังคำว่า "งานเข้า" (เช่น เลข 3)
-                    
+                    $notifyId = $matches[1]; // ดึงตัวเลขหลังคำว่า "งานเข้า" (เช่น เลข 3)
+
                     // 3. ไปค้นหาข้อมูลจากฐานข้อมูล
-                    $notify = TwNotifies::find($notifyId); 
-                    
-                    if ($notify) { 
+                    $notify = TwNotifies::find($notifyId);
+
+                    if ($notify) {
                         // สร้างโครงสร้าง Flex Message จากข้อมูลจริงใน Database
-                        $flexPayload = $this->buildStaffFlexMessage($notify); 
-                        
+                        $flexPayload = $this->buildStaffFlexMessage($notify);
+
                         // ส่ง Flex Message ตอบกลับไปหาห้องแชทนั้นทันที (ใช้ replyToken)
-                        $this->sendReplyMessage($replyToken, $flexPayload); 
+                        $this->sendReplyMessage($replyToken, $flexPayload);
                     } else {
                         $this->sendReplyText($replyToken, "ไม่พบข้อมูลแจ้งเหตุรหัส #{$notifyId}");
                     }
-                } 
-            } 
-        } 
-        
-        return response()->json(['status' => 'ok'], 200); 
+                }
+            }
+        }
+
+        return response()->json(['status' => 'ok'], 200);
     }
 
     /**
@@ -563,106 +563,106 @@ public function getZones($tambon_id)
      */
     private function buildStaffFlexMessage(TwNotifies $notify)
     {
-         $bodyContents = [
-        [
-            'type' => 'text',
-            'text' => "รหัสแจ้งเหตุ: {$notify->id}\nเรื่อง: " . ($notify->issueType->name ?? '-'),
-            'weight' => 'bold',
-            'size' => 'sm',
-            'color' => '#333333',
-            'wrap' => true 
-        ],
-        [
-            'type' => 'text',
-            'text' => "ผู้แจ้ง: {$notify->reporter_name}\nเบอร์โทร: {$notify->reporter_phone}",
-            'size' => 'sm',
-            'color' => '#666666',
-            'wrap' => true
-        ]
-    ];
-
-    // 2. จัดการดึงรูปภาพจาก Database มาแสดง (สมมติว่าฟิลด์ photos เก็บเป็น JSON array เช่น ['notify/abc.jpg'])
-    // ปรับเปลี่ยนวิธี decode ตามโครงสร้างจริงของฐานข้อมูลคุณ เช่น json_decode หรือถ้าเป็น array อยู่แล้วก็ใช้ได้เลย
-    $photos = is_string($notify->photo_path) ? json_decode($notify->photo_path, true) : $notify->photo_path;
-
-    if (!empty($photos) && is_array($photos)) {
-        // คั่นเส้นแบ่งก่อนแสดงรูป
-        $bodyContents[] = [
-            'type' => 'separator',
-            'margin' => 'md'
+        $bodyContents = [
+            [
+                'type' => 'text',
+                'text' => "รหัสแจ้งเหตุ: {$notify->id}\nเรื่อง: " . ($notify->issueType->name ?? '-'),
+                'weight' => 'bold',
+                'size' => 'sm',
+                'color' => '#333333',
+                'wrap' => true
+            ],
+            [
+                'type' => 'text',
+                'text' => "ผู้แจ้ง: {$notify->reporter_name}\nเบอร์โทร: {$notify->reporter_phone}",
+                'size' => 'sm',
+                'color' => '#666666',
+                'wrap' => true
+            ]
         ];
 
-        $bodyContents[] = [
-            'type' => 'text',
-            'text' => '📸 รูปภาพแนบ:',
-            'size' => 'xs',
-            'weight' => 'bold',
-            'color' => '#aaaaaa',
-            'margin' => 'md'
-        ];
+        // 2. จัดการดึงรูปภาพจาก Database มาแสดง (สมมติว่าฟิลด์ photos เก็บเป็น JSON array เช่น ['notify/abc.jpg'])
+        // ปรับเปลี่ยนวิธี decode ตามโครงสร้างจริงของฐานข้อมูลคุณ เช่น json_decode หรือถ้าเป็น array อยู่แล้วก็ใช้ได้เลย
+        $photos = is_string($notify->photo_path) ? json_decode($notify->photo_path, true) : $notify->photo_path;
 
-        // วนลูปรูปภาพแต่ละรูป
-        foreach ($photos as $photoPath) {
-            // ใช้ asset() เพื่อแปลงเป็น Full URL (เช่น https://yourdomain.com/notify/xxx.jpg)
-            // *หมายเหตุ: URL รูปภาพต้องเป็น HTTPS และเปิดให้คนภายนอกเข้าถึงได้
-            $imageUrl = asset("uploads/".$photoPath);
+        if (!empty($photos) && is_array($photos)) {
+            // คั่นเส้นแบ่งก่อนแสดงรูป
+            $bodyContents[] = [
+                'type' => 'separator',
+                'margin' => 'md'
+            ];
 
             $bodyContents[] = [
-                'type' => 'image',
-                'url' => $imageUrl,
-                'size' => 'full',       // ขนาด: xs, sm, md, lg, full
-                'aspectRatio' => '4:3',  // สัดส่วนรูป: '1:1', '4:3', '16:9'
-                'aspectMode' => 'cover',  // การแสดงผลภาพ: cover หรือ fit
-                'margin' => 'md',
-                'action' => [
-                    'type' => 'uri',
-                    'label' => 'ดูรูปขนาดเต็ม',
-                    'uri' => $imageUrl // พอกดที่รูปจะเด้งเปิดดูรูปใหญ่
-                ]
+                'type' => 'text',
+                'text' => '📸 รูปภาพแนบ:',
+                'size' => 'xs',
+                'weight' => 'bold',
+                'color' => '#aaaaaa',
+                'margin' => 'md'
             ];
-        }
-    }
 
-    // 3. ประกอบร่างโครงสร้าง Flex Message ทั้งหมด
-   return  [
-        'type' => 'bubble',
-        'header' => [
-            'type' => 'box',
-            'layout' => 'vertical',
-            'contents' => [
-                [
-                    'type' => 'text',
-                    'text' => 'แจ้งเตือนงานใหม่ (เจ้าหน้าที่งานประปา)',
-                    'weight' => 'bold',
-                    'color' => '#ffffff',
-                    'size' => 'sm'
-                ]
-            ],
-            'backgroundColor' => '#d9534f'
-        ],
-        'body' => [
-            'type' => 'box',
-            'layout' => 'vertical',
-            'spacing' => 'md',
-            'contents' => $bodyContents // นำอาเรย์ข้อมูลทั้งหมดที่เตรียมไว้มายัดใส่ตรงนี้
-        ],
-        'footer' => [
-            'type' => 'box',
-            'layout' => 'vertical',
-            'contents' => [
-                [
-                    'type' => 'button',
+            // วนลูปรูปภาพแต่ละรูป
+            foreach ($photos as $photoPath) {
+                // ใช้ asset() เพื่อแปลงเป็น Full URL (เช่น https://yourdomain.com/notify/xxx.jpg)
+                // *หมายเหตุ: URL รูปภาพต้องเป็น HTTPS และเปิดให้คนภายนอกเข้าถึงได้
+                $imageUrl = asset("uploads/" . $photoPath);
+
+                $bodyContents[] = [
+                    'type' => 'image',
+                    'url' => $imageUrl,
+                    'size' => 'full',       // ขนาด: xs, sm, md, lg, full
+                    'aspectRatio' => '4:3',  // สัดส่วนรูป: '1:1', '4:3', '16:9'
+                    'aspectMode' => 'cover',  // การแสดงผลภาพ: cover หรือ fit
+                    'margin' => 'md',
                     'action' => [
                         'type' => 'uri',
-                        'label' => 'กดเพื่อดูข้อมูลและรับงาน',
-                        'uri' => 'https://yourdomain.com/notify/detail/' . $notify->id // ใส่ URL หน้าเว็บของคุณที่ต้องการให้กดแล้วเด้งไปหา
-                    ],
-                    'style' => 'primary',
-                    'color' => '#0275d8' // สามารถปรับสีปุ่มได้ตามต้องการ (เช่น #0275d8 สีฟ้า, #d9534f สีแดง)
+                        'label' => 'ดูรูปขนาดเต็ม',
+                        'uri' => $imageUrl // พอกดที่รูปจะเด้งเปิดดูรูปใหญ่
+                    ]
+                ];
+            }
+        }
+
+        // 3. ประกอบร่างโครงสร้าง Flex Message ทั้งหมด
+        return  [
+            'type' => 'bubble',
+            'header' => [
+                'type' => 'box',
+                'layout' => 'vertical',
+                'contents' => [
+                    [
+                        'type' => 'text',
+                        'text' => 'แจ้งเตือนงานใหม่ (เจ้าหน้าที่งานประปา)',
+                        'weight' => 'bold',
+                        'color' => '#ffffff',
+                        'size' => 'sm'
+                    ]
+                ],
+                'backgroundColor' => '#d9534f'
+            ],
+            'body' => [
+                'type' => 'box',
+                'layout' => 'vertical',
+                'spacing' => 'md',
+                'contents' => $bodyContents // นำอาเรย์ข้อมูลทั้งหมดที่เตรียมไว้มายัดใส่ตรงนี้
+            ],
+            'footer' => [
+                'type' => 'box',
+                'layout' => 'vertical',
+                'contents' => [
+                    [
+                        'type' => 'button',
+                        'action' => [
+                            'type' => 'uri',
+                            'label' => 'กดเพื่อดูข้อมูลและรับงาน',
+                            'uri' => 'https://yourdomain.com/notify/detail/' . $notify->id // ใส่ URL หน้าเว็บของคุณที่ต้องการให้กดแล้วเด้งไปหา
+                        ],
+                        'style' => 'primary',
+                        'color' => '#0275d8' // สามารถปรับสีปุ่มได้ตามต้องการ (เช่น #0275d8 สีฟ้า, #d9534f สีแดง)
+                    ]
                 ]
             ]
-        ]
-    ];
+        ];
     }
 
     // ฟังก์ชันยิง Reply API กลับไปหา LINE
@@ -699,10 +699,4 @@ public function getZones($tambon_id)
             ]
         ]);
     }
-
- 
-
-
-
 }
-

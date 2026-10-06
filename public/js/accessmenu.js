@@ -13,6 +13,51 @@ let totalpaid = 0.0;
 let membersInitStatusCount;
 let membersInitStatus;
 let inv_period;
+
+async function loadMembersFromServer() {
+    console.log('loadMembersFromServer')
+    let org_id_fk = localStorage.getItem('staff_org_id')
+    try {
+        // console.log("กำลังดึงรายชื่อสมาชิกทั้งหมดจากระบบ Keptkaya..." + API_BASE_URL);
+
+        const response = await fetch(`${API_BASE_URL}/keptkaya/members/${org_id_fk}`, {
+            method: "GET",
+            headers: {
+                "Content-Type": "application/json",
+                "Accept": "application/json",
+                "ngrok-skip-browser-warning": "true" // 🛡️ ดักหน้าต่างขาว ngrok
+            }
+        });
+
+        if (!response.ok) {
+            throw new Error(`HTTP error! status: ${response.status}`);
+        }
+
+        const resData = await response.json();
+        console.log('resData', resData)
+        // ตรวจสอบว่ามีข้อมูลกลับมาตาม format { code: 200, data: [...] } ไหม
+        if (resData.code === 200 && Array.isArray(resData.data)) {
+            allMembers = resData.data; // เอาข้อมูลยัดเข้าตัวแปรหลักของ master
+            // console.log('resData.data', resData.data)
+            // console.log(`โหลดข้อมูลสำเร็จ! พบสมาชิกทั้งหมด: ${allMembers.length} คน`);
+
+            // 💡 เรียกฟังก์ชันอัปเดตหน้าจอ 2 แท็บทำงานต่อ (รอเขียนในด่านถัดไป)
+            if (typeof updateMemberListUI === "function") {
+                updateMemberListUI();
+            }
+        } else {
+            console.error("รูปแบบข้อมูลจาก Server ไม่ถูกต้อง:", resData);
+        }
+
+    } catch (error) {
+        console.error("เกิดข้อผิดพลาดในการโหลดข้อมูลสมาชิก:", error);
+        alert("ไม่สามารถดึงข้อมูลสมาชิกจากระบบได้: " + error.message);
+    }
+}
+
+
+
+
 // ////////////////////////////////////////////////////////
 //                    Screen Login                       //
 ///////////////////////////////////////////////////////////
@@ -122,7 +167,7 @@ async function checkExistingSession() {
         sessionStorage.setItem('current_screen', 'loginScreen');
         currentScreenGlobal = 'loginScreen';
 
-        navigateTo('loginScreen')
+        navigateTo('recycleBankScreen')
         return;
     }
 
@@ -305,7 +350,7 @@ function loadInventoryIframeOnce() {
 
 let prevScreen = "";
 async function navigateTo(moduleName) {
-    sessionStorage.setItem('current_screen', 'tabwaterRecordMemberSubzoneLists')
+    sessionStorage.setItem('current_screen', 'recycleBankScreen')
     // moduleName = 'tabwaterRecordScreen'
     // console.log('navigateTo current_screen', moduleName)
     // sessionStorage.setItem('current_screen', moduleName)
@@ -1117,7 +1162,7 @@ function openRecordMeterModal(meterId, userName, lastMeter, invoiceId) {
 
 // 🟢 ฟังก์ชันบันทึกข้อมูลเลขมิเตอร์ (ประมวลผลค่าจาก 4 ช่อง)
 async function saveMeterRecord(isPrint = false) {
-    
+
     console.log('window.selectedInvoiceId',)
     const invoiceId = window.selectedInvoiceId;
     const currentMeter = document.getElementById('modalCurrentMeterInput')?.value;
@@ -1164,12 +1209,12 @@ async function saveMeterRecord(isPrint = false) {
 
         if (response.ok && (resData.code === 200 || resData.success)) {
 
-        console.log('xxxres')
+            console.log('xxxres')
             let recieptText = generateWaterBillHTML(resData.data);
             $('#card-reciept').html(recieptText);
 
             // รอให้ DOM เรนเดอร์ข้อมูลและคำนวณขนาด (Width/Height) เสร็จก่อน
-            await new Promise(resolve => setTimeout(resolve, 200)); 
+            await new Promise(resolve => setTimeout(resolve, 200));
 
             if (isPrint) {
                 if (typeof printReceipt === "function") {
@@ -1188,7 +1233,7 @@ async function saveMeterRecord(isPrint = false) {
             }
             console.log('renderMembersListUI()')
             // if (typeof renderMembersListUI === 'function') {
-                renderMembersListUI();
+            renderMembersListUI();
             // } else {
             //     location.reload();
             // }
@@ -2068,12 +2113,12 @@ connectButton.addEventListener('click', connectToPrinter);
 ////////////////////////////////////////////////////////////////////////////////////
 function BluethoothConnectedModal(from) {
 
-    
+
     if (!printCharacteristic) {
-        if(from === 'recycle'){
+        if (from === 'recycle') {
             document.getElementById('customCartModal').remove();
         }
-        
+
 
         Swal.fire({
             title: 'ยังไม่ได้เชื่อมต่อเครื่องพิมพ์!',

@@ -171,7 +171,7 @@ class AiroBactController extends Controller
             $eveningBonus = $settings['evening_bonus_pts'] ?? 0;
             $eveningStartTime = $settings['evening_start'] ?? 17.00; // ถ้าไม่มีให้เริ่ม 5 โมงเย็น
 
-            $user_waste_pref_id = Auth::user()->foodwastePreference->id;
+            $user_waste_pref_id = Auth::user()->foodkpUserPreferenceid;
             $now = \Carbon\Carbon::now();
 
             // 3. เช็คว่าวันนี้เคยได้แต้มหรือยัง
@@ -440,7 +440,7 @@ class AiroBactController extends Controller
 
     public function getPointHistory()
     {
-        $user_waste_pref_id = Auth::user()->wastePreference->id;
+        $user_waste_pref_id = Auth::user()->kpUserPreferenceid;
 
         // ดึงข้อมูลประวัติ 10 รายการล่าสุด
         $transactions = FoodWasteTransaction::where('fw_pref_id_fk', $user_waste_pref_id)

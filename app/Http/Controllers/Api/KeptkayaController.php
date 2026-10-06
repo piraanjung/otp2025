@@ -24,7 +24,7 @@ class KeptkayaController extends Controller
 
             // 🟢 เริ่มต้นคิวรีจากตารางหลัก kp_tbank_items
             // (Note: เนื่องจากมี Trait BelongsToOrganization ระบบจะกรอง org_id_fk ให้พี่อัตโนมัติอยู่แล้วครับ สบายใจได้)
-         $items = KpTbankItems::join('kp_tbank_items_groups as grp', 'kp_tbank_items.kp_items_group_idfk', '=', 'grp.id')
+            $items = KpTbankItems::join('kp_tbank_items_groups as grp', 'kp_tbank_items.kp_items_group_idfk', '=', 'grp.id')
                 // พี่เช็กดูตามความเหมาะสมนะครับว่าใช้ unit_kiosk_idfk หรือ unit_bank_idfk
                 ->join('kp_tbank_items_units as unt', 'kp_tbank_items.unit_bank_idfk', '=', 'unt.id')
                 ->join('kp_tbank_items_pricepoint as prc', 'kp_tbank_items.id', '=', 'prc.kp_items_idfk')
@@ -84,17 +84,20 @@ class KeptkayaController extends Controller
 
             // ดึงรายชื่อ User ทั้งหมด (ระบบจะกรอง org_id_fk อัตโนมัติด้วย Trait BelongsToOrganization)
             $members =  User::where('org_id_fk', $org_id)
-                        ->with(['wastePreference' => function($q){
-                            $q->select('id', 'user_id', 'address', 'zone_id');
-                        }, 'wastePreference.kpBankAccount' => function($q){
-                            $q->select('id', 'user_pref_id', 'account_no');
-                        }, 'wastePreference.user_pref_zone' => function($q){
-                            $q->select('id', 'zone_name');
-                        }
-                        
-                        ])
-                       ->whereHas('wastePreference.kpBankAccount') // 🎯 กรองเฉพาะคนที่มีบัญชี
-                        ->get(['firstname', 'lastname', 'id', 'address', 'zone_id', 'subzone_id', 'phone'])
+                ->with([
+                    'wastePreference' => function ($q) {
+                        $q->select('id', 'user_id', 'address', 'zone_id');
+                    },
+                    'wastePreference.kpBankAccount' => function ($q) {
+                        $q->select('id', 'user_pref_id', 'account_no');
+                    },
+                    'wastePreference.user_pref_zone' => function ($q) {
+                        $q->select('id', 'zone_name');
+                    }
+
+                ])
+                ->whereHas('wastePreference.kpBankAccount') // 🎯 กรองเฉพาะคนที่มีบัญชี
+                ->get(['firstname', 'lastname', 'id', 'address', 'zone_id', 'subzone_id', 'phone'])
                 ->map(function ($member) use ($today) {
 
                     $hasTransactionToday = false;
@@ -102,7 +105,7 @@ class KeptkayaController extends Controller
                     // 🟢 เช็กว่าสมาชิกคนนี้มีข้อมูล Preference (สิทธิ์จัดการขยะ) ในตารางย่อยไหม
                     if ($member->wastePreference) {
                         // ดึง ID ของฝั่ง Preference เพื่อเอาไปใช้ค้นหาในตารางบิลธุรกรรม
-                        $prefId = $member->wastePreference->id;
+                        $prefId = $member->kpUserPreferenceid;
 
                         // 🟢 ชี้เป้า: ตรวจสอบในตารางธุรกรรมว่า วันนี้ มีคีย์ของสมาชิกคนนี้ทำรายการไปแล้วหรือยัง
                         $hasTransactionToday = DB::table('kp_purchase_transactions')
@@ -133,7 +136,7 @@ class KeptkayaController extends Controller
     public function store_purchase(Request $request)
     {
         // 🟢 เปิด Transaction ป้องกันข้อมูลบันทึกครึ่งๆ กลางๆ
-         DB::beginTransaction();
+        DB::beginTransaction();
         try {
             // 1. เจนเลขที่เอกสารอัตโนมัติ (ตัวอย่าง: REC-ปีเดือนวัน-รันนิ่ง)
             $dateSlug = Carbon::now()->format('Ymd');
@@ -181,11 +184,11 @@ class KeptkayaController extends Controller
                     $detail->points                         = $item['points'];
                     $detail->carbon_saved                   = $carbonSaved ?? 0.0000;
                     $detail->save();
-                }  
+                }
             }
 
             // 5. อัปเดต Carbon รวม
-            $transaction->update(['total_carbon_saved' => $carbonSavedTotal]);//
+            $transaction->update(['total_carbon_saved' => $carbonSavedTotal]); //
 
             // 6. อัปเดตสมุดบัญชีธนาคารขยะ (KpBankAccount)
             $recycleAcc = KpBankAccount::firstOrCreate(

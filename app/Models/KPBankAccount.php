@@ -4,7 +4,7 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
 
-class KPBankAccount extends Model
+class KpBankAccount extends Model
 {
 protected $table = 'kp_bank_accounts';
 

@@ -23,8 +23,8 @@ class KpMemberShopController extends Controller
     public function index(Request $request)
     {
 
-        $user= User::find(Auth::id());
-        
+        $user = User::find(Auth::id());
+
         $request->session()->put('user_from_line', 1);
         // ManagesTenantConnection::configConnection(session('db_conn'));
         $pref = optional($user)->wastePreference;
@@ -36,7 +36,7 @@ class KpMemberShopController extends Controller
             ->where('user_pref_id', $pref->id)->get()->first();
         $products = KpShopProduct::where('status', 'active')->paginate(12);
         $product_categorys = KpShopCategory::all();
-        return view('keptkayas.shop.index', compact('products', 'member','product_categorys'));
+        return view('keptkayas.shop.index', compact('products', 'member', 'product_categorys'));
     }
 
     /**
@@ -117,8 +117,8 @@ class KpMemberShopController extends Controller
     {
         $carts = Session::get('shop_cart', []);
         $user = User::where('id', 1940)->with('wastePreference', 'wastePreference.kp_account')->get()->first();
-        if($user->zone_id == ''){
-        //ยังไม่มีข้อมูลที่อยู้จัดส่งให้กรอกข้อมูลก่อน
+        if ($user->zone_id == '') {
+            //ยังไม่มีข้อมูลที่อยู้จัดส่งให้กรอกข้อมูลก่อน
             return redirect()->route('admin.register');
         }
         if (empty($carts)) {
@@ -141,7 +141,7 @@ class KpMemberShopController extends Controller
         // 1. Create the main order
         $order = KpShopOrder::create([
             'order_no' => 'ORD-' . Carbon::now()->format('YmdHis') . Str::random(4),
-            'user_wpref_id' => $user->wastePreference->id,
+            'user_wpref_id' => $user->kpUserPreferenceid,
             'total_points' => $totalPointsInCart,
             'total_cash' => $totalCashInCart,
             'order_status' => 'pending',
@@ -177,7 +177,7 @@ class KpMemberShopController extends Controller
         Session::forget('shop_cart');
 
         // 5. Update user's points/cash balance (placeholder)
-        $kpAcc = KPAccounts::find($user->wastePreference->kp_account->id);
+        $kpAcc = KPAccounts::find($user->kpUserPreferencekp_account->id);
         $kpAcc->balance -= $totalPointsInCart;
         $kpAcc->points -= $totalCashInCart;
         $kpAcc->save();
@@ -216,7 +216,7 @@ class KpMemberShopController extends Controller
             return redirect()->route('accessmenu')
                 ->with('warning', 'บัญชีนี้ยังไม่ได้ลงทะเบียนธนาคารขยะ');
         }
-        $orders = KpShopOrder::where('user_wpref_id', $user->wastePreference->id)
+        $orders = KpShopOrder::where('user_wpref_id', $user->kpUserPreferenceid)
             ->with('details.product')
             ->orderByDesc('created_at')
             ->get();

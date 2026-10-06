@@ -118,7 +118,7 @@ class User extends Authenticatable
     }
 
 
-    public function wastePreference()
+    public function kpUserPreference()
     {
         return $this->hasOne(KpUserWastePreference::class, 'user_id', 'id');
     }
