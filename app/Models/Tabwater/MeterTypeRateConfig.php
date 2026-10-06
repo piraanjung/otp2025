@@ -17,6 +17,7 @@ class MeterTypeRateConfig extends Model
         'meter_type_id_fk',
         'pricing_type_id',
         'min_usage_charge', //ค่า reserve meter
+        'charge_min_only_zero_use',//check ว่าให้เก็บค่ารักษามิเตอร์เฉพาะมิเตอร์เป็น 0 ไหม
         'vat',
         'fixed_rate_per_unit',
         'effective_date',
