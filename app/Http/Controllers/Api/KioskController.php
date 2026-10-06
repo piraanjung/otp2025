@@ -421,7 +421,7 @@ class KioskController extends Controller
 
         // หา User และ Preference ID
         $user = User::find($userId);
-        $prefId = ($user && $user->wastePreference) ? $user->wastePreference->id : 1;
+        $prefId = ($user && $user->wastePreference) ? $user->kpUserPreferenceid : 1;
         $orgId = $user ? $user->org_id_fk : 1; // กันเหนียวถ้าไม่เจอ User
 
         // 1. ตรวจสอบหรือสร้าง Transaction หลัก

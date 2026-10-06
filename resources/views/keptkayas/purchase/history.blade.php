@@ -14,12 +14,12 @@
                 <h5 class="mb-0">สรุปสำหรับ: {{ $userHistory->firstname }} {{ $userHistory->lastname }}</h5>
             </div>
             <div class="card-body">
-                @if (collect($userHistory->wastePreference->purchaseTransactions)->isEmpty())
+                @if (collect($userHistory->kpUserPreferencepurchaseTransactions)->isEmpty())
                     <div class="alert alert-info text-center">
                         ไม่พบประวัติการรับซื้อขยะสำหรับผู้ใช้งานนี้
                     </div>
                 @else
-                    @foreach ($userHistory->wastePreference->purchaseTransactions as $transaction)
+                    @foreach ($userHistory->kpUserPreferencepurchaseTransactions as $transaction)
                         <div class="card mb-3 border-secondary">
                             <div class="card-header bg-secondary text-white d-flex justify-content-between">
                                 <strong>เลขที่ธุรกรรม: {{ $transaction->kp_u_trans_no }}</strong>
@@ -41,7 +41,8 @@
                                                 <tr>
                                                     <td>{{ $detail->item->kp_itemsname ?? 'N/A' }}</td>
                                                     <td>{{ number_format($detail->amount_in_units, 2) }}
-                                                        {{ $detail->pricePoint->kp_units_info->unitname ?? 'N/A' }}</td>
+                                                        {{ $detail->pricePoint->kp_units_info->unitname ?? 'N/A' }}
+                                                    </td>
                                                     <td>{{ number_format($detail->amount, 2) }} บาท</td>
                                                     <td>{{ number_format($detail->points) }} คะแนน</td>
                                                 </tr>

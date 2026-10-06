@@ -108,21 +108,21 @@
     @foreach($users as $user)
     <tr>
         {{-- 1. ID --}}
-        <td class="ps-4 text-sm">{{ substr('0000', strlen($user->wastePreference->id)) .$user->wastePreference->id }}</td>
+        <td class="ps-4 text-sm">{{ substr('0000', strlen($user->kpUserPreferenceid)) .$user->kpUserPreferenceid }}</td>
 
         {{-- 2. ชื่อ-ที่อยู่ --}}
         <td>
             <div class="d-flex flex-column">
                 <h6 class="mb-0 text-sm">{{ $user->firstname }} {{ $user->lastname }}</h6>
-                <p class="text-xs text-secondary mb-0">{{ $user->wastePreference->address ?? '-' }}</p>
+                <p class="text-xs text-secondary mb-0">{{ $user->kpUserPreferenceaddress ?? '-' }}</p>
             </div>
         </td>
 
         {{-- 3. โซน/ซอย --}}
         <td>
             <div class="text-xs">
-                <div><strong>โซน:</strong> {{ $user->wastePreference->user_pref_zone->zone_name ?? '-' }}</div>
-                <div class="text-muted"><strong>ซอย:</strong> {{ $user->wastePreference->user_pref_subzone->subzone_name ?? '-' }}</div>
+                <div><strong>โซน:</strong> {{ $user->kpUserPreferenceuser_pref_zone->zone_name ?? '-' }}</div>
+                <div class="text-muted"><strong>ซอย:</strong> {{ $user->kpUserPreferenceuser_pref_subzone->subzone_name ?? '-' }}</div>
             </div>
         </td>
 
@@ -133,7 +133,7 @@
                 <div class="form-check mb-0">
                     <input class="form-check-input chk-recycle" type="checkbox"
                         name="services[{{$user->id}}][recycle]" value="1"
-                        {{ $user->wastePreference->kpBankAccount ? 'checked' : '' }}>
+                        {{ $user->kpUserPreferencekpBankAccount ? 'checked' : '' }}>
                 </div>
                 {{-- ขยะเปียก --}}
                 <div class="form-check mb-0">

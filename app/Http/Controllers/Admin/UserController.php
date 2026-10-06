@@ -3,7 +3,6 @@
 namespace App\Http\Controllers\Admin;
 
 use App\Exports\UserTemplateExport;
-use App\Http\Controllers\Api\FunctionsController;
 use App\Http\Controllers\Controller;
 use App\Imports\UserImport;
 use App\Models\Admin\Organization;
@@ -17,7 +16,7 @@ use App\Models\FoodWaste\FoodWasteAccount;
 use App\Models\AnnualTrash\AnnualTrashPayratePerMonth;
 use App\Models\FoodWaste\FoodWasteUserPreference;
 use App\Models\KeptKaya\KpUserWastePreference;
-use App\Models\KPBankAccount;
+use App\Models\KpBankAccount;
 use App\Models\Tabwater\TwUsersInfos;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
@@ -35,11 +34,11 @@ class UserController extends Controller
 
         // ใช้ with() เพื่อป้องกัน N+1 Query (โหลดข้อมูลบัญชีมาพร้อมกันเลย)
         
-        $query = User::with(['wastePreference.kpBankAccount', 'foodWasteAccount', 'annualTrashSubscription'])
-            ->whereHas('wastePreference', function($q){
+        $query = User::with(['kpUserPreference.kpBankAccount', 'foodWasteAccount', 'annualTrashSubscription'])
+            ->whereHas('kpUserPreference', function($q){
                 $q->where('org_id_fk',Auth::user()->org_id_fk );
             })
-            ->where('org_id_fk', Auth::user()->org_id_fk)
+           // ->where('org_id_fk', Auth::user()->org_id_fk)
             ->whereDoesntHave('roles', function ($q) {
                 $q->where('name', 'Super Admin');
             });
@@ -251,7 +250,6 @@ class UserController extends Controller
                             'org_id_fk' => Auth::user()->org_id_fk
                         ],
                     );
-                $user->assignRole('Recycle Bank User');
             
                 // $zone = Zone::where('zone_name', $a[1])->get(['id']);
                 // $subzone = Subzone::where('subzone_name', $a[2])->get(['id']);
@@ -887,12 +885,13 @@ class UserController extends Controller
 
     public function updateService(Request $request)
     {
-        $services = $request->input('services', []);
+
+       $services = $request->input('services', []);
         DB::beginTransaction();
         try {
             foreach ($services as $userId => $data) {
                 $user = User::find($userId);
-        
+
                 if (!$user) continue;
                 $org = Organization::find(Auth::user()->org_id_fk);
                 $orgIdStr =  substr('000', strlen($org->id)) . $org->id;
@@ -900,8 +899,8 @@ class UserController extends Controller
                 // 1. จัดการธนาคารขยะรีไซเคิล (recycle_)
                 if (isset($data['recycle']) && $data['recycle'] == "1") {
 
-                    KpBankAccount::firstOrCreate(
-                        ['user_id' => $user->id],
+                    KPBankAccount::firstOrCreate(
+                        ['kp_bank_accounts' => $user->id],
                         [
                             'account_no' => 'RC-' . $org->org_code . "-" . $orgIdStr . $userIdStr,
                             'status' => 'active',
