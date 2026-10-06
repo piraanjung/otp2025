@@ -1,12 +1,12 @@
 <!-- 🟢 หน้ารายชื่อสมาชิก (ย้าย Search Box + ปุ่ม QR เข้ามาข้างในนี้) -->
 <!-- Header Summary -->
-<div id="globalPrinterStatus" class="connect_bluethooth_status"
+<div id="global_printer_status" class="connect_bluethooth_status"
     style="background: #fff; padding: 10px 15px; margin-bottom: 15px; border-radius: 8px; border-left: 5px solid #dc3545; display: flex; justify-content: space-between; align-items: center; box-shadow: 0 2px 4px rgba(0,0,0,0.05);">
     <div style="font-size: 14px; font-weight: bold; color: #495057;">
-        🖨️ สถานะเครื่องพิมพ์: <span id="lblGlobalPrinterName" style="color: #dc3545;">🔴
+        🖨️ สถานะเครื่องพิมพ์: <span id="lbl_global_printer_name" style="color: #dc3545;">🔴
             ยังไม่ได้เชื่อมต่อ</span>
     </div>
-    <span id="lblGlobalPrinterIndicator"
+    <span id="lbl_global_printer_indicator"
         style="width: 12px; height: 12px; background: #dc3545; border-radius: 50%;"></span>
 </div>
 <div class="card border-0 shadow-sm rounded-3 mb-3 bg-primary text-white" >
