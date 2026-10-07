@@ -314,6 +314,8 @@ class UserController extends Controller
             'tambon' => $org->tambons->tambon_name ?? '-'
         ];
 
+      
+
         return view('admin.users.create', compact('zones', 'defaultAddress'));
     }
 
