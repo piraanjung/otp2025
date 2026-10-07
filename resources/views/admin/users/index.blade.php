@@ -32,6 +32,9 @@
     .table td {
         vertical-align: middle !important;
     }
+    .form-check:not(.form-switch) .form-check-input[type="checkbox"]:checked:after {
+        opacity: 0;
+    }
     </style>
 @endsection
 
@@ -133,13 +136,13 @@
                 <div class="form-check mb-0">
                     <input class="form-check-input chk-recycle" type="checkbox"
                         name="services[{{$user->id}}][recycle]" value="1"
-                        {{  $user->recycleBankAccount->status == 'active' ? 'checked' : '' }}>
+                        {{  $user->recycleBankAccount ? 'checked' : '' }}>
                 </div>
                 {{-- ขยะเปียก --}}
                 <div class="form-check mb-0">
                     <input class="form-check-input chk-food" type="checkbox"
                         name="services[{{$user->id}}][food_waste]" value="1"
-                        {{   $user->foodWasteBankAccount->status == 'active' ? 'checked' : '' }}>
+                        {{   $user->foodWasteBankAccount ? 'checked' : '' }}>
                 </div>
                 {{-- รายปี --}}
                 <div class="form-check mb-0">

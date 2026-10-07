@@ -7,6 +7,7 @@ use App\Models\Admin\Subzone;
 use App\Models\Admin\Zone;
 use App\Models\KeptKaya\KpUserGroup;
 use App\Models\KeptKaya\KpUserWastePreference;
+use App\Models\KpBankAccount;
 use App\Models\User;
 use App\Services\UserWasteStatusService;
 use Illuminate\Http\Request;
@@ -48,9 +49,9 @@ class UserWasteController extends Controller
         $searchIsWasteBank = $request->input('search_is_recycle_bank'); // 'true', 'false', 'any'
 
 
-        $query = User::with(['wastePreference', 'AnnualTrashs'])
+        $query = User::with(['kpUserPreference', 'AnnualTrashs'])
             ->where('org_id_fk', Auth::user()->org_id_fk)
-            ->whereHas('wastePreference')
+            ->whereHas('kpUserPreference')
             ->role('User');
 
         // Apply search filters
@@ -73,16 +74,16 @@ class UserWasteController extends Controller
         // Filter by is_annual_collection status
         $query->when($searchIsAnnualCollection && $searchIsAnnualCollection !== 'any', function ($q) use ($searchIsAnnualCollection) {
             if ($searchIsAnnualCollection === 'true') {
-                $q->whereHas('wastePreference', function ($wp) {
+                $q->whereHas('kpUserPreference', function ($wp) {
                     $wp->where('is_annual_collection', true);
                 });
             } elseif ($searchIsAnnualCollection === 'false') {
                 // Users who have preference and is_annual_collection is false
                 // OR users who do NOT have a wastePreference record (meaning it's implicitly false)
                 $q->where(function ($subQ) {
-                    $subQ->whereHas('wastePreference', function ($wp) {
+                    $subQ->whereHas('kpUserPreference', function ($wp) {
                         $wp->where('is_annual_collection', false);
-                    })->orWhereDoesntHave('wastePreference');
+                    })->orWhereDoesntHave('kpUserPreference');
                 });
             }
         });
@@ -90,21 +91,21 @@ class UserWasteController extends Controller
         // Filter by is_recycle_bank status
         $query->when($searchIsWasteBank && $searchIsWasteBank !== 'any', function ($q) use ($searchIsWasteBank) {
             if ($searchIsWasteBank === 'true') {
-                $q->whereHas('wastePreference', function ($wp) {
+                $q->whereHas('kpUserPreference', function ($wp) {
                     $wp->where('is_recycle_bank', true);
                 });
             } elseif ($searchIsWasteBank === 'false') {
                 // Users who have preference and is_recycle_bank is false
                 // OR users who do NOT have a wastePreference record (implicitly false)
                 $q->where(function ($subQ) {
-                    $subQ->whereHas('wastePreference', function ($wp) {
+                    $subQ->whereHas('kpUserPreference', function ($wp) {
                         $wp->where('is_recycle_bank', false);
-                    })->orWhereDoesntHave('wastePreference');
+                    })->orWhereDoesntHave('kpUserPreference');
                 });
             }
         });
 
-        $query = $query->whereHas('wastePreference');
+        $query = $query->whereHas('kpUserPreference');
         // Check if it's an AJAX request for live search
         if ($request->ajax()) {
             // For AJAX, just get the filtered data (no pagination for simplicity in AJAX update)
@@ -146,7 +147,7 @@ class UserWasteController extends Controller
         $searchIsWasteBank = $request->input('search_is_recycle_bank'); // 'true', 'false', 'any'
 
 
-        $query = User::with(['wastePreference', 'AnnualTrashs']);
+        $query = User::with(['kpUserPreference', 'AnnualTrashs']);
 
         // Apply search filters
         $query->when($searchName, function ($q, $name) {
@@ -168,16 +169,16 @@ class UserWasteController extends Controller
         // Filter by is_annual_collection status
         $query->when($searchIsAnnualCollection && $searchIsAnnualCollection !== 'any', function ($q) use ($searchIsAnnualCollection) {
             if ($searchIsAnnualCollection === 'true') {
-                $q->whereHas('wastePreference', function ($wp) {
+                $q->whereHas('kpUserPreference', function ($wp) {
                     $wp->where('is_annual_collection', true);
                 });
             } elseif ($searchIsAnnualCollection === 'false') {
                 // Users who have preference and is_annual_collection is false
                 // OR users who do NOT have a wastePreference record (meaning it's implicitly false)
                 $q->where(function ($subQ) {
-                    $subQ->whereHas('wastePreference', function ($wp) {
+                    $subQ->whereHas('kpUserPreference', function ($wp) {
                         $wp->where('is_annual_collection', false);
-                    })->orWhereDoesntHave('wastePreference');
+                    })->orWhereDoesntHave('kpUserPreference');
                 });
             }
         });
@@ -185,16 +186,16 @@ class UserWasteController extends Controller
         // Filter by is_recycle_bank status
         $query->when($searchIsWasteBank && $searchIsWasteBank !== 'any', function ($q) use ($searchIsWasteBank) {
             if ($searchIsWasteBank === 'true') {
-                $q->whereHas('wastePreference', function ($wp) {
+                $q->whereHas('kpUserPreference', function ($wp) {
                     $wp->where('is_recycle_bank', true);
                 });
             } elseif ($searchIsWasteBank === 'false') {
                 // Users who have preference and is_recycle_bank is false
                 // OR users who do NOT have a wastePreference record (implicitly false)
                 $q->where(function ($subQ) {
-                    $subQ->whereHas('wastePreference', function ($wp) {
+                    $subQ->whereHas('kpUserPreference', function ($wp) {
                         $wp->where('is_recycle_bank', false);
-                    })->orWhereDoesntHave('wastePreference');
+                    })->orWhereDoesntHave('kpUserPreference');
                 });
             }
         });
@@ -227,8 +228,9 @@ class UserWasteController extends Controller
         $nonMemberUsers = User::role('User')
             ->where('org_id_fk', Auth::user()->org_id_fk)
             // ตรวจสอบว่าไม่เป็นสมาชิกธนาคารขยะ (สมมติตาราง/ฟิลด์)
-            ->whereDoesntHave('wastePreference')
-            ->get();
+            ->whereDoesntHave('foodWasteBankAccount')
+            ->whereDoesntHave('recycleBankAccount')
+            ->get(['id', 'prefix', 'firstname', 'username', 'lastname', 'address', 'zone_id', 'subzone_id', 'email']);
         return view('keptkayas.w.users.create', compact('nonMemberUsers', 'user_groups'));
     }
 
@@ -250,16 +252,33 @@ class UserWasteController extends Controller
             ]);
         }
 
-
         if ($request->mode == 'batch_select') {
             foreach ($validatedData['selected_user_ids'] as $selected_user_id) {
+                $user = User::find($selected_user_id);
+                $org = $user->organization;
+                $orgIdStr =  substr('000', strlen($org->id)) . $org->id;
+                $userIdStr = substr('0000', strlen($user->id)) . $user->id;
                 KpUserWastePreference::create([
+                    'org_id_fk'             => $org->id,
                     'user_id'               => $selected_user_id,
-                    'is_annual_collection'  => false,
-                    'is_recycle_bank'         => false,
+                    'is_annual_collection'  => 0,
+                    'is_recycle_bank'       => 1,
                     'created_at'            => Now(),
                     'updated_at'            => Now(),
                 ]);
+
+                KpBankAccount::firstOrCreate(
+                    [
+                        'user_id' => $user->id,
+                        'entity_type' => 'recycle_bank',
+                    ],
+                    [
+                        'account_no' => 'RC-' . $org->org_code . "-" . $orgIdStr . $userIdStr,
+                        'status' => 'active',
+                        'org_id_fk' => $org->id
+                    ],
+                );
+                $user->assignRole('Recycle Bank User');
             }
         } else {
             DB::transaction(function () use ($validatedData) {
@@ -297,7 +316,7 @@ class UserWasteController extends Controller
     // public function show(Request $request)
     // {
     //     return $request;
-    //     // $w_users->load('AnnualTrashs', 'wastePreference'); // โหลดความสัมพันธ์
+    //     // $w_users->load('AnnualTrashs', 'kpUserPreference'); // โหลดความสัมพันธ์
     //     // return view('users.show', compact('user'));
     // }
 
