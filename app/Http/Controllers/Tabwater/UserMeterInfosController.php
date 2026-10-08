@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Tabwater;
 
 use App\Http\Controllers\Controller;
 use App\Models\Admin\BudgetYear;
+use App\Models\Admin\Organization;
 use Illuminate\Http\Request;
 use App\Models\Admin\Subzone;
 use App\Models\Tabwater\MeterTypeRateConfig;
@@ -257,14 +258,15 @@ class UserMeterInfosController extends Controller
             $totalPaid = $subtotal + $vatAmount;
 
             // 7. UPDATE ข้อมูลลงใน TwInvoice
-            $invoice->currentmeter = $currentReading;
-            $invoice->water_used = $waterUsed;
+            $invoice->currentmeter  = $currentReading;
+            $invoice->water_used    = $waterUsed;
             $invoice->reserve_meter = $reserveMeter;
-            $invoice->vat = $vatAmount;
-            $invoice->totalpaid = $totalPaid;
-            $invoice->recorder_id = $recorderId;
-            $invoice->status = 'invoice'; // เปลี่ยนสถานะเป็น invoice
-            $invoice->updated_at = now();
+            $invoice->vat           = $vatAmount;
+            $invoice->totalpaid     = $totalPaid;
+            $invoice->paid          = $waterCharge;
+            $invoice->recorder_id   = $recorderId;
+            $invoice->status        = 'invoice'; 
+            $invoice->updated_at    = now();
             $invoice->save();
 
             // 8. อัปเดตเลขมิเตอร์ล่าสุดกลับไปยัง TwMeterInfos
@@ -274,20 +276,54 @@ class UserMeterInfosController extends Controller
 
             DB::commit();
 
+            $oweLists = $invoice->where('status', 'owe')->get();
+            $owePaidSum = 0;
+            $owes = [];
+            foreach($oweLists as $owe){
+                $owePaidSum += $owe->totalpaid;
+                $owes[] = ['invoice_period' => $owe->invoice_period->inv_p_name_int, 'totalpaid' => $owe->totalpaid];
+            }   
+             $owes[] = ['invoice_period' => '09-69', 'totalpaid' => 100];
+             $owes[] = ['invoice_period' => '08-69', 'totalpaid' => 200];
+             $owePaidSum = 300;
+             
             return response()->json([
                 'code' => 200,
                 'status' => 'success',
                 'message' => 'บันทึกข้อมูลและออกใบแจ้งหนี้เรียบร้อยแล้ว',
                 'data' => [
-                    'invoice_id' => $invoice->id,
-                    'meter_id' => $meter->meter_id ?? $meter->id,
-                    'lastmeter' => $lastMeter,
-                    'currentmeter' => $currentReading,
-                    'water_used' => $waterUsed,
-                    'reserve_meter' => $reserveMeter,
-                    'vat' => $vatAmount,
-                    'totalpaid' => $totalPaid,
-                    'status' => $invoice->status
+                    'user'              => [
+                                            'name'    => $meter->user->prefix."".$meter->user->firstname." ".$meter->user->lastname,
+                                            'address' => $meter->meter_address,
+                                            'zone'    => $meter->undertake_zone->zone_name,
+                                            'subname' => $meter->submeter_name,
+                                            ],
+                    'owes'              => $owes,
+                    'org'               => [
+                                                'name'      => $meter->organization->orgType->name."".$meter->organization->org_name,
+                                                'address'   => $meter->organization->org_address,
+                                                'zone'      => $meter->organization->zones->zone_name,
+                                                'tambon'    => $meter->organization->tambons->tambon_name,
+                                                'district'  => $meter->organization->districts->district_name,
+                                                'province'  => $meter->organization->provinces->province_name,
+                                                'phone'     => $meter->organization->org_phone,
+                                                'zipcode'   => $meter->organization->org_zipcode,
+                                                'logo_img'  => $meter->organization->org_logo_img
+                                            ],
+                    'owe_paid_sum'      => $owePaidSum,
+                    'invoice_id'        => $invoice->id,
+                    'inv_period_name'   => $invoice->invoice_period->inv_p_name,
+                    'meternumber'       => $meter->meternumber,
+                    'meter_id'          => $meter->meter_id ?? $meter->id,
+                    'lastmeter'         => $lastMeter,
+                    'currentmeter'      => $currentReading,
+                    'water_used'        => $waterUsed,
+                    'paid'              => $waterCharge,
+                    'reserve_meter'     => $reserveMeter,
+                    'vat'               => $vatAmount,
+                    'totalpaid'         => $totalPaid,
+                    'status'            => $invoice->status,
+                    'net_paid'          => number_format($totalPaid + $owePaidSum,2) 
                 ]
             ], 200);
         } catch (\Exception $e) {

@@ -78,7 +78,7 @@ class User extends Authenticatable
     protected $table = 'users';
 
 
-    public function org()
+    public function organization()
     {
         return $this->belongsTo(Organization::class, 'org_id_fk', 'id');
     }
@@ -118,7 +118,7 @@ class User extends Authenticatable
     }
 
 
-    public function wastePreference()
+    public function kpUserPreference()
     {
         return $this->hasOne(KpUserWastePreference::class, 'user_id', 'id');
     }
@@ -194,22 +194,24 @@ class User extends Authenticatable
      * บัญชีธนาคารขยะของผู้ใช้ (users -> kp_user_waste_preferences -> kp_bank_accounts)
      * RecycleBankController และ view recycle_bank เรียกใช้ชื่อนี้
      */
-    public function recycleBankAccount()
-    {
-        return $this->hasOneThrough(
-            KPBankAccount::class,
-            \App\Models\KeptKaya\KpUserWastePreference::class,
-            'user_id',       // kp_user_waste_preferences.user_id
-            'user_pref_id',  // kp_bank_accounts.user_pref_id
-            'id',
-            'id'
-        );
-    }
+
 
     public function kpBankAccount()
     {
-        return $this->hasOne(KPBankAccount::class, 'user_id', 'id');
+        return $this->hasMany(KpBankAccount::class, 'user_id', 'id');
     }
+// บัญชีธนาคารขยะรีไซเคิล
+public function recycleBankAccount()
+{
+    return $this->hasOne(KpBankAccount::class, 'user_id', 'id')->where('entity_type', 'recycle_bank');
+}
+
+// บัญชีธนาคารขยะเปียก/เศษอาหาร
+public function foodWasteBankAccount()
+{
+    return $this->hasOne(KpBankAccount::class, 'user_id', 'id')->where('entity_type', 'foodwaste_bank');
+}
+
 
     // เชื่อมกับบัญชีขยะเปียก (1-to-1)
     public function foodWasteAccount()

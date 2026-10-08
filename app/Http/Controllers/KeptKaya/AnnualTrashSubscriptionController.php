@@ -107,7 +107,7 @@ class AnnualTrashSubscriptionController extends Controller
             $AnnualTrashSubscription->AnnualTrash->user->wastePreference
         ) {
 
-            $isBinActiveForAnnualCollection = $AnnualTrashSubscription->AnnualTrash->user->wastePreference->is_annual_collection;
+            $isBinActiveForAnnualCollection = $AnnualTrashSubscription->AnnualTrash->user->kpUserPreferenceis_annual_collection;
         }
 
         // 3. กำหนดช่วงเวลาของปีงบประมาณ

@@ -22,7 +22,7 @@ class KpUserWastePreference extends Model
         'org_id_fk',
         'user_id',
         'is_annual_collection',
-        'is_waste_bank',
+        'is_recycle_bank',
         "address",
         "zone_id",
         "subzone_id",

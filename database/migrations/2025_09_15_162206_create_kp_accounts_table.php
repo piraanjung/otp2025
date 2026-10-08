@@ -13,9 +13,13 @@ return new class extends Migration
      */
     public function up()
     {
-        Schema::create('kp_accounts', function (Blueprint $table) {
+        Schema::create('kp_bank_accounts', function (Blueprint $table) {
+            $table->id();
+            $table->string('account_no');
             $table->unsignedBigInteger('u_wpref_id_fk')->primary();
-            $table->foreign('u_wpref_id_fk')->references('id')->on('kp_user_waste_preferences')->onDelete('cascade');
+            $table->foreign('org_id_fk')->references('id')->on('organizations')->onDelete('cascade');
+            $table->enum('entity_type',['recycle_bank', 'foodwaste_bank', 'org_recycle']);
+            $table->foreign('user_id')->references('id')->on('users')->onDelete('cascade');
             $table->float('balance',8,2)->default(0);
             $table->float('points',8,2)->default(0);
             $table->enum('status', ['active', 'inactive', 'deleted'])->default('active');

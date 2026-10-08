@@ -11,7 +11,6 @@ class Organization extends Model
     use HasFactory; // 👈 เพิ่ม Trait นี้เข้ามา
     protected $table  = 'organizations';
     protected $fillable = [
-        'id',
         'org_code',
         'org_type_id',
         'org_name',

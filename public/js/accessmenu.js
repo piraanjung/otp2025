@@ -13,6 +13,51 @@ let totalpaid = 0.0;
 let membersInitStatusCount;
 let membersInitStatus;
 let inv_period;
+
+async function loadMembersFromServer() {
+    console.log('loadMembersFromServer')
+    let org_id_fk = localStorage.getItem('staff_org_id')
+    try {
+        // console.log("กำลังดึงรายชื่อสมาชิกทั้งหมดจากระบบ Keptkaya..." + API_BASE_URL);
+
+        const response = await fetch(`${API_BASE_URL}/keptkaya/members/${org_id_fk}`, {
+            method: "GET",
+            headers: {
+                "Content-Type": "application/json",
+                "Accept": "application/json",
+                "ngrok-skip-browser-warning": "true" // 🛡️ ดักหน้าต่างขาว ngrok
+            }
+        });
+
+        if (!response.ok) {
+            throw new Error(`HTTP error! status: ${response.status}`);
+        }
+
+        const resData = await response.json();
+        console.log('resData', resData)
+        // ตรวจสอบว่ามีข้อมูลกลับมาตาม format { code: 200, data: [...] } ไหม
+        if (resData.code === 200 && Array.isArray(resData.data)) {
+            allMembers = resData.data; // เอาข้อมูลยัดเข้าตัวแปรหลักของ master
+            // console.log('resData.data', resData.data)
+            // console.log(`โหลดข้อมูลสำเร็จ! พบสมาชิกทั้งหมด: ${allMembers.length} คน`);
+
+            // 💡 เรียกฟังก์ชันอัปเดตหน้าจอ 2 แท็บทำงานต่อ (รอเขียนในด่านถัดไป)
+            if (typeof updateMemberListUI === "function") {
+                updateMemberListUI();
+            }
+        } else {
+            console.error("รูปแบบข้อมูลจาก Server ไม่ถูกต้อง:", resData);
+        }
+
+    } catch (error) {
+        console.error("เกิดข้อผิดพลาดในการโหลดข้อมูลสมาชิก:", error);
+        alert("ไม่สามารถดึงข้อมูลสมาชิกจากระบบได้: " + error.message);
+    }
+}
+
+
+
+
 // ////////////////////////////////////////////////////////
 //                    Screen Login                       //
 ///////////////////////////////////////////////////////////
@@ -82,8 +127,6 @@ function renderOrgSelectionList(profiles, fullName) {
     });
 }
 
-
-
 function selectOrgAndContinue(orgId, staffId, fullName) {
     setStaffActiveOrg(orgId, staffId);
     // ซ่อนหน้าเลือก Org แล้วเปิดหน้า Main
@@ -122,7 +165,7 @@ async function checkExistingSession() {
         sessionStorage.setItem('current_screen', 'loginScreen');
         currentScreenGlobal = 'loginScreen';
 
-        navigateTo('loginScreen')
+        navigateTo('recycleBankScreen')
         return;
     }
 
@@ -305,7 +348,7 @@ function loadInventoryIframeOnce() {
 
 let prevScreen = "";
 async function navigateTo(moduleName) {
-    sessionStorage.setItem('current_screen', 'tabwaterRecordMemberSubzoneLists')
+    sessionStorage.setItem('current_screen', 'recycleBankScreen')
     // moduleName = 'tabwaterRecordScreen'
     // console.log('navigateTo current_screen', moduleName)
     // sessionStorage.setItem('current_screen', moduleName)
@@ -322,109 +365,15 @@ async function navigateTo(moduleName) {
     } else if (moduleName === 'tabwaterRecordScreen') {
         loadWaterRecordDashboard()
     } else if (moduleName === 'tabwaterRecordMemberSubzoneLists') {
+        // loadMembersFromServer()
         loadWaterMembersList()
     }
 
-
-
     $(`#${moduleName}`).removeClass('is-hidden')
-    // prevScreen = moduleName;
-    // moduleName = 'main';//await checkCurrentScreen(moduleName);
-    // console.log('moduleName',moduleName)
-    // if (moduleName === 'recycle') {
-    //     document.getElementById('mainScreen').classList.add('is-hidden');
-    //     document.getElementById('recycleScreen').classList.remove('is-hidden');
-    //     document.getElementById('searchMemberInput').value = "";
-    //     loadMembersFromServer();
-    //     renderMemberList(allMembers);
-    // }
-    // else if (moduleName === 'settings') {
-    //     document.getElementById('mainScreen').classList.add('is-hidden');
-    //     document.getElementById('depositScreen').classList.add('is-hidden');
-    //     document.getElementById('settingsScreen').classList.remove('is-hidden');
-
-    //     checkBluetoothStatus();
-    // }
-    // else if (moduleName === 'inventory') {
-    //     $('#mainScreen').addClass('is-hidden');
-    //     document.getElementById('depositScreen').classList.add('is-hidden');
-    //     document.getElementById('settingsScreen').classList.add('is-hidden');
-    //     document.getElementById('inventoryScreen').classList.remove('is-hidden');
-    //     manageInventoryIframe('open')
-    //     return
-    // }
-    // else if (moduleName === 'water') {
-    //     document.getElementById('mainScreen').classList.add('is-hidden');
-    //     document.getElementById('waterRecordScreen').classList.add('is-hidden');
-    //     document.getElementById('tabwaterScreen').classList.remove('is-hidden');
-
-
-    // }
-    // // --- เพิ่มเงื่อนไขสำหรับจดมิเตอร์ประปาตรงนี้ ---
-    // else if (moduleName === 'water-tabwater-record') {
-
-    //     document.getElementById('tabwaterScreen').classList.add('is-hidden');
-    //     document.getElementById('waterRecordScreen').classList.remove('is-hidden');
-
-    //     // หากมีฟังก์ชันโหลดข้อมูลมิเตอร์เดิม ให้เรียกตรงนี้ เช่น loadWaterMeters();
-    //     loadWaterRecordDashboard();
-    // }
-    // else if (moduleName === 'water-members-list') {
-    //     console.log('water-members-list')
-    //     document.getElementById('waterRecordScreen').classList.add('is-hidden');
-    //     document.getElementById('waterMembersListScreen').classList.remove('is-hidden');
-
-    //     // เรียกดึงข้อมูลรายชื่อสมาชิกใน Subzone นั้นทันที
-    //     if (typeof loadWaterMembersList === 'function') {
-    //         loadWaterMembersList();
-    //     }
-    // }
-    // // 🟢 2. เพิ่มหน้าแก้ไขรายชื่อสมาชิก/เลขมิเตอร์
-    // else if (moduleName === 'water-members-edit-list') {
-    //     document.getElementById('waterRecordScreen').classList.add('is-hidden');
-    //     document.getElementById('waterMembersEditListScreen').classList.remove('is-hidden');
-
-    //     if (typeof loadWaterMembersEditList === 'function') {
-    //         loadWaterMembersEditList();
-    //     }
-    // }
-    // else if (moduleName === 'water-complain') {
-    //     // 1. เปิด Modal
-    //     const staffModal = new bootstrap.Modal(document.getElementById('staffDashboardModal'));
-    //     staffModal.show();
-
-    //     // 2. ดึงเนื้อหาจาก Route staff/dashboard ผ่าน Fetch API
-    //     fetch('staff/dashboard')
-    //         .then(response => response.text())
-    //         .then(html => {
-    //             // นำ HTML ที่ได้มาใส่ใน modal-body โดยไม่ Refresh หน้า
-    //             document.getElementById('modal-staff-content').innerHTML = html;
-    //         })
-    //         .catch(error => {
-    //             console.error('Error loading staff dashboard:', error);
-    //             document.getElementById('modal-staff-content').innerHTML =
-    //                 '<div class="alert alert-danger">ไม่สามารถโหลดข้อมูลได้</div>';
-    //         });
-    // }
-    // else if (moduleName === 'main') {
-    //     document.getElementById('mainScreen').classList.remove('is-hidden');
-    //     document.getElementById('assistiveBtn').classList.remove('is-hidden');
-
-    //     document.getElementById('tabwaterScreen').classList.add('is-hidden');
-    //     document.getElementById('settingsScreen').classList.add('is-hidden');
-    //     document.getElementById('recycleScreen').classList.add('is-hidden');
-    //     checkBluetoothStatus();
-    // }
-    //  else if (moduleName === 'login') {
-    //     document.getElementById('mainScreen').classList.add('is-hidden');
-    //     document.getElementById('tabwaterScreen').classList.add('is-hidden');
-    //     document.getElementById('settingsScreen').classList.add('is-hidden');
-    //     document.getElementById('recycleScreen').classList.add('is-hidden');
-    //     checkBluetoothStatus();
-    // }
+ 
     manageInventoryIframe('close')
 
-    // updateGlobalPrinterStatus();
+   // updateGlobalPrinterStatus();
 }
 
 
@@ -544,7 +493,7 @@ document.addEventListener("DOMContentLoaded", () => {
 });
 
 //////////////////////////////////////////////////////////
-//                    Tabwater.                           //
+//                    Tabwater                         //
 ///////////////////////////////////////////////////////////
 
 
@@ -1117,7 +1066,7 @@ function openRecordMeterModal(meterId, userName, lastMeter, invoiceId) {
 
 // 🟢 ฟังก์ชันบันทึกข้อมูลเลขมิเตอร์ (ประมวลผลค่าจาก 4 ช่อง)
 async function saveMeterRecord(isPrint = false) {
-    
+
     console.log('window.selectedInvoiceId',)
     const invoiceId = window.selectedInvoiceId;
     const currentMeter = document.getElementById('modalCurrentMeterInput')?.value;
@@ -1145,8 +1094,6 @@ async function saveMeterRecord(isPrint = false) {
     }
 
     try {
-
-
         const response = await fetch(`${API_BASE_URL}/staff/tabwater/meter-records`, {
             method: 'POST',
             headers: {
@@ -1164,34 +1111,32 @@ async function saveMeterRecord(isPrint = false) {
 
         if (response.ok && (resData.code === 200 || resData.success)) {
 
-        console.log('xxxres')
+            console.log('xxxres')
             let recieptText = generateWaterBillHTML(resData.data);
             $('#card-reciept').html(recieptText);
 
             // รอให้ DOM เรนเดอร์ข้อมูลและคำนวณขนาด (Width/Height) เสร็จก่อน
-            await new Promise(resolve => setTimeout(resolve, 200)); 
+            await new Promise(resolve => setTimeout(resolve, 200));
 
             if (isPrint) {
                 if (typeof printReceipt === "function") {
-                    let res = await printReceipt();
-                    if (!res) {
-                        return;
-                    } else {
-                        alertMessage('ทำการเชื่อมต่อบูลธูทเรียบร้อย!!');
-                    }
+                    let res = await printReceipt()
                 }
             }
+
             const recordModalEl = document.getElementById('recordMeterModal');
             if (recordModalEl) {
                 const modal = bootstrap.Modal.getInstance(recordModalEl);
                 if (modal) modal.hide();
             }
-            console.log('renderMembersListUI()')
-            // if (typeof renderMembersListUI === 'function') {
-                renderMembersListUI();
-            // } else {
-            //     location.reload();
-            // }
+            console.log('renderMembersCardList()')
+            $('card-reciept').html('')
+            if (typeof renderMembersCardList === 'function') {
+                console.log('renderMembersCardList(resData.data)',)
+                loadMembersFromServer();
+            } else {
+                location.reload();
+            }
         } else {
             alert(resData.message || 'เกิดข้อผิดพลาดในการบันทึกข้อมูล');
         }
@@ -1217,222 +1162,170 @@ $('#btn-save-and-print').on('click', function () {
 });
 
 
-async function generateWaterBillHTML2(data = '2') {
-    console.log('dsssa', data)
-    console.log('dsxxxxssa', data)
-    // const recordDate = formatThaiDate(new Date(), 'short');
-    // const expireDate = formatThaiDate(data.expire_date || new Date(Date.now() + 15 * 24 * 60 * 60 * 1000));
-
-    let oweHtml = '';
-    oweHtml = `
-    <div class="border-top border-dark border-1 my-1"></div>
-    <div class="fw-bold style-subhead">รายการค้างชำระเดิม:</div>
-    <ul class="list-unstyled mb-1 ps-1 style-body">
-        <li class="d-flex justify-content-between"><span>09/68</span> <span class="">10.70 บาท</span></li>
-        <li class="d-flex justify-content-between"><span>10/68</span> <span class="">12.54 บาท</span></li>
-        <li class="d-flex justify-content-between"><span>11/68</span> <span class="">23.00 บาท</span></li>
-    </ul>
-`;
-
-    let org_img = window.ASSET_URL ? window.ASSET_URL + "logo/hs_logo.png" : "/logo/hs_logo.png";
-
-    $('#qrcode_info').html(`
-<style>
-    /* CSS สำหรับควบคุมการพิมพ์ลงกระดาษความร้อน 58mm */
-    
-    #qrcode_info{
-        font-family: "Kanit", sans-serif;
-    }
-    /* สไตล์ขนาดฟอนต์ระดับต่างๆ ที่ขยายให้ใหญ่ขึ้น */
-    .style-title { font-size: 2.5rem; font-weight: bold; }
-    .style-header { font-size: 2rem; font-weight: bold; }
-    .style-subhead { font-size: 1.7rem; font-weight: bold; }
-    .style-body { font-size:  1.7rem; }
-    .style-small { font-size: 1.5rem }
-    .logo{
-        width:200px;
-        height:200px;
-    }
-
-   
-</style>
-
-<div class="receipt-container">
-    
-    <!-- Header/Logo Section -->
-    <div class="text-center mb-1">
-        <img src="${org_img}" class="img-fluid mb-1 logo" alt="Logo">   
-        <div class="style-title">เทศบาลตำบลห้องแซง</div>
-        <div class="style-small">124 หมู่ 19 ต.ห้องแซง อ.เลิงนกทา จ.ยโสธร</div>
-        <div class="style-small">โทร. 045777123</div>
-    </div>
-
-    <!-- Title Section -->
-    <div class="text-center my-1">
-        <div class="style-header">ใบแจ้งหนี้ / ใบชำระค่าน้ำประปา</div>
-        <div class="style-body">รอบบิล: 12/68 | เลขที่: 123456</div>
-    </div>
-
-    <div class="border-top border-dark border-1 my-1"></div>
-
-    <!-- User Info Section -->
-    <div class="style-body mb-1">
-        <div class="d-flex justify-content-between">
-            <span class="text-nowrap">ผู้ใช้น้ำ:</span>
-            <span class="fw-bold text-end">นายวิเชียร เมืองพิล</span>
-        </div>
-        <div class="d-flex justify-content-between">
-            <span class="text-nowrap">เลขผู้ใช้:</span>
-            <span class="text-end">user000101</span>
-        </div>
-        <div class="d-flex justify-content-between">
-            <span class="text-nowrap">เลขมิเตอร์:</span>
-            <span class="text-end">01-83230232</span>
-        </div>
-        <div class="d-flex justify-content-between">
-            <span class="text-nowrap">วันที่จด:</span>
-            <span class="text-end">12 ธ.ค. 2568</span>
-        </div>
-    </div>
-
-    <div class="border-top border-dark border-1 my-1"></div>
-
-    <!-- Meter Usage Section -->
-    <div class="style-body">
-        <div class="d-flex justify-content-between">
-            <span>เลขครั้งก่อน:</span>
-            <span>100</span>
-        </div>
-        <div class="d-flex justify-content-between">
-            <span>เลขครั้งนี้:</span>
-            <span>120</span>
-        </div>
-        <div class="d-flex justify-content-between fw-bold style-subhead">
-            <span>ปริมาณที่ใช้:</span>
-            <span>20 หน่วย</span>
-        </div>
-    </div>
-
-    <div class="border-top border-dark border-1 my-1 col-5" style=" margin-left:63%"></div>
-
-    <!-- Bill Details Section -->
-    <div class="style-body">
-        <div class="d-flex justify-content-between">
-            <span>ค่าน้ำประปา:</span>
-            <span>160.00</span>
-        </div>
-        <div class="d-flex justify-content-between">
-            <span>ค่าบริการมิเตอร์:</span>
-            <span>0.00</span>
-        </div>
-        <div class="d-flex justify-content-between">
-            <span>ภาษี (VAT):</span>
-            <span>3.60</span>
-        </div>
-        <div class="d-flex justify-content-between fw-bold style-subhead pt-1">
-            <span>รวมเป็นเงิน:</span>
-            <span>163.60</span>
-        </div>
-    </div>
-
-    ${oweHtml}
-
-    <div class="border-top border-dark border-2 my-1"></div>
-
-    <!-- Total Section -->
-    <div class="d-flex justify-content-between align-items-center fw-bold style-header my-1">
-        <span>รวมเงินทั้งสิ้น:</span>
-        <span style="font-size: 18px;">263.60 บาท</span>
-    </div>
-
-    <!-- QR Code Section -->
-    <div class="text-center my-2">
-        <div class="fw-bold style-body">สแกนเพื่อชำระเงิน</div>
-        <div id="qrcode" class="d-flex justify-content-center my-1"></div>
-    </div>
-
-    <div class="text-center p-1 border border-dark rounded my-1 style-body">
-        <span class="fw-bold">กำหนดชำระภายใน:</span> 10 ม.ค. 2569
-    </div>
-
-    <div class="text-center style-small mt-1">
-        *** กรุณาชำระตามกำหนด ***
-    </div>
-</div>
-`);
-    buildReceiptHtml()
-    if (typeof printReceipt === "function") {
-        await printReceipt();
-    }
-
-}
+// generateWaterBillHTML();
 function generateWaterBillHTML(data) {
     console.log('da', data)
     const recordDate = formatThaiDate(new Date(), 'short');
     const expireDate = formatThaiDate(data.expire_date || new Date(Date.now() + 15 * 24 * 60 * 60 * 1000));
+    let org_img = window.ASSET_URL ? window.ASSET_URL + `logo/${data.org.logo_img}` : "/logo/hs_logo.png";
 
     let oweHtml = '';
-    if (data.owe_list && data.owe_list.length > 0) {
+    let increaseH = 1600;
+    if (data.owes && data.owes.length > 0) {
+        increaseH  += (data.owes.length * 20);
         oweHtml = `
             <div style="border-top: 1px dotted #000; margin: 4px 0;"></div>
-            <div style="font-weight: bold; font-size: 11px;">รายการค้างชำระเดิม:</div>
-            <ul style="padding-left:15px; margin:2px 0; font-size:11px;">`;
-        data.owe_list.forEach(item => {
-            oweHtml += `<li>${item.period_name} <span style="float:right;">${parseFloat(item.totalpaid).toFixed(2)} บาท</span></li>`;
+            <div style="font-weight: bold; font-size: 1.7rem;">รายการค้างชำระเดิม:</div>
+            <ul style="padding-left:15px; margin:2px 0;font-size: 1.7rem">`;
+            
+        data.owes.forEach(item => {
+            oweHtml += `<li>${item.invoice_period} <span style="float:right;">${parseFloat(item.totalpaid).toFixed(2)} <sup>บาท<sup></span></li>`;
         });
         oweHtml += `</ul>`;
+        
     }
 
-    return `
-    <div style="width: 350px; padding: 10px; background: #ffffff; color: #000000; font-family: 'Tahoma', sans-serif; font-size: 12px; line-height: 1.3;">
-        <div style="text-align: center; margin-bottom: 6px;">
-            <b style="font-size: 14px;">ใบแจ้งหนี้ / ใบชำระค่าน้ำประปา</b><br>
-            <span>ประจำงวด: ${data.inv_period_name || '-'}</span><br>
-            <span>เลขที่: ${data.invoice_id || data.inv_no || '-'}</span>
+    let zero18 = "000000000000000000";
+    let inv_id =zero18.slice(0, 18 - data.invoice_id.toString().length) +"" + data.invoice_id;
+        
+    let meter_id =
+        zero18.slice(0, 18 - data.meter_id.toString().length) +""+data.meter_id;
+
+    let qrPayload  = `|099400035262000\n${meter_id}\n${inv_id}\n${data.net_paid.toString().replace(".", "")}`;
+      
+    $('#card-reciept').css('height', `${increaseH}px`)
+
+    $('#card-reciept').html(`
+        <style>
+            /* CSS สำหรับควบคุมการพิมพ์ลงกระดาษความร้อน 58mm */
+            #card-reciept {
+                font-family: "Kanit", sans-serif;
+            }
+            .style-title { font-size: 2.5rem; font-weight: bold; }
+            .style-header { font-size: 1.8rem; font-weight: bold; }
+            .style-subhead { font-size: 1.7rem; font-weight: bold; }
+            .style-body { font-size: 1.7rem; }
+            .style-small { font-size: 1.3rem }
+            .logo { width: 200px; height: 200px; }
+            /* จัดขนาด QR Code ให้พอดีกับใบเสร็จ (ถ้าจำเป็น) */
+            #qrcode img, #qrcode canvas {
+                display: block;
+                margin: 0 auto;
+            }
+        </style>
+        <div class="receipt-container">
+            <div class="text-center mb-1">
+                <img src="${org_img}" class="img-fluid mb-1 logo" alt="Logo">
+                <div class="style-title">${data.org.name}</div>
+                <div class="style-small">${data.org.address} ${data.org.zone} ต.${data.org.tambon} อ.${data.org.district} จ.${data.org.province}</div>
+                <div class="style-small">โทร. ${data.org.phone || '045777123'}</div>
+            </div>
+            <div class="text-center my-1">
+                <div class="style-header">ใบแจ้งหนี้ / ใบชำระค่าน้ำประปา</div>
+                <div class="style-body">รอบบิล: ${data.inv_period_name || '-'} | เลขที่: ${data.invoice_id  || '-'}</div>
+            </div>
+
+            <div class="border-top border-dark border-1 my-1"></div>
+            <div class="style-body mb-1">
+                <div class="d-flex justify-content-between">
+                    <span class="text-nowrap">ผู้ใช้น้ำ:</span>
+                    <span class="text-end">${data.user.name || "-"} ${data.user.subname === "" ? "" : (data.user.subname) } </span>
+                </div> 
+                <div class="d-flex justify-content-between">
+                    <span class="text-nowrap">ที่อยู่:</span>
+                    <span class="text-end">${data.user.address} ${data.user.zone}</span>
+                </div>            
+                <div class="d-flex justify-content-between">
+                    <span class="text-nowrap">เลขผู้ใช้:</span>
+                    <span class="text-end">${data.meter_id || '-'}</span>
+                </div>
+                <div class="d-flex justify-content-between">
+                    <span class="text-nowrap">เลขมิเตอร์:</span>
+                    <span class="text-end">${data.meternumber || '-'}</span>
+                </div>
+                <div class="d-flex justify-content-between">
+                    <span class="text-nowrap">วันที่จด:</span>
+                    <span class="text-end">${recordDate}</span>
+                </div>
+            </div>
+            <div class="border-top border-dark border-1 my-1"></div>
+            <div class="style-body">
+                <div class="d-flex justify-content-between">
+                    <span>เลขครั้งนี้:</span>
+                    <span>${data.currentmeter}</span>
+                </div>
+                <div class="d-flex justify-content-between">
+                    <span>เลขครั้งก่อน:</span>
+                    <span>${data.lastmeter}</span>
+                </div>
+               
+    
+                <div class="d-flex justify-content-between fw-bold style-subhead">
+                    <span>ปริมาณที่ใช้:</span>
+                    <span>${data.water_used} <sup>หน่วย</sup></span>
+                </div>
+            </div>
+
+         
+            <div class="border-top border-dark border-1 my-1 col-5" style="margin-left:63%"></div>
+            <div class="style-body">
+                <div class="d-flex justify-content-between">
+                    <span>ค่าน้ำประปา:</span>
+                    <span>${parseFloat(data.paid || 0).toFixed(2)}<sup>บาท</sup></span>
+                </div>
+                <div class="d-flex justify-content-between">
+                    <span>ค่าบริการมิเตอร์:</span>
+                    <span>${parseFloat(data.reserve_meter || 0).toFixed(2)}<sup>บาท</sup></span>
+                </div>
+                <div class="d-flex justify-content-between">
+                    <span>ภาษี (VAT):</span>
+                    <span>${parseFloat(data.vat || 0).toFixed(2)}<sup>บาท</sup></span>
+                </div>
+                <div class="d-flex justify-content-between fw-bold style-subhead pt-1">
+                    <span>รวมเป็นเงิน:</span>
+                    <span>${parseFloat(data.totalpaid || 0).toFixed(2)}<sup>บาท</sup></span>
+                </div>
+            </div>
+
+            ${oweHtml}
+            <div class="border-top border-dark border-2 my-1"></div>
+            <div class="d-flex justify-content-between align-items-center fw-bold style-header my-1">
+                <span>รวมเงินทั้งสิ้น:</span>
+                <span >${parseFloat(data.net_paid || 0).toFixed(2)} <sup>บาท</sup></span>
+            </div>
+            <div class="text-center my-2">
+                <div class="style-subheader">สแกนเพื่อชำระเงิน</div>
+                <div style="fw-bold style-subheader"> จำนวน ${parseFloat(data.net_paid || 0).toFixed(2)} บาท </div>
+
+                <div id="qrcode" class="d-flex justify-content-center my-1"></div>
+            </div>
+            <div class="text-center p-1 border border-dark rounded my-1 style-body">
+                <div class="fw-bold">กำหนดชำระภายใน:</div> 
+                ${expireDate}
+            </div>
+            <div class="text-center style-small mt-1">
+                กรุณาชำระตามกำหนดไม่เช่นนั้นท่านจะถูกงดการให้บริการน้ำประปา โดยท่านต้องชำระค่าใช้น้ำประปาให้ครบทั้งหมดก่อน
+                ถึงจะทำการติดตั้งการใช้น้ำประปาคืนให้ได้
+            </div>
         </div>
+        
 
-        <div style="border-top: 1px dashed #000; margin: 4px 0;"></div>
 
-        <div>
-            <b>ผู้ใช้น้ำ:</b> ${data.user_name || '-'}<br>
-            <b>เลขผู้ใช้:</b> ${data.user_code || data.meter_id || '-'}<br>
-            <b>เลขมิเตอร์:</b> ${data.meternumber || '-'}<br>
-            <b>วันที่จด:</b> ${recordDate}
-        </div>
+    `);
+    // หลังจากใส่ HTML เข้าไปแล้ว ให้สั่งสร้าง QR Code ลงใน element #qrcode ตรงนี้ครับ
+    if (typeof QRCode !== "undefined") {
+        new QRCode(document.getElementById("qrcode"), {
+            text: qrPayload,
+            width: 230,  // ปรับขนาดความกว้างตามต้องการ (เหมาะกับกระดาษความร้อน)
+            height: 230, // ปรับขนาดความสูง
+            colorDark: "#000000",
+            colorLight: "#ffffff",
+            correctLevel: QRCode.CorrectLevel.H
+        });
+    } else {
+        console.error("ยังไม่ได้โหลดไลบรารี QRCode (qrcode.js)");
+    }
 
-        <div style="border-top: 1px dashed #000; margin: 4px 0;"></div>
-
-        <table style="width: 100%; font-size: 12px; border-collapse: collapse;">
-            <tr><td>เลขครั้งก่อน:</td><td style="text-align: right;">${data.lastmeter}</td></tr>
-            <tr><td>เลขครั้งนี้:</td><td style="text-align: right;">${data.currentmeter}</td></tr>
-            <tr><td><b>ปริมาณที่ใช้:</b></td><td style="text-align: right;"><b>${data.water_used} หน่วย</b></td></tr>
-        </table>
-
-        <div style="border-top: 1px dashed #000; margin: 4px 0;"></div>
-
-        <table style="width: 100%; font-size: 12px; border-collapse: collapse;">
-            <tr><td>ค่าน้ำประปา:</td><td style="text-align: right;">${parseFloat(data.water_charge || 0).toFixed(2)}</td></tr>
-            <tr><td>ค่าบริการมิเตอร์:</td><td style="text-align: right;">${parseFloat(data.reserve_meter || 0).toFixed(2)}</td></tr>
-            <tr><td>ภาษี (VAT):</td><td style="text-align: right;">${parseFloat(data.vat || 0).toFixed(2)}</td></tr>
-        </table>
-
-        ${oweHtml}
-
-        <div style="border-top: 2px solid #000; margin: 6px 0;"></div>
-
-        <table style="width: 100%; font-size: 14px; border-collapse: collapse;">
-            <tr><td><b>รวมเงินทั้งสิ้น:</b></td><td style="text-align: right;"><b>${parseFloat(data.totalpaid || 0).toFixed(2)} บาท</b></td></tr>
-        </table>
-
-        <div style="margin-top: 6px; font-size: 11px;">
-            <b>กำหนดชำระภายใน:</b> ${expireDate}
-        </div>
-
-        <div style="text-align: center; margin-top: 10px; font-size: 11px;">
-            *** กรุณาชำระตามกำหนด ***<br>
-            ขอบคุณที่ใช้บริการ
-        </div>
-    </div>`;
 }
 
 
@@ -1455,11 +1348,41 @@ function formatThaiDate(dateInput, mode = 'short') {
 }
 
 // //////////////////////////////////////////////////////////////////////////
-//                                 BLUETHOOTH                              //
+//                                 BLUETHOOTH  AND PRINTER                 //
 // //////////////////////////////////////////////////////////////////////////
-// -------------------------------------------------------------------------
-//  โมดูลระบบเชื่อมต่อเครื่องพิมพ์บลูทูธ (Bluetooth LE เท่านั้น ไม่ใช้ระบบเก่า)
-// -------------------------------------------------------------------------
+
+
+$('#global_printer_status').click(function () {
+    connectToPrinter()
+})
+
+// 🟢 ฟังก์ชันสำหรับอัปเดตสถานะแถบเครื่องพิมพ์ข้ามหน้าจอ (Global Badge Status)
+function updateGlobalPrinterStatus() {
+    const isConnected = isBluethoothConnected
+    const printerName = printer_name || 'เครื่องพิมพ์';
+    console.log([isConnected, printerName])
+
+    const lblName = document.getElementById('lbl_global_printer_name');
+    const lblIndicator = document.getElementById('lbl_global_printer_indicator');
+    const statusBox = document.getElementById('global_printer_status');
+
+    if (!statusBox || !lblName || !lblIndicator) return;
+
+    if (isConnected || printCharacteristic) {
+        lblName.innerText = `🟢 เชื่อมต่ออยู่กับ (${printerName})`;
+        lblName.style.color = "#28a745";
+        lblIndicator.style.background = "#28a745";
+        statusBox.style.borderLeft = "5px solid #28a745";
+    } else {
+        lblName.innerText = "🔴 ยังไม่ได้เชื่อมต่ออุปกรณ์";
+        lblName.style.color = "#dc3545";
+        lblIndicator.style.background = "#dc3545";
+        statusBox.style.borderLeft = "5px solid #dc3545";
+    }
+}
+
+
+
 function checkBluetoothStatus() {
     const statusText = document.getElementById('status');
     if (!statusText) return;
@@ -1851,22 +1774,6 @@ if (btnPrintTest) {
     });
 }
 
-
-
-// --- Configuration Constants ---
-const PRINTER_SERVICE_UUID = '000018f0-0000-1000-8000-00805f9b34fb';
-const PRINTER_CHARACTERISTIC_UUID = '00002af1-0000-1000-8000-00805f9b34fb';
-const LAST_USED_DEVICE_ID_KEY = 'lastUsedBluetoothDeviceId';
-
-// --- UI Elements ---
-const statusText = document.getElementById('status-text');
-const statusCard = document.getElementById('status-card');
-const connectButton = document.getElementById('connectButton');
-const printButton = document.getElementById('printImageButton');
-const printBtnText = document.getElementById('printBtnText');
-
-
-
 // --- Helper: UI Updates ---
 function updateStatus(message, type = 'info') {
     console.log('mes', message)
@@ -1884,8 +1791,8 @@ function updateStatus(message, type = 'info') {
         // Update Buttons
         connectButton.classList.add('text-success', 'border-success');
         // connectButton.innerHTML = '<span class="material-icons-round">bluetooth_connected</span><span>เชื่อมต่อแล้ว</span>';
-        const isConnected = localStorage.getItem('is_printer_connected') === 'true';
-        const printerName = localStorage.getItem('connected_printer_name') || 'เครื่องพิมพ์';
+        const isConnected = isBluethoothConnected === 'true';
+        const printerName = printer_name || 'เครื่องพิมพ์';
 
         statusText.innerText = `🟢 เชื่อมต่ออยู่กับ: ${printerName}`;
         statusText.style.color = "green";
@@ -1942,6 +1849,8 @@ async function connectToPrinter() {
         printCharacteristic = await service.getCharacteristic(PRINTER_CHARACTERISTIC_UUID);
 
         updateStatus(`เชื่อมต่อ ${bluetoothDevice.name} สำเร็จ`, 'success');
+        isBluethoothConnected = true
+        printer_name = bluetoothDevice.name
         updateGlobalPrinterStatus()
 
     } catch (error) {
@@ -1999,9 +1908,9 @@ async function printReceipt() {
 
     try {
         // 1. HTML to Canvas
-        const receiptElement = document.getElementById('qrcode_info');
+        const receiptElement = document.getElementById('card-reciept');
         if (!receiptElement) {
-            throw new Error('ไม่พบ Element #receipt-card ในหน้าเว็บ');
+            throw new Error('ไม่พบ Element #card-reciept ในหน้าเว็บ');
         }
 
         const canvas = await html2canvas(receiptElement, {
@@ -2050,6 +1959,8 @@ async function printReceipt() {
         // Feed Lines (0x0A = Line Feed)
         await printCharacteristic.writeValueWithoutResponse(new Uint8Array([0x0A, 0x0A, 0x0A]));
         updateStatus('พิมพ์เสร็จสิ้น', 'success');
+        // $('#card-reciept').css('height', `0px`)
+
 
     } catch (error) {
         // ป้องกันกรณี error.message ไม่มีค่า
@@ -2068,12 +1979,12 @@ connectButton.addEventListener('click', connectToPrinter);
 ////////////////////////////////////////////////////////////////////////////////////
 function BluethoothConnectedModal(from) {
 
-    
+
     if (!printCharacteristic) {
-        if(from === 'recycle'){
+        if (from === 'recycle') {
             document.getElementById('customCartModal').remove();
         }
-        
+
 
         Swal.fire({
             title: 'ยังไม่ได้เชื่อมต่อเครื่องพิมพ์!',

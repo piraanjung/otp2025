@@ -4,12 +4,12 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
 
-class KPBankAccount extends Model
+class KpBankAccount extends Model
 {
 protected $table = 'kp_bank_accounts';
 
 protected $fillable = [
-    'user_pref_id', 'org_id_fk', 'account_no', 'balance', 'points', 'status'
+    'user_id', 'org_id_fk','entity_type', 'account_no', 'balance', 'points', 'status'
 ];
 
 protected $casts = [

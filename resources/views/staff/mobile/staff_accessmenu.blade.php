@@ -74,6 +74,7 @@
         </div> --}}
     </div>
 
+    </div>
     <div id="loginScreen" class="screen is-hidden">
         @include('staff.includes.login_screen')
     </div>
@@ -126,9 +127,7 @@
         @include('staff.includes.main_screen')
     </div>
 
-    {{-- <div id="recycleBankScreen" class="screen is-hidden"> --}}
-        @include('staff.includes.recycle_bank_screen')
-    {{-- </div> --}}
+  
 
     <div id="depositScreen" class="screen is-hidden">
         <div id="globalPrinterStatus"
@@ -344,6 +343,12 @@
     <div id="tabwaterRecordMemberSubzoneLists" class="screen is-hidden">
         @include('staff.mobile.screen_water_members_list')
     </div>
+    <div id="tabwaterRecordMemberSubzoneLists" class="screen is-hidden">
+        @include('staff.mobile.screen_water_members_list')
+    </div>
+
+        @include('staff.mobile.recycle_bank_screen')
+
     <div id="inventoryScreen" class="screen is-hidden">
         <iframe src=""  style=" width: 100%; height: 800px; border: none;"
             id="inventoryIframe">
@@ -382,15 +387,11 @@
         </div>
     </div>
 
-    <div id="card-reciept" style="width: 384px; 
-                                    background: #ffffff; 
+    <div id="card-reciept" style="width: 384px;
+                                    background:transparent; 
                                     color: #000000;
                                     font-size:1.4rem !important;
                                     ">
-    </div>
-
-    {{-- <div id="qrcode_info"></div> --}}
-
 @endsection
 
 @section('script')
@@ -404,6 +405,7 @@
     <script src="https://cdn.jsdelivr.net/npm/tesseract.js@5/dist/tesseract.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/cropperjs/1.5.13/cropper.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
     <script src="{{ asset('js/accessmenu.js') }}"></script>
     <script>
 
@@ -574,47 +576,7 @@
         }
 
         // 🟢 เพิ่มฟังก์ชันนี้ต่อท้ายตัวแปรโกลบอลด้านบนของ app.js
-        async function loadMembersFromServer() {
-            console.log('loadMembersFromServer')
-            let org_id_fk = localStorage.getItem('staff_org_id')
-            try {
-                // console.log("กำลังดึงรายชื่อสมาชิกทั้งหมดจากระบบ Keptkaya..." + API_BASE_URL);
-
-                const response = await fetch(`${API_BASE_URL}/keptkaya/members/${org_id_fk}`, {
-                    method: "GET",
-                    headers: {
-                        "Content-Type": "application/json",
-                        "Accept": "application/json",
-                        "ngrok-skip-browser-warning": "true" // 🛡️ ดักหน้าต่างขาว ngrok
-                    }
-                });
-
-                if (!response.ok) {
-                    throw new Error(`HTTP error! status: ${response.status}`);
-                }
-
-                const resData = await response.json();
-                console.log('resData',resData)
-                // ตรวจสอบว่ามีข้อมูลกลับมาตาม format { code: 200, data: [...] } ไหม
-                if (resData.code === 200 && Array.isArray(resData.data)) {
-                    allMembers = resData.data; // เอาข้อมูลยัดเข้าตัวแปรหลักของ master
-                    // console.log('resData.data', resData.data)
-                    // console.log(`โหลดข้อมูลสำเร็จ! พบสมาชิกทั้งหมด: ${allMembers.length} คน`);
-
-                    // 💡 เรียกฟังก์ชันอัปเดตหน้าจอ 2 แท็บทำงานต่อ (รอเขียนในด่านถัดไป)
-                    if (typeof updateMemberListUI === "function") {
-                        updateMemberListUI();
-                    }
-                } else {
-                    console.error("รูปแบบข้อมูลจาก Server ไม่ถูกต้อง:", resData);
-                }
-
-            } catch (error) {
-                console.error("เกิดข้อผิดพลาดในการโหลดข้อมูลสมาชิก:", error);
-                alert("ไม่สามารถดึงข้อมูลสมาชิกจากระบบได้: " + error.message);
-            }
-        }
-
+        
         // 📷 ปุ่มสแกน QR Code ค้นหาบัตรสมาชิกชาวบ้าน
         const btnScanQR = document.getElementById('btnScanQR');
         let html5QrCode = null; // ตัวแปรสำหรับเก็บ instance ของตัวสแกน
@@ -1300,31 +1262,7 @@
             });
         }
 
-        // 🟢 ฟังก์ชันสำหรับอัปเดตสถานะแถบเครื่องพิมพ์ข้ามหน้าจอ (Global Badge Status)
-        function updateGlobalPrinterStatus() {
-            const isConnected = localStorage.getItem('is_printer_connected') === 'true';
-            const printerName = localStorage.getItem('connected_printer_name') || 'เครื่องพิมพ์';
-
-            const lblName = document.getElementById('lblGlobalPrinterName');
-            const lblIndicator = document.getElementById('lblGlobalPrinterIndicator');
-            const statusBox = document.getElementById('globalPrinterStatus');
-
-            if (!statusBox || !lblName || !lblIndicator) return;
-
-            if (isConnected || printCharacteristic) {
-                lblName.innerText = `🟢 เชื่อมต่ออยู่กับ (${printerName})`;
-                lblName.style.color = "#28a745";
-                lblIndicator.style.background = "#28a745";
-                statusBox.style.borderLeft = "5px solid #28a745";
-            } else {
-                lblName.innerText = "🔴 ยังไม่ได้เชื่อมต่ออุปกรณ์";
-                lblName.style.color = "#dc3545";
-                lblIndicator.style.background = "#dc3545";
-                statusBox.style.borderLeft = "5px solid #dc3545";
-            }
-        }
-
-
+        
         let currentTab = 'pending'; // แท็บปัจจุบัน (เริ่มต้นที่ pending)
 
         // 🟢 ฟังก์ชันสำหรับกดสลับแท็บ

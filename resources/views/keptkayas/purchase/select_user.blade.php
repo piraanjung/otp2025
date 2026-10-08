@@ -12,37 +12,41 @@
 
 @section('content')
 
-<style>
-    /* CSS สำหรับ Mobile Scroll Area */
-    @media (max-width: 767px) {
-        .mobile-scroll-container {
-            /* ความสูง = ความสูงหน้าจอ - (Header + Search Bar + Padding) */
-            height: calc(100vh - 280px);
-            overflow-y: auto;
-            overflow-x: hidden;
-            padding-bottom: 80px; /* เผื่อที่ด้านล่าง */
-            -webkit-overflow-scrolling: touch; /* ให้เลื่อนลื่นๆ บน iOS */
-        }
+    <style>
+        /* CSS สำหรับ Mobile Scroll Area */
+        @media (max-width: 767px) {
+            .mobile-scroll-container {
+                /* ความสูง = ความสูงหน้าจอ - (Header + Search Bar + Padding) */
+                height: calc(100vh - 280px);
+                overflow-y: auto;
+                overflow-x: hidden;
+                padding-bottom: 80px;
+                /* เผื่อที่ด้านล่าง */
+                -webkit-overflow-scrolling: touch;
+                /* ให้เลื่อนลื่นๆ บน iOS */
+            }
 
-        /* ซ่อน Scrollbar เดิมแต่ยังเลื่อนได้ (Optional) */
-        .mobile-scroll-container::-webkit-scrollbar {
-            width: 4px;
-        }
-        .mobile-scroll-container::-webkit-scrollbar-thumb {
-            background-color: #ccc;
-            border-radius: 4px;
-        }
+            /* ซ่อน Scrollbar เดิมแต่ยังเลื่อนได้ (Optional) */
+            .mobile-scroll-container::-webkit-scrollbar {
+                width: 4px;
+            }
 
-        .sticky-search-box {
-            position: sticky;
-            top: 0;
-            z-index: 1020;
-            background-color: #f8f9fa; /* สีพื้นหลังเดียวกับ Body เพื่อบังเนื้อหาตอนเลื่อน */
-            padding-top: 10px;
-            padding-bottom: 10px;
+            .mobile-scroll-container::-webkit-scrollbar-thumb {
+                background-color: #ccc;
+                border-radius: 4px;
+            }
+
+            .sticky-search-box {
+                position: sticky;
+                top: 0;
+                z-index: 1020;
+                background-color: #f8f9fa;
+                /* สีพื้นหลังเดียวกับ Body เพื่อบังเนื้อหาตอนเลื่อน */
+                padding-top: 10px;
+                padding-bottom: 10px;
+            }
         }
-    }
-</style>
+    </style>
 
 
     {{-- [MOBILE ONLY] Header Bar --}}
@@ -75,7 +79,8 @@
                                     value="{{ request('keyword') ?? request('name_search') ?? request('username_search') }}">
 
                                 {{-- ปุ่ม QR Code --}}
-                                <button class="btn btn-outline-primary mb-0 px-3 z-index-2" type="button" data-bs-toggle="modal" data-bs-target="#qrScannerModal">
+                                <button class="btn btn-outline-primary mb-0 px-3 z-index-2" type="button"
+                                    data-bs-toggle="modal" data-bs-target="#qrScannerModal">
                                     <i class="fas fa-qrcode text-lg"></i>
                                 </button>
 
@@ -88,7 +93,8 @@
                     </div>
                     {{-- Hidden inputs เพื่อรองรับ Logic เดิมถ้าจำเป็น --}}
                     @if(request('username_search'))
-                        <input type="hidden" name="username_search" id="username_search_hidden" value="{{ request('username_search') }}">
+                        <input type="hidden" name="username_search" id="username_search_hidden"
+                            value="{{ request('username_search') }}">
                     @else
                         <input type="hidden" name="username_search" id="username_search_hidden">
                     @endif
@@ -108,10 +114,13 @@
                 <table class="table align-items-center mb-0">
                     <thead class="bg-light">
                         <tr>
-                            <th class="text-uppercase text-secondary text-xxs font-weight-bolder opacity-7 text-center" style="width: 5%">Ref.</th>
+                            <th class="text-uppercase text-secondary text-xxs font-weight-bolder opacity-7 text-center"
+                                style="width: 5%">Ref.</th>
                             <th class="text-uppercase text-secondary text-xxs font-weight-bolder opacity-7 ps-2">สมาชิก</th>
-                            <th class="text-uppercase text-secondary text-xxs font-weight-bolder opacity-7 ps-2">ที่อยู่</th>
-                            <th class="text-uppercase text-secondary text-xxs font-weight-bolder opacity-7 ps-2">ธุรกรรมวันนี้</th>
+                            <th class="text-uppercase text-secondary text-xxs font-weight-bolder opacity-7 ps-2">ที่อยู่
+                            </th>
+                            <th class="text-uppercase text-secondary text-xxs font-weight-bolder opacity-7 ps-2">
+                                ธุรกรรมวันนี้</th>
                             <th class="text-secondary opacity-7 text-center">จัดการ</th>
                         </tr>
                     </thead>
@@ -119,7 +128,8 @@
                         @forelse ($keptKayaMembers as $member)
                             <tr>
                                 <td class="align-middle text-center">
-                                    <span class="text-secondary text-xs font-weight-bold">{{ $member->wastePreference->id }}</span>
+                                    <span
+                                        class="text-secondary text-xs font-weight-bold">{{ $member->kpUserPreferenceid }}</span>
                                 </td>
                                 <td>
                                     <div class="d-flex px-2 py-1">
@@ -130,19 +140,20 @@
                                     </div>
                                 </td>
                                 <td>
-                                    <p class="text-xs font-weight-bold mb-0 text-secondary text-truncate" style="max-width: 250px;">
+                                    <p class="text-xs font-weight-bold mb-0 text-secondary text-truncate"
+                                        style="max-width: 250px;">
                                         {{ $member->address ?? '-' }}
                                     </p>
                                 </td>
                                 <td class="align-middle">
-                                    @if ($member->wastePreference->purchaseTransactions->count() > 0)
-                                        @php $todayTransactions = $member->wastePreference->purchaseTransactions; @endphp
+                                    @if ($member->kpUserPreferencepurchaseTransactions->count() > 0)
+                                        @php $todayTransactions = $member->kpUserPreferencepurchaseTransactions; @endphp
                                         <div class="d-flex align-items-center">
                                             <span class="badge badge-sm bg-gradient-success me-2">
                                                 {{ number_format($todayTransactions->sum('total_amount'), 2) }} ฿
                                             </span>
                                             <a href="{{ route('keptkayas.purchase.receipt', $todayTransactions[0]->id) }}"
-                                               class="text-xs font-weight-bold text-primary" title="ดูใบเสร็จ">
+                                                class="text-xs font-weight-bold text-primary" title="ดูใบเสร็จ">
                                                 <i class="fas fa-receipt"></i>
                                             </a>
                                         </div>
@@ -151,12 +162,12 @@
                                     @endif
                                 </td>
                                 <td class="align-middle text-center">
-                                    <a href="{{ route('keptkayas.purchase.history', $member->wastePreference->id) }}"
-                                       class="btn btn-link text-secondary mb-0 px-2" title="ประวัติ">
+                                    <a href="{{ route('keptkayas.purchase.history', $member->kpUserPreferenceid) }}"
+                                        class="btn btn-link text-secondary mb-0 px-2" title="ประวัติ">
                                         <i class="fas fa-history text-lg"></i>
                                     </a>
-                                    <a href="{{ route('keptkayas.purchase.start_purchase', $member->wastePreference->id) }}"
-                                       class="btn btn-sm bg-gradient-primary mb-0 ms-2 px-3">
+                                    <a href="{{ route('keptkayas.purchase.start_purchase', $member->kpUserPreferenceid) }}"
+                                        class="btn btn-sm bg-gradient-primary mb-0 ms-2 px-3">
                                         <i class="fas fa-cart-plus me-1"></i> รับซื้อ
                                     </a>
                                 </td>
@@ -171,7 +182,7 @@
                     </tbody>
                 </table>
             </div>
-             {{-- Pagination Desktop --}}
+            {{-- Pagination Desktop --}}
             @if(method_exists($keptKayaMembers, 'links'))
                 <div class="d-flex justify-content-center p-3">
                     {{ $keptKayaMembers->withQueryString()->links('pagination::bootstrap-5') }}
@@ -191,7 +202,8 @@
                             <div class="d-flex justify-content-between align-items-center">
                                 {{-- Left: Info --}}
                                 <div class="d-flex align-items-center" style="max-width: 65%;">
-                                    <div class="avatar avatar-sm bg-gradient-secondary rounded-circle me-2 text-white d-flex align-items-center justify-content-center">
+                                    <div
+                                        class="avatar avatar-sm bg-gradient-secondary rounded-circle me-2 text-white d-flex align-items-center justify-content-center">
                                         <span class="text-xs font-weight-bold">{{ substr($member->firstname, 0, 1) }}</span>
                                     </div>
                                     <div class="overflow-hidden">
@@ -207,23 +219,25 @@
 
                                 {{-- Right: Action --}}
                                 <div>
-                                    <a href="{{ route('keptkayas.purchase.start_purchase', $member->wastePreference->id) }}"
-                                       class="btn btn-sm bg-gradient-primary mb-0 shadow-primary px-3">
-                                       รับซื้อ
+                                    <a href="{{ route('keptkayas.purchase.start_purchase', $member->kpUserPreferenceid) }}"
+                                        class="btn btn-sm bg-gradient-primary mb-0 shadow-primary px-3">
+                                        รับซื้อ
                                     </a>
                                 </div>
                             </div>
 
                             {{-- Optional: Show Status if Transacted --}}
-                            @if ($member->wastePreference->purchaseTransactions->count() > 0)
-                            <div class="mt-2 pt-2 border-top d-flex justify-content-between align-items-center">
-                                <span class="text-xxs text-success font-weight-bold">
-                                    <i class="fas fa-check-circle"></i> วันนี้: {{ number_format($member->wastePreference->purchaseTransactions->sum('total_amount'), 2) }} ฿
-                                </span>
-                                <a href="{{ route('keptkayas.purchase.history', $member->wastePreference->id) }}" class="text-xxs text-secondary">
-                                    ดูประวัติ <i class="fas fa-chevron-right"></i>
-                                </a>
-                            </div>
+                            @if ($member->kpUserPreferencepurchaseTransactions->count() > 0)
+                                <div class="mt-2 pt-2 border-top d-flex justify-content-between align-items-center">
+                                    <span class="text-xxs text-success font-weight-bold">
+                                        <i class="fas fa-check-circle"></i> วันนี้:
+                                        {{ number_format($member->kpUserPreferencepurchaseTransactions->sum('total_amount'), 2) }} ฿
+                                    </span>
+                                    <a href="{{ route('keptkayas.purchase.history', $member->kpUserPreferenceid) }}"
+                                        class="text-xxs text-secondary">
+                                        ดูประวัติ <i class="fas fa-chevron-right"></i>
+                                    </a>
+                                </div>
                             @endif
                         </div>
                     </div>
@@ -289,18 +303,18 @@
                     html5QrCode.start({ facingMode: "environment" }, config,
                         (decodedText, decodedResult) => {
                             let code = decodedText.trim();
-                            if(code.includes("-")) { code = code.split("-")[1]; }
-                            console.log('c',code)
+                            if (code.includes("-")) { code = code.split("-")[1]; }
+                            console.log('c', code)
                             // ใส่ค่าลงในช่องค้นหาหลัก และ hidden field
-                            if(searchInput) searchInput.value = code;
-                            if(hiddenUsernameInput) hiddenUsernameInput.value = code;
+                            if (searchInput) searchInput.value = code;
+                            if (hiddenUsernameInput) hiddenUsernameInput.value = code;
 
                             html5QrCode.stop().then(() => {
                                 bootstrap.Modal.getInstance(qrScannerModal).hide();
                                 userSearchForm.submit();
                             });
                         },
-                        (errorMessage) => {}
+                        (errorMessage) => { }
                     ).catch(err => {
                         console.error(err);
                         alert("ไม่สามารถเปิดกล้องได้");
@@ -329,7 +343,7 @@
                     }
                 });
             }
-            document.addEventListener('click', function(event) {
+            document.addEventListener('click', function (event) {
                 const sidenav = document.getElementById('sidenav-main');
                 if (body.classList.contains(className) && sidenav && !sidenav.contains(event.target) && !customToggler.contains(event.target)) {
                     body.classList.remove(className);

@@ -29,7 +29,7 @@ class DashboardController extends Controller
             ->select('users.firstname', 'users.lastname', DB::raw('SUM(kp_purchase_transactions.total_carbon_saved) as total_carbon'))
             ->groupBy('users.id', 'users.firstname', 'users.lastname')
             ->orderByDesc('total_carbon')
-            ->whereHas('wastePreference')
+            ->whereHas('kpUserPreference')
             ->take(5)
             ->get();
 
@@ -67,7 +67,7 @@ class DashboardController extends Controller
 
         // กรองจำนวนสมาชิกเฉพาะใน Org
         $totalMembers = User::where('org_id_fk', $orgId)
-        ->whereHas('wastePreference', function($q) use ($orgId){
+        ->whereHas('kpUserPreference', function($q) use ($orgId){
             $q->where('org_id_fk', $orgId);
         })
         ->count();

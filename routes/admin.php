@@ -23,7 +23,6 @@ Route::middleware(['auth', 'role:Admin|finance|Super Admin'])->group(function ()
         Route::resource('org-types', OrganizationTypeController::class)->only(['index', 'store', 'update', 'destroy']);
 
         Route::get('/financial', [WasteFinancialReportController::class, 'monthlySummary'])->name('financial.index');
-        Route::post('users/update-service', [UserController::class, 'updateService'])->name('users.update_service');
     });
 });
 
