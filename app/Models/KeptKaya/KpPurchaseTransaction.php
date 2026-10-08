@@ -19,7 +19,7 @@ class KpPurchaseTransaction extends Model
         'org_id_fk',
         'kp_u_trans_no', // เลขที่เอกสาร (Unique String)
         'kiosk_id_fk',
-        'kp_user_w_pref_id_fk', // ลูกค้า
+        'user_id', // ลูกค้า
         'machine_id_fk',        // (Optional) เครื่องชั่ง
         'transaction_date',     // วันเวลา
         'total_weight',
@@ -47,6 +47,12 @@ class KpPurchaseTransaction extends Model
     {
         return $this->belongsTo(KpUserWastePreference::class, 'kp_user_w_pref_id_fk', 'id');
     }
+
+    public function user()
+    {
+        return $this->belongsTo(User::class, 'user_id', 'id');
+    }
+
 
     public function recorder()
     {
