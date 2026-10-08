@@ -347,18 +347,21 @@ function loadInventoryIframeOnce() {
 ///////////////////////////////////////////////////////////
 
 let prevScreen = "";
+let moduleNameArray = ['mainScreen', 'tabwaterScreen', 'recycleBankScreen', 'tabwaterRecordMemberSubzoneLists']
+
 async function navigateTo(moduleName) {
-    sessionStorage.setItem('current_screen', 'recycleBankScreen')
+    // sessionStorage.setItem('current_screen', 'tabwaterRecordMemberSubzoneLists')
     // moduleName = 'tabwaterRecordScreen'
     // console.log('navigateTo current_screen', moduleName)
-    // sessionStorage.setItem('current_screen', moduleName)
+    sessionStorage.setItem('current_screen', moduleName)
     $('.screen').each(function () {
 
         !$(this).hasClass('is-hidden') ? $(this).addClass('is-hidden') : ''
     })
-    $moduleNameArray = ['mainScreen', 'tabwaterScreen']
-    if ($moduleNameArray.includes(moduleName)) {
+    if (moduleNameArray.includes(moduleName)) {
         $('#appSidebar').removeClass('is-hidden')
+        $('#sidebarMenu').addClass('hidden-sidebar')
+
     }
     if (moduleName === 'recycleBankScreen') {
         loadMembersFromServer()
@@ -370,10 +373,10 @@ async function navigateTo(moduleName) {
     }
 
     $(`#${moduleName}`).removeClass('is-hidden')
- 
+
     manageInventoryIframe('close')
 
-   // updateGlobalPrinterStatus();
+    // updateGlobalPrinterStatus();
 }
 
 
@@ -502,10 +505,10 @@ let html5QrCodeForTabwater = null;
 // --- ฟังก์ชันสำหรับโหลดข้อมูลเส้นทางจดมิเตอร์ (ปรับปรุงตาม SPA Architecture) ---
 async function loadWaterRecordDashboard() {
     // 🟢 1. ดึงข้อมูลยืนยันตัวตนจาก localStorage ชุดใหม่
-    const staffId = localStorage.getItem('staff_id');//2;//
-    const orgId = localStorage.getItem('staff_org_id')//2//;;
-    const userId = localStorage.getItem('staff_user_id');//3857//
-    const staffName = localStorage.getItem('staff_name');
+    const staffId = sessionStorage.getItem('staff_id');//2;//
+    const orgId = sessionStorage.getItem('staff_org_id')//2//;;
+    const userId = sessionStorage.getItem('staff_user_id');//3857//
+    const staffName = sessionStorage.getItem('staff_name');
 
     if (!staffId || !orgId) {
         console.warn('ไม่พบข้อมูลเจ้าหน้าที่ หรือยังไม่ได้เลือกองค์กร');
@@ -1172,27 +1175,27 @@ function generateWaterBillHTML(data) {
     let oweHtml = '';
     let increaseH = 1600;
     if (data.owes && data.owes.length > 0) {
-        increaseH  += (data.owes.length * 20);
+        increaseH += (data.owes.length * 20);
         oweHtml = `
             <div style="border-top: 1px dotted #000; margin: 4px 0;"></div>
             <div style="font-weight: bold; font-size: 1.7rem;">รายการค้างชำระเดิม:</div>
             <ul style="padding-left:15px; margin:2px 0;font-size: 1.7rem">`;
-            
+
         data.owes.forEach(item => {
             oweHtml += `<li>${item.invoice_period} <span style="float:right;">${parseFloat(item.totalpaid).toFixed(2)} <sup>บาท<sup></span></li>`;
         });
         oweHtml += `</ul>`;
-        
+
     }
 
     let zero18 = "000000000000000000";
-    let inv_id =zero18.slice(0, 18 - data.invoice_id.toString().length) +"" + data.invoice_id;
-        
-    let meter_id =
-        zero18.slice(0, 18 - data.meter_id.toString().length) +""+data.meter_id;
+    let inv_id = zero18.slice(0, 18 - data.invoice_id.toString().length) + "" + data.invoice_id;
 
-    let qrPayload  = `|099400035262000\n${meter_id}\n${inv_id}\n${data.net_paid.toString().replace(".", "")}`;
-      
+    let meter_id =
+        zero18.slice(0, 18 - data.meter_id.toString().length) + "" + data.meter_id;
+
+    let qrPayload = `|099400035262000\n${meter_id}\n${inv_id}\n${data.net_paid.toString().replace(".", "")}`;
+
     $('#card-reciept').css('height', `${increaseH}px`)
 
     $('#card-reciept').html(`
@@ -1222,14 +1225,14 @@ function generateWaterBillHTML(data) {
             </div>
             <div class="text-center my-1">
                 <div class="style-header">ใบแจ้งหนี้ / ใบชำระค่าน้ำประปา</div>
-                <div class="style-body">รอบบิล: ${data.inv_period_name || '-'} | เลขที่: ${data.invoice_id  || '-'}</div>
+                <div class="style-body">รอบบิล: ${data.inv_period_name || '-'} | เลขที่: ${data.invoice_id || '-'}</div>
             </div>
 
             <div class="border-top border-dark border-1 my-1"></div>
             <div class="style-body mb-1">
                 <div class="d-flex justify-content-between">
                     <span class="text-nowrap">ผู้ใช้น้ำ:</span>
-                    <span class="text-end">${data.user.name || "-"} ${data.user.subname === "" ? "" : (data.user.subname) } </span>
+                    <span class="text-end">${data.user.name || "-"} ${data.user.subname === "" ? "" : (data.user.subname)} </span>
                 </div> 
                 <div class="d-flex justify-content-between">
                     <span class="text-nowrap">ที่อยู่:</span>
@@ -2016,4 +2019,27 @@ function BluethoothConnectedModal(from) {
             Swal.showLoading();
         }
     });
+}
+
+
+/////////////////////////////////////////////////////////////////////////////////////// 
+//                             Recycle Bank Screen
+/////////////////////////////////////////////////////////////////////////////////////// 
+
+function switchRankingTab(type, element) {
+    const buttons = document.querySelectorAll('.ranking-navbar .nav-pill-btn');
+    buttons.forEach(btn => btn.classList.remove('active'));
+    element.classList.add('active');
+    console.log("Switched ranking view to:", type);
+}
+
+function togglePodium(element) {
+    const items = document.querySelectorAll('.podium-item');
+    items.forEach(item => {
+        if (item !== element) {
+            item.classList.remove('active');
+        }
+    });
+    switchRankingTab('daily', this)
+    element.classList.toggle('active');
 }

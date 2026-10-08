@@ -42,7 +42,7 @@
                         <i class="fa-solid fa-arrow-right card-arrow"></i>
                     </div>
                     <div>
-                        <h6 class="fw-bold text-white mb-1">Pending</h6>
+                        <h6 class="fw-bold text-white mb-1">รับเรื่องแจ้งเหตุ</h6>
                         <small class="text-white-50">26 tasks</small>
                     </div>
                 </div>

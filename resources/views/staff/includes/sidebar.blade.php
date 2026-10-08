@@ -50,9 +50,15 @@
         </div>
         <div class="sidebar-item" style="background: white;">
             <div class="menu-link">
-                <!-- <i class="fa-solid fa-gear"></i> -->
-                <div>ออกจากระบบ</div>
-                <div>ตั้งค่า</div>
+
+                <button class="btn btn-info mb-1" onclick="navigateTo('settings')">
+                    <i class="fa fa-gears"></i>
+                   ตั้งค่า
+                </button>
+                <button type="button" id="btnLogout" class="btn btn-danger">
+                    🚪 ออกจากระบบ
+                </button>
+                
             </div>
         </div>
     </div>
