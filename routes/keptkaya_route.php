@@ -36,9 +36,9 @@ use App\Http\Controllers\Kiosk\KioskController;
 
 
 Route::prefix('keptkayas')->name('keptkayas.')->group(function () {
-Route::get('/unknown-review', function () {
-    return view('keptkayas.unknown_review');
-})->name('kiosk.unknown.review');
+    Route::get('/unknown-review', function () {
+        return view('keptkayas.unknown_review');
+    })->name('kiosk.unknown.review');
 
 
 
@@ -54,7 +54,7 @@ Route::get('/unknown-review', function () {
 
 Route::middleware(['auth'])->prefix('keptkayas')->name('keptkayas.')->group(function () {
     Route::get('/recycle-bank/members', [RecycleBankController::class, 'index'])->name('recycle-bank.members');
-Route::get('/recycle-bank/members/{id}/history', [RecycleBankController::class, 'history'])->name('recycle-bank.history');
+    Route::get('/recycle-bank/members/{id}/history', [RecycleBankController::class, 'history'])->name('recycle-bank.history');
 
     Route::resource('kiosks', KioskController::class)->except(['show']);
     Route::get('/kiosks/noscreen/login', [KioskController::class, 'login'])->name('kiosks.noscreen.login');
@@ -129,6 +129,7 @@ Route::get('/recycle-bank/members/{id}/history', [RecycleBankController::class, 
     // 6. Purchase System
     Route::prefix('purchase/')->name('purchase.')->group(function () {
         Route::get('get-units/{itemId}', [KpPurchaseController::class, 'getUnitsForItem'])->name('get_units');
+        Route::match(['get', 'post'], 'select-route', [KpPurchaseController::class, 'selectRoute'])->name('select_route');
         Route::get('select_user', [KpPurchaseController::class, 'select_user'])->name('select_user');
         Route::get('start_purchase/{user_waste_pref_id}', [KpPurchaseController::class, 'startPurchase'])->name('start_purchase');
         Route::get('form/{user_id}', [KpPurchaseController::class, 'showPurchaseForm'])->name('form');
@@ -141,6 +142,16 @@ Route::get('/recycle-bank/members/{id}/history', [RecycleBankController::class, 
         Route::get('history/{kp_waste_pref_id}', [KpPurchaseController::class, 'showPurchaseHistory'])->name('history');
         Route::get('receipt/{transaction_id}', [KpPurchaseController::class, 'showReceipt'])->name('receipt');
         Route::get('connect_bluethooth', [KpPurchaseController::class, 'connect_bluethooth'])->name('connect_bluethooth');
+
+        // ระบบจัดการเขตรับซื้อขยะ (สำหรับ Admin)
+        Route::get('routes-manage', [KpPurchaseController::class, 'routeIndex'])
+            ->name('routes.index');
+
+        Route::post('routes-save', [KpPurchaseController::class, 'routeSave'])
+            ->name('routes.save');
+
+        Route::delete('routes-delete/{id}', [KpPurchaseController::class, 'routeDelete'])
+            ->name('routes.delete');
     });
 
     // 7. Sell System
@@ -202,7 +213,7 @@ Route::get('/recycle-bank/members/{id}/history', [RecycleBankController::class, 
 
             Route::get('export', [KpTbankItemsController::class, 'exportTemplate'])->name('export');
             Route::post('import', [KpTbankItemsController::class, 'import'])->name('import');
-            
+
             Route::get('buyItems/{user_id?}', [KpTbankItemsController::class, 'buyItems'])->name('buy_items');
             Route::get('search_items/{itemscode}', [KpTbankItemsController::class, 'search_items'])->name('search_items');
             Route::get('generate-code/{group_id}', [KpTbankItemsController::class, 'generateCode'])->name('generate_code');
