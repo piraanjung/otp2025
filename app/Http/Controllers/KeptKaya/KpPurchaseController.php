@@ -5,6 +5,7 @@ namespace App\Http\Controllers\KeptKaya;
 use App\Http\Controllers\Controller;
 use App\Models\Admin\Organization;
 use App\Models\KeptKaya\KPAccounts;
+use App\Models\KeptKaya\KpPurchaseRoute;
 use App\Models\KeptKaya\KpPurchaseTransactionDetail;
 use App\Models\KeptKaya\KpPurchaseTransaction;
 use App\Models\KeptKaya\KpTbankItems;
@@ -26,44 +27,68 @@ use Illuminate\Support\Str;
 class KpPurchaseController extends Controller
 {
     public function select_user(Request $request)
-    {
-        // ล้างข้อมูลเก่าใน Session
-        $request->session()->forget(['purchase_user_id', 'purchase_cart']);
+{
+    // ล้างค่า Session เก่าของ Cart/User
+    $request->session()->forget(['purchase_user_id', 'purchase_cart']);
+    
+    $today = Carbon::now()->toDateString();
+    $orgId = Auth::user()->org_id_fk;
 
-        $today = Carbon::now()->toDateString();
-        $orgId = Auth::user()->org_id_fk;
+    // คำค้นหาหลัก (รับได้ทั้งจาก keyword_input, name_search หรือ username_search)
+    $searchKey = trim($request->input('keyword', $request->input('name_search', $request->input('username_search'))));
 
-        // เริ่มสร้าง Query พร้อม Eager Loading ข้อมูลที่ต้องใช้
-        $query = User::where('org_id_fk', $orgId)
-            ->whereHas('wastePreference', function ($q) {
-                $q->where('is_recycle_bank', 1);
-            })->with(['wastePreference.purchaseTransactions' => function ($q) use ($today) {
+    $query = User::query()
+        ->select(['id', 'org_id_fk', 'username', 'firstname', 'lastname', 'phone', 'id_card', 'zone_id', 'image'])
+        ->where('org_id_fk', $orgId)
+        // ต้องมีบัญชีธนาคารขยะรีไซเคิลที่สถานะ active เท่านั้น
+        ->whereHas('recycleBankAccount', function ($q) {
+            $q->where('status', 'active');
+        })
+        ->with([
+            'recycleBankAccount:id,user_id,account_no,balance,points,status',
+            'user_zone:id,zonename',
+            'kpUserPreference.purchaseTransactions' => function ($q) use ($today) {
                 $q->whereDate('transaction_date', $today);
-            }]);
+            }
+        ]);
 
-        // ค้นหาด้วยชื่อ-นามสกุล
-        if ($request->filled('name_search')) {
-            $nameSearch = $request->input('name_search');
-            $query->where(function ($q) use ($nameSearch) {
-                $q->where('firstname', 'like', '%' . $nameSearch . '%')
-                    ->orWhere('lastname', 'like', '%' . $nameSearch . '%');
-            });
-        }
+    // 1. เงื่อนไขจำกัดตามเขตรับซื้อที่เลือกไว้ใน Session (ถ้าไม่ได้เปิดสวิตช์ค้นหาทุกเขต)
+    if (session()->has('purchase_route_id') && !$request->boolean('search_all_zones')) {
+        $routeId = session('purchase_route_id');
+        $zoneIds = \App\Models\KeptKaya\KpPurchaseRouteZone::where('kp_purchase_route_id', $routeId)
+            ->pluck('zone_id');
 
-        // ค้นหาด้วย ID สมาชิก (ตรวจสอบว่าเป็นตัวเลขก่อน)
-        if ($request->filled('username_search') && is_numeric($request->username_search)) {
-            $usernameSearch = $request->input('username_search');
-            $query->whereHas('wastePreference', function ($q) use ($usernameSearch) {
-                $q->where('user_id', $usernameSearch);
-            });
-        }
-
-        $keptKayaMembers = $query->orderBy('firstname')
-            ->orderBy('lastname')
-            ->get();
-
-        return view('keptkayas.purchase.select_user', compact('keptKayaMembers'));
+        $query->whereIn('zone_id', $zoneIds);
     }
+
+    // 2. เงื่อนไขค้นหา Unified (สแกน QR Code / พิมพ์ค้นหา)
+    if (!empty($searchKey)) {
+        $query->where(function ($q) use ($searchKey) {
+            $q->where('id', $searchKey)
+              ->orWhere('username', $searchKey)
+              ->orWhere('phone', $searchKey)
+              ->orWhere('id_card', $searchKey)
+              ->orWhere('firstname', 'like', "%{$searchKey}%")
+              ->orWhere('lastname', 'like', "%{$searchKey}%");
+        });
+    }
+
+    $keptKayaMembers = $query->orderBy('firstname')
+        ->orderBy('lastname')
+        ->get();
+
+    // กรณีสแกน QR Code หรือพิมพ์คำค้นหาแล้วเจอสมาชิกตรงเป๊ะเพียง 1 คน ให้เข้าสู่หน้าฟอร์มรับซื้อทันที
+    if (!empty($searchKey) && $keptKayaMembers->count() === 1) {
+        $user = $keptKayaMembers->first();
+        $pref = $user->kpUserPreference ?? $user->wastePreference;
+        
+        if ($pref) {
+            return redirect()->route('keptkayas.purchase.start_purchase', $pref->id);
+        }
+    }
+
+    return view('keptkayas.purchase.select_user', compact('keptKayaMembers'));
+}
 
     /**
      * Summary of startPurchase
@@ -460,7 +485,7 @@ class KpPurchaseController extends Controller
     {
         // return $kp_waste_pref_id;
         $kp_waste_pref = KpUserWastePreference::find($kp_waste_pref_id);
-        // Load purchase transactions for the user
+        // Load userpurchase transactions for the user
 
         $userHistory = User::where('id', $kp_waste_pref->user_id)
             ->with([
@@ -472,4 +497,95 @@ class KpPurchaseController extends Controller
 
         return view('keptkayas.purchase.history', compact('userHistory'));
     }
+
+
+    public function selectRoute(Request $request)
+{
+    if ($request->isMethod('post')) {
+        $routeId = $request->input('route_id');
+
+        if ($routeId === 'all') {
+            session()->forget('purchase_route_id');
+        } else {
+            session(['purchase_route_id' => $routeId]);
+        }
+
+        return redirect()->route('keptkayas.purchase.select_user')
+            ->with('success', 'เปลี่ยนเขตการรับซื้อเรียบร้อยแล้ว');
+    }
+
+    $orgId = Auth::user()->org_id_fk;
+    $routes = KpPurchaseRoute::where('org_id_fk', $orgId)
+        ->where('status', 'active')
+        ->with('zones')
+        ->get();
+
+    $currentRouteId = session('purchase_route_id', 'all');
+
+    return view('keptkayas.purchase.select_route', compact('routes', 'currentRouteId'));
+}
+// หน้าแสดงรายการและฟอร์มสร้าง/แก้ไขเขตรับซื้อ (สำหรับ Admin)
+public function routeIndex()
+{
+    $orgId = Auth::user()->org_id_fk;
+    
+    // ดึงรายการเขตรับซื้อทั้งหมดพร้อมโซนที่ผูกไว้
+    $routes = KpPurchaseRoute::where('org_id_fk', $orgId)
+        ->with('zones')
+        ->orderBy('id', 'desc')
+        ->get();
+
+    // ดึงโซนทั้งหมดขององค์กรนี้มาให้เลือกใน Checkbox
+    $allZones = \App\Models\Admin\Zone::where('org_id_fk', $orgId)->get();
+
+    return view('keptkayas.purchase.routes_manage', compact('routes', 'allZones'));
+}
+
+// บันทึก/อัปเดตข้อมูลเขตรับซื้อ
+public function routeSave(Request $request)
+{
+    $request->validate([
+        'route_name' => 'required|string|max:255',
+        'zone_ids'   => 'nullable|array',
+        'zone_ids.*' => 'exists:zones,id',
+    ], [
+        'route_name.required' => 'กรุณากรอกชื่อเขตรับซื้อ',
+    ]);
+
+    $orgId = Auth::user()->org_id_fk;
+    $routeId = $request->input('route_id');
+
+    DB::transaction(function () use ($request, $orgId, $routeId) {
+        // 1. บันทึก/อัปเดต หัวตาราง kp_purchase_routes
+        $route = KpPurchaseRoute::updateOrCreate(
+            ['id' => $routeId, 'org_id_fk' => $orgId],
+            [
+                'route_name' => $request->input('route_name'),
+                'status'     => $request->input('status', 'active'),
+            ]
+        );
+
+        // 2. ซิงก์ข้อมูลโซนที่เลือกในตารางกลาง kp_purchase_route_zones
+        $zoneIds = $request->input('zone_ids', []);
+        $route->zones()->sync($zoneIds);
+    });
+
+    return back()->with('success', 'บันทึกข้อมูลเขตการรับซื้อเรียบร้อยแล้ว');
+}
+
+// ลบเขตรับซื้อ
+public function routeDelete($id)
+{
+    $orgId = Auth::user()->org_id_fk;
+    $route = KpPurchaseRoute::where('id', $id)
+        ->where('org_id_fk', $orgId)
+        ->first();
+
+    if ($route) {
+        $route->delete(); // จะ cascade ลบใน kp_purchase_route_zones ให้อัตโนมัติ
+        return back()->with('success', 'ลบเขตการรับซื้อเรียบร้อยแล้ว');
+    }
+
+    return back()->with('error', 'ไม่พบข้อมูลเขตที่ต้องการลบ');
+}
 }

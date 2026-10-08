@@ -449,9 +449,8 @@ public function showByRef($refNo)
     // 2. ประมวลผลการตัดสต็อกจริง (รองรับการแก้ไขจำนวน และยกเลิกบางรายการ)
     public function dispenseProcess(Request $request, $refNo)
 {
-    // DB::beginTransaction();
-    // try {
-    return $request;
+    DB::beginTransaction();
+    try {
         // วนลูปรับข้อมูลรายการที่ส่งมาจากฟอร์ม
         if ($request->has('items')) {
             foreach ($request->items as $itemData) {
@@ -502,17 +501,17 @@ public function showByRef($refNo)
             }
         }
 
-    //     DB::commit();
+        DB::commit();
 
-    //     return redirect()->route('inventory.history')
-    //         ->with('success', 'บันทึกการจ่ายพัสดุและตัดสต็อกตามล็อตหน้างานสำเร็จเรียบร้อย');
+        return redirect()->route('inventory.history')
+            ->with('success', 'บันทึกการจ่ายพัสดุและตัดสต็อกตามล็อตหน้างานสำเร็จเรียบร้อย');
 
-    // } catch (\Exception $e) {
-    //     DB::rollBack();
-    //     return redirect()->back()
-    //         ->withInput()
-    //         ->with('error', 'เกิดข้อผิดพลาดในการตัดสต็อก: ' . $e->getMessage());
-    // }
+    } catch (\Exception $e) {
+        DB::rollBack();
+        return redirect()->back()
+            ->withInput()
+            ->with('error', 'เกิดข้อผิดพลาดในการตัดสต็อก: ' . $e->getMessage());
+    }
 }
 
     // 2. ฟังก์ชันเจ้าหน้าที่พัสดุกดจ่ายพัสดุจริง -> ทำการตัดสต็อก (current_qty) ตรงนี้
@@ -613,51 +612,92 @@ public function showByRef($refNo)
         return back()->with('success', 'ยกเลิกใบเบิก (โดยผู้ดูแลระบบ/ผู้ออนุมัติ) เรียบร้อยแล้ว');
     }
 
-    public function history(Request $request)
-    {
-        $user = Auth::user();
+    public function history(Request $request) 
+{ 
+    $user = Auth::user(); 
+    
+    // 1. สร้าง Base Query สำหรับองค์กรนี้
+    $baseQuery = InvTransaction::where('org_id_fk', $user->org_id_fk);
 
-        // 1. ดึงเฉพาะ id แรกของแต่ละ ref_no ที่ไม่ซ้ำกัน เพื่อใช้ทำ Pagination
-        $subQuery = InvTransaction::where('org_id_fk', $user->org_id_fk);
+    // (ตัวเลือก) ถ้ามีการค้นหาด้วยคำค้น / วันที่ ให้ใช้ร่วมกับการนับจำนวนด้วย หรือถ้าอยากให้แสดงยอดรวมทั้งหมด ก็ใช้ $baseQuery ปกติ
+    // สร้าง Query แยกสำหรับนับจำนวนแต่ละแท็บโดยอิงเงื่อนไข Search/Date เดิม
+    $countQuery = clone $baseQuery;
+    if ($request->has('search') && $request->search != '') { 
+        $searchTerm = $request->search; 
+        $countQuery->where(function ($q) use ($searchTerm) { 
+            $q->where('ref_no', 'like', '%' . $searchTerm . '%') 
+              ->orWhere('requester_name', 'like', '%' . $searchTerm . '%') 
+              ->orWhereHas('item', function ($itemQuery) use ($searchTerm) { 
+                  $itemQuery->where('name', 'like', '%' . $searchTerm . '%') 
+                            ->orWhere('code', 'like', '%' . $searchTerm . '%'); 
+              }); 
+        }); 
+    } 
+    if ($request->start_date) { 
+        $countQuery->whereDate('transaction_date', '>=', $request->start_date); 
+    } 
+    if ($request->end_date) { 
+        $countQuery->whereDate('transaction_date', '<=', $request->end_date); 
+    } 
 
-        // ➕ กรองตามสถานะ (รับค่ามาจาก Dashboard เช่น PENDING, APPROVED, REJECTED)
-        if ($request->has('status') && $request->status != '') {
-            $subQuery->where('status', $request->status);
+    // ฟังก์ชันช่วยนับจำนวนแบบยุบกลุ่ม ref_no เหมือนกับรายการหลัก
+    $getCountByStatus = function($status = null) use ($countQuery) {
+        $sub = clone $countQuery;
+        if ($status) {
+            $sub->where('status', $status);
         }
-
-        // Filter ค้นหา (ใส่เงื่อนไขใน Subquery ด้วยเพื่อให้ Pagination นับจำนวนถูกต้องตามการค้นหา)
-        if ($request->has('search') && $request->search != '') {
-            $searchTerm = $request->search;
-            $subQuery->where(function ($q) use ($searchTerm) {
-                $q->where('ref_no', 'like', '%' . $searchTerm . '%')
-                    ->orWhere('requester_name', 'like', '%' . $searchTerm . '%')
-                    ->orWhereHas('item', function ($itemQuery) use ($searchTerm) {
-                        $itemQuery->where('name', 'like', '%' . $searchTerm . '%')
-                            ->orWhere('code', 'like', '%' . $searchTerm . '%');
-                    });
-            });
-        }
-
-        if ($request->start_date) {
-            $subQuery->whereDate('transaction_date', '>=', $request->start_date);
-        }
-        if ($request->end_date) {
-            $subQuery->whereDate('transaction_date', '<=', $request->end_date);
-        }
-
-        // จัดกลุ่มตาม ref_no (หรือ id กรณีไม่มี ref_no) แล้วเลือก id แรกสุดมาทำ Pagination
-        $subQuery->selectRaw('MIN(id) as id')
+        $sub->selectRaw('MIN(id) as id')
             ->groupBy(DB::raw('COALESCE(ref_no, CONCAT("single-", id))'));
+        
+        return InvTransaction::whereIn('id', $sub)->count();
+    };
 
-        // 2. นำ id ที่ได้มา Query ข้อมูลจริงพร้อม Pagination
-        $transactions = InvTransaction::whereIn('id', $subQuery)
-            ->with(['item', 'requester', 'detail', 'approver_user'])
-            ->orderBy('transaction_date', 'desc')
-            ->paginate(20)
-            ->withQueryString(); // 👈 สำคัญมาก! เพื่อคงค่า Query ทั้ง status, search และ date ไว้ตอนเปลี่ยนหน้า
+    // คำนวณจำนวนแต่ละแท็บ
+    $countAll = $getCountByStatus(null);
+    $countPending = $getCountByStatus('PENDING');
+    $countApproved = $getCountByStatus('APPROVED');
+    $countCompleted = $getCountByStatus('COMPLETED');
 
-        return view('inventory.inv_history', compact('transactions'));
+    // 2. Query หลักสำหรับแสดงตารางข้อมูลตาม Tab ที่เลือก
+    $subQuery = clone $baseQuery;
+    $currentTab = $request->get('status', 'all'); 
+    
+    if ($currentTab == 'pending') {
+        $subQuery->where('status', 'PENDING'); 
+    } elseif ($currentTab == 'approved') {
+        $subQuery->where('status', 'APPROVED'); 
+    } elseif ($currentTab == 'completed') {
+        $subQuery->where('status', 'COMPLETED'); 
     }
+
+    if ($request->has('search') && $request->search != '') { 
+        $searchTerm = $request->search; 
+        $subQuery->where(function ($q) use ($searchTerm) { 
+            $q->where('ref_no', 'like', '%' . $searchTerm . '%') 
+              ->orWhere('requester_name', 'like', '%' . $searchTerm . '%') 
+              ->orWhereHas('item', function ($itemQuery) use ($searchTerm) { 
+                  $itemQuery->where('name', 'like', '%' . $searchTerm . '%') 
+                            ->orWhere('code', 'like', '%' . $searchTerm . '%'); 
+              }); 
+        }); 
+    } 
+    if ($request->start_date) { 
+        $subQuery->whereDate('transaction_date', '>=', $request->start_date); 
+    } 
+    if ($request->end_date) { 
+        $subQuery->whereDate('transaction_date', '<=', $request->end_date); 
+    } 
+
+    $subQuery->selectRaw('MIN(id) as id')->groupBy(DB::raw('COALESCE(ref_no, CONCAT("single-", id))')); 
+    
+    $transactions = InvTransaction::whereIn('id', $subQuery) 
+        ->with(['item', 'requester', 'detail', 'approver_user']) 
+        ->orderBy('transaction_date', 'desc') 
+        ->paginate(20) 
+        ->withQueryString(); 
+
+    return view('inventory.inv_history', compact('transactions', 'currentTab', 'countAll', 'countPending', 'countApproved', 'countCompleted')); 
+}
 
     public function approveStep(Request $request, $refNo)
     {

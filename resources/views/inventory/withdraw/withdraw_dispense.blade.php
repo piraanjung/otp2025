@@ -181,6 +181,11 @@
                                                 <small
                                                     class="fw-bold text-dark d-none d-print-block">ระบุล็อตที่หยิบจริง:</small>
                                                 @php
+
+
+
+
+
                                                     // ดึงล็อตทั้งหมดของสินค้านี้ที่มีในสต็อก
                                                     $allLots = \App\Models\InvItemDetail::where('inv_item_id_fk', $tx->inv_item_id_fk)
                                                         ->where('current_qty', '>', 0)
@@ -209,16 +214,16 @@
                                                                         | คงเหลือ: {{ $lot->current_qty }})</small>
                                                                     <!-- ส่ง ID ของ Lot ไปด้วย -->
                                                                     <input type="hidden"
-                                                                        name="items[{{ $loop->parent->parent->index }}_{{ $txIndex }}[lots][{{ $lot->id }}][lot_id]"
+                                                                        name="items[{{ $loop->parent->parent->index }}_{{ $txIndex }}][lots][{{ $lot->id }}][lot_id]"
                                                                         value="{{ $lot->id }}">
                                                                 </td>
                                                                 <td>
                                                                     <!-- ช่องกรอกจำนวนที่หยิบจากล็อตนี้จริงๆ หน้างาน -->
                                                                     <input type="number"
-                                                                        name="items[{{ $loop->parent->parent->index }}_{{ $txIndex }}[lots][{{ $lot->id }}][qty]"
+                                                                        name="items[{{ $loop->parent->parent->index }}_{{ $txIndex }}][lots][{{ $lot->id }}][qty]"
                                                                         class="form-control form-control-sm text-center picked"
                                                                         value="{{ isset($fifoPlans[$tx->id]) ? collect($fifoPlans[$tx->id]['plans'])->where('lot_number', $lot->lot_number)->first()['take_qty'] ?? 0 : 0 }}"
-                                                                        min="0" max="{{ $lot->current_qty }}" step="1">sss
+                                                                        min="0" max="{{ $lot->current_qty }}" step="1">
                                                                 </td>
                                                             </tr>
                                                         @endforeach
