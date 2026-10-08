@@ -6,9 +6,9 @@
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link
-        href="https://fonts.googleapis.com/css2?family=Google+Sans:ital,opsz,wght@0,17..18,400..700;1,17..18,400..700&family=Kanit:ital,wght@0,100;0,200;0,300;0,400;0,500;0,600;0,700;0,800;0,900;1,100;1,200;1,300;1,400;1,500;1,600;1,700;1,800;1,900&display=swap"
-        rel="stylesheet">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Google+Sans:ital,opsz,wght@0,17..18,400..700;1,17..18,400..700&family=K2D:ital,wght@0,100;0,200;0,300;0,400;0,500;0,600;0,700;0,800;1,100;1,200;1,300;1,400;1,500;1,600;1,700;1,800&family=Kanit:ital,wght@0,100;0,200;0,300;0,400;0,500;0,600;0,700;0,800;0,900;1,100;1,200;1,300;1,400;1,500;1,600;1,700;1,800;1,900&display=swap" rel="stylesheet">
        <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/css/bootstrap.min.css"
@@ -80,55 +80,12 @@
     @include('staff.includes.screen_select_org')
 
     <div id="mainScreen" class="screen is-hidden">
-        {{-- <div class="container">
-            <h3 class="section-title">เมนูบริการระบบสนาม</h3>
-
-            <div class="menu-grid">
-                <div class="menu-item card-water" onclick="navigateTo('water')">
-                    <div class="menu-icon">💧</div>
-                    <div class="menu-title">งานประปา</div>
-                    <div class="menu-desc">จดมาตรวัดน้ำ, แจ้งท่อแตก/ซ่อมแซม</div>
-                </div>
-
-                <div class="menu-item card-recycle" onclick="navigateTo('recycle')">
-                    <div class="menu-icon">♻️</div>
-                    <div class="menu-title">ธนาคารขยะรีไซเคิล</div>
-                    <div class="menu-desc">บันทึกรับขยะ, เช็คยอดเงิน, สมัครสมาชิก</div>
-                </div>
-
-                <div class="menu-item card-organic" onclick="navigateTo('organic')">
-                    <div class="menu-icon">🍂</div>
-                    <div class="menu-title">ธนาคารขยะเปียก</div>
-                    <div class="menu-desc">ตรวจประเมินถังขยะ, บันทึกพิกัดคาร์บอน</div>
-                </div>
-
-                 <div class="menu-item card-inventory" onclick="navigateTo('inventory')">
-                    <div class="menu-icon">
-                        <svg xmlns="http://www.w3.org/2000/svg" width="40" height="40" fill="currentColor" class="bi bi-house-gear" viewBox="0 0 16 16">
-  <path d="M7.293 1.5a1 1 0 0 1 1.414 0L11 3.793V2.5a.5.5 0 0 1 .5-.5h1a.5.5 0 0 1 .5.5v3.293l2.354 2.353a.5.5 0 0 1-.708.708L8 2.207l-5 5V13.5a.5.5 0 0 0 .5.5h4a.5.5 0 0 1 0 1h-4A1.5 1.5 0 0 1 2 13.5V8.207l-.646.647a.5.5 0 1 1-.708-.708z"/>
-  <path d="M11.886 9.46c.18-.613 1.048-.613 1.229 0l.043.148a.64.64 0 0 0 .921.382l.136-.074c.561-.306 1.175.308.87.869l-.075.136a.64.64 0 0 0 .382.92l.149.045c.612.18.612 1.048 0 1.229l-.15.043a.64.64 0 0 0-.38.921l.074.136c.305.561-.309 1.175-.87.87l-.136-.075a.64.64 0 0 0-.92.382l-.045.149c-.18.612-1.048.612-1.229 0l-.043-.15a.64.64 0 0 0-.921-.38l-.136.074c-.561.305-1.175-.309-.87-.87l.075-.136a.64.64 0 0 0-.382-.92l-.148-.044c-.613-.181-.613-1.049 0-1.23l.148-.043a.64.64 0 0 0 .382-.921l-.074-.136c-.306-.561.308-1.175.869-.87l.136.075a.64.64 0 0 0 .92-.382zM14 12.5a1.5 1.5 0 1 0-3 0 1.5 1.5 0 0 0 3 0"/>
-</svg>
-                    </div>
-                    
-                    <div class="menu-title">ยืม/คืน พัสดุ</div>
-                    <div class="menu-desc">ยืม/คืน พัสดุ</div>
-                </div>
-
-                <div class="menu-item card-settings" onclick="navigateTo('settings')">
-                    <div class="menu-icon">🖨️</div>
-                    <div class="menu-title">ตั้งค่าเครื่องพิมพ์</div>
-                    <div class="menu-desc">เชื่อมต่อ Bluetooth Thermal Printer</div>
-                </div>
-
-               
-            </div>
-        </div> --}}
         @include('staff.includes.main_screen')
     </div>
 
-    {{-- <div id="recycleBankScreen" class="screen is-hidden"> --}}
+<div id="recycleBankScreen" class="screen is-hidden">
         @include('staff.includes.recycle_bank_screen')
-    {{-- </div> --}}
+    </div>    
 
     <div id="depositScreen" class="screen is-hidden">
         <div id="globalPrinterStatus"
@@ -334,7 +291,7 @@
     </div>
 
     <div id="tabwaterScreen" class="screen is-hidden">
-        @include('staff.includes.tabwater_main_screen')
+        @include('staff.mobile.tabwater_main_screen')
     </div>
 
     <div id="tabwaterRecordScreen" class="screen is-hidden">
