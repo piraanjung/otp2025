@@ -203,12 +203,11 @@
             </div>
         </div>
         <div class="container-fluid py-4 ">
-            @if ($message = Session::get('message'))
-                <div class="alert alert-{{ Session::get('color') }} alert-block">
-                    {{-- <button type="button" class="close" data-dismiss="alert">×</button> --}}
-                    <strong>{{ $message }}</strong>
-                </div>
-            @endif
+           @if (session('error'))
+    <div class="alert alert-warning  fade show" role="alert">
+        <i class="fas fa-exclamation-circle mr-2"></i> {{ session('error') }}
+    </div>
+@endif
 
             @yield('content')
         </div>

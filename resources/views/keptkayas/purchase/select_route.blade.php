@@ -23,7 +23,7 @@
     @endif
 
     {{-- Active Route Card --}}
-    <div class="card border-0 shadow-sm rounded-4 mb-3 mx-2 mt-2 bg-primary text-white overflow-hidden">
+    <div class="card border-0 shadow-sm rounded-4 mb-3 mx-2 mt-2 bg-info text-white overflow-hidden">
         <div class="card-body p-4 position-relative">
             <div class="d-flex align-items-center justify-content-between mb-2">
                 <span class="badge bg-white text-primary rounded-pill px-3 py-1 fw-bold">
@@ -44,7 +44,7 @@
                 <p class="mb-0 text-white-50 small">
                     ครอบคลุม: 
                     @foreach($activeRoute->zones as $zone)
-                        <span class="badge bg-light text-dark me-1">{{ $zone->zonename }}</span>
+                        <span class="badge bg-light text-dark me-1">{{ $zone->zone_name }}</span>
                     @endforeach
                 </p>
             @endif
@@ -69,7 +69,7 @@
             <form action="{{ route('keptkayas.purchase.select_route') }}" method="POST">
                 @csrf
                 <input type="hidden" name="route_id" value="all">
-                <button type="submit" class="list-group-item list-group-item-action py-3 px-3 d-flex align-items-center justify-content-between border-0 {{ $currentRouteId === 'all' ? 'bg-primary bg-opacity-10 fw-bold' : '' }}">
+                <button type="submit" class="list-group-item list-group-item-action py-3 px-3 d-flex align-items-center justify-content-between border-0 {{ $currentRouteId === 'all' ? 'bg-info bg-opacity-10 fw-bold' : '' }}">
                     <div>
                         <div class="text-dark"><i class="bi bi-globe me-2 text-secondary"></i>ทุกเขต / ไม่จำกัดโซน</div>
                         <small class="text-muted">ดึงรายชื่อสมาชิกทั้งหมดในองค์กร</small>
@@ -84,11 +84,11 @@
                 <form action="{{ route('keptkayas.purchase.select_route') }}" method="POST">
                     @csrf
                     <input type="hidden" name="route_id" value="{{ $route->id }}">
-                    <button type="submit" class="list-group-item list-group-item-action py-3 px-3 d-flex align-items-center justify-content-between border-top {{ $currentRouteId == $route->id ? 'bg-primary bg-opacity-10 fw-bold' : '' }}">
+                    <button type="submit" class="list-group-item list-group-item-action py-3 px-3 d-flex align-items-center justify-content-between border-top {{ $currentRouteId == $route->id ? 'bg-info bg-opacity-10 fw-bold' : '' }}">
                         <div>
                             <div class="text-dark"><i class="bi bi-geo-alt me-2 text-primary"></i>{{ $route->route_name }}</div>
                             <small class="text-muted">
-                                โซน: {{ $route->zones->pluck('zonename')->implode(', ') }}
+                                โซน: {{ $route->zones->pluck('zone_name')->implode(', ') }}
                             </small>
                         </div>
                         @if($currentRouteId == $route->id)
@@ -115,7 +115,7 @@
             <form action="{{ route('keptkayas.purchase.select_route') }}" method="POST">
                 @csrf
                 <input type="hidden" name="route_id" value="all">
-                <button type="submit" class="list-group-item list-group-item-action py-3 px-4 d-flex align-items-center justify-content-between border-0 {{ $currentRouteId === 'all' ? 'bg-primary bg-opacity-10 fw-bold text-primary' : '' }}">
+                <button type="submit" class="list-group-item list-group-item-action py-3 px-4 d-flex align-items-center justify-content-between border-0 {{ $currentRouteId === 'all' ? 'bg-info bg-opacity-10 fw-bold text-primary' : '' }}">
                     <div>
                         <div><i class="bi bi-globe me-2"></i>ทุกเขต / ไม่จำกัดโซน</div>
                         <small class="text-muted d-block fw-normal">ดึงสมาชิกทั้งหมด (ไม่กรองโซน)</small>
@@ -130,11 +130,11 @@
                 <form action="{{ route('keptkayas.purchase.select_route') }}" method="POST">
                     @csrf
                     <input type="hidden" name="route_id" value="{{ $route->id }}">
-                    <button type="submit" class="list-group-item list-group-item-action py-3 px-4 d-flex align-items-center justify-content-between border-top {{ $currentRouteId == $route->id ? 'bg-primary bg-opacity-10 fw-bold text-primary' : '' }}">
+                    <button type="submit" class="list-group-item list-group-item-action py-3 px-4 d-flex align-items-center justify-content-between border-top {{ $currentRouteId == $route->id ? 'bg-info bg-opacity-10 fw-bold text-primary' : '' }}">
                         <div>
                             <div><i class="bi bi-geo-alt me-2"></i>{{ $route->route_name }}</div>
                             <small class="text-muted d-block fw-normal">
-                                โซน: {{ $route->zones->pluck('zonename')->implode(', ') }}
+                                โซน: {{ $route->zones->pluck('zone_name')->implode(', ') }}
                             </small>
                         </div>
                         @if($currentRouteId == $route->id)

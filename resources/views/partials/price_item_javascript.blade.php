@@ -20,11 +20,11 @@
                     </div>
                     <div class="col-md-3">
                         <label class="form-label">ราคาจ่ายให้สมาชิก:</label>
-                        <input type="number" step="0.01" name="items_data[${itemIdx}][units_data][${unitIdx}][price_for_member]" class="form-control" value="0" required min="0">
+                        <input type="number" step="0.01" name="items_data[${itemIdx}][units_data][${unitIdx}][price_for_member]" class="form-control" value="0.00" required min="0">
                     </div>
                     <div class="col-md-3">
                         <label class="form-label">ราคาจากร้านรับซื้อ:</label>
-                        <input type="number" step="0.01" name="items_data[${itemIdx}][units_data][${unitIdx}][price_from_dealer]" class="form-control" value="0" required min="0">
+                        <input type="number" step="0.01" name="items_data[${itemIdx}][units_data][${unitIdx}][price_from_dealer]" class="form-control" value="0.00" required min="0">
                     </div>
                     <div class="col-md-2">
                         <label class="form-label">คะแนน:</label>

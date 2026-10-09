@@ -1,4 +1,4 @@
-@extends('layouts.keptkaya') {{-- ใช้ layout หลักของคุณ --}}
+@extends('layouts.annual_trash')
 
 @section('nav-payment')
     {{-- ถ้าเมนูนี้เกี่ยวข้องกับการจัดการอัตราค่าบริการ --}}

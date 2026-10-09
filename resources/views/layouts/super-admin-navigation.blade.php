@@ -181,6 +181,15 @@
             </div>
         </li>
 
+                            <li class="nav-item">
+                        <a href="{{ route('admin.workflows.index') }}" class="nav-link text-dark">
+                              <div class="icon icon-shape icon-sm shadow border-radius-md bg-white text-center me-2 d-flex align-items-center justify-content-center">
+                    <i class="fas fa-hand-holding-heart text-danger text-sm"></i>
+                </div>
+                            <span class="nav-link-text ms-1">จัดการสายการอนุมัติ</span>
+                        </a>
+                    </li>
+
         <li class="nav-item">
             <a class="nav-link {{ $is('admin.welfare.dashboard') ? 'active' : '' }}" href="{{ route('admin.welfare.dashboard') }}">
                 <div class="icon icon-shape icon-sm shadow border-radius-md bg-white text-center me-2 d-flex align-items-center justify-content-center">

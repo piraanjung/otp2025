@@ -1,4 +1,4 @@
-@extends('layouts.keptkaya')
+@extends('layouts.annual_trash')
 
 @section('nav-header', 'เพิ่มถังขยะใหม่')
 @section('nav-current', 'เพิ่มถังขยะใหม่')

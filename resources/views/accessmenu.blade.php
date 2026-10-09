@@ -338,9 +338,9 @@
             </a>
         </div>
         <div
-            class="bubble-container centralized orange {{auth()->user()->can('access annual fee')  ? '' : 'a-disbled'}}">
+            class="bubble-container centralized orange {{auth()->user()->can('access recycle bank')  || auth()->user()->hasRole('Super Admin | Admin |Annual Trash Staff') ? '' : 'a-disbled'}}">
             <a
-                href="{{auth()->user()->can('access annual fee') || auth()->user()->hasRole('Super Admin|Annual Trash Staff') ? route('annual_trash.index') : 'javascript:void(0)'}}">
+                href="{{auth()->user()->can('access recycle bank') || auth()->user()->hasRole('Super Admin | Admin |Annual Trash Staff') ? route('annual_trash.index') : 'javascript:void(0)'}}">
 
                 <div class="bubble centralized">
                     <div class="inner centralized">

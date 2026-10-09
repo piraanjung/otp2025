@@ -13,6 +13,7 @@
             {
                 Schema::create('kp_sell_details', function (Blueprint $table) {
                     $table->id();
+                    $table->foreignId('org_id_fk')->constrained('organizations')->onDelete('cascade');
                     $table->foreignId('kp_sell_trans_id')->constrained('kp_sell_transactions')->onDelete('cascade');
                     $table->foreignId('kp_recycle_item_id')->constrained('kp_tbank_items')->onDelete('restrict');
                     $table->decimal('weight', 10, 2); // น้ำหนักของขยะประเภทนี้
