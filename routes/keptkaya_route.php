@@ -29,6 +29,7 @@ use App\Http\Controllers\KeptKaya\BinsController;
 use App\Http\Controllers\KeptKaya\HistoryController;
 use App\Http\Controllers\KeptKaya\ImpactController;
 use App\Http\Controllers\KeptKaya\KpSettingController;
+use App\Http\Controllers\KeptKaya\KpWithdrawBatchController;
 use App\Http\Controllers\KeptKaya\LocationController;
 use App\Http\Controllers\KeptKaya\PointController;
 use App\Http\Controllers\KeptKaya\RecycleBankController;
@@ -45,12 +46,21 @@ Route::prefix('keptkayas')->name('keptkayas.')->group(function () {
     Route::get('/settings', [KpSettingController::class, 'index'])->name('settings.index');
     Route::post('/settings', [KpSettingController::class, 'update'])->name('settings.update');
 
+    
     Route::get('/history/{pref_id}', [HistoryController::class, 'index'])->name('history');
     Route::get('/impact/{pref_id}', [ImpactController::class, 'index'])->name('impact');
-    Route::get('/withdraw/create/{pref_id}', [WithdrawController::class, 'create'])->name('withdraw.create');
-    Route::post('/withdraw/store', [WithdrawController::class, 'storeRequest'])->name('withdraw.store');
+    Route::get('/withdraw/create/{user_id?}', [WithdrawController::class, 'create'])->name('withdraw.create');    Route::post('/withdraw/store', [WithdrawController::class, 'storeRequest'])->name('withdraw.store');
     Route::get('/withdraw/success/{id}', [WithdrawController::class, 'showSuccess'])->name('withdraw.success');
+    Route::get('/withdraw/{id}/print-slip', [WithdrawController::class, 'printSlip'])->name('withdraw.print_slip');
 
+    Route::get('/batches', [KpWithdrawBatchController::class, 'index'])->name('batches.index');
+    Route::post('/batches/create', [KpWithdrawBatchController::class, 'createBatch'])->name('batches.create');
+    Route::get('/batches/{id}', [KpWithdrawBatchController::class, 'show'])->name('batches.show');
+    Route::get('/batches/{id}/print', [KpWithdrawBatchController::class, 'printReport'])->name('batches.print');
+    Route::post('/batches/{id}/status', [KpWithdrawBatchController::class, 'updateStatus'])->name('batches.update_status');
+    Route::get('/batches/{id}/print-view', [KpWithdrawBatchController::class, 'printBatch'])->name('batches.print_view');
+    Route::post('/batches/{id}/approve-step', [KpWithdrawBatchController::class, 'approveStep'])->name('batches.approve_step');
+    
     Route::get('/transfer-points/{pref_id}', [PointController::class, 'create'])->name('transfer_points');
     Route::post('/transfer-points', [PointController::class, 'transfer'])->name('transfer_points.store');
 });

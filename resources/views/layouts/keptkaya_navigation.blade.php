@@ -1,6 +1,5 @@
 @php
     $infos_count = App\Http\Controllers\FunctionsController::keptkaya_nav_infos();
-
 @endphp
 <ul class="navbar-nav">
            {{-- <li class="nav-item">
@@ -520,6 +519,16 @@
         <span class="sidenav-normal">เงื่อนไขธนาคารขยะ</span>
     </a>
 </li>
+
+ <li class="nav-item">
+    <a class="nav-link @yield('nav-keptkayas.batches')" href="{{ route('keptkayas.batches.index') }}">
+        <div class="icon icon-shape icon-sm shadow border-radius-md bg-white text-center me-2 d-flex align-items-center justify-content-center">
+            <i class="fa fa-sliders-h text-secondary text-gradient text-lg"></i>
+        </div>
+        <span class="sidenav-normal">ถอนเงิน</span>
+    </a>
+</li>
+
     {{-- @endif --}}
 
     <li class="nav-item">
