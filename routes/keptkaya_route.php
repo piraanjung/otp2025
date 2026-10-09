@@ -53,12 +53,12 @@ Route::prefix('keptkayas')->name('keptkayas.')->group(function () {
     Route::get('/withdraw/success/{id}', [WithdrawController::class, 'showSuccess'])->name('withdraw.success');
     Route::get('/withdraw/{id}/print-slip', [WithdrawController::class, 'printSlip'])->name('withdraw.print_slip');
 
-    Route::get('/batches', [KpWithdrawBatchController::class, 'index'])->name('batches.index');
+    Route::get('/batches/{show_div?}', [KpWithdrawBatchController::class, 'index'])->name('batches.index');
     Route::post('/batches/create', [KpWithdrawBatchController::class, 'createBatch'])->name('batches.create');
     Route::get('/batches/{id}', [KpWithdrawBatchController::class, 'show'])->name('batches.show');
     Route::get('/batches/{id}/print', [KpWithdrawBatchController::class, 'printReport'])->name('batches.print');
     Route::post('/batches/{id}/status', [KpWithdrawBatchController::class, 'updateStatus'])->name('batches.update_status');
-    Route::get('/batches/{id}/print-view', [KpWithdrawBatchController::class, 'printBatch'])->name('batches.print_view');
+    Route::get('/batches/{id}/print-view', [KpWithdrawBatchController::class, 'printReport'])->name('batches.print_view');
     Route::post('/batches/{id}/approve-step', [KpWithdrawBatchController::class, 'approveStep'])->name('batches.approve_step');
     
     Route::get('/transfer-points/{pref_id}', [PointController::class, 'create'])->name('transfer_points');

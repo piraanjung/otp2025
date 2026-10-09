@@ -1,4 +1,4 @@
-@extends('layouts.keptkaya')
+@extends('layouts.annual_trash')
 @section('page-topic', 'ออกใบแจ้งหนี้')
 @section('nav-current', 'ออกใบแจ้งหนี้')
 @section('nav-keptkayas.annual_payments.invoice', 'active')

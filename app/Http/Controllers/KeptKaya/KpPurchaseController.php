@@ -69,11 +69,12 @@ class KpPurchaseController extends Controller
 
         $keptKayaMembers = $query->orderBy('firstname')->orderBy('lastname')->get();
 
-        // สแกน QR แล้วพบตรงเป๊ะ 1 คน ให้ข้ามไปหน้าชั่งขยะทันที
-        if (!empty($searchKey) && $keptKayaMembers->count() === 1) {
-            $user = $keptKayaMembers->first();
-            return redirect()->route('keptkayas.purchase.start_purchase', $user->id);
-        }
+        // // สแกน QR แล้วพบตรงเป๊ะ 1 คน ให้ข้ามไปหน้าชั่งขยะทันที
+        // if (!empty($searchKey) && $keptKayaMembers->count() === 1) {
+        //     $user = $keptKayaMembers->first();
+        //     return redirect()->route('keptkayas.purchase.start_purchase', $user->id);
+        // }
+        
 
         return view('keptkayas.purchase.select_user', compact('keptKayaMembers'));
     }

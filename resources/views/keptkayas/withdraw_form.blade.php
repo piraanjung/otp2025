@@ -80,8 +80,8 @@
                     </div>
                     <div class="col-6">
                         <div class="bg-success bg-opacity-10 p-3 rounded-3 h-100 border border-success border-opacity-25">
-                            <small class="text-success fw-bold d-block">ถอนได้สูงสุด (สำรอง {{ number_format($minReserve) }} บ.)</small>
-                            <h4 class="fw-bold text-success mb-0">{{ number_format($withdrawableAmount ?? 0, 2) }} บาท</h4>
+                            <small class="text-primary fw-bold d-block">ถอนได้สูงสุด (สำรอง {{ number_format($minReserve) }} บ.)</small>
+                            <h4 class="fw-bold text-primary mb-0">{{ number_format($withdrawableAmount ?? 0, 2) }} บาท</h4>
                         </div>
                     </div>
                 </div>
@@ -118,9 +118,10 @@
                     </div>
 
                     <!-- รอบรับเงินสด Dynamic ตาม Setting -->
-                    <div class="alert alert-info border-0 rounded-4 mb-4">
+                    <div class="bg-info border-1 rounded-4 mb-4">
+                        {{-- alert alert-info --}}
                         <div class="d-flex align-items-center">
-                            <i class="fas fa-calendar-check me-3 fs-3 text-info"></i>
+                            <i class="fas fa-calendar-check me-3 fs-3 text-black"></i>
                             <div>
                                 <strong class="d-block text-sm">รอบการรับเงินสดของเทศบาล/อบต.:</strong> คำขอนี้จะเข้าสู่รอบเสนออนุมัติ และนัดรับเงินสดใน <strong>วัน {{ $payoutDateFormatted }}</strong>
                             </div>

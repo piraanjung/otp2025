@@ -1,4 +1,4 @@
-@extends('layouts.adminlte')
+@extends('layouts.annual_trash')
 @section('mainheader')
     แก้ไขขนาดมิเตอร์
 @endsection

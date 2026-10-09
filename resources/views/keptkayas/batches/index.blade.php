@@ -2,20 +2,27 @@
 
 @section('nav-current', 'รวบรวมเสนออนุมัติถอนเงิน')
 
+@if($show_div == "histoty_batches")
+    @section('nav-keptkayas.batches.history', 'active')
+@elseif($show_div == "current_batches")
+    @section('nav-keptkayas.batches', 'active')
+@endif
+
 @section('content')
 <div class="container-fluid py-2">
-    <div class="col-md-6 text-end mt-3 mt-md-0">
+    {{-- <div class="col-md-6 text-end mt-3 mt-md-0"> --}}
     <!-- ปุ่มคีย์ถอนเงิน On-site สำหรับเจ้าหน้าที่ยื่นแทนสมาชิก -->
-    <a href="{{ route('keptkayas.withdraw.create') }}" class="btn bg-gradient-primary me-2 mb-0">
-        <i class="fas fa-plus-circle me-1"></i> คีย์ถอนเงินแทนสมาชิก (On-site)
-    </a>
+    {{-- <a href="{{ route('keptkayas.withdraw.create') }}" class="btn bg-gradient-primary me-2 mb-0">
+        <i class="fas fa-plus-circle me-1"></i> ถอนเงิน
+    </a> --}}
     
     <!-- ปุ่มสแกน QR Code จ่ายเงินสดวันอังคาร -->
-    <button type="button" class="btn bg-gradient-success mb-0" data-bs-toggle="modal" data-bs-target="#scanVerifyModal">
+    {{-- <button type="button" class="btn bg-gradient-success mb-0" data-bs-toggle="modal" data-bs-target="#scanVerifyModal">
         <i class="fas fa-qrcode me-1"></i> จ่ายเงินสด (สแกนรหัส)
-    </button>
-</div>
+    </button> --}}
+{{-- </div> --}}
     <!-- Card 1: สรุปยอดรอตัดรอบวันศุกร์ -->
+    @if($show_div == "current_batches")
     <div class="card shadow-sm border-0 rounded-4 mb-4">
         <div class="card-body p-4">
             <div class="d-flex justify-content-between align-items-center mb-3">
@@ -44,8 +51,8 @@
                 </div>
                 <div class="col-md-6">
                     <div class="bg-primary bg-opacity-10 p-3 rounded-3 border border-primary border-opacity-25">
-                        <small class="text-xs text-primary font-weight-bold d-block">ยอดเงินสดรวมที่ต้องเสนอขอเบิก</small>
-                        <h4 class="font-weight-bolder text-primary mb-0">{{ number_format($pendingTotalAmount, 2) }} บาท</h4>
+                        <small class="text-xs text-white font-weight-bold d-block">ยอดเงินสดรวมที่ต้องเสนอขอเบิก</small>
+                        <h4 class="font-weight-bolder text-white mb-0">{{ number_format($pendingTotalAmount, 2) }} บาท</h4>
                     </div>
                 </div>
             </div>
@@ -87,8 +94,10 @@
             </div>
         </div>
     </div>
+    @endif
 
     <!-- Card 2: ประวัติชุดเบิกถอนเงิน (Batch History) -->
+    @if($show_div == "histoty_batches")
     <div class="card shadow-sm border-0 rounded-4">
         <div class="card-header bg-white pb-0">
             <h6 class="font-weight-bolder text-dark mb-0">ประวัติชุดการเสนออนุมัติเบิกถอนเงิน (Batches)</h6>
@@ -143,5 +152,6 @@
             </div>
         </div>
     </div>
+    @endif
 </div>
 @endsection

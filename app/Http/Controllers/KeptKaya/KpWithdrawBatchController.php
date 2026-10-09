@@ -17,7 +17,7 @@ class KpWithdrawBatchController extends Controller
     /**
      * แสดงรายการ Batch ทั้งหมด และคำขอที่รอการตัดรอบ
      */
-    public function index()
+    public function index($show_div = "")
     {
         $orgId = Auth::user()->org_id_fk ?? 1;
 
@@ -47,7 +47,8 @@ class KpWithdrawBatchController extends Controller
             'pendingCount',
             'batches',
             'cutoffDay',
-            'payoutDay'
+            'payoutDay',
+            'show_div'
         ));
     }
 
