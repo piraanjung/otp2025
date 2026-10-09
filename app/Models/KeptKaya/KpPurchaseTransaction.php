@@ -45,7 +45,7 @@ class KpPurchaseTransaction extends Model
 
     public function userWastePreference() // ปรับชื่อ function ให้ camelCase สวยงาม
     {
-        return $this->belongsTo(KpUserWastePreference::class, 'kp_user_w_pref_id_fk', 'id');
+        return $this->belongsTo(KpUserWastePreference::class, 'user_id', 'user_id');
     }
 
     public function user()

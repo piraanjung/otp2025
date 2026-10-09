@@ -4,7 +4,6 @@ use App\Http\Controllers\Admin\AdminWithdrawController;
 use App\Http\Controllers\Admin\OrganizationTypeController;
 use App\Http\Controllers\Admin\OrgSelectorController;
 use App\Http\Controllers\Admin\SuperUserController;
-use App\Http\Controllers\Admin\UserController;
 use App\Http\Controllers\Admin\WasteFinancialReportController;
 use App\Http\Controllers\Admin\WelfareController;
 use App\Http\Controllers\Admin\BulkSaleController;
@@ -31,7 +30,7 @@ Route::group(['middleware' => ['auth', 'role:Super Admin']], function () {
     Route::post('/admin/set-org-context', [OrgSelectorController::class, 'setContext'])->name('admin.set_org_context');
 });
 
-Route::prefix('admin')->name('admin.')->middleware(['auth', 'role:Admin|Super Admin', 'can:admin-access'])->group(function () {
+Route::prefix('admin')->name('admin.')->middleware(['auth', 'role:Admin|Super Admin'])->group(function () {
     Route::get('/withdraws', [AdminWithdrawController::class, 'index'])->name('withdraws.index');
     Route::post('/withdraws/verify/{id}', [AdminWithdrawController::class, 'verifyCode'])->name('withdraws.verify');
     Route::get('/withdraws/summary', [AdminWithdrawController::class, 'payoutSummary'])->name('withdraws.summary');

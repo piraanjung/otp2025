@@ -28,6 +28,7 @@ use App\Http\Controllers\KeptKaya\AnnualTrashSubscriptionController;
 use App\Http\Controllers\KeptKaya\BinsController;
 use App\Http\Controllers\KeptKaya\HistoryController;
 use App\Http\Controllers\KeptKaya\ImpactController;
+use App\Http\Controllers\KeptKaya\KpSettingController;
 use App\Http\Controllers\KeptKaya\LocationController;
 use App\Http\Controllers\KeptKaya\PointController;
 use App\Http\Controllers\KeptKaya\RecycleBankController;
@@ -40,7 +41,9 @@ Route::prefix('keptkayas')->name('keptkayas.')->group(function () {
         return view('keptkayas.unknown_review');
     })->name('kiosk.unknown.review');
 
-
+    // System Settings
+    Route::get('/settings', [KpSettingController::class, 'index'])->name('settings.index');
+    Route::post('/settings', [KpSettingController::class, 'update'])->name('settings.update');
 
     Route::get('/history/{pref_id}', [HistoryController::class, 'index'])->name('history');
     Route::get('/impact/{pref_id}', [ImpactController::class, 'index'])->name('impact');

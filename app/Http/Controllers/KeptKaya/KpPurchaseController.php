@@ -42,8 +42,8 @@ class KpPurchaseController extends Controller
             })
             ->with([
                 'recycleBankAccount:id,user_id,account_no,balance,points,status',
-                'user_zone:id,zonename',
-                'kpUserPreference.purchaseTransactions' => function ($q) use ($today) {
+                'user_zone:id,zone_name',
+                'purchaseTransactions' => function ($q) use ($today) {
                     $q->whereDate('transaction_date', $today);
                 }
             ]);

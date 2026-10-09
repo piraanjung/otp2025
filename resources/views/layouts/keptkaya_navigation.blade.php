@@ -3,8 +3,7 @@
 
 @endphp
 <ul class="navbar-nav">
-    @if (session('pref_id_mobile'))
-           <li class="nav-item">
+           {{-- <li class="nav-item">
         <a href="{{route('lineliff.dashboard', ['pref_id' => session('pref_id_mobile'),'org_id' => 2 ] )}}" class="nav-link active w-50 bg-info mb-2">
             <div
                 class="icon icon-sm shadow-sm border-radius-md bg-yellow text-center d-flex align-items-center justify-content-center  me-2">
@@ -13,8 +12,7 @@
             <span class="nav-link-text ms-1">dashboard</span>
         </a>
 
-    </li>
-    @else
+    </li> --}}
    
     <li class="nav-item">
         <a href="{{route('accessmenu')}}" class="nav-link active w-50 bg-info mb-2">
@@ -52,8 +50,6 @@
             <span class="nav-link-text ms-1">Dashboard</span>
         </a>
     </li>
-    @if (Session::get('keptkayatype') == 'annual')
-        {{-- @if(auth()->user()->can('access annual bin') || auth()->user()->hasRole('Super Admin|Annual Trash Staff')) --}}
         <li class="nav-item">
             <a data-bs-toggle="collapse" href="#receipt" class="nav-link active" aria-controls="receipt" role="button"
                 aria-expanded="true">
@@ -227,10 +223,7 @@
                 </ul>
             </div>
         </li>
-        {{-- @endif --}}
-    @endif
-    {{-- @if (Session::get('keptkayatype') == 'recycle') --}}
-    @if(auth()->user()->can('access food waste') || auth()->user()->hasRole('Admin|Super Admin'))
+     
         <li class="nav-item">
             <a data-bs-toggle="collapse" href="#cart" class="nav-link active" aria-controls="cart" role="button"
                 aria-expanded="true">
@@ -300,34 +293,6 @@
         </li>
 
 
-
-
-        {{-- <li class="nav-item">
-            <a data-bs-toggle="collapse" href="#bulkSalesMenu" class="nav-link" aria-controls="bulkSalesMenu" role="button"
-                aria-expanded="false">
-                <div
-                    class="icon icon-shape icon-sm shadow border-radius-md bg-white text-center me-2 d-flex align-items-center justify-content-center">
-                    <i class="fas fa-truck-loading text-dark"></i>
-                </div>
-                <span class="nav-link-text ms-1">การขายรวม (Bulk)</span>
-            </a>
-            <div class="collapse" id="bulkSalesMenu">
-                <ul class="nav ms-4 ps-3">
-                    <li class="nav-item">
-                        <a class="nav-link" href="{{ route('admin.bulk_sales.index') }}">
-                            <span class="sidenav-mini-icon"> BS </span>
-                            <span class="sidenav-normal"> ประวัติการขายใหญ่ </span>
-                        </a>
-                    </li>
-                    <li class="nav-item">
-                        <a class="nav-link" href="{{ route('admin.bulk_sales.create') }}">
-                            <span class="sidenav-mini-icon"> NB </span>
-                            <span class="sidenav-normal"> บันทึกขายขยะใหม่ </span>
-                        </a>
-                    </li>
-                </ul>
-            </div>
-        </li> --}}
 
         <li class="nav-item">
             <a data-bs-toggle="collapse" href="#welfare" class="nav-link active" aria-controls="cart" role="button"
@@ -547,7 +512,14 @@
 
             </div>
         </li>
-    @endif
+        <li class="nav-item">
+    <a class="nav-link @yield('nav-keptkayas.settings')" href="{{ route('keptkayas.settings.index') }}">
+        <div class="icon icon-shape icon-sm shadow border-radius-md bg-white text-center me-2 d-flex align-items-center justify-content-center">
+            <i class="fa fa-sliders-h text-secondary text-gradient text-lg"></i>
+        </div>
+        <span class="sidenav-normal">เงื่อนไขธนาคารขยะ</span>
+    </a>
+</li>
     {{-- @endif --}}
 
     <li class="nav-item">
@@ -560,7 +532,6 @@
                         </a>
                     </li>
 
- @endif
     <li class="nav-item">
         <a href="{{ route('logout') }}" class="nav-link active mt-4" style="border: 1px solid red">
             <div
@@ -570,6 +541,7 @@
         </a>
 
     </li>
+
     {{-- @endcan --}}
 
 </ul>

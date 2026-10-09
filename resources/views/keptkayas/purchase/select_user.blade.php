@@ -153,8 +153,7 @@
                     <tbody> 
                         @forelse ($keptKayaMembers as $index => $member) 
                             @php 
-                                $pref = $member->kpUserPreference ?? $member->wastePreference; 
-                                $todayTrans = $pref ? $pref->purchaseTransactions : collect(); 
+                                $todayTrans = $member->purchaseTransactions; 
                             @endphp 
                             <tr> 
                                 <td class="align-middle text-center"> 
@@ -173,7 +172,7 @@
                                 </td> 
                                 <td> 
                                     <p class="text-xs font-weight-bold mb-0 text-dark"> 
-                                        {{ $member->user_zone->zonename ?? '-' }} 
+                                        {{ $member->user_zone->zone_name ?? '-' }} 
                                     </p> 
                                     <p class="text-xxs text-secondary mb-0 text-truncate" style="max-width: 200px;"> 
                                         {{ $member->address ?? '-' }} 
@@ -221,8 +220,7 @@
         <div class="row g-2"> 
             @forelse ($keptKayaMembers as $member) 
                 @php 
-                    $pref = $member->kpUserPreference ?? $member->wastePreference; 
-                    $todayTrans = $pref ? $pref->purchaseTransactions : collect(); 
+                    $todayTrans = $member->purchaseTransactions ; 
                 @endphp 
                 <div class="col-12"> 
                     <div class="card shadow-sm border mb-1 rounded-3"> 
@@ -238,7 +236,7 @@
                                             {{ $member->firstname }} {{ $member->lastname }} 
                                         </h6> 
                                         <p class="text-xxs text-secondary mb-0 text-truncate"> 
-                                            {{ $member->username }} @if($member->user_zone) | {{ $member->user_zone->zonename }} @endif 
+                                            {{ $member->username }} @if($member->user_zone) | {{ $member->user_zone->zone_name }} @endif 
                                         </p> 
                                     </div> 
                                 </div> 
