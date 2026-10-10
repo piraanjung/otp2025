@@ -100,9 +100,9 @@
         .main-container .bubble-container {
             border: 6px;
             box-sizing: border-box;
-            height: 300px;
+            height: 320px;
+            width: 320px;
             position: absolute;
-            width: 300px;
             opacity: 0;
             transform: rotate(0deg);
             transition: transform ease-in 0.7s, opacity ease 1s;
@@ -139,75 +139,97 @@
             width: 14px;
         }
 
+        /* ปรับแต่งขนาดและระยะห่างของฟองวงกลมย่อย */
         .main-container .bubble-container .bubble {
             border-radius: 100%;
             box-sizing: border-box;
             position: absolute;
-            height: 185px;
 
-            /* --- ปรับตรงนี้ --- */
-            top: -120px;
-            /* เดิม calc(95% - 290px) ลองปรับเป็นค่าติดลบที่ต้องการ */
-            left: -330px;
-            /* เดิม -280px: ยิ่งลบมาก ยิ่งห่างจากวงกลมกลาง */
-            /* ---------------- */
+            /* 1. ย่อขนาดวงกลมย่อยให้พอดี ไม่เบียดกัน */
+            height: 172px;
+            width: 172px;
 
-            width: 185px;
-            transform: rotate(0deg);
+            /* 2. ดันวงกลมย่อยให้ออกห่างจากรัศมีวงกลมใหญ่กลาง (ขยับออกไปทางซ้าย/บน) */
+            top: -95px;
+            left: -300px;
+
             transition: all ease 0.8s;
             text-align: center;
         }
 
-        .bubble .inner:hover {
-            transform: rotate(0deg);
-            transition: all ease 0.8s;
-            transform: scale(1.08) !important;
-        }
-
+        /* ปรับขนาดกล่องเนื้อหาภายในวงกลม */
         .main-container .bubble-container .bubble .inner {
             background: #fff;
             border-radius: 100%;
             box-shadow: 4px 5px 5px 0px rgba(0, 0, 0, 0.2);
             box-sizing: border-box;
-            height: 165px;
-            width: 165px;
+            height: 135px;
+            width: 135px;
             overflow: hidden;
-            font-size: 23px;
+            font-size: 20px;
+            /* ปรับขนาดฟอนต์ให้สมดุลกับขนาดวงกลมใหม่ */
+            line-height: 1.3;
         }
 
-        .main-container .bubble-container.black .bubble,
-        .main-container .bubble-container.black .pointer .inner {
-            background: #505269;
+        .bubble .inner:hover {
+            transition: all ease 0.3s;
+            transform: scale(1.1) !important;
         }
 
-        .main-container .bubble-container.blue-dark .bubble,
-        .main-container .bubble-container.blue-dark .pointer .inner {
-            background: #4c67aa;
-        }
 
-        .main-container .bubble-container.blue-light .bubble,
-        .main-container .bubble-container.blue-light .pointer .inner {
-            background: #25ade1;
-        }
+        /* 1. งานประปา - สีฟ้าคราม (Ocean Blue) */
+.main-container .bubble-container.red .bubble,
+.main-container .bubble-container.red .pointer .inner {
+    background: #4A90E2;
+}
 
-        .main-container .bubble-container.green .bubble,
-        .main-container .bubble-container.green .pointer .inner {
-            background: #8dc03f;
-        }
+/* 2. ตู้คืนขวดอัตโนมัติ - สีฟ้าเทอร์ควอยซ์ (Turquoise) */
+.main-container .bubble-container.cyan .bubble,
+.main-container .bubble-container.cyan .pointer .inner {
+    background: #20B2AA;
+}
 
-        .main-container .bubble-container.orange .bubble {
-            background: #fa9128;
-        }
+/* 3. คลังพัสดุ - สีเขียวพก/มะกอกอ่อน (Sage Green) */
+.main-container .bubble-container.sage .bubble,
+.main-container .bubble-container.sage .pointer .inner {
+    background: #5B8C5A;
+}
 
-        .main-container .bubble-container.orange .pointer .inner {
-            background: #fa9128;
-        }
+/* 4. ธนาคารขยะรีไซเคิล - สีเขียวใบไม้สดใส (Soft Leaf Green) */
+.main-container .bubble-container.green .bubble,
+.main-container .bubble-container.green .pointer .inner {
+    background: #62B865;
+}
 
-        .main-container .bubble-container.red .bubble,
-        .main-container .bubble-container.red .pointer .inner {
-            background: #e46020;
-        }
+/* 5. ค่าจัดการถังขยะรายปี - สีส้มอบอุ่น/พีช (Soft Amber / Peach) */
+.main-container .bubble-container.orange .bubble,
+.main-container .bubble-container.orange .pointer .inner {
+    background: #E88848;
+}
 
+/* 6. กองทุนฌาปนกิจ - สีม่วงพาสเทลเทา (Muted Slate Violet) */
+.main-container .bubble-container.black .bubble,
+.main-container .bubble-container.black .pointer .inner {
+    background: #6C5B7B;
+}
+
+/* 7. ถังขยะเปียกจากครัวเรือน - สีเขียวไผ่/โอลีฟ (Olive Green) */
+.main-container .bubble-container.blue-dark .bubble,
+.main-container .bubble-container.blue-dark .pointer .inner {
+    background: #739E82;
+}
+
+/* 8. ธนาคารออมทรัพย์ - สีทองอมส้มอ่อน (Soft Warm Gold) */
+.main-container .bubble-container.gold .bubble,
+.main-container .bubble-container.gold .pointer .inner {
+    background: #D4A359;
+}
+
+/* 9. ผู้ดูแลระบบ - สีน้ำเงินเกรย์/คอร์นฟลาวเวอร์ (Cornflower Steel Blue) */
+.main-container .bubble-container.blue-light .bubble,
+.main-container .bubble-container.blue-light .pointer .inner {
+    background: #5C7AEA;
+}
 
 
         #org {
@@ -269,7 +291,7 @@
             <hr style="margin-bottom: 3px;margin-top: 3px;">
             <form action="{{ route('logout') }}">
                 @csrf
-            <input type="submit" class="btn btn-info" value="ออกจากระบบ">
+                <input type="submit" style="border-radius: 10px " value="ออกจากระบบ">
 
             </form>
             {{-- <div id="org_addr">พัฒนาชุมชน เชื่อมใจ ให้ใกล้กัน</div> --}}
@@ -308,7 +330,7 @@
                 href="{{auth()->user()->can('access tabwater') | auth()->user()->hasRole('Super Admin') ? route('keptkayas.kiosks.index') : '#'}}">
                 <div class="bubble centralized">
                     <div class="inner centralized">
-                        ตู้ KIOSK
+                        ตู้คืนขวดอัตโนมัติ
                     </div>
                 </div>
             </a>
@@ -338,7 +360,7 @@
             </a>
         </div>
         <div
-            class="bubble-container centralized orange {{auth()->user()->can('access recycle bank')  || auth()->user()->hasRole('Super Admin | Admin |Annual Trash Staff') ? '' : 'a-disbled'}}">
+            class="bubble-container centralized orange {{auth()->user()->can('access recycle bank') || auth()->user()->hasRole('Super Admin | Admin |Annual Trash Staff') ? '' : 'a-disbled'}}">
             <a
                 href="{{auth()->user()->can('access recycle bank') || auth()->user()->hasRole('Super Admin | Admin |Annual Trash Staff') ? route('annual_trash.index') : 'javascript:void(0)'}}">
 
@@ -350,8 +372,17 @@
             </a>
 
         </div>
+        <div class="bubble-container centralized black ">
+            <a href="#">
+                <div class="bubble centralized">
+                    <div class="inner centralized">
+                        กองทุน<br>ฌาปณกิจ
+                    </div>
+                </div>
+            </a>
+        </div>
         <div
-            class="bubble-container centralized  blue-dark {{auth()->user()->can('access food waste') || auth()->user()->hasRole('Super Admin') ? '' : 'a-disbled'}}">
+            class="bubble-container centralized  blue-dark">
             <a
                 href="{{auth()->user()->can('access food waste') || auth()->user()->hasRole('Super Admin') ? route('foodwaste.executive_dashboard') : 'javascript:void(0)'}}">
                 <div class="bubble centralized">
@@ -362,7 +393,7 @@
             </a>
         </div>
         <div
-            class="bubble-container centralized black {{auth()->user()->can('access local saving bank') | auth()->user()->hasRole('Super Admin') ? '' : 'a-disbled'}}">
+            class="bubble-container centralized black ">
             <a href="#">
                 <div class="bubble centralized">
                     <div class="inner centralized">
@@ -460,17 +491,24 @@
         $(document).ready(function () {
             var bubbleList = $('.bubble-container');
             const bubbleCount = bubbleList.length;
-            const degStep = 180 / (bubbleCount - 1);
+
+            // ขยายช่วงการกระจายองศาจาก 180 เป็น 220 องศา เพื่อเพิ่มระยะห่างระหว่างแต่ละวงกลม
+            const totalDeg = 200;
+            const startDeg = -20; // เริ่มต้นเอียงไปทางซ้ายล่างเล็กน้อย
+            const degStep = totalDeg / (bubbleCount - 1);
 
             $('.bubble-container').each((index) => {
-                const deg = index * degStep;
-                const invertDeg = deg * -1;
+                const deg = startDeg + (index * degStep);
+                const invertDeg = deg * -1; // หมุนเนื้อหาในวงกลมกลับ เพื่อให้อ่านตัวหนังสือแนวตั้งตรงเสมอ
 
-                $(bubbleList[index]).css('transform', `rotate(${deg}deg)`);
-                $(bubbleList[index]).css('opacity', `1`);
+                $(bubbleList[index]).css({
+                    'transform': `rotate(${deg}deg)`,
+                    'opacity': '1'
+                });
+
                 $(bubbleList[index]).find('.bubble').css('transform', `rotate(${invertDeg}deg)`);
-            })
-        })
+            });
+        });
     </script>
 </body>
 
