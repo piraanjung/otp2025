@@ -21,7 +21,8 @@
                     <tr>
                         <td><strong>{{ \Carbon\Carbon::parse($item->payout_date)->format('d/m/Y') }}</strong></td>
                         <td>
-                            <div>{{ $item->user->name }}</div>
+                            <div>{{ $item->user->prefix."".$item->user->firstname." ".$item->user->lastname }}</div>
+                            <div>{{ $item->user->address." ".$item->user->user_zone->zone_name }} [{{ $item->user->phone }}]</div>
                             @if($item->is_proxy)
                                 <small class="text-danger">รับแทนโดย: {{ $item->proxy_name }}</small>
                             @endif

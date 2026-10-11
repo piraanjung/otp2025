@@ -200,17 +200,17 @@ class User extends Authenticatable
     {
         return $this->hasMany(KpBankAccount::class, 'user_id', 'id');
     }
-// บัญชีธนาคารขยะรีไซเคิล
-public function recycleBankAccount()
-{
-    return $this->hasOne(KpBankAccount::class, 'user_id', 'id')->where('entity_type', 'recycle_bank');
-}
+    // บัญชีธนาคารขยะรีไซเคิล
+    public function recycleBankAccount()
+    {
+        return $this->hasOne(KpBankAccount::class, 'user_id', 'id')->where('entity_type', 'recycle_bank');
+    }
 
-// บัญชีธนาคารขยะเปียก/เศษอาหาร
-public function foodWasteBankAccount()
-{
-    return $this->hasOne(KpBankAccount::class, 'user_id', 'id')->where('entity_type', 'foodwaste_bank');
-}
+    // บัญชีธนาคารขยะเปียก/เศษอาหาร
+    public function foodWasteBankAccount()
+    {
+        return $this->hasOne(KpBankAccount::class, 'user_id', 'id')->where('entity_type', 'foodwaste_bank');
+    }
 
 
     // เชื่อมกับบัญชีขยะเปียก (1-to-1)
@@ -232,26 +232,19 @@ public function foodWasteBankAccount()
     }
 
     public function assignedNotifies()
-{
-    return $this->belongsToMany(
-        TwNotifies::class,
-        'tw_notify_staff',
-        'user_id',          // FK ใน pivot table ที่ชี้มาหา users.id
-        'notify_id'         // FK ใน pivot table ที่ชี้ไปหา tw_notifies.id
-    )
-    ->withPivot('staff_status')
-    ->withTimestamps();
-}
+    {
+        return $this->belongsToMany(
+            TwNotifies::class,
+            'tw_notify_staff',
+            'user_id',          // FK ใน pivot table ที่ชี้มาหา users.id
+            'notify_id'         // FK ใน pivot table ที่ชี้ไปหา tw_notifies.id
+        )
+            ->withPivot('staff_status')
+            ->withTimestamps();
+    }
 
-public function purchaseTransactions()
-{
-    return $this->hasManyThrough(
-        KpPurchaseTransaction::class,
-        KpUserWastePreference::class,
-        'user_id',              // FK บน KpUserWastePreference
-        'kp_user_w_pref_id_fk', // FK บน KpPurchaseTransaction
-        'id',                   // PK บน User
-        'id'                    // PK บน KpUserWastePreference
-    );
-}
+    public function purchaseTransactions()
+    {
+        return $this->hasMany(KpPurchaseTransaction::class, 'user_id');
+    }
 }

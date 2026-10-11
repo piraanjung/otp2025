@@ -28,6 +28,8 @@ use App\Http\Controllers\KeptKaya\AnnualTrashSubscriptionController;
 use App\Http\Controllers\KeptKaya\BinsController;
 use App\Http\Controllers\KeptKaya\HistoryController;
 use App\Http\Controllers\KeptKaya\ImpactController;
+use App\Http\Controllers\KeptKaya\KpSettingController;
+use App\Http\Controllers\KeptKaya\KpWithdrawBatchController;
 use App\Http\Controllers\KeptKaya\LocationController;
 use App\Http\Controllers\KeptKaya\PointController;
 use App\Http\Controllers\KeptKaya\RecycleBankController;
@@ -40,14 +42,25 @@ Route::prefix('keptkayas')->name('keptkayas.')->group(function () {
         return view('keptkayas.unknown_review');
     })->name('kiosk.unknown.review');
 
+    // System Settings
+    Route::get('/settings', [KpSettingController::class, 'index'])->name('settings.index');
+    Route::post('/settings', [KpSettingController::class, 'update'])->name('settings.update');
 
-
+    
     Route::get('/history/{pref_id}', [HistoryController::class, 'index'])->name('history');
     Route::get('/impact/{pref_id}', [ImpactController::class, 'index'])->name('impact');
-    Route::get('/withdraw/create/{pref_id}', [WithdrawController::class, 'create'])->name('withdraw.create');
-    Route::post('/withdraw/store', [WithdrawController::class, 'storeRequest'])->name('withdraw.store');
+    Route::get('/withdraw/create/{user_id?}', [WithdrawController::class, 'create'])->name('withdraw.create');    Route::post('/withdraw/store', [WithdrawController::class, 'storeRequest'])->name('withdraw.store');
     Route::get('/withdraw/success/{id}', [WithdrawController::class, 'showSuccess'])->name('withdraw.success');
+    Route::get('/withdraw/{id}/print-slip', [WithdrawController::class, 'printSlip'])->name('withdraw.print_slip');
 
+    Route::get('/batches/{show_div?}', [KpWithdrawBatchController::class, 'index'])->name('batches.index');
+    Route::post('/batches/create', [KpWithdrawBatchController::class, 'createBatch'])->name('batches.create');
+    Route::get('/batches/{id}', [KpWithdrawBatchController::class, 'show'])->name('batches.show');
+    Route::get('/batches/{id}/print', [KpWithdrawBatchController::class, 'printReport'])->name('batches.print');
+    Route::post('/batches/{id}/status', [KpWithdrawBatchController::class, 'updateStatus'])->name('batches.update_status');
+    Route::get('/batches/{id}/print-view', [KpWithdrawBatchController::class, 'printReport'])->name('batches.print_view');
+    Route::post('/batches/{id}/approve-step', [KpWithdrawBatchController::class, 'approveStep'])->name('batches.approve_step');
+    
     Route::get('/transfer-points/{pref_id}', [PointController::class, 'create'])->name('transfer_points');
     Route::post('/transfer-points', [PointController::class, 'transfer'])->name('transfer_points.store');
 });
@@ -128,30 +141,32 @@ Route::middleware(['auth'])->prefix('keptkayas')->name('keptkayas.')->group(func
 
     // 6. Purchase System
     Route::prefix('purchase/')->name('purchase.')->group(function () {
-        Route::get('get-units/{itemId}', [KpPurchaseController::class, 'getUnitsForItem'])->name('get_units');
+
+        // ระบบเลือกและจัดการเขตรับซื้อ
         Route::match(['get', 'post'], 'select-route', [KpPurchaseController::class, 'selectRoute'])->name('select_route');
+        Route::get('routes-manage', [KpPurchaseController::class, 'routeIndex'])->name('routes.index');
+        Route::post('routes-save', [KpPurchaseController::class, 'routeSave'])->name('routes.save');
+        Route::delete('routes-delete/{id}', [KpPurchaseController::class, 'routeDelete'])->name('routes.delete');
+
+        // ระบบรับซื้อขยะหน้างาน
         Route::get('select_user', [KpPurchaseController::class, 'select_user'])->name('select_user');
-        Route::get('start_purchase/{user_waste_pref_id}', [KpPurchaseController::class, 'startPurchase'])->name('start_purchase');
+        Route::get('start_purchase/{user_id}', [KpPurchaseController::class, 'startPurchase'])->name('start_purchase');
         Route::get('form/{user_id}', [KpPurchaseController::class, 'showPurchaseForm'])->name('form');
+
+        // ตะกร้าและคิดเงิน
         Route::post('add_to_cart', [KpPurchaseController::class, 'addToCart'])->name('add_to_cart');
         Route::delete('remove-from-cart/{index}', [KpPurchaseController::class, 'removeFromCart'])->name('remove_from_cart');
         Route::get('cart', [KpPurchaseController::class, 'showCart'])->name('cart');
         Route::post('save-transaction', [KpPurchaseController::class, 'saveTransaction'])->name('save_transaction');
-        Route::post('save_transaction_machine', [KpPurchaseController::class, 'saveTransactionForMachine'])->name('save_transaction_machine');
-        Route::get('show-receipt/{transaction}', [KpPurchaseController::class, 'showReceipt'])->name('show_receipt');
-        Route::get('history/{kp_waste_pref_id}', [KpPurchaseController::class, 'showPurchaseHistory'])->name('history');
+
+        // ใบเสร็จและประวัติ
         Route::get('receipt/{transaction_id}', [KpPurchaseController::class, 'showReceipt'])->name('receipt');
+        Route::get('history/{user_id}', [KpPurchaseController::class, 'showPurchaseHistory'])->name('history');
         Route::get('connect_bluethooth', [KpPurchaseController::class, 'connect_bluethooth'])->name('connect_bluethooth');
 
-        // ระบบจัดการเขตรับซื้อขยะ (สำหรับ Admin)
-        Route::get('routes-manage', [KpPurchaseController::class, 'routeIndex'])
-            ->name('routes.index');
-
-        Route::post('routes-save', [KpPurchaseController::class, 'routeSave'])
-            ->name('routes.save');
-
-        Route::delete('routes-delete/{id}', [KpPurchaseController::class, 'routeDelete'])
-            ->name('routes.delete');
+        // AJAX & API
+        Route::get('get-units/{itemId}', [KpPurchaseController::class, 'getUnitsForItem'])->name('get_units');
+        Route::post('save_transaction_machine', [KpPurchaseController::class, 'saveTransactionForMachine'])->name('save_transaction_machine');
     });
 
     // 7. Sell System

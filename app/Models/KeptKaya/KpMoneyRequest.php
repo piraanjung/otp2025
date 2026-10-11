@@ -19,4 +19,9 @@ class KpMoneyRequest extends Model
     public function admin() {
         return $this->belongsTo(User::class, 'admin_id');
     }
+
+    public function batch()
+{
+    return $this->belongsTo(KpWithdrawBatch::class, 'batch_id_fk', 'id');
+}
 }

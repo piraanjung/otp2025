@@ -14,6 +14,7 @@ class KpSellDetail extends Model
     protected $table = 'kp_sell_details';
 
     protected $fillable = [
+        'org_id_fk',
         'kp_sell_trans_id',
         'kp_recycle_item_id',
         'recorder_id',

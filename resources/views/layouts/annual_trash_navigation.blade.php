@@ -13,7 +13,7 @@
 
     </li>
     <li class="nav-item">
-        <a class="nav-link  @yield('nav-dashboard')" href="{{route('annual_trash.index')}}">
+        <a class="nav-link active show  @yield('nav-dashboard')" href="{{route('annual_trash.index')}}">
             <div
                 class="icon icon-shape icon-sm shadow border-radius-md bg-white text-center me-2 d-flex align-items-center justify-content-center">
                 <svg width="12px" height="12px" viewBox="0 0 45 40" version="1.1" xmlns="http://www.w3.org/2000/svg"
@@ -41,7 +41,7 @@
     {{-- @if (Session::get('keptkayatype') == 'annual') --}}
         {{-- @if(auth()->user()->can('access annual bin') || auth()->user()->hasRole('Super Admin|Annual Trash Staff')) --}}
             <li class="nav-item">
-                <a data-bs-toggle="collapse" href="#receipt" class="nav-link active" aria-controls="receipt" role="button"
+                {{-- <a data-bs-toggle="collapse" href="#receipt" class="nav-link active" aria-controls="receipt" role="button"
                     aria-expanded="true">
                     <div
                         class="icon icon-shape icon-sm shadow border-radius-md bg-white text-center d-flex align-items-center justify-content-center me-2">
@@ -65,9 +65,9 @@
                         </svg>
                     </div>
                     <span class="nav-link-text ms-1">จัดเก็บขยะรายปี</span>
-                </a>
+                </a> --}}
 
-                <div class="collapse show" id="receipt">
+                <div class="x show" id="receipt">
                     <ul class="nav ms-4 ps-3">
 
                         <li class="nav-item mt-2 mb-1">

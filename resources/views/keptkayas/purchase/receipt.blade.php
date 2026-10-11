@@ -155,11 +155,11 @@
                     </div>
 
                     <div class="bg-light p-2 rounded mb-3 border border-light">
-                        <div class="small fw-bold text-dark">สมาชิก: {{ $transaction->userWastePreference->user->firstname }} {{ $transaction->userWastePreference->user->lastname }}</div>
+                        <div class="small fw-bold text-dark">สมาชิก: {{ $transaction->user->firstname }} {{ $transaction->user->lastname }}</div>
                         <div class="small text-muted" style="font-size: 0.75rem;">
-                             {{ $transaction->userWastePreference->user->address }} 
-                             {{ $transaction->userWastePreference->user->user_zone->zone_name ?? '' }}
-                             ต.{{ $transaction->userWastePreference->user->user_tambon->tambon_name }}
+                             {{ $transaction->user->address }} 
+                             {{ $transaction->user->user_zone->zone_name ?? '' }}
+                             ต.{{ $transaction->user->user_tambon->tambon_name }}
                         </div>
                     </div>
 

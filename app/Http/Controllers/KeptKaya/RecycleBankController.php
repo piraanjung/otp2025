@@ -48,8 +48,8 @@ class RecycleBankController extends Controller
 
         // ดึงรายการบิลประวัติการขายขยะ
         $transactions = KpPurchaseTransaction::with(['details.item', 'details.unit', 'recorder'])
-            ->whereHas('userWastePreference', function ($query) use ($userId) {
-                $query->where('user_id', $userId);
+            ->whereHas('user.recycleBankAccount', function ($q) {
+                $q->where('status', 'active');
             })
             ->whereBetween('transaction_date', [$startDate, $endDate])
             ->orderBy('transaction_date', 'desc')

@@ -3,18 +3,19 @@
 namespace App\Http\Controllers\KeptKaya;
 
 use App\Http\Controllers\Controller;
-use App\Models\Admin\Organization;
 use App\Models\Admin\Staff;
 use App\Models\KeptKaya\KpPurchaseShop;
 use Illuminate\Http\Request;
 use App\Models\KeptKaya\KpSellTransaction;
 use App\Models\KeptKaya\KpSellDetail;
 use App\Models\KeptKaya\KpTbankItems;
+use App\Models\KpBankAccount;
 use App\Models\User;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Str;
 use Carbon\Carbon;
+use Illuminate\Support\Facades\Auth;
 
 class KpSellController extends Controller
 {
@@ -61,27 +62,39 @@ class KpSellController extends Controller
         DB::beginTransaction();
         try {
             // 1. Create the main sell transaction
+            $orgId = Auth::user()->org_id_fk;
+            $orgRecycleBankAccount = KpBankAccount::where('org_id_fk', $orgId)
+                                    ->where('entity_type', 'org_recycle_bank')
+                                    ->get()->first();
             $transaction = KpSellTransaction::create([
-                'kp_u_trans_no' => 'S-' . Carbon::now()->format('YmdHis') . Str::random(4),
-                'shop_id_fk' => $validated['shop_name'],
-                'transaction_date' => $validated['sell_date'],
-                'total_weight' => $totalWeight,
-                'total_amount' => $totalAmount,
-                'recorder_id' => $validated['recorder_id'],
+                'org_id_fk'         => $orgId,
+                'user_id_fk'        => $orgRecycleBankAccount->user_id,
+                'kp_u_trans_no'     => 'S-' . Carbon::now()->format('YmdHis') . Str::random(4),
+                'shop_id_fk'        => $validated['shop_name'],
+                'transaction_date'  => $validated['sell_date'],
+                'total_weight'      => $totalWeight,
+                'total_amount'      => $totalAmount,
+                'recorder_id'       => $validated['recorder_id'],
             ]);
 
             // 2. Create the sell details for each item in the transaction
             foreach ($validated['details'] as $detail) {
-
                 KpSellDetail::create([
-                    'kp_sell_trans_id' => $transaction->id,
-                    'kp_recycle_item_id' => $detail['kp_recycle_item_id'],
-                    'weight' => $detail['weight'],
-                    'price_per_unit' => $detail['price_per_unit'],
-                    'amount' => $detail['amount'],
-                    'comment' => $detail['comment'],
+                    'amount'                => $detail['amount'],
+                    'weight'                => $detail['weight'],
+                    'comment'               => $detail['comment'],
+                    'org_id_fk'             => $orgId,
+                    'price_per_unit'        => $detail['price_per_unit'],
+                    'kp_sell_trans_id'      => $transaction->id,
+                    'kp_recycle_item_id'    => $detail['kp_recycle_item_id'],
+                    
                 ]);
             }
+
+               $orgRecycleBankAccount->balance += $totalAmount;
+               $orgRecycleBankAccount->save();
+
+
 
             DB::commit();
             return redirect()->route('keptkayas.sell.history')->with('success', 'บันทึกการขายขยะเรียบร้อยแล้ว');

@@ -9,6 +9,7 @@ class InvTransactionApprovals extends Model
     protected $table = 'inv_transaction_approvals';
     protected $fillable = [
         'ref_no',
+        'module_name',
         'approval_workflow_id',
         'step_order',
         'approver_id',

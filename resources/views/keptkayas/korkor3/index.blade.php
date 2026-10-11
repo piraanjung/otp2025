@@ -1,4 +1,4 @@
-@extends('layouts.keptkaya')
+@extends('layouts.annual_trash')
 
 @section('title_page', 'ทะเบียนคุมผู้ชำระค่าธรรมเนียม (กค.3)')
 @section('nav-current', 'ทะเบียนคุม กค.3')

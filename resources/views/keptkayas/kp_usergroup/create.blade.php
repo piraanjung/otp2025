@@ -1,4 +1,4 @@
-@extends('layouts.keptkaya')
+@extends('layouts.annual_trash')
 @section('mainheader')
     สร้างประเภทผู้ใช้งาน
 @endsection

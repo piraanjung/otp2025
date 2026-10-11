@@ -1,4 +1,4 @@
-@extends('layouts.keptkaya')
+@extends('layouts.annual_trash')
 
 @section('mainheader', 'จัดการรอบจัดเก็บค่าขยะรายปี')
 @section('nav-header', 'ค่าขยะรายปี')

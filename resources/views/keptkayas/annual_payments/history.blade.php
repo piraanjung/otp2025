@@ -1,4 +1,4 @@
-@extends('layouts.keptkaya')
+@extends('layouts.annual_trash')
 @section('nav-header', 'ประวัติใบเสร็จรับเงิน')
 @section('nav-current', 'ค้นหาใบเสร็จรับเงิน')
 @section('nav-user_payment_per_month-history', 'active')

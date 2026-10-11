@@ -150,70 +150,106 @@
 @endsection
 
 @section('script')
-    <script>
-        $(document).ready(function () {
-            // ฟังก์ชันตั้งค่า Select2 สำหรับตัวที่เพิ่มใหม่
-            function initSelect2(element) {
-                // ถ้าคุณใช้ Select2 library ให้ปลดคอมเมนต์บรรทัดข้างล่าง
-                // $(element).find('.select2-dynamic').select2({ theme: 'bootstrap4', width: '100%' });
+<script src="https://cdnjs.cloudflare.com/ajax/libs/compressorjs/1.2.1/compressor.min.js"></script>
+<script>
+$(document).ready(function () {
+    const container = document.getElementById('item-fields-container');
+    const addItemBtn = document.getElementById('add-item-btn');
+    let itemIndex = 1;
+
+    // Clone Template เก็บไว้
+    const template = container.querySelector('.item-form-group').cloneNode(true);
+
+    // ฟังก์ชันสำหรับย่อขนาดรูปภาพไม่ให้เกิน 200KB (Client-side)
+    function compressImageInput(inputElement) {
+        const file = inputElement.files[0];
+        if (!file) return;
+
+        // เช็คว่าเป็นไฟล์รูปภาพหรือไม่
+        if (!file.type.match(/image.*/)) return;
+
+        // ถ้าไฟล์เล็กกว่า 200KB อยู่แล้ว ไม่ต้องบีบอัด
+        if (file.size <= 200 * 1024) {
+            return;
+        }
+
+        // ใช้ Compressor.js ย่อขนาด
+        new Compressor(file, {
+            quality: 0.8,         // คุณภาพภาพเริ่มต้น 80%
+            maxWidth: 1200,       // จำกัดความกว้างสูงสุด 1200px
+            maxHeight: 1200,      // จำกัดความสูงสูงสุด 1200px
+            convertSize: 200000,  // ถ้าใหญ่เกิน ~200KB จะพยายามบีบอัด
+            success(result) {
+                // สร้าง File Object ใหม่จากผลลัพธ์ที่บีบอัดแล้ว
+                const compressedFile = new File([result], file.name, {
+                    type: result.type,
+                    lastModified: Date.now(),
+                });
+
+                // นำไฟล์ที่บีบอัดแล้วใส่กลับเข้าไปใน DataTransfer เพื่ออัปเดต <input type="file">
+                const dataTransfer = new DataTransfer();
+                dataTransfer.items.add(compressedFile);
+                inputElement.files = dataTransfer.files;
+
+                console.log(`ย่อรูปภาพสำเร็จ: จาก ${(file.size / 1024).toFixed(2)} KB เหลือ ${(compressedFile.size / 1024).toFixed(2)} KB`);
+            },
+            error(err) {
+                console.error('เกิดข้อผิดพลาดในการย่อรูป:', err.message);
+            },
+        });
+    }
+
+    // ดักจับ Event เลือกรูปภาพของฟิลด์เดิมและฟิลด์ที่เพิ่มใหม่ผ่าน Event Delegation
+    $(document).on('change', 'input[type="file"][name^="images"]', function () {
+        compressImageInput(this);
+    });
+
+    addItemBtn.addEventListener('click', function () {
+        const newNode = template.cloneNode(true);
+        newNode.setAttribute('data-index', itemIndex);
+        newNode.querySelector('h5').innerHTML = `<i class="fas fa-box"></i> รายการที่ ${itemIndex + 1}`;
+        newNode.querySelector('.remove-item-btn').style.display = 'block';
+
+        // ล้างค่าและเปลี่ยนชื่อ Name Array
+        newNode.querySelectorAll('input, select, textarea').forEach(field => {
+            let name = field.getAttribute('name');
+            if (name) {
+                field.setAttribute('name', name.replace(/\[\d+\]/, '[' + itemIndex + ']'));
             }
-
-            const container = document.getElementById('item-fields-container');
-            const addItemBtn = document.getElementById('add-item-btn');
-            let itemIndex = 1;
-
-            // Clone Template เก็บไว้
-            const template = container.querySelector('.item-form-group').cloneNode(true);
-
-            addItemBtn.addEventListener('click', function () {
-                const newNode = template.cloneNode(true);
-
-                newNode.setAttribute('data-index', itemIndex);
-                newNode.querySelector('h5').innerHTML = `<i class="fas fa-box"></i> รายการที่ ${itemIndex + 1}`;
-                newNode.querySelector('.remove-item-btn').style.display = 'block';
-
-                // ล้างค่าและเปลี่ยนชื่อ Name Array
-                newNode.querySelectorAll('input, select, textarea').forEach(field => {
-                    let name = field.getAttribute('name');
-                    if (name) {
-                        // เปลี่ยนชื่อจาก [0] เป็น [index ปัจจุบัน]
-                        field.setAttribute('name', name.replace(/\[\d+\]/, '[' + itemIndex + ']'));
-                    }
-                    if (field.tagName === 'SELECT') {
-                        field.selectedIndex = 0; // รีเซ็ต dropdown
-                    } else {
-                        field.value = ''; // ล้างค่า input
-                    }
-                });
-
-                container.appendChild(newNode);
-                initSelect2(newNode); // เรียกใช้ถ้ามี select2
-                itemIndex++;
-            });
-
-            // ลบรายการ
-            container.addEventListener('click', function (e) {
-                if (e.target.closest('.remove-item-btn')) {
-                    const group = e.target.closest('.item-form-group');
-                    group.remove();
-                    reIndexItems();
-                }
-            });
-
-            function reIndexItems() {
-                const groups = container.querySelectorAll('.item-form-group');
-                itemIndex = groups.length;
-                groups.forEach((group, idx) => {
-                    group.setAttribute('data-index', idx);
-                    group.querySelector('h5').innerHTML = `<i class="fas fa-box"></i> รายการที่ ${idx + 1}`;
-                    group.querySelectorAll('input, select').forEach(field => {
-                        let name = field.getAttribute('name');
-                        if (name) {
-                            field.setAttribute('name', name.replace(/\[\d+\]/g, '[' + idx + ']'));
-                        }
-                    });
-                });
+            if (field.tagName === 'SELECT') {
+                field.selectedIndex = 0;
+            } else {
+                field.value = '';
             }
         });
-    </script>
+
+        container.appendChild(newNode);
+        itemIndex++;
+    });
+
+    // ลบรายการ
+    container.addEventListener('click', function (e) {
+        if (e.target.closest('.remove-item-btn')) {
+            const group = e.target.closest('.item-form-group');
+            group.remove();
+            reIndexItems();
+        }
+    });
+
+    function reIndexItems() {
+        const groups = container.querySelectorAll('.item-form-group');
+        itemIndex = groups.length;
+        groups.forEach((group, idx) => {
+            group.setAttribute('data-index', idx);
+            group.querySelector('h5').innerHTML = `<i class="fas fa-box"></i> รายการที่ ${idx + 1}`;
+            group.querySelectorAll('input, select').forEach(field => {
+                let name = field.getAttribute('name');
+                if (name) {
+                    field.setAttribute('name', name.replace(/\[\d+\]/g, '[' + idx + ']'));
+                }
+            });
+        });
+    }
+});
+</script>
 @endsection

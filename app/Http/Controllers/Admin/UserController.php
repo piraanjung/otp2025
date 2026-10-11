@@ -375,21 +375,29 @@ class UserController extends Controller
 
             // 3. เช็คและเปิดบริการตามที่ติ๊กมา
             // ธนาคารขยะรีไซเคิล
+            $accNumberText = $org->org_code."-".substr('000', $org->id).$org->id."".substr('000', $user->id).$user->id;
             if ($request->has('svc_recycle')) {
                 KpBankAccount::create([
                     'user_id'    => $user->id,
-                    'account_no' => 'RC-' . strtoupper(uniqid()),
-                    'balance'    => 0,
-                    'status'     => 'active'
+                    'account_no'    => 'RC-' . $accNumberText,
+                    'balance'       => 0,
+                    'status'        => 'active',
+                    'org_id_fk'     => $org->id,
+                    'entity_type'   => 'recycle_bank'
+        
                 ]);
             }
 
             // ธนาคารขยะเปียก
             if ($request->has('svc_food_waste')) {
-                FoodWasteAccount::create([
-                    'user_id'               => $user->id,
-                    'total_weight_kg'       => 0,
-                    'last_contributed_at'   => now(),
+                KpBankAccount::create([
+                    'user_id'    => $user->id,
+                    'account_no'    => 'FW-' . $accNumberText,
+                    'balance'       => 0,
+                    'status'        => 'active',
+                    'org_id_fk'     => $org->id,
+                    'entity_type'   => 'foodwaste_bank'
+        
                 ]);
             }
 
@@ -405,6 +413,7 @@ class UserController extends Controller
                 // หมายเหตุ: ปกติ Subscription ต้องผูกกับถังขยะ (waste_bin_id)
                 // หากตอนสมัครยังไม่มีถัง ให้สร้างถังขยะ "ใบแรก" ให้เขาก่อน หรืออนุญาตให้ waste_bin_id เป็น null ได้
                 $subscription = AnnualTrashSubscription::create([
+                    'user_id'                => $user->id,
                     'waste_bin_id'           => $newAnnualTrash->id ?? null, // ผูกกับถังขยะ
                     'fiscal_year'            => $fiscalYear,
                     'payrate_permonth_id_fk' => $payRate->id ?? null,

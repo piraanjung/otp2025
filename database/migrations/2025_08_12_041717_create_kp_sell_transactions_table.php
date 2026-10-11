@@ -13,6 +13,8 @@
             {
                 Schema::create('kp_sell_transactions', function (Blueprint $table) {
                     $table->id();
+                    $table->foreignId('org_id_fk')->nullable()->constrained('organizations')->onDelete('set null');; // ชื่อร้านรับซื้อ
+                    $table->foreignId('user_id_fk')->nullable()->constrained('users')->onDelete('set null');; // ชื่อร้านรับซื้อ
                     $table->string('kp_u_trans_no')->unique(); // เลขที่ธุรกรรมการขาย
                     $table->foreignId('shop_id_fk')->nullable()->constrained('kp_purchase_shops')->onDelete('set null');; // ชื่อร้านรับซื้อ
                     $table->date('transaction_date');

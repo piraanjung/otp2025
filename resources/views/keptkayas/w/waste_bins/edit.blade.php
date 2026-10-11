@@ -1,4 +1,4 @@
-@extends('layouts.keptkaya')
+@extends('layouts.annual_trash')
 
 @section('title_page', 'แก้ไขถังขยะ')
 

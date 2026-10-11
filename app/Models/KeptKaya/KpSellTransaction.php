@@ -16,6 +16,8 @@ class KpSellTransaction extends Model
     protected $table = 'kp_sell_transactions';
 
     protected $fillable = [
+        'org_id_fk',
+        'user_id_fk',
         'kp_u_trans_no',
         'shop_id_fk',
         'transaction_date',
@@ -34,7 +36,7 @@ class KpSellTransaction extends Model
     // Relationships
     public function recorder(): BelongsTo
     {
-        return $this->belongsTo(Staff::class, 'recorder_id', 'user_id');
+        return $this->belongsTo(User::class, 'recorder_id', 'id');
     }
     
     public function details(): HasMany
