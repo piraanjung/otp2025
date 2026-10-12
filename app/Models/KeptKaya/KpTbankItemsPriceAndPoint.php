@@ -29,6 +29,11 @@ class KpTbankItemsPriceAndPoint extends Model
     ];
     protected $table = 'kp_tbank_items_pricepoint';
 
+    protected $casts = [
+        'effective_date' => 'date',
+        'end_date'       => 'date',
+    ];
+
 
     public function kp_units_info()
     {

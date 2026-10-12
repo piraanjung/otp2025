@@ -111,6 +111,11 @@ jobs:
              php artisan migrate --force --no-interaction \
                --path=database/migrations/2026_10_04_000001_add_org_id_fk_to_tenant_tables.php \
                --path=database/migrations/2026_10_04_000002_add_missing_columns_to_foodwaste_bins_table.php \
+               --path=database/migrations/2026_10_08_110038_create_kp_purchase_routes_table_and_kp_purchase_route_zones_table.php \
+               --path=database/migrations/2026_10_09_001549_create_kp_settings_table.php \
+               --path=database/migrations/2026_10_09_014537_create_kp_withdraw_batches_table.php \
+               --path=database/migrations/2026_10_09_014604_update_kp_money_requests_table_for_latest_workflow.php \
+               --path=database/migrations/2026_10_09_042443_add_modulename_column_in_inv_transaction_approvals_table.php \
                --path=database/migrations/2026_10_12_090000_sync_kp_purchase_and_sell_tables_with_schema.php"
 
       - name: "Post-deploy › 4. Cache config"
