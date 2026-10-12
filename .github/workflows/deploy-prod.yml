@@ -110,7 +110,8 @@ jobs:
             "cd '${{ secrets.PIOS_DEPLOY_PATH }}' && \
              php artisan migrate --force --no-interaction \
                --path=database/migrations/2026_10_04_000001_add_org_id_fk_to_tenant_tables.php \
-               --path=database/migrations/2026_10_04_000002_add_missing_columns_to_foodwaste_bins_table.php"
+               --path=database/migrations/2026_10_04_000002_add_missing_columns_to_foodwaste_bins_table.php \
+               --path=database/migrations/2026_10_12_090000_sync_kp_purchase_and_sell_tables_with_schema.php"
 
       - name: "Post-deploy › 4. Cache config"
         run: |

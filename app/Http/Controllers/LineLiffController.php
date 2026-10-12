@@ -19,7 +19,7 @@ use App\Models\FoodWaste\FoodWasteLog;
 use App\Models\FoodWaste\FoodWasteUserPreference;
 use App\Models\KeptKaya\KpPurchaseTransaction;
 use App\Models\KeptKaya\KpPurchaseTransactionDetail;
-use App\Models\KPBankAccount;
+use App\Models\KpBankAccount;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
@@ -48,7 +48,7 @@ class   LineLiffController extends Controller
         $user = User::findOrFail($userId);
         Auth::login($user);
         // 2. ดึงข้อมูลบัญชี (New Schema)
-        $recycleAcc = KpBankAccount::where('user_pref_id', $pref->id)->first();
+        $recycleAcc = KpBankAccount::where('user_id', $userId)->where('entity_type', 'recycle_bank')->first();
         $foodWasteAcc = FoodWasteAccount::where('user_id', $userId)->first();
         $annualTrash = AnnualTrashSubscription::where('user_id', $userId)->first();
 
@@ -61,7 +61,7 @@ class   LineLiffController extends Controller
         $treesByFoodWasteCarbon = number_format($totalFoodWasteCarbon > 0 ? ($totalFoodWasteCarbon / 12) : 0, 2);
         // 3. คาร์บอนขยะรีไซเคิล
 
-        $transaction = KpPurchaseTransaction::where('kp_user_w_pref_id_fk', $pref_id)
+        $transaction = KpPurchaseTransaction::where('user_id', $userId)
             ->with('details')
             ->get()->first();
 

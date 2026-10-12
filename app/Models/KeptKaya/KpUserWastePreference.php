@@ -6,7 +6,7 @@ use App\Models\Admin\Organization;
 use App\Models\Admin\Subzone;
 use App\Models\Admin\Zone;
 use App\Models\AnnualTrash\AnnualTrash;
-use App\Models\KPBankAccount;
+use App\Models\KpBankAccount;
 use App\Models\User;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
@@ -49,13 +49,14 @@ class KpUserWastePreference extends Model
 
     public function purchaseTransactions()
     {
-        // Assuming kp_user_id_fk is the foreign key in the kp_purchase_transactions table
-        return $this->hasMany(KpPurchaseTransaction::class, 'kp_user_w_pref_id_fk', 'id');
+        // kp_purchase_transactions อ้างอิงผู้ขายด้วย user_id (users.id)
+        return $this->hasMany(KpPurchaseTransaction::class, 'user_id', 'user_id');
     }
 
      public function kpBankAccount()
     {
-        return $this->hasOne(KPBankAccount::class, 'user_pref_id', 'id');
+        // kp_bank_accounts อ้างอิงด้วย user_id + entity_type (บัญชีธนาคารขยะรีไซเคิล)
+        return $this->hasOne(KpBankAccount::class, 'user_id', 'user_id')->where('entity_type', 'recycle_bank');
     }    public function organization()
     {
         return $this->belongsTo(Organization::class, 'org_id_fk', 'id');

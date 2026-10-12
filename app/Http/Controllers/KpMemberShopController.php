@@ -7,7 +7,7 @@ use App\Models\KeptKaya\KpShopCategory;
 use App\Models\KeptKaya\KpShopProduct;
 use App\Models\KeptKaya\KpShopOrder;
 use App\Models\KeptKaya\KpShopOrderDetail;
-use App\Models\KPBankAccount;
+use App\Models\KpBankAccount;
 use App\Models\User;
 use Carbon\Carbon;
 use Illuminate\Http\Request;
@@ -32,8 +32,8 @@ class KpMemberShopController extends Controller
             return redirect()->route('accessmenu')
                 ->with('warning', 'บัญชีนี้ยังไม่ได้ลงทะเบียนธนาคารขยะ');
         }
-        $member = KPBankAccount::with('userWastePreference', 'userWastePreference.user')
-            ->where('user_pref_id', $pref->id)->get()->first();
+        $member = KpBankAccount::with('user')
+            ->where('user_id', $pref->user_id)->where('entity_type', 'recycle_bank')->first();
         $products = KpShopProduct::where('status', 'active')->paginate(12);
         $product_categorys = KpShopCategory::all();
         return view('keptkayas.shop.index', compact('products', 'member', 'product_categorys'));

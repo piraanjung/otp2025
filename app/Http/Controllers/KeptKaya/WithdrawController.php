@@ -6,7 +6,7 @@ use App\Http\Controllers\Controller;
 use App\Models\KeptKaya\KpMoneyRequest;
 use App\Models\KeptKaya\KpSetting;
 use App\Models\KeptKaya\KpPurchaseTransaction;
-use App\Models\KPBankAccount;
+use App\Models\KpBankAccount;
 use App\Models\User;
 use Carbon\Carbon;
 use Illuminate\Http\Request;

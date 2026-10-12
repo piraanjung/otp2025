@@ -6,6 +6,7 @@ use App\Http\Controllers\Controller;
 use App\Models\FoodWaste\FoodWasteLog;
 use App\Models\KeptKaya\KpPurchaseTransaction;
 use App\Models\KeptKaya\KpPurchaseTransactionDetail;
+use App\Models\KeptKaya\KpUserWastePreference;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 
@@ -17,10 +18,11 @@ class ImpactController extends Controller
         $foodWasteCarbon = FoodWasteLog::where('user_id', $pref_id)->sum('carbon_saved_kg');
 
         // 2. ดึงยอด Carbon จากขยะรีไซเคิล (Recycle Bank)
-        $transaction = KpPurchaseTransaction::where('kp_user_w_pref_id_fk', $pref_id)
+        $userPref = KpUserWastePreference::findOrFail($pref_id);
+        $transaction = KpPurchaseTransaction::where('user_id', $userPref->user_id)
             ->with('details')
             ->get()->first();
-        $recycleCarbon = collect($transaction->details)->sum('carbon_saved');
+        $recycleCarbon = collect(optional($transaction)->details)->sum('carbon_saved');
 
 
         $totalCo2Saved = $foodWasteCarbon + $recycleCarbon;

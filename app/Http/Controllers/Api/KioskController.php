@@ -16,7 +16,7 @@ use App\Models\KeptKaya\KpTbankItemsPriceAndPoint;
 use App\Models\KeptKaya\KpTbankUnits;
 use App\Models\KeptKaya\KpUserWastePreference;
 use App\Models\Kiosk;
-use App\Models\RecycleBankAccount;
+use App\Models\KpBankAccount;
 use App\Models\User;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Str;
@@ -186,7 +186,7 @@ class KioskController extends Controller
                 'kp_u_trans_no'         => $transNo,
                 'org_id_fk'             => $orgId,
                 'kiosk_id_fk'           => $koisk->id, // ระบุว่าเป็นตู้ที่เท่าไหร่
-                'kp_user_w_pref_id_fk'  => $userWastePref->id,
+                'user_id'               => $userId,
                 'transaction_date'      => now(),
                 'total_weight'          => 0, // Kiosk ไม่ได้ชั่งน้ำหนัก แต่ใช้จำนวนชิ้น
                 'total_amount'          => $totalAmount,
@@ -273,10 +273,11 @@ class KioskController extends Controller
             // 5. อัปเดตยอด Carbon รวม
             $transaction->update(['total_carbon_saved' => $carbonTotal]);
 
-            // 6. อัปเดตแต้ม/เงินในบัญชีผู้ใช้ (RecycleBankAccount)
-            $recycleAcc = RecycleBankAccount::firstOrCreate(
-                ['user_id' => $userId],
+            // 6. อัปเดตแต้ม/เงินในบัญชีผู้ใช้ (KpBankAccount)
+            $recycleAcc = KpBankAccount::firstOrCreate(
+                ['user_id' => $userId, 'entity_type' => 'recycle_bank'],
                 [
+                    'org_id_fk'  => $orgId,
                     'account_no' => 'ACC-' . str_pad($userId, 6, '0', STR_PAD_LEFT),
                     'balance'    => 0,
                     'points'     => 0,
@@ -421,7 +422,6 @@ class KioskController extends Controller
 
         // หา User และ Preference ID
         $user = User::find($userId);
-        $prefId = ($user && $user->wastePreference) ? $user->kpUserPreferenceid : 1;
         $orgId = $user ? $user->org_id_fk : 1; // กันเหนียวถ้าไม่เจอ User
 
         // 1. ตรวจสอบหรือสร้าง Transaction หลัก
@@ -430,7 +430,7 @@ class KioskController extends Controller
             [
                 'org_id_fk'            => $orgId,
                 'kiosk_id_fk'          => 1,
-                'kp_user_w_pref_id_fk' => $prefId,
+                'user_id'              => $userId,
                 'transaction_date'     => now(),
                 'total_weight'         => 0,
                 'total_amount'         => 0,
