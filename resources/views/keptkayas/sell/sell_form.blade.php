@@ -1,29 +1,23 @@
-    @extends('layouts.keptkaya')
+@extends('layouts.keptkaya')
+@section('nav-header', 'ขายให้ร้านรับซื้อขยะ')
+@section('page-topic', 'บันทึกการขายขยะรีไซเคิล')
+@section('style')
+    <style>
+        #sell-items-container td:first-child { padding-left: 1.5rem; min-width: 180px; }
+    </style>
+@endsection
 
     @section('content')
-            <div class="d-flex justify-content-between align-items-center mb-4">
-                <h1 class="mb-0">บันทึกการขายขยะ</h1>
-                <a href="{{ route('keptkayas.purchase.select_user') }}" class="btn btn-secondary">
-                    <i class="fa fa-arrow-left me-1"></i> กลับหน้าหลัก
-                </a>
-            </div>
-
             @if (session('success'))
-                <div class="alert alert-success alert-dismissible fade show" role="alert">
-                    {{ session('success') }}
-                    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
-                </div>
-            @endif
-            @if (session('error'))
-                <div class="alert alert-danger alert-dismissible fade show" role="alert">
-                    {{ session('error') }}
+                <div class="alert alert-success alert-dismissible fade show text-white" role="alert">
+                    <span class="alert-text">{{ session('success') }}</span>
                     <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
                 </div>
             @endif
             @if ($errors->any())
-                <div class="alert alert-danger">
-                    <h6>โปรดแก้ไขข้อผิดพลาดดังต่อไปนี้:</h6>
-                    <ul>
+                <div class="alert alert-danger text-white" role="alert">
+                    <h6 class="text-white">โปรดแก้ไขข้อผิดพลาดดังต่อไปนี้:</h6>
+                    <ul class="mb-0 text-sm">
                         @foreach ($errors->all() as $error)
                             <li>{{ $error }}</li>
                         @endforeach
@@ -35,15 +29,16 @@
                 @csrf
                 <div class="row">
                     {{-- Sell Transaction Header --}}
-                    <div class="card mb-3 shadow-sm col-3">
-                        <div class="card-header bg-info text-white">
-                            <h5 class="mb-0">ข้อมูลการขาย</h5>
+                    <div class="col-lg-3 mb-4">
+                    <div class="card h-100">
+                        <div class="card-header pb-0">
+                            <h6 class="mb-0">ข้อมูลการขาย</h6>
                         </div>
                         <div class="card-body">
                             <div class="row g-3">
                                 <div class="col-md-12">
-                                    <label for="shop_name" class="form-label">ชื่อร้านรับซื้อ:</label>
-                                    <select name="shop_name" id="shop_name" class="form-control" required>
+                                    <label for="shop_name" class="form-label">ชื่อร้านรับซื้อ</label>
+                                    <select name="shop_name" id="shop_name" class="form-select" required>
                                         <option value="">เลือก..</option>
                                         @foreach ($shops as $shop)
                                             <option value="{{ $shop->id }}"> {{ $shop->shop_name }}</option>
@@ -52,12 +47,12 @@
 
                                 </div>
                                 <div class="col-md-12">
-                                    <label for="sell_date" class="form-label">วันที่ขาย:</label>
+                                    <label for="sell_date" class="form-label">วันที่ขาย</label>
                                     <input type="date" name="sell_date" id="sell_date" class="form-control"
                                         value="{{ old('sell_date', date('Y-m-d')) }}" required>
                                 </div>
                                 <div class="col-md-12">
-                                    <label for="recorder_id" class="form-label">ผู้บันทึก:</label>
+                                    <label for="recorder_id" class="form-label">ผู้บันทึก</label>
                                     <select name="recorder_id" id="recorder_id" class="form-select" required>
                                         <option value="">เลือกผู้บันทึก</option>
                                         @foreach ($staffs as $staff)
@@ -71,25 +66,27 @@
                             </div>
                         </div>
                     </div>
+                    </div>
 
                     {{-- Sell Details Table (Dynamic) --}}
-                    <div class="card mb-9 shadow-sm col-9">
-                        <div class="card-header bg-secondary text-white d-flex justify-content-between align-items-center">
-                            <h5 class="mb-0">รายการขยะที่ขาย</h5>
-                            <button type="button" class="btn btn-warning btn-sm" id="add-sell-item"><i
-                                    class="fa fa-plus-circle me-1"></i> เพิ่มรายการ</button>
+                    <div class="col-lg-9 mb-4">
+                    <div class="card h-100">
+                        <div class="card-header pb-0 d-flex justify-content-between align-items-center">
+                            <h6 class="mb-0">รายการขยะที่ขาย</h6>
+                            <button type="button" class="btn bg-gradient-info btn-sm mb-0" id="add-sell-item"><i
+                                    class="fas fa-plus me-1"></i> เพิ่มรายการ</button>
                         </div>
-                        <div class="card-body p-0">
-                            <div class="table-responsive">
-                                <table class="table table-striped mb-0">
+                        <div class="card-body px-0 pt-3 pb-2">
+                            <div class="table-responsive p-0">
+                                <table class="table align-items-center mb-0">
                                     <thead>
                                         <tr>
-                                            <th>รายการขยะ</th>
-                                            <th>น้ำหนัก/ปริมาณ</th>
-                                            <th>ราคา/หน่วย</th>
-                                            <th>เป็นเงิน</th>
-                                            <th>หมายเหตุ</th>
-                                            <th style="width: 80px;"></th>
+                                            <th class="text-uppercase text-secondary text-xxs font-weight-bolder opacity-7 ps-4">รายการขยะ</th>
+                                            <th class="text-uppercase text-secondary text-xxs font-weight-bolder opacity-7 ps-2">น้ำหนัก/ปริมาณ</th>
+                                            <th class="text-uppercase text-secondary text-xxs font-weight-bolder opacity-7 ps-2">ราคา/หน่วย</th>
+                                            <th class="text-uppercase text-secondary text-xxs font-weight-bolder opacity-7 ps-2">เป็นเงิน</th>
+                                            <th class="text-uppercase text-secondary text-xxs font-weight-bolder opacity-7 ps-2">หมายเหตุ</th>
+                                            <th style="width: 60px;"></th>
                                         </tr>
                                     </thead>
                                     <tbody id="sell-items-container">
@@ -123,7 +120,7 @@
                                                             readonly></td>
                                                     <td><input type="text" name="details[{{ $old_index }}][comment]"
                                                             class="form-control" value="{{ $detail['comment'] }}"></td>
-                                                    <td><button type="button" class="btn btn-danger btn-sm remove-item"><i
+                                                    <td><button type="button" class="btn btn-link text-danger p-0 mb-0 remove-item"><i
                                                                 class="fa fa-trash"></i></button></td>
                                                 </tr>
                                                 @php $index++; @endphp
@@ -151,15 +148,15 @@
                                                         readonly></td>
                                                 <td><input type="text" name="details[0][comment]" class="form-control"
                                                         value=""></td>
-                                                <td><button type="button" class="btn btn-danger btn-sm remove-item"
+                                                <td><button type="button" class="btn btn-link text-danger p-0 mb-0 remove-item"
                                                         disabled><i class="fa fa-trash"></i></button></td>
                                             </tr>
                                         @endif
                                     </tbody>
                                     <tfoot>
                                         <tr>
-                                            <th colspan="3" class="text-end">ยอดรวมทั้งหมด:</th>
-                                            <th colspan="2" class="total-amount-display">{{ number_format(0, 2) }}</th>
+                                            <th colspan="3" class="text-end text-sm">ยอดรวมทั้งหมด</th>
+                                            <th colspan="2" class="total-amount-display text-sm ps-3">{{ number_format(0, 2) }}</th>
                                             <th></th>
                                         </tr>
                                     </tfoot>
@@ -167,12 +164,14 @@
                             </div>
                         </div>
                     </div>
-                </div>
-                <div class="d-flex justify-content-end mt-3">
-                        <button type="submit" class="btn btn-success btn-lg">
-                            <i class="fa fa-save me-1"></i> บันทึกการขาย
-                        </button>
                     </div>
+                </div>
+                <div class="d-flex justify-content-end gap-2">
+                    <a href="{{ route('keptkayas.sell.history') }}" class="btn btn-outline-secondary mb-0">ยกเลิก</a>
+                    <button type="submit" class="btn bg-gradient-success mb-0">
+                        <i class="fas fa-save me-1"></i> บันทึกการขาย
+                    </button>
+                </div>
             </form>
     @endsection
     @section('script')
@@ -211,7 +210,7 @@
                     <td><input type="number" step="0.01" name="details[${itemIndex}][price_per_unit]" class="form-control price-input" required min="0"></td>
                     <td><input type="text" class="form-control amount-display" name="details[${itemIndex}][amount]" readonly></td>
                     <td><input type="text" name="details[${itemIndex}][comment]" class="form-control"></td>
-                    <td><button type="button" class="btn btn-danger btn-sm remove-item"><i class="fa fa-trash"></i></button></td>
+                    <td><button type="button" class="btn btn-link text-danger p-0 mb-0 remove-item"><i class="fa fa-trash"></i></button></td>
                 `;
                     container.appendChild(newRow);
                     itemIndex++;
