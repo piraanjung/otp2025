@@ -97,7 +97,7 @@ Route::middleware(['auth'])->prefix('keptkayas')->name('keptkayas.')->group(func
         return view('keptkayas.barcode.scanner');
     });
 
-    Route::resource('/purchase-shops', KpPurchaseShopController::class)->except(['show']); // middleware auth ซ้ำซ้อน ลบออกได้เพราะ Group มีแล้ว
+    Route::resource('/purchase-shops', KpPurchaseShopController::class)->except(['show'])->parameters(['purchase-shops' => 'shop']); // middleware auth ซ้ำซ้อน ลบออกได้เพราะ Group มีแล้ว
 
     Route::post('barcode/search', [BarcodeController::class, 'search'])->name('barcode.search');
     Route::resource('shop-products', KpShopProductController::class);
