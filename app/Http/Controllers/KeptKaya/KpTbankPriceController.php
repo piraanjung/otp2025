@@ -135,9 +135,12 @@ class KpTbankPriceController extends Controller
      */
     public function edit(KpTbankItemsPriceAndPoint $price)
     {
-        $items = KpTbankItems::all();
-        $units = KpTbankUnits::all();
-        $recorders = User::all();
+        // ใช้ข้อมูลชุดเดียวกับหน้า create (form.blade อ่าน $recorder->user_id / $recorder->user)
+        $items      = KpTbankItems::where('org_id_fk', Auth::user()->org_id_fk)->get();
+        $units      = KpTbankUnits::where('org_id_fk', Auth::user()->org_id_fk)->get();
+        $recorders  = Staff::with('user')->whereHas('user', function ($q) {
+            $q->where('org_id_fk', Auth::user()->org_id_fk);
+        })->get();
         return view('keptkayas.tbank.prices.edit', compact('price', 'items', 'units', 'recorders'));
     }
 
