@@ -6,6 +6,10 @@ use Illuminate\Support\Facades\Schema;
 
 return new class extends Migration {
     public function up(): void {
+        if (Schema::hasTable('kp_withdraw_batches')) {
+            return;
+        }
+
         Schema::create('kp_withdraw_batches', function (Blueprint $table) {
             $table->id();
             $table->unsignedBigInteger('org_id_fk');
