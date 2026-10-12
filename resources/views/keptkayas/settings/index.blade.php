@@ -1,16 +1,16 @@
 @extends('layouts.keptkaya')
 
-@section('nav-current', 'ตั้งค่าเงื่อนไขธนาคารขยะ')
+@section('nav-header', 'ตั้งค่า')
+@section('page-topic', 'เงื่อนไขธนาคารขยะ')
 
 @section('content')
-    <div class="container-fluid py-2">
-        <div class="card shadow-sm border-0 rounded-4">
-            <div class="card-header bg-white pb-0">
+        <div class="card mb-4">
+            <div class="card-header pb-0">
                 <div class="d-flex align-items-center">
                     <div>
-                        <h5 class="font-weight-bolder text-dark mb-1">
+                        <h6 class="mb-1">
                             <i class="fas fa-cogs text-primary me-2"></i>ตั้งค่าเงื่อนไขและกฎเกณฑ์ธนาคารขยะ
-                        </h5>
+                        </h6>
                         <p class="text-xs text-secondary mb-0">กำหนดเงื่อนไขการถอนเงิน รอบวันตัดอนุมัติ
                             และนโยบายกองทุนสวัสดิการฌาปนกิจ</p>
                     </div>
@@ -18,7 +18,7 @@
             </div>
             <div class="card-body">
                 @if(session('success'))
-                    <div class="alert alert-success text-white font-weight-bold text-sm mb-3">
+                    <div class="alert alert-success text-white text-sm mb-3">
                         <i class="fas fa-check-circle me-1"></i> {{ session('success') }}
                     </div>
                 @endif
@@ -32,13 +32,13 @@
                     </h6>
                     <div class="row g-3 mb-4">
                         <div class="col-md-6">
-                            <label class="form-label font-weight-bold text-sm">ยอดเงินสำรองขั้นต่ำติดบัญชี (บาท)</label>
+                            <label class="form-label">ยอดเงินสำรองขั้นต่ำติดบัญชี (บาท)</label>
                             <input type="number" name="min_reserve" class="form-control"
                                 value="{{ $settings['min_reserve'] }}" step="0.01" required>
-                            <small class="text-xs text-muted">* เงินส่วนนี้จะถูกสำรองไว้ ไม่สามารถทำรายการถอนออกได้</small>
+                            <small class="text-xs text-secondary">* เงินส่วนนี้จะถูกสำรองไว้ ไม่สามารถทำรายการถอนออกได้</small>
                         </div>
                         <div class="col-md-6">
-                            <label class="form-label font-weight-bold text-sm">ยอดถอนเงินขั้นต่ำต่อครั้ง (บาท)</label>
+                            <label class="form-label">ยอดถอนเงินขั้นต่ำต่อครั้ง (บาท)</label>
                             <input type="number" name="min_withdraw" class="form-control"
                                 value="{{ $settings['min_withdraw'] }}" step="0.01" required>
                         </div>
@@ -52,7 +52,7 @@
                     </h6>
                     <div class="row g-3 mb-4">
                         <div class="col-md-3">
-                            <label class="form-label font-weight-bold text-sm">วันตัดรอบคำขอถอนเงิน</label>
+                            <label class="form-label">วันตัดรอบคำขอถอนเงิน</label>
                             <select name="cutoff_day" class="form-select">
                                 <option value="FRIDAY" {{ $settings['cutoff_day'] == 'FRIDAY' ? 'selected' : '' }}>วันศุกร์
                                 </option>
@@ -61,12 +61,12 @@
                             </select>
                         </div>
                         <div class="col-md-3">
-                            <label class="form-label font-weight-bold text-sm">เวลาตัดรอบคำขอ</label>
+                            <label class="form-label">เวลาตัดรอบคำขอ</label>
                             <input type="time" name="cutoff_time" class="form-control"
                                 value="{{ $settings['cutoff_time'] }}" required>
                         </div>
                         <div class="col-md-3">
-                            <label class="form-label font-weight-bold text-sm">วันถอนเงินสดจากธนาคาร</label>
+                            <label class="form-label">วันถอนเงินสดจากธนาคาร</label>
                             <select name="bank_cashout_day" class="form-select">
                                 <option value="MONDAY" {{ $settings['bank_cashout_day'] == 'MONDAY' ? 'selected' : '' }}>
                                     วันจันทร์</option>
@@ -75,7 +75,7 @@
                             </select>
                         </div>
                         <div class="col-md-3">
-                            <label class="form-label font-weight-bold text-sm">วันจ่ายเงินสดให้สมาชิก</label>
+                            <label class="form-label">วันจ่ายเงินสดให้สมาชิก</label>
                             <select name="payout_day" class="form-select">
                                 <option value="TUESDAY" {{ $settings['payout_day'] == 'TUESDAY' ? 'selected' : '' }}>วันอังคาร
                                 </option>
@@ -84,23 +84,23 @@
                             </select>
                         </div>
                         <div class="col-md-6">
-                            <label class="form-label font-weight-bold text-sm">จำนวนรอบบิลที่ไม่ขายขยะแล้วโดนอายัดถอนเงิน
+                            <label class="form-label">จำนวนรอบบิลที่ไม่ขายขยะแล้วโดนอายัดถอนเงิน
                                 (รอบบิล)</label>
                             <input type="number" name="max_inactive_cycles" class="form-control"
                                 value="{{ $settings['max_inactive_cycles'] }}" required>
                         </div>
                         <div class="col-md-6">
-                            <label class="form-label font-weight-bold text-sm">ระยะเวลาผ่อนผันการมารับเงินสด (วัน)</label>
+                            <label class="form-label">ระยะเวลาผ่อนผันการมารับเงินสด (วัน)</label>
                             <input type="number" name="payout_expiry_days" class="form-control"
                                 value="{{ $settings['payout_expiry_days'] }}" required>
-                            <small class="text-xs text-muted">* หากไม่มารับภายในกำหนด ระบบจะ Cancel
+                            <small class="text-xs text-secondary">* หากไม่มารับภายในกำหนด ระบบจะ Cancel
                                 คำขอและคืนสิทธิ์เงินอายัด</small>
                         </div>
 
                         <div class="col-md-6">
                             <label
-                                class="form-label font-weight-bold text-sm">ลำดับการอนุมัติเบิกจ่ายเงินธนาคารขยะรีไซเคิล</label>
-                            <select name="payout_approval_workflow" id="payout_approval_workflow" class="form-control"
+                                class="form-label">ลำดับการอนุมัติเบิกจ่ายเงินธนาคารขยะรีไซเคิล</label>
+                            <select name="payout_approval_workflow" id="payout_approval_workflow" class="form-select"
                                 required>
                                 <option value="" {{ 0 == $settings['payout_approval_workflow'] ? 'selected' : "" }}>เลือก...
                                 </option>
@@ -108,7 +108,7 @@
                                     <option value="{{ $workflow->id }}" {{ $workflow->id == $settings['payout_approval_workflow'] ? 'selected' : "" }}>{{ $workflow->name }}</option>
                                 @endforeach
                             </select>
-                            <small class="text-xs text-muted">* กำหนดลำดับผู้อนุมัติเบิกจ่ายเงินธนาคารขยะรีไซเคิล</small>
+                            <small class="text-xs text-secondary">* กำหนดลำดับผู้อนุมัติเบิกจ่ายเงินธนาคารขยะรีไซเคิล</small>
                         </div>
 
 
@@ -122,7 +122,7 @@
                     </h6>
                     <div class="row g-3 mb-4">
                         <div class="col-md-3">
-                            <label class="form-label font-weight-bold text-sm">วันตัดรอบคำขอถอนเงิน</label>
+                            <label class="form-label">วันตัดรอบคำขอถอนเงิน</label>
                             <select name="cutoff_day" class="form-select">
                                 <option value="FRIDAY" {{ $settings['cutoff_day'] == 'FRIDAY' ? 'selected' : '' }}>วันศุกร์
                                 </option>
@@ -131,12 +131,12 @@
                             </select>
                         </div>
                         <div class="col-md-3">
-                            <label class="form-label font-weight-bold text-sm">เวลาตัดรอบคำขอ</label>
+                            <label class="form-label">เวลาตัดรอบคำขอ</label>
                             <input type="time" name="cutoff_time" class="form-control"
                                 value="{{ $settings['cutoff_time'] }}" required>
                         </div>
                         <div class="col-md-3">
-                            <label class="form-label font-weight-bold text-sm">วันถอนเงินสดจากธนาคาร</label>
+                            <label class="form-label">วันถอนเงินสดจากธนาคาร</label>
                             <select name="bank_cashout_day" class="form-select">
                                 <option value="MONDAY" {{ $settings['bank_cashout_day'] == 'MONDAY' ? 'selected' : '' }}>
                                     วันจันทร์</option>
@@ -145,7 +145,7 @@
                             </select>
                         </div>
                         <div class="col-md-3">
-                            <label class="form-label font-weight-bold text-sm">วันจ่ายเงินสดให้สมาชิก</label>
+                            <label class="form-label">วันจ่ายเงินสดให้สมาชิก</label>
                             <select name="payout_day" class="form-select">
                                 <option value="TUESDAY" {{ $settings['payout_day'] == 'TUESDAY' ? 'selected' : '' }}>วันอังคาร
                                 </option>
@@ -154,16 +154,16 @@
                             </select>
                         </div>
                         <div class="col-md-6">
-                            <label class="form-label font-weight-bold text-sm">จำนวนรอบบิลที่ไม่ขายขยะแล้วโดนอายัดถอนเงิน
+                            <label class="form-label">จำนวนรอบบิลที่ไม่ขายขยะแล้วโดนอายัดถอนเงิน
                                 (รอบบิล)</label>
                             <input type="number" name="max_inactive_cycles" class="form-control"
                                 value="{{ $settings['max_inactive_cycles'] }}" required>
                         </div>
                         <div class="col-md-6">
-                            <label class="form-label font-weight-bold text-sm">ระยะเวลาผ่อนผันการมารับเงินสด (วัน)</label>
+                            <label class="form-label">ระยะเวลาผ่อนผันการมารับเงินสด (วัน)</label>
                             <input type="number" name="payout_expiry_days" class="form-control"
                                 value="{{ $settings['payout_expiry_days'] }}" required>
-                            <small class="text-xs text-muted">* หากไม่มารับภายในกำหนด ระบบจะ Cancel
+                            <small class="text-xs text-secondary">* หากไม่มารับภายในกำหนด ระบบจะ Cancel
                                 คำขอและคืนสิทธิ์เงินอายัด</small>
                         </div>
                     </div>
@@ -189,7 +189,7 @@
                         <div id="welfareConfigSection"
                             style="display: {{ $settings['enable_welfare'] == '1' ? 'block' : 'none' }};">
                             <div class="mb-3">
-                                <label class="form-label font-weight-bold text-sm">รูปแบบการจัดการกองทุน</label>
+                                <label class="form-label">รูปแบบการจัดการกองทุน</label>
                                 <div class="form-check mb-1">
                                     <input class="form-check-input" type="radio" name="welfare_mode" id="modeMargin"
                                         value="margin_only" {{ $settings['welfare_mode'] == 'margin_only' ? 'checked' : '' }}>
@@ -215,7 +215,7 @@
 
                             <div class="row g-3 mt-2">
                                 <div class="col-md-6">
-                                    <label class="form-label font-weight-bold text-sm">จำนวนเงินหักสมทบต่อเคสผู้เสียชีวิต
+                                    <label class="form-label">จำนวนเงินหักสมทบต่อเคสผู้เสียชีวิต
                                         (บาท/สมาชิก 1 คน)</label>
                                     <input type="number" name="welfare_deduct_amount" class="form-control"
                                         value="{{ $settings['welfare_deduct_amount'] }}" step="0.01">
@@ -243,14 +243,13 @@
                     </div>
 
                     <div class="text-end mt-4">
-                        <button type="submit" class="btn bg-gradient-primary px-4">
+                        <button type="submit" class="btn bg-gradient-primary mb-0">
                             <i class="fas fa-save me-1"></i> บันทึกการตั้งค่า
                         </button>
                     </div>
                 </form>
             </div>
         </div>
-    </div>
 
     <script>
         document.getElementById('enableWelfare').addEventListener('change', function () {
