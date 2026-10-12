@@ -20,7 +20,6 @@ class KpPurchaseTransaction extends Model
         'kp_u_trans_no', // เลขที่เอกสาร (Unique String)
         'kiosk_id_fk',
         'user_id', // ลูกค้า
-        'machine_id_fk',        // (Optional) เครื่องชั่ง
         'transaction_date',     // วันเวลา
         'total_weight',
         'total_amount',
