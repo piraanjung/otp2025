@@ -499,13 +499,12 @@ class KpPurchaseController extends Controller
             $transaction = KpPurchaseTransaction::create([
                 'kp_u_trans_no' => 'M-' . Carbon::now()->format('YmdHis') . Str::random(3),
                 'org_id_fk' => $user->org_id_fk,
-                'kp_user_w_pref_id_fk' => $userWastePref->id,
+                'user_id' => $userId,
                 'transaction_date' => date('Y-m-d'),
                 'total_weight' => $totalWeight,
                 'total_amount' => $totalAmount,
                 'total_points' => $totalPoints,
                 'recorder_id' => $recorderId,
-                'machine_id_fk' => $machine ? $machine->id : null,
             ]);
 
             KpBankAccount::updateBalanceAndPoint($userId, $totalAmount, $totalPoints);

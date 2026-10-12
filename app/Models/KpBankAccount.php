@@ -36,7 +36,7 @@ class KpBankAccount extends Model
         $amount = (float) $amount;
         $points = (int) $points;
 
-        return self::where('user_id', $user_id)->update([
+        return self::where('user_id', $user_id)->where('entity_type', 'recycle_bank')->update([
             'balance'    => DB::raw("balance + $amount"),
             'points'     => DB::raw("points + $points"),
             'updated_at' => now(),

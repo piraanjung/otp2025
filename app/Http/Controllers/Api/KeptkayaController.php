@@ -8,7 +8,8 @@ use App\Http\Controllers\Controller;
 use App\Models\KeptKaya\KpPurchaseTransaction;
 use App\Models\KeptKaya\KpPurchaseTransactionDetail;
 use App\Models\KeptKaya\KpTbankItems;
-use App\Models\KPBankAccount;
+use App\Models\KeptKaya\KpUserWastePreference;
+use App\Models\KpBankAccount;
 use App\Models\User;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
@@ -89,7 +90,7 @@ class KeptkayaController extends Controller
                         $q->select('id', 'user_id', 'address', 'zone_id');
                     },
                     'wastePreference.kpBankAccount' => function ($q) {
-                        $q->select('id', 'user_pref_id', 'account_no');
+                        $q->select('id', 'user_id', 'account_no');
                     },
                     'wastePreference.user_pref_zone' => function ($q) {
                         $q->select('id', 'zone_name');
@@ -104,12 +105,9 @@ class KeptkayaController extends Controller
 
                     // 🟢 เช็กว่าสมาชิกคนนี้มีข้อมูล Preference (สิทธิ์จัดการขยะ) ในตารางย่อยไหม
                     if ($member->wastePreference) {
-                        // ดึง ID ของฝั่ง Preference เพื่อเอาไปใช้ค้นหาในตารางบิลธุรกรรม
-                        $prefId = $member->kpUserPreferenceid;
-
                         // 🟢 ชี้เป้า: ตรวจสอบในตารางธุรกรรมว่า วันนี้ มีคีย์ของสมาชิกคนนี้ทำรายการไปแล้วหรือยัง
                         $hasTransactionToday = DB::table('kp_purchase_transactions')
-                            ->where('kp_user_w_pref_id_fk', $prefId)
+                            ->where('user_id', $member->id)
                             ->whereDate('transaction_date', $today)
                             ->exists();
                     }
@@ -144,12 +142,15 @@ class KeptkayaController extends Controller
             $runningNum = str_pad($lastTrans + 1, 4, '0', STR_PAD_LEFT);
             $transNo = "REC-" . $dateSlug . "-" . $runningNum;
 
+            // แอปส่ง ID ของ Preference มา -> แปลงเป็น users.id ที่ใช้อ้างอิงในบิลและบัญชี
+            $sellerUserId = KpUserWastePreference::findOrFail($request->kp_user_w_pref_id_fk)->user_id;
+
             // 2. 🟢 บันทึกตารางหลัก (Master: kp_purchase_transactions)
             $transaction = new KpPurchaseTransaction();
             $transaction->org_id_fk             = $request->org_id_fk;
             $transaction->kp_u_trans_no         = $transNo;
             $transaction->kiosk_id_fk           = $request->kiosk_id_fk ?? null;
-            $transaction->kp_user_w_pref_id_fk  = $request->kp_user_w_pref_id_fk; // ไอดี Preference ของสมาชิก
+            $transaction->user_id               = $sellerUserId; // ผู้ขาย (users.id)
             $transaction->transaction_date      = Carbon::now();
             $transaction->total_weight          = collect($request->cart_items)->sum('amount_in_units');
             $transaction->total_amount          = collect($request->cart_items)->sum('amount');
@@ -192,9 +193,10 @@ class KeptkayaController extends Controller
 
             // 6. อัปเดตสมุดบัญชีธนาคารขยะ (KpBankAccount)
             $recycleAcc = KpBankAccount::firstOrCreate(
-                ['user_pref_id' => $request->kp_user_w_pref_id_fk],
+                ['user_id' => $sellerUserId, 'entity_type' => 'recycle_bank'],
                 [
-                    'account_no' => 'ACC-' . str_pad($request->kp_user_w_pref_id_fk, 6, '0', STR_PAD_LEFT),
+                    'org_id_fk'  => $request->org_id_fk,
+                    'account_no' => 'ACC-' . str_pad($sellerUserId, 6, '0', STR_PAD_LEFT),
                     'balance'    => 0,
                     'points'     => 0,
                     'status'     => 'active',

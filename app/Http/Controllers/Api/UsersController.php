@@ -304,7 +304,7 @@ class UsersController extends Controller
                                 $q->select('id', 'user_id', 'address');
                             },
                             'wastePreference.kpBankAccount' => function ($q) {
-                                $q->select('id', 'user_pref_id', 'account_no');
+                                $q->select('id', 'user_id', 'account_no');
                             }
                         ])
                         ->whereHas('wastePreference.kpBankAccount') // 🎯 กรองเฉพาะคนที่มีบัญชี
