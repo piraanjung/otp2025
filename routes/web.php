@@ -49,6 +49,8 @@ use App\Http\Controllers\StaffController;
 use App\Http\Controllers\Tabwater\InvoiceController;
 use App\Http\Controllers\Tabwater\NotifyController;
 use App\Http\Controllers\Tabwater\TabwaterDeviceController;
+use App\Http\Controllers\Tabwater\TabwaterPipelineController;
+use App\Http\Controllers\Tabwater\TabwaterPipeNodeController;
 use App\Http\Controllers\Tabwater\TabWaterProductionDashboardController;
 use App\Http\Controllers\Tabwater\TabwaterStationController;
 use App\Http\Controllers\Tabwater\TwManMobileController;
@@ -501,6 +503,13 @@ Route::middleware(['auth'])->prefix('tabwater/settings')->name('tabwater.setting
     
     // CRUD อุปกรณ์/ปั๊มประจำสถานี
     Route::resource('devices', TabwaterDeviceController::class);
+});
+
+Route::middleware(['auth'])->prefix('tabwater/settings')->name('tabwater.settings.')->group(function () {
+    // Pipe Nodes (จุดโหนด/จุดแยก/วาล์ว)
+   Route::resource('pipe-nodes', TabwaterPipeNodeController::class);
+    // Pipelines (แนวท่อประปา)
+    Route::resource('pipelines', TabwaterPipelineController::class);
 });
 
 require __DIR__ . '/auth.php';

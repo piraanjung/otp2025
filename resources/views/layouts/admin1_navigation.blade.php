@@ -265,6 +265,20 @@
                         <span class="sidenav-normal">อุปกรณ์ผลิตน้ำประปา </span>
                     </a>
                 </li>
+
+                 <li class="nav-item  ">
+                    <a class="nav-link {{ $is('tabwater.settings.pipe-nodes.index') ? 'active' : '' }}"" href="{{ route('tabwater.settings.pipe-nodes.index') }}">
+                        <span class="sidenav-mini-icon"> P </span>
+                        <span class="sidenav-normal">จุดแยกท่อน้ำประปา </span>
+                    </a>
+                </li>
+
+                <li class="nav-item  ">
+                    <a class="nav-link {{ $is('tabwater.settings.pipelines.index') ? 'active' : '' }}"" href="{{ route('tabwater.settings.pipelines.index') }}">
+                        <span class="sidenav-mini-icon"> P </span>
+                        <span class="sidenav-normal">ตำแหน่งท่อน้ำประปา </span>
+                    </a>
+                </li>
               
             </ul>
         </div>
