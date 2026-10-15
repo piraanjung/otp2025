@@ -46,6 +46,9 @@
       font-family: "Open Sans", "Sarabun", sans-serif;
     }
     .sidenav .nav-link-text { white-space: normal; }
+    .hidden{
+      display: none;
+    }
   </style>
   <!-- jQuery (ตัวเต็ม มี $.ajax/$.get) โหลดใน head เพื่อให้ script ที่แทรกใน content ใช้ $ ได้ -->
   <script src="{{ asset('soft-ui/assets/js/jquery-3.7.0.js') }}"></script>

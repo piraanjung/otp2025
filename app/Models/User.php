@@ -28,6 +28,7 @@ use App\Models\FoodWaste\FoodWasteLog;
 use App\Models\KeptKaya\KpPurchaseTransaction;
 use App\Models\Tabwater\TwNotifies;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany; // <--- สำคัญ: ตรวจสอบว่ามีการ use นี้หรือไม่
+use Illuminate\Support\Facades\Auth;
 
 class User extends Authenticatable
 {
@@ -242,6 +243,11 @@ class User extends Authenticatable
             ->withPivot('staff_status')
             ->withTimestamps();
     }
+
+    /**
+ * ผูกมิเตอร์น้ำประปาใหม่เข้ากับผู้ใช้งาน (Master User)
+ */
+
 
     public function purchaseTransactions()
     {

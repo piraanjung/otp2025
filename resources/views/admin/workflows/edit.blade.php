@@ -78,7 +78,7 @@
                                         <select name="steps[{{ $index }}][specific_user_id]" class="form-control">
                                             <option value="">-- หรือเลือก User --</option>
                                             @foreach($users as $user)
-                                                <option value="{{ $user->id }}" {{ $step->specific_user_id == $user->id ? 'selected' : '' }}>{{ $user->name }}</option>
+                                                <option value="{{ $user->id }}" {{ $step->specific_user_id == $user->id ? 'selected' : '' }}>{{ $user->firstname." ".$user->lastname }}</option>
                                             @endforeach
                                         </select>
                                     </div>
