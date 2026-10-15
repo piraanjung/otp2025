@@ -13,6 +13,7 @@ return new class extends Migration
     {
         Schema::create('approval_workflows', function (Blueprint $table) {
             $table->id();
+            $table->foreignId('org_id_fk')->constrained('organizations');
             $table->string('name'); // เช่น "สายการอนุมัติเบิกสารเคมี"
             $table->text('description')->nullable();
             $table->boolean('is_active')->default(true);

@@ -8,14 +8,15 @@ use App\Http\Controllers\Admin\OrgAdminController;
 use App\Http\Controllers\Admin\PermissionController;
 use App\Http\Controllers\Admin\RoleController;
 use App\Http\Controllers\Admin\AdminSubzoneController;
-use App\Http\Controllers\Admin\AdminWithdrawController;
 use App\Http\Controllers\Admin\SuperAdminAuthController;
 use App\Http\Controllers\Admin\SupplierController;
 use App\Http\Controllers\Admin\UserController;
+use App\Http\Controllers\Admin\UserWelfareController;
+use App\Http\Controllers\Admin\WelfareConfigController;
+use App\Http\Controllers\Admin\WelfareController;
+use App\Http\Controllers\Admin\WelfareMemberController;
 use App\Http\Controllers\Admin\WorkflowController;
 use App\Http\Controllers\Admin\ZoneController;
-use App\Http\Controllers\Api\KioskController;
-use App\Http\Controllers\Auth\LoginController;
 use App\Http\Controllers\EmissionFactorController;
 use App\Http\Controllers\ImageController;
 use App\Http\Controllers\Inventory\InvCategoryController;
@@ -92,7 +93,7 @@ Route::get('acc', function () {
     return view('staff.mobile.staff_accessmenu');
     // return view('staff.mobile');
 });
-        Route::get('/inventory/items/iframe', [InvItemController::class, 'iframeIndex'])->name('inventory.items.iframe');
+Route::get('/inventory/items/iframe', [InvItemController::class, 'iframeIndex'])->name('inventory.items.iframe');
 
 Route::get('/logout', function () {
     Auth::logout();
@@ -120,8 +121,7 @@ Route::prefix('tabwater/notify')->name('tabwater.notify.')->group(function () {
     Route::get('/success/{id}', [NotifyController::class, 'success'])->name('success');
     Route::get('/create', [NotifyController::class, 'create'])->name('create');     // <-- เพิ่มบรรทัดนี้ (หน้าฟอร์มกรอกแจ้งเหตุ)    Route::post('/check-phone', [NotifyController::class, 'checkPhone'])->name('check-phone');
     Route::get('/xx', [NotifyController::class, 'sendHeadNotificationText'])->name('xxx');
-
-    });
+});
 
 Route::get('/logout_staff', function () {
     Auth::logout();
@@ -210,6 +210,9 @@ Route::get('twmanmobile/edit_members_subzone_selected', [TwManMobileController::
 
 Route::middleware(['auth', 'role:User|Admin|Super Admin'])->name('admin.')->prefix('admin/')->group(function () {
     Route::post('users/update-metrics', [UserController::class, 'updateMetrics'])->name('users.update_metrics');
+    Route::post('users/{id}/attach-meter', [UserController::class, 'attachMeter'])
+        ->name('users.attach_meter');
+    Route::get('users/edit_invoices/{meter_id}', [UserController::class, 'edit_invoices'])->name('users.edit_invoices');
 });
 
 Route::middleware(['auth', 'role:Admin|Super Admin'])->name('admin.')->prefix('admin')->group(function () {
@@ -247,10 +250,9 @@ Route::middleware(['auth', 'role:Admin|Super Admin'])->name('admin.')->prefix('a
         Route::get('download_template', [UserController::class, 'downloadUserTemplate'])->name('download_template');
         Route::get('{user}/{action?}', [UserController::class, 'show'])->name('show');
         Route::post('update-service', [UserController::class, 'updateService'])->name('update_service');
-
     });
 
-    
+
     Route::resource('/invoice_period', InvoicePeriodController::class)->except('show');
     Route::get('/invoice_period/{period_id}/generate', [InvoicePeriodController::class, 'generateInvoice'])->name('invoice_period.generate');
 
@@ -389,7 +391,6 @@ Route::prefix('superadmin')->name('superadmin.')->group(function () {
 
     Route::middleware(['auth', 'role:Admin|Super Admin'])->group(function () {
         Route::resource('staff', StaffController::class);
-        
     });
 });
 
@@ -408,7 +409,7 @@ Route::prefix('admin/ef')->group(function () {
     Route::delete('/{emissionFactor}', [EmissionFactorController::class, 'destroy'])->name('ef.destroy');
 });
 
-Route::middleware(['auth'])->name('admin.')->prefix('admin')->group(function () { 
+Route::middleware(['auth'])->name('admin.')->prefix('admin')->group(function () {
     Route::get('/suppliers', [SupplierController::class, 'index'])->name('suppliers.index');
     Route::post('/suppliers', [SupplierController::class, 'store'])->name('suppliers.store');
     Route::get('/suppliers/{id}/edit', [SupplierController::class, 'edit'])->name('suppliers.edit'); // เพิ่มอันนี้
@@ -439,15 +440,14 @@ Route::middleware(['auth'])->prefix('inventory')->name('inventory.')->group(func
         Route::get('/index', [InvLocationController::class, 'index'])->name('index');
         Route::post('/store', [InvLocationController::class, 'store'])->name('store');
         Route::delete('destroy/{loc_id}', [InvLocationController::class, 'destroy'])->name('destroy');
-
     });
 
-    
+
     // กดยืนยันจ่ายของ (ตัดสต็อกข้ามล็อต FIFO)
     Route::post('/transactions/{refNo}/issue', [InvTransactionController::class, 'issueItems'])->name('transactions.issue');
 
     Route::prefix('/withdraw')->name('withdraw.')->group(function () {
-       
+
         // หน้าจอเลือกพัสดุหลายรายการ (แนวทางตะกร้าสินค้า)
         Route::get('/multiple', [InvTransactionController::class, 'createMultipleWithdraw'])->name('create_multiple');
         Route::get('/withdraw_print/{refNo}', [InvTransactionController::class, 'showByRef'])->name('show_ref');
@@ -466,9 +466,8 @@ Route::middleware(['auth'])->prefix('inventory')->name('inventory.')->group(func
         Route::post('/{refNo}/approve', [InvTransactionController::class, 'approveStep'])->name('step.approve');
         Route::post('/{refNo}/reject', [InvTransactionController::class, 'rejectStep'])->name('step.reject');
         Route::post('/{id}/approve', [InvTransactionController::class, 'approve'])->name('approve');
-
     });
-   
+
     // Route สำหรับ process การ import
     Route::post('import', [InvItemController::class, 'import'])->name('items.import');
     Route::get('download-template', [InvItemController::class, 'downloadTemplate'])->name('items.template');
@@ -478,6 +477,40 @@ Route::middleware(['auth'])->prefix('inventory')->name('inventory.')->group(func
     Route::resource('hazards', InvHazardLevelController::class)->only(['index', 'store', 'destroy']);
     // ดูใบเบิก
 
+});
+
+Route::middleware(['auth', 'role:Admin'])->prefix('admin')->name('admin.')->group(function () {
+    Route::get('/welfare/dashboard', [WelfareController::class, 'getWelfareSummary'])->name('welfare.dashboard');
+    
+    // ตั้งค่าเกณฑ์และนโยบายสวัสดิการ (ใช้ WelfareConfigController)
+    Route::get('/welfare/config', [WelfareConfigController::class, 'editConfig'])->name('welfare.config');
+    Route::match(['post', 'put'], '/welfare/config/update', [WelfareConfigController::class, 'updateConfig'])->name('welfare.config.update');
+
+    // Payout & Workflow Actions (ใช้ WelfareController)
+    Route::post('/welfare/payout', [WelfareController::class, 'storePayout'])->name('welfare.payout.store');
+    Route::post('/welfare/payout/{id}/approve', [WelfareController::class, 'approveStep'])->name('welfare.payout.approve');
+    Route::get('/welfare/payout/{id}/voucher', [WelfareController::class, 'downloadVoucher'])->name('welfare.payout.voucher');
+    Route::get('/welfare/payout/{id}/approval-pdf', [WelfareController::class, 'downloadApprovalNote'])->name('welfare.approval.pdf');
+    Route::get('/welfare/check-eligibility/{userId}', [WelfareController::class, 'checkEligibility'])->name('welfare.check_eligibility');
+
+   // จัดการรายการรอจัดเก็บเงินสมทบ (Collections)
+    Route::get('/welfare/collections', [WelfareController::class, 'collectionIndex'])->name('welfare.collections.index');
+    Route::post('/welfare/collections/{id}/store', [WelfareController::class, 'storeCollection'])->name('welfare.collections.store');
+   Route::get('/welfare/payout/{id}/approval', [WelfareController::class, 'showApprovalPage'])->name('welfare.payout.approval_page');
+   
+    Route::prefix('/welfare/members')->name('welfare.members.')->group(function () {
+        Route::get('/', [WelfareMemberController::class, 'index'])->name('index');
+        Route::get('/add', [WelfareMemberController::class, 'create'])->name('create');
+        Route::post('/bulk-store', [WelfareMemberController::class, 'bulkStore'])->name('bulkStore');
+        Route::delete('/{id}', [WelfareMemberController::class, 'destroy'])->name('destroy');
+    });
+
+    Route::prefix('/welfare/member')->name('welfare.member.')->group(function () {
+        Route::get('/eligibility', [UserWelfareController::class, 'checkEligibility'])->name('eligibility');
+        Route::get('/request', [UserWelfareController::class, 'create'])->name('create');
+        Route::post('/store', [UserWelfareController::class, 'store'])->name('store');
+        Route::get('/tracking', [UserWelfareController::class, 'tracking'])->name('tracking');
+    });
 });
 
 require __DIR__ . '/auth.php';
