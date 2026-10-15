@@ -48,10 +48,14 @@ use App\Http\Controllers\SqlToJsonController;
 use App\Http\Controllers\StaffController;
 use App\Http\Controllers\Tabwater\InvoiceController;
 use App\Http\Controllers\Tabwater\NotifyController;
+use App\Http\Controllers\Tabwater\TabwaterDeviceController;
+use App\Http\Controllers\Tabwater\TabWaterProductionDashboardController;
+use App\Http\Controllers\Tabwater\TabwaterStationController;
 use App\Http\Controllers\Tabwater\TwManMobileController;
 use App\Http\Controllers\Tabwater\TwPricingTypeController;
 use App\Http\Controllers\Tabwater\UndertakerSubzoneController;
 use App\Http\Controllers\Tabwater\WaterLedgerController;
+
 use App\Models\User;
 
 Route::get('/', function () {
@@ -478,6 +482,25 @@ Route::middleware(['auth'])->prefix('inventory')->name('inventory.')->group(func
     Route::resource('hazards', InvHazardLevelController::class)->only(['index', 'store', 'destroy']);
     // ดูใบเบิก
 
+});
+
+Route::middleware(['auth'])->prefix('tabwater/production')->name('tabwater.production.')->group(function () {
+    // หน้า Dashboard หลัก
+    Route::get('/dashboard', [TabWaterProductionDashboardController::class, 'index'])->name('dashboard');
+    
+    // API สั่งเปิด-ปิดปั๊ม/อุปกรณ์ (Auto/Manual)
+    Route::post('/devices/{deviceId}/toggle', [TabWaterProductionDashboardController::class, 'toggleDevice'])->name('device.toggle');
+    
+    // บันทึกรายงานคุณภาพน้ำยามเช้า
+    Route::post('/quality-logs', [TabWaterProductionDashboardController::class, 'storeQualityLog'])->name('quality.store');
+});
+
+Route::middleware(['auth'])->prefix('tabwater/settings')->name('tabwater.settings.')->group(function () {
+    // CRUD สถานีผลิตน้ำ
+    Route::resource('stations', TabwaterStationController::class);
+    
+    // CRUD อุปกรณ์/ปั๊มประจำสถานี
+    Route::resource('devices', TabwaterDeviceController::class);
 });
 
 require __DIR__ . '/auth.php';
