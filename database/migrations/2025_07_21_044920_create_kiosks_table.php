@@ -18,6 +18,8 @@ return new class extends Migration
             // ชื่อสถานที่ตั้ง หรือชื่อตู้
             $table->unsignedBigInteger('org_id_fk')->nullable();
             $table->string('name');
+            $table->string('address');
+
 
             // พิกัด GPS (ใช้ Decimal เพื่อความแม่นยำ)
             // (10, 8) คือความละเอียดมาตรฐาน GPS (Latitude)
