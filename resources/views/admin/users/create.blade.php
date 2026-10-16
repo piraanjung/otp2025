@@ -80,7 +80,7 @@
                                 <label class="form-label text-primary fw-bold">โซน (Zone)</label>
                                 <select class="form-select border-primary @error('zone_id') is-invalid @enderror" id="zone_id" name="zone_id" required>
                                     <option value="">-- เลือกโซน --</option>
-                                    @foreach($zones as$zone)
+                                    @foreach($zones as $zone)
                                         <option value="{{ $zone->id }}" {{ old('zone_id') == $zone->id ? 'selected' : '' }}>
                                             {{ $zone->zone_name }}
                                         </option>
