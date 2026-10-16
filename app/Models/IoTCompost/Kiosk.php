@@ -16,8 +16,9 @@ class Kiosk extends Model
     protected $keyType = 'string';
 
     protected $fillable = [
-        'id',
         'name',
+        'org_id_fk',
+        'address',
         'lat',
         'lng',
         'status',
@@ -47,4 +48,9 @@ class Kiosk extends Model
         if (!$this->last_online_at) return false;
         return Carbon::parse($this->last_online_at)->diffInMinutes(now()) < 5;
     }
+
+    public function sensors()
+{
+    return $this->hasMany(KioskSensor::class, 'kiosk_id', 'id');
+}
 }

@@ -26,6 +26,10 @@ class Kiosk extends Model
         'last_online_at'
     ];
 
+    public function sensors(){
+        return $this->hasMany(KioskSensor::class);
+    }
+
     public function waste_types(){
 
     }

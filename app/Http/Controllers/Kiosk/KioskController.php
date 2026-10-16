@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Kiosk; // 👈 เปลี่ยน Namespace เป็น Kiosk
 
 use App\Http\Controllers\Controller;
+use App\Models\Admin\Organization;
 use App\Models\KeptKaya\KpPurchaseTransaction;
 use App\Models\KeptKaya\KpTbankItemsPriceAndPoint;
 use App\Models\KeptKaya\KpTbankUnits;
@@ -17,12 +18,26 @@ use Illuminate\Support\Facades\DB;
 class KioskController extends Controller
 {
     public function index()
-    {
-        $kiosks = Kiosk::orderBy('id', 'asc')->get();
-        // เปลี่ยน view path เป็น 'kiosk.index' (ถ้าคุณย้าย view ด้วย)
-        // หรือใช้ 'admin.keptkayas.kiosks.index' เหมือนเดิมถ้า view ยังอยู่ที่เดิม
-        return view('kiosk.index', compact('kiosks'));
-    }
+{
+    // ดึงรายการตู้ Kiosk พร้อมจำนวน/ข้อมูลเซ็นเซอร์ย่อย
+    $kiosks = Kiosk::with('sensors')
+        ->orderBy('id', 'asc')
+        ->get();
+
+    return view('kiosk.index', compact('kiosks'));
+}
+
+    public function mapDashboard()
+{
+    // ดึงเฉพาะตู้ของหน่วยงานที่ User สังกัดอยู่
+    $userOrgId = Auth::user()->org_id_fk;
+    
+    $kiosks = Kiosk::where('org_id_fk', $userOrgId)
+        ->select(['id', 'name', 'lat', 'lng', 'status', 'total_waste_count'])
+        ->get();
+
+        return view('kiosk.map_dashboard', compact('kiosks'));
+}
 
     public function login()
     {
@@ -30,33 +45,48 @@ class KioskController extends Controller
         return view('kiosk.login');
     }
 
-    public function create()
-    {
-        $org = Auth::user()->org;
-        return view('kiosk.create', compact('org'));
-    }
+   public function create()
+{
+    // ดึงรายการหน่วยงานทั้งหมด และหน่วยงานปัจจุบันของผู้ใช้
+    $orgs = Organization::all(); 
+    $org = Auth::user()->org;
 
-    public function store(Request $request)
-    {
-        $request->validate([
-            'id' => 'required|unique:kiosks,id|alpha_dash|max:20',
-            'name' => 'required|max:100',
-            'lat' => 'required|numeric|between:-90,90',
-            'lng' => 'required|numeric|between:-180,180',
-        ]);
+    return view('kiosk.create', compact('orgs', 'org'));
+}
 
-        return   Kiosk::create([
-            'id' => $request->id,
-            'org_id_fk' => Auth::user()->org_id_fk,
-            'name' => $request->name,
-            'lat' => $request->lat,
-            'lng' => $request->lng,
-            'status' => 'offline',
+public function store(Request $request)
+{
+    // ตรวจสอบข้อมูลการลงทะเบียนแบบอาเรย์
+    $request->validate([
+        'org_id_fk' => 'required',
+        'kiosks' => 'required|array|min:1',
+        'kiosks.*.id' => 'required|unique:kiosks,id|alpha_dash|max:20',
+        'kiosks.*.name' => 'required|max:100',
+        'kiosks.*.lat' => 'required|numeric|between:-90,90',
+        'kiosks.*.lng' => 'required|numeric|between:-180,180',
+    ], [
+        'kiosks.*.id.unique' => 'รหัสตู้ Kiosk มีในระบบแล้ว กรุณาตรวจสอบรหัสตู้'
+    ]);
+
+    $orgId = $request->org_id_fk;
+
+    // บันทึกรายการตู้คีออสก์ใหม่ทั้งหมดลงตาราง kiosks
+    foreach ($request->kiosks as $kioskData) {
+        Kiosk::create([
+            'org_id_fk' => $orgId,
+            'name'      => $kioskData['id'] ,
+            'address'   => $kioskData['name'],
+            'lat'       => $kioskData['lat'],
+            'lng'       => $kioskData['lng'],
+            'status'    => 'active',
             'total_waste_count' => 0
         ]);
-
-        return redirect()->route('keptkayas.kiosks.index')->with('success', 'เพิ่มตู้สำเร็จ');
     }
+
+    return redirect()->route('keptkayas.kiosks.index')->with('success', 'ลงทะเบียนสร้างตู้คีออสก์ใหม่เรียบร้อยแล้ว');
+}
+
+    
 
     public function edit($id)
     {
