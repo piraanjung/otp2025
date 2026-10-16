@@ -325,9 +325,9 @@
             </a>
         </div>
         <div
-            class="bubble-container centralized  red {{auth()->user()->can('access tabwater') | auth()->user()->hasRole('Super Admin') ? '' : 'a-disbled'}}">
+            class="bubble-container centralized  red ">
             <a
-                href="{{auth()->user()->can('access tabwater') | auth()->user()->hasRole('Super Admin') ? route('keptkayas.kiosks.index') : '#'}}">
+                href="{{ route('keptkayas.kiosks.dashboard') }}">
                 <div class="bubble centralized">
                     <div class="inner centralized">
                         ตู้คืนขวดอัตโนมัติ

@@ -35,7 +35,7 @@ use App\Http\Controllers\KeptKaya\PointController;
 use App\Http\Controllers\KeptKaya\RecycleBankController;
 use App\Http\Controllers\KeptKaya\WithdrawController;
 use App\Http\Controllers\Kiosk\KioskController;
-
+use App\Http\Controllers\Kiosk\KioskSensorController;
 
 Route::prefix('keptkayas')->name('keptkayas.')->group(function () {
     Route::get('/unknown-review', function () {
@@ -70,10 +70,19 @@ Route::middleware(['auth'])->prefix('keptkayas')->name('keptkayas.')->group(func
     Route::get('/recycle-bank/members/{id}/history', [RecycleBankController::class, 'history'])->name('recycle-bank.history');
 
     Route::resource('kiosks', KioskController::class)->except(['show']);
+    Route::get('/kiosks/dashboard', [KioskController::class, 'mapDashboard'])->name('kiosks.dashboard');
     Route::get('/kiosks/noscreen/login', [KioskController::class, 'login'])->name('kiosks.noscreen.login');
     Route::post('/kiosks/noscreen/userMatchKiosk', [KioskController::class, 'userMatchKiosk']);
     // หน้า Monitor ควบคุมตู้
     Route::get('/kiosks/noscreen/monitor', [KioskController::class, 'monitor'])->name('kiosk.monitor');
+
+    Route::get('/kiosks/sensors/alerts', [KioskSensorController::class, 'sensorAlerts'])->name('kiosks.sensors.alerts');
+    Route::prefix('/kiosks/{kiosk_id}/sensors')->name('kiosks.sensors.')->group(function () {
+    Route::get('/', [KioskSensorController::class, 'index'])->name('index');
+    Route::post('/', [KioskSensorController::class, 'store'])->name('store');
+    Route::put('/{id}', [KioskSensorController::class, 'update'])->name('update');
+    Route::delete('/{id}', [KioskSensorController::class, 'destroy'])->name('destroy');
+});
 
     // Route สำหรับกด Disconnect
     Route::post('/kiosks/noscreen/disconnect', [KioskController::class, 'disconnect'])->name('kiosk.disconnect');
