@@ -8,7 +8,7 @@
             src: url({{ public_path('fonts/THSarabunNew.ttf') }}) format('truetype');
         }
         body { font-family: 'THSarabunNew'; font-size: 16pt; line-height: 1.2; }
-        .text-center { text-center: center; }
+        .text-center { text-align: center; }
         .text-right { text-align: right; }
         .header { font-size: 20pt; font-weight: bold; margin-bottom: 10px; }
         .content-table { width: 100%; border-collapse: collapse; margin-top: 20px; }

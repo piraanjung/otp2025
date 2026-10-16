@@ -14,13 +14,15 @@ return new class extends Migration
     Schema::create('kp_welfare_payouts', function (Blueprint $table) {
         $table->id();
         $table->foreignId('org_id_fk')->constrained('organizations'); // สังกัดเทศบาล/องค์กร
-        $table->string('deceased_name'); // ชื่อสมาชิกที่เสียชีวิต
+        $table->foreignId('user_id')->constrained('users'); // ชื่อสมาชิก
+        $table->string('deceased_name'); // ชื่อผู้เสียชีวิต
         $table->string('beneficiary_name'); // ชื่อทายาทผู้รับเงิน
         $table->decimal('amount', 12, 2); // จำนวนเงินที่ช่วย
         $table->string('death_certificate_img')->nullable(); // รูปใบมรณบัตร
         $table->text('note')->nullable(); // หมายเหตุ
 
         // ระบบอนุมัติ
+        
         $table->foreignId('requester_id')->constrained('users'); // เจ้าหน้าที่ผู้แจ้งเรื่อง
         $table->foreignId('approver_id')->nullable()->constrained('users'); // ผู้บริหารที่อนุมัติ
         $table->string('status')->default('pending'); // pending, approved, paid

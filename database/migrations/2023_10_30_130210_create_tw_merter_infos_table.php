@@ -18,7 +18,7 @@ return new class extends Migration
             $table->foreignId('user_id')->constrained('users')->onDelete('cascade');
             $table->foreignId('org_id_fk')->constrained('organization')->onDelete('cascade');
             $table->string('meternumber');
-            $table->string('factory_no');
+            $table->string('factory_no')->nullable();
             $table->string('submeter_name')->nullable();
             $table->string('meter_address');
             $table->unsignedBigInteger('undertake_zone_id');

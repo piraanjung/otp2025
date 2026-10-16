@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Admin;
 use App\Exports\UserTemplateExport;
 use App\Http\Controllers\Controller;
 use App\Imports\UserImport;
+use App\Models\Admin\BudgetYear;
 use App\Models\Admin\Organization;
 use App\Models\Admin\Subzone;
 use App\Models\AnnualTrash\AnnualTrashSubscription;
@@ -17,6 +18,8 @@ use App\Models\AnnualTrash\AnnualTrashPayratePerMonth;
 use App\Models\FoodWaste\FoodWasteUserPreference;
 use App\Models\KeptKaya\KpUserWastePreference;
 use App\Models\KpBankAccount;
+use App\Models\Tabwater\InvoicePeriod;
+use App\Models\Tabwater\TwMeterInfos;
 use App\Models\Tabwater\TwUsersInfos;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
@@ -25,9 +28,15 @@ use Spatie\Permission\Models\Permission;
 use Spatie\Permission\Models\Role;
 use Illuminate\Support\Facades\DB;
 use Maatwebsite\Excel\Facades\Excel;
-
+use App\Services\UserService;
 class UserController extends Controller
 {
+    protected $userService;
+
+    public function __construct(UserService $userService)
+    {
+        $this->userService = $userService;
+    }
     public function index(Request $request)
     {
         $perPage = $request->get('per_page', 20);
@@ -284,292 +293,280 @@ class UserController extends Controller
         return 'xxx';
     }
 
-    public function users_search(Request $request)
-    {
-        $users = User::role("user")->whereIn("zone_id", $request->input("zone"))->get();
-        $usertype = "user";
-        $zones = Zone::all();
-        return view('admin.users.index', compact('users', 'usertype', 'zones'));
+    public function users_search(Request $request) 
+    { 
+        $users = User::role("user")->whereIn("zone_id", $request->input("zone"))->get(); 
+        $usertype = "user"; 
+        $zones = Zone::all(); 
+        return view('admin.users.index', compact('users', 'usertype', 'zones')); 
+    } 
+
+    public function staff() 
+    { 
+        return redirect()->route('keptkayas.staffs.index'); 
+    } 
+
+    public function create() 
+    { 
+        $org = Organization::find(Auth::user()->org_id_fk); 
+        $zones = Zone::all(); 
+        $defaultAddress = [ 
+            'province' => $org->provinces->province_name ?? '-', 
+            'district' => $org->districts->district_name ?? '-', 
+            'tambon' => $org->tambons->tambon_name ?? '-' 
+        ]; 
+        return view('admin.users.create', compact('zones', 'defaultAddress')); 
     }
 
 
-    public function staff()
-    {
-        // หน้าจัดการเจ้าหน้าที่ย้ายไปอยู่ที่ StaffController แล้ว (เดิมใช้ view สมาชิกซึ่งต้องการ $zones จึงเกิด error)
-        return redirect()->route('keptkayas.staffs.index');
+    /**
+     * บันทึกข้อมูลผู้ใช้ใหม่และเปิดสิทธิ์บริการ (Store)
+     */
+    public function store(Request $request) 
+    { 
+        $messages = [ 
+            'required' => 'กรุณากรอกข้อมูลในช่อง :attribute', 
+            'unique'   => ':attribute นี้มีอยู่ในระบบแล้ว', 
+            'min'      => ':attribute ต้องมีความยาวอย่างน้อย :min ตัวอักษร', 
+        ]; 
+
+        $attributes = [ 
+            'username'   => 'ชื่อผู้ใช้งาน', 
+            'password'   => 'รหัสผ่าน', 
+            'firstname'  => 'ชื่อจริง', 
+            'lastname'   => 'นามสกุล', 
+            'phone'      => 'เบอร์โทรศัพท์', 
+            'id_card'    => 'เลขบัตรประชาชน', 
+            'zone_id'    => 'โซน', 
+            'subzone_id' => 'ซอย/ชุมชนย่อย', 
+        ]; 
+
+        $request->validate([ 
+            'username'   => 'required|string|max:255|unique:users,username', 
+            'password'   => 'required|string|min:6', 
+            'firstname'  => 'required|string|max:255', 
+            'lastname'   => 'required|string|max:255', 
+            'phone'      => 'nullable|string|max:20', 
+            'id_card'    => 'nullable|string|max:13|unique:users,id_card', 
+            'zone_id'    => 'required', 
+            'subzone_id' => 'required', 
+        ], $messages,$attributes); 
+
+        DB::beginTransaction(); 
+        try { 
+            $org = Organization::find(Auth::user()->org_id_fk); 
+
+            // 1. สร้าง Master User Record
+            $user = User::create([ 
+                'username'      => $request->username, 
+                'password'      => Hash::make($request->password), 
+                'prefix'        => $request->prefix ?? 'นาย', 
+                'firstname'     => $request->firstname, 
+                'lastname'      => $request->lastname, 
+                'phone'         => $request->phone, 
+                'id_card'       => $request->id_card, 
+                'address'       => $request->address, 
+                'zone_id'       => $request->zone_id, 
+                'subzone_id'    => $request->subzone_id, 
+                'tambon_code'   => $org->org_tambon_id_fk ?? null, 
+                'district_code' => $org->org_district_id_fk ?? null, 
+                'province_code' => $org->org_province_id_fk ?? null, 
+                'org_id_fk'     => $org->id ?? Auth::user()->org_id_fk, 
+                'status'        => 'active', 
+            ]); 
+
+            $user->assignRole('User'); 
+
+            // 2. แมปค่าบริการจาก Blade Switch (`svc_*`) ไปยัง UserService
+            $serviceData = [
+                'recycle'      => $request->has('svc_recycle') ? '1' : '0',
+                'food_waste'   => $request->has('svc_food_waste') ? '1' : '0',                 'annual_trash' =>$request->has('svc_annual_trash') ? '1' : '0',
+            ];
+
+            // 3. เรียกใช้งาน UserService เพื่อเปิดบัญชีบริการและอัปเดตสิทธิ์
+            $this->userService->syncUserServices($user,$serviceData);
+
+            // 4. บันทึก/ซิงค์ KpUserWastePreference
+            KpUserWastePreference::firstOrCreate(
+                ['user_id' => $user->id],
+                [
+                    'org_id_fk'             => $org->id ?? Auth::user()->org_id_fk,
+                    'zone_id'               => $user->zone_id,
+                    'subzone_id'            => $user->subzone_id,
+                    'is_annual_collection'  => $request->has('svc_annual_trash') ? 1 : 0,                     'is_recycle_bank'       =>$request->has('svc_recycle') ? 1 : 0,
+                ]
+            );
+
+            DB::commit(); 
+            return redirect()->route('admin.users.index')->with('success', 'เพิ่มผู้ใช้งานและเปิดสิทธิ์บริการเรียบร้อยแล้ว'); 
+
+        } catch (\Exception $e) { 
+            DB::rollBack(); 
+            return back()->withInput()->with('error', 'เกิดข้อผิดพลาด: ' . $e->getMessage()); 
+        } 
+    } 
+    
+
+    /**
+     * อัปเดตข้อมูลผู้ใช้งานและสิทธิ์บริการ (Update)
+     */
+    public function update(Request $request,$id) 
+    { 
+        $messages = [ 
+            'required' => 'กรุณากรอกข้อมูลในช่อง :attribute', 
+            'unique'   => ':attribute นี้ถูกใช้งานแล้ว', 
+        ]; 
+
+        $request->validate([ 
+            'username'   => 'required|string|max:255|unique:users,username,' . $id, 
+            'firstname'  => 'required|string|max:255', 
+            'lastname'   => 'required|string|max:255', 
+            'phone'      => 'nullable|string|max:20|unique:users,phone,' . $id, 
+            'id_card'    => 'nullable|string|max:13|unique:users,id_card,' . $id, 
+            'password'   => 'nullable|min:6', 
+            'zone_id'    => 'required', 
+            'subzone_id' => 'required', 
+        ], $messages); 
+
+        DB::beginTransaction(); 
+        try { 
+            $user = User::findOrFail($id); 
+            
+            // 1. อัปเดตข้อมูลบุคคล
+            $user->username   =$request->username; 
+            $user->prefix     =$request->prefix; 
+            $user->firstname  =$request->firstname; 
+            $user->lastname   =$request->lastname; 
+            $user->phone      =$request->phone; 
+            $user->id_card    =$request->id_card; 
+            $user->address    =$request->address; 
+            $user->zone_id    =$request->zone_id; 
+            $user->subzone_id =$request->subzone_id; 
+
+            if ($request->filled('password')) { 
+                $user->password = Hash::make($request->password); 
+            } 
+            $user->save(); 
+
+            // 2. แมปค่าสวิตช์บริการจาก Blade (`svc_*`) ส่งเข้า UserService
+            $serviceData = [
+                'recycle'      => $request->has('svc_recycle') ? '1' : '0',
+                'food_waste'   => $request->has('svc_food_waste') ? '1' : '0',                 'annual_trash' =>$request->has('svc_annual_trash') ? '1' : '0',
+            ];
+
+            // 3. ซิงค์สิทธิ์เปิด/ปิดบัญชีบริการ
+            $this->userService->syncUserServices($user,$serviceData);
+
+            // 4. อัปเดต KpUserWastePreference
+            KpUserWastePreference::updateOrCreate(
+                ['user_id' => $user->id],
+                [
+                    'zone_id'              => $user->zone_id,
+                    'subzone_id'           => $user->subzone_id,
+                    'is_annual_collection' => $request->has('svc_annual_trash') ? 1 : 0,                     'is_recycle_bank'      =>$request->has('svc_recycle') ? 1 : 0,
+                ]
+            );
+
+            DB::commit(); 
+            return redirect()->route('admin.users.index')->with('success', 'อัปเดตข้อมูลและสิทธิ์บริการเรียบร้อยแล้ว'); 
+
+        } catch (\Exception $e) { 
+            DB::rollBack(); 
+            return back()->withInput()->with('error', 'เกิดข้อผิดพลาด: ' . $e->getMessage()); 
+        } 
     }
 
-    public function create()
+    public function edit($user_id, $addmeter = "") 
+{ 
+    $user = User::where('id', $user_id) 
+        ->with([ 
+            'user_zone', 
+            'user_subzone', 
+            'recycleBankAccount', 
+            'foodWasteBankAccount', 
+            'annualTrashSubscription',
+            // ดึงความสัมพันธ์มิเตอร์น้ำประปาจาก User Model
+            'usermeterinfos.undertake_zone',
+            'usermeterinfos.undertake_subzone',
+            'usermeterinfos.meter_type'
+        ]) 
+        ->firstOrFail(); 
+
+    $org = Organization::find(Auth::user()->org_id_fk); 
+    $defaultAddress = [ 
+        'province' => $org->provinces->province_name ?? '-', 
+        'amphure'  => $org->districts->district_name ?? '-', 
+        'district' => $org->tambons->tambon_name ?? '-' 
+    ]; 
+    
+    $zones = Zone::where('org_id_fk', Auth::user()->org_id_fk)->get(); 
+    $subzones   = Subzone::where('zone_id', $user->zone_id)->get(); 
+    $meterTypes = \App\Models\Tabwater\TwMeterType::all();
+    
+    $nextMeterCount   = collect($user->usermeterinfos)->count() + 1;
+    $generatedMeterId = 'MTR-' . substr('000', strlen($org->id)).$org->id . '-' . substr('0000',strlen($user->id))$user->id.'-'.w$nextMeterCount;
+
+    return view('admin.users.edit', compact( 
+        'user', 'zones', 'subzones', 'defaultAddress', 'addmeter', 'meterTypes', 'generatedMeterId'
+    )); 
+}
+
+ public function edit_invoices($meter_id)
     {
-
-        // ดึง Org ของผู้ใช้งานที่ Logged in อยู่
-        $org = Organization::find(Auth::user()->org_id_fk);
-
-        // ดึง Zone ที่สังกัด Org เดียวกันเท่านั้น
-        $zones = Zone::all();
-
-        $defaultAddress = [
-            'province' => $org->provinces->province_name ?? '-',
-            'district'  => $org->districts->district_name ?? '-',
-            'tambon' => $org->tambons->tambon_name ?? '-'
-        ];
-
-      
-
-        return view('admin.users.create', compact('zones', 'defaultAddress'));
+        $inv_period = InvoicePeriod::where('status', 'active')->get('id')->first();
+        $usermeter_infos = TwMeterInfos::with([
+            'invoice' => function ($q) use ($inv_period) {
+                $budget_year = BudgetYear::with('invoicePeriod:id,budgetyear_id')->where('status', 'active')
+                    ->get()->first();
+                $inv_period_lists = collect($budget_year->invoicePeriod)->pluck('id');
+                return $q->select('*')->whereIn('inv_period_id_fk', $inv_period_lists);
+            }
+        ])->where('meter_id', $meter_id)->get()->first();
+        return view('tabwater.usermeter_infos.index', compact('usermeter_infos'));
     }
 
+/**
+ * ผูกมิเตอร์น้ำประปาใหม่เข้ากับผู้ใช้งาน (Master User)
+ */
+public function attachMeter(Request $request, $id)
+{
+    $request->validate([
+        'meternumber'          => 'required|string|max:255',
+        'meter_address'        => 'required|string',
+        'undertake_zone_id'    => 'required',
+        'undertake_subzone_id' => 'required',
+        'metertype_id'         => 'required',
+    ], [
+        'required' => 'กรุณากรอกข้อมูลในช่อง :attribute ให้ครบถ้วน'
+    ]);
 
-    // 1. Validation ข้อมูลพื้นฐาน
-    public function store(Request $request)
-    {
-        // กำหนดข้อความ Error เป็นภาษาไทย (Custom Messages)
-        $messages = [
-            'required' => 'กรุณากรอกข้อมูลในช่อง :attribute',
-            'unique'   => ':attribute นี้มีอยู่ในระบบแล้ว',
-            'min'      => ':attribute ต้องมีความยาวอย่างน้อย :min ตัวอักษร',
-            'confirmed' => 'การยืนยันรหัสผ่านไม่ตรงกัน',
-        ];
+    try {
+        $user = User::findOrFail($id);
+        $orgId = Auth::user()->org_id_fk ?? $user->org_id_fk;
 
-        // กำหนดชื่อเรียกฟิลด์เป็นภาษาไทย
-        $attributes = [
-            'username' => 'ชื่อผู้ใช้งาน',
-            'password' => 'รหัสผ่าน',
-            'firstname' => 'ชื่อจริง',
-            'lastname' => 'นามสกุล',
-            'phone' => 'เบอร์โทรศัพท์',
-            'zone_id' => 'โซน',
-            'subzone_id' => 'ซอย/ชุมชนย่อย',
-        ];
+        TwMeterInfos::create([
+            'meter_id'             => $$user->id,
+            'user_id'              => $user->id,
+            'org_id_fk'            => $orgId,
+            'meternumber'          => $request->meternumber,
+            'factory_no'           => $request->factory_no,
+            'submeter_name'        => $request->submeter_name,
+            'meter_address'        => $request->meter_address,
+            'undertake_zone_id'   => $request->undertake_zone_id,
+            'undertake_subzone_id' => $request->undertake_subzone_id,
+            'metertype_id'         => $request->metertype_id,
+            'status'               => 'active',
+            'acceptance_date'      => date('Y-m-d'),
+            'recorder_id'          => Auth::id(),
+            'last_meter_recording' => 0,
+        ]);
 
-        $request->validate([
-            'username'   => 'required|string|max:255', //unique:users,username
-            'password'   => 'required|string|min:6',
-            'firstname'  => 'required|string|max:255',
-            'lastname'   => 'required|string|max:255',
-            'phone'      => 'required', //|unique:users,phone
-            'zone_id'    => 'required|exists:zones,id', // ตรวจสอบชื่อ table ให้ตรง
-            'subzone_id' => 'required|exists:subzones,id',
-        ], $messages, $attributes);
-        DB::beginTransaction();
-        try {
-            $org = Organization::find(Auth::user()->org_id_fk);
-            // 2. สร้าง User หลัก
-            $user = User::create([
-                'username'      => $request->username,
-                'password'      => Hash::make($request->password),
-                'firstname'     => $request->firstname,
-                'lastname'      => $request->lastname,
-                'phone'         => $request->phone,
-                'address'       => $request->address,
-                'zone_id'       => $request->zone_id,
-                'subzone_id'    => $request->subzone_id,
-                'tambon_code'   => $org->org_tambon_id_fk,
-                'district_code' => $org->org_district_id_fk,
-                'province_code' => $org->org_province_id_fk,
-                'org_id_fk'     => $org->id,
-                'status'        => 'active',
-            ]);
-
-            $user->assignRole('User');
-
-            // 3. เช็คและเปิดบริการตามที่ติ๊กมา
-            // ธนาคารขยะรีไซเคิล
-            $accNumberText = $org->org_code."-".substr('000', $org->id).$org->id."".substr('000', $user->id).$user->id;
-            if ($request->has('svc_recycle')) {
-                KpBankAccount::create([
-                    'user_id'    => $user->id,
-                    'account_no'    => 'RC-' . $accNumberText,
-                    'balance'       => 0,
-                    'status'        => 'active',
-                    'org_id_fk'     => $org->id,
-                    'entity_type'   => 'recycle_bank'
-        
-                ]);
-            }
-
-            // ธนาคารขยะเปียก
-            if ($request->has('svc_food_waste')) {
-                KpBankAccount::create([
-                    'user_id'    => $user->id,
-                    'account_no'    => 'FW-' . $accNumberText,
-                    'balance'       => 0,
-                    'status'        => 'active',
-                    'org_id_fk'     => $org->id,
-                    'entity_type'   => 'foodwaste_bank'
-        
-                ]);
-            }
-
-            if ($request->has('svc_annual_trash')) {
-                // 1. หาอัตราค่าบริการปัจจุบัน
-                $payRate = AnnualTrashPayratePerMonth::where('status', 1)->latest()->first();
-                $monthFee = $payRate ? $payRate->payrate_permonth : 20;
-
-                // 2. คำนวณปีงบประมาณอัตโนมัติ (ใช้ฟังก์ชันใน Model ที่คุณมี)
-                $fiscalYear = AnnualTrashSubscription::calculateFiscalYear();
-
-                // 3. สร้าง Subscription
-                // หมายเหตุ: ปกติ Subscription ต้องผูกกับถังขยะ (waste_bin_id)
-                // หากตอนสมัครยังไม่มีถัง ให้สร้างถังขยะ "ใบแรก" ให้เขาก่อน หรืออนุญาตให้ waste_bin_id เป็น null ได้
-                $subscription = AnnualTrashSubscription::create([
-                    'user_id'                => $user->id,
-                    'waste_bin_id'           => $newAnnualTrash->id ?? null, // ผูกกับถังขยะ
-                    'fiscal_year'            => $fiscalYear,
-                    'payrate_permonth_id_fk' => $payRate->id ?? null,
-                    'month_fee'              => $monthFee,
-                    'annual_fee'             => $monthFee * 12,
-                    'total_paid_amt'         => 0,
-                    'status'                 => 'active',
-                ]);
-            }
-
-
-            new KpUserWastePreference([
-                'user_id' => $user->id,
-                'is_annual_collection' => $request->has('svc_annual_trash') ? 1 : 0,
-                'is_recycle_bank' => $request->has('svc_recycle') ? 1 : 0,
-            ]);
-
-            DB::commit();
-            return redirect()->route('admin.users.index')->with('success', 'เพิ่มผู้ใช้งานและเปิดบริการเรียบร้อยแล้ว');
-        } catch (\Exception $e) {
-            DB::rollBack();
-            return back()->withInput()->with('error', 'เกิดข้อผิดพลาด: ' . $e->getMessage());
-        }
+        return back()->with('success', 'ผูกมิเตอร์น้ำประปาใหม่เรียบร้อยแล้ว');
+    } catch (\Exception $e) {
+        return back()->with('error', 'เกิดข้อผิดพลาดในการผูกมิเตอร์: ' . $e->getMessage());
     }
+}
 
-
-    public function edit($user_id, $addmeter = "")
-    {
-        // 1. ดึงข้อมูล User พร้อมความสัมพันธ์ที่จำเป็น
-        // เปลี่ยนจาก .get() เป็น .firstOrFail() เพื่อให้ได้ Object ตัวเดียว
-        $user = User::where('id', $user_id)
-            ->with([
-                'user_zone',
-                'user_subzone',
-                'recycleBankAccount',
-                'foodWasteAccount',
-                'annualTrashSubscription'
-            ])
-            ->firstOrFail();
-
-        // 2. ดึงข้อมูล Organization ของแอดมินเพื่อใช้เป็นที่อยู่ฐาน (ตำบล/อำเภอ/จังหวัด)
-        $org = Organization::find(Auth::user()->org_id_fk);
-        $defaultAddress = [
-            'province' => $org->province ?? '-',
-            'amphure'  => $org->amphure ?? '-',
-            'district' => $org->district ?? '-'
-        ];
-
-        // 3. ข้อมูลสำหรับ Dropdown
-        $zones = Zone::where('org_id_fk', Auth::user()->org_id_fk)->get();
-
-        // ดึง Subzone ของโซนที่ User คนนี้สังกัดอยู่มาโชว์รอไว้เลย
-        $subzones = Subzone::where('zone_id', $user->zone_id)->get();
-
-        return view('admin.users.edit', compact(
-            'user',
-            'zones',
-            'subzones',
-            'defaultAddress',
-            'addmeter'
-        ));
-    }
-
-
-    public function update(Request $request, $id)
-    {
-        // 1. Validation (ยกเว้น unique ของตัวมันเอง)
-        $messages = [
-            'required' => 'กรุณากรอกข้อมูลในช่อง :attribute',
-            'unique'   => ':attribute นี้ถูกใช้งานแล้ว',
-            'confirmed' => 'การยืนยันรหัสผ่านไม่ตรงกัน',
-        ];
-
-        $request->validate([
-            'username'   => 'required|string|max:255|unique:users,username,' . $id,
-            'firstname'  => 'required|string|max:255',
-            'lastname'   => 'required|string|max:255',
-            'phone'      => 'required|unique:users,phone,' . $id,
-            'password'   => 'nullable|min:6|confirmed', // เปลี่ยนรหัสผ่านเฉพาะเมื่อมีการกรอกเท่านั้น
-            'zone_id'    => 'required|exists:kp_zones,id',
-            'subzone_id' => 'required|exists:kp_subzones,id',
-        ], $messages);
-
-        DB::beginTransaction();
-        try {
-            $user = User::findOrFail($id);
-
-            // 2. อัปเดตข้อมูลพื้นฐาน
-            $user->username = $request->username;
-            $user->firstname = $request->firstname;
-            $user->lastname = $request->lastname;
-            $user->phone = $request->phone;
-            $user->address = $request->address;
-            $user->zone_id = $request->zone_id;
-            $user->subzone_id = $request->subzone_id;
-
-            // ถ้ามีการกรอกรหัสผ่านใหม่เข้ามา
-            if ($request->filled('password')) {
-                $user->password = Hash::make($request->password);
-            }
-
-            $user->save();
-
-            // 3. จัดการสิทธิ์บริการ (Service Logic)
-
-            // --- ธนาคารขยะรีไซเคิล ---
-            if ($request->has('svc_recycle')) {
-                // ใช้ firstOrCreate เพื่อไม่ให้สร้างซ้ำถ้ามีอยู่แล้ว
-                KpBankAccount::firstOrCreate(
-                    ['user_id' => $user->id],
-                    ['status' => 'active', 'balance' => 0]
-                );
-            }
-
-            // 4. บริการธนาคารขยะเปียก (AiroBact)
-            if ($request->has('svc_food_waste')) {
-                // 🌟 สำคัญ: ต้องสร้าง Preference ก่อน เพื่อป้องกัน Error ใน Dashboard
-                $preference = FoodWasteUserPreference::create([
-                    'user_id' => $user->id,
-                    'setup_status' => 'completed',
-                    'compost_bin_type' => 'AiroBact_Bin',
-                ]);
-
-                // สร้าง Account โดยผูกกับ User หรือ Preference (ตามโครงสร้าง DB ล่าสุดของคุณ)
-                FoodWasteAccount::create([
-                    'user_id' => $user->id,
-                    // 'fw_pref_id_fk' => $preference->id, // ถ้า DB ใช้ตัวนี้ให้เปิดบรรทัดนี้แทน
-                    'points_balance' => 0,
-                    'total_weight_kg' => 0,
-                ]);
-            }
-
-            // 5. บริการขยะรายปี
-            if ($request->has('svc_annual_trash')) {
-                $payRate = AnnualTrashPayratePerMonth::where('status', 1)->latest()->first();
-                $monthFee = $payRate ? $payRate->payrate_permonth : 20.00;
-
-                AnnualTrashSubscription::create([
-                    'user_id' => $user->id,
-                    'fiscal_year' => AnnualTrashSubscription::calculateFiscalYear(),
-                    'payrate_permonth_id_fk' => $payRate->id ?? null,
-                    'month_fee' => $monthFee,
-                    'annual_fee' => $monthFee * 12,
-                    'status' => 'active',
-                    'billing_status' => 'waived', // ให้สิทธิ์ฟรีเริ่มต้น
-                ]);
-            }
-
-
-            DB::commit();
-            return redirect()->route('admin.users.index')->with('success', 'อัปเดตข้อมูลและสิทธิ์บริการเรียบร้อยแล้ว');
-        } catch (\Exception $e) {
-            DB::rollBack();
-            return back()->withInput()->with('error', 'เกิดข้อผิดพลาด: ' . $e->getMessage());
-        }
-    }
 
     // กำหนดค่าเริ่มต้นให้ $action เป็น null เพื่อป้องกัน Error เวลาส่งมาตัวเดียว
     public function show($function, $action = null)
@@ -795,97 +792,16 @@ class UserController extends Controller
     }
 
 
-    public function updateService(Request $request)
-    {
-        $services = $request->input('services', []);
-        DB::beginTransaction();
-        try {
-            foreach ($services as $userId => $data) {
-                $user = User::find($userId);
+    public function updateService(Request $request) 
+    { 
+        $services = $request->input('services', []); 
 
-                if (!$user) continue;
-                $org = $user->organization;
-                $orgIdStr =  substr('000', strlen($org->id)) . $org->id;
-                $userIdStr = substr('0000', strlen($user->id)) . $user->id;
-                // 1. จัดการธนาคารขยะรีไซเคิล (recycle_)
-                if (isset($data['recycle']) && $data['recycle'] == "1") {
-                    if (collect($user->recycleBankAccount)->isEmpty()) {
-                        KpBankAccount::firstOrCreate(
-                            [
-                                'user_id' => $user->id,
-                                'entity_type' => 'recycle_bank',
-                            ],
-                            [
-                                'account_no' => 'RC-' . $org->org_code . "-" . $orgIdStr . $userIdStr,
-                                'status' => 'active',
-                                'org_id_fk' => $org->id
-                            ],
-                        );
-                        $user->assignRole('Recycle Bank User');
-                    } else {
-                        if (collect($user->recycleBankAccount)->isNotEmpty()) {
-                            $user->recycleBankAccount->update(['status' => 'active']);
-                        }
-                    }
-                } else {
-                    if (collect($user->recycleBankAccount)->isNotEmpty()) {
-                        $user->recycleBankAccount->update(['status' => 'inactive']);
-                    }
-                    // หากยกเลิกติ๊ก อาจจะเลือกปิดสถานะ แทนการลบข้อมูล
-                }
-
-                // 2. จัดการธนาคารขยะเปียก (food_waste_)
-                if (isset($data['food_waste']) && $data['food_waste'] == "1") {
-                    //codeใหม่ ทำ bankAccount เก็บไว้ table เดียวกันไม่แยก
-                    if (collect($user->foodWasteBankAccount)->isEmpty()) {
-
-                        KpBankAccount::firstOrCreate(
-                            [
-                                'user_id' => $user->id,
-                                'entity_type' => 'foodwaste_bank',
-                            ],
-                            [
-                                'account_no' => 'FW-' . $org->org_code . "-" . $orgIdStr . $userIdStr,
-                                'status' => 'active',
-                                'org_id_fk' => $org->id
-                            ],
-                        );
-                        //code เดิมเก็บแยก table
-                        FoodWasteAccount::firstOrCreate([
-                            'user_id' => $user->id,
-                            'org_id_fk' => Auth::user()->org_id_fk,
-                            'last_contributed_at' => date('Y-m-d H:i:s')
-                        ]);
-                    } else {
-                        if (collect($user->foodWasteBankAccount)->isNotEmpty()) {
-                            $user->foodWasteBankAccount->update(['status' => 'active']);
-                        }
-                    }
-                } else {
-
-                    if (collect($user->foodWasteBankAccount)->isNotEmpty()) {
-                        $user->foodWasteBankAccount->update(['status' => 'inactive']);
-                    }
-
-                    $user->foodWasteAccount()->delete();
-                }
-                // 3. จัดการขยะรายปี (annual_trash_)
-                if (isset($data['annual_trash']) && $data['annual_trash'] == "1") {
-                    AnnualTrashSubscription::firstOrCreate(
-                        ['user_id' => $user->id],
-                        ['billing_status' => 'waived', 'monthly_fee' => 20.00]
-                    );
-                } else {
-                    $user->annualTrashSubscription()->delete();
-                }
-            }
-
-            DB::commit();
-            return back()->with('success', 'บันทึกการตั้งค่าสิทธิ์ผู้ใช้งานเรียบร้อยแล้ว');
-        } catch (\Exception $e) {
-            DB::rollBack();
-            return back()->with('error', 'เกิดข้อผิดพลาด: ' . $e->getMessage());
-        }
+        try { 
+            $this->userService->updateServices($services);
+            return back()->with('success', 'บันทึกการตั้งค่าสิทธิ์ผู้ใช้งานเรียบร้อยแล้ว'); 
+        } catch (\Exception $e) { 
+            return back()->with('error', 'เกิดข้อผิดพลาด: ' . $e->getMessage()); 
+        } 
     }
 
     public function importUsers(Request $request)

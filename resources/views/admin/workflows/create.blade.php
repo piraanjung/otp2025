@@ -82,7 +82,7 @@
 
         let userOptions = '<option value="">-- หรือเลือก User --</option>';
         usersList.forEach(user => {
-            userOptions += `<option value="${user.id}">${user.name}</option>`;
+            userOptions += `<option value="${user.id}">${user.firstname} ${user.lastname}</option>`;
         });
 
         let newRow = `
