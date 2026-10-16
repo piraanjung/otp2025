@@ -48,6 +48,7 @@ use App\Http\Controllers\SqlToJsonController;
 use App\Http\Controllers\StaffController;
 use App\Http\Controllers\Tabwater\InvoiceController;
 use App\Http\Controllers\Tabwater\NotifyController;
+use App\Http\Controllers\Tabwater\TabwaterControlController;
 use App\Http\Controllers\Tabwater\TabwaterDeviceController;
 use App\Http\Controllers\Tabwater\TabwaterPipelineController;
 use App\Http\Controllers\Tabwater\TabwaterPipeNodeController;
@@ -505,6 +506,7 @@ Route::middleware(['auth'])->prefix('tabwater/settings')->name('tabwater.setting
     Route::resource('devices', TabwaterDeviceController::class);
 });
 
+Route::get('tabwater/control/index', [TabwaterControlController::class, 'index']);
 Route::middleware(['auth'])->prefix('tabwater/settings')->name('tabwater.settings.')->group(function () {
     // Pipe Nodes (จุดโหนด/จุดแยก/วาล์ว)
    Route::resource('pipe-nodes', TabwaterPipeNodeController::class);
