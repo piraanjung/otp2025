@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use App\Models\Admin\Organization;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 
@@ -14,6 +15,7 @@ class ApprovalWorkflow extends Model
     // เพิ่ม fillable ป้องกัน Mass Assignment Exception
     protected $fillable = [
         'name',
+        'org_id_fk',
         'description',
         'is_active',
     ];
@@ -22,5 +24,9 @@ class ApprovalWorkflow extends Model
     public function steps()
     {
         return $this->hasMany(ApprovalWorkflowStep::class, 'workflow_id');
+    }
+
+    public function organization(){
+        return $this->belongsTo(Organization::class, 'org_id_fk');
     }
 }

@@ -21,12 +21,11 @@ class WorkflowController extends Controller
     }
 
     // 2. หน้าฟอร์มสร้าง Workflow ใหม่ (Create Form)
-    // 2. หน้าฟอร์มสร้าง Workflow ใหม่ (Create Form)
     public function create()
     {
         // ➕ ดึง Role และ User มาส่งให้หน้า View ด้วย เพื่อไม่ให้เกิด Error ตัวแปรหาย
         $roles = Role::all();
-        $users = User::all();
+        $users = User::Role('Staff')->get();
 
         return view('admin.workflows.create', compact('roles', 'users'));
     }
@@ -113,7 +112,7 @@ class WorkflowController extends Controller
         $workflow = ApprovalWorkflow::with('steps')->findOrFail($id);
         // ดึง Role หรือ User ทั้งหมดไปให้ Admin เลือกตอนตั้งค่าขั้นอนุมัติ
         $roles = Role::all(); // ตัวอย่างใช้ Spatie Role
-        $users = User::all(); // กรณีอยากระบุตัวบุคคลเฉพาะเจาะจง
+        $users = User::Role('Staff')->get();
 
         return view('admin.workflows.edit', compact('workflow', 'roles', 'users'));
     }

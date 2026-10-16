@@ -32,97 +32,55 @@ class UserWasteController extends Controller
     public function index(Request $request)
     {
 
-        // Get the 'per_page' value from the request, default to 10
-        $perPage = $request->input('per_page', 10);
+       $query = User::query()
+            ->with([
+                'kpUserPreference.user_pref_zone',
+                'kpUserPreference.user_pref_subzone',
+                'recycleBankAccount',
+                'foodWasteBankAccount',
+                'annualTrashSubscription'
+            ]);
 
-        // Define allowed per page options
-        $allowedPerPage = [10, 20, 50, 100];
-        if (!in_array($perPage, $allowedPerPage) && $perPage !== 'all') {
-            $perPage = 10; // Fallback to default if invalid value is provided
-        }
-
-        // Get search parameters from the request
-        $searchName = $request->input('search_name');
-        $searchEmail = $request->input('search_email');
-        $searchStatus = $request->input('search_status');
-        $searchIsAnnualCollection = $request->input('search_is_annual_collection'); // 'true', 'false', 'any'
-        $searchIsWasteBank = $request->input('search_is_recycle_bank'); // 'true', 'false', 'any'
-
-
-        $query = User::with(['kpUserPreference', 'AnnualTrashs'])
-            ->where('org_id_fk', Auth::user()->org_id_fk)
-            ->whereHas('kpUserPreference')
-            ->role('User');
-
-        // Apply search filters
-        $query->when($searchName, function ($q, $name) {
-            $q->where(function ($subQ) use ($name) {
-                $subQ->where('firstname', 'like', '%' . $name . '%')
-                    ->orWhere('lastname', 'like', '%' . $name . '%')
-                    ->orWhere('username', 'like', '%' . $name . '%');
+        // 1. ค้นหาตามชื่อ, นามสกุล, เบอร์โทร, เลขบัตรประชาชน หรือ ID
+        if ($request->filled('search')) {
+            $search = $request->input('search');
+            $query->where(function ($q) use ($search) {
+                $q->where('firstname', 'like', "%{$search}%")
+                  ->orWhere('lastname', 'like', "%{$search}%")
+                  ->orWhere('username', 'like', "%{$search}%")
+                  ->orWhere('phone', 'like', "%{$search}%")
+                  ->orWhere('id_card', 'like', "%{$search}%")
+                  ->orWhere('id', $search);
             });
-        });
-
-        $query->when($searchEmail, function ($q, $email) {
-            $q->where('email', 'like', '%' . $email . '%');
-        });
-
-        $query->when($searchStatus && $searchStatus !== 'any', function ($q, $status) {
-            $q->where('status', $status);
-        });
-
-        // Filter by is_annual_collection status
-        $query->when($searchIsAnnualCollection && $searchIsAnnualCollection !== 'any', function ($q) use ($searchIsAnnualCollection) {
-            if ($searchIsAnnualCollection === 'true') {
-                $q->whereHas('kpUserPreference', function ($wp) {
-                    $wp->where('is_annual_collection', true);
-                });
-            } elseif ($searchIsAnnualCollection === 'false') {
-                // Users who have preference and is_annual_collection is false
-                // OR users who do NOT have a wastePreference record (meaning it's implicitly false)
-                $q->where(function ($subQ) {
-                    $subQ->whereHas('kpUserPreference', function ($wp) {
-                        $wp->where('is_annual_collection', false);
-                    })->orWhereDoesntHave('kpUserPreference');
-                });
-            }
-        });
-
-        // Filter by is_recycle_bank status
-        $query->when($searchIsWasteBank && $searchIsWasteBank !== 'any', function ($q) use ($searchIsWasteBank) {
-            if ($searchIsWasteBank === 'true') {
-                $q->whereHas('kpUserPreference', function ($wp) {
-                    $wp->where('is_recycle_bank', true);
-                });
-            } elseif ($searchIsWasteBank === 'false') {
-                // Users who have preference and is_recycle_bank is false
-                // OR users who do NOT have a wastePreference record (implicitly false)
-                $q->where(function ($subQ) {
-                    $subQ->whereHas('kpUserPreference', function ($wp) {
-                        $wp->where('is_recycle_bank', false);
-                    })->orWhereDoesntHave('kpUserPreference');
-                });
-            }
-        });
-
-        $query = $query->whereHas('kpUserPreference');
-        // Check if it's an AJAX request for live search
-        if ($request->ajax()) {
-            // For AJAX, just get the filtered data (no pagination for simplicity in AJAX update)
-            $users = $query->get();
-            return view('keptkayas.w.users._table_body', compact('users'))->render();
-        } else {
-            // For full page load, apply pagination
-            if ($perPage === 'all') {
-                $users = $query->get();
-            } else {
-                $users = $query->paginate($perPage)->appends($request->query()); // Append search queries to pagination links
-            }
-
-
-            // Pass all search parameters back to the view to pre-fill search fields
-            return view('keptkayas.w.users.index', compact('users', 'perPage', 'searchName', 'searchEmail', 'searchStatus', 'searchIsAnnualCollection', 'searchIsWasteBank'));
         }
+
+        // 2. กรองตามโซนพื้นที่ (ผ่าน KpUserWastePreference)
+        if ($request->filled('zone_id')) {
+            $query->whereHas('kpUserPreference', function ($q) use ($request) {
+                $q->where('zone_id', $request->input('zone_id'));
+            });
+        }
+
+        // 3. กรองตามประเภทบริการ (Filtering by Module Relation)
+        if ($request->filled('service_filter')) {
+            switch ($request->input('service_filter')) {
+                case 'recycle':
+                    $query->whereHas('recycleBankAccount');
+                    break;
+                case 'food_waste':
+                    $query->whereHas('foodWasteBankAccount');
+                    break;
+                case 'annual_trash':
+                    $query->whereHas('annualTrashSubscription');
+                    break;
+            }
+        }
+
+        $perPage = $request->input('per_page', 20);
+        $users = $query->latest('id')->paginate($perPage);
+        $zones = Zone::all();
+
+        return view('admin.users.index', compact('users', 'zones'));
     }
 
 

@@ -373,10 +373,10 @@
 
         </div>
         <div class="bubble-container centralized black ">
-            <a href="#">
+            <a href="{{ route('admin.welfare.dashboard') }}">
                 <div class="bubble centralized">
                     <div class="inner centralized">
-                        กองทุน<br>ฌาปณกิจ
+                        กองทุน<br>ฌาปณกิจสงเคราะห์
                     </div>
                 </div>
             </a>

@@ -35,7 +35,12 @@
                                     <td>
                                         <p class="text-xs font-weight-bold mb-1">{{ $wf->steps_count }} ขั้นตอน</p>
                                         @foreach ($wf->steps as $step)
-                                            <span class="badge badge-sm bg-gradient-info">{{ $step->step_order . '. ' . $step->role_name }}</span>
+                                            <span class="badge badge-sm bg-gradient-info">{{ $step->step_order . '. ' . $step->role_name }}
+
+                                               / {{ ($step->specificUser)->firstname ?? '' }}
+                                                {{ ($step->specificUser)->lastname ?? '' }}
+                                            </span>
+                                            
                                         @endforeach
                                     </td>
                                     <td class="align-middle text-center text-sm">

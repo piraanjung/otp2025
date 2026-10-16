@@ -49,12 +49,6 @@ Route::middleware(['auth', 'role:Admin'])->prefix('admin')->name('admin.')->grou
     Route::get('/bulk-sales/{id}/edit', [BulkSaleController::class, 'edit'])->name('bulk_sales.edit');
     Route::put('/bulk-sales/{id}', [BulkSaleController::class, 'update'])->name('bulk_sales.update');
 
-    // --- ส่วนกองทุนสวัสดิการ (Welfare Fund) ---
-    // หน้า Dashboard สรุปยอดเงินกองกลาง
-    Route::get('/welfare/dashboard', [WelfareController::class, 'getWelfareSummary'])->name('welfare.dashboard');
-    // หน้าบันทึกจ่ายเงินฌาปนกิจ
-    Route::get('/welfare/config', [WelfareConfigController::class, 'editConfig'])->name('welfare.config');
-    Route::post('/welfare/config/update', [WelfareConfigController::class, 'updateConfig'])->name('welfare.config.update');
-    Route::post('/welfare/payout', [WelfareController::class, 'storePayout'])->name('welfare.payout.store');
-    Route::get('/welfare/payout/{id}/voucher', [WelfareController::class, 'downloadVoucher'])->name('admin.welfare.payout.voucher');
 });
+
+
