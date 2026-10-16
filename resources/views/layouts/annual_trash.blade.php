@@ -8,7 +8,7 @@
     <link rel="apple-touch-icon" sizes="76x76" href="{{ asset('slogo/ko_envsogo.png') }}">
     <link rel="icon" type="image/png" href="{{ asset('logo/ko_envsogo.png') }}">
     <title>
-        EnvSoGo::จัดเกี่ยวถังขยะรายปี
+        PIOS::จัดเก็บค่าถังขยะรายปี
     </title>
 
 
