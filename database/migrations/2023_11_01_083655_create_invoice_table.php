@@ -1,0 +1,53 @@
+<?php
+
+use Illuminate\Database\Migrations\Migration;
+use Illuminate\Database\Schema\Blueprint;
+use Illuminate\Support\Facades\Schema;
+
+return new class extends Migration
+{
+    /**
+     * Run the migrations.
+     *
+     * @return void
+     */
+    public function up()
+    {
+        Schema::create('tw_invoice', function (Blueprint $table) {
+                $table->id();
+                $table->unsignedBigInteger('meter_id_fk');
+                $table->string('inv_no')->unique();
+                $table->unsignedBigInteger('inv_period_id_fk');
+                $table->decimal('lastmeter', 8,2);
+                $table->decimal('currentmeter', 8,2);
+                $table->decimal('water_used', 8,2);
+                $table->enum('inv_type', ['r', 'u'])->comment('r =รักษามิเตอร์, u=ใช้น้ำ');
+                $table->decimal('paid', 8,2);
+                $table->decimal('reserve_meter', 6,2);
+                $table->decimal('vat', 8,2);
+                $table->decimal('totalpaid', 8,2)->comment('paid+vat');
+                $table->decimal('previous_balance', 8,2)->comment('ยอดค้างชำระทบต้น');
+                
+                $table->enum('status', ['init','invoice', 'paid', 'owe', 'deleted']);
+                $table->unsignedBigInteger('acc_trans_id_fk')->nullable();
+                $table->string('comment')->nullable();
+                $table->unsignedBigInteger('recorder_id');
+                $table->timestamps();
+                $table->foreign('meter_id_fk')->references('id')->on('tw_meter_infos')->onDelete('cascade');
+                $table->foreign('inv_period_id_fk')->references('id')->on('invoice_period')->onDelete('cascade');
+                $table->foreign('acc_trans_id_fk')->references('id')->on('tw_acc_transactions')->onDelete('cascade');
+                $table->foreign('recorder_id')->references('id')->on('users')->onDelete('cascade');
+
+        });
+    }
+
+    /**
+     * Reverse the migrations.
+     *
+     * @return void
+     */
+    public function down()
+    {
+        Schema::dropIfExists('tw_invoice');
+    }
+};

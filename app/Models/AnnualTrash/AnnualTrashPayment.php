@@ -1,0 +1,43 @@
+<?php
+
+namespace App\Models\AnnualTrash;
+
+use App\Models\User;
+use Illuminate\Database\Eloquent\Factories\HasFactory;
+use Illuminate\Database\Eloquent\Model;
+
+class AnnualTrashPayment extends Model
+{
+    use HasFactory;
+
+    protected $table = 'annual_trash_payments';
+    protected $fillable = [
+        'wbs_id',
+        'pay_mon',
+        'pay_yr',
+        'amount_paid',
+        'pay_date',
+        'notes',
+        'staff_id',
+    ];
+
+    protected $casts = [
+        'pay_date' => 'date',
+    ];
+
+    /**
+     * Get the subscription that owns the payment.
+     */
+    public function subscription()
+    {
+        return $this->belongsTo(AnnualTrashSubscription::class, 'wbs_id');
+    }
+
+    /**
+     * Get the staff who recorded the payment.
+     */
+    public function staff()
+    {
+        return $this->belongsTo(User::class, 'staff_id');
+    }
+}

@@ -1,0 +1,256 @@
+<?php
+
+namespace App\Models;
+
+use App\Models\Admin\District;
+use App\Models\Admin\Organization;
+use App\Models\Admin\Province;
+use App\Models\Admin\Staff;
+use App\Models\Admin\Subzone;
+use App\Models\Admin\Tambon;
+use App\Models\Admin\Zone;
+use App\Models\AnnualTrash\AnnualTrashPayment;
+use App\Models\AnnualTrash\AnnualTrashSubscription;
+use App\Models\FoodWaste\CompostBatches;
+use App\Models\KeptKaya\KpUserWastePreference;
+use App\Models\AnnualTrash\AnnualTrash;
+use App\Models\Tabwater\TwMeterInfos;
+use App\Models\Tabwater\UndertakerSubzone;
+use Laravel\Sanctum\HasApiTokens;
+use Spatie\Permission\Traits\HasRoles;
+use Illuminate\Notifications\Notifiable;
+use Illuminate\Database\Eloquent\Factories\HasFactory;
+use Illuminate\Foundation\Auth\User as Authenticatable;
+use App\Models\FoodWaste\FoodWasteUserPreference;
+use App\Models\FoodWaste\FoodAnnualTrash;
+use App\Models\FoodWaste\FoodWasteAccount;
+use App\Models\FoodWaste\FoodWasteLog;
+use App\Models\KeptKaya\KpPurchaseTransaction;
+use App\Models\Tabwater\TwNotifies;
+use Illuminate\Database\Eloquent\Relations\BelongsToMany; // <--- สำคัญ: ตรวจสอบว่ามีการ use นี้หรือไม่
+use Illuminate\Support\Facades\Auth;
+
+class User extends Authenticatable
+{
+    use HasApiTokens, HasFactory, Notifiable, HasRoles;
+
+    protected $fillable = [
+        "id",
+        "org_id_fk",
+        "username",
+        "prefix",
+        "firstname",
+        "lastname",
+        "email",
+        "password",
+        "id_card",
+        "line_id",
+        'line_user_id',
+        "image",
+        "phone",
+        'age',
+        'weight',
+        'height',
+        "gender",
+        "address",
+        "zone_id",
+        "subzone_id",
+        "tambon_code",
+        "district_code",
+        "province_code",
+        "status",
+        'old_id'
+    ];
+
+
+    protected $hidden = [
+        'password',
+        'remember_token',
+    ];
+
+    /**
+     * The attributes that should be cast.
+     *
+     * @var array<string, string>
+     */
+    protected $casts = [
+        'email_verified_at' => 'datetime',
+    ];
+    protected $table = 'users';
+
+
+    public function organization()
+    {
+        return $this->belongsTo(Organization::class, 'org_id_fk', 'id');
+    }
+
+    public function user_zone()
+    {
+        return $this->belongsTo(Zone::class, 'zone_id', 'id');
+    }
+
+    public function user_subzone()
+    {
+        return $this->belongsTo(Subzone::class, 'subzone_id', 'id');
+    }
+
+    public function undertaker_subzone()
+    {
+        return $this->hasMany(UndertakerSubzone::class, 'twman_id');
+    }
+
+    public function usermeterinfos()
+    {
+        return $this->hasMany(TwMeterInfos::class, 'user_id', 'id');
+    }
+    public function user_province()
+    {
+        return $this->belongsTo(Province::class, 'province_code');
+    }
+
+    public function user_district()
+    {
+        return $this->belongsTo(District::class, 'district_code');
+    }
+
+    public function user_tambon()
+    {
+        return $this->belongsTo(Tambon::class, 'tambon_code');
+    }
+
+
+    public function kpUserPreference()
+    {
+        return $this->hasOne(KpUserWastePreference::class, 'user_id', 'id');
+    }
+
+    public function AnnualTrashs()
+    {
+        return $this->hasMany(AnnualTrash::class, 'user_id');
+    }
+
+    public function getUserAnnualBin()
+    {
+        return $this->hasOne(AnnualTrash::class, 'id');
+    }
+
+
+    public function annualCollectionPayments()
+    {
+        return $this->hasMany(AnnualTrashPayment::class);
+    }
+    public function staffs()
+    {
+        // User 1 คน มีสิทธิ์ Staff ได้หลายองค์กร (ผูกผ่าน user_id)
+        return $this->hasMany(Staff::class, 'user_id', 'id');
+    }
+
+    public function foodwastePreference()
+    {
+        return $this->hasOne(FoodWasteUserPreference::class);
+    }
+
+    public function foodAnnualTrashs()
+    {
+        return $this->hasMany(FoodAnnualTrash::class, 'u_pref_id_fk');
+    }
+
+    public function acceptedNotifies(): BelongsToMany // <--- ตรวจสอบการประกาศ Type Hint
+    {
+        return $this->belongsToMany(TwNotifies::class, 'tw_notify_staff', 'user_id', 'notify_id')
+            ->withPivot('staff_status')
+            ->withTimestamps();
+    }
+
+    // เชื่อมไปหาลอตขยะ
+    public function compostBatches()
+    {
+        return $this->hasMany(CompostBatches::class, 'user_id');
+    }
+
+    // เชื่อมไปหาประวัติทิ้งขยะ
+    public function wasteLogs()
+    {
+        return $this->hasMany(FoodWasteLog::class, 'user_id');
+    }
+
+    public function calculateTDEE()
+    {
+        if (!$this->weight || !$this->height || !$this->age) {
+            return 0; // ถ้าข้อมูลไม่ครบ ให้คืนค่า 0
+        }
+
+        // สูตร Mifflin-St Jeor
+        if ($this->gender === 'male') {
+            $bmr = (10 * $this->weight) + (6.25 * $this->height) - (5 * $this->age) + 5;
+        } else {
+            $bmr = (10 * $this->weight) + (6.25 * $this->height) - (5 * $this->age) - 161;
+        }
+
+        return $bmr * 1.2; // คูณค่ากิจกรรมระดับเริ่มต้น
+    }
+
+    // เชื่อมกับบัญชีธนาคารขยะรีไซเคิล (1-to-1)
+    /**
+     * บัญชีธนาคารขยะของผู้ใช้ (users -> kp_user_waste_preferences -> kp_bank_accounts)
+     * RecycleBankController และ view recycle_bank เรียกใช้ชื่อนี้
+     */
+
+
+    public function kpBankAccount()
+    {
+        return $this->hasMany(KpBankAccount::class, 'user_id', 'id');
+    }
+    // บัญชีธนาคารขยะรีไซเคิล
+    public function recycleBankAccount()
+    {
+        return $this->hasOne(KpBankAccount::class, 'user_id', 'id')->where('entity_type', 'recycle_bank');
+    }
+
+    // บัญชีธนาคารขยะเปียก/เศษอาหาร
+    public function foodWasteBankAccount()
+    {
+        return $this->hasOne(KpBankAccount::class, 'user_id', 'id')->where('entity_type', 'foodwaste_bank');
+    }
+
+
+    // เชื่อมกับบัญชีขยะเปียก (1-to-1)
+    public function foodWasteAccount()
+    {
+        return $this->hasOne(FoodWasteAccount::class, 'user_id', 'id');
+    }
+
+    // เชื่อมกับสิทธิ์ขยะรายปี (1-to-1)
+    public function annualTrashSubscription()
+    {
+        return $this->hasOne(AnnualTrashSubscription::class, 'user_id', 'id');
+    }
+
+    // เชื่อมกับประวัติการขายขยะ (1-to-Many)
+    public function recycleTransactions()
+    {
+        return $this->hasMany(RecycleTransaction::class, 'user_id', 'id');
+    }
+
+    public function assignedNotifies()
+    {
+        return $this->belongsToMany(
+            TwNotifies::class,
+            'tw_notify_staff',
+            'user_id',          // FK ใน pivot table ที่ชี้มาหา users.id
+            'notify_id'         // FK ใน pivot table ที่ชี้ไปหา tw_notifies.id
+        )
+            ->withPivot('staff_status')
+            ->withTimestamps();
+    }
+
+    /**
+ * ผูกมิเตอร์น้ำประปาใหม่เข้ากับผู้ใช้งาน (Master User)
+ */
+
+
+    public function purchaseTransactions()
+    {
+        return $this->hasMany(KpPurchaseTransaction::class, 'user_id');
+    }
+}

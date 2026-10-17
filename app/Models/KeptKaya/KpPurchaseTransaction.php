@@ -1,0 +1,70 @@
+<?php
+
+namespace App\Models\KeptKaya;
+
+use App\Models\Admin\Organization;
+use App\Models\User;
+use Illuminate\Database\Eloquent\Factories\HasFactory;
+use Illuminate\Database\Eloquent\Model;
+use App\Traits\BelongsToOrganization;
+
+class KpPurchaseTransaction extends Model
+{
+    use HasFactory;
+    use BelongsToOrganization;
+
+    protected $table = 'kp_purchase_transactions';
+
+    protected $fillable = [
+        'org_id_fk',
+        'kp_u_trans_no', // เลขที่เอกสาร (Unique String)
+        'kiosk_id_fk',
+        'user_id', // ลูกค้า
+        'transaction_date',     // วันเวลา
+        'total_weight',
+        'total_amount',
+        'total_points',
+        'status',
+        'recorder_id',          // จนท.
+        'cash_back',
+        'total_carbon_saved'
+    ];
+
+    protected $casts = [
+        'transaction_date' => 'datetime', // ✅ แนะนำให้ใช้ datetime
+        'total_weight' => 'decimal:2',
+        'total_amount' => 'decimal:2',
+        'total_points' => 'integer',
+        'cash_back' => 'decimal:2',
+        'total_carbon_saved' => 'decimal:4'
+    ];
+
+
+    // --- Relationships ---
+
+    public function userWastePreference() // ปรับชื่อ function ให้ camelCase สวยงาม
+    {
+        return $this->belongsTo(KpUserWastePreference::class, 'user_id', 'user_id');
+    }
+
+    public function user()
+    {
+        return $this->belongsTo(User::class, 'user_id', 'id');
+    }
+
+
+    public function recorder()
+    {
+        return $this->belongsTo(User::class, 'recorder_id', 'id');
+    }
+
+    public function details()
+    {
+        return $this->hasMany(KpPurchaseTransactionDetail::class, 'kp_purchase_trans_id', 'id');
+    }
+
+    public function org()
+    {
+        return $this->belongsTo(Organization::class, 'org_id_fk');
+    }
+}

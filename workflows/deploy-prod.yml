@@ -1,0 +1,131 @@
+name: Deploy to Hostinger (prod)
+
+on:
+  push:
+    branches: [prod]
+  workflow_dispatch:
+
+concurrency:
+  group: deploy-prod
+  cancel-in-progress: false
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      # ---------- Build PHP dependencies ----------
+      - name: Setup PHP
+        uses: shivammathur/setup-php@v2
+        with:
+          php-version: "8.2"
+          extensions: mbstring, bcmath, gd, intl, zip, pdo_mysql
+          coverage: none
+
+      - name: Cache Composer packages
+        uses: actions/cache@v4
+        with:
+          path: vendor
+          key: composer-${{ runner.os }}-${{ hashFiles('composer.lock') }}
+          restore-keys: composer-${{ runner.os }}-
+
+      - name: Install Composer dependencies
+        run: composer install --prefer-dist --no-dev --optimize-autoloader --no-interaction --no-progress
+
+      # ---------- Build front-end assets ----------
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: "20"
+          cache: npm
+
+      - name: Install npm dependencies
+        run: npm ci
+
+      - name: Build assets
+        run: npm run production
+
+      # ---------- Deploy via rsync over SSH ----------
+      - name: Setup SSH agent
+        uses: webfactory/ssh-agent@v0.9.0
+        with:
+          ssh-private-key: ${{ secrets.PIOS_SSH_PRIVATE_KEY }}
+
+      - name: Show deploy target
+        run: |
+          echo "==================== DEPLOY TARGET ===================="
+          echo "User@Host : ${{ secrets.PIOS_SSH_USER }}@${{ secrets.PIOS_SSH_HOST }}"
+          echo "Port      : ${{ secrets.PIOS_SSH_PORT }}"
+          # DEPLOY_PATH เป็น secret → แทรกช่องว่างหลัง '/' เพื่อให้อ่านได้ (ไม่โดน GitHub mask เป็น ***)
+          echo -n "Path      : "
+          echo "${{ secrets.PIOS_DEPLOY_PATH }}" | sed 's#/#/ #g'
+          echo "======================================================="
+
+      - name: Deploy with rsync
+        run: |
+          rsync -avz --delete \
+            -e "ssh -p ${{ secrets.PIOS_SSH_PORT }} -o StrictHostKeyChecking=accept-new" \
+            --exclude='.git' \
+            --exclude='.github' \
+            --exclude='.env' \
+            --exclude='storage/' \
+            --exclude='node_modules' \
+            --exclude='tests' \
+            --exclude='repomix-output.xml' \
+            --exclude='.DS_Store' \
+            ./ "${{ secrets.PIOS_SSH_USER }}@${{ secrets.PIOS_SSH_HOST }}:${{ secrets.PIOS_DEPLOY_PATH }}"
+
+      - name: Verify upload location on server
+        run: |
+          ssh -p "${{ secrets.PIOS_SSH_PORT }}" -o StrictHostKeyChecking=accept-new "${{ secrets.PIOS_SSH_USER }}@${{ secrets.PIOS_SSH_HOST }}" \
+            "cd '${{ secrets.PIOS_DEPLOY_PATH }}' && \
+             echo '==== อัปโหลดไปที่ (absolute path) ====' && \
+             pwd | sed 's#/#/ #g' && \
+             echo '==== ไฟล์ล่าสุดในโฟลเดอร์ปลายทาง ====' && \
+             ls -lat | head -20"
+
+      # ---------- Post-deploy: each stage is its own step so the
+      #            GitHub Actions log shows exactly which one fails ----------
+      - name: "Post-deploy › 1. Prepare storage directories"
+        run: |
+          ssh -p "${{ secrets.PIOS_SSH_PORT }}" -o StrictHostKeyChecking=accept-new "${{ secrets.PIOS_SSH_USER }}@${{ secrets.PIOS_SSH_HOST }}" \
+            "cd '${{ secrets.PIOS_DEPLOY_PATH }}' && \
+             mkdir -p storage/framework/cache/data storage/framework/sessions storage/framework/views storage/logs bootstrap/cache && \
+             echo '✔ storage directories ready'"
+
+      - name: "Post-deploy › 2. Clear stale caches"
+        run: |
+          ssh -p "${{ secrets.PIOS_SSH_PORT }}" -o StrictHostKeyChecking=accept-new "${{ secrets.PIOS_SSH_USER }}@${{ secrets.PIOS_SSH_HOST }}" \
+            "cd '${{ secrets.PIOS_DEPLOY_PATH }}' && \
+             php artisan optimize:clear"
+
+      # รันเฉพาะไฟล์ migration ที่ระบุ (ไม่ใช่ migrate ทั้งหมด) เพราะ migration เก่าบางตัวไม่ตรงกับ schema บน prod
+      # ถ้ามี migration ใหม่ ให้เพิ่ม --path อีกบรรทัดด้านล่าง
+      - name: "Post-deploy › 3. Database migrations (เฉพาะไฟล์ที่ระบุ)"
+        run: |
+          ssh -p "${{ secrets.PIOS_SSH_PORT }}" -o StrictHostKeyChecking=accept-new "${{ secrets.PIOS_SSH_USER }}@${{ secrets.PIOS_SSH_HOST }}" \
+            "cd '${{ secrets.PIOS_DEPLOY_PATH }}' && \
+             php artisan migrate --force --no-interaction \
+               --path=database/migrations/2026_10_04_000001_add_org_id_fk_to_tenant_tables.php \
+               --path=database/migrations/2026_10_04_000002_add_missing_columns_to_foodwaste_bins_table.php \
+               --path=database/migrations/2026_10_08_110038_create_kp_purchase_routes_table_and_kp_purchase_route_zones_table.php \
+               --path=database/migrations/2026_10_09_001549_create_kp_settings_table.php \
+               --path=database/migrations/2026_10_09_014537_create_kp_withdraw_batches_table.php \
+               --path=database/migrations/2026_10_09_014604_update_kp_money_requests_table_for_latest_workflow.php \
+               --path=database/migrations/2026_10_09_042443_add_modulename_column_in_inv_transaction_approvals_table.php \
+               --path=database/migrations/2026_10_12_090000_sync_kp_purchase_and_sell_tables_with_schema.php"
+
+      - name: "Post-deploy › 4. Cache config"
+        run: |
+          ssh -p "${{ secrets.PIOS_SSH_PORT }}" -o StrictHostKeyChecking=accept-new "${{ secrets.PIOS_SSH_USER }}@${{ secrets.PIOS_SSH_HOST }}" \
+            "cd '${{ secrets.PIOS_DEPLOY_PATH }}' && \
+             php artisan config:cache"
+
+      - name: "Post-deploy › 5. Cache views"
+        run: |
+          ssh -p "${{ secrets.PIOS_SSH_PORT }}" -o StrictHostKeyChecking=accept-new "${{ secrets.PIOS_SSH_USER }}@${{ secrets.PIOS_SSH_HOST }}" \
+            "cd '${{ secrets.PIOS_DEPLOY_PATH }}' && \
+             php artisan view:cache"
