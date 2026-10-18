@@ -6,7 +6,7 @@
 <ul class="navbar-nav">
 
     
-    <li class="nav-item">
+    {{-- <li class="nav-item">
         <a class="nav-link active mb-2 bg-warning @yield('nav-accessmenu')" href="{{ route('accessmenu') }}">
             <div class="icon icon-shape icon-sm bg-white shadow text-center border-radius-2xl padding4px">
                 <i class="ni ni-shop  text-dark text-white text-lg opacity-10  justify-content-center"
@@ -14,7 +14,7 @@
             </div>
             <span class="nav-link-text ms-1">หน้าเมนูหลัก</span>
         </a>
-    </li>
+    </li> --}}
     <li class="nav-item">
         <a class="nav-link  @yield('nav-dashboard')" href="{{ route('dashboard') }}">
             <div
@@ -325,7 +325,7 @@
                     <div class="collapse @yield('user-show')" id="profileExample" style="">
                         <ul class="nav nav-sm flex-column">
                             <li class="nav-item ">
-                                <a class="nav-link nav-user @yield('nav-user')" href="{{ route('admin.users.index') }}">
+                                <a class="nav-link nav-user {{ $is('tabwater.members.index') ? 'active' : "" }}" href="{{ route('tabwater.members.index') }}">
                                     <span class="sidenav-mini-icon text-xs"> P </span>
                                     <span class="sidenav-normal"> ผู้ใช้น้ำประปา </span>
                                 </a>
@@ -339,12 +339,46 @@
                         </ul>
                     </div>
                 </li>
-                <li class="nav-item @yield('nav-metertype')">
-                    <a class="nav-link {{ request()->routeIs('admin.metertype.*') ? 'active' : '' }}" href="{{ route('admin.metertype.index') }}">
-                        <span class="sidenav-mini-icon"> P </span>
-                        <span class="sidenav-normal">ประเภทมิเตอร์ </span>
-                    </a>
-                </li>
+                @if ($isTabwaterOrSuper)
+            <li class="nav-item mt-3">
+                <h6 class="ps-4 ms-2 text-uppercase text-xs font-weight-bolder opacity-6">ระบบประปา</h6>
+            </li>
+            @php
+                $meterOpen =$is('admin.metertype.*', 'admin.meter_rates.*');
+            @endphp
+            <li class="nav-item">
+                <a data-bs-toggle="collapse" href="#meterTypes" class="nav-link {{ $meterOpen ? 'active' : '' }}" aria-controls="meterTypes" role="button" aria-expanded="{{ $meterOpen ? 'true' : 'false' }}">
+                    <div class="icon icon-shape icon-sm shadow border-radius-md bg-white text-center me-2 d-flex align-items-center justify-content-center">
+                        <i class="fas fa-traffic-light text-dark text-sm"></i>
+                    </div>
+                    <span class="nav-link-text ms-1">ประเภทมิเตอร์</span>
+                </a>
+                <div class="collapse {{ $meterOpen ? 'show' : '' }}" id="meterTypes">
+                    <ul class="nav ms-4 ps-3">
+                        <li class="nav-item">
+                            <a class="nav-link {{ $is('admin.metertype.*') ? 'active' : '' }}" href="{{ route('admin.metertype.index') }}">
+                                <span class="sidenav-mini-icon"> MT </span>
+                                <span class="sidenav-normal"> จัดการข้อมูลประเภทมิเตอร์ </span>
+                            </a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link {{ $is('admin.meter_rates.*') ? 'active' : '' }}" href="{{ route('admin.meter_rates.index') }}">
+                                <span class="sidenav-mini-icon"> MR </span>
+                                <span class="sidenav-normal"> อัตราชำระตามประเภทมิเตอร์ </span>
+                            </a>
+                        </li>
+                    </ul>
+                </div>
+            </li>
+            <li class="nav-item">
+                <a class="nav-link {{ $is('admin.pricing_types.*') ? 'active' : '' }}" href="{{ route('admin.pricing_types.index') }}">
+                    <div class="icon icon-shape icon-sm shadow border-radius-md bg-white text-center me-2 d-flex align-items-center justify-content-center">
+                        <i class="fas fa-credit-card text-dark text-sm"></i>
+                    </div>
+                    <span class="nav-link-text ms-1">ประเภทการชำระเงิน</span>
+                </a>
+            </li>
+        @endif
                 <li class="nav-item">
                     <a class="nav-link collapsed  @yield('budgetyear-show') @yield('inv_prd-show') @yield('nav-inv_prd')"
                         data-bs-toggle="collapse" aria-expanded="false" href="#budgetyear">

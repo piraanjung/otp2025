@@ -6,7 +6,7 @@ use App\Http\Controllers\Controller;
 use App\Models\Admin\Organization; 
 use App\Models\KeptKaya\KpPurchaseTransaction; 
 use App\Models\WelfarePayout; 
-use App\Models\KpBulkSale; 
+use App\Models\kpBulkSale; 
 use App\Models\WelfareConfig; 
 use App\Models\WelfareMember;
 use App\Models\ApprovalWorkflowStep;
@@ -26,7 +26,7 @@ class WelfareController extends Controller
     { 
         $orgId = Auth::user()->org_id_fk; 
         
-        $totalProfit = KpBulkSale::where('org_id_fk', $orgId)->sum('profit_amount'); 
+        $totalProfit = kpBulkSale::where('org_id_fk', $orgId)->sum('profit_amount'); 
         $totalPaid = WelfarePayout::where('org_id_fk', $orgId) 
             ->where('status', 'paid') 
             ->sum('amount'); 

@@ -1,4 +1,4 @@
-@extends('layouts.super-admin') 
+@extends('layouts.admin1') 
 
 @section('style') 
 {{-- แนะนำให้ใช้ SweetAlert2 เพื่อ UX ที่ดีกว่า --}} 

@@ -1,4 +1,4 @@
-@extends('layouts.super-admin')
+@extends('layouts.admin1')
 @section('mainheader')
     สร้างขนาดมิเตอร์
 @endsection
@@ -40,8 +40,7 @@
                                     <span class="text-danger h-8">({{ $message }})</span>
                                 @enderror
                             </strong>
-                            <textarea class="form-control" id="description" placeholder="ตัวอย่าง : 8.25"
-                                name="description"></textarea>
+                            <textarea class="form-control" id="description" placeholder="ตัวอย่าง : 8.25" name="description"></textarea>
                         </div>
                         <div class="mb-3 col-md-2">
                             <strong class="text-muted d-block mb-2">&nbsp;</strong>

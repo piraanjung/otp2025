@@ -17,45 +17,39 @@ class AdminSeeder extends Seeder
    */
   public function run()
   {
-    $user1 = User::create([
-      'org_id_fk' => 1,
-      'username' => 'super admin',
-      'password' => Hash::make('s@admin'),
-      'prefix' => 'นาย',
-      'firstname' => 'super',
-      'lastname' => 'admin',
-      'email' => 'admin@gmail.com',
-      'email_verified_at' => now(),
-      'id_card' => '111111111',
-      'phone' => '0999999999',
-      'gender' => 'm',
-      'address' => 'x',
-      'zone_id' => '1',
-      'subzone_id' => '1',
-      'tambon_code' => '350805',
-      'district_code' => '3508',
-      'province_code' => '35',
-    ])->assignRole(['Super Admin']);
 
 
-    // User::create([
-    //   'org_id_fk' => 1,
-    //   'username' => 'admin1',
-    //   'password' => Hash::make('999999999'),
-    //   'prefix' => 'นางสาว',
-    //   'firstname' => 'admin1',
-    //   'lastname' => 'admin1',
-    //   'email' => 'admin1@gmail.com',
-    //   'email_verified_at' => now(),
-    //   'id_card' => '111111111',
-    //   'phone' => '0999999999',
-    //   'gender' => 'm',
-    //   'address' => 'x',
-    //   'zone_id' => '1',
-    //   'subzone_id' => '1',
-    //   'tambon_code' => '350805',
-    //   'district_code' => '3508',
-    //   'province_code' => '35',
-    // ])->assignRole('Admin');
+     
+
+        // 3. สร้าง หรือ อัปเดต บัญชีผู้ใช้ Super Admin
+         User::firstOrCreate(
+            ['username' => 'superadmin'],
+            [
+            'org_id_fk' => 1,
+            'password' => Hash::make('s@admin'),
+            'prefix' => 'นาย',
+            'firstname' => 'super',
+            'lastname' => 'admin',
+            'email' => 'admin@gmail.com',
+            'email_verified_at' => now(),
+            'id_card' => '111111111',
+            'phone' => '0999999999',
+            'gender' => 'm',
+            'address' => 'x',
+            'zone_id' => '1',
+            'subzone_id' => '1',
+            'tambon_code' => '350805',
+            'district_code' => '3508',
+            'province_code' => '35',
+          ])->assignRole(['Super Admin']);
+          
+
+       
+
+        $this->command->info('Super Admin created successfully!');
+        $this->command->info('Username: superadmin');
+        $this->command->info('Password: 12345678');
+     
+
   }
 }

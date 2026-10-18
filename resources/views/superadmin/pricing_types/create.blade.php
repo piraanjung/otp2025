@@ -1,4 +1,4 @@
-@extends('layouts.super-admin')
+@extends('layouts.admin1')
 @section('nav-main', 'ประเภทการชำระเงิน')
 @section('nav-main-url')
     {{route('meter_types.index')}}

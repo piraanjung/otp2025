@@ -1,4 +1,4 @@
-@extends('layouts.super-admin')
+@extends('layouts.admin1')
 
 @section('nav-main', 'ประเภทมิเตอร์')
 @section('nav-current', 'อัตราการชำระตามประเภทมิเตอร์')

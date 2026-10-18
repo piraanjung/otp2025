@@ -504,7 +504,7 @@ class UserController extends Controller
     $meterTypes = \App\Models\Tabwater\TwMeterType::all();
     
     $nextMeterCount   = collect($user->usermeterinfos)->count() + 1;
-    $generatedMeterId = 'MTR-' . substr('000', strlen($org->id)).$org->id . '-' . substr('0000',strlen($user->id))$user->id.'-'.w$nextMeterCount;
+    $generatedMeterId = 'MTR-' . substr('000', strlen($org->id)).$org->id . '-' . substr('0000',strlen($user->id)).$user->id.'-'.$nextMeterCount;
 
     return view('admin.users.edit', compact( 
         'user', 'zones', 'subzones', 'defaultAddress', 'addmeter', 'meterTypes', 'generatedMeterId'

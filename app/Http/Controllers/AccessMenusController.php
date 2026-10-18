@@ -83,7 +83,7 @@ class AccessMenusController extends Controller
 
         foreach (collect($tw_user_infos)->groupBy('undertake_subzone_id') as $key => $subzone) {
             $subzoneName = Subzone::find($key)->subzone_name ?? 'ไม่ระบุโซน';
-            $meterIds = $subzone->pluck('meter_id');
+            $meterIds = $subzone->pluck('id');
             $totalWaterUsed = TwInvoice::whereIn('meter_id_fk', $meterIds)->sum('water_used');
             $water_subzone_labels[] = $subzoneName;
             $water_subzone_data[] = $totalWaterUsed;
@@ -114,7 +114,7 @@ class AccessMenusController extends Controller
 
         foreach ($zones as $zone) {
             $queryBase = DB::table('tw_invoice')
-                ->join('tw_meter_infos', 'tw_invoice.meter_id_fk', '=', 'tw_meter_infos.meter_id')
+                ->join('tw_meter_infos', 'tw_invoice.meter_id_fk', '=', 'tw_meter_infos.id')
                 ->where('tw_meter_infos.undertake_zone_id', $zone->id);
 
             // กรองตามรอบบิลปัจจุบัน (ถ้ามี)
@@ -151,7 +151,7 @@ class AccessMenusController extends Controller
 
         foreach ($subzones as $subzone) {
             $querySubzoneBase = DB::table('tw_invoice')
-                ->join('tw_meter_infos', 'tw_invoice.meter_id_fk', '=', 'tw_meter_infos.meter_id')
+                ->join('tw_meter_infos', 'tw_invoice.meter_id_fk', '=', 'tw_meter_infos.id')
                 ->where('tw_meter_infos.undertake_subzone_id', $subzone->id);
 
             if ($current_inv_period_id) {
@@ -185,7 +185,7 @@ class AccessMenusController extends Controller
 
         foreach ($subzones as $subzone) {
             $queryYtdBase = DB::table('tw_invoice')
-                ->join('tw_meter_infos', 'tw_invoice.meter_id_fk', '=', 'tw_meter_infos.meter_id')
+                ->join('tw_meter_infos', 'tw_invoice.meter_id_fk', '=', 'tw_meter_infos.id')
                 ->where('tw_meter_infos.undertake_subzone_id', $subzone->id);
 
             // ถ้าต้องการดูสะสมทุกรอบบิลที่มีการเปิดใช้งาน สามารถเอาเงื่อนไขช่วงเวลาออก หรือเช็คสถานะภาพรวมได้เลย

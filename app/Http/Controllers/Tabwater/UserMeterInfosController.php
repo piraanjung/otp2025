@@ -7,17 +7,56 @@ use App\Models\Admin\BudgetYear;
 use App\Models\Admin\Organization;
 use Illuminate\Http\Request;
 use App\Models\Admin\Subzone;
+use App\Models\Admin\Zone;
 use App\Models\Tabwater\MeterTypeRateConfig;
 use App\Models\Tabwater\MeterTypeRateTier;
 use App\Models\Tabwater\TwInvoice;
 use App\Models\Tabwater\InvoicePeriod;
 use App\Models\Tabwater\TwMeterInfos;
+use App\Models\Tabwater\TwMeterType;
+use App\Models\User;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Validator;
 
 class UserMeterInfosController extends Controller
 {
+    public function index(Request $request)
+    {
+        $orgId = getAuthOrgId();
+        $zones = Zone::where('org_id_fk', $orgId)->orWhereNull('org_id_fk')->get();
+
+        // ดึง User ที่มีมิเตอร์ประปาใน อปท. นี้
+        $query = User::where('org_id_fk', $orgId)
+            ->whereHas('usermeterinfos', function ($q) use ($orgId) {
+                $q->where('org_id_fk', $orgId);
+            })
+            ->with(['usermeterinfos' => function ($q) use ($orgId) {
+                $q->where('org_id_fk', $orgId)->with(['meter_type', 'undertake_zone']);
+            }, 'user_zone']);
+
+        // ค้นหาด้วยชื่อ, นามสกุล, เบอร์โทร หรือเลขมิเตอร์
+        if ($request->filled('search')) {
+            $search = $request->search;
+            $query->where(function ($q) use ($search) {
+                $q->where('firstname', 'like', "%{$search}%")
+                    ->orWhere('lastname', 'like', "%{$search}%")
+                    ->orWhere('phone', 'like', "%{$search}%")
+                    ->orWhereHas('usermeterinfos', function ($m) use ($search) {
+                        $m->where('meternumber', 'like', "%{$search}%")
+                            ->orWhere('factory_no', 'like', "%{$search}%");
+                    });
+            });
+        }
+
+        if ($request->filled('zone_id')) {
+            $query->where('zone_id', $request->zone_id);
+        }
+
+        $members = $query->orderBy('id', 'desc')->paginate(15);
+
+        return view('tabwater.members.index', compact('members', 'zones'));
+    }
     public function get_subzone_members(Request $request)
     {
         $subzoneId = $request->input('subzone_id');
@@ -35,7 +74,7 @@ class UserMeterInfosController extends Controller
             'meter_type',
             'invoice_currrent_inv_period',
         ])
-           ->whereHas('invoice_currrent_inv_period')
+            ->whereHas('invoice_currrent_inv_period')
             ->where('undertake_subzone_id', $subzoneId)
             ->get();
 
@@ -265,7 +304,7 @@ class UserMeterInfosController extends Controller
             $invoice->totalpaid     = $totalPaid;
             $invoice->paid          = $waterCharge;
             $invoice->recorder_id   = $recorderId;
-            $invoice->status        = 'invoice'; 
+            $invoice->status        = 'invoice';
             $invoice->updated_at    = now();
             $invoice->save();
 
@@ -279,37 +318,37 @@ class UserMeterInfosController extends Controller
             $oweLists = $invoice->where('status', 'owe')->get();
             $owePaidSum = 0;
             $owes = [];
-            foreach($oweLists as $owe){
+            foreach ($oweLists as $owe) {
                 $owePaidSum += $owe->totalpaid;
                 $owes[] = ['invoice_period' => $owe->invoice_period->inv_p_name_int, 'totalpaid' => $owe->totalpaid];
-            }   
-             $owes[] = ['invoice_period' => '09-69', 'totalpaid' => 100];
-             $owes[] = ['invoice_period' => '08-69', 'totalpaid' => 200];
-             $owePaidSum = 300;
-             
+            }
+            $owes[] = ['invoice_period' => '09-69', 'totalpaid' => 100];
+            $owes[] = ['invoice_period' => '08-69', 'totalpaid' => 200];
+            $owePaidSum = 300;
+
             return response()->json([
                 'code' => 200,
                 'status' => 'success',
                 'message' => 'บันทึกข้อมูลและออกใบแจ้งหนี้เรียบร้อยแล้ว',
                 'data' => [
                     'user'              => [
-                                            'name'    => $meter->user->prefix."".$meter->user->firstname." ".$meter->user->lastname,
-                                            'address' => $meter->meter_address,
-                                            'zone'    => $meter->undertake_zone->zone_name,
-                                            'subname' => $meter->submeter_name,
-                                            ],
+                        'name'    => $meter->user->prefix . "" . $meter->user->firstname . " " . $meter->user->lastname,
+                        'address' => $meter->meter_address,
+                        'zone'    => $meter->undertake_zone->zone_name,
+                        'subname' => $meter->submeter_name,
+                    ],
                     'owes'              => $owes,
                     'org'               => [
-                                                'name'      => $meter->organization->orgType->name."".$meter->organization->org_name,
-                                                'address'   => $meter->organization->org_address,
-                                                'zone'      => $meter->organization->zones->zone_name,
-                                                'tambon'    => $meter->organization->tambons->tambon_name,
-                                                'district'  => $meter->organization->districts->district_name,
-                                                'province'  => $meter->organization->provinces->province_name,
-                                                'phone'     => $meter->organization->org_phone,
-                                                'zipcode'   => $meter->organization->org_zipcode,
-                                                'logo_img'  => $meter->organization->org_logo_img
-                                            ],
+                        'name'      => $meter->organization->orgType->name . "" . $meter->organization->org_name,
+                        'address'   => $meter->organization->org_address,
+                        'zone'      => $meter->organization->zones->zone_name,
+                        'tambon'    => $meter->organization->tambons->tambon_name,
+                        'district'  => $meter->organization->districts->district_name,
+                        'province'  => $meter->organization->provinces->province_name,
+                        'phone'     => $meter->organization->org_phone,
+                        'zipcode'   => $meter->organization->org_zipcode,
+                        'logo_img'  => $meter->organization->org_logo_img
+                    ],
                     'owe_paid_sum'      => $owePaidSum,
                     'invoice_id'        => $invoice->id,
                     'inv_period_name'   => $invoice->invoice_period->inv_p_name,
@@ -323,7 +362,7 @@ class UserMeterInfosController extends Controller
                     'vat'               => $vatAmount,
                     'totalpaid'         => $totalPaid,
                     'status'            => $invoice->status,
-                    'net_paid'          => number_format($totalPaid + $owePaidSum,2) 
+                    'net_paid'          => number_format($totalPaid + $owePaidSum, 2)
                 ]
             ], 200);
         } catch (\Exception $e) {
@@ -335,4 +374,233 @@ class UserMeterInfosController extends Controller
             ], 500);
         }
     }
+
+
+
+    // 1. หน้าแสดงฟอร์มดึงรายชื่อ Master Users ที่ยังไม่มีมิเตอร์ประปา
+    public function create(Request $request)
+    {
+        $orgId = getAuthOrgId();
+        $zones = Zone::where('org_id_fk', $orgId)->orWhereNull('org_id_fk')->get();
+        $meterTypes = TwMeterType::all();
+
+        // ดึง Master Users ทั้งหมดใน Org (ผู้ใช้ 1 คนสามารถลงทะเบียนมิเตอร์เพิ่มได้หลายครั้ง)
+        $query = User::where('org_id_fk', $orgId);
+
+        if ($request->filled('search')) {
+            $search = $request->search;
+            $query->where(function ($q) use ($search) {
+                $q->where('firstname', 'like', "%{$search}%")
+                    ->orWhere('lastname', 'like', "%{$search}%")
+                    ->orWhere('phone', 'like', "%{$search}%")
+                    ->orWhere('id_card', 'like', "%{$search}%");
+            });
+        }
+
+        if ($request->filled('zone_id')) {
+            $query->where('zone_id', $request->zone_id);
+        }
+
+        $availableUsers = $query->paginate(20);
+
+        return view('tabwater.members.create', compact('availableUsers', 'zones', 'meterTypes'));
+    }
+
+    // 2. ฟังก์ชันรับค่าเพิ่มผู้ใช้น้ำแบบ Bulk บันทึกลงตาราง tw_meter_infos
+    public function bulkStore(Request $request)
+    {
+        $request->validate([
+            'user_ids' => 'required|array',
+            'factory_no' => 'nullable|array',
+            'last_meter_recording' => 'nullable|array',
+            'metertype_id' => 'nullable|array',
+            'undertake_zone_id' => 'nullable|array',
+        ]);
+
+        $orgId = getAuthOrgId();
+
+        DB::beginTransaction();
+        try {
+            // หาเลข meternumber สูงสุดปัจจุบันของ อปท. นี้
+            $maxMeterNo = TwMeterInfos::where('org_id_fk', $orgId)->max('meternumber') ?? 0;
+
+            foreach ($request->user_ids as $userId) {
+                $user = User::find($userId);
+                if (!$user) continue;
+
+                // บวกเพิ่มทีละ 1 สำหรับสมาชิกแต่ละคนที่ถูกติ๊กเลือก
+                $maxMeterNo++;
+
+                TwMeterInfos::create([
+                    'org_id_fk'            => $orgId,
+                    'user_id'              => $userId,
+                    'meternumber'          => $maxMeterNo, // รันเลข 1, 2, 3... ถัดไปให้อัตโนมัติ
+                    'factory_no'           => $request->factory_no[$userId] ?? null,
+                    'last_meter_recording' => $request->last_meter_recording[$userId] ?? 0,
+                    'meter_address'        => $user->address,
+                    'undertake_zone_id'    => $request->undertake_zone_id[$userId] ?? $user->zone_id,
+                    'undertake_subzone_id' => $user->subzone_id ?? null,
+                    'metertype_id'         => $request->metertype_id[$userId] ?? 1,
+                    'acceptance_date'      => now(),
+                    'status'               => 'active',
+                    'recorder_id'          => Auth::id(),
+                ]);
+
+                // ผูก Role สมาชิกประปา
+                if (!$user->hasRole('Tabwater User')) {
+                    $user->assignRole('Tabwater User');
+                }
+            }
+
+            DB::commit();
+            return redirect()->route('tabwater.members.index')
+                ->with('success', 'ลงทะเบียนผู้ใช้น้ำประปาเรียบร้อยแล้ว');
+        } catch (\Exception $e) {
+            DB::rollBack();
+            return redirect()->back()
+                ->with('error', 'เกิดข้อผิดพลาดในการบันทึกข้อมูล: ' . $e->getMessage());
+        }
+    }
+
+    public function destroy($id)
+    {
+        $orgId = getAuthOrgId();
+        $meter = TwMeterInfos::where('org_id_fk', $orgId)->findOrFail($id);
+        $userId = $meter->user_id;
+
+        DB::beginTransaction();
+        try {
+            // 1. ลบมิเตอร์ประปา
+            $meter->delete();
+
+            // 2. เช็กว่า User นี้ยังมีมิเตอร์ประปาอื่นใน อปท. นี้เหลืออยู่อีกไหม
+            $remainingMetersCount = TwMeterInfos::where('org_id_fk', $orgId)
+                ->where('user_id', $userId)
+                ->count();
+
+            // 3. ถ้าไม่เหลือมิเตอร์เลย ให้ถอน Role "Tabwater User" ออกจากบัญชี User
+            if ($remainingMetersCount === 0) {
+                $user = User::find($userId);
+                if ($user && $user->hasRole('Tabwater User')) {
+                    $user->removeRole('Tabwater User');
+                }
+            }
+
+            DB::commit();
+            return redirect()->route('tabwater.members.index')
+                ->with('success', 'ยกเลิกและลบรายการมิเตอร์ประปาเรียบร้อยแล้ว');
+        } catch (\Exception $e) {
+            DB::rollBack();
+            return redirect()->back()
+                ->with('error', 'เกิดข้อผิดพลาดในการลบรายการ: ' . $e->getMessage());
+        }
+    }
+
+    public function addMeter($userId)
+    {
+        $orgId = getAuthOrgId();
+        $user = User::where('org_id_fk', $orgId)->findOrFail($userId);
+        $zones = Zone::where('org_id_fk', $orgId)->orWhereNull('org_id_fk')->get();
+        $maxMeterNo = TwMeterInfos::where('org_id_fk', $orgId)->max('meternumber') ?? 0;
+        $meterTypes = TwMeterType::all();
+        $meterNo = $maxMeterNo + 1;
+        return view('tabwater.members.add_meter', compact('user', 'zones', 'meterTypes', 'meterNo'));
+    }
+
+    public function storeAdditionalMeter(Request $request, $userId)
+    {
+        $request->validate([
+            'factory_no' => 'nullable|string',
+            'last_meter_recording' => 'required|numeric|min:0',
+            'metertype_id' => 'required|exists:tw_meter_types,id',
+            'undertake_zone_id' => 'required|exists:zones,id',
+            'meter_address' => 'nullable|string',
+            'submeter_name' => 'nullable|string',
+
+        ]);
+
+        $orgId = getAuthOrgId();
+        $user = User::where('org_id_fk', $orgId)->findOrFail($userId);
+
+        DB::beginTransaction();
+        try {
+            // Auto Run เลข meternumber ถัดไป
+            $maxMeterNo = TwMeterInfos::where('org_id_fk', $orgId)->max('meternumber') ?? 0;
+            $maxMeterNo++;
+
+            TwMeterInfos::create([
+                'org_id_fk'            => $orgId,
+                'user_id'              => $user->id,
+                'meternumber'          => $maxMeterNo,
+                'factory_no'           => $request->factory_no,
+                'last_meter_recording' => $request->last_meter_recording ?? 0,
+                'meter_address'        => $request->meter_address ?? $user->address,
+                'undertake_zone_id'    => $request->undertake_zone_id,
+                'undertake_subzone_id' => $user->subzone_id ?? null,
+                'submeter_name'         => $request->submeter_name ?? null,
+                'metertype_id'         => $request->metertype_id,
+                'acceptance_date'      => now(),
+                'status'               => 'active',
+                'recorder_id'          => Auth::id(),
+            ]);
+
+            DB::commit();
+            return redirect()->route('tabwater.members.index')
+                ->with('success', "เพิ่มมิเตอร์ใหม่ให้กับคุณ {$user->firstname} เรียบร้อยแล้ว (เลขมิเตอร์: TW" . sprintf('%05d', $maxMeterNo) . ")");
+        } catch (\Exception $e) {
+            DB::rollBack();
+            return redirect()->back()
+                ->with('error', 'เกิดข้อผิดพลาดในการบันทึกข้อมูล: ' . $e->getMessage());
+        }
+    }
+
+    public function edit($id)
+{
+    $orgId = getAuthOrgId();
+    // ดึงข้อมูลมิเตอร์พร้อมข้อมูล User และสัมพันธ์ที่เกี่ยวข้อง
+    $meter = TwMeterInfos::with(['user', 'meter_type', 'undertake_zone'])
+        ->where('org_id_fk', $orgId)
+        ->findOrFail($id);
+
+    $zones = Zone::where('org_id_fk', $orgId)->orWhereNull('org_id_fk')->get();
+    $meterTypes = TwMeterType::all();
+
+    return view('tabwater.members.edit', compact('meter', 'zones', 'meterTypes'));
+}
+
+public function update(Request $request, $id)
+{
+    $request->validate([
+        'factory_no' => 'nullable|string',
+        'last_meter_recording' => 'required|numeric|min:0',
+        'metertype_id' => 'required|exists:tw_meter_types,id',
+        'undertake_zone_id' => 'required|exists:zones,id',
+        'meter_address' => 'nullable|string',
+        'status' => 'required|in:active,inactive',
+    ]);
+
+    $orgId = getAuthOrgId();
+    $meter = TwMeterInfos::where('org_id_fk', $orgId)->findOrFail($id);
+
+    DB::beginTransaction();
+    try {
+        $meter->update([
+            'factory_no'           => $request->factory_no,
+            'last_meter_recording' => $request->last_meter_recording,
+            'metertype_id'         => $request->metertype_id,
+            'undertake_zone_id'    => $request->undertake_zone_id,
+            'meter_address'        => $request->meter_address,
+            'status'               => $request->status,
+        ]);
+
+        DB::commit();
+        return redirect()->route('tabwater.members.index')
+            ->with('success', 'อัปเดตข้อมูลมิเตอร์เรียบร้อยแล้ว');
+
+    } catch (\Exception $e) {
+        DB::rollBack();
+        return redirect()->back()
+            ->with('error', 'เกิดข้อผิดพลาดในการบันทึกข้อมูล: ' . $e->getMessage());
+    }
+}
 }

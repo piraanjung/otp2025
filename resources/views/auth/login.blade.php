@@ -22,7 +22,7 @@
             <a href="{{ url('/') }}" class="badge badge-primary">Home</a>
         </div>
 
-        <x-slot name="logo"> ทดสอบ
+        <x-slot name="logo"> 
             <a href="/">
             <img src="{{asset('logo/ko_envsogo.png')}}" class="w-40 h-40 fill-current text-gray-500">
 

@@ -7,7 +7,7 @@
     <i class="fas fa-times p-3 cursor-pointer text-secondary opacity-5 position-absolute end-0 top-0 d-none d-xl-none" aria-hidden="true" id="iconSidenav"></i>
     <a class="navbar-brand m-0" href="{{ route('admin.dashboard') }}">
         <img src="{{ asset('logo/ko_envsogo.png')}}" class="navbar-brand-img h-100" alt="main_logo">
-        <span class="ms-1 font-weight-bold">Envsogo::Admin</span>
+        <span class="ms-1 font-weight-bold">POIS::Admin</span>
     </a>
 </div>
 
@@ -39,6 +39,7 @@
         {{-- ================================================= --}}
         {{-- 2. การบริหารจัดการสมาชิกและระบบกลาง (Central Administration) --}}
         {{-- ================================================= --}}
+        {{-- {{ dd(Auth::user()->roles()) }} --}}
         @hasanyrole('Super Admin|Admin|Staff|Recycle Bank Staff|FoodWaste Staff|Annual Trash Staff')
             <li class="nav-item mt-3">
                 <h6 class="ps-4 ms-2 text-uppercase text-xs font-weight-bolder opacity-6">การบริหารสมาชิกและองค์กร</h6>

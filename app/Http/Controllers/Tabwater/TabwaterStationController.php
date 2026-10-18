@@ -31,13 +31,14 @@ class TabwaterStationController extends Controller
     public function create()
     {
         $staffs = Staff::where('status', 'active')->get();
-        $org = Organization::find(Auth::user()->org_id_fk)->get(['lat', 'long'])->first();
+        $org = Organization::find(Auth::user()->org_id_fk)->get(['lat', 'lng'])->first();
         return view('tabwater.settings.stations.create', compact('staffs', 'org'));
     }
 
     public function store(Request $request)
     {
-        $request->validate([
+
+       $request->validate([
             'org_id_fk' => 'required|integer',
             'code' => 'nullable|string|max:50',
             'name' => 'required|string|max:255',
@@ -54,6 +55,8 @@ class TabwaterStationController extends Controller
             'staff_ids.*' => 'exists:staffs,id',
         ]);
 
+
+
         DB::beginTransaction();
         try {
             $station = TabwaterStation::create($request->only([
@@ -62,7 +65,6 @@ class TabwaterStationController extends Controller
                 'min_water_level_percent', 'max_water_level_percent',
                 'secchi_k_factor'
             ]));
-
             if ($request->has('staff_ids')) {
                 $station->staffs()->sync($request->staff_ids);
             }
@@ -80,7 +82,7 @@ class TabwaterStationController extends Controller
     {
         $station = TabwaterStation::with('staffs')->findOrFail($id);
         $staffs = Staff::where('status', 'active')->get();
-        $org = Organization::find(Auth::user()->org_id_fk)->get(['lat', 'long'])->first();
+        $org = Organization::find(Auth::user()->org_id_fk)->get(['lat', 'lng'])->first();
 
         return view('tabwater.settings.stations.edit', compact('station', 'staffs','org'));
     }

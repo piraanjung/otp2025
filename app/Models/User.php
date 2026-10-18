@@ -28,7 +28,6 @@ use App\Models\FoodWaste\FoodWasteLog;
 use App\Models\KeptKaya\KpPurchaseTransaction;
 use App\Models\Tabwater\TwNotifies;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany; // <--- สำคัญ: ตรวจสอบว่ามีการ use นี้หรือไม่
-use Illuminate\Support\Facades\Auth;
 
 class User extends Authenticatable
 {
@@ -59,7 +58,6 @@ class User extends Authenticatable
         "district_code",
         "province_code",
         "status",
-        'old_id'
     ];
 
 

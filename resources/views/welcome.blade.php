@@ -1,5 +1,6 @@
 <!DOCTYPE html>
 <html lang="th">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -8,10 +9,12 @@
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@4.6.2/dist/css/bootstrap.min.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css">
     <!-- Google Fonts -->
-    <link href="https://fonts.googleapis.com/css2?family=Bruno+Ace+SC&family=Sarabun:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link
+        href="https://fonts.googleapis.com/css2?family=Bruno+Ace+SC&family=Sarabun:wght@300;400;500;600;700&display=swap"
+        rel="stylesheet">
     <!-- AOS Animation Library -->
     <link href="https://unpkg.com/aos@2.3.1/dist/aos.css" rel="stylesheet">
-    
+
     <style>
         :root {
             --primary-purple: #7C3AED;
@@ -25,6 +28,7 @@
             --text-muted: #475569;
             --border-subtle: #E2E8F0;
         }
+
         body {
             font-family: 'Sarabun', sans-serif !important;
             background-color: var(--soft-surface) !important;
@@ -36,6 +40,7 @@
             padding: 0;
             scroll-behavior: smooth;
         }
+
         /* Glassmorphism Header Bar */
         .navbar-custom {
             padding: 18px 0;
@@ -45,16 +50,19 @@
             backdrop-filter: blur(12px);
             border-bottom: 1px solid var(--border-subtle);
         }
+
         .navbar-custom.scrolled {
             box-shadow: 0 10px 30px rgba(124, 58, 237, 0.08);
             padding: 12px 0;
         }
+
         .brand-logo {
             font-family: 'Bruno Ace SC', sans-serif;
             font-size: 1.75rem !important;
             font-weight: 700;
             color: var(--primary-purple) !important;
         }
+
         .nav-link {
             font-weight: 600;
             color: var(--text-dark) !important;
@@ -62,9 +70,11 @@
             font-size: 1.05rem !important;
             transition: all 0.2s ease;
         }
+
         .nav-link:hover {
             color: var(--primary-purple) !important;
         }
+
         .btn-purple-action {
             background: linear-gradient(135deg, var(--primary-purple), var(--secondary-indigo)) !important;
             color: #FFFFFF !important;
@@ -76,11 +86,13 @@
             box-shadow: 0 8px 20px rgba(124, 58, 237, 0.3);
             transition: all 0.3s ease;
         }
+
         .btn-purple-action:hover {
             transform: translateY(-2px);
             box-shadow: 0 12px 25px rgba(124, 58, 237, 0.4);
             color: #FFFFFF !important;
         }
+
         /* Hero Banner */
         .hero-section {
             padding-top: 140px;
@@ -88,17 +100,20 @@
             background: linear-gradient(180deg, #FFFFFF 0%, var(--light-purple-bg) 100%);
             position: relative;
         }
+
         .hero-title {
             font-size: 3.2rem !important;
             font-weight: 700;
             line-height: 1.25;
             color: var(--text-dark);
         }
+
         .text-purple-gradient {
             background: linear-gradient(135deg, #7C3AED, #4F46E5);
             -webkit-background-clip: text;
             -webkit-text-fill-color: transparent;
         }
+
         /* Purple Background Container Blocks */
         .purple-block-container {
             background: linear-gradient(135deg, #7C3AED 0%, #6366F1 100%);
@@ -109,17 +124,25 @@
             box-shadow: 0 20px 50px rgba(124, 58, 237, 0.22);
             overflow: hidden;
         }
+
         .purple-block-container.bg-alt-purple {
             background: linear-gradient(135deg, #4F46E5 0%, #7C3AED 100%);
         }
+
         /* Section Headings */
         .module-section {
             padding: 90px 0;
             border-bottom: 1px solid var(--border-subtle);
             position: relative;
         }
-        .bg-white-section { background-color: #FFFFFF !important; }
-        .bg-purple-light-section { background-color: #FAF5FF !important; }
+
+        .bg-white-section {
+            background-color: #FFFFFF !important;
+        }
+
+        .bg-purple-light-section {
+            background-color: #FAF5FF !important;
+        }
 
         .section-title-block h2 {
             font-weight: 700;
@@ -127,10 +150,12 @@
             color: var(--text-dark);
             margin-bottom: 16px;
         }
+
         .section-title-block p {
             color: var(--text-muted);
             font-size: 1.25rem !important;
         }
+
         /* Modern SaaS Floating Cards */
         .saas-card {
             background: var(--card-white) !important;
@@ -141,19 +166,24 @@
             transition: all 0.4s cubic-bezier(0.165, 0.84, 0.44, 1);
             box-shadow: 0 10px 30px rgba(0, 0, 0, 0.04);
         }
+
         .saas-card:hover {
             transform: translateY(-8px);
             box-shadow: 0 20px 40px rgba(124, 58, 237, 0.15) !important;
             border-color: #C084FC !important;
         }
-        .saas-card h5, .saas-card h6 {
+
+        .saas-card h5,
+        .saas-card h6 {
             font-size: 1.35rem !important;
             font-weight: 700 !important;
         }
+
         .saas-card p {
             font-size: 1.08rem !important;
             color: var(--text-muted) !important;
         }
+
         .icon-purple-pill {
             height: 58px;
             border-radius: 18px;
@@ -165,6 +195,7 @@
             font-size: 1.65rem !important;
             margin-bottom: 18px;
         }
+
         /* Image Frame Display */
         .img-saas-frame {
             border-radius: 28px;
@@ -173,11 +204,13 @@
             background: #FFFFFF;
             box-shadow: 0 15px 35px rgba(0, 0, 0, 0.08);
         }
+
         .img-saas-frame img {
             width: 100%;
             height: auto;
             object-fit: cover;
         }
+
         /* Bottom Call-To-Action Banner */
         .cta-banner-purple {
             background: linear-gradient(135deg, #7C3AED 0%, #4F46E5 100%);
@@ -186,6 +219,7 @@
             color: #FFFFFF;
             box-shadow: 0 20px 50px rgba(124, 58, 237, 0.3);
         }
+
         /* Footer */
         .footer-saas {
             background: #0F172A;
@@ -200,9 +234,10 @@
         @media (min-width: 992px) {
             .hero-title-overlay {
                 position: absolute;
-                z-index: 1300;
+                z-index: 1350;
                 margin-top: -3rem;
             }
+
             .kiosk-floating-img {
                 position: absolute;
                 width: 350px;
@@ -210,9 +245,11 @@
                 margin-left: -7%;
                 margin-top: -25rem;
             }
+
             .airobact-title-offset {
                 margin-left: 14rem;
             }
+
             .airobact-hero-img {
                 position: absolute;
                 z-index: 200;
@@ -220,6 +257,7 @@
                 margin-left: -8rem;
                 top: 6rem;
             }
+
             .airobact-app-img {
                 position: absolute;
                 z-index: 300;
@@ -227,6 +265,7 @@
                 width: 250px;
                 margin-top: -1rem;
             }
+
             .video-desktop-width {
                 width: 740px !important;
                 top: 0;
@@ -237,16 +276,29 @@
            📱 MOBILE RESPONSIVE (ปรับเฉพาะตอนเปิดบนหน้าจอมือถือ)
            ========================================================= */
         @media (max-width: 991.98px) {
-            .hero-section { padding-top: 110px; }
+            .hero-section {
+                padding-top: 110px;
+            }
+
             .hero-title-overlay {
                 position: relative !important;
                 margin-top: 0 !important;
                 text-align: center;
             }
-            .hero-title { font-size: 2.2rem !important; }
-            .section-title-block h2 { font-size: 1.9rem !important; }
-            .purple-block-container { padding: 24px; border-radius: 24px; }
-            
+
+            .hero-title {
+                font-size: 2.2rem !important;
+            }
+
+            .section-title-block h2 {
+                font-size: 1.9rem !important;
+            }
+
+            .purple-block-container {
+                padding: 24px;
+                border-radius: 24px;
+            }
+
             /* ซ่อนรูปที่ลอยทับเกินขอบเฉพาะบนมือถือ */
             .kiosk-floating-img {
                 position: relative !important;
@@ -257,7 +309,11 @@
                 display: block;
                 margin: 0 auto 20px auto !important;
             }
-            .airobact-title-offset { margin-left: 0 !important; }
+
+            .airobact-title-offset {
+                margin-left: 0 !important;
+            }
+
             .airobact-hero-img {
                 position: relative !important;
                 margin-left: 0 !important;
@@ -267,19 +323,74 @@
                 display: block;
                 margin: 0 auto 20px auto !important;
             }
-            .airobact-app-img { display: none !important; }
+
+            .airobact-app-img {
+                display: none !important;
+            }
+
             .video-desktop-width {
                 width: 100% !important;
             }
         }
+
+        /* ฉากหลังสีเทาดำครอบทั้งหน้าจอ (Backdrop) */
+.dropdown-backdrop-custom {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100vw;
+    height: 100vh;
+    background-color: rgba(15, 23, 42, 0.5); /* สีเทาดำโปร่งแสง */
+    backdrop-filter: blur(4px); /* เอฟเฟกต์เบลอพื้นหลัง */
+    z-index: 1040; /* อยู่ด้านล่าง Dropdown แต่อยู่บนสุดของเพจ */
+    display: none;
+    opacity: 0;
+    transition: opacity 0.25s ease-in-out;
+}
+
+.dropdown-backdrop-custom.show {
+    display: block;
+    opacity: 1;
+}
+
+/* ดันให้ปุ่ม Navbar และ Dropdown ลอยอยู่เหนือฉากหลังสีเทา */
+.navbar-custom {
+    z-index: 1050 !important;
+}
+
+.soft-ui-login-dropdown {
+    margin-top: 12px !important;
+    background: rgba(255, 255, 255, 0.98) !important;
+    backdrop-filter: blur(10px);
+    border: 1px solid var(--border-subtle) !important;
+    z-index: 1060 !important;
+    animation: fadeInDown 0.25s ease-in-out;
+}
+
+/* ซ่อนลูกศร Dropdown เดิม */
+.dropdown-toggle-split::after {
+    display: none !important;
+}
+
+@keyframes fadeInDown {
+    from {
+        opacity: 0;
+        transform: translateY(-10px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
     </style>
 </head>
+
 <body>
     <!-- NAVBAR -->
     <nav class="navbar navbar-expand-xl navbar-light fixed-top navbar-custom" id="mainNavbar">
         <div class="container">
             <a class="navbar-brand brand-logo d-flex align-items-center" href="#">
-                <i class="fas fa-cubes mr-2"></i>PI-OS 
+                <i class="fas fa-cubes mr-2"></i>PI-OS
             </a>
             <button class="navbar-toggler border-0" type="button" data-toggle="collapse" data-target="#navContent">
                 <span class="fas fa-bars"></span>
@@ -294,17 +405,78 @@
                     <li class="nav-item"><a class="nav-link" href="#sec-funeral">ฌาปนกิจ</a></li>
                     <li class="nav-item"><a class="nav-link" href="#sec-foodwaste">ขยะเปียก IoT</a></li>
                     <li class="nav-item"><a class="nav-link" href="#sec-saving">ออมทรัพย์</a></li>
-                    <li class="nav-item ml-lg-3"><a class="nav-link btn-purple-action" href="{{ route('login') }}">เข้าสู่ระบบ</a></li>
+                    <li class="nav-item ml-lg-3">
+                    <li class="nav-item ml-lg-3 dropdown position-relative">
+                        <!-- ปุ่มกดเปิด Dropdown ด้านล่าง -->
+                        <a class="nav-link btn-purple-action dropdown-toggle-split" href="javascript:void(0)"
+                            id="loginDropdown" role="button" data-toggle="dropdown" aria-haspopup="true"
+                            aria-expanded="false">
+                            เข้าสู่ระบบ
+                        </a>
+
+                        <!-- Card เมนูล็อกอินที่แสดงด้านล่างปุ่ม -->
+                        <div class="dropdown-menu dropdown-menu-right soft-ui-login-dropdown p-3 border-0 shadow-lg"
+                            aria-labelledby="loginDropdown" style="width: 220px; border-radius: 1.25rem;">
+
+                            <!-- โลโก้วงกลม -->
+                            <div class="logo-avatar text-center mb-2">
+                                <img src="{{ asset('logo/ko_envsogo.png') }}" alt="Logo"
+                                    style="width: 65px; height: 65px; border-radius: 50%; object-fit: cover; box-shadow: 0 4px 10px rgba(0,0,0,0.1);">
+                            </div>
+
+
+                            <!-- ฟอร์มเข้าสู่ระบบส่งไปยัง route('login') -->
+                            <form method="POST" action="{{ route('login') }}" role="form">
+                                @csrf
+
+                                <!-- Username Input -->
+                                <div class="form-group mb-2">
+                                    <div class="input-group input-group-sm">
+                                        <div class="input-group-prepend">
+                                            <span class="input-group-text bg-light border-right-0"><i
+                                                    class="fas fa-user text-muted"></i></span>
+                                        </div>
+                                        <input type="text" name="username" class="form-control bg-light border-left-0"
+                                            placeholder="username" value="superadmin" required autofocus
+                                            autocomplete="username">
+                                    </div>
+                                </div>
+
+                                <!-- Password Input -->
+                                <div class="form-group mb-3">
+                                    <div class="input-group input-group-sm">
+                                        <div class="input-group-prepend">
+                                            <span class="input-group-text bg-light border-right-0"><i
+                                                    class="fas fa-lock text-muted"></i></span>
+                                        </div>
+                                        <input type="password" name="password"
+                                            class="form-control bg-light border-left-0" placeholder="password"
+                                            value="12345678" required autocomplete="current-password">
+                                    </div>
+                                </div>
+
+                                <input type="hidden" name="login_staff" value="0">
+
+                                <!-- Submit Button -->
+                                <button type="submit" class="btn btn-purple-action w-100 mb-2 py-2"
+                                    style="font-size: 0.95rem !important;">
+                                    Login
+                                </button>
+                            </form>
+                        </div>
+                    </li>
                 </ul>
             </div>
         </div>
     </nav>
 
+<div id="dropdownBackdrop" class="dropdown-backdrop-custom"></div>
     <!-- HERO SECTION -->
     <section class="hero-section">
         <div class="container">
-            <div class="col-lg-12 mb-5 mb-lg-0 hero-title-overlay" data-aos="fade-right" data-aos-duration="800">
-                <h1 class="hero-title mb-4">ขับเคลื่อนองค์กรท้องถิ่น<span class="text-purple-gradient"> ด้วยระบบดิจิทัล PI-OS</span></h1>
+            <div class="col-lg-12 mb-5 mb-lg-0 hero-title-overlay" style="z-index: 100" data-aos="fade-right" data-aos-duration="800">
+                <h1 class="hero-title mb-4">ขับเคลื่อนองค์กรท้องถิ่น<span class="text-purple-gradient"> ด้วยระบบดิจิทัล
+                        PI-OS</span></h1>
             </div>
             <div class="row align-items-center mb-5">
                 <div class="col-lg-12 mt-3" data-aos="fade-left" data-aos-duration="1000">
@@ -317,11 +489,15 @@
             <div class="purple-block-container" data-aos="zoom-in-up" data-aos-duration="900">
                 <div class="row align-items-center">
                     <div class="col-lg-8 mb-3 mb-lg-0">
-                        <h4 class="font-weight-bold text-white mb-2"><i class="fas fa-shield-alt mr-2"></i>ระบบปฏิบัติการมาตรฐานเพื่อองค์กรปกครองส่วนท้องถิ่น</h4>
-                        <p class="text-white-50 mb-0">รองรับการปฏิบัติงานของเจ้าหน้าที่ ปลอดภัย ตรวจสอบประวัติบันทึกย้อนหลังได้ 100%</p>
+                        <h4 class="font-weight-bold text-white mb-2"><i
+                                class="fas fa-shield-alt mr-2"></i>ระบบปฏิบัติการมาตรฐานเพื่อองค์กรปกครองส่วนท้องถิ่น
+                        </h4>
+                        <p class="text-white-50 mb-0">รองรับการปฏิบัติงานของเจ้าหน้าที่ ปลอดภัย
+                            ตรวจสอบประวัติบันทึกย้อนหลังได้ 100%</p>
                     </div>
                     <div class="col-lg-4 text-lg-right">
-                        <a href="{{ route('login') }}" class="btn btn-light text-purple font-weight-bold rounded-pill px-4 py-2">เริ่มต้นใช้งาน</a>
+                        <a href="{{ route('login') }}"
+                            class="btn btn-light text-purple font-weight-bold rounded-pill px-4 py-2">เริ่มต้นใช้งาน</a>
                     </div>
                 </div>
             </div>
@@ -339,19 +515,22 @@
                 <div class="row align-items-center">
                     <div class="col-lg-6 mb-4 mb-lg-0" data-aos="fade-right" data-aos-duration="1000">
                         <div class="img-saas-frame">
-                            <img src="https://images.unsplash.com/photo-1581092160607-ee22621dd758?auto=format&fit=crop&w=1000&q=80" alt="งานประปา">
+                            <img src="https://images.unsplash.com/photo-1581092160607-ee22621dd758?auto=format&fit=crop&w=1000&q=80"
+                                alt="งานประปา">
                         </div>
                     </div>
                     <div class="col-lg-6 pl-lg-4" data-aos="fade-left" data-aos-duration="1000">
                         <div class="saas-card mb-3">
                             <div class="icon-purple-pill"><i class="fas fa-mobile-alt"></i></div>
                             <h5 class="text-dark mb-2">จดมิเตอร์ & ออกบิลมือถือหน้าบ้าน</h5>
-                            <p class="mb-0">เจ้าหน้าที่พิมพ์ใบแจ้งหนี้พร้อม QR Code สแกนจ่ายเงินได้ทันที เพิ่มความสะดวกและลดข้อผิดพลาดในการบันทึกข้อมูล</p>
+                            <p class="mb-0">เจ้าหน้าที่พิมพ์ใบแจ้งหนี้พร้อม QR Code สแกนจ่ายเงินได้ทันที
+                                เพิ่มความสะดวกและลดข้อผิดพลาดในการบันทึกข้อมูล</p>
                         </div>
                         <div class="saas-card">
                             <div class="icon-purple-pill"><i class="fas fa-chart-pie"></i></div>
                             <h5 class="text-dark mb-2">ทะเบียนค้างชำระ & สรุปค่าน้ำประปา</h5>
-                            <p class="mb-0">ระบบติดตามลูกหนี้ค้างชำระอัตโนมัติ สรุปรายงานรายรับ ต้นทุนผลิตค่าน้ำ และพิมพ์ใบเสร็จรับเงินอย่างเป็นระบบ</p>
+                            <p class="mb-0">ระบบติดตามลูกหนี้ค้างชำระอัตโนมัติ สรุปรายงานรายรับ ต้นทุนผลิตค่าน้ำ
+                                และพิมพ์ใบเสร็จรับเงินอย่างเป็นระบบ</p>
                         </div>
                     </div>
                 </div>
@@ -377,14 +556,16 @@
                                 <div class="saas-card">
                                     <div class="icon-purple-pill"><i class="fas fa-microchip mr-2"></i></div>
                                     <h5 class="text-dark mb-2">AI Computer Vision</h5>
-                                    <p class="mb-0">คัดแยกขนาดและพื้นที่ขวดผ่านกล้องหน้าตู้ ช่วยแยกประเภทขวด PET ได้อย่างแม่นยำ</p>
+                                    <p class="mb-0">คัดแยกขนาดและพื้นที่ขวดผ่านกล้องหน้าตู้ ช่วยแยกประเภทขวด PET
+                                        ได้อย่างแม่นยำ</p>
                                 </div>
                             </div>
                             <div class="col-12 col-md-6">
                                 <div class="saas-card">
                                     <div class="icon-purple-pill"><i class="fas fa-coins mr-2"></i></div>
                                     <h5 class="text-dark mb-2">สะสมแต้ม & โอนเงินฝากอัตโนมัติ</h5>
-                                    <p class="mb-0">ประชาชนสแกน QR Code รับเงินสะสมขยะเข้าสมุดบัญชีธนาคารขยะทันทีเมื่อหยอดขวดสำเร็จ</p>
+                                    <p class="mb-0">ประชาชนสแกน QR Code
+                                        รับเงินสะสมขยะเข้าสมุดบัญชีธนาคารขยะทันทีเมื่อหยอดขวดสำเร็จ</p>
                                 </div>
                             </div>
                         </div>
@@ -406,7 +587,8 @@
                 <div class="row align-items-center">
                     <div class="col-lg-6 mb-4 mb-lg-0" data-aos="fade-right" data-aos-duration="1000">
                         <div class="img-saas-frame">
-                            <img src="https://images.unsplash.com/photo-1586528116311-ad8dd3c8310d?auto=format&fit=crop&w=1000&q=80" alt="คลังพัสดุ">
+                            <img src="https://images.unsplash.com/photo-1586528116311-ad8dd3c8310d?auto=format&fit=crop&w=1000&q=80"
+                                alt="คลังพัสดุ">
                         </div>
                     </div>
                     <div class="col-lg-6 pl-lg-4" data-aos="fade-left" data-aos-duration="1000">
@@ -418,7 +600,8 @@
                         <div class="saas-card">
                             <div class="icon-purple-pill"><i class="fas fa-barcode"></i></div>
                             <h5 class="text-dark mb-2">ตัดสต็อก & ออกการ์ดควบคุมพัสดุ A4</h5>
-                            <p class="mb-0">พิมพ์เอกสารเสนออนุมัติการเบิกจ่าย ตัดยอดคงเหลือในคลังพัสดุ และตรวจสอบรายงานประจำปี</p>
+                            <p class="mb-0">พิมพ์เอกสารเสนออนุมัติการเบิกจ่าย ตัดยอดคงเหลือในคลังพัสดุ
+                                และตรวจสอบรายงานประจำปี</p>
                         </div>
                     </div>
                 </div>
@@ -436,19 +619,22 @@
             <div class="row align-items-center">
                 <div class="col-lg-6 order-lg-2 mb-4 mb-lg-0" data-aos="fade-left" data-aos-duration="900">
                     <div class="img-saas-frame">
-                        <img src="https://images.unsplash.com/photo-1532996122724-e3c354a0b15b?auto=format&fit=crop&w=1000&q=80" alt="ธนาคารขยะรีไซเคิล">
+                        <img src="https://images.unsplash.com/photo-1532996122724-e3c354a0b15b?auto=format&fit=crop&w=1000&q=80"
+                            alt="ธนาคารขยะรีไซเคิล">
                     </div>
                 </div>
                 <div class="col-lg-6 order-lg-1 pr-lg-4" data-aos="fade-right" data-aos-duration="900">
                     <div class="saas-card mb-4">
                         <div class="icon-purple-pill"><i class="fas fa-recycle"></i></div>
                         <h5 class="text-dark mb-2">รับซื้อขยะหน้างาน & สแกนบาร์โค้ด</h5>
-                        <p class="mb-0">กำหนดราคาขยะประจำวัน ชั่งน้ำหนักหน้างาน ออกใบเสร็จ และบันทึกยอดเงินเข้าสมุดบัญชีเงินฝากสมาชิก</p>
+                        <p class="mb-0">กำหนดราคาขยะประจำวัน ชั่งน้ำหนักหน้างาน ออกใบเสร็จ
+                            และบันทึกยอดเงินเข้าสมุดบัญชีเงินฝากสมาชิก</p>
                     </div>
                     <div class="saas-card">
                         <div class="icon-purple-pill"><i class="fas fa-file-invoice-dollar"></i></div>
                         <h5 class="text-dark mb-2">ระบบรวบรวม Batch ขอถอนเงินสด</h5>
-                        <p class="mb-0">ตัดรอบเสนออนุมัติเบิกจ่ายเงินสดประจำสัปดาห์ รองรับการมอบอำนาจรับเงินแทนของผู้สูงอายุ และสแกนจ่ายเงินสดหน้าเคาน์เตอร์</p>
+                        <p class="mb-0">ตัดรอบเสนออนุมัติเบิกจ่ายเงินสดประจำสัปดาห์
+                            รองรับการมอบอำนาจรับเงินแทนของผู้สูงอายุ และสแกนจ่ายเงินสดหน้าเคาน์เตอร์</p>
                     </div>
                 </div>
             </div>
@@ -468,20 +654,23 @@
                         <div class="saas-card">
                             <div class="icon-purple-pill"><i class="fas fa-map-marked-alt"></i></div>
                             <h5 class="text-dark mb-2">แผนที่ปักมุดพิกัด GIS บ้านเรือน</h5>
-                            <p class="mb-0">แสดงจุดตั้งถังขยะครัวเรือนและพิกัดบ้านบนแผนที่ดาวเทียม ช่วยให้เจ้าหน้าที่วางแผนจัดเก็บขยะได้อย่างทั่วถึง</p>
+                            <p class="mb-0">แสดงจุดตั้งถังขยะครัวเรือนและพิกัดบ้านบนแผนที่ดาวเทียม
+                                ช่วยให้เจ้าหน้าที่วางแผนจัดเก็บขยะได้อย่างทั่วถึง</p>
                         </div>
                     </div>
                     <div class="col-12 col-md-6" data-aos="fade-left" data-aos-duration="1000">
                         <div class="saas-card">
                             <div class="icon-purple-pill"><i class="fas fa-receipt"></i></div>
                             <h5 class="text-dark mb-2">ออกบิลค่าธรรมเนียม & ติดตามค้างชำระ</h5>
-                            <p class="mb-0">ออกใบแจ้งชำระค่าธรรมเนียมขยะรายปี พิมพ์ใบเสร็จ และตรวจสอบรายชื่อบ้านเรือนที่ยังไม่ได้ชำระเงิน</p>
+                            <p class="mb-0">ออกใบแจ้งชำระค่าธรรมเนียมขยะรายปี พิมพ์ใบเสร็จ
+                                และตรวจสอบรายชื่อบ้านเรือนที่ยังไม่ได้ชำระเงิน</p>
                         </div>
                     </div>
                 </div>
                 <div class="col-lg-12 mb-2 mt-2 mb-lg-0" data-aos="fade-right" data-aos-duration="1200">
                     <div class="img-saas-frame">
-                        <img src="{{ asset('imgs/annual_map.png') }}" alt="แผนที่ GIS ค่าถังขยะ" style="max-height: 450px; width: 100%; object-fit: cover;">
+                        <img src="{{ asset('imgs/annual_map.png') }}" alt="แผนที่ GIS ค่าถังขยะ"
+                            style="max-height: 450px; width: 100%; object-fit: cover;">
                     </div>
                 </div>
             </div>
@@ -493,24 +682,28 @@
         <div class="container">
             <div class="section-title-block text-center" data-aos="fade-up" data-aos-duration="800">
                 <h2>กองทุนฌาปนกิจสงเคราะห์</h2>
-                <p>สวัสดิการชุมชน หักสงเคราะห์ศพจากเงินฝากขยะอัตโนมัติ ติดตามทะเบียนผู้เสียชีวิต และการจ่ายเงินเยียวยา</p>
+                <p>สวัสดิการชุมชน หักสงเคราะห์ศพจากเงินฝากขยะอัตโนมัติ ติดตามทะเบียนผู้เสียชีวิต และการจ่ายเงินเยียวยา
+                </p>
             </div>
             <div class="row align-items-center">
                 <div class="col-lg-6 order-lg-2 mb-4 mb-lg-0" data-aos="fade-left" data-aos-duration="900">
                     <div class="img-saas-frame">
-                        <img src="https://images.unsplash.com/photo-1576765608535-5f04d1e3f289?auto=format&fit=crop&w=1000&q=80" alt="กองทุนฌาปนกิจ">
+                        <img src="https://images.unsplash.com/photo-1576765608535-5f04d1e3f289?auto=format&fit=crop&w=1000&q=80"
+                            alt="กองทุนฌาปนกิจ">
                     </div>
                 </div>
                 <div class="col-lg-6 order-lg-1 pr-lg-4" data-aos="fade-right" data-aos-duration="900">
                     <div class="saas-card mb-4">
                         <div class="icon-purple-pill"><i class="fas fa-hand-holding-heart"></i></div>
                         <h5 class="text-dark mb-2">เชื่อมต่อเงินฝากปันผลธนาคารขยะ</h5>
-                        <p class="mb-0">ระบบตัดเงินสมทบเข้ากองทุนฌาปนกิจจากปันผลขยะรีไซเคิลของสมาชิกให้อัตโนมัติ สร้างสวัสดิการชุมชนอย่างยั่งยืน</p>
+                        <p class="mb-0">ระบบตัดเงินสมทบเข้ากองทุนฌาปนกิจจากปันผลขยะรีไซเคิลของสมาชิกให้อัตโนมัติ
+                            สร้างสวัสดิการชุมชนอย่างยั่งยืน</p>
                     </div>
                     <div class="saas-card">
                         <div class="icon-purple-pill"><i class="fas fa-file-medical-alt"></i></div>
                         <h5 class="text-dark mb-2">โปร่งใส ตรวจสอบประวัติเงินสงเคราะห์ได้</h5>
-                        <p class="mb-0">บันทึกยอดเงินเยียวยาสงเคราะห์ศพแก่ครอบครัวผู้เสียชีวิต พร้อมรายงานเงินกองทุนคงเหลือแบบ Real-time</p>
+                        <p class="mb-0">บันทึกยอดเงินเยียวยาสงเคราะห์ศพแก่ครอบครัวผู้เสียชีวิต
+                            พร้อมรายงานเงินกองทุนคงเหลือแบบ Real-time</p>
                     </div>
                 </div>
             </div>
@@ -520,21 +713,24 @@
     <!-- SECTION 7: ถังขยะเปียกครัวเรือน (AiroBact) -->
     <section id="sec-foodwaste" class="module-section bg-white-section">
         <div class="container position-relative">
-            <div class="section-title-block text-center airobact-title-offset" data-aos="fade-up" data-aos-duration="800">
+            <div class="section-title-block text-center airobact-title-offset" data-aos="fade-up"
+                data-aos-duration="800">
                 <h2>ถังพักและหมักเศษอาหาร AiroBact (ไอโรแบคท์)</h2>
-                <p>คัดแยกเศษอาหารจากต้นทาง ผลิตจากวัสดุ Upcycling ระบายอากาศได้ดี หมักแบบใช้ออกซิเจน ไร้กลิ่นเหม็นเน่า</p>
+                <p>คัดแยกเศษอาหารจากต้นทาง ผลิตจากวัสดุ Upcycling ระบายอากาศได้ดี หมักแบบใช้ออกซิเจน ไร้กลิ่นเหม็นเน่า
+                </p>
             </div>
             <div>
                 <img src="{{ asset('imgs/airobact.png') }}" alt="ถังหมัก AiroBact" class="airobact-hero-img">
             </div>
             <img src="{{ asset('imgs/airobact_app.png') }}" alt="แอป AiroBact" class="airobact-app-img">
-            
+
             <div class="purple-block-container bg-alt-purple mb-5" data-aos="zoom-in-up" data-aos-duration="900">
                 <div class="row align-items-center">
                     <div class="col-lg-2 d-none d-lg-block">&nbsp;</div>
                     <div class="col-lg-8 mb-4 mb-lg-0 text-center" data-aos="zoom-in" data-aos-duration="1000">
                         <div class="img-saas-frame p-2 bg-white d-inline-block">
-                            <video class="embed-responsive-item video-desktop-width" controls autoplay loop muted playsinline preload="auto">
+                            <video class="embed-responsive-item video-desktop-width" controls autoplay loop muted
+                                playsinline preload="auto">
                                 <source src="{{ asset('videos/airobact.mp4') }}" type="video/mp4">
                             </video>
                         </div>
@@ -544,14 +740,16 @@
                             <div class="saas-card">
                                 <div class="icon-purple-pill"><i class="fas fa-recycle"></i></div>
                                 <h5 class="text-dark mb-2">ผลิตจากวัสดุ Upcycling & ถังหมักไม่ชื้นแฉะ</h5>
-                                <p class="mb-0">โครงสร้างประยุกต์ใช้เสื้อยืดมือสองและตะกร้าผ้า ระบายอากาศรอบทิศทาง (Aerobic Composting) ช่วยลดกลิ่นเหม็นเน่า ย่อยสลายได้รวดเร็ว</p>
+                                <p class="mb-0">โครงสร้างประยุกต์ใช้เสื้อยืดมือสองและตะกร้าผ้า ระบายอากาศรอบทิศทาง
+                                    (Aerobic Composting) ช่วยลดกลิ่นเหม็นเน่า ย่อยสลายได้รวดเร็ว</p>
                             </div>
                         </div>
                         <div class="col-12 col-md-6">
                             <div class="saas-card">
                                 <div class="icon-purple-pill"><i class="fas fa-seedling"></i></div>
                                 <h5 class="text-dark mb-2">สร้างมูลค่าให้ชุมชน & คำนวณคาร์บอนเครดิต</h5>
-                                <p class="mb-0">ย่อยสลายเศษอาหารเป็นปุ๋ยอินทรีย์คุณภาพสูง หรือนำไปเข้ากระบวนการ Pyrolysis ทำ Biochar charger ลดก๊าซเรือนกระจกตามมาตรฐาน T-VER</p>
+                                <p class="mb-0">ย่อยสลายเศษอาหารเป็นปุ๋ยอินทรีย์คุณภาพสูง หรือนำไปเข้ากระบวนการ
+                                    Pyrolysis ทำ Biochar charger ลดก๊าซเรือนกระจกตามมาตรฐาน T-VER</p>
                             </div>
                         </div>
                     </div>
@@ -570,19 +768,22 @@
             <div class="row align-items-center">
                 <div class="col-lg-6 order-lg-2 mb-4 mb-lg-0" data-aos="fade-left" data-aos-duration="900">
                     <div class="img-saas-frame">
-                        <img src="https://images.unsplash.com/photo-1556740758-90de374c12ad?auto=format&fit=crop&w=1000&q=80" alt="ร้านค้าสวัสดิการชุมชน">
+                        <img src="https://images.unsplash.com/photo-1556740758-90de374c12ad?auto=format&fit=crop&w=1000&q=80"
+                            alt="ร้านค้าสวัสดิการชุมชน">
                     </div>
                 </div>
                 <div class="col-lg-6 order-lg-1 pr-lg-4" data-aos="fade-right" data-aos-duration="900">
                     <div class="saas-card mb-4">
                         <div class="icon-purple-pill"><i class="fas fa-piggy-bank"></i></div>
                         <h5 class="text-dark mb-2">สมุดเงินฝากออมทรัพย์ชุมชน</h5>
-                        <p class="mb-0">บันทึกยอดฝาก-ถอนเงินออมทรัพย์ของกลุ่มสัจจะออมทรัพย์ คํานวณดอกเบี้ยและเงินปันผลประจำปี</p>
+                        <p class="mb-0">บันทึกยอดฝาก-ถอนเงินออมทรัพย์ของกลุ่มสัจจะออมทรัพย์
+                            คํานวณดอกเบี้ยและเงินปันผลประจำปี</p>
                     </div>
                     <div class="saas-card">
                         <div class="icon-purple-pill"><i class="fas fa-store"></i></div>
                         <h5 class="text-dark mb-2">สแกนชำระสินค้า ณ ร้านค้าชุมชน</h5>
-                        <p class="mb-0">เชื่อมโยงแต้มและเงินฝากขยะ สแกนซื้อสินค้าอุปโภคบริโภค ณ ร้านค้าสวัสดิการชุมชนได้สะดวกสบาย</p>
+                        <p class="mb-0">เชื่อมโยงแต้มและเงินฝากขยะ สแกนซื้อสินค้าอุปโภคบริโภค ณ
+                            ร้านค้าสวัสดิการชุมชนได้สะดวกสบาย</p>
                     </div>
                 </div>
             </div>
@@ -594,8 +795,10 @@
         <div class="container" data-aos="zoom-in-up" data-aos-duration="900">
             <div class="cta-banner-purple text-center">
                 <h3 class="font-weight-bold text-white mb-3">พร้อมยกระดับท้องถิ่นสู่ยุคดิจิทัลแล้วหรือยัง?</h3>
-                <p class="text-white-50 lead mb-4">เริ่มต้นใช้งานระบบบริหารจัดการ PI-OS เพื่อเพิ่มประสิทธิภาพองค์กรวันนี้</p>
-                <a href="{{ route('login') }}" class="btn btn-light text-purple font-weight-bold py-3 px-5 rounded-pill shadow-lg">เข้าสู่ระบบทำงาน</a>
+                <p class="text-white-50 lead mb-4">เริ่มต้นใช้งานระบบบริหารจัดการ PI-OS
+                    เพื่อเพิ่มประสิทธิภาพองค์กรวันนี้</p>
+                <a href="{{ route('login') }}"
+                    class="btn btn-light text-purple font-weight-bold py-3 px-5 rounded-pill shadow-lg">เข้าสู่ระบบทำงาน</a>
             </div>
         </div>
     </section>
@@ -603,9 +806,11 @@
     <!-- FOOTER -->
     <footer class="footer-saas text-center">
         <div class="container">
-            <h5 class="font-weight-bold text-white mb-2"><i class="fas fa-cubes text-purple mr-2"></i>PI-OS Platform</h5>
+            <h5 class="font-weight-bold text-white mb-2"><i class="fas fa-cubes text-purple mr-2"></i>PI-OS Platform
+            </h5>
             <p class="small mb-4 text-slate-400">ระบบบริหารจัดการองค์กรปกครองส่วนท้องถิ่นยุคใหม่</p>
-            <p class="mb-0 text-white-50 text-xs">&copy; 2026 PI-OS Platform. Developed for Local Administrative Organizations.</p>
+            <p class="mb-0 text-white-50 text-xs">&copy; 2026 PI-OS Platform. Developed for Local Administrative
+                Organizations.</p>
         </div>
     </footer>
 
@@ -623,5 +828,26 @@
             }
         });
     </script>
+
+    <script>
+    $(document).ready(function() {
+        // เมื่อดรอปดาวน์ถูกเปิดขึ้นมา
+        $('.dropdown').on('show.bs.dropdown', function () {
+            $('#dropdownBackdrop').addClass('show');
+        });
+
+        // เมื่อดรอปดาวน์ถูกปิด
+        $('.dropdown').on('hide.bs.dropdown', function () {
+            $('#dropdownBackdrop').removeClass('show');
+        });
+
+        // เมื่อคลิกที่ฉากหลังสีเทา ให้สั่งปิด Dropdown
+        $('#dropdownBackdrop').on('click', function () {
+            $('#loginDropdown').dropdown('toggle');
+        });
+    });
+</script>
+
 </body>
+
 </html>

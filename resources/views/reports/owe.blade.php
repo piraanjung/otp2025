@@ -235,7 +235,7 @@
                                 <td class="text-end">{{ number_format($owe['paid'], 2) }}</td>
                                 <td class="text-end">{{ number_format($owe['vat'], 2) }}</td>
                                 <td class="text-end">{{ number_format($owe['owe_count']*10, 2) }}</td>
-                                <td class="text-end fw-bold">{{ number_format($owe['totalpaid'], 2) }}</td>
+                                <td class="text-end fw-bold">{{ $owe['totalpaid'] }}</td>
                             </tr>
                             @endif
                         @endforeach

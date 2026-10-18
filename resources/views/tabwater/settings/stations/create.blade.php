@@ -49,7 +49,7 @@
                         <div class="col-md-6"> 
                             <div class="input-group input-group-sm"> 
                                 <span class="input-group-text fw-bold bg-light">Lng</span> 
-                                <input type="text" id="lngInput" name="lng" value="{{ old('long', $org->long) }}" readonly class="form-control fw-bold text-primary"> 
+                                <input type="text" id="lngInput" name="lng" value="{{ old('lng', $org->lng) }}" readonly class="form-control fw-bold text-primary"> 
                             </div> 
                         </div> 
                     </div> 

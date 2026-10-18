@@ -8,6 +8,7 @@ use App\Http\Controllers\Admin\OrgAdminController;
 use App\Http\Controllers\Admin\PermissionController;
 use App\Http\Controllers\Admin\RoleController;
 use App\Http\Controllers\Admin\AdminSubzoneController;
+use App\Http\Controllers\Admin\OrgSelectorController;
 use App\Http\Controllers\Admin\SuperAdminAuthController;
 use App\Http\Controllers\Admin\SupplierController;
 use App\Http\Controllers\Admin\UserController;
@@ -336,6 +337,7 @@ Route::middleware(['auth', 'role:Admin|Super Admin'])->name('admin.')->prefix('a
 
 
 
+
 Route::middleware(['auth', 'role:Admin|finance|Super Admin'])->group(function () {
     Route::prefix('payment/')->name('payment.')->group(function () {
         Route::get('paymenthistory/{inv_period}/{subzone_id}', [PaymentController::class, 'paymenthistory'])->name('paymenthistory');
@@ -486,32 +488,63 @@ Route::middleware(['auth'])->prefix('inventory')->name('inventory.')->group(func
 
 });
 
-Route::middleware(['auth'])->prefix('tabwater/production')->name('tabwater.production.')->group(function () {
-    // หน้า Dashboard หลัก
-    Route::get('/dashboard', [TabWaterProductionDashboardController::class, 'index'])->name('dashboard');
-    
-    // API สั่งเปิด-ปิดปั๊ม/อุปกรณ์ (Auto/Manual)
-    Route::post('/devices/{deviceId}/toggle', [TabWaterProductionDashboardController::class, 'toggleDevice'])->name('device.toggle');
-    
-    // บันทึกรายงานคุณภาพน้ำยามเช้า
-    Route::post('/quality-logs', [TabWaterProductionDashboardController::class, 'storeQualityLog'])->name('quality.store');
+//////////////////////////////////////////////////////////////////////////////////////////
+/////////////////////////////////////// .MEMBERS. ////////////////////////////////////////
+//////////////////////////////////////////////////////////////////////////////////////////
+
+Route::middleware(['auth'])->prefix('tabwater/')->name('tabwater.')->group(function () {
+    //////////// mebers /////////////////
+    //////////// mebers /////////////////
+    Route::prefix('members')->name('members.')->group(function () {
+        Route::get('/', [UserMeterInfosController::class, 'index'])->name('index');
+        Route::get('/add', [UserMeterInfosController::class, 'create'])->name('create');
+        Route::post('/bulkstore', [UserMeterInfosController::class, 'bulkStore'])->name('bulkstore');
+        Route::delete('/{id}', [UserMeterInfosController::class, 'destroy'])->name('destroy');
+        Route::get('/{userId}/add-meter', [UserMeterInfosController::class, 'addMeter'])->name('add_meter');
+        Route::post('/{userId}/store-meter', [UserMeterInfosController::class, 'storeAdditionalMeter'])->name('store_meter');  
+        Route::get('/{id}/edit', [UserMeterInfosController::class, 'edit'])->name('edit');
+        Route::put('/{id}', [UserMeterInfosController::class, 'update'])->name('update');
+    });
+    //////////// Productions /////////////////
+    Route::prefix('production/')->name('production.')->group(function () {
+        // หน้า Dashboard หลัก
+        Route::get('/dashboard', [TabWaterProductionDashboardController::class, 'index'])->name('dashboard');
+        // API สั่งเปิด-ปิดปั๊ม/อุปกรณ์ (Auto/Manual)
+        Route::post('/devices/{deviceId}/toggle', [TabWaterProductionDashboardController::class, 'toggleDevice'])->name('device.toggle');
+        // บันทึกรายงานคุณภาพน้ำยามเช้า
+        Route::post('/quality-logs', [TabWaterProductionDashboardController::class, 'storeQualityLog'])->name('quality.store');
+    });
+
+        //////////// settings /////////////////
+    Route::prefix('settings/')->name('settings.')->group(function () {
+        // CRUD สถานีผลิตน้ำ
+        Route::resource('stations', TabwaterStationController::class);
+        
+        // CRUD อุปกรณ์/ปั๊มประจำสถานี
+        Route::resource('devices', TabwaterDeviceController::class);
+
+        Route::resource('pipe-nodes', TabwaterPipeNodeController::class);
+        // Pipelines (แนวท่อประปา)
+        Route::resource('pipelines', TabwaterPipelineController::class);
+    });
+
+    Route::get('control/index', [TabwaterControlController::class, 'index']);
+
+
 });
 
-Route::middleware(['auth'])->prefix('tabwater/settings')->name('tabwater.settings.')->group(function () {
-    // CRUD สถานีผลิตน้ำ
-    Route::resource('stations', TabwaterStationController::class);
-    
-    // CRUD อุปกรณ์/ปั๊มประจำสถานี
-    Route::resource('devices', TabwaterDeviceController::class);
-});
 
-Route::get('tabwater/control/index', [TabwaterControlController::class, 'index']);
-Route::middleware(['auth'])->prefix('tabwater/settings')->name('tabwater.settings.')->group(function () {
-    // Pipe Nodes (จุดโหนด/จุดแยก/วาล์ว)
-   Route::resource('pipe-nodes', TabwaterPipeNodeController::class);
-    // Pipelines (แนวท่อประปา)
-    Route::resource('pipelines', TabwaterPipelineController::class);
-});
+
+
+
+
+
+Route::middleware(['auth', 'role:Super Admin'])->name('admin.')->prefix('admin')->group(function () {
+    Route::get('/select-organization', [OrgSelectorController::class, 'index'])->name('org_selector');
+    Route::post('/set-org-context', [OrgSelectorController::class, 'setContext'])->name('set_org_context');
+    Route::get('/reset-org-context', [OrgSelectorController::class, 'resetContext'])->name('reset_org_context');
+    });
+
 
 require __DIR__ . '/auth.php';
 require __DIR__ . '/foodwaste_route.php';

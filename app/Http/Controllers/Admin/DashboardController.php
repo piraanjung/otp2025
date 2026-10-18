@@ -5,6 +5,8 @@ namespace App\Http\Controllers\Admin;
 use App\Http\Controllers\Controller;
 use App\Models\KeptKaya\KpMoneyRequest;
 use App\Models\KpBulkSaleDetail;
+use App\Models\BulkSale;
+use App\Models\WelfarePayout;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
@@ -18,8 +20,8 @@ class DashboardController extends Controller
     $nextTuesday = now()->next(\Carbon\Carbon::TUESDAY)->toDateString();
 
     // 1. สรุปยอดกองทุน (ดึงจากที่เราทำไว้ใน Welfare)
-    $totalProfit = \App\Models\KpBulkSale::where('org_id_fk', $orgId)->sum('profit_amount');
-    $totalPaid = \App\Models\KpWelfarePayout::where('org_id_fk', $orgId)->where('status', 'paid')->sum('amount');
+    $totalProfit = BulkSale::where('org_id_fk', $orgId)->sum('profit_amount');
+    $totalPaid = WelfarePayout::where('org_id_fk', $orgId)->where('status', 'paid')->sum('amount');
     $fundBalance = $totalProfit - $totalPaid;
 
     // 2. สถิติขยะแยกตามประเภท (เพื่อทำกราฟ Donut)

@@ -86,7 +86,6 @@ class ReportsController extends Controller
         $owe_inv_periods = $invoice_owe_status->groupBy('inv_period_id_fk')->map(function ($group, $key) {
             return InvoicePeriod::select('id', 'inv_p_name')->find($key);
         })->sortByDesc('id');
-
         return view("reports.owe", array_merge($defaultData, compact(
             'owes',
             'budgetyears_selected',

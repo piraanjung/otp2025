@@ -19,7 +19,7 @@ class StaffController extends Controller
     /** Role ที่หน้าจัดการเจ้าหน้าที่อนุญาตให้ติ๊กเพิ่ม/ถอดได้ (role อื่นของผู้ใช้จะไม่ถูกแตะ) */
     protected const MANAGEABLE_ROLES = [
         'Tabwater Staff', 'Tabwater Header', 'Admin', 'Recycle Bank Staff',
-        'Annual Fee Staff', 'Food Waste Staff', 'Staff',
+        'Annual Trash Staff', 'Food Waste Staff', 'Staff',
     ];
 
     /** ค่าที่ enum ของ staffs.status รองรับ (ไม่มี suspended) */
@@ -28,7 +28,7 @@ class StaffController extends Controller
     function __construct()
     {
         $this->staffRolesArray = ['Tabwater Staff', 'Tabwater Header', 'Admin', 'Recycle Bank Staff', 
-        'Annual Fee Staff', 'Food Waste Staff'];
+        'Annual Trash Staff', 'Food Waste Staff'];
     }
 
     /** ผู้ใช้ต้องอยู่ org เดียวกับผู้ที่ล็อกอิน (Super Admin ข้าม org ได้) */
@@ -156,7 +156,10 @@ class StaffController extends Controller
             ->get();
 
         // ดึง roles ที่สามารถ assign ได้
-        $assignableRoles = Role::whereNotIn('name', ['Super Admin'])->get();
+        // $assignableRoles = Role::whereNotIn('name', ['Super Admin'])->get();
+             $assignableRoles = Role::where('name', 'like', '%Staff%')
+            ->whereNotIn('name', ['Welfare Staff'])
+            ->get();
 
         $permissions = Permission::all();
         $staffRoles = ['Tabwater Staff', 'Tabwater Header', 'Admin', 'Recycle Bank Staff', 'Annual Fee Staff'];

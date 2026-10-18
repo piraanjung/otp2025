@@ -142,7 +142,7 @@
         <!-- End Navbar -->
 
         <div class="container-fluid py-4">
-            @include('layouts.partials.flash')
+            {{-- @include('layouts.partials.flash') --}}
 
             @yield('content')
         </div>

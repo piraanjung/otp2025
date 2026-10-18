@@ -15,7 +15,7 @@ return new class extends Migration
     {
         Schema::table('organizations', function (Blueprint $table) {
             $table->string('lat');
-            $table->string('long');
+            $table->string('lng');
         });
     }
 
@@ -28,7 +28,7 @@ return new class extends Migration
     {
         Schema::table('organizations', function (Blueprint $table) {
             $table->dropColumn('lat');
-            $table->dropColumn('long');
+            $table->dropColumn('lng');
         });
     }
 };
